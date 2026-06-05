@@ -55,7 +55,10 @@
     <button id="resetBtn" class="link-btn" title="Alle lokalen Eingaben zurücksetzen">Demo-Daten zurücksetzen</button>
   </footer>
 
-  <script src="data.js"></script>
+  <!-- Supabase-Client (CDN) -> config.js (Zugang) -> db.js (Datenzugriff) -> app.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="db.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

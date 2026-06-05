@@ -1,12 +1,10 @@
 /* ===========================================================================
    FC Fasanerie-Nord – Mannschafts-App · Anwendungslogik
-   Reines Vanilla-JS, keine Abhängigkeiten. Zustand wird im localStorage
-   gespeichert, damit Ab-/Zusagen und bezahlte Strafen erhalten bleiben.
+   Reines Vanilla-JS. Daten kommen aus Supabase (siehe db.js); Zu-/Absagen und
+   der bezahlt-Status werden direkt in der Datenbank gespeichert.
    =========================================================================== */
 (function () {
   "use strict";
-
-  const STORE_KEY = "fcfn_app_state_v2"; // neuer Schlüssel -> startet sauber mit Demo-Daten
 
   // Wandelt ein Date in einen lokalen ISO-Datumsstring (YYYY-MM-DD) um.
   function toISODate(d) {
@@ -26,31 +24,26 @@
   }
 
   /* ---------------------------------------------------------------------------
-     Zustand laden / speichern
-     state = {
-       currentPlayerId,
-       rsvp:  { "<eventId>|<playerId>": { status:"zu"|"ab", grund? } },
-       paid:  { "<strafeId>": true|false }   // Überschreibungen ggü. Demo
-     }
+     Datenzustand
+       DEMO  = aus Supabase geladene Daten (gleiche Form wie früher data.js)
+       state = { currentPlayerId,
+                 rsvp:  { "<eventId>|<playerId>": { status:"zu"|"ab", grund? } },
+                 paid:  { "<strafeId>": true|false } }
      --------------------------------------------------------------------------- */
-  function defaultState() {
-    const rsvp = {};
-    DEMO.rsvpSeed.forEach((r) => {
-      rsvp[r.eventId + "|" + r.playerId] = { status: r.status, grund: r.grund || "" };
+  let DEMO = null;
+  let state = { currentPlayerId: null, rsvp: {}, paid: {} };
+
+  // Baut den App-Zustand aus den frisch aus Supabase geladenen Daten auf.
+  function buildStateFromData() {
+    state.rsvp = {};
+    DEMO.rsvps.forEach((r) => {
+      state.rsvp[r.eventId + "|" + r.playerId] = { status: r.status, grund: r.grund || "" };
     });
-    const paid = {};
-    DEMO.strafen.forEach((s) => { paid[s.id] = s.bezahlt; });
-    return { currentPlayerId: DEMO.currentPlayerId, rsvp, paid };
-  }
-
-  let state;
-  try {
-    const raw = localStorage.getItem(STORE_KEY);
-    state = raw ? JSON.parse(raw) : defaultState();
-  } catch (e) { state = defaultState(); }
-
-  function save() {
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
+    state.paid = {};
+    DEMO.strafen.forEach((s) => { state.paid[s.id] = s.bezahlt; });
+    // Standard-Spieler: Lukas Weber (Code p10), sonst der erste im Kader.
+    const def = DEMO.players.find((p) => p.code === "p10") || DEMO.players[0];
+    state.currentPlayerId = def ? def.id : null;
   }
 
   /* ---------------------------------------------------------------------------
@@ -71,8 +64,8 @@
   function isFuture(iso) { return iso >= HEUTE; }
   function euro(n)       { return n.toLocaleString("de-DE", { style: "currency", currency: "EUR" }); }
 
-  const playerById = Object.fromEntries(DEMO.players.map((p) => [p.id, p]));
-  const katById    = Object.fromEntries(DEMO.katalog.map((k) => [k.id, k]));
+  let playerById = {};  // wird in init() nach dem Laden befüllt
+  let katById    = {};
 
   function initials(name) {
     return name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
@@ -480,7 +473,7 @@
   /* ---------------------------------------------------------------------------
      Interaktion (Event-Delegation)
      --------------------------------------------------------------------------- */
-  viewEl.addEventListener("click", (ev) => {
+  viewEl.addEventListener("click", async (ev) => {
     const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-goto],[data-paypal]");
     if (!t) return;
 
@@ -499,32 +492,47 @@
     // Strafenfilter
     if (t.dataset.sfilter) { strafenFilter = t.dataset.sfilter; renderStrafen(); return; }
 
-    // Ab-/Zusage
+    // Ab-/Zusage -> nach Supabase schreiben
     if (t.dataset.rsvp) {
       const eventId = t.dataset.event;
-      const key = eventId + "|" + state.currentPlayerId;
+      const playerId = state.currentPlayerId;
+      const key = eventId + "|" + playerId;
       const cur = state.rsvp[key] || {};
       const status = t.dataset.rsvp;
-      if (cur.status === status) {
-        delete state.rsvp[key]; // erneuter Klick = Rückmeldung zurücknehmen
-      } else if (status === "ab") {
-        const grund = window.prompt("Grund für die Absage (optional):", cur.grund || "");
-        if (grund === null) return; // „Abbrechen" -> Absage NICHT speichern
-        state.rsvp[key] = { status: "ab", grund: grund.trim() };
-      } else {
-        state.rsvp[key] = { status: "zu", grund: "" };
+      try {
+        if (cur.status === status) {
+          await DB.deleteRsvp(eventId, playerId);     // erneuter Klick = zurücknehmen
+          delete state.rsvp[key];
+        } else if (status === "ab") {
+          const grund = window.prompt("Grund für die Absage (optional):", cur.grund || "");
+          if (grund === null) return;                  // „Abbrechen" -> nichts speichern
+          await DB.setRsvp(DEMO.clubId, eventId, playerId, "ab", grund.trim());
+          state.rsvp[key] = { status: "ab", grund: grund.trim() };
+        } else {
+          await DB.setRsvp(DEMO.clubId, eventId, playerId, "zu", "");
+          state.rsvp[key] = { status: "zu", grund: "" };
+        }
+      } catch (err) {
+        window.alert("Speichern fehlgeschlagen: " + ((err && err.message) || err));
+        return;
       }
-      save();
       renderKalender();
       return;
     }
 
-    // Strafe bezahlt umschalten
+    // Strafe bezahlt umschalten -> nach Supabase schreiben
     if (t.dataset.togglePaid) {
       const id = t.dataset.togglePaid;
       const strafe = DEMO.strafen.find((s) => s.id === id);
-      state.paid[id] = !istBezahlt(strafe);
-      save();
+      const neu = !istBezahlt(strafe);
+      try {
+        await DB.setFinePaid(id, neu);
+      } catch (err) {
+        window.alert("Speichern fehlgeschlagen: " + ((err && err.message) || err));
+        return;
+      }
+      state.paid[id] = neu;
+      strafe.bezahlt = neu;
       renderStrafen();
       return;
     }
@@ -547,30 +555,28 @@
   });
 
   const sel = document.getElementById("playerSelect");
-  sel.innerHTML = DEMO.players
-    .slice()
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .map((p) => `<option value="${p.id}">${esc(p.name)} (#${p.nr})</option>`)
-    .join("");
-  sel.value = state.currentPlayerId;
   sel.addEventListener("change", () => {
     state.currentPlayerId = sel.value;
-    save();
     render();
   });
 
-  document.getElementById("resetBtn").addEventListener("click", () => {
-    if (window.confirm("Alle lokalen Eingaben (Ab-/Zusagen, bezahlte Strafen) auf die Demo-Daten zurücksetzen?")) {
-      state = defaultState();
-      save();
-      sel.value = state.currentPlayerId;
-      render();
-    }
-  });
+  function fillPlayerSelect() {
+    sel.innerHTML = DEMO.players
+      .slice()
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map((p) => `<option value="${p.id}">${esc(p.name)} (#${p.nr})</option>`)
+      .join("");
+    sel.value = state.currentPlayerId;
+  }
+
+  // Footer-Button: Daten frisch aus Supabase neu laden.
+  const resetBtn = document.getElementById("resetBtn");
+  resetBtn.textContent = "Neu laden";
+  resetBtn.title = "Daten neu aus Supabase laden";
+  resetBtn.addEventListener("click", () => { init(); });
 
   /* ---------------------------------------------------------------------------
      Sticky-Navigation: top dynamisch an die tatsächliche Header-Höhe koppeln
-     (CSS nutzt var(--header-h)). Wird bei Laden & Größenänderung aktualisiert.
      --------------------------------------------------------------------------- */
   function syncHeaderHeight() {
     const header = document.querySelector(".app-header");
@@ -578,11 +584,27 @@
       document.documentElement.style.setProperty("--header-h", header.offsetHeight + "px");
     }
   }
-  syncHeaderHeight();
   window.addEventListener("resize", syncHeaderHeight);
 
   /* ---------------------------------------------------------------------------
-     Start
+     Start: Daten aus Supabase laden, dann rendern
      --------------------------------------------------------------------------- */
-  render();
+  async function init() {
+    viewEl.innerHTML = `<div class="empty"><div class="em-ico">⏳</div>Lade Daten aus Supabase …</div>`;
+    try {
+      DEMO = await DB.loadAll();
+      playerById = Object.fromEntries(DEMO.players.map((p) => [p.id, p]));
+      katById    = Object.fromEntries(DEMO.katalog.map((k) => [k.id, k]));
+      buildStateFromData();
+      fillPlayerSelect();
+      syncHeaderHeight();
+      render();
+    } catch (err) {
+      viewEl.innerHTML = `<div class="empty"><div class="em-ico">⚠️</div>
+        <p>Daten konnten nicht aus Supabase geladen werden.</p>
+        <small style="color:var(--muted)">${esc((err && err.message) || String(err))}</small></div>`;
+    }
+  }
+
+  init();
 })();
