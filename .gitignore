@@ -14,3 +14,9 @@ $RECYCLE.BIN/
 # Logs / temporäre Dateien
 *.log
 *.tmp
+
+# Umgebungsvariablen / Secrets - NICHT committen!
+.env
+.env.local
+.env.*.local
+config.js
