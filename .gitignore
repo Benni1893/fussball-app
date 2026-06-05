@@ -1,0 +1,16 @@
+# Betriebssystem
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# Editoren / IDEs
+.vscode/
+.idea/
+*.swp
+*~
+
+# Logs / temporäre Dateien
+*.log
+*.tmp
