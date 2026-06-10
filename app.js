@@ -570,7 +570,7 @@
 
     // Selbstmeldung „Ich habe bezahlt" -> eigene offene Strafen melden
     if (t.hasAttribute("data-paid-self")) {
-      if (!window.confirm("Bestätige, dass du den offenen Betrag per PayPal gesendet hast.\n\nDeine offenen Strafen werden dann als „bezahlt (selbst gemeldet)" markiert.")) return;
+      if (!window.confirm("Bestätige, dass du den offenen Betrag per PayPal gesendet hast.\n\nDeine offenen Strafen werden dann als bezahlt (selbst gemeldet) markiert.")) return;
       t.disabled = true;
       try {
         await DB.reportMyPayment();
@@ -888,19 +888,17 @@
       if (!currentProfile) currentProfile = { email: session.user.email, role: "player", player_id: null };
       if (!currentProfile.email) currentProfile.email = session.user.email;
       try { Roles.set(await DB.myRoles()); } catch (e) { Roles.set([]); }
+
+      if (!currentProfile.player_id) { renderPlayerLink(); return; }
+
+      state.currentPlayerId = currentProfile.player_id;
+      fillIdentity();
+      syncHeaderHeight();
+      render();
     } catch (err) {
-      viewEl.innerHTML = `<div class="empty"><div class="em-ico">⚠️</div>
-        <p>Daten konnten nicht geladen werden.</p>
-        <small style="color:var(--muted)">${esc((err && err.message) || String(err))}</small></div>`;
-      return;
+      document.body.classList.remove("auth-mode");
+      viewEl.innerHTML = `<div style="margin:20px;padding:18px;border:2px solid #c0392b;border-radius:12px;background:#fff;color:#7a1d14;font:12px/1.6 monospace;white-space:pre-wrap">⚠️ Fehler beim Laden der App:\n\n${esc((err && err.message) || String(err))}\n\n${esc((err && err.stack) ? err.stack : "")}</div>`;
     }
-
-    if (!currentProfile.player_id) { renderPlayerLink(); return; }
-
-    state.currentPlayerId = currentProfile.player_id;
-    fillIdentity();
-    syncHeaderHeight();
-    render();
   }
 
   // App über Passwort-Reset-Link geöffnet? (Supabase meldet PASSWORD_RECOVERY)
