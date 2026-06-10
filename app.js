@@ -480,7 +480,7 @@
     if (!t) return;
 
     // Login <-> Registrieren umschalten
-    if (t.dataset.auth) { authMode = t.dataset.auth; authError = ""; renderLogin(); return; }
+    if (t.dataset.auth) { authMode = t.dataset.auth; authError = ""; authInfo = ""; renderLogin(); return; }
 
     // Spieler-Verknüpfung wählen (einmalig nach erstem Login)
     if (t.dataset.pickPlayer) {
@@ -587,8 +587,10 @@
      AUTHENTIFIZIERUNG (Oberfläche)
      =========================================================================== */
   let currentProfile = null;
-  let authMode = "login";   // "login" | "register"
+  let authMode = "login";   // "login" | "register" | "forgot"
   let authError = "";
+  let authInfo = "";        // grüne Hinweis-/Erfolgsmeldung
+  let recoveryMode = false;  // true, wenn App über Passwort-Reset-Link geöffnet
   const ROLE_LABEL = { admin: "Administrator", coach: "Trainer", treasurer: "Kassenwart", player: "Spieler" };
   const userBox = document.getElementById("userBox");
 
@@ -616,23 +618,49 @@
   function renderLogin() {
     document.body.classList.add("auth-mode");
     userBox.innerHTML = "";
-    const isLogin = authMode === "login";
+    const mode = authMode; // "login" | "register" | "forgot"
+    const titles  = { login: "Anmelden", register: "Konto erstellen", forgot: "Passwort zurücksetzen" };
+    const submits = { login: "Anmelden", register: "Registrieren", forgot: "Reset-Link senden" };
+    const needPw = mode !== "forgot";
     viewEl.innerHTML = `
       <div class="auth-wrap">
-        <form class="auth-card" id="authForm" data-mode="${authMode}">
+        <form class="auth-card" id="authForm" data-mode="${mode}">
           <div class="auth-crest">FN</div>
-          <h1 class="auth-title">${isLogin ? "Anmelden" : "Konto erstellen"}</h1>
+          <h1 class="auth-title">${titles[mode]}</h1>
           <p class="auth-sub">FC Fasanerie-Nord · Mannschaftsbereich</p>
           ${authError ? `<div class="auth-error">${esc(authError)}</div>` : ""}
+          ${authInfo ? `<div class="auth-info">${esc(authInfo)}</div>` : ""}
           <label class="auth-field"><span>E-Mail</span>
             <input type="email" name="email" autocomplete="email" required></label>
-          <label class="auth-field"><span>Passwort</span>
+          ${needPw ? `<label class="auth-field"><span>Passwort</span>
             <input type="password" name="password" minlength="6"
-              autocomplete="${isLogin ? "current-password" : "new-password"}" required></label>
-          <button type="submit" class="auth-submit">${isLogin ? "Anmelden" : "Registrieren"}</button>
-          <div class="auth-switch">${isLogin
-            ? `Noch kein Konto? <button type="button" class="link-btn" data-auth="register">Jetzt registrieren</button>`
-            : `Schon ein Konto? <button type="button" class="link-btn" data-auth="login">Hier anmelden</button>`}</div>
+              autocomplete="${mode === "login" ? "current-password" : "new-password"}" required></label>` : ""}
+          <button type="submit" class="auth-submit">${submits[mode]}</button>
+          ${mode === "login" ? `<button type="button" class="link-btn auth-forgot" data-auth="forgot">Passwort vergessen?</button>` : ""}
+          <div class="auth-switch">${
+            mode === "login"    ? `Noch kein Konto? <button type="button" class="link-btn" data-auth="register">Jetzt registrieren</button>`
+            : mode === "register" ? `Schon ein Konto? <button type="button" class="link-btn" data-auth="login">Hier anmelden</button>`
+            : `<button type="button" class="link-btn" data-auth="login">Zurück zur Anmeldung</button>`}</div>
+        </form>
+      </div>`;
+  }
+
+  // Formular zum Setzen eines neuen Passworts (nach Klick auf den Reset-Link).
+  function renderResetPassword() {
+    document.body.classList.add("auth-mode");
+    userBox.innerHTML = "";
+    viewEl.innerHTML = `
+      <div class="auth-wrap">
+        <form class="auth-card" id="authForm" data-mode="reset">
+          <div class="auth-crest">FN</div>
+          <h1 class="auth-title">Neues Passwort</h1>
+          <p class="auth-sub">Bitte vergib ein neues Passwort.</p>
+          ${authError ? `<div class="auth-error">${esc(authError)}</div>` : ""}
+          <label class="auth-field"><span>Neues Passwort</span>
+            <input type="password" name="password" minlength="6" autocomplete="new-password" required></label>
+          <label class="auth-field"><span>Wiederholen</span>
+            <input type="password" name="password2" minlength="6" autocomplete="new-password" required></label>
+          <button type="submit" class="auth-submit">Passwort speichern</button>
         </form>
       </div>`;
   }
@@ -666,27 +694,52 @@
     const form = ev.target.closest("#authForm");
     if (!form) return;
     ev.preventDefault();
-    const email = form.email.value.trim();
-    const password = form.password.value;
+    const mode = form.dataset.mode;
+    const email = form.email ? form.email.value.trim() : "";
     const btn = form.querySelector(".auth-submit");
+    const orig = btn.textContent;
     btn.disabled = true; btn.textContent = "Bitte warten …";
     try {
-      if (form.dataset.mode === "login") {
-        await DB.signIn(email, password);
-      } else {
-        const res = await DB.signUp(email, password);
-        if (!res.session) {
-          authMode = "login";
-          authError = "Konto erstellt! Bitte bestätige zuerst deine E-Mail (Link in der Mail) und melde dich dann an.";
-          renderLogin();
-          return;
-        }
+      if (mode === "login") {
+        await DB.signIn(email, form.password.value);
+        authError = ""; authInfo = ""; init(); return;
       }
-      authError = "";
-      init();
+      if (mode === "register") {
+        const res = await DB.signUp(email, form.password.value);
+        if (!res.session) {
+          authMode = "login"; authError = "";
+          authInfo = "Konto erstellt! Bitte bestätige deine E-Mail (Link in der Mail) und melde dich dann an.";
+          renderLogin(); return;
+        }
+        authError = ""; authInfo = ""; init(); return;
+      }
+      if (mode === "forgot") {
+        await DB.resetPassword(email);
+        authMode = "login"; authError = "";
+        authInfo = "Falls ein Konto existiert, haben wir dir einen Link zum Zurücksetzen geschickt. Bitte ins Postfach schauen.";
+        renderLogin(); return;
+      }
+      if (mode === "reset") {
+        const p1 = form.password.value, p2 = form.password2.value;
+        if (p1 !== p2) {
+          authError = "Die Passwörter stimmen nicht überein.";
+          btn.disabled = false; btn.textContent = orig; renderResetPassword(); return;
+        }
+        await DB.updatePassword(p1);
+        recoveryMode = false;
+        try { await DB.signOut(); } catch (e) {}
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState(null, "", window.location.pathname);
+        }
+        authMode = "login"; authError = "";
+        authInfo = "Passwort geändert. Du kannst dich jetzt anmelden.";
+        renderLogin(); return;
+      }
     } catch (err) {
       authError = authErrorText((err && err.message) || String(err));
-      renderLogin();
+      authInfo = "";
+      btn.disabled = false; btn.textContent = orig;
+      if (mode === "reset") renderResetPassword(); else renderLogin();
     }
   });
 
@@ -694,6 +747,12 @@
      START: Sitzung prüfen -> Login ODER App laden
      =========================================================================== */
   async function init() {
+    // App über einen Passwort-Reset-Link geöffnet? -> direkt neues Passwort setzen.
+    if (recoveryMode || window.location.hash.indexOf("type=recovery") !== -1) {
+      recoveryMode = true;
+      renderResetPassword();
+      return;
+    }
     document.body.classList.remove("auth-mode");
     viewEl.innerHTML = `<div class="empty"><div class="em-ico">⏳</div>Lädt …</div>`;
 
@@ -723,6 +782,9 @@
     syncHeaderHeight();
     render();
   }
+
+  // App über Passwort-Reset-Link geöffnet? (Supabase meldet PASSWORD_RECOVERY)
+  DB.onPasswordRecovery(() => { recoveryMode = true; renderResetPassword(); });
 
   init();
 })();

@@ -126,8 +126,30 @@ window.DB = (function () {
     if (error) throw error;
   }
 
+  // Passwort-Reset anstoßen: schickt eine E-Mail mit Wiederherstellungs-Link.
+  // redirectTo = aktuelle Seite (muss in Supabase unter "Redirect URLs" erlaubt sein).
+  async function resetPassword(email) {
+    const redirectTo = window.location.href.split("#")[0];
+    const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo: redirectTo });
+    if (error) throw error;
+  }
+
+  // Neues Passwort setzen (nur in der Wiederherstellungs-Sitzung möglich).
+  async function updatePassword(newPassword) {
+    const { error } = await client.auth.updateUser({ password: newPassword });
+    if (error) throw error;
+  }
+
+  // Ruft cb auf, wenn die App über einen Passwort-Reset-Link geöffnet wurde.
+  function onPasswordRecovery(cb) {
+    client.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") cb();
+    });
+  }
+
   return {
     client, loadAll, setRsvp, deleteRsvp, setFinePaid,
     getSession, signIn, signUp, signOut, loadProfile, setMyPlayer,
+    resetPassword, updatePassword, onPasswordRecovery,
   };
 })();
