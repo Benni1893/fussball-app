@@ -312,6 +312,8 @@
 
   function renderStrafen() {
     const me = playerById[state.currentPlayerId];
+    // „Als bezahlt" nur für Kassenwart/Admin (passend zu den DB-Regeln in 0003)
+    const canPay = !!(currentProfile && (currentProfile.role === "treasurer" || currentProfile.role === "admin"));
 
     const alle = DEMO.strafen.map((s) => ({
       ...s,
@@ -461,7 +463,7 @@
                 <td class="num amount">${euro(s.betrag)}</td>
                 <td><span class="badge ${s.bezahlt ? "badge-paid" : "badge-open"}">${s.bezahlt ? "beglichen" : "offen"}</span></td>
                 <td style="text-align:right">
-                  <button class="btn" data-toggle-paid="${s.id}">${s.bezahlt ? "Als offen" : "Als bezahlt"}</button>
+                  ${canPay ? `<button class="btn" data-toggle-paid="${s.id}">${s.bezahlt ? "Als offen" : "Als bezahlt"}</button>` : ""}
                 </td>
               </tr>`).join("")}
           </tbody>
