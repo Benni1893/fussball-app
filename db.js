@@ -147,9 +147,16 @@ window.DB = (function () {
     });
   }
 
+  // Rollen des eingeloggten Nutzers (Array, z. B. ["player","treasurer"]).
+  async function myRoles() {
+    const { data, error } = await client.rpc("my_roles");
+    if (error) throw error;
+    return data || [];
+  }
+
   return {
     client, loadAll, setRsvp, deleteRsvp, setFinePaid,
     getSession, signIn, signUp, signOut, loadProfile, setMyPlayer,
-    resetPassword, updatePassword, onPasswordRecovery,
+    resetPassword, updatePassword, onPasswordRecovery, myRoles,
   };
 })();

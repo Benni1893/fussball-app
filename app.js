@@ -312,8 +312,8 @@
 
   function renderStrafen() {
     const me = playerById[state.currentPlayerId];
-    // „Als bezahlt" nur für Kassenwart/Admin (passend zu den DB-Regeln in 0003)
-    const canPay = !!(currentProfile && (currentProfile.role === "treasurer" || currentProfile.role === "admin"));
+    // „Als bezahlt" nur für Kassenwart/Admin (UI-Komfort; echte Sperre = RLS)
+    const canPay = Roles.canManageFines();
 
     const alle = DEMO.strafen.map((s) => ({
       ...s,
@@ -594,6 +594,18 @@
   const ROLE_LABEL = { admin: "Administrator", coach: "Trainer", treasurer: "Kassenwart", player: "Spieler" };
   const userBox = document.getElementById("userBox");
 
+  /* Zentrale Rollen-/Rechte-Prüfung (nur UI-Komfort – echte Sperre = RLS!).
+     Mehrfach-Rollen werden vereinigt: wer mehrere Rollen hat, hat alle Rechte. */
+  const Roles = {
+    list: [],
+    set(arr) { this.list = Array.isArray(arr) ? arr.slice() : []; },
+    has(r) { return this.list.indexOf(r) !== -1; },
+    isAdmin() { return this.has("admin"); },
+    canManageEvents() { return this.has("coach") || this.isAdmin(); },
+    canEditCatalog() { return this.has("treasurer") || this.isAdmin(); },
+    canManageFines() { return this.has("treasurer") || this.isAdmin(); },
+  };
+
   function authErrorText(msg) {
     if (/Invalid login credentials/i.test(msg)) return "E-Mail oder Passwort ist falsch.";
     if (/already registered|already exists/i.test(msg)) return "Diese E-Mail ist bereits registriert.";
@@ -608,9 +620,12 @@
     const u = currentProfile || {};
     const player = u.player_id ? playerById[u.player_id] : null;
     const name = player ? player.name : (u.email || "Angemeldet");
+    const roleText = Roles.list.length
+      ? Roles.list.map((r) => ROLE_LABEL[r] || r).join(" · ")
+      : "Spieler";
     userBox.innerHTML =
       `<div class="ident"><span class="ident-name">${esc(name)}</span>` +
-      `<span class="ident-role">${esc(ROLE_LABEL[u.role] || "Spieler")}</span></div>` +
+      `<span class="ident-role">${esc(roleText)}</span></div>` +
       `<button class="logout-btn" data-logout>Abmelden</button>`;
   }
 
@@ -685,6 +700,7 @@
     if (!ev.target.closest("[data-logout]")) return;
     try { await DB.signOut(); } catch (e) {}
     currentProfile = null;
+    Roles.set([]);
     authMode = "login"; authError = "";
     init();
   });
@@ -768,6 +784,7 @@
       currentProfile = await DB.loadProfile(session.user.id);
       if (!currentProfile) currentProfile = { email: session.user.email, role: "player", player_id: null };
       if (!currentProfile.email) currentProfile.email = session.user.email;
+      try { Roles.set(await DB.myRoles()); } catch (e) { Roles.set([]); }
     } catch (err) {
       viewEl.innerHTML = `<div class="empty"><div class="em-ico">⚠️</div>
         <p>Daten konnten nicht geladen werden.</p>
