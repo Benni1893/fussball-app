@@ -644,7 +644,7 @@
     viewEl.innerHTML = `
       <div class="auth-wrap">
         <form class="auth-card" id="authForm" data-mode="${mode}">
-          <div class="auth-crest">FN</div>
+          <div class="auth-crest"><img src="assets/logo.png" alt="FC Fasanerie-Nord" /></div>
           <h1 class="auth-title">${titles[mode]}</h1>
           <p class="auth-sub">FC Fasanerie-Nord · Mannschaftsbereich</p>
           ${authError ? `<div class="auth-error">${esc(authError)}</div>` : ""}
@@ -671,7 +671,7 @@
     viewEl.innerHTML = `
       <div class="auth-wrap">
         <form class="auth-card" id="authForm" data-mode="reset">
-          <div class="auth-crest">FN</div>
+          <div class="auth-crest"><img src="assets/logo.png" alt="FC Fasanerie-Nord" /></div>
           <h1 class="auth-title">Neues Passwort</h1>
           <p class="auth-sub">Bitte vergib ein neues Passwort.</p>
           ${authError ? `<div class="auth-error">${esc(authError)}</div>` : ""}
