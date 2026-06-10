@@ -17,7 +17,7 @@
 
   // PayPal.Me-Link (Betrag wird übergeben). Phase 4: echte Integration/Checkout.
   // 🔧 Hier später den echten PayPal-Benutzernamen des Vereins eintragen:
-  const PAYPAL_ME = "fcfasanerienord";
+  const PAYPAL_ME = "Teamkassefasanerie";
   function paypalMeLink(betrag) {
     const amount = Number(betrag).toFixed(2).replace(".", ","); // z. B. 12,50
     return `https://paypal.me/${PAYPAL_ME}/${amount}EUR`;
@@ -63,6 +63,10 @@
   function fmtLong(iso)  { const dt = parseDate(iso); return `${WT[dt.getDay()]}, ${dt.getDate()}. ${MON_LANG[dt.getMonth()]} ${dt.getFullYear()}`; }
   function isFuture(iso) { return iso >= HEUTE; }
   function euro(n)       { return n.toLocaleString("de-DE", { style: "currency", currency: "EUR" }); }
+  function fmtTs(iso) {
+    try { return new Date(iso).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }); }
+    catch (e) { return ""; }
+  }
 
   let playerById = {};  // wird in init() nach dem Laden befüllt
   let katById    = {};
@@ -117,6 +121,16 @@
     else if (currentView === "katalog") renderKatalog();
     else if (currentView === "strafen") renderStrafen();
     else if (currentView === "admin") { if (Roles.isAdmin()) renderAdmin(); else renderDashboard(); }
+  }
+
+  // Daten frisch aus Supabase holen und die aktuelle Ansicht neu rendern.
+  async function reloadData() {
+    DEMO = await DB.loadAll();
+    playerById = Object.fromEntries(DEMO.players.map((p) => [p.id, p]));
+    katById    = Object.fromEntries(DEMO.katalog.map((k) => [k.id, k]));
+    buildStateFromData();
+    if (currentProfile && currentProfile.player_id) state.currentPlayerId = currentProfile.player_id;
+    render();
   }
 
   /* ---------- Übersicht ----------------------------------------------------- */
@@ -332,12 +346,14 @@
     let gefiltert = alle;
     if (strafenFilter === "offen")   gefiltert = alle.filter((s) => !s.bezahlt);
     if (strafenFilter === "bezahlt") gefiltert = alle.filter((s) =>  s.bezahlt);
+    if (strafenFilter === "selbst")  gefiltert = alle.filter((s) =>  s.bezahlt && s.selfReported);
     if (strafenFilter === "meine")   gefiltert = alle.filter((s) => s.playerId === me.id);
     gefiltert.sort((a, b) => Number(a.bezahlt) - Number(b.bezahlt) || b.datum.localeCompare(a.datum));
 
     const filters = [
       { k: "offen",   label: "Offen" },
       { k: "bezahlt", label: "Beglichen" },
+      { k: "selbst",  label: "Selbst gemeldet" },
       { k: "meine",   label: "Meine Strafen" },
       { k: "alle",    label: "Alle" },
     ];
@@ -422,7 +438,8 @@
               </svg>
               <span class="pp-word"><span class="pp1">Pay</span><span class="pp2">Pal</span></span>
             </button>
-            <span class="mb-pay-cap">🔒 Sicher bezahlen</span>
+            <span class="mb-pay-cap">Bitte als „Freunde &amp; Familie" senden</span>
+            <button class="paid-self-btn" data-paid-self>✓ Ich habe bezahlt</button>
           </div>` : ""}
         </div>
       </div>
@@ -462,7 +479,11 @@
                 <td>${esc(s.kat.vergehen)}${s.note ? `<div style="font-size:.78rem;color:var(--muted)">${esc(s.note)}</div>` : ""}</td>
                 <td style="color:var(--muted);white-space:nowrap">${fmtWd(s.datum)}, ${fmtDay(s.datum)}. ${fmtMon(s.datum)}</td>
                 <td class="num amount">${euro(s.betrag)}</td>
-                <td><span class="badge ${s.bezahlt ? "badge-paid" : "badge-open"}">${s.bezahlt ? "beglichen" : "offen"}</span></td>
+                <td>${!s.bezahlt
+                  ? `<span class="badge badge-open">offen</span>`
+                  : s.selfReported
+                    ? `<span class="badge badge-self">selbst gemeldet</span>${s.paidAt ? `<div style="font-size:.7rem;color:var(--muted)">${fmtTs(s.paidAt)}</div>` : ""}`
+                    : `<span class="badge badge-paid">beglichen</span>`}</td>
                 <td style="text-align:right">
                   ${canPay ? `<button class="btn" data-toggle-paid="${s.id}">${s.bezahlt ? "Als offen" : "Als bezahlt"}</button>` : ""}
                 </td>
@@ -477,7 +498,7 @@
      Interaktion (Event-Delegation)
      --------------------------------------------------------------------------- */
   viewEl.addEventListener("click", async (ev) => {
-    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-goto],[data-paypal],[data-auth],[data-pick-player]");
+    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self]");
     if (!t) return;
 
     // Login <-> Registrieren umschalten
@@ -533,20 +554,31 @@
       return;
     }
 
-    // Strafe bezahlt umschalten -> nach Supabase schreiben
+    // Strafe bezahlt/offen umschalten (Kassenwart/Admin) -> nach Supabase schreiben
     if (t.dataset.togglePaid) {
       const id = t.dataset.togglePaid;
       const strafe = DEMO.strafen.find((s) => s.id === id);
       const neu = !istBezahlt(strafe);
       try {
         await DB.setFinePaid(id, neu);
+        await reloadData();
       } catch (err) {
         window.alert("Speichern fehlgeschlagen: " + ((err && err.message) || err));
-        return;
       }
-      state.paid[id] = neu;
-      strafe.bezahlt = neu;
-      renderStrafen();
+      return;
+    }
+
+    // Selbstmeldung „Ich habe bezahlt" -> eigene offene Strafen melden
+    if (t.hasAttribute("data-paid-self")) {
+      if (!window.confirm("Bestätige, dass du den offenen Betrag per PayPal gesendet hast.\n\nDeine offenen Strafen werden dann als „bezahlt (selbst gemeldet)" markiert.")) return;
+      t.disabled = true;
+      try {
+        await DB.reportMyPayment();
+        await reloadData();
+      } catch (err) {
+        window.alert("Konnte die Zahlung nicht melden: " + ((err && err.message) || err));
+        t.disabled = false;
+      }
       return;
     }
   });

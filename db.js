@@ -52,6 +52,7 @@ window.DB = (function () {
       strafen: fines.data.map((s) => ({
         id: s.id, playerId: s.player_id, katalogId: s.catalog_id,
         datum: s.date, bezahlt: s.paid, note: s.note,
+        selfReported: s.self_reported, paidAt: s.paid_at,
       })),
       rsvps: rsvps.data.map((r) => ({
         eventId: r.event_id, playerId: r.player_id, status: r.status, grund: r.reason,
@@ -80,10 +81,21 @@ window.DB = (function () {
     if (error) throw error;
   }
 
-  // Strafe als bezahlt/offen markieren.
+  // Strafe als bezahlt/offen markieren (Kassenwart/Admin). Beim Zurücksetzen
+  // werden Selbstmeldungs-Felder mit geleert.
   async function setFinePaid(fineId, paid) {
-    const { error } = await client.from("fines").update({ paid: paid }).eq("id", fineId);
+    const patch = paid
+      ? { paid: true, self_reported: false, paid_at: new Date().toISOString() }
+      : { paid: false, self_reported: false, paid_at: null, paid_by: null };
+    const { error } = await client.from("fines").update(patch).eq("id", fineId);
     if (error) throw error;
+  }
+
+  // Spieler meldet seine eigene Zahlung (setzt eigene offene Strafen auf bezahlt).
+  async function reportMyPayment() {
+    const { data, error } = await client.rpc("report_my_payment");
+    if (error) throw error;
+    return data; // Anzahl betroffener Strafen
   }
 
   /* ---- Authentifizierung & Profil ---------------------------------------- */
@@ -185,6 +197,6 @@ window.DB = (function () {
     client, loadAll, setRsvp, deleteRsvp, setFinePaid,
     getSession, signIn, signUp, signOut, loadProfile, setMyPlayer,
     resetPassword, updatePassword, onPasswordRecovery, myRoles,
-    listMembers, grantRole, revokeRole,
+    listMembers, grantRole, revokeRole, reportMyPayment,
   };
 })();
