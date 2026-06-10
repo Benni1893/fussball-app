@@ -86,5 +86,48 @@ window.DB = (function () {
     if (error) throw error;
   }
 
-  return { client, loadAll, setRsvp, deleteRsvp, setFinePaid };
+  /* ---- Authentifizierung & Profil ---------------------------------------- */
+
+  // Aktuelle Sitzung (oder null, wenn nicht eingeloggt).
+  async function getSession() {
+    const { data } = await client.auth.getSession();
+    return data.session;
+  }
+
+  // Anmelden mit E-Mail + Passwort.
+  async function signIn(email, password) {
+    const { data, error } = await client.auth.signInWithPassword({ email: email, password: password });
+    if (error) throw error;
+    return data;
+  }
+
+  // Registrieren mit E-Mail + Passwort (Profil wird per DB-Trigger angelegt).
+  async function signUp(email, password) {
+    const { data, error } = await client.auth.signUp({ email: email, password: password });
+    if (error) throw error;
+    return data;
+  }
+
+  async function signOut() {
+    const { error } = await client.auth.signOut();
+    if (error) throw error;
+  }
+
+  // Eigenes Profil laden (Rolle + verknüpfter Spieler). null, falls noch keins.
+  async function loadProfile(userId) {
+    const { data, error } = await client.from("profiles").select("*").eq("id", userId).maybeSingle();
+    if (error) throw error;
+    return data;
+  }
+
+  // „Welcher Spieler bin ich?" sicher setzen (über DB-Funktion).
+  async function setMyPlayer(playerId) {
+    const { error } = await client.rpc("set_my_player", { p_player_id: playerId });
+    if (error) throw error;
+  }
+
+  return {
+    client, loadAll, setRsvp, deleteRsvp, setFinePaid,
+    getSession, signIn, signUp, signOut, loadProfile, setMyPlayer,
+  };
 })();

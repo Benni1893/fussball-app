@@ -474,8 +474,18 @@
      Interaktion (Event-Delegation)
      --------------------------------------------------------------------------- */
   viewEl.addEventListener("click", async (ev) => {
-    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-goto],[data-paypal]");
+    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-goto],[data-paypal],[data-auth],[data-pick-player]");
     if (!t) return;
+
+    // Login <-> Registrieren umschalten
+    if (t.dataset.auth) { authMode = t.dataset.auth; authError = ""; renderLogin(); return; }
+
+    // Spieler-Verknüpfung wählen (einmalig nach erstem Login)
+    if (t.dataset.pickPlayer) {
+      try { await DB.setMyPlayer(t.dataset.pickPlayer); authError = ""; init(); }
+      catch (err) { authError = (err && err.message) || String(err); renderPlayerLink(); }
+      return;
+    }
 
     // Navigation per Link
     if (t.dataset.goto) { switchView(t.dataset.goto); return; }
@@ -554,21 +564,6 @@
     if (b) switchView(b.dataset.view);
   });
 
-  const sel = document.getElementById("playerSelect");
-  sel.addEventListener("change", () => {
-    state.currentPlayerId = sel.value;
-    render();
-  });
-
-  function fillPlayerSelect() {
-    sel.innerHTML = DEMO.players
-      .slice()
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .map((p) => `<option value="${p.id}">${esc(p.name)} (#${p.nr})</option>`)
-      .join("");
-    sel.value = state.currentPlayerId;
-  }
-
   // Footer-Button: Daten frisch aus Supabase neu laden.
   const resetBtn = document.getElementById("resetBtn");
   resetBtn.textContent = "Neu laden";
@@ -586,24 +581,145 @@
   }
   window.addEventListener("resize", syncHeaderHeight);
 
-  /* ---------------------------------------------------------------------------
-     Start: Daten aus Supabase laden, dann rendern
-     --------------------------------------------------------------------------- */
+  /* ===========================================================================
+     AUTHENTIFIZIERUNG (Oberfläche)
+     =========================================================================== */
+  let currentProfile = null;
+  let authMode = "login";   // "login" | "register"
+  let authError = "";
+  const ROLE_LABEL = { admin: "Administrator", coach: "Trainer", treasurer: "Kassenwart", player: "Spieler" };
+  const userBox = document.getElementById("userBox");
+
+  function authErrorText(msg) {
+    if (/Invalid login credentials/i.test(msg)) return "E-Mail oder Passwort ist falsch.";
+    if (/already registered|already exists/i.test(msg)) return "Diese E-Mail ist bereits registriert.";
+    if (/Password should be at least/i.test(msg)) return "Passwort muss mindestens 6 Zeichen haben.";
+    if (/Email not confirmed/i.test(msg)) return "Bitte bestätige zuerst deine E-Mail (Link in der Mail).";
+    if (/valid email/i.test(msg)) return "Bitte eine gültige E-Mail-Adresse eingeben.";
+    return msg;
+  }
+
+  // „Angemeldet als …" + Abmelden im Kopfbereich.
+  function fillIdentity() {
+    const u = currentProfile || {};
+    const player = u.player_id ? playerById[u.player_id] : null;
+    const name = player ? player.name : (u.email || "Angemeldet");
+    userBox.innerHTML =
+      `<div class="ident"><span class="ident-name">${esc(name)}</span>` +
+      `<span class="ident-role">${esc(ROLE_LABEL[u.role] || "Spieler")}</span></div>` +
+      `<button class="logout-btn" data-logout>Abmelden</button>`;
+  }
+
+  // Login-/Registrier-Seite.
+  function renderLogin() {
+    document.body.classList.add("auth-mode");
+    userBox.innerHTML = "";
+    const isLogin = authMode === "login";
+    viewEl.innerHTML = `
+      <div class="auth-wrap">
+        <form class="auth-card" id="authForm" data-mode="${authMode}">
+          <div class="auth-crest">FN</div>
+          <h1 class="auth-title">${isLogin ? "Anmelden" : "Konto erstellen"}</h1>
+          <p class="auth-sub">FC Fasanerie-Nord · Mannschaftsbereich</p>
+          ${authError ? `<div class="auth-error">${esc(authError)}</div>` : ""}
+          <label class="auth-field"><span>E-Mail</span>
+            <input type="email" name="email" autocomplete="email" required></label>
+          <label class="auth-field"><span>Passwort</span>
+            <input type="password" name="password" minlength="6"
+              autocomplete="${isLogin ? "current-password" : "new-password"}" required></label>
+          <button type="submit" class="auth-submit">${isLogin ? "Anmelden" : "Registrieren"}</button>
+          <div class="auth-switch">${isLogin
+            ? `Noch kein Konto? <button type="button" class="link-btn" data-auth="register">Jetzt registrieren</button>`
+            : `Schon ein Konto? <button type="button" class="link-btn" data-auth="login">Hier anmelden</button>`}</div>
+        </form>
+      </div>`;
+  }
+
+  // Einmalige Auswahl „Welcher Spieler bin ich?".
+  function renderPlayerLink() {
+    document.body.classList.remove("auth-mode");
+    fillIdentity();
+    const opts = DEMO.players.slice().sort((a, b) => a.name.localeCompare(b.name))
+      .map((p) => `<button class="pick-player" data-pick-player="${p.id}">` +
+        `<span class="avatar">${initials(p.name)}</span>` +
+        `<span class="pick-name">${esc(p.name)} <small>#${p.nr}</small></span></button>`).join("");
+    viewEl.innerHTML = `
+      <div class="page-head"><h1>Willkommen! 👋</h1>
+        <p>Bitte wähle einmalig, welcher Spieler du bist — dann ordnen wir dir Strafen, Termine und Zu-/Absagen korrekt zu.</p></div>
+      ${authError ? `<div class="auth-error">${esc(authError)}</div>` : ""}
+      <div class="pick-grid">${opts}</div>`;
+  }
+
+  // Abmelden (Button liegt im Kopfbereich).
+  userBox.addEventListener("click", async (ev) => {
+    if (!ev.target.closest("[data-logout]")) return;
+    try { await DB.signOut(); } catch (e) {}
+    currentProfile = null;
+    authMode = "login"; authError = "";
+    init();
+  });
+
+  // Login-/Registrier-Formular absenden.
+  viewEl.addEventListener("submit", async (ev) => {
+    const form = ev.target.closest("#authForm");
+    if (!form) return;
+    ev.preventDefault();
+    const email = form.email.value.trim();
+    const password = form.password.value;
+    const btn = form.querySelector(".auth-submit");
+    btn.disabled = true; btn.textContent = "Bitte warten …";
+    try {
+      if (form.dataset.mode === "login") {
+        await DB.signIn(email, password);
+      } else {
+        const res = await DB.signUp(email, password);
+        if (!res.session) {
+          authMode = "login";
+          authError = "Konto erstellt! Bitte bestätige zuerst deine E-Mail (Link in der Mail) und melde dich dann an.";
+          renderLogin();
+          return;
+        }
+      }
+      authError = "";
+      init();
+    } catch (err) {
+      authError = authErrorText((err && err.message) || String(err));
+      renderLogin();
+    }
+  });
+
+  /* ===========================================================================
+     START: Sitzung prüfen -> Login ODER App laden
+     =========================================================================== */
   async function init() {
-    viewEl.innerHTML = `<div class="empty"><div class="em-ico">⏳</div>Lade Daten aus Supabase …</div>`;
+    document.body.classList.remove("auth-mode");
+    viewEl.innerHTML = `<div class="empty"><div class="em-ico">⏳</div>Lädt …</div>`;
+
+    let session = null;
+    try { session = await DB.getSession(); } catch (e) { session = null; }
+    if (!session) { renderLogin(); return; }
+
     try {
       DEMO = await DB.loadAll();
       playerById = Object.fromEntries(DEMO.players.map((p) => [p.id, p]));
       katById    = Object.fromEntries(DEMO.katalog.map((k) => [k.id, k]));
       buildStateFromData();
-      fillPlayerSelect();
-      syncHeaderHeight();
-      render();
+      currentProfile = await DB.loadProfile(session.user.id);
+      if (!currentProfile) currentProfile = { email: session.user.email, role: "player", player_id: null };
+      if (!currentProfile.email) currentProfile.email = session.user.email;
     } catch (err) {
       viewEl.innerHTML = `<div class="empty"><div class="em-ico">⚠️</div>
-        <p>Daten konnten nicht aus Supabase geladen werden.</p>
+        <p>Daten konnten nicht geladen werden.</p>
         <small style="color:var(--muted)">${esc((err && err.message) || String(err))}</small></div>`;
+      return;
     }
+
+    if (!currentProfile.player_id) { renderPlayerLink(); return; }
+
+    state.currentPlayerId = currentProfile.player_id;
+    fillIdentity();
+    syncHeaderHeight();
+    render();
   }
 
   init();
