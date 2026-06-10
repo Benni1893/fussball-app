@@ -116,6 +116,7 @@
     else if (currentView === "kalender") renderKalender();
     else if (currentView === "katalog") renderKatalog();
     else if (currentView === "strafen") renderStrafen();
+    else if (currentView === "admin") { if (Roles.isAdmin()) renderAdmin(); else renderDashboard(); }
   }
 
   /* ---------- Übersicht ----------------------------------------------------- */
@@ -591,6 +592,7 @@
   let authError = "";
   let authInfo = "";        // grüne Hinweis-/Erfolgsmeldung
   let recoveryMode = false;  // true, wenn App über Passwort-Reset-Link geöffnet
+  let currentUserId = null;  // Auth-User-ID des eingeloggten Nutzers
   const ROLE_LABEL = { admin: "Administrator", coach: "Trainer", treasurer: "Kassenwart", player: "Spieler" };
   const userBox = document.getElementById("userBox");
 
@@ -627,6 +629,8 @@
       `<div class="ident"><span class="ident-name">${esc(name)}</span>` +
       `<span class="ident-role">${esc(roleText)}</span></div>` +
       `<button class="logout-btn" data-logout>Abmelden</button>`;
+    const navAdmin = document.getElementById("navAdmin");
+    if (navAdmin) navAdmin.style.display = Roles.isAdmin() ? "" : "none";
   }
 
   // Login-/Registrier-Seite.
@@ -694,6 +698,72 @@
       ${authError ? `<div class="auth-error">${esc(authError)}</div>` : ""}
       <div class="pick-grid">${opts}</div>`;
   }
+
+  // Admin: Rollen verwalten (Mitglieder-Liste + Rollen-Häkchen).
+  async function renderAdmin() {
+    document.body.classList.remove("auth-mode");
+    viewEl.innerHTML = `<div class="page-head"><h1>Rollen verwalten</h1></div>
+      <div class="empty"><div class="em-ico">⏳</div>Lade Mitglieder …</div>`;
+    let members;
+    try { members = await DB.listMembers(); }
+    catch (err) {
+      viewEl.innerHTML = `<div class="page-head"><h1>Rollen verwalten</h1></div>
+        <div class="empty"><div class="em-ico">⚠️</div>${esc((err && err.message) || String(err))}</div>`;
+      return;
+    }
+    const nameOf = (m) => (m.playerId && playerById[m.playerId]) ? playerById[m.playerId].name : (m.email || "—");
+    members.sort((a, b) => nameOf(a).localeCompare(nameOf(b)));
+    const cell = (m, role) =>
+      `<td style="text-align:center"><input type="checkbox" class="role-box" data-user="${m.userId}" data-role="${role}" ${m.roles.indexOf(role) !== -1 ? "checked" : ""}></td>`;
+    viewEl.innerHTML = `
+      <div class="page-head"><h1>Rollen verwalten</h1>
+        <p>Vergib Trainer-, Kassenwart- und Admin-Rollen. „Spieler" ist die Basisrolle und immer aktiv. Änderungen wirken sofort und sind serverseitig (RLS) abgesichert.</p></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Mitglied</th>
+          <th style="text-align:center">Trainer</th>
+          <th style="text-align:center">Kassenwart</th>
+          <th style="text-align:center">Admin</th></tr></thead>
+        <tbody>
+          ${members.map((m) => {
+            const name = nameOf(m);
+            return `<tr>
+              <td><div class="player-cell"><span class="avatar">${initials(name)}</span>
+                <div><div style="font-weight:600">${esc(name)}</div>
+                <div style="font-size:.78rem;color:var(--muted)">${esc(m.email || "")}</div></div></div></td>
+              ${cell(m, "coach")}${cell(m, "treasurer")}${cell(m, "admin")}
+            </tr>`;
+          }).join("")}
+        </tbody>
+      </table></div>
+      <p style="color:var(--muted);font-size:.85rem;margin-top:12px">${members.length} Mitglied(er) · Neue erscheinen hier, sobald sie sich registriert haben.</p>`;
+  }
+
+  // Rolle per Häkchen vergeben/entziehen.
+  viewEl.addEventListener("change", async (ev) => {
+    const box = ev.target.closest(".role-box");
+    if (!box) return;
+    const userId = box.dataset.user, role = box.dataset.role, want = box.checked;
+    if (!want && role === "admin" && userId === currentUserId) {
+      if (!window.confirm("Dir selbst die Admin-Rolle entziehen? Du verlierst dann die Admin-Rechte.")) {
+        box.checked = true; return;
+      }
+    }
+    box.disabled = true;
+    try {
+      if (want) await DB.grantRole(userId, role, DEMO.clubId);
+      else await DB.revokeRole(userId, role);
+      if (userId === currentUserId) {
+        try { Roles.set(await DB.myRoles()); } catch (e) {}
+        fillIdentity();
+        if (!Roles.isAdmin()) { switchView("dashboard"); return; }
+      }
+    } catch (err) {
+      box.checked = !want;
+      window.alert("Konnte Rolle nicht ändern: " + ((err && err.message) || err));
+    } finally {
+      box.disabled = false;
+    }
+  });
 
   // Abmelden (Button liegt im Kopfbereich).
   userBox.addEventListener("click", async (ev) => {
@@ -781,6 +851,7 @@
       playerById = Object.fromEntries(DEMO.players.map((p) => [p.id, p]));
       katById    = Object.fromEntries(DEMO.katalog.map((k) => [k.id, k]));
       buildStateFromData();
+      currentUserId = session.user.id;
       currentProfile = await DB.loadProfile(session.user.id);
       if (!currentProfile) currentProfile = { email: session.user.email, role: "player", player_id: null };
       if (!currentProfile.email) currentProfile.email = session.user.email;

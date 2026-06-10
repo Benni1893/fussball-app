@@ -154,9 +154,37 @@ window.DB = (function () {
     return data || [];
   }
 
+  /* ---- Admin: Mitglieder & Rollenverwaltung (nur fuer Admin lesbar/schreibbar) */
+  async function listMembers() {
+    const [profs, roles] = await Promise.all([
+      client.from("profiles").select("id, email, player_id"),
+      client.from("user_roles").select("user_id, role"),
+    ]);
+    if (profs.error) throw profs.error;
+    if (roles.error) throw roles.error;
+    const byUser = {};
+    roles.data.forEach((r) => { (byUser[r.user_id] = byUser[r.user_id] || []).push(r.role); });
+    return profs.data.map((p) => ({
+      userId: p.id, email: p.email, playerId: p.player_id, roles: byUser[p.id] || [],
+    }));
+  }
+
+  async function grantRole(userId, role, clubId) {
+    const { error } = await client.from("user_roles")
+      .insert({ user_id: userId, role: role, club_id: clubId });
+    if (error) throw error;
+  }
+
+  async function revokeRole(userId, role) {
+    const { error } = await client.from("user_roles")
+      .delete().eq("user_id", userId).eq("role", role);
+    if (error) throw error;
+  }
+
   return {
     client, loadAll, setRsvp, deleteRsvp, setFinePaid,
     getSession, signIn, signUp, signOut, loadProfile, setMyPlayer,
     resetPassword, updatePassword, onPasswordRecovery, myRoles,
+    listMembers, grantRole, revokeRole,
   };
 })();
