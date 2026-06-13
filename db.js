@@ -16,16 +16,17 @@ window.DB = (function () {
 
   // Lädt alle Tabellen und formt sie in die bekannte „DEMO"-Struktur um.
   async function loadAll() {
-    const [clubs, players, events, katalog, fines, rsvps] = await Promise.all([
+    const [clubs, players, events, katalog, fines, rsvps, lineups] = await Promise.all([
       client.from("clubs").select("*").eq("slug", CLUB_SLUG).limit(1),
       client.from("players").select("*").order("number", { ascending: true }),
       client.from("events").select("*").order("date", { ascending: true }),
       client.from("fine_catalog").select("*").order("code", { ascending: true }),
       client.from("fines").select("*").order("date", { ascending: true }),
       client.from("rsvps").select("*"),
+      client.from("lineups").select("*").order("created_at", { ascending: true }),
     ]);
 
-    for (const res of [clubs, players, events, katalog, fines, rsvps]) {
+    for (const res of [clubs, players, events, katalog, fines, rsvps, lineups]) {
       if (res.error) throw res.error;
     }
 
@@ -41,10 +42,13 @@ window.DB = (function () {
       },
       players: players.data.map((p) => ({
         id: p.id, code: p.code, name: p.name, nr: p.number, pos: p.position,
+        status: p.status || "fit", statusNote: p.status_note,
+        statusUntil: p.status_until, statusSince: p.status_since,
       })),
       events: events.data.map((e) => ({
         id: e.id, typ: e.type, titel: e.title, gegner: e.opponent, heim: e.home,
         datum: e.date, zeit: e.time, ort: e.location, note: e.note,
+        startsAt: e.starts_at, auto: e.auto_fine,
       })),
       katalog: katalog.data.map((k) => ({
         id: k.id, vergehen: k.offense, betrag: Number(k.amount), kategorie: k.category,
@@ -53,11 +57,44 @@ window.DB = (function () {
         id: s.id, playerId: s.player_id, katalogId: s.catalog_id,
         datum: s.date, bezahlt: s.paid, note: s.note,
         selfReported: s.self_reported, paidAt: s.paid_at,
+        grundbetrag: s.base_amount != null ? Number(s.base_amount) : null,
+        zuschlag: Number(s.surcharge) || 0,
+        zuschlagAt: s.surcharge_updated_at,
+        createdAt: s.created_at,
+        eventId: s.event_id, auto: s.auto,
       })),
       rsvps: rsvps.data.map((r) => ({
         eventId: r.event_id, playerId: r.player_id, status: r.status, grund: r.reason,
       })),
+      lineups: (lineups.data || []).map((l) => ({
+        id: l.id, eventId: l.event_id, name: l.name, formation: l.formation,
+        slots: l.slots || {}, bank: l.bank || [],
+        isActive: l.is_active, isTemplate: l.is_template,
+      })),
     };
+  }
+
+  /* ---- Aufstellungen (nur Trainer/Admin, per RLS) ------------------------ */
+  async function saveLineup(lu) {
+    const row = {
+      club_id: lu.clubId, event_id: lu.eventId || null,
+      name: lu.name, formation: lu.formation,
+      slots: lu.slots || {}, bank: lu.bank || [],
+      is_template: !!lu.isTemplate, updated_at: new Date().toISOString(),
+    };
+    let res;
+    if (lu.id) res = await client.from("lineups").update(row).eq("id", lu.id).select().single();
+    else       res = await client.from("lineups").insert(row).select().single();
+    if (res.error) throw res.error;
+    return res.data;
+  }
+  async function deleteLineup(id) {
+    const { error } = await client.from("lineups").delete().eq("id", id);
+    if (error) throw error;
+  }
+  async function setLineupActive(id) {
+    const { error } = await client.rpc("set_lineup_active", { p_id: id });
+    if (error) throw error;
   }
 
   // Zu-/Absage setzen (legt an oder aktualisiert – eindeutig je event+player).
@@ -78,6 +115,12 @@ window.DB = (function () {
     const { error } = await client
       .from("rsvps").delete()
       .eq("event_id", eventId).eq("player_id", playerId);
+    if (error) throw error;
+  }
+
+  // Strafe löschen (treasurer/admin generell; coach für Auto-Strafen). RLS erzwingt.
+  async function deleteFine(fineId) {
+    const { error } = await client.from("fines").delete().eq("id", fineId);
     if (error) throw error;
   }
 
@@ -130,6 +173,15 @@ window.DB = (function () {
     const { data, error } = await client.from("profiles").select("*").eq("id", userId).maybeSingle();
     if (error) throw error;
     return data;
+  }
+
+  // Fitness-/Verletztenstatus setzen (nur Trainer/Admin; RLS in der Funktion).
+  async function setPlayerStatus(playerId, status, note, until) {
+    const { error } = await client.rpc("set_player_status", {
+      p_player_id: playerId, p_status: status,
+      p_note: note || null, p_until: until || null,
+    });
+    if (error) throw error;
   }
 
   // „Welcher Spieler bin ich?" sicher setzen (über DB-Funktion).
@@ -194,8 +246,9 @@ window.DB = (function () {
   }
 
   return {
-    client, loadAll, setRsvp, deleteRsvp, setFinePaid,
-    getSession, signIn, signUp, signOut, loadProfile, setMyPlayer,
+    client, loadAll, setRsvp, deleteRsvp, setFinePaid, deleteFine,
+    saveLineup, deleteLineup, setLineupActive,
+    getSession, signIn, signUp, signOut, loadProfile, setMyPlayer, setPlayerStatus,
     resetPassword, updatePassword, onPasswordRecovery, myRoles,
     listMembers, grantRole, revokeRole, reportMyPayment,
   };

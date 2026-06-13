@@ -20,3 +20,5 @@ $RECYCLE.BIN/
 .env.local
 .env.*.local
 config.js
+# Lokale Hilfsdateien
+qr.png

@@ -50,6 +50,7 @@
      Hilfsfunktionen
      --------------------------------------------------------------------------- */
   const WT = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+  const WT_LANG = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
   const MON = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
   const MON_LANG = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
 
@@ -78,11 +79,168 @@
     return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
 
+  /* ---- Fitness-/Verletztenstatus ----------------------------------------- */
+  function statusInfo(status) {
+    if (status === "verletzt")    return { label: "verletzt", cls: "st-red", icon: "✚" };
+    if (status === "angeschlagen") return { label: "angeschlagen", cls: "st-amber", icon: "⚠️" };
+    return null; // fit -> kein Badge
+  }
+  // Kleines Status-Badge neben einem Spielernamen (leer, wenn fit).
+  function statusBadge(player) {
+    const i = player && statusInfo(player.status);
+    if (!i) return "";
+    return ` <span class="st-badge ${i.cls}" title="${i.label}">${i.icon} ${i.label}</span>`;
+  }
+  // Nachname für die alphabetische Sortierung (letztes Wort des Namens).
+  function nachname(name) {
+    const parts = String(name).trim().split(/\s+/);
+    return parts[parts.length - 1] || name;
+  }
+
   // effektiver Bezahlt-Status (Demo + lokale Änderungen)
   function istBezahlt(strafe) {
     return state.paid[strafe.id] !== undefined ? state.paid[strafe.id] : strafe.bezahlt;
   }
-  function strafeBetrag(strafe) { return katById[strafe.katalogId].betrag; }
+  /* =========================================================================
+     MAHNZUSCHLAG – EINE zentrale Logik für Betrag UND Countdown.
+     Diese Formel ist 1:1 identisch zur SQL-Funktion apply_fine_surcharges()
+     (siehe Migration 0007). Frist startet ab created_at (Anlage durch den
+     Kassenwart), NICHT ab dem Vergehens-Datum. Regel: ab 7 Tagen +2 €, je
+     weitere angefangene Woche +2 €, Deckel 5 Stufen / 10 €.
+     ========================================================================= */
+  const MAHN_STUFE_EUR  = 2;
+  const MAHN_MAX_STUFEN = 5;
+  const WOCHE_MS        = 7 * 24 * 60 * 60 * 1000;
+
+  // Fällige Stufen zum Zeitpunkt nowMs (gleiche Floor-Schwelle wie der Cron).
+  function faelligeStufen(strafe, nowMs) {
+    if (!strafe.createdAt) return 0;
+    const start = new Date(strafe.createdAt).getTime();
+    if (!isFinite(start)) return 0;
+    const elapsed = nowMs - start;
+    if (elapsed <= 0) return 0;
+    return Math.min(MAHN_MAX_STUFEN, Math.floor(elapsed / WOCHE_MS));
+  }
+
+  // Grundbetrag: gespeicherter Schnappschuss, sonst aktueller Katalogwert.
+  function grundBetrag(strafe) {
+    if (strafe.grundbetrag != null) return strafe.grundbetrag;
+    const k = katById[strafe.katalogId];
+    return k ? k.betrag : 0;
+  }
+  // Mahnzuschlag in €: OFFEN -> live aus created_at; BEZAHLT -> eingefrorener
+  // DB-Wert (der Trigger fines_settle_on_paid friert genau diesen Wert ein).
+  function zuschlagBetrag(strafe) {
+    if (istBezahlt(strafe)) return Number(strafe.zuschlag) || 0;
+    return faelligeStufen(strafe, Date.now()) * MAHN_STUFE_EUR;
+  }
+  // >>> DIE EINZIGE Betragsfunktion der App: Grundbetrag + Mahnzuschlag. <<<
+  function strafeBetrag(strafe) { return grundBetrag(strafe) + zuschlagBetrag(strafe); }
+
+  // Offene Gesamtsumme eines Spielers – ebenfalls nur über strafeBetrag.
+  function summeOffenSpieler(playerId) {
+    return DEMO.strafen
+      .filter((s) => s.playerId === playerId && !istBezahlt(s))
+      .reduce((a, s) => a + strafeBetrag(s), 0);
+  }
+
+  /* ---- Countdown bis zur nächsten Erhöhung (Anzeige) --------------------- */
+  // Liefert { capped } ODER { capped:false, remMs } – Restzeit bis +2 €.
+  function mahnCountdown(strafe, nowMs) {
+    const stufen = faelligeStufen(strafe, nowMs);
+    if (stufen >= MAHN_MAX_STUFEN) return { capped: true };
+    const start = new Date(strafe.createdAt).getTime();
+    const ziel  = start + (stufen + 1) * WOCHE_MS; // Zeitpunkt der nächsten Stufe
+    return { capped: false, remMs: ziel - nowMs };
+  }
+  // Restzeit hübsch formatieren. compact = mobile Kurzform (z. B. „3T 14h").
+  function fmtRestzeit(ms, compact) {
+    let s = Math.floor(ms / 1000);
+    const d = Math.floor(s / 86400); s -= d * 86400;
+    const h = Math.floor(s / 3600);  s -= h * 3600;
+    const m = Math.floor(s / 60);    s -= m * 60;
+    const p2 = (n) => String(n).padStart(2, "0");
+    if (compact) {
+      if (d > 0) return `${d}T ${h}h`;
+      if (h > 0) return `${h}h ${p2(m)}m`;
+      return `${p2(m)}:${p2(s)}`;
+    }
+    return `${d}T ${p2(h)}:${p2(m)}:${p2(s)}`;
+  }
+  // Startzeitpunkt eines Termins in ms (bevorzugt der Server-Wert starts_at).
+  function eventStartMs(e) {
+    if (e.startsAt) { const t = new Date(e.startsAt).getTime(); if (isFinite(t)) return t; }
+    const zeit = (e.zeit && /^\d{1,2}:\d{2}$/.test(e.zeit)) ? e.zeit : "00:00";
+    const t = new Date(`${e.datum}T${zeit}:00`).getTime();
+    return isFinite(t) ? t : null;
+  }
+  // Meldeschluss: Spiel 24 h, Training 3 h vor Beginn. null, wenn nicht relevant.
+  function meldeschlussMs(e) {
+    if (e.typ !== "spiel" && e.typ !== "training") return null;
+    const start = eventStartMs(e);
+    if (start == null) return null;
+    return start - (e.typ === "spiel" ? 24 : 3) * 60 * 60 * 1000;
+  }
+
+  function dringlichkeitClass(ms) {
+    if (ms < 24 * 60 * 60 * 1000) return "cd-red";    // < 24 h
+    if (ms < 3 * 24 * 60 * 60 * 1000) return "cd-amber"; // < 3 Tage
+    return "cd-neutral";
+  }
+
+  /* ---- Live-Timer: aktualisiert alle Countdown-Felder sekündlich ---------
+     Zwei Typen:
+       [data-cd-created] = Mahnzuschlag (wochenbasiert, Strafen-Konto)
+       [data-cd-deadline] = Meldeschluss-Countdown (fixer Zielzeitpunkt, Kalender) */
+  let countdownTimer = null;
+  function stopCountdowns() {
+    if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+  }
+  function tickCountdowns() {
+    const now = Date.now();
+    const els = viewEl.querySelectorAll("[data-cd-created],[data-cd-deadline]");
+    // 1) Neuzeichnen nötig? (Mahn-Stufe erreicht ODER Meldeschluss vorbei)
+    for (const el of els) {
+      if (el.hasAttribute("data-cd-created")) {
+        const liveStufe = faelligeStufen({ createdAt: el.getAttribute("data-cd-created") }, now);
+        if (liveStufe > Number(el.getAttribute("data-cd-step") || "0")) {
+          if (currentView === "strafen") { renderStrafen(); return; } // Betrag springt live mit
+        }
+      } else {
+        const target = new Date(el.getAttribute("data-cd-deadline")).getTime();
+        if (isFinite(target) && now >= target) {
+          if (currentView === "kalender") { renderKalender(); return; } // Karte schaltet auf Warnung
+        }
+      }
+    }
+    // 2) Texte/Farben aktualisieren
+    const compact = window.innerWidth < 560;
+    els.forEach((el) => {
+      el.classList.remove("cd-neutral", "cd-amber", "cd-red", "cd-capped", "cd-due");
+      if (el.hasAttribute("data-cd-created")) {
+        const info = mahnCountdown({ createdAt: el.getAttribute("data-cd-created") }, now);
+        if (info.capped) {
+          el.textContent = "Max. Zuschlag erreicht"; el.classList.add("cd-capped");
+        } else if (info.remMs <= 0) {
+          el.textContent = "Erhöhung steht an"; el.classList.add("cd-due");
+        } else {
+          el.textContent = fmtRestzeit(info.remMs, compact) + (compact ? "" : " bis +2 €");
+          el.classList.add(dringlichkeitClass(info.remMs));
+        }
+      } else {
+        const target = new Date(el.getAttribute("data-cd-deadline")).getTime();
+        const rem = isFinite(target) ? target - now : 0;
+        if (rem <= 0) { el.textContent = "abgelaufen"; el.classList.add("cd-due"); }
+        else { el.textContent = fmtRestzeit(rem, compact); el.classList.add(dringlichkeitClass(rem)); }
+      }
+    });
+  }
+  function startCountdowns() {
+    stopCountdowns();
+    if (!viewEl.querySelector("[data-cd-created],[data-cd-deadline]")) return;
+    tickCountdowns();                 // sofort füllen (kein 1-Sekunden-Flash)
+    countdownTimer = setInterval(tickCountdowns, 1000);
+  }
 
   /* ---------------------------------------------------------------------------
      Mini-Diagramme (reines SVG, ohne Bibliothek)
@@ -116,10 +274,12 @@
   let currentView = "dashboard";
 
   function render() {
+    stopCountdowns(); // Timer der vorigen Ansicht sauber aufräumen
     if (currentView === "dashboard") renderDashboard();
     else if (currentView === "kalender") renderKalender();
     else if (currentView === "katalog") renderKatalog();
     else if (currentView === "strafen") renderStrafen();
+    else if (currentView === "lineup") { if (Roles.canManageEvents()) renderLineup(); else renderDashboard(); }
     else if (currentView === "admin") { if (Roles.isAdmin()) renderAdmin(); else renderDashboard(); }
   }
 
@@ -141,9 +301,50 @@
 
     const offene = DEMO.strafen.filter((s) => !istBezahlt(s));
     const offeneGesamt = offene.reduce((sum, s) => sum + strafeBetrag(s), 0);
-    const meineOffen = offene.filter((s) => s.playerId === me.id).reduce((sum, s) => sum + strafeBetrag(s), 0);
+    const meineOffen = summeOffenSpieler(me.id);
 
     const naechsteSpiele = naechste.filter((e) => e.typ === "spiel").length;
+
+    // Trainer/Admin: Lazarett + Kader-Status
+    const lazarett = DEMO.players
+      .filter((p) => p.status && p.status !== "fit")
+      .sort((a, b) =>
+        (a.status === "verletzt" ? 0 : 1) - (b.status === "verletzt" ? 0 : 1) ||
+        nachname(a.name).localeCompare(nachname(b.name), "de"));
+    const kaderSort = [...DEMO.players].sort((a, b) => nachname(a.name).localeCompare(nachname(b.name), "de"));
+
+    const trainerHtml = Roles.canManageEvents() ? `
+      <div class="grid-2" style="margin-top:8px">
+        <div>
+          <div class="section-title"><h2>🚑 Lazarett</h2></div>
+          <div class="card card-pad">
+            ${lazarett.length ? lazarett.map((p) => `
+              <div class="laz-row">
+                <span class="avatar">${initials(p.name)}</span>
+                <div style="flex:1;min-width:0">
+                  <div style="font-weight:600">${esc(p.name)}${statusBadge(p)}</div>
+                  <div style="font-size:.8rem;color:var(--muted)">
+                    ${p.statusSince ? "seit " + fmtDay(p.statusSince) + ". " + fmtMon(p.statusSince) : ""}${p.statusUntil ? " · vor. zurück " + fmtDay(p.statusUntil) + ". " + fmtMon(p.statusUntil) : ""}${p.statusNote ? " · " + esc(p.statusNote) : ""}
+                  </div>
+                </div>
+              </div>`).join("") : `<div class="empty" style="padding:14px 0">Alle fit – kein Eintrag 💪</div>`}
+          </div>
+        </div>
+        <div>
+          <div class="section-title"><h2>Kader-Status</h2></div>
+          <div class="card card-pad kader-status">
+            ${kaderSort.map((p) => `
+              <div class="ks-row">
+                <span class="ks-name">${esc(p.name)}${statusBadge(p)}</span>
+                <select class="ks-select" data-status-player="${p.id}">
+                  <option value="fit" ${p.status === "fit" ? "selected" : ""}>fit</option>
+                  <option value="angeschlagen" ${p.status === "angeschlagen" ? "selected" : ""}>angeschlagen</option>
+                  <option value="verletzt" ${p.status === "verletzt" ? "selected" : ""}>verletzt</option>
+                </select>
+              </div>`).join("")}
+          </div>
+        </div>
+      </div>` : "";
 
     viewEl.innerHTML = `
       <div class="page-head">
@@ -191,11 +392,11 @@
               return `<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)">
                 <span class="avatar">${initials(p.name)}</span>
                 <div style="flex:1;min-width:0">
-                  <div style="font-weight:600">${esc(p.name)}</div>
+                  <div style="font-weight:600">${esc(p.name)}${statusBadge(p)}</div>
                   <div style="font-size:.82rem;color:var(--muted)">${esc(k.vergehen)}</div>
                 </div>
                 <div style="text-align:right">
-                  <div class="amount">${euro(k.betrag)}</div>
+                  <div class="amount">${euro(strafeBetrag(s))}</div>
                   <span class="badge ${istBezahlt(s) ? "badge-paid" : "badge-open"}">${istBezahlt(s) ? "bezahlt" : "offen"}</span>
                 </div>
               </div>`;
@@ -203,6 +404,8 @@
           </div>
         </div>
       </div>
+
+      ${trainerHtml}
     `;
   }
 
@@ -236,6 +439,8 @@
         <div class="section-title" style="margin-top:28px"><h2>Vergangene Termine</h2></div>
         <div class="event-list" style="opacity:.72">${vergangen.map((e) => eventCard(e, false)).join("")}</div>` : ""}
     `;
+
+    startCountdowns(); // Meldeschluss-Countdowns dieser Ansicht live halten
   }
 
   function eventTitel(e) {
@@ -260,6 +465,20 @@
     const zusagen = DEMO.players.filter((p) => (state.rsvp[e.id + "|" + p.id] || {}).status === "zu").length;
     const r = state.rsvp[e.id + "|" + state.currentPlayerId] || {};
     const future = isFuture(e.datum);
+
+    // Meldeschluss-Hinweis/Countdown (nur Spiele & Trainings mit aktiver Automatik)
+    let fristHtml = "";
+    if (future && e.auto !== false && (e.typ === "spiel" || e.typ === "training")) {
+      const dl = meldeschlussMs(e);
+      const start = eventStartMs(e);
+      const now = Date.now();
+      if (dl != null && now < dl) {
+        fristHtml = `<div class="frist"><span class="frist-label">⏳ Meldeschluss:</span> <span class="cd" data-cd-deadline="${new Date(dl).toISOString()}"></span></div>`;
+      } else if (start != null && now < start) {
+        const noResp = e.typ === "spiel" ? "25 €" : "15 €";
+        fristHtml = `<div class="frist frist-warn">⚠️ Meldeschluss vorbei – Rückmeldung jetzt kostet 8 €, keine Rückmeldung ${noResp}.</div>`;
+      }
+    }
 
     let rsvpHtml = "";
     if (withRsvp && future) {
@@ -290,9 +509,424 @@
             <span>📍 ${esc(e.ort)}</span>
           </div>
           ${e.note ? `<div class="e-note">ℹ️ ${esc(e.note)}</div>` : ""}
+          ${fristHtml}
+          ${e.typ === "spiel" && Roles.canManageEvents()
+            ? `<div class="e-trainer"><button class="btn btn-soft" data-kader-info="${e.id}">📋 Kader-Info erstellen</button></div>`
+            : ""}
         </div>
         ${rsvpHtml}
       </div>`;
+  }
+
+  /* ---------- Kader-Info (vorgefertigte Nachricht) -------------------------- */
+  // Austauschbare Kaderquelle: liefert die Spieler für die Nachricht.
+  // v1 = Zusagen. Sobald es Aufstellungen gibt, kann hier { modus:"aufstellung",
+  // startelf, bank } zurückgegeben werden – buildKaderInfoText nutzt das automatisch.
+  function kaderQuelle(e) {
+    // Gibt es eine AKTIVE Aufstellung für dieses Spiel? Dann Startelf/Bank daraus.
+    const lu = (DEMO.lineups || []).find((l) => l.eventId === e.id && l.isActive);
+    if (lu) {
+      const slots = FORMATIONS[lu.formation] || [];
+      const startelf = slots.map((s) => (lu.slots || {})[s.key]).filter(Boolean).map((id) => playerById[id]).filter(Boolean);
+      const bank = (lu.bank || []).map((id) => playerById[id]).filter(Boolean);
+      return { modus: "aufstellung", startelf: startelf, bank: bank, dabei: startelf };
+    }
+    const dabei = DEMO.players
+      .filter((p) => (state.rsvp[e.id + "|" + p.id] || {}).status === "zu")
+      .sort((a, b) => nachname(a.name).localeCompare(nachname(b.name), "de"));
+    return { modus: "zusagen", startelf: [], bank: [], dabei: dabei };
+  }
+
+  // Baut den fertigen Nachrichtentext aus echten Termindaten + Kaderquelle.
+  // OHNE Verletzungs-Details und OHNE Absagegründe.
+  function buildKaderInfoText(e) {
+    const wt = WT_LANG[parseDate(e.datum).getDay()];
+    const ort = e.ort ? ` (${e.ort})` : "";
+    const gegner = e.gegner || "unbekannt";
+    const spielTyp = e.heim ? `Heimspiel gegen ${gegner}` : `Auswärtsspiel bei ${gegner}`;
+    const namen = (arr) => arr.map((p) => p.name).join(", ");
+
+    const zeilen = [];
+    zeilen.push(`Kader für ${wt}, ${e.zeit} Uhr, ${spielTyp}${ort}.`);
+    if (e.note) zeilen.push(e.note + (/[.!?]$/.test(e.note) ? "" : "."));
+
+    const q = kaderQuelle(e);
+    if (q.modus === "aufstellung") {
+      zeilen.push(`Startelf: ${namen(q.startelf) || "–"}.`);
+      if (q.bank.length) zeilen.push(`Bank: ${namen(q.bank)}.`);
+    } else {
+      zeilen.push(q.dabei.length ? `Es spielen: ${namen(q.dabei)}.` : `Es haben noch keine Spieler zugesagt.`);
+    }
+    zeilen.push("Bitte pünktlich sein!");
+    return zeilen.join("\n");
+  }
+
+  /* ---------- Teilen-Dialog (WhatsApp / Kopieren) --------------------------- */
+  function closeShareModal() {
+    const ex = document.getElementById("shareModal");
+    if (ex) ex.remove();
+  }
+  async function copyText(text) {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch (e) { /* Fallback unten */ }
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      const ok = document.execCommand("copy"); ta.remove();
+      return ok;
+    } catch (e) { return false; }
+  }
+  function openShareModal(title, text) {
+    closeShareModal();
+    const ov = document.createElement("div");
+    ov.className = "modal-ov"; ov.id = "shareModal";
+    ov.innerHTML = `
+      <div class="modal" role="dialog" aria-modal="true">
+        <div class="modal-head"><strong>${esc(title)}</strong>
+          <button class="modal-x" aria-label="Schließen">✕</button></div>
+        <p class="modal-sub">Text frei anpassen, dann teilen oder kopieren.</p>
+        <textarea class="modal-text" rows="11" spellcheck="false"></textarea>
+        <div class="modal-actions">
+          <button class="btn btn-primary" data-wa>📲 Per WhatsApp teilen</button>
+          <button class="btn" data-copy>📋 Text kopieren</button>
+        </div>
+        <div class="modal-hint" aria-live="polite"></div>
+      </div>`;
+    document.body.appendChild(ov);
+    const ta = ov.querySelector(".modal-text");
+    ta.value = text;
+    const hint = ov.querySelector(".modal-hint");
+    ov.addEventListener("click", (e) => { if (e.target === ov) closeShareModal(); });
+    ov.querySelector(".modal-x").addEventListener("click", closeShareModal);
+    ov.querySelector("[data-wa]").addEventListener("click", () => {
+      window.open("https://wa.me/?text=" + encodeURIComponent(ta.value), "_blank", "noopener");
+    });
+    ov.querySelector("[data-copy]").addEventListener("click", async () => {
+      const ok = await copyText(ta.value);
+      hint.textContent = ok ? "In die Zwischenablage kopiert ✓"
+                            : "Konnte nicht automatisch kopieren – bitte Text markieren und kopieren.";
+    });
+  }
+
+  /* =========================================================================
+     AUFSTELLUNGS-BUILDER (nur Trainer/Admin)
+     ========================================================================= */
+  // Formationen als erweiterbare Konfiguration. Koordinaten in % des Feldes
+  // (Hochformat: y=0 oben/gegnerisches Tor, y=100 unten/eigenes Tor).
+  const FORMATIONS = {
+    "4-4-2": [
+      { key:"TW", role:"TW", x:50, y:92 },
+      { key:"LV", role:"AV", x:16, y:74 }, { key:"LIV", role:"IV", x:38, y:78 }, { key:"RIV", role:"IV", x:62, y:78 }, { key:"RV", role:"AV", x:84, y:74 },
+      { key:"LM", role:"ZM", x:16, y:50 }, { key:"LZM", role:"ZM", x:38, y:52 }, { key:"RZM", role:"ZM", x:62, y:52 }, { key:"RM", role:"ZM", x:84, y:50 },
+      { key:"LST", role:"ST", x:36, y:22 }, { key:"RST", role:"ST", x:64, y:22 },
+    ],
+    "4-3-3": [
+      { key:"TW", role:"TW", x:50, y:92 },
+      { key:"LV", role:"AV", x:16, y:74 }, { key:"LIV", role:"IV", x:38, y:78 }, { key:"RIV", role:"IV", x:62, y:78 }, { key:"RV", role:"AV", x:84, y:74 },
+      { key:"LZM", role:"ZM", x:30, y:54 }, { key:"ZM", role:"ZM", x:50, y:58 }, { key:"RZM", role:"ZM", x:70, y:54 },
+      { key:"LA", role:"OM", x:18, y:26 }, { key:"ST", role:"ST", x:50, y:18 }, { key:"RA", role:"OM", x:82, y:26 },
+    ],
+    "4-2-3-1": [
+      { key:"TW", role:"TW", x:50, y:92 },
+      { key:"LV", role:"AV", x:16, y:76 }, { key:"LIV", role:"IV", x:38, y:80 }, { key:"RIV", role:"IV", x:62, y:80 }, { key:"RV", role:"AV", x:84, y:76 },
+      { key:"LDM", role:"ZM", x:38, y:60 }, { key:"RDM", role:"ZM", x:62, y:60 },
+      { key:"LOM", role:"OM", x:20, y:38 }, { key:"ZOM", role:"OM", x:50, y:40 }, { key:"ROM", role:"OM", x:80, y:38 },
+      { key:"ST", role:"ST", x:50, y:18 },
+    ],
+    "3-5-2": [
+      { key:"TW", role:"TW", x:50, y:92 },
+      { key:"LIV", role:"IV", x:28, y:78 }, { key:"CIV", role:"IV", x:50, y:80 }, { key:"RIV", role:"IV", x:72, y:78 },
+      { key:"LM", role:"AV", x:12, y:52 }, { key:"LZM", role:"ZM", x:34, y:56 }, { key:"ZM", role:"ZM", x:50, y:58 }, { key:"RZM", role:"ZM", x:66, y:56 }, { key:"RM", role:"AV", x:88, y:52 },
+      { key:"LST", role:"ST", x:38, y:22 }, { key:"RST", role:"ST", x:62, y:22 },
+    ],
+  };
+
+  let lb = { eventId: null, lineupId: null, name: "", formation: "4-4-2", assign: {}, sel: null, gaps: [], msg: "" };
+  let lbDrag = null;
+
+  function shortName(name) {
+    const p = String(name).trim().split(/\s+/);
+    return p.length > 1 ? p[0][0] + ". " + p[p.length - 1] : name;
+  }
+  const byName = (a, b) => nachname(a.name).localeCompare(nachname(b.name), "de");
+  function zusagenIds(eventId) {
+    return DEMO.players.filter((p) => (state.rsvp[eventId + "|" + p.id] || {}).status === "zu").map((p) => p.id);
+  }
+  function cleanAssign(a) { const o = {}; Object.keys(a).forEach((k) => { if (a[k]) o[k] = a[k]; }); return o; }
+  function lbBankIds() {
+    const placed = new Set(Object.values(lb.assign).filter(Boolean));
+    return zusagenIds(lb.eventId).filter((id) => !placed.has(id));
+  }
+
+  function lbNew() { lb.lineupId = null; lb.name = ""; lb.assign = {}; lb.gaps = []; lb.sel = null; }
+  function lbLoad(l) {
+    lb.lineupId = l.id; lb.name = l.name; lb.formation = l.formation;
+    lb.assign = Object.assign({}, l.slots || {}); lb.gaps = []; lb.sel = null;
+  }
+  function lbLoadActiveOrNew() {
+    const act = (DEMO.lineups || []).find((l) => l.eventId === lb.eventId && l.isActive);
+    if (act) lbLoad(act); else lbNew();
+  }
+  function lbInitIfNeeded() {
+    const spiele = DEMO.events.filter((e) => e.typ === "spiel");
+    if (!lb.eventId || !spiele.some((e) => e.id === lb.eventId)) {
+      const fut = spiele.filter((e) => isFuture(e.datum)).sort((a, b) => a.datum.localeCompare(b.datum));
+      const def = fut[0] || spiele[spiele.length - 1] || spiele[0];
+      lb.eventId = def ? def.id : null;
+      lbLoadActiveOrNew();
+    }
+  }
+
+  // --- Feld (reine Funktion: Formation + Belegung -> SVG/HTML) ----------------
+  function pitchBgSvg() {
+    return `<svg class="pitch-bg" viewBox="0 0 68 105" preserveAspectRatio="none" aria-hidden="true">
+      <rect x="0" y="0" width="68" height="105" fill="#2e7d46"/>
+      <g fill="none" stroke="rgba(255,255,255,.6)" stroke-width="0.5">
+        <rect x="2" y="2" width="64" height="101"/>
+        <line x1="2" y1="52.5" x2="66" y2="52.5"/>
+        <circle cx="34" cy="52.5" r="9"/>
+        <rect x="14" y="2" width="40" height="16"/><rect x="24" y="2" width="20" height="6"/>
+        <rect x="14" y="87" width="40" height="16"/><rect x="24" y="97" width="20" height="6"/>
+      </g>
+      <circle cx="34" cy="52.5" r="0.8" fill="rgba(255,255,255,.6)"/>
+    </svg>`;
+  }
+  function renderPitch(formation, assign) {
+    const slots = FORMATIONS[formation] || FORMATIONS["4-4-2"];
+    return `<div class="pitch">
+      ${pitchBgSvg()}
+      ${slots.map((s) => {
+        const pid = assign[s.key];
+        const p = pid ? playerById[pid] : null;
+        const mism = p && p.pos !== s.role;
+        const gap = lb.gaps.indexOf(s.key) !== -1;
+        const selCls = (lb.sel && lb.sel.kind === "slot" && lb.sel.key === s.key) ? " is-selected" : "";
+        return `<div class="slot${p ? " is-filled" : ""}${selCls}${gap ? " is-gap" : ""}" data-slot="${s.key}" style="left:${s.x}%;top:${s.y}%">
+          ${p
+            ? `<div class="field-pl${mism ? " is-mismatch" : ""}" draggable="true" data-slot-player="${s.key}" title="${mism ? "Position passt nicht: " + p.pos + " auf " + s.role : esc(p.name)}">
+                 <span class="fp-nr">${p.nr != null ? p.nr : ""}</span>
+                 <span class="fp-name">${esc(shortName(p.name))}</span>
+                 ${mism ? '<span class="fp-warn">⚠</span>' : ""}
+               </div>`
+            : `<span class="slot-role">${s.role}${gap ? " ⚠" : ""}</span>`}
+        </div>`;
+      }).join("")}
+    </div>`;
+  }
+
+  function poolChip(p, opts) {
+    opts = opts || {};
+    const st = statusInfo(p.status);
+    if (opts.injured) {
+      return `<div class="pl-chip is-injured" title="verletzt – nicht aufstellbar">
+        <span class="pl-nr">${p.nr != null ? p.nr : "–"}</span><span class="pl-name">${esc(p.name)}</span>
+        <span class="pl-pos">${esc(p.pos || "")}</span><span class="pl-st">✚</span></div>`;
+    }
+    const selCls = (lb.sel && lb.sel.kind === "pool" && lb.sel.id === p.id) ? " is-selected" : "";
+    return `<div class="pl-chip${selCls}${st ? " " + st.cls : ""}" draggable="true" data-player="${p.id}">
+      <span class="pl-nr">${p.nr != null ? p.nr : "–"}</span><span class="pl-name">${esc(p.name)}</span>
+      <span class="pl-pos">${esc(p.pos || "")}</span>${st ? `<span class="pl-st" title="${st.label}">${st.icon}</span>` : ""}</div>`;
+  }
+
+  function renderLineup() {
+    lbInitIfNeeded();
+    const spiele = DEMO.events.filter((e) => e.typ === "spiel").sort((a, b) => a.datum.localeCompare(b.datum));
+    if (!spiele.length) {
+      viewEl.innerHTML = `<div class="page-head"><h1>Aufstellung</h1></div>
+        <div class="empty"><div class="em-ico">⚽</div>Noch keine Spiele angelegt.</div>`;
+      return;
+    }
+    const varianten = (DEMO.lineups || []).filter((l) => l.eventId === lb.eventId && !l.isTemplate);
+    const vorlagen  = (DEMO.lineups || []).filter((l) => l.isTemplate);
+    const aktiv     = varianten.find((l) => l.isActive);
+    const istAktiv  = aktiv && aktiv.id === lb.lineupId;
+
+    const placed = new Set(Object.values(lb.assign).filter(Boolean));
+    const verletztIds = new Set(DEMO.players.filter((p) => p.status === "verletzt").map((p) => p.id));
+    const frei = DEMO.players.filter((p) => !verletztIds.has(p.id) && !placed.has(p.id));
+    const zu = (p) => (state.rsvp[lb.eventId + "|" + p.id] || {}).status === "zu";
+    const bank    = frei.filter(zu).sort(byName);
+    const weitere = frei.filter((p) => !zu(p)).sort(byName);
+    const lazarett = DEMO.players.filter((p) => p.status === "verletzt" && !placed.has(p.id)).sort(byName);
+
+    const evOpt = spiele.map((e) =>
+      `<option value="${e.id}" ${e.id === lb.eventId ? "selected" : ""}>${fmtDay(e.datum)}. ${fmtMon(e.datum)} · ${e.heim ? "vs." : "@"} ${esc(e.gegner || e.titel)}</option>`).join("");
+    const formOpt = Object.keys(FORMATIONS).map((f) =>
+      `<option value="${f}" ${f === lb.formation ? "selected" : ""}>${f}</option>`).join("");
+    const varOpt = `<option value="new" ${!lb.lineupId ? "selected" : ""}>➕ Neue Aufstellung</option>` +
+      varianten.map((l) => `<option value="${l.id}" ${l.id === lb.lineupId ? "selected" : ""}>${esc(l.name)}${l.isActive ? " ✓" : ""}</option>`).join("");
+    const tplOpt = `<option value="">Vorlage wählen …</option>` +
+      vorlagen.map((l) => `<option value="${l.id}">${esc(l.name)} (${l.formation})</option>`).join("");
+
+    viewEl.innerHTML = `
+      <div class="page-head"><h1>Aufstellung</h1>
+        <p>Team per Ziehen (Maus) oder Tippen (Handy) aufstellen. ${istAktiv ? '<span class="lu-activebadge">aktiv</span>' : ""}</p></div>
+
+      <div class="lu-controls card card-pad">
+        <div class="lu-row">
+          <label>Spiel <select class="lu-select" data-lu-event>${evOpt}</select></label>
+          <label>Formation <select class="lu-select" data-lu-formation>${formOpt}</select></label>
+          <label>Variante <select class="lu-select" data-lu-variant>${varOpt}</select></label>
+        </div>
+        <div class="lu-row">
+          <input class="lu-name" data-lu-name type="text" placeholder="Name der Variante (z. B. „Plan B ohne Lukas")" value="${esc(lb.name)}">
+          <button class="btn btn-primary" data-lu-save>Speichern</button>
+          <button class="btn" data-lu-active>${istAktiv ? "Aktiv ✓" : "Aktiv setzen"}</button>
+          <button class="btn" data-lu-tplsave>Als Vorlage</button>
+          <button class="btn btn-danger" data-lu-delete>Löschen</button>
+        </div>
+        <div class="lu-row">
+          <label>Vorlage anwenden <select class="lu-select" data-lu-template>${tplOpt}</select></label>
+          <button class="btn btn-soft" data-lu-apply>Anwenden</button>
+          ${lb.msg ? `<span class="lu-msg">${esc(lb.msg)}</span>` : ""}
+        </div>
+      </div>
+
+      <div class="lu-main">
+        <div class="lu-pitch-wrap">${renderPitch(lb.formation, lb.assign)}</div>
+        <div class="lu-side">
+          <div class="lu-group">
+            <h3>Bank · Zusagen <span class="lu-count">${bank.length}</span></h3>
+            <div class="pl-pool" data-bank-drop>
+              ${bank.length ? bank.map((p) => poolChip(p)).join("") : '<div class="pl-empty">Alle Zusagen sind aufgestellt 👍</div>'}
+            </div>
+          </div>
+          <details class="lu-group">
+            <summary>Ohne Rückmeldung / abgesagt <span class="lu-count">${weitere.length}</span></summary>
+            <div class="pl-pool">${weitere.length ? weitere.map((p) => poolChip(p)).join("") : '<div class="pl-empty">–</div>'}</div>
+          </details>
+          ${lazarett.length ? `<div class="lu-group">
+            <h3>Verletzt <span class="lu-count">${lazarett.length}</span></h3>
+            <div class="pl-pool">${lazarett.map((p) => poolChip(p, { injured: true })).join("")}</div>
+          </div>` : ""}
+        </div>
+      </div>
+    `;
+  }
+
+  // --- Mutationen -------------------------------------------------------------
+  function lbPlace(key, id) {
+    if (!id) return;
+    Object.keys(lb.assign).forEach((k) => { if (lb.assign[k] === id) lb.assign[k] = null; });
+    lb.assign[key] = id;
+    lb.gaps = lb.gaps.filter((g) => g !== key);
+  }
+  function lbSwap(k1, k2) {
+    if (k1 === k2) return;
+    const a = lb.assign[k1] || null, b = lb.assign[k2] || null;
+    lb.assign[k1] = b; lb.assign[k2] = a;
+  }
+  function lbRemove(key) { lb.assign[key] = null; }
+
+  // --- Tippen-zum-Zuweisen ----------------------------------------------------
+  function lbTapPool(id) {
+    if (!id) return;
+    lb.sel = (lb.sel && lb.sel.kind === "pool" && lb.sel.id === id) ? null : { kind: "pool", id: id };
+    renderLineup();
+  }
+  function lbTapSlot(key) {
+    if (lb.sel) {
+      if (lb.sel.kind === "pool") lbPlace(key, lb.sel.id);
+      else if (lb.sel.kind === "slot") lbSwap(lb.sel.key, key);
+      lb.sel = null;
+    } else if (lb.assign[key]) {
+      lb.sel = { kind: "slot", key: key };
+    }
+    renderLineup();
+  }
+  function lbTapBank() {
+    if (lb.sel && lb.sel.kind === "slot") lbRemove(lb.sel.key);
+    lb.sel = null;
+    renderLineup();
+  }
+
+  // --- Drag & Drop ------------------------------------------------------------
+  function lbDropOnSlot(key) {
+    if (!lbDrag) return;
+    if (lbDrag.kind === "pool") lbPlace(key, lbDrag.id);
+    else if (lbDrag.kind === "slot") lbSwap(lbDrag.key, key);
+    lbDrag = null; lb.sel = null; renderLineup();
+  }
+  function lbDropOnBank() {
+    if (lbDrag && lbDrag.kind === "slot") lbRemove(lbDrag.key);
+    lbDrag = null; lb.sel = null; renderLineup();
+  }
+
+  // --- Steuerung --------------------------------------------------------------
+  function lbChangeFormation(val) {
+    const placed = [];
+    (FORMATIONS[lb.formation] || []).forEach((s) => { if (lb.assign[s.key]) placed.push(lb.assign[s.key]); });
+    lb.formation = val;
+    lb.assign = {}; lb.gaps = [];
+    (FORMATIONS[val] || []).forEach((s, i) => { if (i < placed.length) lb.assign[s.key] = placed[i]; });
+  }
+  function lbChangeVariant(val) {
+    if (val === "new") lbNew();
+    else { const l = (DEMO.lineups || []).find((x) => x.id === val); if (l) lbLoad(l); }
+  }
+  function defaultVariantName() {
+    const n = (DEMO.lineups || []).filter((l) => l.eventId === lb.eventId && !l.isTemplate).length;
+    return "Variante " + String.fromCharCode(65 + n);
+  }
+  async function lbSave() {
+    const nameEl = viewEl.querySelector("[data-lu-name]");
+    lb.name = ((nameEl ? nameEl.value : lb.name) || "").trim() || defaultVariantName();
+    if (!lb.eventId) { window.alert("Bitte zuerst ein Spiel wählen."); return; }
+    try {
+      const row = await DB.saveLineup({
+        id: lb.lineupId, clubId: DEMO.clubId, eventId: lb.eventId,
+        name: lb.name, formation: lb.formation, slots: cleanAssign(lb.assign), bank: lbBankIds(), isTemplate: false,
+      });
+      lb.lineupId = row.id; lb.msg = "Gespeichert ✓";
+      await reloadData();
+    } catch (err) { window.alert("Speichern fehlgeschlagen: " + ((err && err.message) || err)); }
+  }
+  async function lbActivate() {
+    if (!lb.lineupId) await lbSave();
+    if (!lb.lineupId) return;
+    try { await DB.setLineupActive(lb.lineupId); lb.msg = "Als aktive Aufstellung gesetzt ✓"; await reloadData(); }
+    catch (err) { window.alert("Konnte nicht aktiv setzen: " + ((err && err.message) || err)); }
+  }
+  async function lbSaveTemplate() {
+    const nameEl = viewEl.querySelector("[data-lu-name]");
+    let nm = window.prompt("Name der Vorlage:", ((nameEl ? nameEl.value : lb.name) || "").trim() || "Vorlage");
+    if (nm === null) return;
+    try {
+      await DB.saveLineup({ clubId: DEMO.clubId, eventId: null, name: (nm.trim() || "Vorlage"),
+        formation: lb.formation, slots: cleanAssign(lb.assign), bank: [], isTemplate: true });
+      lb.msg = "Als Vorlage gespeichert ✓"; await reloadData();
+    } catch (err) { window.alert("Vorlage speichern fehlgeschlagen: " + ((err && err.message) || err)); }
+  }
+  function lbApplyTemplate() {
+    const sel = viewEl.querySelector("[data-lu-template]");
+    const id = sel ? sel.value : "";
+    if (!id) { window.alert("Bitte zuerst eine Vorlage wählen."); return; }
+    const tpl = (DEMO.lineups || []).find((l) => l.id === id && l.isTemplate);
+    if (!tpl) return;
+    lb.lineupId = null; lb.name = tpl.name; lb.formation = tpl.formation;
+    lb.assign = {}; lb.gaps = []; lb.sel = null;
+    const zuSet = new Set(zusagenIds(lb.eventId));
+    let dropped = 0;
+    (FORMATIONS[tpl.formation] || []).forEach((s) => {
+      const pid = (tpl.slots || {})[s.key];
+      if (!pid) return;
+      const pl = playerById[pid];
+      if (pl && pl.status !== "verletzt" && zuSet.has(pid)) lb.assign[s.key] = pid;
+      else { lb.gaps.push(s.key); dropped++; }
+    });
+    lb.msg = dropped ? (dropped + " Slot(s) leer – Spieler ohne Zusage/verletzt weggelassen.") : "Vorlage angewendet.";
+    renderLineup();
+  }
+  async function lbDeleteCurrent() {
+    if (!lb.lineupId) { lbNew(); renderLineup(); return; }
+    if (!window.confirm("Diese Aufstellung wirklich löschen?")) return;
+    try { await DB.deleteLineup(lb.lineupId); lbNew(); lb.msg = "Gelöscht."; await reloadData(); }
+    catch (err) { window.alert("Löschen fehlgeschlagen: " + ((err && err.message) || err)); }
   }
 
   /* ---------- Strafenkatalog ------------------------------------------------ */
@@ -327,6 +961,10 @@
 
   function renderStrafen() {
     const me = playerById[state.currentPlayerId];
+    // Ist das eingeloggte Konto wirklich mit einem Spieler verknüpft?
+    // Nur dann zeigen wir „Dein Konto" + die Bezahl-/Selbstmeldungs-Buttons –
+    // sonst würde ein Fallback-Spieler fälschlich als „du" erscheinen.
+    const linked = !!(currentProfile && currentProfile.player_id && me);
     // „Als bezahlt" nur für Kassenwart/Admin (UI-Komfort; echte Sperre = RLS)
     const canPay = Roles.canManageFines();
 
@@ -340,14 +978,28 @@
 
     const offenGesamt   = alle.filter((s) => !s.bezahlt).reduce((a, s) => a + s.betrag, 0);
     const bezahltGesamt = alle.filter((s) =>  s.bezahlt).reduce((a, s) => a + s.betrag, 0);
-    const meineOffen    = alle.filter((s) => s.playerId === me.id && !s.bezahlt).reduce((a, s) => a + s.betrag, 0);
-    const meineGesamt   = alle.filter((s) => s.playerId === me.id).reduce((a, s) => a + s.betrag, 0);
+    const meineOffen    = linked ? summeOffenSpieler(me.id) : 0;
+    const meineGesamt   = linked ? alle.filter((s) => s.playerId === me.id).reduce((a, s) => a + s.betrag, 0) : 0;
+    const meinZuschlag  = linked ? alle.filter((s) => s.playerId === me.id && !s.bezahlt).reduce((a, s) => a + zuschlagBetrag(s), 0) : 0;
+
+    // Für den Banner: meine offene Strafe mit der KÜRZESTEN Restzeit (nicht gedeckelt).
+    let bannerCd = null;
+    if (linked) {
+      const jetzt = Date.now();
+      alle.filter((s) => s.playerId === me.id && !s.bezahlt).forEach((s) => {
+        const info = mahnCountdown(s, jetzt);
+        if (info.capped) return;
+        if (bannerCd === null || info.remMs < bannerCd.remMs) {
+          bannerCd = { remMs: info.remMs, createdAt: s.createdAt };
+        }
+      });
+    }
 
     let gefiltert = alle;
     if (strafenFilter === "offen")   gefiltert = alle.filter((s) => !s.bezahlt);
     if (strafenFilter === "bezahlt") gefiltert = alle.filter((s) =>  s.bezahlt);
     if (strafenFilter === "selbst")  gefiltert = alle.filter((s) =>  s.bezahlt && s.selfReported);
-    if (strafenFilter === "meine")   gefiltert = alle.filter((s) => s.playerId === me.id);
+    if (strafenFilter === "meine")   gefiltert = linked ? alle.filter((s) => s.playerId === me.id) : [];
     gefiltert.sort((a, b) => Number(a.bezahlt) - Number(b.bezahlt) || b.datum.localeCompare(a.datum));
 
     const filters = [
@@ -421,10 +1073,21 @@
         <p>Offene und beglichene Strafen der Mannschaft.</p>
       </div>
 
+      ${!linked ? `
+      <div class="mine-banner">
+        <div class="mb-left">
+          <small>Dein Konto</small>
+          <strong>Noch keinem Spieler zugeordnet</strong>
+          <span class="mb-pay-cap">Bitte einen Trainer/Admin um die Zuordnung – danach siehst du hier deine Strafen.</span>
+        </div>
+      </div>
+      ` : `
       <div class="mine-banner">
         <div class="mb-left">
           <small>Dein Konto · ${esc(me.name)}</small>
           <strong>${meineOffen > 0 ? "Du hast noch offene Strafen" : "Du bist schuldenfrei 🎉"}</strong>
+          ${meinZuschlag > 0 ? `<span class="mb-pay-cap">inkl. ${euro(meinZuschlag)} Mahnzuschlag – bezahle zügig, sonst steigt der Betrag weiter.</span>` : ""}
+          ${bannerCd ? `<span class="mb-cd">Nächste Erhöhung: <span class="cd" data-cd-created="${bannerCd.createdAt}" data-cd-step="${faelligeStufen({ createdAt: bannerCd.createdAt }, Date.now())}"></span></span>` : ""}
         </div>
         <div class="mb-right">
           <div class="mb-amount">
@@ -443,6 +1106,7 @@
           </div>` : ""}
         </div>
       </div>
+      `}
 
       <div class="kpi-grid">
         <div class="kpi is-warn">
@@ -475,31 +1139,61 @@
           <tbody>
             ${gefiltert.map((s) => `
               <tr>
-                <td><div class="player-cell"><span class="avatar">${initials(s.player.name)}</span>${esc(s.player.name)}</div></td>
-                <td>${esc(s.kat.vergehen)}${s.note ? `<div style="font-size:.78rem;color:var(--muted)">${esc(s.note)}</div>` : ""}</td>
+                <td><div class="player-cell"><span class="avatar">${initials(s.player.name)}</span>${esc(s.player.name)}${statusBadge(s.player)}</div></td>
+                <td>${esc(s.kat.vergehen)}${s.auto ? ` <span class="badge badge-auto">automatisch</span>` : ""}${s.note ? `<div style="font-size:.78rem;color:var(--muted)">${esc(s.note)}</div>` : ""}</td>
                 <td style="color:var(--muted);white-space:nowrap">${fmtWd(s.datum)}, ${fmtDay(s.datum)}. ${fmtMon(s.datum)}</td>
-                <td class="num amount">${euro(s.betrag)}</td>
+                <td class="num amount">${euro(s.betrag)}${
+                  zuschlagBetrag(s) > 0 ? `<div class="amt-sub">inkl. ${euro(zuschlagBetrag(s))} Mahnzuschlag</div>` : ""
+                }${
+                  !s.bezahlt ? `<div class="cd-wrap"><span class="cd" data-cd-created="${s.createdAt}" data-cd-step="${faelligeStufen(s, Date.now())}"></span></div>` : ""
+                }</td>
                 <td>${!s.bezahlt
                   ? `<span class="badge badge-open">offen</span>`
                   : s.selfReported
                     ? `<span class="badge badge-self">selbst gemeldet</span>${s.paidAt ? `<div style="font-size:.7rem;color:var(--muted)">${fmtTs(s.paidAt)}</div>` : ""}`
                     : `<span class="badge badge-paid">beglichen</span>`}</td>
-                <td style="text-align:right">
+                <td style="text-align:right;white-space:nowrap">
                   ${canPay ? `<button class="btn" data-toggle-paid="${s.id}">${s.bezahlt ? "Als offen" : "Als bezahlt"}</button>` : ""}
+                  ${s.auto && Roles.canDeleteAutoFine() ? `<button class="btn btn-danger" data-del-fine="${s.id}" title="Auto-Strafe entfernen (z. B. entschuldigt)">Entfernen</button>` : ""}
                 </td>
               </tr>`).join("")}
           </tbody>
         </table>
       </div>` : `<div class="empty"><div class="em-ico">✅</div>Keine Strafen in dieser Auswahl.</div>`}
     `;
+
+    startCountdowns(); // Live-Timer für alle Countdown-Felder dieser Ansicht
   }
 
   /* ---------------------------------------------------------------------------
      Interaktion (Event-Delegation)
      --------------------------------------------------------------------------- */
   viewEl.addEventListener("click", async (ev) => {
-    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self]");
+    // Aufstellungs-Builder zuerst (eigene Tap-/Button-Logik)
+    if (currentView === "lineup") {
+      const lu = ev.target.closest("[data-player],[data-slot],[data-bank-drop],[data-lu-save],[data-lu-active],[data-lu-tplsave],[data-lu-apply],[data-lu-delete]");
+      if (lu) {
+        if (lu.hasAttribute("data-player")) lbTapPool(lu.dataset.player);
+        else if (lu.hasAttribute("data-slot")) lbTapSlot(lu.dataset.slot);
+        else if (lu.hasAttribute("data-bank-drop") && ev.target.closest("[data-slot-player]") == null) lbTapBank();
+        else if (lu.hasAttribute("data-lu-save")) lbSave();
+        else if (lu.hasAttribute("data-lu-active")) lbActivate();
+        else if (lu.hasAttribute("data-lu-tplsave")) lbSaveTemplate();
+        else if (lu.hasAttribute("data-lu-apply")) lbApplyTemplate();
+        else if (lu.hasAttribute("data-lu-delete")) lbDeleteCurrent();
+        return;
+      }
+    }
+
+    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self]");
     if (!t) return;
+
+    // Kader-Info erstellen (Trainer/Admin) -> Vorschau-Dialog
+    if (t.dataset.kaderInfo) {
+      const e = DEMO.events.find((x) => x.id === t.dataset.kaderInfo);
+      if (e) openShareModal("Kader-Info · " + (e.gegner ? (e.heim ? "vs. " : "@ ") + e.gegner : e.titel), buildKaderInfoText(e));
+      return;
+    }
 
     // Login <-> Registrieren umschalten
     if (t.dataset.auth) { authMode = t.dataset.auth; authError = ""; authInfo = ""; renderLogin(); return; }
@@ -533,16 +1227,25 @@
       const key = eventId + "|" + playerId;
       const cur = state.rsvp[key] || {};
       const status = t.dataset.rsvp;
+      const ev = DEMO.events.find((x) => x.id === eventId);
+      // Rückmeldung nach Meldeschluss? -> zählt als verspätet (8 €, server-seitig).
+      const dl = ev ? meldeschlussMs(ev) : null;
+      const start = ev ? eventStartMs(ev) : null;
+      const spaet = dl != null && Date.now() > dl && (start == null || Date.now() < start);
+      const spaetWarn = (verb) =>
+        !window.confirm(`Der Meldeschluss ist vorbei. Deine Rückmeldung zählt jetzt als verspätet und kostet 8 €.\n\nTrotzdem ${verb}?`);
       try {
         if (cur.status === status) {
           await DB.deleteRsvp(eventId, playerId);     // erneuter Klick = zurücknehmen
           delete state.rsvp[key];
         } else if (status === "ab") {
+          if (spaet && spaetWarn("absagen")) return;
           const grund = window.prompt("Grund für die Absage (optional):", cur.grund || "");
           if (grund === null) return;                  // „Abbrechen" -> nichts speichern
           await DB.setRsvp(DEMO.clubId, eventId, playerId, "ab", grund.trim());
           state.rsvp[key] = { status: "ab", grund: grund.trim() };
         } else {
+          if (spaet && spaetWarn("zusagen")) return;
           await DB.setRsvp(DEMO.clubId, eventId, playerId, "zu", "");
           state.rsvp[key] = { status: "zu", grund: "" };
         }
@@ -550,7 +1253,7 @@
         window.alert("Speichern fehlgeschlagen: " + ((err && err.message) || err));
         return;
       }
-      renderKalender();
+      await reloadData();   // Konto/Strafen sofort frisch (z. B. neue Auto-Absagestrafe)
       return;
     }
 
@@ -564,6 +1267,18 @@
         await reloadData();
       } catch (err) {
         window.alert("Speichern fehlgeschlagen: " + ((err && err.message) || err));
+      }
+      return;
+    }
+
+    // Auto-Strafe entfernen (Trainer/Kassenwart/Admin) -> Spieler war entschuldigt
+    if (t.dataset.delFine) {
+      if (!window.confirm("Diese automatische Strafe wirklich entfernen?")) return;
+      try {
+        await DB.deleteFine(t.dataset.delFine);
+        await reloadData();
+      } catch (err) {
+        window.alert("Löschen fehlgeschlagen: " + ((err && err.message) || err));
       }
       return;
     }
@@ -582,6 +1297,38 @@
       return;
     }
   });
+
+  // Aufstellungs-Builder: Auswahlfelder (Spiel/Formation/Variante)
+  viewEl.addEventListener("change", (ev) => {
+    if (currentView !== "lineup") return;
+    const t = ev.target;
+    if (t.matches("[data-lu-event]")) { lb.eventId = t.value; lbLoadActiveOrNew(); renderLineup(); }
+    else if (t.matches("[data-lu-formation]")) { lbChangeFormation(t.value); renderLineup(); }
+    else if (t.matches("[data-lu-variant]")) { lbChangeVariant(t.value); renderLineup(); }
+  });
+
+  // Aufstellungs-Builder: Drag & Drop (Maus)
+  viewEl.addEventListener("dragstart", (ev) => {
+    if (currentView !== "lineup") return;
+    const pool = ev.target.closest("[data-player]");
+    const fld  = ev.target.closest("[data-slot-player]");
+    if (pool) { lbDrag = { kind: "pool", id: pool.dataset.player }; }
+    else if (fld) { lbDrag = { kind: "slot", key: fld.dataset.slotPlayer }; }
+    else return;
+    if (ev.dataTransfer) { ev.dataTransfer.effectAllowed = "move"; ev.dataTransfer.setData("text/plain", "x"); }
+  });
+  viewEl.addEventListener("dragover", (ev) => {
+    if (currentView !== "lineup" || !lbDrag) return;
+    if (ev.target.closest("[data-slot],[data-bank-drop]")) ev.preventDefault();
+  });
+  viewEl.addEventListener("drop", (ev) => {
+    if (currentView !== "lineup" || !lbDrag) return;
+    const slot = ev.target.closest("[data-slot]");
+    const bank = ev.target.closest("[data-bank-drop]");
+    if (slot) { ev.preventDefault(); lbDropOnSlot(slot.dataset.slot); }
+    else if (bank) { ev.preventDefault(); lbDropOnBank(); }
+  });
+  viewEl.addEventListener("dragend", () => { lbDrag = null; });
 
   /* ---------------------------------------------------------------------------
      Navigation, Spielerauswahl, Reset
@@ -638,6 +1385,8 @@
     canManageEvents() { return this.has("coach") || this.isAdmin(); },
     canEditCatalog() { return this.has("treasurer") || this.isAdmin(); },
     canManageFines() { return this.has("treasurer") || this.isAdmin(); },
+    // Auto-Strafen darf auch der Trainer entfernen (Spieler war entschuldigt).
+    canDeleteAutoFine() { return this.canManageFines() || this.canManageEvents(); },
   };
 
   function authErrorText(msg) {
@@ -663,6 +1412,8 @@
       `<button class="logout-btn" data-logout>Abmelden</button>`;
     const navAdmin = document.getElementById("navAdmin");
     if (navAdmin) navAdmin.style.display = Roles.isAdmin() ? "" : "none";
+    const navLineup = document.getElementById("navLineup");
+    if (navLineup) navLineup.style.display = Roles.canManageEvents() ? "" : "none";
   }
 
   // Login-/Registrier-Seite.
@@ -769,6 +1520,34 @@
       </table></div>
       <p style="color:var(--muted);font-size:.85rem;margin-top:12px">${members.length} Mitglied(er) · Neue erscheinen hier, sobald sie sich registriert haben.</p>`;
   }
+
+  // Status setzen (Trainer/Admin) per Auswahl im Kader-Status.
+  viewEl.addEventListener("change", async (ev) => {
+    const sel = ev.target.closest("[data-status-player]");
+    if (!sel) return;
+    const playerId = sel.dataset.statusPlayer;
+    const status = sel.value;
+    const p = playerById[playerId] || {};
+    const prev = p.status || "fit";
+    let note = null, until = null;
+    if (status !== "fit") {
+      note = window.prompt("Notiz (optional, z. B. „Muskelfaserriss“):", p.statusNote || "");
+      if (note === null) { sel.value = prev; return; }        // Abbrechen
+      const u = window.prompt("Voraussichtliche Rückkehr (optional, JJJJ-MM-TT):", p.statusUntil || "");
+      if (u === null) { sel.value = prev; return; }
+      until = (u && /^\d{4}-\d{2}-\d{2}$/.test(u.trim())) ? u.trim() : null;
+    }
+    sel.disabled = true;
+    try {
+      await DB.setPlayerStatus(playerId, status, note, until);
+      await reloadData();
+    } catch (err) {
+      sel.value = prev;
+      window.alert("Status konnte nicht gesetzt werden: " + ((err && err.message) || err));
+    } finally {
+      sel.disabled = false;
+    }
+  });
 
   // Rolle per Häkchen vergeben/entziehen.
   viewEl.addEventListener("change", async (ev) => {
