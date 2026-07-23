@@ -19,6 +19,8 @@ $RECYCLE.BIN/
 .env
 .env.local
 .env.*.local
-config.js
+# Hinweis: config.js wird BEWUSST committet (nur Supabase-URL + Publishable-Key,
+# beides oeffentlich unbedenklich; Schutz laeuft ueber RLS). Die echte .env bleibt raus.
+
 # Lokale Hilfsdateien
 qr.png
