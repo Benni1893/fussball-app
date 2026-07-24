@@ -16,7 +16,7 @@
   const HEUTE = toISODate(new Date()); // echtes heutiges Datum
 
   // PayPal.Me-Link (Betrag wird übergeben). Phase 4: echte Integration/Checkout.
-  // 🔧 Hier später den echten PayPal-Benutzernamen des Vereins eintragen:
+  // Hier später den echten PayPal-Benutzernamen des Vereins eintragen:
   const PAYPAL_ME = "Teamkassefasanerie";
   function paypalMeLink(betrag) {
     const amount = Number(betrag).toFixed(2).replace(".", ","); // z. B. 12,50
@@ -81,15 +81,15 @@
 
   /* ---- Fitness-/Verletztenstatus ----------------------------------------- */
   function statusInfo(status) {
-    if (status === "verletzt")    return { label: "verletzt", cls: "st-red", icon: "✚" };
-    if (status === "angeschlagen") return { label: "angeschlagen", cls: "st-amber", icon: "⚠️" };
+    if (status === "verletzt")    return { label: "verletzt", cls: "st-red" };
+    if (status === "angeschlagen") return { label: "angeschlagen", cls: "st-amber" };
     return null; // fit -> kein Badge
   }
   // Kleines Status-Badge neben einem Spielernamen (leer, wenn fit).
   function statusBadge(player) {
     const i = player && statusInfo(player.status);
     if (!i) return "";
-    return ` <span class="st-badge ${i.cls}" title="${i.label}">${i.icon} ${i.label}</span>`;
+    return ` <span class="st-badge ${i.cls}" title="${i.label}">${i.label}</span>`;
   }
   // Nachname für die alphabetische Sortierung (letztes Wort des Namens).
   function nachname(name) {
@@ -316,7 +316,7 @@
     const trainerHtml = Roles.canManageEvents() ? `
       <div class="grid-2" style="margin-top:8px">
         <div>
-          <div class="section-title"><h2>🚑 Lazarett</h2></div>
+          <div class="section-title"><h2>Lazarett</h2></div>
           <div class="card card-pad">
             ${lazarett.length ? lazarett.map((p) => `
               <div class="laz-row">
@@ -327,7 +327,7 @@
                     ${p.statusSince ? "seit " + fmtDay(p.statusSince) + ". " + fmtMon(p.statusSince) : ""}${p.statusUntil ? " · vor. zurück " + fmtDay(p.statusUntil) + ". " + fmtMon(p.statusUntil) : ""}${p.statusNote ? " · " + esc(p.statusNote) : ""}
                   </div>
                 </div>
-              </div>`).join("") : `<div class="empty" style="padding:14px 0">Alle fit – kein Eintrag 💪</div>`}
+              </div>`).join("") : `<div class="empty" style="padding:14px 0">Alle fit – kein Eintrag</div>`}
           </div>
         </div>
         <div>
@@ -348,8 +348,7 @@
 
     viewEl.innerHTML = `
       <div class="page-head">
-        <h1>Servus, ${esc(me.name.split(" ")[0])}! 👋</h1>
-        <p>Hier ist dein Überblick für die ${esc(DEMO.verein.team)} · ${esc(DEMO.verein.saison)}.</p>
+        <h1>Servus, ${esc(me.name.split(" ")[0])}!</h1>
       </div>
 
       <div class="kpi-grid">
@@ -415,9 +414,9 @@
   function renderKalender() {
     const filters = [
       { k: "alle", label: "Alle" },
-      { k: "spiel", label: "⚽ Spiele" },
-      { k: "training", label: "🏃 Trainings" },
-      { k: "event", label: "🎉 Team-Events" },
+      { k: "spiel", label: "Spiele" },
+      { k: "training", label: "Trainings" },
+      { k: "event", label: "Team-Events" },
     ];
     const liste = DEMO.events
       .filter((e) => kalFilter === "alle" || e.typ === kalFilter)
@@ -428,13 +427,12 @@
     viewEl.innerHTML = `
       <div class="page-head">
         <h1>Kalender</h1>
-        <p>Spiele, Trainings und Team-Events – sag direkt zu oder ab.</p>
       </div>
       <div class="toolbar">
         ${filters.map((f) => `<button class="chip ${kalFilter === f.k ? "is-active" : ""}" data-filter="${f.k}">${f.label}</button>`).join("")}
       </div>
       ${kommend.length ? `<div class="event-list">${kommend.map((e) => eventCard(e, true)).join("")}</div>`
-                       : `<div class="empty"><div class="em-ico">📭</div>Keine kommenden Termine in dieser Auswahl.</div>`}
+                       : `<div class="empty">Keine kommenden Termine in dieser Auswahl.</div>`}
       ${vergangen.length ? `
         <div class="section-title" style="margin-top:28px"><h2>Vergangene Termine</h2></div>
         <div class="event-list" style="opacity:.72">${vergangen.map((e) => eventCard(e, false)).join("")}</div>` : ""}
@@ -473,10 +471,10 @@
       const start = eventStartMs(e);
       const now = Date.now();
       if (dl != null && now < dl) {
-        fristHtml = `<div class="frist"><span class="frist-label">⏳ Meldeschluss:</span> <span class="cd" data-cd-deadline="${new Date(dl).toISOString()}"></span></div>`;
+        fristHtml = `<div class="frist"><span class="frist-label">Meldeschluss:</span> <span class="cd" data-cd-deadline="${new Date(dl).toISOString()}"></span></div>`;
       } else if (start != null && now < start) {
         const noResp = e.typ === "spiel" ? "25 €" : "15 €";
-        fristHtml = `<div class="frist frist-warn">⚠️ Meldeschluss vorbei – Rückmeldung jetzt kostet 8 €, keine Rückmeldung ${noResp}.</div>`;
+        fristHtml = `<div class="frist frist-warn">Meldeschluss vorbei – Rückmeldung jetzt kostet 8 €, keine Rückmeldung ${noResp}.</div>`;
       }
     }
 
@@ -485,8 +483,8 @@
       rsvpHtml = `
         <div class="rsvp">
           <div class="rsvp-buttons">
-            <button class="btn btn-zu ${r.status === "zu" ? "is-on" : ""}" data-rsvp="zu" data-event="${e.id}">✓ Zusage</button>
-            <button class="btn btn-ab ${r.status === "ab" ? "is-on" : ""}" data-rsvp="ab" data-event="${e.id}">✗ Absage</button>
+            <button class="btn btn-zu ${r.status === "zu" ? "is-on" : ""}" data-rsvp="zu" data-event="${e.id}">Zusage</button>
+            <button class="btn btn-ab ${r.status === "ab" ? "is-on" : ""}" data-rsvp="ab" data-event="${e.id}">Absage</button>
           </div>
           <div class="rsvp-count"><b>${zusagen}</b> / ${DEMO.players.length} zugesagt</div>
           ${r.status === "ab" && r.grund ? `<div class="rsvp-reason">Grund: ${esc(r.grund)}</div>` : ""}
@@ -505,13 +503,13 @@
         <div class="event-main">
           <div class="e-title">${titel} ${tagMap[e.typ]} ${heimTag}</div>
           <div class="e-meta">
-            <span>🕑 ${e.zeit} Uhr</span>
-            <span>📍 ${esc(e.ort)}</span>
+            <span>${e.zeit} Uhr</span>
+            <span>${esc(e.ort)}</span>
           </div>
-          ${e.note ? `<div class="e-note">ℹ️ ${esc(e.note)}</div>` : ""}
+          ${e.note ? `<div class="e-note">${esc(e.note)}</div>` : ""}
           ${fristHtml}
           ${e.typ === "spiel" && Roles.canManageEvents()
-            ? `<div class="e-trainer"><button class="btn btn-soft" data-kader-info="${e.id}">📋 Kader-Info erstellen</button></div>`
+            ? `<div class="e-trainer"><button class="btn btn-soft" data-kader-info="${e.id}">Kader-Info erstellen</button></div>`
             : ""}
         </div>
         ${rsvpHtml}
@@ -588,12 +586,12 @@
     ov.innerHTML = `
       <div class="modal" role="dialog" aria-modal="true">
         <div class="modal-head"><strong>${esc(title)}</strong>
-          <button class="modal-x" aria-label="Schließen">✕</button></div>
+          <button class="modal-x" aria-label="Schließen">×</button></div>
         <p class="modal-sub">Text frei anpassen, dann teilen oder kopieren.</p>
         <textarea class="modal-text" rows="11" spellcheck="false"></textarea>
         <div class="modal-actions">
-          <button class="btn btn-primary" data-wa>📲 Per WhatsApp teilen</button>
-          <button class="btn" data-copy>📋 Text kopieren</button>
+          <button class="btn btn-primary" data-wa>Per WhatsApp teilen</button>
+          <button class="btn" data-copy>Text kopieren</button>
         </div>
         <div class="modal-hint" aria-live="polite"></div>
       </div>`;
@@ -608,7 +606,7 @@
     });
     ov.querySelector("[data-copy]").addEventListener("click", async () => {
       const ok = await copyText(ta.value);
-      hint.textContent = ok ? "In die Zwischenablage kopiert ✓"
+      hint.textContent = ok ? "In die Zwischenablage kopiert"
                             : "Konnte nicht automatisch kopieren – bitte Text markieren und kopieren.";
     });
   }
@@ -711,9 +709,9 @@
             ? `<div class="field-pl${mism ? " is-mismatch" : ""}" draggable="true" data-slot-player="${s.key}" title="${mism ? "Position passt nicht: " + p.pos + " auf " + s.role : esc(p.name)}">
                  <span class="fp-nr">${p.nr != null ? p.nr : ""}</span>
                  <span class="fp-name">${esc(shortName(p.name))}</span>
-                 ${mism ? '<span class="fp-warn">⚠</span>' : ""}
+                 ${mism ? '<span class="fp-warn">!</span>' : ""}
                </div>`
-            : `<span class="slot-role">${s.role}${gap ? " ⚠" : ""}</span>`}
+            : `<span class="slot-role">${s.role}${gap ? " !" : ""}</span>`}
         </div>`;
       }).join("")}
     </div>`;
@@ -725,12 +723,12 @@
     if (opts.injured) {
       return `<div class="pl-chip is-injured" title="verletzt – nicht aufstellbar">
         <span class="pl-nr">${p.nr != null ? p.nr : "–"}</span><span class="pl-name">${esc(p.name)}</span>
-        <span class="pl-pos">${esc(p.pos || "")}</span><span class="pl-st">✚</span></div>`;
+        <span class="pl-pos">${esc(p.pos || "")}</span><span class="pl-st">verletzt</span></div>`;
     }
     const selCls = (lb.sel && lb.sel.kind === "pool" && lb.sel.id === p.id) ? " is-selected" : "";
     return `<div class="pl-chip${selCls}${st ? " " + st.cls : ""}" draggable="true" data-player="${p.id}">
       <span class="pl-nr">${p.nr != null ? p.nr : "–"}</span><span class="pl-name">${esc(p.name)}</span>
-      <span class="pl-pos">${esc(p.pos || "")}</span>${st ? `<span class="pl-st" title="${st.label}">${st.icon}</span>` : ""}</div>`;
+      <span class="pl-pos">${esc(p.pos || "")}</span>${st ? `<span class="pl-st" title="${st.label}">${st.label}</span>` : ""}</div>`;
   }
 
   function renderLineup() {
@@ -738,7 +736,7 @@
     const spiele = DEMO.events.filter((e) => e.typ === "spiel").sort((a, b) => a.datum.localeCompare(b.datum));
     if (!spiele.length) {
       viewEl.innerHTML = `<div class="page-head"><h1>Aufstellung</h1></div>
-        <div class="empty"><div class="em-ico">⚽</div>Noch keine Spiele angelegt.</div>`;
+        <div class="empty">Noch keine Spiele angelegt.</div>`;
       return;
     }
     const varianten = (DEMO.lineups || []).filter((l) => l.eventId === lb.eventId && !l.isTemplate);
@@ -758,8 +756,8 @@
       `<option value="${e.id}" ${e.id === lb.eventId ? "selected" : ""}>${fmtDay(e.datum)}. ${fmtMon(e.datum)} · ${e.heim ? "vs." : "@"} ${esc(e.gegner || e.titel)}</option>`).join("");
     const formOpt = Object.keys(FORMATIONS).map((f) =>
       `<option value="${f}" ${f === lb.formation ? "selected" : ""}>${f}</option>`).join("");
-    const varOpt = `<option value="new" ${!lb.lineupId ? "selected" : ""}>➕ Neue Aufstellung</option>` +
-      varianten.map((l) => `<option value="${l.id}" ${l.id === lb.lineupId ? "selected" : ""}>${esc(l.name)}${l.isActive ? " ✓" : ""}</option>`).join("");
+    const varOpt = `<option value="new" ${!lb.lineupId ? "selected" : ""}>Neue Aufstellung</option>` +
+      varianten.map((l) => `<option value="${l.id}" ${l.id === lb.lineupId ? "selected" : ""}>${esc(l.name)}${l.isActive ? " (aktiv)" : ""}</option>`).join("");
     const tplOpt = `<option value="">Vorlage wählen …</option>` +
       vorlagen.map((l) => `<option value="${l.id}">${esc(l.name)} (${l.formation})</option>`).join("");
 
@@ -776,7 +774,7 @@
         <div class="lu-row">
           <input class="lu-name" data-lu-name type="text" placeholder="Name der Variante (z. B. „Plan B ohne Lukas")" value="${esc(lb.name)}">
           <button class="btn btn-primary" data-lu-save>Speichern</button>
-          <button class="btn" data-lu-active>${istAktiv ? "Aktiv ✓" : "Aktiv setzen"}</button>
+          <button class="btn" data-lu-active>${istAktiv ? "Aktiv" : "Aktiv setzen"}</button>
           <button class="btn" data-lu-tplsave>Als Vorlage</button>
           <button class="btn btn-danger" data-lu-delete>Löschen</button>
         </div>
@@ -793,7 +791,7 @@
           <div class="lu-group">
             <h3>Bank · Zusagen <span class="lu-count">${bank.length}</span></h3>
             <div class="pl-pool" data-bank-drop>
-              ${bank.length ? bank.map((p) => poolChip(p)).join("") : '<div class="pl-empty">Alle Zusagen sind aufgestellt 👍</div>'}
+              ${bank.length ? bank.map((p) => poolChip(p)).join("") : '<div class="pl-empty">Alle Zusagen sind aufgestellt</div>'}
             </div>
           </div>
           <details class="lu-group">
@@ -882,14 +880,14 @@
         id: lb.lineupId, clubId: DEMO.clubId, eventId: lb.eventId,
         name: lb.name, formation: lb.formation, slots: cleanAssign(lb.assign), bank: lbBankIds(), isTemplate: false,
       });
-      lb.lineupId = row.id; lb.msg = "Gespeichert ✓";
+      lb.lineupId = row.id; lb.msg = "Gespeichert.";
       await reloadData();
     } catch (err) { window.alert("Speichern fehlgeschlagen: " + ((err && err.message) || err)); }
   }
   async function lbActivate() {
     if (!lb.lineupId) await lbSave();
     if (!lb.lineupId) return;
-    try { await DB.setLineupActive(lb.lineupId); lb.msg = "Als aktive Aufstellung gesetzt ✓"; await reloadData(); }
+    try { await DB.setLineupActive(lb.lineupId); lb.msg = "Als aktive Aufstellung gesetzt."; await reloadData(); }
     catch (err) { window.alert("Konnte nicht aktiv setzen: " + ((err && err.message) || err)); }
   }
   async function lbSaveTemplate() {
@@ -899,7 +897,7 @@
     try {
       await DB.saveLineup({ clubId: DEMO.clubId, eventId: null, name: (nm.trim() || "Vorlage"),
         formation: lb.formation, slots: cleanAssign(lb.assign), bank: [], isTemplate: true });
-      lb.msg = "Als Vorlage gespeichert ✓"; await reloadData();
+      lb.msg = "Als Vorlage gespeichert."; await reloadData();
     } catch (err) { window.alert("Vorlage speichern fehlgeschlagen: " + ((err && err.message) || err)); }
   }
   function lbApplyTemplate() {
@@ -935,7 +933,6 @@
     viewEl.innerHTML = `
       <div class="page-head">
         <h1>Strafenkatalog</h1>
-        <p>Verbindlich beschlossen von der Mannschaft – gilt für die ${esc(DEMO.verein.saison)}.</p>
       </div>
       <div class="table-wrap">
         <table>
@@ -950,9 +947,6 @@
           </tbody>
         </table>
       </div>
-      <p style="color:var(--muted);font-size:.85rem;margin-top:14px">
-        ${DEMO.katalog.length} Positionen in ${kategorien.length} Kategorien · Einnahmen fließen in die Mannschaftskasse.
-      </p>
     `;
   }
 
@@ -1040,7 +1034,7 @@
               <span class="seg seg-paid" style="width:${paidShare}%"></span><span class="seg seg-open" style="width:${openShare}%"></span>
             </div>
           </div>
-          <div class="bar-sub">${t.offen > 0 ? euro(t.offen) + " offen" : "alles bezahlt ✓"}</div>
+          <div class="bar-sub">${t.offen > 0 ? euro(t.offen) + " offen" : "alles bezahlt"}</div>
         </div>`;
     }).join("");
 
@@ -1070,7 +1064,6 @@
     viewEl.innerHTML = `
       <div class="page-head">
         <h1>Strafen-Konto</h1>
-        <p>Offene und beglichene Strafen der Mannschaft.</p>
       </div>
 
       ${!linked ? `
@@ -1085,8 +1078,8 @@
       <div class="mine-banner">
         <div class="mb-left">
           <small>Dein Konto · ${esc(me.name)}</small>
-          <strong>${meineOffen > 0 ? "Du hast noch offene Strafen" : "Du bist schuldenfrei 🎉"}</strong>
-          ${meinZuschlag > 0 ? `<span class="mb-pay-cap">inkl. ${euro(meinZuschlag)} Mahnzuschlag – bezahle zügig, sonst steigt der Betrag weiter.</span>` : ""}
+          <strong>${meineOffen > 0 ? "Du hast noch offene Strafen" : "Du bist schuldenfrei"}</strong>
+          ${meinZuschlag > 0 ? `<span class="mb-pay-cap">inkl. ${euro(meinZuschlag)} Mahnzuschlag</span>` : ""}
           ${bannerCd ? `<span class="mb-cd">Nächste Erhöhung: <span class="cd" data-cd-created="${bannerCd.createdAt}" data-cd-step="${faelligeStufen({ createdAt: bannerCd.createdAt }, Date.now())}"></span></span>` : ""}
         </div>
         <div class="mb-right">
@@ -1102,7 +1095,7 @@
               <span class="pp-word"><span class="pp1">Pay</span><span class="pp2">Pal</span></span>
             </button>
             <span class="mb-pay-cap">Bitte als „Freunde &amp; Familie" senden</span>
-            <button class="paid-self-btn" data-paid-self>✓ Ich habe bezahlt</button>
+            <button class="paid-self-btn" data-paid-self>Ich habe bezahlt</button>
           </div>` : ""}
         </div>
       </div>
@@ -1159,7 +1152,7 @@
               </tr>`).join("")}
           </tbody>
         </table>
-      </div>` : `<div class="empty"><div class="em-ico">✅</div>Keine Strafen in dieser Auswahl.</div>`}
+      </div>` : `<div class="empty">Keine Strafen in dieser Auswahl.</div>`}
     `;
 
     startCountdowns(); // Live-Timer für alle Countdown-Felder dieser Ansicht
@@ -1335,16 +1328,38 @@
      --------------------------------------------------------------------------- */
   function switchView(view) {
     currentView = view;
-    document.querySelectorAll(".nav-btn").forEach((b) =>
-      b.classList.toggle("is-active", b.dataset.view === view));
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    // Bereiche im „Mehr"-Menü (Aufstellung/Rollen) markieren den Mehr-Tab als aktiv.
+    const inMore = (view === "lineup" || view === "admin");
+    document.querySelectorAll(".nav-btn").forEach((b) => {
+      const active = inMore ? b.hasAttribute("data-more") : (b.dataset.view === view);
+      b.classList.toggle("is-active", active);
+    });
+    window.scrollTo({ top: 0 });
     render();
   }
 
+  function openMoreSheet()  { const s = document.getElementById("moreSheet"); if (s) s.hidden = false; }
+  function closeMoreSheet() { const s = document.getElementById("moreSheet"); if (s) s.hidden = true; }
+
   document.getElementById("appNav").addEventListener("click", (ev) => {
     const b = ev.target.closest(".nav-btn");
-    if (b) switchView(b.dataset.view);
+    if (!b) return;
+    if (b.hasAttribute("data-more")) { openMoreSheet(); return; }
+    switchView(b.dataset.view);
   });
+
+  const moreSheetEl = document.getElementById("moreSheet");
+  if (moreSheetEl) {
+    moreSheetEl.addEventListener("click", (ev) => {
+      if (ev.target.closest("[data-more-close]")) { closeMoreSheet(); return; }
+      const it = ev.target.closest(".more-item");
+      if (it && it.dataset.view) { closeMoreSheet(); switchView(it.dataset.view); }
+    });
+  }
+
+  // Pinch-Zoom (iOS ignoriert das Viewport-Tag teils) zusätzlich per JS unterbinden.
+  ["gesturestart", "gesturechange", "gestureend"].forEach((evt) =>
+    document.addEventListener(evt, (e) => e.preventDefault(), { passive: false }));
 
   // Footer-Button: Daten frisch aus Supabase neu laden.
   const resetBtn = document.getElementById("resetBtn");
@@ -1410,10 +1425,15 @@
       `<div class="ident"><span class="ident-name">${esc(name)}</span>` +
       `<span class="ident-role">${esc(roleText)}</span></div>` +
       `<button class="logout-btn" data-logout>Abmelden</button>`;
-    const navAdmin = document.getElementById("navAdmin");
-    if (navAdmin) navAdmin.style.display = Roles.isAdmin() ? "" : "none";
-    const navLineup = document.getElementById("navLineup");
-    if (navLineup) navLineup.style.display = Roles.canManageEvents() ? "" : "none";
+    // „Mehr"-Menü: Aufstellung (Trainer/Admin), Rollen (Admin). Spieler: kein „Mehr".
+    const showLineup = Roles.canManageEvents();
+    const showAdmin  = Roles.isAdmin();
+    const moreLineup = document.getElementById("moreLineup");
+    const moreAdmin  = document.getElementById("moreAdmin");
+    const navMore    = document.getElementById("navMore");
+    if (moreLineup) moreLineup.style.display = showLineup ? "" : "none";
+    if (moreAdmin)  moreAdmin.style.display  = showAdmin ? "" : "none";
+    if (navMore)    navMore.style.display    = (showLineup || showAdmin) ? "" : "none";
   }
 
   // Login-/Registrier-Seite.
@@ -1476,7 +1496,7 @@
         `<span class="avatar">${initials(p.name)}</span>` +
         `<span class="pick-name">${esc(p.name)} <small>#${p.nr}</small></span></button>`).join("");
     viewEl.innerHTML = `
-      <div class="page-head"><h1>Willkommen! 👋</h1>
+      <div class="page-head"><h1>Willkommen!</h1>
         <p>Bitte wähle einmalig, welcher Spieler du bist — dann ordnen wir dir Strafen, Termine und Zu-/Absagen korrekt zu.</p></div>
       ${authError ? `<div class="auth-error">${esc(authError)}</div>` : ""}
       <div class="pick-grid">${opts}</div>`;
@@ -1486,12 +1506,12 @@
   async function renderAdmin() {
     document.body.classList.remove("auth-mode");
     viewEl.innerHTML = `<div class="page-head"><h1>Rollen verwalten</h1></div>
-      <div class="empty"><div class="em-ico">⏳</div>Lade Mitglieder …</div>`;
+      <div class="empty">Lade Mitglieder …</div>`;
     let members;
     try { members = await DB.listMembers(); }
     catch (err) {
       viewEl.innerHTML = `<div class="page-head"><h1>Rollen verwalten</h1></div>
-        <div class="empty"><div class="em-ico">⚠️</div>${esc((err && err.message) || String(err))}</div>`;
+        <div class="empty">${esc((err && err.message) || String(err))}</div>`;
       return;
     }
     const nameOf = (m) => (m.playerId && playerById[m.playerId]) ? playerById[m.playerId].name : (m.email || "—");
@@ -1499,8 +1519,7 @@
     const cell = (m, role) =>
       `<td style="text-align:center"><input type="checkbox" class="role-box" data-user="${m.userId}" data-role="${role}" ${m.roles.indexOf(role) !== -1 ? "checked" : ""}></td>`;
     viewEl.innerHTML = `
-      <div class="page-head"><h1>Rollen verwalten</h1>
-        <p>Vergib Trainer-, Kassenwart- und Admin-Rollen. „Spieler" ist die Basisrolle und immer aktiv. Änderungen wirken sofort und sind serverseitig (RLS) abgesichert.</p></div>
+      <div class="page-head"><h1>Rollen verwalten</h1></div>
       <div class="table-wrap"><table>
         <thead><tr><th>Mitglied</th>
           <th style="text-align:center">Trainer</th>
@@ -1651,7 +1670,7 @@
       return;
     }
     document.body.classList.remove("auth-mode");
-    viewEl.innerHTML = `<div class="empty"><div class="em-ico">⏳</div>Lädt …</div>`;
+    viewEl.innerHTML = `<div class="empty">Lädt …</div>`;
 
     let session = null;
     try { session = await DB.getSession(); } catch (e) { session = null; }
@@ -1676,7 +1695,7 @@
       render();
     } catch (err) {
       document.body.classList.remove("auth-mode");
-      viewEl.innerHTML = `<div style="margin:20px;padding:18px;border:2px solid #c0392b;border-radius:12px;background:#fff;color:#7a1d14;font:12px/1.6 monospace;white-space:pre-wrap">⚠️ Fehler beim Laden der App:\n\n${esc((err && err.message) || String(err))}\n\n${esc((err && err.stack) ? err.stack : "")}</div>`;
+      viewEl.innerHTML = `<div style="margin:20px;padding:18px;border:2px solid #c0392b;border-radius:12px;background:#fff;color:#7a1d14;font:12px/1.6 monospace;white-space:pre-wrap">Fehler beim Laden der App:\n\n${esc((err && err.message) || String(err))}\n\n${esc((err && err.stack) ? err.stack : "")}</div>`;
     }
   }
 
