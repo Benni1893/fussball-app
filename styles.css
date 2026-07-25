@@ -51,7 +51,8 @@ body {
   line-height: 1.5;
   touch-action: manipulation;     /* verhindert Doppeltipp-Zoom */
   -webkit-tap-highlight-color: transparent;
-  /* Platz für die feste untere Navigationsleiste */
+  /* Platz für die feste Kopfzeile (Höhe via JS in --header-h) und die feste Nav */
+  padding-top: var(--header-h, calc(env(safe-area-inset-top) + 74px));
   padding-bottom: calc(56px + env(safe-area-inset-bottom));
 }
 .scroll-area { display: block; }  /* nur Container – gescrollt wird die Seite */
@@ -66,8 +67,8 @@ body {
   padding: calc(env(safe-area-inset-top) + 12px) clamp(16px, 4vw, 40px) 12px;
   background: linear-gradient(120deg, var(--green-900), var(--green-700));
   color: #fff;
-  position: sticky;    /* Kopfzeile bleibt fest oben stehen */
-  top: 0;
+  position: fixed;     /* fest oben – robust auch bei overflow-x:hidden am body */
+  top: 0; left: 0; right: 0;
   z-index: 30;
   box-shadow: 0 4px 18px rgba(15,61,46,.18);
 }

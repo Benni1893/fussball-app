@@ -1380,7 +1380,7 @@
   });
 
   /* ---------------------------------------------------------------------------
-     Sticky-Navigation: top dynamisch an die tatsächliche Header-Höhe koppeln
+     Höhe der festen Kopfzeile messen -> als --header-h (Platz darunter im Body)
      --------------------------------------------------------------------------- */
   function syncHeaderHeight() {
     const header = document.querySelector(".app-header");
@@ -1389,6 +1389,8 @@
     }
   }
   window.addEventListener("resize", syncHeaderHeight);
+  window.addEventListener("load", syncHeaderHeight);
+  window.addEventListener("orientationchange", () => setTimeout(syncHeaderHeight, 200));
 
   /* ===========================================================================
      AUTHENTIFIZIERUNG (Oberfläche)
@@ -1452,6 +1454,7 @@
     if (moreLineup) moreLineup.style.display = showLineup ? "" : "none";
     if (moreAdmin)  moreAdmin.style.display  = showAdmin ? "" : "none";
     if (navMore)    navMore.style.display    = (showLineup || showAdmin) ? "" : "none";
+    syncHeaderHeight(); // Platz unter der festen Kopfzeile an die echte Höhe koppeln
   }
 
   /* Rollen-Simulation (nur Anzeige!): blendet die Hinweisleiste ein/aus und
