@@ -41,7 +41,7 @@ html, body {
   padding: 0;
   max-width: 100%;
   overflow-x: hidden;              /* kein horizontales Verrutschen */
-  background: var(--bg);
+  background: var(--green-900);    /* Hülle grün: kein weißes Durchblitzen oben/unten */
   color: var(--ink);
   font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   font-size: 15px;                 /* gut lesbare Basisgröße bleibt erhalten */
@@ -59,12 +59,13 @@ body {
 }
 /* Einziger Scrollbereich: der Inhalt zwischen fester Kopfzeile und fester Nav */
 .scroll-area {
+  order: 1;
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: none;       /* kein Gummiband über den Start hinaus */
-  padding-bottom: calc(60px + env(safe-area-inset-bottom)); /* Platz für feste untere Nav */
+  background: var(--bg);           /* heller Inhaltsbereich */
 }
 
 /* ---------- Kopfzeile ------------------------------------------------------ */
@@ -77,8 +78,10 @@ body {
   padding: calc(env(safe-area-inset-top) + 12px) clamp(16px, 4vw, 40px) 12px;
   background: linear-gradient(120deg, var(--green-900), var(--green-700));
   color: #fff;
+  order: 0;
   flex: 0 0 auto;      /* feste Kopfzeile in der App-Hülle */
-  z-index: 20;
+  position: relative;
+  z-index: 2;
   box-shadow: 0 4px 18px rgba(15,61,46,.18);
 }
 .brand { display: flex; align-items: center; gap: 14px; }
@@ -108,14 +111,14 @@ body {
 
 /* ---------- Untere Navigationsleiste (fest) -------------------------------- */
 .app-nav {
-  position: fixed;
-  left: 0; right: 0; bottom: 0;
-  z-index: 60;
+  order: 3;
+  flex: 0 0 auto;               /* feste untere Leiste in der App-Hülle */
   display: flex;
   background: var(--card);
   border-top: 1px solid var(--line);
   box-shadow: 0 -2px 12px rgba(15,61,46,.06);
-  padding-bottom: env(safe-area-inset-bottom); /* Home-Indicator-Bereich freihalten */
+  /* Safe-Area unten mit der Nav-Farbe fuellen; Icons bleiben darueber */
+  padding-bottom: env(safe-area-inset-bottom);
 }
 .nav-btn {
   position: relative;
@@ -163,9 +166,8 @@ body {
 
 /* Simulations-Leiste (Admin-Vorschau als andere Rolle) */
 .sim-bar {
-  position: fixed; left: 0; right: 0;
-  bottom: calc(52px + env(safe-area-inset-bottom)); /* direkt über der unteren Nav */
-  z-index: 55;
+  order: 2;
+  flex: 0 0 auto;               /* feste Leiste direkt über der unteren Nav */
   display: flex; align-items: center; justify-content: space-between; gap: 10px;
   min-height: 46px;
   background: var(--amber-600); color: #fff;
@@ -176,8 +178,6 @@ body {
   background: #fff; color: var(--amber-600); border: 0; border-radius: 999px;
   padding: 8px 14px; font: inherit; font-weight: 700; cursor: pointer; min-height: 36px; white-space: nowrap;
 }
-/* Wenn Simulation aktiv: extra Platz unten, damit die Leiste nichts verdeckt */
-body.simulating .scroll-area { padding-bottom: calc(60px + 46px + env(safe-area-inset-bottom)); }
 
 /* Umschalter in der Rollen-Ansicht */
 .sim-switch { margin-bottom: 14px; }
