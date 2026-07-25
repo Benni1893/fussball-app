@@ -929,23 +929,16 @@
 
   /* ---------- Strafenkatalog ------------------------------------------------ */
   function renderKatalog() {
-    const kategorien = [...new Set(DEMO.katalog.map((k) => k.kategorie))];
     viewEl.innerHTML = `
       <div class="page-head">
         <h1>Strafenkatalog</h1>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Vergehen</th><th>Kategorie</th><th class="num">Betrag</th></tr></thead>
-          <tbody>
-            ${DEMO.katalog.map((k) => `
-              <tr>
-                <td style="font-weight:600">${esc(k.vergehen)}</td>
-                <td><span class="kat-chip">${esc(k.kategorie)}</span></td>
-                <td class="num amount">${euro(k.betrag)}</td>
-              </tr>`).join("")}
-          </tbody>
-        </table>
+      <div class="kat-list">
+        ${DEMO.katalog.map((k) => `
+          <div class="kat-item">
+            <span class="kat-name">${esc(k.vergehen)}</span>
+            <span class="kat-amount">${euro(k.betrag)}</span>
+          </div>`).join("")}
       </div>
     `;
   }
@@ -1068,36 +1061,37 @@
 
       ${!linked ? `
       <div class="mine-banner">
-        <div class="mb-left">
-          <small>Dein Konto</small>
-          <strong>Noch keinem Spieler zugeordnet</strong>
-          <span class="mb-pay-cap">Bitte einen Trainer/Admin um die Zuordnung – danach siehst du hier deine Strafen.</span>
+        <div class="mb-top">
+          <span class="mb-label">Dein Konto</span>
+          <span class="mb-state">Noch keinem Spieler zugeordnet</span>
         </div>
+        <div class="mb-note">Bitte einen Trainer/Admin um die Zuordnung – danach siehst du hier deine Strafen.</div>
       </div>
       ` : `
       <div class="mine-banner">
-        <div class="mb-left">
-          <small>Dein Konto · ${esc(me.name)}</small>
-          <strong>${meineOffen > 0 ? "Du hast noch offene Strafen" : "Du bist schuldenfrei"}</strong>
-          ${meinZuschlag > 0 ? `<span class="mb-pay-cap">inkl. ${euro(meinZuschlag)} Mahnzuschlag</span>` : ""}
-          ${bannerCd ? `<span class="mb-cd">Nächste Erhöhung: <span class="cd" data-cd-created="${bannerCd.createdAt}" data-cd-step="${faelligeStufen({ createdAt: bannerCd.createdAt }, Date.now())}"></span></span>` : ""}
+        <div class="mb-top">
+          <span class="mb-label">Dein Konto · ${esc(me.name)}</span>
+          <span class="mb-state">${meineOffen > 0 ? "Du hast noch offene Strafen" : "Du bist schuldenfrei"}</span>
         </div>
-        <div class="mb-right">
-          <div class="mb-amount">
-            <span class="v">${euro(meineOffen)}</span>
-            <small>offen · ${euro(meineGesamt)} gesamt</small>
-          </div>
-          ${meineOffen > 0 ? `<div class="mb-pay">
-            <button class="paypal-btn" data-paypal="${meineOffen}" aria-label="Mit PayPal bezahlen">
-              <svg class="pp-mark" viewBox="0 0 384 512" width="15" height="19" aria-hidden="true">
-                <path fill="#003087" d="M111.4 295.9c-3.5 19.2-17.4 108.7-21.5 134-.3 1.8-1 2.5-3 2.5H12.3c-7.6 0-13.1-6.6-12.1-13.9L58.8 46.6c1.5-9.6 10.1-16.9 20-16.9 152.3 0 165.1-3.7 204 11.4 60.1 23.3 65.6 79.5 44 140.3-21.5 62.6-72.5 89.5-140.1 90.3-43.4 .7-69.5-7-75.3 24.2zM357.1 152c-1.8-1.3-2.5-1.8-3 1.3-2 11.4-5.1 22.5-8.8 33.6-39.9 113.8-150.5 103.9-204.5 103.9-6.1 0-10.1 3.3-10.9 9.4-22.6 140.4-27.1 169.7-27.1 169.7-1 7.1 3.5 12.9 10.6 12.9h63.5c8.6 0 15.7-6.3 17.4-14.9 .7-5.4-1.1 6.1 14.4-91.3 4.6-22 14.3-19.7 29.3-19.7 71 0 126.4-28.8 142.9-112.3 6.5-34.8 4.6-71.4-23.3-91.9z"/>
-              </svg>
-              <span class="pp-word"><span class="pp1">Pay</span><span class="pp2">Pal</span></span>
-            </button>
-            <span class="mb-pay-cap">Bitte als „Freunde &amp; Familie" senden</span>
-            <button class="paid-self-btn" data-paid-self>Ich habe bezahlt</button>
-          </div>` : ""}
+        <div class="mb-figure">
+          <span class="mb-value">${euro(meineOffen)}</span>
+          <span class="mb-sub">offen · ${euro(meineGesamt)} gesamt</span>
         </div>
+        ${meinZuschlag > 0 ? `<div class="mb-note">inkl. ${euro(meinZuschlag)} Mahnzuschlag</div>` : ""}
+        ${bannerCd ? `<div class="mb-countdown">
+          <span class="mb-cd-label">Nächste Erhöhung in</span>
+          <span class="cd" data-cd-created="${bannerCd.createdAt}" data-cd-step="${faelligeStufen({ createdAt: bannerCd.createdAt }, Date.now())}"></span>
+        </div>` : ""}
+        ${meineOffen > 0 ? `<div class="mb-actions">
+          <button class="paypal-btn" data-paypal="${meineOffen}" aria-label="Mit PayPal bezahlen">
+            <svg class="pp-mark" viewBox="0 0 384 512" width="15" height="19" aria-hidden="true">
+              <path fill="#003087" d="M111.4 295.9c-3.5 19.2-17.4 108.7-21.5 134-.3 1.8-1 2.5-3 2.5H12.3c-7.6 0-13.1-6.6-12.1-13.9L58.8 46.6c1.5-9.6 10.1-16.9 20-16.9 152.3 0 165.1-3.7 204 11.4 60.1 23.3 65.6 79.5 44 140.3-21.5 62.6-72.5 89.5-140.1 90.3-43.4 .7-69.5-7-75.3 24.2zM357.1 152c-1.8-1.3-2.5-1.8-3 1.3-2 11.4-5.1 22.5-8.8 33.6-39.9 113.8-150.5 103.9-204.5 103.9-6.1 0-10.1 3.3-10.9 9.4-22.6 140.4-27.1 169.7-27.1 169.7-1 7.1 3.5 12.9 10.6 12.9h63.5c8.6 0 15.7-6.3 17.4-14.9 .7-5.4-1.1 6.1 14.4-91.3 4.6-22 14.3-19.7 29.3-19.7 71 0 126.4-28.8 142.9-112.3 6.5-34.8 4.6-71.4-23.3-91.9z"/>
+            </svg>
+            <span class="pp-word"><span class="pp1">Pay</span><span class="pp2">Pal</span></span>
+          </button>
+          <button class="paid-self-btn" data-paid-self>Ich habe bezahlt</button>
+          <span class="mb-pay-cap">Bitte als „Freunde &amp; Familie" senden</span>
+        </div>` : ""}
       </div>
       `}
 
@@ -1178,8 +1172,18 @@
       }
     }
 
-    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self]");
+    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-sim],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self]");
     if (!t) return;
+
+    // Admin: Ansicht als andere Rolle simulieren (nur Anzeige, keine Rechteänderung)
+    if (t.dataset.sim) {
+      if (!Roles.isRealAdmin()) return; // Sicherheitsnetz: nur echte Admins
+      const map = { player: ["player"], coach: ["player", "coach"], treasurer: ["player", "treasurer"], admin: null };
+      Roles.simulate(map[t.dataset.sim]);
+      applySimUI();
+      switchView("dashboard");
+      return;
+    }
 
     // Kader-Info erstellen (Trainer/Admin) -> Vorschau-Dialog
     if (t.dataset.kaderInfo) {
@@ -1367,6 +1371,14 @@
   resetBtn.title = "Daten neu aus Supabase laden";
   resetBtn.addEventListener("click", () => { init(); });
 
+  // Simulations-Vorschau beenden -> zurück zur echten Admin-Ansicht.
+  const simExitBtn = document.getElementById("simExit");
+  if (simExitBtn) simExitBtn.addEventListener("click", () => {
+    Roles.simulate(null);
+    applySimUI();
+    switchView("admin");
+  });
+
   /* ---------------------------------------------------------------------------
      Sticky-Navigation: top dynamisch an die tatsächliche Header-Höhe koppeln
      --------------------------------------------------------------------------- */
@@ -1393,10 +1405,16 @@
   /* Zentrale Rollen-/Rechte-Prüfung (nur UI-Komfort – echte Sperre = RLS!).
      Mehrfach-Rollen werden vereinigt: wer mehrere Rollen hat, hat alle Rechte. */
   const Roles = {
-    list: [],
-    set(arr) { this.list = Array.isArray(arr) ? arr.slice() : []; },
+    real: [],          // echte Rollen aus der DB (nie durch Simulation verändert)
+    sim: null,         // simulierte Rollen für die ANZEIGE (Admin-Vorschau), sonst null
+    set(arr) { this.real = Array.isArray(arr) ? arr.slice() : []; },
+    // Effektive Rollen für die UI: im Simulationsmodus die simulierten, sonst die echten.
+    get list() { return this.sim || this.real; },
     has(r) { return this.list.indexOf(r) !== -1; },
     isAdmin() { return this.has("admin"); },
+    isRealAdmin() { return this.real.indexOf("admin") !== -1; },
+    isSimulating() { return this.sim !== null; },
+    simulate(arr) { this.sim = arr ? arr.slice() : null; }, // null = Simulation aus
     canManageEvents() { return this.has("coach") || this.isAdmin(); },
     canEditCatalog() { return this.has("treasurer") || this.isAdmin(); },
     canManageFines() { return this.has("treasurer") || this.isAdmin(); },
@@ -1434,6 +1452,26 @@
     if (moreLineup) moreLineup.style.display = showLineup ? "" : "none";
     if (moreAdmin)  moreAdmin.style.display  = showAdmin ? "" : "none";
     if (navMore)    navMore.style.display    = (showLineup || showAdmin) ? "" : "none";
+  }
+
+  /* Rollen-Simulation (nur Anzeige!): blendet die Hinweisleiste ein/aus und
+     aktualisiert Navigation + Kopfzeile anhand der EFFEKTIVEN Rollen.
+     Es werden keinerlei Daten- oder Rechteänderungen ausgelöst – jeder DB-Zugriff
+     läuft weiterhin mit der echten Sitzung, die serverseitig per RLS geprüft wird. */
+  function applySimUI() {
+    const sim = Roles.isSimulating();
+    document.body.classList.toggle("simulating", sim);
+    const simBar = document.getElementById("simBar");
+    if (simBar) simBar.hidden = !sim;
+    if (sim) {
+      const simRoleEl = document.getElementById("simRole");
+      if (simRoleEl) {
+        const l = Roles.list;
+        simRoleEl.textContent = l.indexOf("coach") !== -1 ? "Trainer"
+          : l.indexOf("treasurer") !== -1 ? "Kassenwart" : "Spieler";
+      }
+    }
+    fillIdentity();
   }
 
   // Login-/Registrier-Seite.
@@ -1520,6 +1558,16 @@
       `<td style="text-align:center"><input type="checkbox" class="role-box" data-user="${m.userId}" data-role="${role}" ${m.roles.indexOf(role) !== -1 ? "checked" : ""}></td>`;
     viewEl.innerHTML = `
       <div class="page-head"><h1>Rollen verwalten</h1></div>
+      <div class="sim-switch card card-pad">
+        <div class="sim-switch-label">Ansicht testen als</div>
+        <div class="sim-switch-btns">
+          <button class="chip" data-sim="player">Spieler</button>
+          <button class="chip" data-sim="coach">Trainer</button>
+          <button class="chip" data-sim="treasurer">Kassenwart</button>
+          <button class="chip" data-sim="admin">Admin (normal)</button>
+        </div>
+        <div class="sim-switch-hint">Reine Anzeige-Vorschau – ändert nichts an deinen Rechten oder Daten. Alle Zugriffe bleiben serverseitig per RLS abgesichert.</div>
+      </div>
       <div class="table-wrap"><table>
         <thead><tr><th>Mitglied</th>
           <th style="text-align:center">Trainer</th>
@@ -1601,6 +1649,7 @@
     try { await DB.signOut(); } catch (e) {}
     currentProfile = null;
     Roles.set([]);
+    Roles.simulate(null); applySimUI(); // Simulation sicher beenden
     authMode = "login"; authError = "";
     init();
   });

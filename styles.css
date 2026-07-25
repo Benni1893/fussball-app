@@ -59,7 +59,8 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 14px clamp(16px, 4vw, 40px);
+  /* Safe-Area oben: Kopfzeile steht bei jedem iPhone frei unter der Statusleiste */
+  padding: calc(env(safe-area-inset-top) + 12px) clamp(16px, 4vw, 40px) 12px;
   background: linear-gradient(120deg, var(--green-900), var(--green-700));
   color: #fff;
   position: sticky;
@@ -147,6 +148,31 @@ body {
 }
 .more-item:hover, .more-item:active { background: var(--green-050); color: var(--green-800); }
 
+/* Simulations-Leiste (Admin-Vorschau als andere Rolle) */
+.sim-bar {
+  position: fixed; left: 0; right: 0;
+  bottom: calc(52px + env(safe-area-inset-bottom)); /* direkt über der unteren Nav */
+  z-index: 55;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  min-height: 46px;
+  background: var(--amber-600); color: #fff;
+  padding: 6px 14px; font-size: .85rem; font-weight: 600;
+}
+.sim-bar[hidden] { display: none; }
+.sim-exit {
+  background: #fff; color: var(--amber-600); border: 0; border-radius: 999px;
+  padding: 8px 14px; font: inherit; font-weight: 700; cursor: pointer; min-height: 36px; white-space: nowrap;
+}
+/* Wenn Simulation aktiv: extra Platz unten, damit die Leiste nichts verdeckt */
+body.simulating { padding-bottom: calc(60px + 46px + env(safe-area-inset-bottom)); }
+
+/* Umschalter in der Rollen-Ansicht */
+.sim-switch { margin-bottom: 14px; }
+.sim-switch-label { font-size: .74rem; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); font-weight: 700; margin-bottom: 8px; }
+.sim-switch-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.sim-switch-btns .chip { min-height: 40px; }
+.sim-switch-hint { font-size: .78rem; color: var(--muted); margin-top: 8px; }
+
 /* ---------- Layout --------------------------------------------------------- */
 .view {
   max-width: 1080px;
@@ -176,7 +202,7 @@ body {
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 13px 14px;
+  padding: 16px;
   box-shadow: var(--shadow-sm);
   position: relative;
   overflow: hidden;
@@ -186,8 +212,8 @@ body {
   position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
   background: var(--gold-500);
 }
-.kpi .kpi-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); font-weight: 600; }
-.kpi .kpi-value { font-size: 1.55rem; font-weight: 800; margin-top: 3px; color: var(--green-800); }
+.kpi .kpi-label { font-size: .74rem; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); font-weight: 700; }
+.kpi .kpi-value { font-size: 1.6rem; font-weight: 800; margin-top: 3px; color: var(--green-800); }
 .kpi .kpi-sub { font-size: .82rem; color: var(--muted); margin-top: 2px; }
 .kpi.is-warn::before { background: var(--red-600); }
 .kpi.is-warn .kpi-value { color: var(--red-600); }
@@ -343,7 +369,7 @@ tbody tr:hover { background: #fbfdfc; }
 .laz-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }
 .laz-row:last-child { border-bottom: 0; }
 
-.kader-status { display: flex; flex-direction: column; gap: 2px; max-height: 360px; overflow: auto; }
+.kader-status { display: flex; flex-direction: column; gap: 2px; }
 .ks-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); }
 .ks-row:last-child { border-bottom: 0; }
 .ks-name { flex: 1; min-width: 0; font-weight: 600; }
@@ -419,10 +445,15 @@ tbody tr:hover { background: #fbfdfc; }
 .badge-open { background: var(--red-050); color: var(--red-600); }
 .badge-paid { background: var(--green-050); color: var(--green-600); }
 
-.kat-chip {
-  font-size: .7rem; font-weight: 600; padding: 2px 9px; border-radius: 999px;
-  background: #eef2ef; color: var(--muted);
+/* Strafenkatalog als kompakte Kacheln (kein seitliches Scrollen) */
+.kat-list { display: flex; flex-direction: column; gap: 8px; }
+.kat-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 12px 14px; box-shadow: var(--shadow-sm); min-height: 48px;
 }
+.kat-name { font-weight: 600; min-width: 0; }
+.kat-amount { font-weight: 800; color: var(--green-800); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 .player-cell { display:flex; align-items:center; gap:10px; }
 .avatar {
@@ -443,16 +474,29 @@ tbody tr:hover { background: #fbfdfc; }
 
 /* ---------- „Meine Strafen" Banner ---------------------------------------- */
 .mine-banner {
-  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  display: flex; flex-direction: column; gap: 10px;
   background: linear-gradient(120deg, var(--green-800), var(--green-600));
-  color: #fff; border-radius: var(--radius); padding: 20px 22px; margin-bottom: 22px;
+  color: #fff; border-radius: var(--radius); padding: 16px; margin-bottom: 14px;
   box-shadow: var(--shadow);
 }
-.mine-banner .mb-left small { color:#cfe3d8; text-transform: uppercase; letter-spacing:.6px; font-size:.72rem; font-weight:600; }
-.mine-banner .mb-left strong { display:block; font-size:1.05rem; margin-top:2px; }
-.mine-banner .mb-amount { text-align:right; }
-.mine-banner .mb-amount .v { font-size: 1.8rem; font-weight: 800; color: var(--gold-500); }
-.mine-banner .mb-amount small { display:block; color:#cfe3d8; font-size:.78rem; }
+.mb-top { display: flex; flex-direction: column; gap: 2px; }
+.mb-label { color:#cfe3d8; text-transform: uppercase; letter-spacing:.6px; font-size:.74rem; font-weight:700; }
+.mb-state { font-size: 1.02rem; font-weight: 700; }
+.mb-figure { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.mb-value { font-size: 1.9rem; font-weight: 800; color: var(--gold-500); line-height: 1; }
+.mb-sub { color:#cfe3d8; font-size:.82rem; font-weight:600; }
+.mb-note { font-size:.82rem; color:#eaf4ee; font-weight:600; }
+/* Mahnzuschlag-Countdown deutlich sichtbar */
+.mb-countdown {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
+  border-radius: 10px; padding: 9px 12px;
+}
+.mb-cd-label { font-size: .84rem; font-weight: 700; color: #fff; }
+.mb-countdown .cd { font-size: 1rem; font-weight: 800; padding: 4px 12px; }
+.mb-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 2px; }
+.mb-actions .paypal-btn { width: 100%; min-width: 0; }
+.mb-actions .paid-self-btn { width: 100%; min-height: 44px; }
 
 /* ---------- Diagramme ------------------------------------------------------ */
 .chart-row { margin-bottom: 22px; }
@@ -482,12 +526,10 @@ tbody tr:hover { background: #fbfdfc; }
 .bars-legend span { display: flex; align-items: center; gap: 7px; }
 
 /* ---------- PayPal-Button (offizielles Checkout-Design) ------------------- */
-.mine-banner .mb-right { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; justify-content: flex-end; }
-.mb-pay { display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .paypal-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   background: #ffc439; border: none; border-radius: 999px;
-  padding: 12px 26px; cursor: pointer; min-width: 190px;
+  padding: 13px 26px; min-height: 44px; cursor: pointer;
   box-shadow: 0 2px 6px rgba(0,0,0,.2); transition: background .15s, box-shadow .15s, transform .08s;
 }
 .paypal-btn:hover  { background: #f2ba36; box-shadow: 0 4px 12px rgba(0,0,0,.28); }
@@ -496,7 +538,7 @@ tbody tr:hover { background: #fbfdfc; }
 .pp-word { font-family: Arial, Helvetica, sans-serif; font-weight: 700; font-style: italic; font-size: 1.18rem; letter-spacing: -.4px; line-height: 1; }
 .pp-word .pp1 { color: #003087; }
 .pp-word .pp2 { color: #009cde; }
-.mb-pay-cap { font-size: .72rem; color: #cfe3d8; font-weight: 600; text-align: center; max-width: 200px; }
+.mb-pay-cap { font-size: .74rem; color: #cfe3d8; font-weight: 600; text-align: center; }
 .paid-self-btn {
   background: #fff; color: var(--green-800); border: 1px solid rgba(255,255,255,.6);
   border-radius: 999px; padding: 9px 16px; font: inherit; font-weight: 700; cursor: pointer;
@@ -508,11 +550,6 @@ tbody tr:hover { background: #fbfdfc; }
 /* „selbst gemeldet"-Status (Vertrauensprinzip) */
 .badge-self { background: var(--amber-050); color: var(--amber-600); }
 
-@media (max-width: 560px) {
-  .mine-banner { flex-direction: column; align-items: stretch; }
-  .mine-banner .mb-right { justify-content: space-between; }
-  .paypal-btn { min-width: 0; flex: 1; }
-}
 
 /* ---------- Leerzustand ---------------------------------------------------- */
 .empty { text-align: center; color: var(--muted); padding: 40px 20px; }
