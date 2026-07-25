@@ -1338,7 +1338,8 @@
       const active = inMore ? b.hasAttribute("data-more") : (b.dataset.view === view);
       b.classList.toggle("is-active", active);
     });
-    window.scrollTo({ top: 0 });
+    const sa = document.getElementById("scrollArea");
+    if (sa) sa.scrollTop = 0; else window.scrollTo({ top: 0 });
     render();
   }
 

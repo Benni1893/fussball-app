@@ -34,6 +34,7 @@
 
 html {
   -webkit-text-size-adjust: 100%; /* iOS: Schrift nicht ungewollt vergrößern/verkleinern */
+  height: 100%;
 }
 html, body {
   margin: 0;
@@ -46,10 +47,23 @@ html, body {
   font-size: 15px;                 /* gut lesbare Basisgröße bleibt erhalten */
   line-height: 1.5;
 }
+/* App-Hülle: feste Höhe, die Seite selbst scrollt NICHT -> kein Überscrollen */
 body {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   touch-action: manipulation;      /* verhindert Doppeltipp-Zoom */
   -webkit-tap-highlight-color: transparent;
-  overscroll-behavior-y: none;
+}
+/* Einziger Scrollbereich: der Inhalt zwischen fester Kopfzeile und fester Nav */
+.scroll-area {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;       /* kein Gummiband über den Start hinaus */
   padding-bottom: calc(60px + env(safe-area-inset-bottom)); /* Platz für feste untere Nav */
 }
 
@@ -63,8 +77,7 @@ body {
   padding: calc(env(safe-area-inset-top) + 12px) clamp(16px, 4vw, 40px) 12px;
   background: linear-gradient(120deg, var(--green-900), var(--green-700));
   color: #fff;
-  position: sticky;
-  top: 0;
+  flex: 0 0 auto;      /* feste Kopfzeile in der App-Hülle */
   z-index: 20;
   box-shadow: 0 4px 18px rgba(15,61,46,.18);
 }
@@ -164,7 +177,7 @@ body {
   padding: 8px 14px; font: inherit; font-weight: 700; cursor: pointer; min-height: 36px; white-space: nowrap;
 }
 /* Wenn Simulation aktiv: extra Platz unten, damit die Leiste nichts verdeckt */
-body.simulating { padding-bottom: calc(60px + 46px + env(safe-area-inset-bottom)); }
+body.simulating .scroll-area { padding-bottom: calc(60px + 46px + env(safe-area-inset-bottom)); }
 
 /* Umschalter in der Rollen-Ansicht */
 .sim-switch { margin-bottom: 14px; }
