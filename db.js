@@ -62,6 +62,7 @@ window.DB = (function () {
         zuschlagAt: s.surcharge_updated_at,
         createdAt: s.created_at,
         eventId: s.event_id, auto: s.auto,
+        vergehen: s.offense, // Schnappschuss – bleibt, falls Katalogeintrag gelöscht
       })),
       rsvps: rsvps.data.map((r) => ({
         eventId: r.event_id, playerId: r.player_id, status: r.status, grund: r.reason,
@@ -115,6 +116,27 @@ window.DB = (function () {
     const { error } = await client
       .from("rsvps").delete()
       .eq("event_id", eventId).eq("player_id", playerId);
+    if (error) throw error;
+  }
+
+  /* ---- Strafenkatalog bearbeiten (nur treasurer/admin, per RLS) ---------- */
+  async function insertCatalog(clubId, offense, amount) {
+    const row = {
+      club_id: clubId,
+      code: "u" + Date.now().toString(36), // eindeutiger interner Code (nicht sichtbar)
+      offense: offense, amount: amount, category: null,
+    };
+    const { data, error } = await client.from("fine_catalog").insert(row).select().single();
+    if (error) throw error;
+    return data;
+  }
+  async function updateCatalog(id, offense, amount) {
+    const { error } = await client.from("fine_catalog")
+      .update({ offense: offense, amount: amount }).eq("id", id);
+    if (error) throw error;
+  }
+  async function deleteCatalog(id) {
+    const { error } = await client.from("fine_catalog").delete().eq("id", id);
     if (error) throw error;
   }
 
@@ -247,6 +269,7 @@ window.DB = (function () {
 
   return {
     client, loadAll, setRsvp, deleteRsvp, setFinePaid, deleteFine,
+    insertCatalog, updateCatalog, deleteCatalog,
     saveLineup, deleteLineup, setLineupActive,
     getSession, signIn, signUp, signOut, loadProfile, setMyPlayer, setPlayerStatus,
     resetPassword, updatePassword, onPasswordRecovery, myRoles,

@@ -96,6 +96,12 @@
     const parts = String(name).trim().split(/\s+/);
     return parts[parts.length - 1] || name;
   }
+  // Bezeichnung einer Strafe: Schnappschuss bevorzugt, sonst Katalog (falls noch da).
+  function vergehenName(s) {
+    if (s.vergehen) return s.vergehen;
+    const k = katById[s.katalogId];
+    return (k && k.vergehen) || "—";
+  }
 
   // effektiver Bezahlt-Status (Demo + lokale Änderungen)
   function istBezahlt(strafe) {
@@ -387,12 +393,12 @@
             <button class="link-btn" data-goto="strafen">Konto →</button></div>
           <div class="card card-pad">
             ${[...DEMO.strafen].sort((a,b)=>b.datum.localeCompare(a.datum)).slice(0,5).map((s) => {
-              const p = playerById[s.playerId]; const k = katById[s.katalogId];
+              const p = playerById[s.playerId];
               return `<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)">
                 <span class="avatar">${initials(p.name)}</span>
                 <div style="flex:1;min-width:0">
                   <div style="font-weight:600">${esc(p.name)}${statusBadge(p)}</div>
-                  <div style="font-size:.82rem;color:var(--muted)">${esc(k.vergehen)}</div>
+                  <div style="font-size:.82rem;color:var(--muted)">${esc(vergehenName(s))}</div>
                 </div>
                 <div style="text-align:right">
                   <div class="amount">${euro(strafeBetrag(s))}</div>
@@ -928,19 +934,51 @@
   }
 
   /* ---------- Strafenkatalog ------------------------------------------------ */
+  const SVG = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"';
+  const ICON_EDIT  = `<svg ${SVG}><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>`;
+  const ICON_TRASH = `<svg ${SVG}><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/></svg>`;
+  const ICON_CHECK = `<svg ${SVG}><path d="M20 6 9 17l-5-5"/></svg>`;
+  const ICON_X     = `<svg ${SVG}><path d="M18 6 6 18M6 6l12 12"/></svg>`;
+  const ICON_PLUS  = `<svg ${SVG}><path d="M12 5v14M5 12h14"/></svg>`;
+
+  let katEdit = null; // null | Katalog-id (Bearbeiten) | "new" (Hinzufügen)
+
+  function katRowView(k, canEdit) {
+    return `<div class="kat-item">
+      <span class="kat-name">${esc(k.vergehen)}</span>
+      <span class="kat-amount">${euro(k.betrag)}</span>
+      ${canEdit ? `<div class="kat-actions">
+        <button class="icon-btn" data-kat-edit="${k.id}" aria-label="Bearbeiten">${ICON_EDIT}</button>
+        <button class="icon-btn" data-kat-del="${k.id}" aria-label="Löschen">${ICON_TRASH}</button>
+      </div>` : ""}
+    </div>`;
+  }
+  function katRowEdit(id, name, betrag) {
+    const amt = (betrag != null) ? String(betrag).replace(".", ",") : "";
+    return `<div class="kat-item kat-edit">
+      <input class="kat-in kat-in-name" data-kat-input="name" type="text" placeholder="Bezeichnung" value="${esc(name)}">
+      <div class="kat-edit-row2">
+        <input class="kat-in kat-in-amount" data-kat-input="amount" type="text" inputmode="decimal" placeholder="Betrag" value="${esc(amt)}">
+        <span class="kat-eur">€</span>
+        <button class="icon-btn icon-ok" data-kat-save="${id}" aria-label="Speichern">${ICON_CHECK}</button>
+        <button class="icon-btn" data-kat-cancel aria-label="Abbrechen">${ICON_X}</button>
+      </div>
+    </div>`;
+  }
   function renderKatalog() {
+    const canEdit = Roles.canEditCatalog();
     viewEl.innerHTML = `
-      <div class="page-head">
-        <h1>Strafenkatalog</h1>
-      </div>
+      <div class="page-head"><h1>Strafenkatalog</h1></div>
       <div class="kat-list">
-        ${DEMO.katalog.map((k) => `
-          <div class="kat-item">
-            <span class="kat-name">${esc(k.vergehen)}</span>
-            <span class="kat-amount">${euro(k.betrag)}</span>
-          </div>`).join("")}
+        ${DEMO.katalog.map((k) => katEdit === k.id
+          ? katRowEdit(k.id, k.vergehen, k.betrag)
+          : katRowView(k, canEdit)).join("")}
+        ${katEdit === "new" ? katRowEdit("new", "", null) : ""}
       </div>
+      ${canEdit && katEdit !== "new" ? `<button class="kat-add" data-kat-add>${ICON_PLUS}<span>Strafe hinzufügen</span></button>` : ""}
     `;
+    const nameInput = viewEl.querySelector(".kat-in-name");
+    if (nameInput) nameInput.focus();
   }
 
   /* ---------- Strafen-Konto ------------------------------------------------- */
@@ -1127,7 +1165,7 @@
             ${gefiltert.map((s) => `
               <tr>
                 <td><div class="player-cell"><span class="avatar">${initials(s.player.name)}</span>${esc(s.player.name)}${statusBadge(s.player)}</div></td>
-                <td>${esc(s.kat.vergehen)}${s.auto ? ` <span class="badge badge-auto">automatisch</span>` : ""}${s.note ? `<div style="font-size:.78rem;color:var(--muted)">${esc(s.note)}</div>` : ""}</td>
+                <td>${esc(vergehenName(s))}${s.auto ? ` <span class="badge badge-auto">automatisch</span>` : ""}${s.note ? `<div style="font-size:.78rem;color:var(--muted)">${esc(s.note)}</div>` : ""}</td>
                 <td style="color:var(--muted);white-space:nowrap">${fmtWd(s.datum)}, ${fmtDay(s.datum)}. ${fmtMon(s.datum)}</td>
                 <td class="num amount">${euro(s.betrag)}${
                   zuschlagBetrag(s) > 0 ? `<div class="amt-sub">inkl. ${euro(zuschlagBetrag(s))} Mahnzuschlag</div>` : ""
@@ -1172,8 +1210,34 @@
       }
     }
 
-    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-sim],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self]");
+    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self]");
     if (!t) return;
+
+    // Strafenkatalog bearbeiten (nur treasurer/admin – zusätzlich per RLS erzwungen)
+    if (t.dataset.katEdit) { katEdit = t.dataset.katEdit; renderKatalog(); return; }
+    if (t.hasAttribute("data-kat-cancel")) { katEdit = null; renderKatalog(); return; }
+    if (t.hasAttribute("data-kat-add")) { katEdit = "new"; renderKatalog(); return; }
+    if (t.dataset.katSave) {
+      const nameEl = viewEl.querySelector('[data-kat-input="name"]');
+      const amtEl  = viewEl.querySelector('[data-kat-input="amount"]');
+      const name = (nameEl ? nameEl.value : "").trim();
+      const amount = parseFloat(String(amtEl ? amtEl.value : "").replace(",", ".").replace(/[^0-9.]/g, ""));
+      if (!name) { window.alert("Bitte eine Bezeichnung eingeben."); return; }
+      if (!isFinite(amount) || amount <= 0) { window.alert("Bitte einen gültigen Betrag größer 0 eingeben."); return; }
+      try {
+        if (t.dataset.katSave === "new") await DB.insertCatalog(DEMO.clubId, name, amount);
+        else await DB.updateCatalog(t.dataset.katSave, name, amount);
+        katEdit = null;
+        await reloadData();
+      } catch (err) { window.alert("Speichern fehlgeschlagen: " + ((err && err.message) || err)); }
+      return;
+    }
+    if (t.dataset.katDel) {
+      if (!window.confirm("Strafe wirklich aus dem Katalog entfernen?\n\nBereits eingetragene Strafen bleiben erhalten.")) return;
+      try { await DB.deleteCatalog(t.dataset.katDel); katEdit = null; await reloadData(); }
+      catch (err) { window.alert("Löschen fehlgeschlagen: " + ((err && err.message) || err)); }
+      return;
+    }
 
     // Admin: Ansicht als andere Rolle simulieren (nur Anzeige, keine Rechteänderung)
     if (t.dataset.sim) {

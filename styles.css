@@ -453,12 +453,43 @@ tbody tr:hover { background: #fbfdfc; }
 /* Strafenkatalog als kompakte Kacheln (kein seitliches Scrollen) */
 .kat-list { display: flex; flex-direction: column; gap: 8px; }
 .kat-item {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  display: flex; align-items: center; gap: 10px;
   background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
-  padding: 12px 14px; box-shadow: var(--shadow-sm); min-height: 48px;
+  padding: 8px 10px 8px 14px; box-shadow: var(--shadow-sm); min-height: 52px;
 }
-.kat-name { font-weight: 600; min-width: 0; }
+.kat-name { font-weight: 600; min-width: 0; flex: 1; }
 .kat-amount { font-weight: 800; color: var(--green-800); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.kat-actions { display: flex; gap: 2px; flex: none; }
+
+/* Icon-Buttons (Bearbeiten/Löschen/Speichern/Abbrechen) – 44px Touch-Fläche */
+.icon-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; border: 0; background: none; color: var(--muted);
+  cursor: pointer; border-radius: 10px; flex: none;
+}
+.icon-btn svg { width: 20px; height: 20px; }
+.icon-btn:hover, .icon-btn:active { background: var(--green-050); color: var(--green-700); }
+.icon-btn.icon-ok { color: var(--green-600); }
+
+/* Inline-Editieren im Katalog */
+.kat-item.kat-edit { flex-direction: column; align-items: stretch; gap: 8px; padding: 12px 14px; }
+.kat-in {
+  width: 100%; font: inherit; font-size: 16px;   /* 16px -> Safari zoomt nicht rein */
+  padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; box-sizing: border-box; background: #fff;
+}
+.kat-edit-row2 { display: flex; align-items: center; gap: 8px; }
+.kat-in-amount { flex: 1; min-width: 0; }
+.kat-eur { color: var(--muted); font-weight: 700; }
+
+/* „+ Strafe hinzufügen" */
+.kat-add {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; margin-top: 10px; min-height: 48px;
+  background: none; border: 1.5px dashed var(--line); border-radius: var(--radius);
+  color: var(--green-700); font: inherit; font-weight: 700; cursor: pointer;
+}
+.kat-add svg { width: 20px; height: 20px; }
+.kat-add:hover { border-color: var(--green-500); background: var(--green-050); }
 
 .player-cell { display:flex; align-items:center; gap:10px; }
 .avatar {
