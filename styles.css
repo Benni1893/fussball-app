@@ -34,6 +34,10 @@
   /* Farbbalken links an der Spielkachel – leicht anpassbar */
   --spiel-heim: #0f3d2e;   /* Heimspiel: kräftiges, dunkles Vereinsgrün */
   --spiel-ausw: #a3cbb8;   /* Auswärtsspiel: blasseres, helleres Grün */
+  /* Randbalken-Ton je Termin-Typ (Nicht-Spiele) */
+  --typ-training:         #2e8b57;  /* Grün */
+  --typ-mannschaftsabend: #6f5bd1;  /* Violett */
+  --typ-sonstiges:        #7c8a82;  /* Neutraler Grauton */
 }
 
 * { box-sizing: border-box; }
@@ -262,8 +266,9 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .event.typ-spiel    { border-left-color: var(--gold-500); } /* Spiel ohne bekannten Heim/Auswärts-Status */
 .event.typ-spiel.is-home { border-left-color: var(--spiel-heim); }
 .event.typ-spiel.is-away { border-left-color: var(--spiel-ausw); }
-.event.typ-training { border-left-color: var(--green-500); }
-.event.typ-event    { border-left-color: #6f5bd1; }
+.event.typ-training         { border-left-color: var(--typ-training); }
+.event.typ-mannschaftsabend { border-left-color: var(--typ-mannschaftsabend); }
+.event.typ-sonstiges        { border-left-color: var(--typ-sonstiges); }
 
 .event-date {
   text-align: center;
@@ -272,7 +277,7 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
   padding: 8px 4px;
   line-height: 1.1;
 }
-.event.typ-event .event-date { background: #efeafc; }
+.event.typ-mannschaftsabend .event-date { background: #efeafc; }
 .event.typ-spiel .event-date { background: var(--gold-050); }
 .event-date .d-day  { font-size: 1.35rem; font-weight: 800; color: var(--green-800); display:block; }
 .event-date .d-mon  { font-size: .7rem; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); font-weight:700; }
@@ -310,7 +315,7 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 }
 .tag-spiel    { background: var(--gold-050); color: var(--gold-600); }
 .tag-training { background: var(--green-050); color: var(--green-600); }
-.tag-event    { background: #efeafc; color: #6f5bd1; }
+.tag-mannschaftsabend { background: #efeafc; color: #6f5bd1; }
 .tag-heim     { background: var(--green-700); color:#fff; }
 .tag-ausw     { background: #eef2ef; color: var(--muted); }
 .tag-friendly { background: var(--amber-050); color: var(--amber-600); }
@@ -433,14 +438,41 @@ tbody tr:hover { background: #fbfdfc; }
 
 /* ---- Teilen-Dialog ---- */
 .modal-ov { position: fixed; inset: 0; background: rgba(20,28,22,.55); display: flex; align-items: center; justify-content: center; padding: 18px; z-index: 1000; }
-.modal { background: #fff; border-radius: 16px; width: min(560px, 100%); max-height: 90vh; overflow: auto; padding: 18px 18px 20px; box-shadow: 0 18px 50px rgba(0,0,0,.3); }
+.modal { background: #fff; border-radius: 16px; width: min(560px, 100%); max-height: 90vh; max-height: 90dvh; overflow: auto; padding: 18px 18px 20px; box-shadow: 0 18px 50px rgba(0,0,0,.3); }
 .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .modal-head strong { font-size: 1.1rem; }
 .modal-x { border: 0; background: transparent; font-size: 1.1rem; cursor: pointer; color: var(--muted); line-height: 1; }
 .modal-sub { color: var(--muted); font-size: .85rem; margin: 6px 0 10px; }
 .modal-text { width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font: inherit; font-size: .92rem; line-height: 1.5; resize: vertical; box-sizing: border-box; }
 .modal-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.modal-actions-col { flex-direction: column; }
+.modal-actions-col .btn { width: 100%; }
 .modal-hint { font-size: .82rem; color: var(--green-800); margin-top: 8px; min-height: 1em; }
+.modal-sm { width: min(420px, 100%); }
+.btn-danger { background: var(--red-050); border-color: transparent; color: var(--red-600); font-weight: 700; }
+.btn-danger:hover { background: #f6ddd9; }
+.btn-ghost { background: transparent; border-color: transparent; color: var(--muted); }
+
+/* ---- Termin-Formular ---- */
+.page-head-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.btn-termin-new { min-height: 44px; white-space: nowrap; }
+.termin-form { display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
+.tf-row { display: flex; flex-direction: column; gap: 5px; font-size: .8rem; font-weight: 600; color: var(--muted); }
+.termin-form input, .termin-form select, .termin-form textarea {
+  font: inherit; font-size: 16px;              /* 16px -> iOS zoomt nicht rein */
+  color: var(--ink); font-weight: 500;
+  padding: 11px 12px; min-height: 44px;         /* 44px Touch-Fläche */
+  border: 1px solid var(--line); border-radius: 10px; background: #fff;
+  box-sizing: border-box; width: 100%;
+}
+.termin-form textarea { min-height: 60px; resize: vertical; }
+.tf-3col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.tf-wdh { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; }
+.tf-wdh legend { font-size: .8rem; font-weight: 700; color: var(--muted); padding: 0 4px; }
+.tf-radio { display: inline-flex; align-items: center; gap: 6px; font-size: .95rem; font-weight: 600; color: var(--ink); min-height: 44px; }
+.tf-radio input { width: auto; min-height: 0; }
+.tf-bis { flex-basis: 100%; }
+.tf-summary { background: var(--green-050); border-radius: 10px; padding: 10px 12px; font-size: .9rem; font-weight: 600; color: var(--green-800); }
 
 /* ====================== Aufstellungs-Builder ====================== */
 .lu-controls { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }

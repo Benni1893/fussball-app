@@ -439,7 +439,8 @@
       { k: "alle", label: "Alle" },
       { k: "spiel", label: "Spiele" },
       { k: "training", label: "Trainings" },
-      { k: "event", label: "Team-Events" },
+      { k: "mannschaftsabend", label: "Abende" },
+      { k: "sonstiges", label: "Sonstiges" },
     ];
     const liste = DEMO.events
       .filter((e) => kalFilter === "alle" || e.typ === kalFilter)
@@ -448,8 +449,9 @@
     const vergangen = liste.filter((e) => !isFuture(e.datum));
 
     viewEl.innerHTML = `
-      <div class="page-head">
+      <div class="page-head page-head-row">
         <h1>Kalender</h1>
+        ${Roles.canManageSchedule() ? `<button class="btn btn-primary btn-termin-new" data-termin-new>+ Termin</button>` : ""}
       </div>
       <div class="toolbar">
         ${filters.map((f) => `<button class="chip ${kalFilter === f.k ? "is-active" : ""}" data-filter="${f.k}">${f.label}</button>`).join("")}
@@ -486,6 +488,7 @@
   // Spielstätte als Karten-Link (Google Maps). Nur wenn Spielstätte UND Adresse
   // vorhanden sind -> sonst normaler Text (kein toter Link).
   const VENUE_PIN = `<svg class="venue-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>`;
+  const ICON_PENCIL = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>`;
   function venueHtml(e) {
     const staette  = (e.spielstaette || "").trim();
     const adr      = (e.adresse || "").trim();
@@ -506,9 +509,10 @@
 
   function eventCard(e, withRsvp = true) {
     const tagMap = {
-      spiel:    ``,  // kein "Spiel"-Label mehr – die Paarung macht den Typ ohnehin klar
-      training: `<span class="tag tag-training">Training</span>`,
-      event:    `<span class="tag tag-event">Team-Event</span>`,
+      spiel:            ``,  // kein "Spiel"-Label – die Paarung macht den Typ ohnehin klar
+      training:         `<span class="tag tag-training">Training</span>`,
+      mannschaftsabend: `<span class="tag tag-mannschaftsabend">Mannschaftsabend</span>`,
+      sonstiges:        ``,  // freier Titel steht ohnehin da
     };
     // Heim/Auswärts wird NICHT mehr als Text-Tag gezeigt, sondern als Farbbalken
     // links an der Kachel (Klassen is-home / is-away).
@@ -568,17 +572,289 @@
           <span class="d-mon">${fmtMon(e.datum)}</span>
         </div>
         <div class="event-main">
-          <div class="e-title">${titel} ${tagMap[e.typ]} ${friendlyTag} ${cancelledTag}</div>
-          ${e.zeit ? `<div class="e-time">${e.zeit} Uhr</div>` : ""}
+          <div class="e-title">${titel} ${tagMap[e.typ] || ""} ${friendlyTag} ${cancelledTag}</div>
+          ${e.zeit ? `<div class="e-time">${e.zeit}${e.ende ? "&#8211;" + esc(e.ende) : ""} Uhr</div>` : ""}
           ${venue ? `<div class="e-meta">${venue}</div>` : ""}
           ${e.note ? `<div class="e-note">${esc(e.note)}</div>` : ""}
           ${fristHtml}
-          ${e.typ === "spiel" && Roles.canManageEvents()
-            ? `<div class="e-trainer"><button class="btn btn-soft" data-kader-info="${e.id}">Kader-Info erstellen</button></div>`
-            : ""}
+          ${(() => {
+            const acts = [];
+            if (e.typ === "spiel" && Roles.canManageEvents())
+              acts.push(`<button class="btn btn-soft" data-kader-info="${e.id}">Kader-Info erstellen</button>`);
+            // Nur manuelle Termine sind bearbeitbar; BFV-Spiele nicht.
+            if (e.quelle === "manuell" && Roles.canManageSchedule())
+              acts.push(`<button class="icon-btn" title="Termin bearbeiten" aria-label="Termin bearbeiten" data-termin-edit="${e.id}">${ICON_PENCIL}</button>`);
+            return acts.length ? `<div class="e-trainer">${acts.join("")}</div>` : "";
+          })()}
         </div>
         ${rsvpHtml}
       </div>`;
+  }
+
+  /* ---------- Termine anlegen / bearbeiten (Trainer/Kassenwart) ------------- */
+  const SAISON_ENDE = "2026-06-30"; // Vorschlag "Ende der laufenden Saison"
+  const WD_PLURAL = ["sonntags","montags","dienstags","mittwochs","donnerstags","freitags","samstags"];
+
+  // Wochentermine von start (inkl.) bis until (inkl.), Schrittweite 7 Tage.
+  function weeklyDates(startISO, untilISO) {
+    const [ys, ms, ds] = startISO.split("-").map(Number);
+    const [yu, mu, du] = untilISO.split("-").map(Number);
+    const cur = new Date(ys, ms - 1, ds);
+    const end = new Date(yu, mu - 1, du);
+    const out = [];
+    let guard = 0;
+    while (cur <= end && guard++ < 400) { out.push(toISODate(cur)); cur.setDate(cur.getDate() + 7); }
+    return out;
+  }
+  function ddmm(iso) { const p = iso.split("-"); return `${p[2]}.${p[1]}.`; }
+  function weekdayPluralOf(iso) { const [y,m,d] = iso.split("-").map(Number); return WD_PLURAL[new Date(y, m-1, d).getDay()]; }
+
+  function closeTerminModal() { const ex = document.getElementById("terminModal"); if (ex) ex.remove(); }
+
+  // existing = null -> anlegen; sonst bearbeiten (Event-Objekt aus DEMO.events).
+  function openTerminModal(existing) {
+    closeTerminModal();
+    const isEdit = !!existing;
+    const e = existing || {};
+    const typ0   = e.typ || "training";
+    const titel0 = e.titel != null ? e.titel : (typ0 === "training" ? "Training" : "");
+    const datum0 = e.datum || HEUTE;
+
+    const ov = document.createElement("div");
+    ov.className = "modal-ov"; ov.id = "terminModal";
+    ov.innerHTML = `
+      <div class="modal" role="dialog" aria-modal="true">
+        <div class="modal-head"><strong>${isEdit ? "Termin bearbeiten" : "Termin anlegen"}</strong>
+          <button class="modal-x" aria-label="Schließen">&times;</button></div>
+        <form class="termin-form" novalidate>
+          <label class="tf-row">Typ
+            <select data-tf="typ">
+              <option value="training">Training</option>
+              <option value="mannschaftsabend">Mannschaftsabend</option>
+              <option value="spiel">Spiel</option>
+              <option value="sonstiges">Sonstiges</option>
+            </select>
+          </label>
+          <label class="tf-row" data-tf-titelrow>Titel
+            <input type="text" data-tf="titel" placeholder="z. B. Abschlusstraining">
+          </label>
+          <div data-tf-spiel hidden>
+            <label class="tf-row">Gegner
+              <input type="text" data-tf="gegner" placeholder="Gegnerischer Verein"></label>
+            <label class="tf-row">Heim/Auswärts
+              <select data-tf="heim"><option value="true">Heimspiel</option><option value="false">Auswärtsspiel</option></select></label>
+          </div>
+          <div class="tf-3col">
+            <label class="tf-row">Datum<input type="date" data-tf="datum"></label>
+            <label class="tf-row">Start<input type="time" data-tf="zeit"></label>
+            <label class="tf-row">Ende<input type="time" data-tf="ende"></label>
+          </div>
+          <label class="tf-row">Ort (vollständige Adresse)
+            <input type="text" data-tf="ort" placeholder="z. B. Sportanlage Lechelstraße, Lechelstr. 35, 80997 München"></label>
+          <label class="tf-row">Notiz für die Spieler (optional)
+            <textarea data-tf="notiz" rows="2" placeholder="optional"></textarea></label>
+          ${isEdit ? "" : `
+          <fieldset class="tf-wdh">
+            <legend>Wiederholung</legend>
+            <label class="tf-radio"><input type="radio" name="wdh" value="einmalig" checked> einmalig</label>
+            <label class="tf-radio"><input type="radio" name="wdh" value="woechentlich"> wöchentlich</label>
+            <label class="tf-row tf-bis" data-tf-bisrow hidden>Wiederholen bis
+              <input type="date" data-tf="bis" value="${SAISON_ENDE}"></label>
+          </fieldset>
+          <div class="tf-summary" data-tf-summary hidden></div>`}
+          <div class="modal-actions">
+            ${isEdit ? `<button type="button" class="btn btn-danger" data-tf-delete>Löschen</button>` : ""}
+            ${isEdit ? `<button type="button" class="btn" data-tf-cancel-toggle>${e.status === "abgesagt" ? "Findet statt" : "Fällt aus"}</button>` : ""}
+            <button type="submit" class="btn btn-primary">${isEdit ? "Speichern" : "Anlegen"}</button>
+          </div>
+          <div class="modal-hint" aria-live="polite" data-tf-hint></div>
+        </form>
+      </div>`;
+    document.body.appendChild(ov);
+
+    const q = (sel) => ov.querySelector(sel);
+    const typSel = q('[data-tf="typ"]');
+    typSel.value = typ0;
+    q('[data-tf="titel"]').value = titel0;
+    q('[data-tf="datum"]').value = datum0;
+    q('[data-tf="zeit"]').value  = e.zeit || "";
+    q('[data-tf="ende"]').value  = e.ende || "";
+    q('[data-tf="ort"]').value   = e.locationRaw || e.ort || "";
+    q('[data-tf="notiz"]').value = e.note || "";
+    q('[data-tf="gegner"]').value = e.gegner || "";
+    q('[data-tf="heim"]').value  = e.heim === false ? "false" : "true";
+    const hint = q('[data-tf-hint]');
+
+    function syncTypUI() {
+      const typ = typSel.value;
+      q('[data-tf-spiel]').hidden = typ !== "spiel";
+      q('[data-tf-titelrow]').hidden = typ === "spiel"; // Spiel: Titel = Paarung
+      const titelEl = q('[data-tf="titel"]');
+      if (typ === "training" && !titelEl.value.trim()) titelEl.value = "Training";
+    }
+    function summary() {
+      if (isEdit) return;
+      const box = q('[data-tf-summary]');
+      const woech = ov.querySelector('input[name="wdh"]:checked').value === "woechentlich";
+      q('[data-tf-bisrow]').hidden = !woech;
+      const start = q('[data-tf="datum"]').value, bis = q('[data-tf="bis"]').value, zeit = q('[data-tf="zeit"]').value;
+      if (!woech || !start || !bis || bis < start) { box.hidden = true; return; }
+      const dates = weeklyDates(start, bis);
+      box.hidden = false;
+      box.textContent = `Es werden ${dates.length} Termine angelegt, ${weekdayPluralOf(start)}${zeit ? " " + zeit : ""}, vom ${ddmm(start)} bis ${ddmm(bis)}.`;
+    }
+
+    syncTypUI(); summary();
+    typSel.addEventListener("change", syncTypUI);
+    ov.querySelectorAll('input[name="wdh"]').forEach((r) => r.addEventListener("change", summary));
+    ["datum","bis","zeit"].forEach((k) => { const el = q(`[data-tf="${k}"]`); if (el) el.addEventListener("input", summary); });
+
+    ov.addEventListener("click", (ev) => { if (ev.target === ov) closeTerminModal(); });
+    q(".modal-x").addEventListener("click", closeTerminModal);
+
+    function collect() {
+      return {
+        typ: typSel.value,
+        titel: q('[data-tf="titel"]').value.trim(),
+        datum: q('[data-tf="datum"]').value,
+        zeit: q('[data-tf="zeit"]').value,
+        ende: q('[data-tf="ende"]').value,
+        ort: q('[data-tf="ort"]').value.trim(),
+        notiz: q('[data-tf="notiz"]').value.trim(),
+        gegner: q('[data-tf="gegner"]').value.trim(),
+        heim: q('[data-tf="heim"]').value === "true",
+        wdh: !isEdit && ov.querySelector('input[name="wdh"]:checked').value === "woechentlich",
+        bis: isEdit ? "" : q('[data-tf="bis"]').value,
+      };
+    }
+
+    q(".termin-form").addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const b = collect();
+      const err = validateTermin(b);
+      if (err) { hint.textContent = err; return; }
+      const saveBtn = q(".termin-form button[type=submit]"); saveBtn.disabled = true;
+      try {
+        if (!isEdit) await createTermine(b); else await saveTerminEdit(existing, b);
+        closeTerminModal(); await reloadData();
+      } catch (e2) { hint.textContent = /Abgebrochen/.test(e2 && e2.message) ? "" : "Fehler: " + ((e2 && e2.message) || e2); saveBtn.disabled = false; }
+    });
+
+    const delBtn = q('[data-tf-delete]');
+    if (delBtn) delBtn.addEventListener("click", async () => {
+      try { await deleteTermin(existing); closeTerminModal(); await reloadData(); }
+      catch (e2) { if (!/Abgebrochen/.test(e2 && e2.message)) hint.textContent = "Fehler: " + ((e2 && e2.message) || e2); }
+    });
+    const cancelToggle = q('[data-tf-cancel-toggle]');
+    if (cancelToggle) cancelToggle.addEventListener("click", async () => {
+      const neu = existing.status === "abgesagt" ? "geplant" : "abgesagt";
+      try { await DB.updateEvent(existing.id, { status: neu }); closeTerminModal(); await reloadData(); }
+      catch (e2) { hint.textContent = "Fehler: " + ((e2 && e2.message) || e2); }
+    });
+  }
+
+  function validateTermin(b) {
+    if (!b.datum) return "Bitte ein Datum wählen.";
+    if (b.typ === "spiel") { if (!b.gegner) return "Bitte den Gegner angeben."; }
+    else if (!b.titel) return "Bitte einen Titel angeben.";
+    if (b.zeit && b.ende && b.ende <= b.zeit) return "Die Endzeit muss nach der Startzeit liegen.";
+    if (b.wdh) {
+      if (!b.bis) return "Bitte ein Enddatum für die Wiederholung angeben.";
+      if (b.bis < b.datum) return "Das Enddatum liegt vor dem Startdatum.";
+    }
+    return "";
+  }
+
+  function terminRow(b, dateISO, serieId) {
+    const isSpiel = b.typ === "spiel";
+    return {
+      club_id: DEMO.clubId, type: b.typ,
+      title: isSpiel ? null : (b.titel || null),
+      opponent: isSpiel ? (b.gegner || null) : null,
+      home: isSpiel ? b.heim : null,
+      date: dateISO, time: b.zeit || null, ende: b.ende || null,
+      location: b.ort || null, location_raw: b.ort || null, note: b.notiz || null,
+      quelle: "manuell", status: "geplant",
+      serie_id: serieId, serie_geaendert: false, auto_fine: false,
+    };
+  }
+
+  async function createTermine(b) {
+    if (b.wdh) {
+      const dates = weeklyDates(b.datum, b.bis);
+      const serieId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : null;
+      await DB.insertEvents(dates.map((d) => terminRow(b, d, serieId)));
+    } else {
+      await DB.insertEvents([terminRow(b, b.datum, null)]);
+    }
+  }
+
+  // Bearbeiten. Bei Serien Bereich abfragen; Vergangenheit nie mitändern.
+  async function saveTerminEdit(e, b) {
+    const isSpiel = b.typ === "spiel";
+    const commonPatch = {
+      type: b.typ,
+      title: isSpiel ? null : (b.titel || null),
+      opponent: isSpiel ? (b.gegner || null) : null,
+      home: isSpiel ? b.heim : null,
+      time: b.zeit || null, ende: b.ende || null,
+      location: b.ort || null, location_raw: b.ort || null, note: b.notiz || null,
+    };
+    if (e.serieId == null) { await DB.updateEvent(e.id, Object.assign({ date: b.datum }, commonPatch)); return; }
+    const scope = await askSeriesScope("ändern");
+    if (scope === null) throw new Error("Abgebrochen.");
+    if (scope === "single") {
+      await DB.updateEvent(e.id, Object.assign({ date: b.datum, serie_geaendert: true }, commonPatch));
+    } else {
+      const from = e.datum > HEUTE ? e.datum : HEUTE;   // Vergangenheit schützen
+      await DB.updateEvent(e.id, commonPatch);          // aktuellen immer mitnehmen
+      await DB.updateSeriesFrom(e.serieId, from, commonPatch);
+    }
+  }
+
+  async function deleteTermin(e) {
+    const zusagen = DEMO.players.filter((p) => (state.rsvp[e.id + "|" + p.id] || {}).status === "zu").length;
+    const warn = zusagen > 0 ? `\n\n${zusagen} Spieler ${zusagen === 1 ? "hat" : "haben"} bereits zugesagt.` : "";
+    if (e.serieId == null) {
+      if (!window.confirm(`Diesen Termin wirklich löschen?${warn}`)) throw new Error("Abgebrochen.");
+      await DB.deleteEvent(e.id); return;
+    }
+    const scope = await askSeriesScope("löschen");
+    if (scope === null) throw new Error("Abgebrochen.");
+    if (scope === "single") {
+      if (!window.confirm(`Nur diesen Termin löschen?${warn}`)) throw new Error("Abgebrochen.");
+      await DB.deleteEvent(e.id);
+    } else {
+      const from = e.datum > HEUTE ? e.datum : HEUTE;
+      if (!window.confirm(`Diesen und alle folgenden Termine löschen? Vergangene bleiben erhalten.${warn}`)) throw new Error("Abgebrochen.");
+      await DB.deleteSeriesFrom(e.serieId, from);
+    }
+  }
+
+  // Serien-Bereichs-Dialog. Promise: "single" | "following" | null (Abbruch).
+  function askSeriesScope(verb) {
+    return new Promise((resolve) => {
+      const ov = document.createElement("div");
+      ov.className = "modal-ov"; ov.id = "scopeModal";
+      ov.innerHTML = `
+        <div class="modal modal-sm" role="dialog" aria-modal="true">
+          <div class="modal-head"><strong>Serientermin ${verb}</strong></div>
+          <p class="modal-sub">Dieser Termin gehört zu einer Serie.</p>
+          <div class="modal-actions modal-actions-col">
+            <button class="btn" data-scope="single">Nur diesen Termin</button>
+            <button class="btn btn-primary" data-scope="following">Diesen und alle folgenden</button>
+            <button class="btn btn-ghost" data-scope="cancel">Abbrechen</button>
+          </div>
+        </div>`;
+      document.body.appendChild(ov);
+      const done = (val) => { ov.remove(); resolve(val); };
+      ov.addEventListener("click", (ev) => {
+        if (ev.target === ov) return done(null);
+        const b = ev.target.closest("[data-scope]");
+        if (!b) return;
+        done(b.dataset.scope === "cancel" ? null : b.dataset.scope);
+      });
+    });
   }
 
   /* ---------- Kader-Info (vorgefertigte Nachricht) -------------------------- */
@@ -1269,8 +1545,16 @@
       }
     }
 
-    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-ical-save],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self]");
+    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-ical-save],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit]");
     if (!t) return;
+
+    // Termin anlegen / bearbeiten (Trainer/Kassenwart – zusätzlich per RLS erzwungen)
+    if (t.hasAttribute("data-termin-new")) { if (Roles.canManageSchedule()) openTerminModal(null); return; }
+    if (t.dataset.terminEdit) {
+      const e = DEMO.events.find((x) => x.id === t.dataset.terminEdit);
+      if (e && Roles.canManageSchedule() && e.quelle === "manuell") openTerminModal(e);
+      return;
+    }
 
     // Spielplan (BFV): iCal-URL speichern
     if (t.hasAttribute("data-ical-save")) {

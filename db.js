@@ -54,6 +54,7 @@ window.DB = (function () {
         status: e.status || "geplant", quelle: e.quelle || "manuell",
         wettbewerb: e.wettbewerb, liga: e.liga,
         spielstaette: e.spielstaette, adresse: e.adresse, locationRaw: e.location_raw,
+        ende: e.ende, serieId: e.serie_id, serieGeaendert: e.serie_geaendert,
       })),
       katalog: katalog.data.map((k) => ({
         id: k.id, vergehen: k.offense, betrag: Number(k.amount), kategorie: k.category,
@@ -142,6 +143,34 @@ window.DB = (function () {
   }
   async function deleteCatalog(id) {
     const { error } = await client.from("fine_catalog").delete().eq("id", id);
+    if (error) throw error;
+  }
+
+  /* ---- Termine anlegen/aendern/loeschen (coach/treasurer/admin, per RLS) --- */
+  // Mehrere Termine als eigene Zeilen anlegen (Serie = gemeinsame serie_id).
+  async function insertEvents(rows) {
+    const { data, error } = await client.from("events").insert(rows).select();
+    if (error) throw error;
+    return data;
+  }
+  async function updateEvent(id, patch) {
+    const { error } = await client.from("events").update(patch).eq("id", id);
+    if (error) throw error;
+  }
+  // "Diesen und alle folgenden": ab Datum, nur noch nicht individuell geaenderte
+  // Serientermine. Die Vergangenheit schuetzt der Aufrufer (fromDate >= heute).
+  async function updateSeriesFrom(serieId, fromDate, patch) {
+    const { error } = await client.from("events").update(patch)
+      .eq("serie_id", serieId).gte("date", fromDate).eq("serie_geaendert", false);
+    if (error) throw error;
+  }
+  async function deleteEvent(id) {
+    const { error } = await client.from("events").delete().eq("id", id);
+    if (error) throw error;
+  }
+  async function deleteSeriesFrom(serieId, fromDate) {
+    const { error } = await client.from("events").delete()
+      .eq("serie_id", serieId).gte("date", fromDate);
     if (error) throw error;
   }
 
@@ -293,6 +322,7 @@ window.DB = (function () {
   return {
     client, loadAll, setRsvp, deleteRsvp, setFinePaid, deleteFine,
     insertCatalog, updateCatalog, deleteCatalog,
+    insertEvents, updateEvent, updateSeriesFrom, deleteEvent, deleteSeriesFrom,
     setIcalUrl, syncNow,
     saveLineup, deleteLineup, setLineupActive,
     getSession, signIn, signUp, signOut, loadProfile, setMyPlayer, setPlayerStatus,
