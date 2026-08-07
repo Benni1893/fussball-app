@@ -34,13 +34,15 @@
 
 html {
   -webkit-text-size-adjust: 100%; /* iOS: Schrift nicht ungewollt vergrößern/verkleinern */
-  height: 100%;
+  min-height: 100vh;              /* Fallback für Browser ohne dvh */
+  min-height: 100dvh;             /* iOS: dynamische Viewport-Höhe, korrekt ab erstem Paint */
   background: var(--green-900);   /* Overscroll-/Safe-Area-Bereich: grün, nie weiß */
 }
 body {
   margin: 0;
   padding: 0;
-  min-height: 100%;
+  min-height: 100vh;              /* Fallback für Browser ohne dvh */
+  min-height: 100dvh;            /* iOS: füllt den echten sichtbaren Viewport, kein heller Streifen unten beim ersten Öffnen */
   max-width: 100%;
   overflow-x: hidden;             /* kein horizontales Verrutschen */
   overscroll-behavior: none;      /* kein Gummiband über den Inhalt hinaus */
