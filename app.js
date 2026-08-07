@@ -568,8 +568,8 @@
           <span class="d-mon">${fmtMon(e.datum)}</span>
         </div>
         <div class="event-main">
-          ${e.zeit ? `<div class="e-time">${e.zeit} Uhr</div>` : ""}
           <div class="e-title">${titel} ${tagMap[e.typ]} ${friendlyTag} ${cancelledTag}</div>
+          ${e.zeit ? `<div class="e-time">${e.zeit} Uhr</div>` : ""}
           ${venue ? `<div class="e-meta">${venue}</div>` : ""}
           ${e.note ? `<div class="e-note">${esc(e.note)}</div>` : ""}
           ${fristHtml}
