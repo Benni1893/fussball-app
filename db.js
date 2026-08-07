@@ -53,7 +53,7 @@ window.DB = (function () {
         startsAt: e.starts_at, auto: e.auto_fine,
         status: e.status || "geplant", quelle: e.quelle || "manuell",
         wettbewerb: e.wettbewerb, liga: e.liga,
-        spielstaette: e.spielstaette, adresse: e.adresse,
+        spielstaette: e.spielstaette, adresse: e.adresse, locationRaw: e.location_raw,
       })),
       katalog: katalog.data.map((k) => ({
         id: k.id, vergehen: k.offense, betrag: Number(k.amount), kategorie: k.category,

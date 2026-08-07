@@ -487,13 +487,18 @@
   // vorhanden sind -> sonst normaler Text (kein toter Link).
   const VENUE_PIN = `<svg class="venue-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>`;
   function venueHtml(e) {
-    const staette = (e.spielstaette || "").trim();
-    const adr     = (e.adresse || "").trim();
+    const staette  = (e.spielstaette || "").trim();
+    const adr      = (e.adresse || "").trim();
     const fallback = (e.ort || "").trim();
-    if (staette && adr) {
-      const query = staette + ", " + adr;
+    const raw      = (e.locationRaw || "").trim();
+    // Für den Maps-Link ausschließlich den vollständigen Rohwert verwenden.
+    // Fallback (staette + adresse) nur für Spiele, die noch vor dem Nachfüllen
+    // von location_raw importiert wurden.
+    const query = raw || (staette && adr ? staette + ", " + adr : "");
+    if (query) {
+      const label = staette || fallback || query; // Sportanlagen-Name bleibt sichtbar
       const url = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(query);
-      return `<a class="venue-link" href="${url}" target="_blank" rel="noopener noreferrer" title="${esc(query)}">${VENUE_PIN}<span>${esc(staette)}</span></a>`;
+      return `<a class="venue-link" href="${url}" target="_blank" rel="noopener noreferrer" title="${esc(query)}">${VENUE_PIN}<span>${esc(label)}</span></a>`;
     }
     const text = fallback || staette || adr;
     return text ? `<span>${esc(text)}</span>` : "";
@@ -501,12 +506,14 @@
 
   function eventCard(e, withRsvp = true) {
     const tagMap = {
-      spiel:    `<span class="tag tag-spiel">Spiel</span>`,
+      spiel:    ``,  // kein "Spiel"-Label mehr – die Paarung macht den Typ ohnehin klar
       training: `<span class="tag tag-training">Training</span>`,
       event:    `<span class="tag tag-event">Team-Event</span>`,
     };
-    const heimTag = e.typ === "spiel"
-      ? (e.heim ? `<span class="tag tag-heim">Heim</span>` : `<span class="tag tag-ausw">Auswärts</span>`)
+    // Heim/Auswärts wird NICHT mehr als Text-Tag gezeigt, sondern als Farbbalken
+    // links an der Kachel (Klassen is-home / is-away).
+    const heimCls = e.typ === "spiel"
+      ? (e.heim === true ? " is-home" : e.heim === false ? " is-away" : "")
       : "";
     const titel = (e.typ === "spiel" && e.gegner)
       ? (() => { const p = paarung(e); return `${p.home} <span class="vs">–</span> ${p.away}`; })()
@@ -552,19 +559,18 @@
       rsvpHtml = `<div class="rsvp"><div class="rsvp-count"><b>${zusagen}</b> / ${DEMO.players.length} dabei</div></div>`;
     }
 
+    const venue = venueHtml(e);
     return `
-      <div class="event typ-${e.typ}${cancelled ? " is-cancelled" : ""}">
+      <div class="event typ-${e.typ}${heimCls}${cancelled ? " is-cancelled" : ""}">
         <div class="event-date">
           <span class="d-wd">${fmtWd(e.datum)}</span>
           <span class="d-day">${fmtDay(e.datum)}</span>
           <span class="d-mon">${fmtMon(e.datum)}</span>
         </div>
         <div class="event-main">
-          <div class="e-title">${titel} ${tagMap[e.typ]} ${heimTag} ${friendlyTag} ${cancelledTag}</div>
-          <div class="e-meta">
-            <span>${e.zeit} Uhr</span>
-            ${venueHtml(e)}
-          </div>
+          ${e.zeit ? `<div class="e-time">${e.zeit} Uhr</div>` : ""}
+          <div class="e-title">${titel} ${tagMap[e.typ]} ${friendlyTag} ${cancelledTag}</div>
+          ${venue ? `<div class="e-meta">${venue}</div>` : ""}
           ${e.note ? `<div class="e-note">${esc(e.note)}</div>` : ""}
           ${fristHtml}
           ${e.typ === "spiel" && Roles.canManageEvents()

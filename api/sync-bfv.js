@@ -80,6 +80,8 @@ function parseIcs(text) {
       bfv_uid: g.uid, gegner, heim, wettbewerb, liga,
       date: w && w.date, time: w && w.time,
       spielstaette: loc[0] || "", adresse: loc.slice(1).join(", "),
+      // Vollständiges LOCATION-Feld unverändert für den Karten-Link (nichts abschneiden).
+      location_raw: g.location || "",
     });
   }
   return { ownTeam, matches, warnings };
