@@ -464,8 +464,22 @@
     startCountdowns(); // Meldeschluss-Countdowns dieser Ansicht live halten
   }
 
+  // Eigener Teamname aus den Einstellungen (Fallback, falls noch nicht gesynct).
+  function ownTeamName() { return (DEMO && DEMO.teamName) || "FC Fasanerie-Nord"; }
+  // Gemeinsame Paarungs-Darstellung: IMMER "Heim – Gast"; eigenes Team fett (HTML).
+  function paarung(e) {
+    const ownHtml = `<span class="team-own">${esc(ownTeamName())}</span>`;
+    const oppHtml = `<span class="team-opp">${esc(e.gegner || "Gegner")}</span>`;
+    return e.heim ? { home: ownHtml, away: oppHtml } : { home: oppHtml, away: ownHtml };
+  }
+  // Reine Textvariante (KPI/Nachrichten), gleiche Reihenfolge.
+  function paarungText(e) {
+    const own = ownTeamName(), gegner = e.gegner || "Gegner";
+    return e.heim ? `${own} – ${gegner}` : `${gegner} – ${own}`;
+  }
+
   function eventTitel(e) {
-    if (e.typ === "spiel") return `${e.titel}${e.gegner ? " · " + (e.heim ? "FCFN" : e.gegner) + " gegen " + (e.heim ? e.gegner : "FCFN") : ""}`;
+    if (e.typ === "spiel") return e.gegner ? paarungText(e) : e.titel;
     return e.titel;
   }
 
@@ -478,8 +492,8 @@
     const heimTag = e.typ === "spiel"
       ? (e.heim ? `<span class="tag tag-heim">Heim</span>` : `<span class="tag tag-ausw">Auswärts</span>`)
       : "";
-    const titel = e.typ === "spiel" && e.gegner
-      ? `FC Fasanerie-Nord <span style="color:var(--muted);font-weight:600">vs.</span> ${esc(e.gegner)}`
+    const titel = (e.typ === "spiel" && e.gegner)
+      ? (() => { const p = paarung(e); return `${p.home} <span class="vs">–</span> ${p.away}`; })()
       : esc(e.titel);
 
     // RSVP-Zähler

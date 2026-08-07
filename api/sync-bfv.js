@@ -127,6 +127,18 @@ module.exports = async function handler(req, res) {
     const { matches, warnings, ownTeam } = parseIcs(icsText);
     warnings.forEach((w) => console.warn("BFV-Sync:", w));
 
+    // Eigenen Teamnamen (aus X-WR-CALNAME) in den Einstellungen ablegen
+    if (ownTeam) {
+      await fetch(`${SUPABASE_URL}/rest/v1/clubs?slug=eq.fcfn`, {
+        method: "PATCH",
+        headers: {
+          apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`,
+          "Content-Type": "application/json", Prefer: "return=minimal",
+        },
+        body: JSON.stringify({ team_name: ownTeam }),
+      });
+    }
+
     // DB-Reconciliation (service_role)
     const sr = await fetch(`${SUPABASE_URL}/rest/v1/rpc/sync_bfv_matches`, {
       method: "POST",

@@ -35,6 +35,7 @@ window.DB = (function () {
     return {
       clubId: club ? club.id : null,
       icalUrl: club ? club.ical_url : null,
+      teamName: club ? club.team_name : null,
       verein: {
         name: club ? club.name : "FC Fasanerie-Nord e.V.",
         team: "1. Herrenmannschaft",
