@@ -483,6 +483,22 @@
     return e.titel;
   }
 
+  // Spielstätte als Karten-Link (Google Maps). Nur wenn Spielstätte UND Adresse
+  // vorhanden sind -> sonst normaler Text (kein toter Link).
+  const VENUE_PIN = `<svg class="venue-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>`;
+  function venueHtml(e) {
+    const staette = (e.spielstaette || "").trim();
+    const adr     = (e.adresse || "").trim();
+    const fallback = (e.ort || "").trim();
+    if (staette && adr) {
+      const query = staette + ", " + adr;
+      const url = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(query);
+      return `<a class="venue-link" href="${url}" target="_blank" rel="noopener noreferrer" title="${esc(query)}">${VENUE_PIN}<span>${esc(staette)}</span></a>`;
+    }
+    const text = fallback || staette || adr;
+    return text ? `<span>${esc(text)}</span>` : "";
+  }
+
   function eventCard(e, withRsvp = true) {
     const tagMap = {
       spiel:    `<span class="tag tag-spiel">Spiel</span>`,
@@ -547,7 +563,7 @@
           <div class="e-title">${titel} ${tagMap[e.typ]} ${heimTag} ${friendlyTag} ${cancelledTag}</div>
           <div class="e-meta">
             <span>${e.zeit} Uhr</span>
-            <span>${esc(e.ort)}</span>
+            ${venueHtml(e)}
           </div>
           ${e.note ? `<div class="e-note">${esc(e.note)}</div>` : ""}
           ${fristHtml}
