@@ -287,6 +287,23 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .tag-event    { background: #efeafc; color: #6f5bd1; }
 .tag-heim     { background: var(--green-700); color:#fff; }
 .tag-ausw     { background: #eef2ef; color: var(--muted); }
+.tag-friendly { background: var(--amber-050); color: var(--amber-600); }
+.tag-cancelled{ background: var(--red-050);   color: var(--red-600); }
+
+/* Abgesagtes Spiel: sichtbar, aber grau/durchgestrichen (nicht ausgeblendet) */
+.event.is-cancelled { opacity: .7; }
+.event.is-cancelled .e-title { color: var(--muted); text-decoration: line-through; text-decoration-color: rgba(0,0,0,.35); }
+.event.is-cancelled .e-title .tag { text-decoration: none; }
+.rsvp-cancelled { font-weight: 700; color: var(--red-600); font-size: .9rem; }
+
+/* Spielplan-(BFV)-Karte in der Übersicht */
+.bfv-card { display: flex; flex-direction: column; gap: 10px; }
+.bfv-label { font-size: .74rem; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); font-weight: 700; }
+.bfv-url { width: 100%; font: inherit; font-size: 16px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; box-sizing: border-box; background: #fff; }
+.bfv-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.bfv-actions .btn { min-height: 44px; }
+.bfv-msg { font-size: .85rem; font-weight: 600; color: var(--green-800); }
+.bfv-hint { font-size: .78rem; color: var(--muted); }
 
 /* ---------- RSVP ----------------------------------------------------------- */
 .rsvp { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; min-width: 150px; }

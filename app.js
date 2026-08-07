@@ -300,6 +300,7 @@
   }
 
   /* ---------- Übersicht ----------------------------------------------------- */
+  let bfvMsg = ""; // letzte Rückmeldung des Spielplan-Syncs
   function renderDashboard() {
     const me = playerById[state.currentPlayerId];
     const naechste = DEMO.events.filter((e) => isFuture(e.datum)).sort((a, b) => a.datum.localeCompare(b.datum));
@@ -350,6 +351,21 @@
               </div>`).join("")}
           </div>
         </div>
+      </div>` : "";
+
+    // Spielplan (BFV) – nur Trainer/Kassenwart/Admin
+    const bfvHtml = Roles.canManageSchedule() ? `
+      <div class="section-title" style="margin-top:8px"><h2>Spielplan (BFV)</h2></div>
+      <div class="card card-pad bfv-card">
+        <label class="bfv-label" for="bfvUrl">iCal-URL des Teams</label>
+        <input id="bfvUrl" class="bfv-url" data-ical-input type="url" inputmode="url" autocapitalize="off" spellcheck="false"
+               placeholder="https://service.bfv.de/rest/icsexport/..." value="${esc(DEMO.icalUrl || "")}">
+        <div class="bfv-actions">
+          <button class="btn" data-ical-save>URL speichern</button>
+          <button class="btn btn-primary" data-bfv-sync>Spielplan jetzt aktualisieren</button>
+        </div>
+        ${bfvMsg ? `<div class="bfv-msg">${esc(bfvMsg)}</div>` : ""}
+        <div class="bfv-hint">Läuft zusätzlich täglich automatisch. Abgesagte Spiele bleiben (durchgestrichen), manuelle Termine bleiben unangetastet.</div>
       </div>` : "";
 
     viewEl.innerHTML = `
@@ -411,6 +427,7 @@
       </div>
 
       ${trainerHtml}
+      ${bfvHtml}
     `;
   }
 
@@ -469,6 +486,10 @@
     const zusagen = DEMO.players.filter((p) => (state.rsvp[e.id + "|" + p.id] || {}).status === "zu").length;
     const r = state.rsvp[e.id + "|" + state.currentPlayerId] || {};
     const future = isFuture(e.datum);
+    const cancelled = e.status === "abgesagt";
+    const friendlyTag = (e.typ === "spiel" && e.wettbewerb && /freundschaft/i.test(e.wettbewerb))
+      ? `<span class="tag tag-friendly">Freundschaft</span>` : "";
+    const cancelledTag = cancelled ? `<span class="tag tag-cancelled">Abgesagt</span>` : "";
 
     // Meldeschluss-Hinweis/Countdown (nur Spiele & Trainings mit aktiver Automatik)
     let fristHtml = "";
@@ -485,7 +506,9 @@
     }
 
     let rsvpHtml = "";
-    if (withRsvp && future) {
+    if (cancelled) {
+      rsvpHtml = `<div class="rsvp"><span class="rsvp-cancelled">Abgesagt</span></div>`;
+    } else if (withRsvp && future) {
       rsvpHtml = `
         <div class="rsvp">
           <div class="rsvp-buttons">
@@ -500,14 +523,14 @@
     }
 
     return `
-      <div class="event typ-${e.typ}">
+      <div class="event typ-${e.typ}${cancelled ? " is-cancelled" : ""}">
         <div class="event-date">
           <span class="d-wd">${fmtWd(e.datum)}</span>
           <span class="d-day">${fmtDay(e.datum)}</span>
           <span class="d-mon">${fmtMon(e.datum)}</span>
         </div>
         <div class="event-main">
-          <div class="e-title">${titel} ${tagMap[e.typ]} ${heimTag}</div>
+          <div class="e-title">${titel} ${tagMap[e.typ]} ${heimTag} ${friendlyTag} ${cancelledTag}</div>
           <div class="e-meta">
             <span>${e.zeit} Uhr</span>
             <span>${esc(e.ort)}</span>
@@ -1210,8 +1233,34 @@
       }
     }
 
-    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self]");
+    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-ical-save],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self]");
     if (!t) return;
+
+    // Spielplan (BFV): iCal-URL speichern
+    if (t.hasAttribute("data-ical-save")) {
+      const el = viewEl.querySelector("[data-ical-input]");
+      const url = el ? el.value.trim() : "";
+      try { await DB.setIcalUrl(url); bfvMsg = "iCal-URL gespeichert."; await reloadData(); }
+      catch (err) { window.alert("Speichern fehlgeschlagen: " + ((err && err.message) || err)); }
+      return;
+    }
+    // Spielplan (BFV): jetzt aktualisieren
+    if (t.hasAttribute("data-bfv-sync")) {
+      const el = viewEl.querySelector("[data-ical-input]");
+      const url = el ? el.value.trim() : "";
+      t.disabled = true; const old = t.textContent; t.textContent = "Aktualisiere …";
+      try {
+        if (url && url !== (DEMO.icalUrl || "")) await DB.setIcalUrl(url); // ungespeicherte URL zuerst sichern
+        const rr = await DB.syncNow();
+        bfvMsg = `${rr.updated} aktualisiert, ${rr.new} neu, ${rr.cancelled} abgesagt.`;
+        await reloadData();
+      } catch (err) {
+        bfvMsg = "Fehler: " + ((err && err.message) || err);
+        t.disabled = false; t.textContent = old;
+        renderDashboard();
+      }
+      return;
+    }
 
     // Strafenkatalog bearbeiten (nur treasurer/admin – zusätzlich per RLS erzwungen)
     if (t.dataset.katEdit) { katEdit = t.dataset.katEdit; renderKatalog(); return; }
@@ -1486,6 +1535,8 @@
     canManageFines() { return this.has("treasurer") || this.isAdmin(); },
     // Auto-Strafen darf auch der Trainer entfernen (Spieler war entschuldigt).
     canDeleteAutoFine() { return this.canManageFines() || this.canManageEvents(); },
+    // Spielplan/BFV: Trainer, Kassenwart oder Admin.
+    canManageSchedule() { return this.canManageEvents() || this.canManageFines(); },
   };
 
   function authErrorText(msg) {

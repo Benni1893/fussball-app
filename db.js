@@ -34,6 +34,7 @@ window.DB = (function () {
 
     return {
       clubId: club ? club.id : null,
+      icalUrl: club ? club.ical_url : null,
       verein: {
         name: club ? club.name : "FC Fasanerie-Nord e.V.",
         team: "1. Herrenmannschaft",
@@ -49,6 +50,9 @@ window.DB = (function () {
         id: e.id, typ: e.type, titel: e.title, gegner: e.opponent, heim: e.home,
         datum: e.date, zeit: e.time, ort: e.location, note: e.note,
         startsAt: e.starts_at, auto: e.auto_fine,
+        status: e.status || "geplant", quelle: e.quelle || "manuell",
+        wettbewerb: e.wettbewerb, liga: e.liga,
+        spielstaette: e.spielstaette, adresse: e.adresse,
       })),
       katalog: katalog.data.map((k) => ({
         id: k.id, vergehen: k.offense, betrag: Number(k.amount), kategorie: k.category,
@@ -138,6 +142,24 @@ window.DB = (function () {
   async function deleteCatalog(id) {
     const { error } = await client.from("fine_catalog").delete().eq("id", id);
     if (error) throw error;
+  }
+
+  /* ---- BFV-Spielplan (iCal) --------------------------------------------- */
+  // iCal-URL setzen (nur coach/treasurer/admin, per RLS in der Funktion).
+  async function setIcalUrl(url) {
+    const { error } = await client.rpc("set_ical_url", { p_url: url || "" });
+    if (error) throw error;
+  }
+  // Sync jetzt anstoßen: ruft die serverseitige Function mit dem Login-Token auf.
+  async function syncNow() {
+    const { data } = await client.auth.getSession();
+    const token = data.session && data.session.access_token;
+    if (!token) throw new Error("Nicht angemeldet.");
+    const res = await fetch("/api/sync-bfv", { method: "POST", headers: { Authorization: "Bearer " + token } });
+    let out = {};
+    try { out = await res.json(); } catch (e) {}
+    if (!res.ok || !out.ok) throw new Error((out && out.error) || ("HTTP " + res.status));
+    return out; // { updated, new, cancelled, parsed, ... }
   }
 
   // Strafe löschen (treasurer/admin generell; coach für Auto-Strafen). RLS erzwingt.
@@ -270,6 +292,7 @@ window.DB = (function () {
   return {
     client, loadAll, setRsvp, deleteRsvp, setFinePaid, deleteFine,
     insertCatalog, updateCatalog, deleteCatalog,
+    setIcalUrl, syncNow,
     saveLineup, deleteLineup, setLineupActive,
     getSession, signIn, signUp, signOut, loadProfile, setMyPlayer, setPlayerStatus,
     resetPassword, updatePassword, onPasswordRecovery, myRoles,
