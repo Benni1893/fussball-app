@@ -1,6 +1,8 @@
 // Persoenlicher iCal-Feed (Vercel Serverless Function, Node runtime).
-// Route: /api/calendar/<token>.ics  (der ".ics"-Suffix ist Teil des Segments
-// und wird hier abgeschnitten). Kein Login: der Token IST die Berechtigung.
+// Oeffentliche URL: /api/calendar/<token>.ics  -> per Rewrite in vercel.json
+// auf /api/calendar?token=<token> abgebildet (dynamische [param]-Routen im
+// /api-Ordner werden bei diesem Nicht-Framework-Projekt nicht zuverlaessig
+// erkannt). Kein Login: der Token IST die Berechtigung.
 // Liefert alle Team-Termine (vergangene 30 Tage + alle zukuenftigen) als
 // RFC-5545-Kalender. KEINE personenbezogenen Daten (keine Namen anderer
 // Spieler, keine RSVPs, keine Strafen).
@@ -58,7 +60,7 @@ module.exports = async function handler(req, res) {
   try {
     if (!SUPABASE_URL || !SERVICE_KEY) return res.status(500).end();
 
-    // Token aus dem Pfad, ".ics" abschneiden, streng validieren.
+    // Token aus der Query (Rewrite), ".ics" sicherheitshalber abschneiden, streng validieren.
     const token = String((req.query && req.query.token) || "").replace(/\.ics$/i, "").trim();
     if (!/^[a-f0-9]{32,128}$/i.test(token)) return res.status(404).send("Not found");
 
