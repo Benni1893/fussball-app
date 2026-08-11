@@ -27,6 +27,32 @@ function nextDayCompact(iso) {
 }
 function toMin(t) { const m = /^(\d{1,2}):(\d{2})/.exec(t || ""); return m ? (+m[1]) * 60 + (+m[2]) : null; }
 
+// Aufgeraeumte Adresse fuer den Feed: Platz-Bezeichnungen als EXAKTE Abschnitte
+// zwischen Kommas entfernen (nicht Teile von Strassennamen). location_raw in der
+// DB bleibt unveraendert.
+const PLATZ_DROP = new Set([
+  "rasenplatz", "kunstrasenplatz", "kunstrasen", "nebenplatz", "hauptplatz", "halle", "stadion",
+  "platz 1", "platz 2", "platz 3", "platz 4", "platz 5", "platz 6", "platz 7", "platz 8", "platz 9",
+]);
+function cleanAddr(raw) {
+  return String(raw || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0 && !PLATZ_DROP.has(s.toLowerCase()))
+    .join(", ")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+// Abgleichschluessel: klein, ohne Diakritika/Sonderzeichen (identisch in der UI).
+function normAddr(s) {
+  return String(s || "").toLowerCase().replace(/ä/g,"a").replace(/ö/g,"o").replace(/ü/g,"u").replace(/ß/g,"ss").replace(/[^a-z0-9]+/g, "");
+}
+function venueName(spielstaette, cleaned) {
+  if (spielstaette && String(spielstaette).trim()) return String(spielstaette).trim();
+  const first = String(cleaned || "").split(",")[0];
+  return first ? first.trim() : "";
+}
+
 // RFC 5545 Text-Escaping: Backslash zuerst, dann ; , und Zeilenumbrueche.
 function esc(s) {
   return String(s == null ? "" : s)
@@ -87,9 +113,18 @@ module.exports = async function handler(req, res) {
     const cutoff = `${cut.getUTCFullYear()}-${pad(cut.getUTCMonth() + 1)}-${pad(cut.getUTCDate())}`;
     const events = await sb(
       `events?club_id=eq.${clubId}&date=gte.${cutoff}` +
-      `&select=id,type,title,opponent,home,date,time,ende,starts_at,location_raw,note,status,ical_seq` +
+      `&select=id,type,title,opponent,home,date,time,ende,starts_at,location_raw,spielstaette,note,status,ical_seq` +
       `&order=date.asc`
     );
+
+    // Koordinaten je Sportstaette (Abgleich ueber normalisierte Adresse).
+    const coord = {};
+    try {
+      const orte = await sb("sportstaetten?select=adresse_norm,lat,lng,name,adresse");
+      for (const o of (orte || [])) {
+        if (o.lat != null && o.lng != null) coord[o.adresse_norm] = o;
+      }
+    } catch (e) { /* ohne Koordinaten -> nur LOCATION, kein Fehler */ }
 
     const now = fmtUtc(new Date());
     const lines = [
@@ -135,7 +170,19 @@ module.exports = async function handler(req, res) {
       }
       lines.push("SUMMARY:" + esc(summary));
 
-      if (e.location_raw && String(e.location_raw).trim()) lines.push("LOCATION:" + esc(e.location_raw));
+      if (e.location_raw && String(e.location_raw).trim()) {
+        const cleaned = cleanAddr(e.location_raw);           // aufgeraeumte Feed-Adresse
+        lines.push("LOCATION:" + esc(cleaned));
+        // Falls Koordinaten vorliegen: GEO + Apple-Struktur -> antippbarer Ort.
+        const geo = coord[normAddr(e.location_raw)];
+        if (geo) {
+          const lat = String(geo.lat), lng = String(geo.lng);
+          const addr = cleaned.replace(/"/g, "");            // keine DQUOTE im Parameterwert
+          const title = (venueName(e.spielstaette, cleaned) || cleaned).replace(/"/g, "");
+          lines.push("GEO:" + lat + ";" + lng);
+          lines.push(`X-APPLE-STRUCTURED-LOCATION;VALUE=URI;X-ADDRESS="${addr}";X-APPLE-RADIUS=100;X-TITLE="${title}":geo:${lat},${lng}`);
+        }
+      }
       if (e.note && String(e.note).trim()) lines.push("DESCRIPTION:" + esc(e.note));
       if (e.status === "abgesagt") lines.push("STATUS:CANCELLED");
       lines.push("SEQUENCE:" + (Number(e.ical_seq) || 0));

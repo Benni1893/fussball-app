@@ -16,7 +16,7 @@ window.DB = (function () {
 
   // Lädt alle Tabellen und formt sie in die bekannte „DEMO"-Struktur um.
   async function loadAll() {
-    const [clubs, players, events, katalog, fines, rsvps, lineups] = await Promise.all([
+    const [clubs, players, events, katalog, fines, rsvps, lineups, sportstaetten] = await Promise.all([
       client.from("clubs").select("*").eq("slug", CLUB_SLUG).limit(1),
       client.from("players").select("*").order("number", { ascending: true }),
       client.from("events").select("*").order("date", { ascending: true }),
@@ -24,9 +24,10 @@ window.DB = (function () {
       client.from("fines").select("*").order("date", { ascending: true }),
       client.from("rsvps").select("*"),
       client.from("lineups").select("*").order("created_at", { ascending: true }),
+      client.from("sportstaetten").select("*"),
     ]);
 
-    for (const res of [clubs, players, events, katalog, fines, rsvps, lineups]) {
+    for (const res of [clubs, players, events, katalog, fines, rsvps, lineups, sportstaetten]) {
       if (res.error) throw res.error;
     }
 
@@ -55,6 +56,10 @@ window.DB = (function () {
         wettbewerb: e.wettbewerb, liga: e.liga,
         spielstaette: e.spielstaette, adresse: e.adresse, locationRaw: e.location_raw,
         ende: e.ende, serieId: e.serie_id, serieGeaendert: e.serie_geaendert,
+      })),
+      sportstaetten: sportstaetten.data.map((s) => ({
+        id: s.id, name: s.name, adresse: s.adresse, norm: s.adresse_norm,
+        lat: s.lat, lng: s.lng,
       })),
       katalog: katalog.data.map((k) => ({
         id: k.id, vergehen: k.offense, betrag: Number(k.amount), kategorie: k.category,
@@ -171,6 +176,13 @@ window.DB = (function () {
   async function deleteSeriesFrom(serieId, fromDate) {
     const { error } = await client.from("events").delete()
       .eq("serie_id", serieId).gte("date", fromDate);
+    if (error) throw error;
+  }
+
+  // Sportstaette (Koordinaten) anlegen/aktualisieren. Abgleich ueber adresse_norm.
+  async function upsertSportstaette(row) {
+    const { error } = await client.from("sportstaetten")
+      .upsert(Object.assign({ updated_at: new Date().toISOString() }, row), { onConflict: "adresse_norm" });
     if (error) throw error;
   }
 
@@ -337,6 +349,7 @@ window.DB = (function () {
     client, loadAll, setRsvp, deleteRsvp, setFinePaid, deleteFine,
     insertCatalog, updateCatalog, deleteCatalog,
     insertEvents, updateEvent, updateSeriesFrom, deleteEvent, deleteSeriesFrom,
+    upsertSportstaette,
     myCalendarToken, regenerateCalendarToken,
     setIcalUrl, syncNow,
     saveLineup, deleteLineup, setLineupActive,

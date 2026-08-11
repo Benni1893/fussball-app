@@ -368,6 +368,8 @@
         <div class="bfv-hint">Läuft zusätzlich täglich automatisch. Abgesagte Spiele bleiben (durchgestrichen), manuelle Termine bleiben unangetastet.</div>
       </div>` : "";
 
+    const koordHtml = Roles.canManageSchedule() ? sportstaettenCardHtml() : "";
+
     viewEl.innerHTML = `
       <div class="page-head">
         <h1>Servus, ${esc(me.name.split(" ")[0])}!</h1>
@@ -428,7 +430,57 @@
 
       ${trainerHtml}
       ${bfvHtml}
+      ${koordHtml}
     `;
+  }
+
+  // Adress-Bereinigung + Norm-Schlüssel – IDENTISCH zur Feed-Funktion in api/calendar.js,
+  // damit die Koordinaten-Zuordnung matcht.
+  const PLATZ_DROP = new Set([
+    "rasenplatz", "kunstrasenplatz", "kunstrasen", "nebenplatz", "hauptplatz", "halle", "stadion",
+    "platz 1", "platz 2", "platz 3", "platz 4", "platz 5", "platz 6", "platz 7", "platz 8", "platz 9",
+  ]);
+  function cleanAddr(raw) {
+    return String(raw || "").split(",").map((s) => s.trim())
+      .filter((s) => s.length > 0 && !PLATZ_DROP.has(s.toLowerCase()))
+      .join(", ").replace(/\s{2,}/g, " ").trim();
+  }
+  function normAddr(s) {
+    return String(s || "").toLowerCase().replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/ß/g, "ss").replace(/[^a-z0-9]+/g, "");
+  }
+  // Sportstätten aus dem Spielplan, denen noch Koordinaten fehlen.
+  function missingCoordVenues() {
+    const hasCoord = {};
+    for (const s of (DEMO.sportstaetten || [])) if (s.lat != null && s.lng != null) hasCoord[s.norm] = true;
+    const seen = {}, list = [];
+    for (const e of DEMO.events) {
+      const raw = (e.locationRaw || "").trim();
+      if (!raw) continue;
+      const norm = normAddr(raw);
+      if (!norm || seen[norm] || hasCoord[norm]) continue;
+      seen[norm] = true;
+      const cleaned = cleanAddr(raw);
+      const name = (e.spielstaette && e.spielstaette.trim()) || (cleaned.split(",")[0] || "").trim();
+      list.push({ norm, name, adresse: cleaned });
+    }
+    return list.sort((a, b) => a.name.localeCompare(b.name, "de"));
+  }
+  function sportstaettenCardHtml() {
+    const list = missingCoordVenues();
+    return `
+      <div class="section-title" style="margin-top:8px"><h2>Sportstätten-Koordinaten</h2></div>
+      <div class="card card-pad koord-card">
+        <p class="koord-desc">Damit Adressen im abonnierten Kalender antippbar werden, brauchen sie Koordinaten. In Google Maps: Ort lange drücken/rechtsklicken → die zwei Zahlen sind <b>lat</b> (Breite) und <b>lng</b> (Länge).</p>
+        ${list.length ? list.map((v) => `
+          <div class="koord-row" data-koord-norm="${esc(v.norm)}" data-koord-name="${esc(v.name)}" data-koord-adresse="${esc(v.adresse)}">
+            <div class="koord-info"><div class="koord-name">${esc(v.name)}</div><div class="koord-adr">${esc(v.adresse)}</div></div>
+            <div class="koord-inputs">
+              <input class="koord-lat" type="text" inputmode="decimal" placeholder="lat" aria-label="Breitengrad">
+              <input class="koord-lng" type="text" inputmode="decimal" placeholder="lng" aria-label="Längengrad">
+              <button class="btn btn-primary koord-save" data-koord-save>Speichern</button>
+            </div>
+          </div>`).join("") : `<div class="empty" style="padding:14px 0">Alle Sportstätten im Spielplan haben Koordinaten.</div>`}
+      </div>`;
   }
 
   /* ---------- Kalender ------------------------------------------------------ */
@@ -1604,8 +1656,24 @@
       }
     }
 
-    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-ical-save],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-cal-copy],[data-cal-regen]");
+    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-ical-save],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-cal-copy],[data-cal-regen],[data-koord-save]");
     if (!t) return;
+
+    // Sportstätte: Koordinaten speichern (Trainer/Kassenwart – zusätzlich per RLS)
+    if (t.hasAttribute("data-koord-save")) {
+      const row = t.closest("[data-koord-norm]");
+      if (!row) return;
+      const lat = parseFloat(String(row.querySelector(".koord-lat").value).replace(",", ".").trim());
+      const lng = parseFloat(String(row.querySelector(".koord-lng").value).replace(",", ".").trim());
+      if (!isFinite(lat) || !isFinite(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+        window.alert("Bitte gültige Koordinaten eingeben.\nlat zwischen -90 und 90, lng zwischen -180 und 180."); return;
+      }
+      try {
+        await DB.upsertSportstaette({ name: row.dataset.koordName, adresse: row.dataset.koordAdresse, adresse_norm: row.dataset.koordNorm, lat, lng });
+        await reloadData();
+      } catch (err) { window.alert("Speichern fehlgeschlagen: " + ((err && err.message) || err)); }
+      return;
+    }
 
     // Kalender abonnieren: Link kopieren
     if (t.hasAttribute("data-cal-copy")) {

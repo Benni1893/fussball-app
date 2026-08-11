@@ -491,6 +491,17 @@ tbody tr:hover { background: #fbfdfc; }
 .cal-hint { margin: 0; color: var(--muted); font-size: .8rem; }
 .cal-regen { align-self: flex-start; min-height: 44px; }
 
+/* ---- Sportstätten-Koordinaten (Pflege, nur Trainer/Kassenwart) ---- */
+.koord-desc { margin: 0 0 10px; color: var(--muted); font-size: .85rem; }
+.koord-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.koord-row:last-child { border-bottom: 0; }
+.koord-info { flex: 1 1 100%; min-width: 0; }
+.koord-name { font-weight: 700; }
+.koord-adr { font-size: .82rem; color: var(--muted); overflow-wrap: anywhere; }
+.koord-inputs { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
+.koord-inputs input { font: inherit; font-size: 16px; min-height: 44px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px; background: #fff; box-sizing: border-box; flex: 1 1 90px; min-width: 0; }
+.koord-inputs .btn { min-height: 44px; flex: 0 0 auto; }
+
 /* ====================== Aufstellungs-Builder ====================== */
 .lu-controls { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
 .lu-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
