@@ -609,7 +609,25 @@
   function ddmm(iso) { const p = iso.split("-"); return `${p[2]}.${p[1]}.`; }
   function weekdayPluralOf(iso) { const [y,m,d] = iso.split("-").map(Number); return WD_PLURAL[new Date(y, m-1, d).getDay()]; }
 
-  function closeTerminModal() { const ex = document.getElementById("terminModal"); if (ex) ex.remove(); }
+  // Hintergrund-Scroll-Sperre für Dialoge (iOS-fest: body fixieren, Position merken).
+  // Zählerbasiert, damit verschachtelte Dialoge (z. B. Serien-Abfrage über dem
+  // Termin-Dialog) korrekt bleiben.
+  let _scrollLocks = 0, _scrollLockY = 0;
+  function lockBodyScroll() {
+    if (_scrollLocks++ > 0) return;
+    _scrollLockY = window.scrollY || window.pageYOffset || 0;
+    const b = document.body.style;
+    b.position = "fixed"; b.top = `-${_scrollLockY}px`; b.left = "0"; b.right = "0"; b.width = "100%";
+  }
+  function unlockBodyScroll() {
+    if (_scrollLocks === 0) return;
+    if (--_scrollLocks > 0) return;
+    const b = document.body.style;
+    b.position = ""; b.top = ""; b.left = ""; b.right = ""; b.width = "";
+    window.scrollTo(0, _scrollLockY);
+  }
+
+  function closeTerminModal() { const ex = document.getElementById("terminModal"); if (ex) { ex.remove(); unlockBodyScroll(); } }
 
   // existing = null -> anlegen; sonst bearbeiten (Event-Objekt aus DEMO.events).
   function openTerminModal(existing) {
@@ -644,8 +662,8 @@
             <label class="tf-row">Heim/Auswärts
               <select data-tf="heim"><option value="true">Heimspiel</option><option value="false">Auswärtsspiel</option></select></label>
           </div>
-          <div class="tf-3col">
-            <label class="tf-row">Datum<input type="date" data-tf="datum"></label>
+          <label class="tf-row">Datum<input type="date" data-tf="datum"></label>
+          <div class="tf-2col">
             <label class="tf-row">Start<input type="time" data-tf="zeit"></label>
             <label class="tf-row">Ende<input type="time" data-tf="ende"></label>
           </div>
@@ -671,6 +689,7 @@
         </form>
       </div>`;
     document.body.appendChild(ov);
+    lockBodyScroll();
 
     const q = (sel) => ov.querySelector(sel);
     const typSel = q('[data-tf="typ"]');
@@ -847,7 +866,8 @@
           </div>
         </div>`;
       document.body.appendChild(ov);
-      const done = (val) => { ov.remove(); resolve(val); };
+      lockBodyScroll();
+      const done = (val) => { ov.remove(); unlockBodyScroll(); resolve(val); };
       ov.addEventListener("click", (ev) => {
         if (ev.target === ov) return done(null);
         const b = ev.target.closest("[data-scope]");
@@ -903,7 +923,7 @@
   /* ---------- Teilen-Dialog (WhatsApp / Kopieren) --------------------------- */
   function closeShareModal() {
     const ex = document.getElementById("shareModal");
-    if (ex) ex.remove();
+    if (ex) { ex.remove(); unlockBodyScroll(); }
   }
   async function copyText(text) {
     try {
@@ -937,6 +957,7 @@
         <div class="modal-hint" aria-live="polite"></div>
       </div>`;
     document.body.appendChild(ov);
+    lockBodyScroll();
     const ta = ov.querySelector(".modal-text");
     ta.value = text;
     const hint = ov.querySelector(".modal-hint");
