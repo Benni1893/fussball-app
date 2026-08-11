@@ -434,6 +434,41 @@
   /* ---------- Kalender ------------------------------------------------------ */
   let kalFilter = "alle";
 
+  // Persoenlicher iCal-Feed ("In meinen Kalender")
+  let calendarToken = null;
+  function calendarSubscribeUrl() {
+    return calendarToken ? window.location.origin + "/api/calendar/" + calendarToken + ".ics" : "";
+  }
+  async function ensureCalendarToken() {
+    if (calendarToken) return calendarToken;
+    try { calendarToken = await DB.myCalendarToken(); } catch (e) { calendarToken = null; }
+    return calendarToken;
+  }
+  function calendarSubscribeCardHtml() {
+    return `
+      <div class="card cal-sub">
+        <h2 class="cal-sub-title">In meinen Kalender</h2>
+        <p class="cal-sub-desc">Abonniere alle Team-Termine in deiner Kalender-App – neue und geänderte Termine erscheinen dort automatisch.</p>
+        <div class="cal-link" data-cal-link>Link wird geladen …</div>
+        <div class="cal-actions">
+          <button class="btn" data-cal-copy>Link kopieren</button>
+          <a class="btn btn-primary" data-cal-open href="#" aria-disabled="true">Im Kalender öffnen</a>
+        </div>
+        <p class="cal-hint">Dein Kalender aktualisiert sich je nach Gerät alle paar Stunden. Kurzfristige Änderungen siehst du zuerst in der App.</p>
+        <button class="link-btn cal-regen" data-cal-regen>Neuen Link erzeugen</button>
+      </div>`;
+  }
+  // Füllt Link/Buttons, sobald der Token da ist (DOM in der Kalender-Ansicht).
+  function fillCalendarSubscribe() {
+    const linkEl = viewEl.querySelector("[data-cal-link]");
+    if (!linkEl) return; // nicht in der Kalender-Ansicht
+    const openEl = viewEl.querySelector("[data-cal-open]");
+    if (!calendarToken) { linkEl.textContent = "Link wird geladen …"; return; }
+    const https = calendarSubscribeUrl();
+    linkEl.textContent = https;
+    if (openEl) { openEl.setAttribute("href", https.replace(/^https?:/i, "webcal:")); openEl.removeAttribute("aria-disabled"); }
+  }
+
   function renderKalender() {
     const filters = [
       { k: "alle", label: "Alle" },
@@ -461,9 +496,12 @@
       ${vergangen.length ? `
         <div class="section-title" style="margin-top:28px"><h2>Vergangene Termine</h2></div>
         <div class="event-list" style="opacity:.72">${vergangen.map((e) => eventCard(e, false)).join("")}</div>` : ""}
+      ${calendarSubscribeCardHtml()}
     `;
 
     startCountdowns(); // Meldeschluss-Countdowns dieser Ansicht live halten
+    fillCalendarSubscribe();
+    if (!calendarToken) ensureCalendarToken().then(() => { if (currentView === "kalender") fillCalendarSubscribe(); });
   }
 
   // Eigener Teamname aus den Einstellungen (Fallback, falls noch nicht gesynct).
@@ -1566,8 +1604,26 @@
       }
     }
 
-    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-ical-save],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit]");
+    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-ical-save],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-cal-copy],[data-cal-regen]");
     if (!t) return;
+
+    // Kalender abonnieren: Link kopieren
+    if (t.hasAttribute("data-cal-copy")) {
+      const url = calendarSubscribeUrl();
+      if (!url) return;
+      const ok = await copyText(url);
+      const old = t.textContent;
+      t.textContent = ok ? "Kopiert!" : "Fehlgeschlagen";
+      setTimeout(() => { t.textContent = old; }, 1500);
+      return;
+    }
+    // Kalender abonnieren: neuen Link erzeugen (alter wird ungültig)
+    if (t.hasAttribute("data-cal-regen")) {
+      if (!window.confirm("Neuen Link erzeugen?\n\nDer alte Link funktioniert danach nicht mehr – Geräte, die ihn abonniert haben, müssen den Kalender neu abonnieren.")) return;
+      try { calendarToken = await DB.regenerateCalendarToken(); fillCalendarSubscribe(); }
+      catch (err) { window.alert("Fehlgeschlagen: " + ((err && err.message) || err)); }
+      return;
+    }
 
     // Termin anlegen / bearbeiten (Trainer/Kassenwart – zusätzlich per RLS erzwungen)
     if (t.hasAttribute("data-termin-new")) { if (Roles.canManageSchedule()) openTerminModal(null); return; }

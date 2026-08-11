@@ -480,6 +480,17 @@ tbody tr:hover { background: #fbfdfc; }
 .tf-bis { flex-basis: 100%; }
 .tf-summary { background: var(--green-050); border-radius: 10px; padding: 10px 12px; font-size: .9rem; font-weight: 600; color: var(--green-800); }
 
+/* ---- Kalender abonnieren ("In meinen Kalender") ---- */
+.cal-sub { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+.cal-sub-title { font-size: 1.05rem; font-weight: 800; margin: 0; }
+.cal-sub-desc { margin: 0; color: var(--muted); font-size: .9rem; }
+.cal-link { font-size: .82rem; color: var(--green-800); background: var(--green-050); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; overflow-wrap: anywhere; word-break: break-all; user-select: all; -webkit-user-select: all; }
+.cal-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.cal-actions .btn { min-height: 44px; flex: 1 1 auto; text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+.cal-actions .btn-primary[aria-disabled="true"] { opacity: .55; pointer-events: none; }
+.cal-hint { margin: 0; color: var(--muted); font-size: .8rem; }
+.cal-regen { align-self: flex-start; min-height: 44px; }
+
 /* ====================== Aufstellungs-Builder ====================== */
 .lu-controls { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
 .lu-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }

@@ -192,6 +192,20 @@ window.DB = (function () {
     return out; // { updated, new, cancelled, parsed, ... }
   }
 
+  /* ---- Persoenlicher iCal-Feed ------------------------------------------- */
+  // Eigenen Kalender-Token holen (legt ihn bei Bedarf an).
+  async function myCalendarToken() {
+    const { data, error } = await client.rpc("my_calendar_token");
+    if (error) throw error;
+    return data;
+  }
+  // Neuen Token erzeugen (alter Link wird ungueltig).
+  async function regenerateCalendarToken() {
+    const { data, error } = await client.rpc("regenerate_calendar_token");
+    if (error) throw error;
+    return data;
+  }
+
   // Strafe löschen (treasurer/admin generell; coach für Auto-Strafen). RLS erzwingt.
   async function deleteFine(fineId) {
     const { error } = await client.from("fines").delete().eq("id", fineId);
@@ -323,6 +337,7 @@ window.DB = (function () {
     client, loadAll, setRsvp, deleteRsvp, setFinePaid, deleteFine,
     insertCatalog, updateCatalog, deleteCatalog,
     insertEvents, updateEvent, updateSeriesFrom, deleteEvent, deleteSeriesFrom,
+    myCalendarToken, regenerateCalendarToken,
     setIcalUrl, syncNow,
     saveLineup, deleteLineup, setLineupActive,
     getSession, signIn, signUp, signOut, loadProfile, setMyPlayer, setPlayerStatus,
