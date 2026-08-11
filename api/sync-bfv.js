@@ -150,6 +150,16 @@ module.exports = async function handler(req, res) {
     const result = await sr.json();
     if (!sr.ok) return res.status(500).json({ ok: false, error: "DB-Sync fehlgeschlagen.", detail: result });
 
+    // Zeitpunkt der letzten erfolgreichen Synchronisierung festhalten.
+    await fetch(`${SUPABASE_URL}/rest/v1/clubs?slug=eq.fcfn`, {
+      method: "PATCH",
+      headers: {
+        apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`,
+        "Content-Type": "application/json", Prefer: "return=minimal",
+      },
+      body: JSON.stringify({ ical_synced_at: new Date().toISOString() }),
+    });
+
     return res.status(200).json({
       ok: true, ownTeam, parsed: matches.length, warnings: warnings.length,
       updated: result.updated, new: result.new, cancelled: result.cancelled,

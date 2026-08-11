@@ -285,6 +285,7 @@
     else if (currentView === "kalender") renderKalender();
     else if (currentView === "katalog") renderKatalog();
     else if (currentView === "strafen") renderStrafen();
+    else if (currentView === "einstellungen") renderEinstellungen();
     else if (currentView === "lineup") { if (Roles.canManageEvents()) renderLineup(); else renderDashboard(); }
     else if (currentView === "admin") { if (Roles.isAdmin()) renderAdmin(); else renderDashboard(); }
   }
@@ -353,23 +354,6 @@
         </div>
       </div>` : "";
 
-    // Spielplan (BFV) – nur Trainer/Kassenwart/Admin
-    const bfvHtml = Roles.canManageSchedule() ? `
-      <div class="section-title" style="margin-top:8px"><h2>Spielplan (BFV)</h2></div>
-      <div class="card card-pad bfv-card">
-        <label class="bfv-label" for="bfvUrl">iCal-URL des Teams</label>
-        <input id="bfvUrl" class="bfv-url" data-ical-input type="url" inputmode="url" autocapitalize="off" spellcheck="false"
-               placeholder="https://service.bfv.de/rest/icsexport/..." value="${esc(DEMO.icalUrl || "")}">
-        <div class="bfv-actions">
-          <button class="btn" data-ical-save>URL speichern</button>
-          <button class="btn btn-primary" data-bfv-sync>Spielplan jetzt aktualisieren</button>
-        </div>
-        ${bfvMsg ? `<div class="bfv-msg">${esc(bfvMsg)}</div>` : ""}
-        <div class="bfv-hint">Läuft zusätzlich täglich automatisch. Abgesagte Spiele bleiben (durchgestrichen), manuelle Termine bleiben unangetastet.</div>
-      </div>` : "";
-
-    const koordHtml = Roles.canManageSchedule() ? sportstaettenCardHtml() : "";
-
     viewEl.innerHTML = `
       <div class="page-head">
         <h1>Servus, ${esc(me.name.split(" ")[0])}!</h1>
@@ -429,8 +413,6 @@
       </div>
 
       ${trainerHtml}
-      ${bfvHtml}
-      ${koordHtml}
     `;
   }
 
@@ -468,7 +450,7 @@
   function sportstaettenCardHtml() {
     const list = missingCoordVenues();
     return `
-      <div class="section-title" style="margin-top:8px"><h2>Sportstätten-Koordinaten</h2></div>
+      <div class="section-title set-sub"><h3>Sportstätten-Koordinaten</h3></div>
       <div class="card card-pad koord-card">
         <p class="koord-desc">Damit Adressen im abonnierten Kalender antippbar werden, brauchen sie Koordinaten. In Google Maps: Ort lange drücken/rechtsklicken → die zwei Zahlen sind <b>lat</b> (Breite) und <b>lng</b> (Länge).</p>
         ${list.length ? list.map((v) => `
@@ -498,22 +480,18 @@
   }
   function calendarSubscribeCardHtml() {
     return `
-      <div class="card cal-sub">
-        <h2 class="cal-sub-title">In meinen Kalender</h2>
-        <p class="cal-sub-desc">Abonniere alle Team-Termine in deiner Kalender-App – neue und geänderte Termine erscheinen dort automatisch.</p>
-        <div class="cal-link" data-cal-link>Link wird geladen …</div>
-        <div class="cal-actions">
-          <button class="btn" data-cal-copy>Link kopieren</button>
-          <a class="btn btn-primary" data-cal-open href="#" aria-disabled="true">Im Kalender öffnen</a>
-        </div>
-        <p class="cal-hint">Dein Kalender aktualisiert sich je nach Gerät alle paar Stunden. Kurzfristige Änderungen siehst du zuerst in der App.</p>
-        <button class="link-btn cal-regen" data-cal-regen>Neuen Link erzeugen</button>
-      </div>`;
+      <p class="cal-sub-desc">Alle Trainings und Spiele erscheinen automatisch in deinem Handy-Kalender. Ändert der Trainer einen Termin, aktualisiert er sich von selbst.</p>
+      <div class="cal-link" data-cal-link>Link wird geladen …</div>
+      <div class="cal-actions">
+        <a class="btn btn-primary" data-cal-open href="#" aria-disabled="true">Kalender hinzufügen</a>
+        <button class="btn" data-cal-copy>Link kopieren</button>
+      </div>
+      <button class="link-btn cal-regen" data-cal-regen>Neuen Link erzeugen</button>`;
   }
-  // Füllt Link/Buttons, sobald der Token da ist (DOM in der Kalender-Ansicht).
+  // Füllt Link/Buttons, sobald der Token da ist (DOM der Einstellungen-Ansicht).
   function fillCalendarSubscribe() {
     const linkEl = viewEl.querySelector("[data-cal-link]");
-    if (!linkEl) return; // nicht in der Kalender-Ansicht
+    if (!linkEl) return; // nicht in der Einstellungen-Ansicht
     const openEl = viewEl.querySelector("[data-cal-open]");
     if (!calendarToken) { linkEl.textContent = "Link wird geladen …"; return; }
     const https = calendarSubscribeUrl();
@@ -548,12 +526,71 @@
       ${vergangen.length ? `
         <div class="section-title" style="margin-top:28px"><h2>Vergangene Termine</h2></div>
         <div class="event-list" style="opacity:.72">${vergangen.map((e) => eventCard(e, false)).join("")}</div>` : ""}
-      ${calendarSubscribeCardHtml()}
     `;
 
     startCountdowns(); // Meldeschluss-Countdowns dieser Ansicht live halten
+  }
+
+  /* ---------- Einstellungen (Tab „Mehr") ------------------------------------ */
+  function renderEinstellungen() {
+    document.body.classList.remove("auth-mode");
+    const u = currentProfile || {};
+    const player = u.player_id ? playerById[u.player_id] : null;
+    const name = player ? player.name : (u.email || "—");
+    const email = u.email || "—";
+    const verwaltung = Roles.canManageSchedule();
+    const syncTxt = DEMO.icalSyncedAt ? fmtTs(DEMO.icalSyncedAt) + " Uhr" : "noch nie";
+
+    viewEl.innerHTML = `
+      <div class="page-head"><h1>Einstellungen</h1></div>
+
+      <div class="set-section">
+        <div class="section-title"><h2>Mein Profil</h2></div>
+        <div class="card card-pad set-profile">
+          <div class="set-row"><span class="set-label">Name</span><span class="set-val">${esc(name)}</span></div>
+          <div class="set-row"><span class="set-label">E-Mail</span><span class="set-val">${esc(email)}</span></div>
+          <button class="btn set-logout" data-logout>Abmelden</button>
+        </div>
+      </div>
+
+      <div class="set-section">
+        <div class="section-title"><h2>In meinen Kalender</h2></div>
+        <div class="card card-pad cal-sub">
+          ${calendarSubscribeCardHtml()}
+        </div>
+      </div>
+
+      ${verwaltung ? `
+      <div class="set-verwaltung">
+        <div class="section-title"><h2>Verwaltung</h2></div>
+
+        <div class="section-title set-sub"><h3>Spielplan (BFV)</h3></div>
+        <div class="card card-pad bfv-card">
+          <label class="bfv-label" for="bfvUrl">iCal-URL des Teams</label>
+          <input id="bfvUrl" class="bfv-url" data-ical-input type="url" inputmode="url" autocapitalize="off" spellcheck="false"
+                 placeholder="https://service.bfv.de/rest/icsexport/..." value="${esc(DEMO.icalUrl || "")}">
+          <div class="bfv-find">Link finden: BFV-App öffnen → dein Team wählen → Drei-Punkte-Menü → „iCal-Abo".</div>
+          <div class="bfv-actions">
+            <button class="btn" data-ical-save>URL speichern</button>
+            <button class="btn btn-primary" data-bfv-sync>Spielplan jetzt aktualisieren</button>
+          </div>
+          ${bfvMsg ? `<div class="bfv-msg">${esc(bfvMsg)}</div>` : ""}
+          <div class="bfv-hint">Zuletzt synchronisiert: ${esc(syncTxt)}. Läuft zusätzlich täglich automatisch.</div>
+        </div>
+
+        ${sportstaettenCardHtml()}
+
+        <div class="section-title set-sub"><h3>Strafenkatalog</h3></div>
+        <div class="card card-pad">
+          <p class="set-hint">Vergehen und Beträge werden im Katalog gepflegt.</p>
+          <button class="btn" data-goto="katalog">Strafenkatalog öffnen</button>
+        </div>
+      </div>` : ""}
+    `;
+
+    // Kalender-Link asynchron befüllen.
     fillCalendarSubscribe();
-    if (!calendarToken) ensureCalendarToken().then(() => { if (currentView === "kalender") fillCalendarSubscribe(); });
+    if (!calendarToken) ensureCalendarToken().then(() => { if (currentView === "einstellungen") fillCalendarSubscribe(); });
   }
 
   // Eigener Teamname aus den Einstellungen (Fallback, falls noch nicht gesynct).
@@ -1656,8 +1693,11 @@
       }
     }
 
-    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-ical-save],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-cal-copy],[data-cal-regen],[data-koord-save]");
+    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-ical-save],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-cal-copy],[data-cal-regen],[data-koord-save],[data-logout]");
     if (!t) return;
+
+    // Abmelden (Button in den Einstellungen; in der Kopfzeile separat behandelt)
+    if (t.hasAttribute("data-logout")) { try { await DB.signOut(); } catch (e) {} return; }
 
     // Sportstätte: Koordinaten speichern (Trainer/Kassenwart – zusätzlich per RLS)
     if (t.hasAttribute("data-koord-save")) {
@@ -1722,7 +1762,7 @@
       } catch (err) {
         bfvMsg = "Fehler: " + ((err && err.message) || err);
         t.disabled = false; t.textContent = old;
-        renderDashboard();
+        render(); // BFV-Karte liegt jetzt in den Einstellungen -> aktuelle Ansicht neu zeichnen
       }
       return;
     }
@@ -1911,7 +1951,7 @@
   function switchView(view) {
     currentView = view;
     // Bereiche im „Mehr"-Menü (Aufstellung/Rollen) markieren den Mehr-Tab als aktiv.
-    const inMore = (view === "lineup" || view === "admin");
+    const inMore = (view === "lineup" || view === "admin" || view === "einstellungen");
     document.querySelectorAll(".nav-btn").forEach((b) => {
       const active = inMore ? b.hasAttribute("data-more") : (b.dataset.view === view);
       b.classList.toggle("is-active", active);
@@ -2025,15 +2065,14 @@
       `<div class="ident"><span class="ident-name">${esc(name)}</span>` +
       `<span class="ident-role">${esc(roleText)}</span></div>` +
       `<button class="logout-btn" data-logout>Abmelden</button>`;
-    // „Mehr"-Menü: Aufstellung (Trainer/Admin), Rollen (Admin). Spieler: kein „Mehr".
-    const showLineup = Roles.canManageEvents();
-    const showAdmin  = Roles.isAdmin();
+    // „Mehr"-Menü: für ALLE sichtbar (Einstellungen). Zusätzlich Aufstellung
+    // (Trainer/Admin) und Rollen (Admin).
     const moreLineup = document.getElementById("moreLineup");
     const moreAdmin  = document.getElementById("moreAdmin");
     const navMore    = document.getElementById("navMore");
-    if (moreLineup) moreLineup.style.display = showLineup ? "" : "none";
-    if (moreAdmin)  moreAdmin.style.display  = showAdmin ? "" : "none";
-    if (navMore)    navMore.style.display    = (showLineup || showAdmin) ? "" : "none";
+    if (moreLineup) moreLineup.style.display = Roles.canManageEvents() ? "" : "none";
+    if (moreAdmin)  moreAdmin.style.display  = Roles.isAdmin() ? "" : "none";
+    if (navMore)    navMore.style.display    = ""; // Einstellungen ist für jeden erreichbar
     syncHeaderHeight(); // Platz unter der festen Kopfzeile an die echte Höhe koppeln
   }
 

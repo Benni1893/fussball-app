@@ -502,6 +502,20 @@ tbody tr:hover { background: #fbfdfc; }
 .koord-inputs input { font: inherit; font-size: 16px; min-height: 44px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px; background: #fff; box-sizing: border-box; flex: 1 1 90px; min-width: 0; }
 .koord-inputs .btn { min-height: 44px; flex: 0 0 auto; }
 
+/* ---- Einstellungen-Seite ---- */
+.set-section { margin-bottom: 4px; }
+.set-section .cal-sub { margin-top: 0; }
+.set-profile .set-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); }
+.set-profile .set-row:first-child { padding-top: 0; }
+.set-label { color: var(--muted); font-weight: 600; }
+.set-val { text-align: right; overflow-wrap: anywhere; font-weight: 600; }
+.set-logout { margin-top: 14px; min-height: 44px; }
+.set-verwaltung { margin-top: 28px; padding-top: 4px; border-top: 2px solid var(--line); }
+.set-sub { margin-top: 16px; }
+.set-sub h3 { font-size: 1rem; font-weight: 800; margin: 0; color: var(--ink); }
+.set-hint { color: var(--muted); font-size: .85rem; margin: 0 0 10px; }
+.bfv-find { font-size: .8rem; color: var(--muted); margin: 6px 0 2px; }
+
 /* ====================== Aufstellungs-Builder ====================== */
 .lu-controls { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
 .lu-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
