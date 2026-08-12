@@ -16,7 +16,7 @@ window.DB = (function () {
 
   // Lädt alle Tabellen und formt sie in die bekannte „DEMO"-Struktur um.
   async function loadAll() {
-    const [clubs, players, events, katalog, fines, rsvps, lineups, sportstaetten] = await Promise.all([
+    const [clubs, players, events, katalog, fines, rsvps, lineups, sportstaetten, playerStatus] = await Promise.all([
       client.from("clubs").select("*").eq("slug", CLUB_SLUG).limit(1),
       client.from("players").select("*").order("number", { ascending: true }),
       client.from("events").select("*").order("date", { ascending: true }),
@@ -25,11 +25,16 @@ window.DB = (function () {
       client.from("rsvps").select("*"),
       client.from("lineups").select("*").order("created_at", { ascending: true }),
       client.from("sportstaetten").select("*"),
+      client.from("player_status").select("*"),
     ]);
 
-    for (const res of [clubs, players, events, katalog, fines, rsvps, lineups, sportstaetten]) {
+    for (const res of [clubs, players, events, katalog, fines, rsvps, lineups, sportstaetten, playerStatus]) {
       if (res.error) throw res.error;
     }
+
+    // Verletzungs-/Fitnessstatus (eigene Tabelle, per RLS gefiltert) nach player_id.
+    const psById = {};
+    (playerStatus.data || []).forEach((s) => { psById[s.player_id] = s; });
 
     const club = (clubs.data && clubs.data[0]) || null;
 
@@ -44,11 +49,14 @@ window.DB = (function () {
         saison: club ? club.season : "",
         gegruendet: club ? club.founded : null,
       },
-      players: players.data.map((p) => ({
-        id: p.id, code: p.code, name: p.name, nr: p.number, pos: p.position,
-        status: p.status || "fit", statusNote: p.status_note,
-        statusUntil: p.status_until, statusSince: p.status_since,
-      })),
+      players: players.data.map((p) => {
+        const s = psById[p.id] || {};
+        return {
+          id: p.id, code: p.code, name: p.name, nr: p.number, pos: p.position,
+          status: s.status || "fit", statusNote: s.status_note,
+          statusUntil: s.status_until, statusSince: s.status_since,
+        };
+      }),
       events: events.data.map((e) => ({
         id: e.id, typ: e.type, titel: e.title, gegner: e.opponent, heim: e.home,
         datum: e.date, zeit: e.time, ort: e.location, note: e.note,

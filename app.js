@@ -286,6 +286,7 @@
     else if (currentView === "katalog") renderKatalog();
     else if (currentView === "strafen") renderStrafen();
     else if (currentView === "einstellungen") renderEinstellungen();
+    else if (currentView === "profil") renderProfil();
     else if (currentView === "lineup") { if (Roles.canManageEvents()) renderLineup(); else renderDashboard(); }
     else if (currentView === "admin") { if (Roles.isAdmin()) renderAdmin(); else renderDashboard(); }
   }
@@ -640,6 +641,34 @@
     `;
   }
 
+  /* ---------- Profil (Spieler-Tab): eigener Fitnessstatus ------------------- */
+  function renderProfil() {
+    document.body.classList.remove("auth-mode");
+    const u = currentProfile || {};
+    const player = u.player_id ? playerById[u.player_id] : null;
+    const name = player ? player.name : (u.email || "—");
+    const roleText = Roles.list.length ? Roles.list.map((r) => ROLE_LABEL[r] || r).join(" · ") : "Spieler";
+    const st = player ? (player.status || "fit") : null;
+    const opt = (val, label) => `<button class="chip st-choice ${st === val ? "is-on st-" + val : ""}" data-my-status="${val}">${label}</button>`;
+    viewEl.innerHTML = `
+      <div class="page-head"><h1>Profil</h1></div>
+      <div class="set-greeting">
+        <div class="set-greet-name">${esc(name)}</div>
+        <div class="set-greet-role">${esc(roleText)}</div>
+      </div>
+      ${player ? `
+      <div class="set-section">
+        <div class="section-title"><h2>Mein Fitnessstatus</h2></div>
+        <div class="card card-pad">
+          <p class="set-hint">Sag dem Trainerteam, wie es dir geht.</p>
+          <div class="status-choose">
+            ${opt("fit", "fit")}${opt("angeschlagen", "angeschlagen")}${opt("verletzt", "verletzt")}
+          </div>
+        </div>
+      </div>` : `<div class="empty" style="padding:24px 0">Dein Konto ist noch keinem Spieler zugeordnet. Melde dich beim Trainerteam.</div>`}
+    `;
+  }
+
   // Eigener Teamname aus den Einstellungen (Fallback, falls noch nicht gesynct).
   function ownTeamName() { return (DEMO && DEMO.teamName) || "FC Fasanerie-Nord"; }
   // Gemeinsame Paarungs-Darstellung: IMMER "Heim – Gast"; eigenes Team fett (HTML).
@@ -720,6 +749,8 @@
       }
     }
 
+    // Zusagen-Zahlen nur fuer Trainer/Admin. Spieler sehen nur ihren eigenen Status.
+    const showCount = Roles.canManageEvents();
     let rsvpHtml = "";
     if (cancelled) {
       rsvpHtml = `<div class="rsvp"><span class="rsvp-cancelled">Abgesagt</span></div>`;
@@ -730,10 +761,10 @@
             <button class="btn btn-zu ${r.status === "zu" ? "is-on" : ""}" data-rsvp="zu" data-event="${e.id}">Zusage</button>
             <button class="btn btn-ab ${r.status === "ab" ? "is-on" : ""}" data-rsvp="ab" data-event="${e.id}">Absage</button>
           </div>
-          <div class="rsvp-count"><b>${zusagen}</b> / ${DEMO.players.length} zugesagt</div>
+          ${showCount ? `<div class="rsvp-count"><b>${zusagen}</b> / ${DEMO.players.length} zugesagt</div>` : ""}
           ${r.status === "ab" && r.grund ? `<div class="rsvp-reason">Grund: ${esc(r.grund)}</div>` : ""}
         </div>`;
-    } else {
+    } else if (showCount) {
       rsvpHtml = `<div class="rsvp"><div class="rsvp-count"><b>${zusagen}</b> / ${DEMO.players.length} dabei</div></div>`;
     }
 
@@ -1740,8 +1771,17 @@
       }
     }
 
-    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-cal-sheet],[data-koord-save],[data-logout]");
+    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-cal-sheet],[data-koord-save],[data-my-status],[data-logout]");
     if (!t) return;
+
+    // Spieler: eigenen Fitnessstatus setzen (RLS/RPC erlauben nur die eigene Zeile)
+    if (t.dataset.myStatus) {
+      const pid = currentProfile && currentProfile.player_id;
+      if (!pid) return;
+      try { await DB.setPlayerStatus(pid, t.dataset.myStatus, null, null); await reloadData(); }
+      catch (err) { window.alert("Status konnte nicht gesetzt werden: " + ((err && err.message) || err)); }
+      return;
+    }
 
     // Abmelden (in den Einstellungen) – prominent platziert, daher mit Rückfrage.
     if (t.hasAttribute("data-logout")) {
@@ -2001,9 +2041,12 @@
   function switchView(view) {
     currentView = view;
     // Bereiche im „Mehr"-Menü (Aufstellung/Rollen) markieren den Mehr-Tab als aktiv.
-    const inMore = (view === "lineup" || view === "admin" || view === "einstellungen");
+    // Bereiche, die im Admin-„Mehr"-Sheet liegen (dann ist der Mehr-Tab aktiv).
+    const sheetViews = ["admin", "einstellungen", "lineup"];
     document.querySelectorAll(".nav-btn").forEach((b) => {
-      const active = inMore ? b.hasAttribute("data-more") : (b.dataset.view === view);
+      const active = b.hasAttribute("data-more")
+        ? sheetViews.indexOf(view) !== -1
+        : (b.dataset.view === view);
       b.classList.toggle("is-active", active);
     });
     window.scrollTo(0, 0);
@@ -2119,17 +2162,41 @@
     return msg;
   }
 
+  // Icons für den 5. Nav-Tab (gleicher Stil/Größe wie die anderen Tabs).
+  const ICON_NAV_DOTS  = `<svg class="nav-ic" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>`;
+  const ICON_NAV_PITCH = `<svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 5v14"/><circle cx="12" cy="12" r="2.4"/><path d="M3 9.5h3v5H3M21 9.5h-3v5h3"/></svg>`;
+  const ICON_NAV_PERSON = `<svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>`;
+
+  // 5. Tab (unten rechts) nach höchster ECHTER Rolle: Admin „Mehr", Trainer
+  // „Trainer" (Aufstellung), Spieler „Profil". Rolle kommt aus der Session
+  // (Roles.real), nicht aus der Anzeige-Simulation.
+  function setupPrimaryNavTab() {
+    const btn = document.getElementById("navMore");
+    if (!btn) return;
+    const real = Roles.real || [];
+    const high = real.indexOf("admin") !== -1 ? "admin" : real.indexOf("coach") !== -1 ? "coach" : "player";
+    btn.style.display = "";
+    if (high === "admin") {
+      btn.setAttribute("data-more", ""); btn.removeAttribute("data-view");
+      btn.innerHTML = `${ICON_NAV_DOTS}<span class="nav-label">Mehr</span>`;
+    } else if (high === "coach") {
+      btn.removeAttribute("data-more"); btn.setAttribute("data-view", "lineup");
+      btn.innerHTML = `${ICON_NAV_PITCH}<span class="nav-label">Trainer</span>`;
+    } else {
+      btn.removeAttribute("data-more"); btn.setAttribute("data-view", "profil");
+      btn.innerHTML = `${ICON_NAV_PERSON}<span class="nav-label">Profil</span>`;
+    }
+  }
+
   // „Angemeldet als …" + Abmelden im Kopfbereich.
   function fillIdentity() {
     // Header trägt keinen Namen/keine Rolle mehr (steht in den Einstellungen).
-    // „Mehr"-Menü: für ALLE sichtbar (Einstellungen). Zusätzlich Aufstellung
-    // (Trainer/Admin) und Rollen (Admin).
+    // Sheet-Inhalte (nur Admin nutzt das „Mehr"-Sheet – Trainer hat den Trainer-Tab).
     const moreLineup = document.getElementById("moreLineup");
     const moreAdmin  = document.getElementById("moreAdmin");
-    const navMore    = document.getElementById("navMore");
-    if (moreLineup) moreLineup.style.display = Roles.canManageEvents() ? "" : "none";
+    if (moreLineup) moreLineup.style.display = Roles.isAdmin() ? "" : "none";
     if (moreAdmin)  moreAdmin.style.display  = Roles.isAdmin() ? "" : "none";
-    if (navMore)    navMore.style.display    = ""; // Einstellungen ist für jeden erreichbar
+    setupPrimaryNavTab(); // 5. Tab je nach höchster ECHTER Rolle
     // Teamname mittig im Header (aus den Einstellungen, Fallback ohne Zusatz).
     const titleEl = document.getElementById("hdrTitle");
     if (titleEl && typeof DEMO !== "undefined" && DEMO) titleEl.textContent = DEMO.teamName || "FC Fasanerie-Nord";

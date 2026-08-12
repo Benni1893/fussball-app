@@ -571,6 +571,13 @@ tbody tr:hover { background: #fbfdfc; }
 .sheet-desc { margin: 4px 0 12px; color: var(--muted); font-size: .9rem; }
 .sheet-links { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; margin-top: 14px; }
 
+/* Profil: eigener Fitnessstatus */
+.status-choose { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.st-choice { min-height: 44px; }
+.st-choice.is-on { color: #fff; background: var(--green-600); border-color: var(--green-600); }
+.st-choice.is-on.st-angeschlagen { background: var(--amber-600); border-color: var(--amber-600); }
+.st-choice.is-on.st-verletzt { background: var(--red-600); border-color: var(--red-600); }
+
 /* Spielplan (BFV) – konfigurierter Zustand */
 .bfv-team { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .bfv-team-name { font-weight: 800; font-size: 1.05rem; margin-top: 2px; }
