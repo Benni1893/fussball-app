@@ -538,18 +538,23 @@
     const player = u.player_id ? playerById[u.player_id] : null;
     const name = player ? player.name : (u.email || "—");
     const email = u.email || "—";
+    const roleText = Roles.list.length ? Roles.list.map((r) => ROLE_LABEL[r] || r).join(" · ") : "Spieler";
     const verwaltung = Roles.canManageSchedule();
     const syncTxt = DEMO.icalSyncedAt ? fmtTs(DEMO.icalSyncedAt) + " Uhr" : "noch nie";
 
     viewEl.innerHTML = `
       <div class="page-head"><h1>Einstellungen</h1></div>
 
+      <div class="set-greeting">
+        <div class="set-greet-name">Angemeldet als ${esc(name)}</div>
+        <div class="set-greet-role">${esc(roleText)}</div>
+      </div>
+
       <div class="set-section">
         <div class="section-title"><h2>Mein Profil</h2></div>
         <div class="card card-pad set-profile">
           <div class="set-row"><span class="set-label">Name</span><span class="set-val">${esc(name)}</span></div>
           <div class="set-row"><span class="set-label">E-Mail</span><span class="set-val">${esc(email)}</span></div>
-          <button class="btn set-logout" data-logout>Abmelden</button>
         </div>
       </div>
 
@@ -586,6 +591,8 @@
           <button class="btn" data-goto="katalog">Strafenkatalog öffnen</button>
         </div>
       </div>` : ""}
+
+      <button class="btn set-logout-danger" data-logout>Abmelden</button>
     `;
 
     // Kalender-Link asynchron befüllen.
@@ -1696,8 +1703,8 @@
     const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-ical-save],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-cal-copy],[data-cal-regen],[data-koord-save],[data-logout]");
     if (!t) return;
 
-    // Abmelden (Button in den Einstellungen; in der Kopfzeile separat behandelt)
-    if (t.hasAttribute("data-logout")) { try { await DB.signOut(); } catch (e) {} return; }
+    // Abmelden (Button in den Einstellungen)
+    if (t.hasAttribute("data-logout")) { await logout(); return; }
 
     // Sportstätte: Koordinaten speichern (Trainer/Kassenwart – zusätzlich per RLS)
     if (t.hasAttribute("data-koord-save")) {
@@ -2020,7 +2027,23 @@
   let recoveryMode = false;  // true, wenn App über Passwort-Reset-Link geöffnet
   let currentUserId = null;  // Auth-User-ID des eingeloggten Nutzers
   const ROLE_LABEL = { admin: "Administrator", coach: "Trainer", treasurer: "Kassenwart", player: "Spieler" };
-  const userBox = document.getElementById("userBox");
+  // Zahnrad im Header öffnet die Einstellungen.
+  const hdrGear = document.getElementById("hdrGear");
+  if (hdrGear) hdrGear.addEventListener("click", () => switchView("einstellungen"));
+  // Farbiger Punkt am Zahnrad, solange die Admin-Rollensimulation aktiv ist.
+  function updateGearDot() {
+    const dot = document.getElementById("hdrGearDot");
+    if (dot) dot.hidden = !Roles.isSimulating();
+  }
+  // Vollständiges Abmelden (aus den Einstellungen). Beendet Simulation, setzt zurück.
+  async function logout() {
+    try { await DB.signOut(); } catch (e) {}
+    currentProfile = null;
+    Roles.set([]);
+    Roles.simulate(null); applySimUI();
+    authMode = "login"; authError = "";
+    init();
+  }
 
   /* Zentrale Rollen-/Rechte-Prüfung (nur UI-Komfort – echte Sperre = RLS!).
      Mehrfach-Rollen werden vereinigt: wer mehrere Rollen hat, hat alle Rechte. */
@@ -2055,16 +2078,7 @@
 
   // „Angemeldet als …" + Abmelden im Kopfbereich.
   function fillIdentity() {
-    const u = currentProfile || {};
-    const player = u.player_id ? playerById[u.player_id] : null;
-    const name = player ? player.name : (u.email || "Angemeldet");
-    const roleText = Roles.list.length
-      ? Roles.list.map((r) => ROLE_LABEL[r] || r).join(" · ")
-      : "Spieler";
-    userBox.innerHTML =
-      `<div class="ident"><span class="ident-name">${esc(name)}</span>` +
-      `<span class="ident-role">${esc(roleText)}</span></div>` +
-      `<button class="logout-btn" data-logout>Abmelden</button>`;
+    // Header trägt keinen Namen/keine Rolle mehr (steht in den Einstellungen).
     // „Mehr"-Menü: für ALLE sichtbar (Einstellungen). Zusätzlich Aufstellung
     // (Trainer/Admin) und Rollen (Admin).
     const moreLineup = document.getElementById("moreLineup");
@@ -2073,6 +2087,7 @@
     if (moreLineup) moreLineup.style.display = Roles.canManageEvents() ? "" : "none";
     if (moreAdmin)  moreAdmin.style.display  = Roles.isAdmin() ? "" : "none";
     if (navMore)    navMore.style.display    = ""; // Einstellungen ist für jeden erreichbar
+    updateGearDot();
     syncHeaderHeight(); // Platz unter der festen Kopfzeile an die echte Höhe koppeln
   }
 
@@ -2099,7 +2114,6 @@
   // Login-/Registrier-Seite.
   function renderLogin() {
     document.body.classList.add("auth-mode");
-    userBox.innerHTML = "";
     const mode = authMode; // "login" | "register" | "forgot"
     const titles  = { login: "Anmelden", register: "Konto erstellen", forgot: "Passwort zurücksetzen" };
     const submits = { login: "Anmelden", register: "Registrieren", forgot: "Reset-Link senden" };
@@ -2130,7 +2144,6 @@
   // Formular zum Setzen eines neuen Passworts (nach Klick auf den Reset-Link).
   function renderResetPassword() {
     document.body.classList.add("auth-mode");
-    userBox.innerHTML = "";
     viewEl.innerHTML = `
       <div class="auth-wrap">
         <form class="auth-card" id="authForm" data-mode="reset">
@@ -2263,17 +2276,6 @@
     } finally {
       box.disabled = false;
     }
-  });
-
-  // Abmelden (Button liegt im Kopfbereich).
-  userBox.addEventListener("click", async (ev) => {
-    if (!ev.target.closest("[data-logout]")) return;
-    try { await DB.signOut(); } catch (e) {}
-    currentProfile = null;
-    Roles.set([]);
-    Roles.simulate(null); applySimUI(); // Simulation sicher beenden
-    authMode = "login"; authError = "";
-    init();
   });
 
   // Login-/Registrier-Formular absenden.
