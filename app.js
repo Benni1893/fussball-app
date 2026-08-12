@@ -2087,6 +2087,9 @@
     if (moreLineup) moreLineup.style.display = Roles.canManageEvents() ? "" : "none";
     if (moreAdmin)  moreAdmin.style.display  = Roles.isAdmin() ? "" : "none";
     if (navMore)    navMore.style.display    = ""; // Einstellungen ist für jeden erreichbar
+    // Teamname mittig im Header (aus den Einstellungen, Fallback ohne Zusatz).
+    const titleEl = document.getElementById("hdrTitle");
+    if (titleEl && typeof DEMO !== "undefined" && DEMO) titleEl.textContent = DEMO.teamName || "FC Fasanerie-Nord";
     updateGearDot();
     syncHeaderHeight(); // Platz unter der festen Kopfzeile an die echte Höhe koppeln
   }

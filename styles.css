@@ -71,11 +71,11 @@ body {
 
 /* ---------- Kopfzeile ------------------------------------------------------ */
 .app-header {
-  /* Drei Zonen: leerer Platzhalter (links) | Logo mittig | Zahnrad (rechts) */
+  /* Drei Zonen: Logo (links) | Teamname mittig | Zahnrad (rechts) */
   display: grid;
-  grid-template-columns: 44px 1fr 44px;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   /* Safe-Area oben: Kopfzeile steht bei jedem iPhone frei unter der Statusleiste */
   padding: calc(env(safe-area-inset-top) + 8px) clamp(12px, 4vw, 40px) 8px;
   background: linear-gradient(120deg, var(--green-900), var(--green-700));
@@ -85,9 +85,12 @@ body {
   z-index: 30;
   box-shadow: 0 4px 18px rgba(15,61,46,.18);
 }
-.hdr-side { width: 44px; height: 44px; }
-.hdr-logo { display: flex; align-items: center; justify-content: center; min-width: 0; }
+.hdr-logo { justify-self: start; display: flex; align-items: center; }
 .hdr-logo .crest-logo { height: 40px; width: auto; display: block; filter: drop-shadow(0 2px 4px rgba(0,0,0,.25)); }
+.hdr-title {
+  min-width: 0; text-align: center; font-weight: 800; font-size: 1.05rem; letter-spacing: .2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 .hdr-gear {
   width: 44px; height: 44px; justify-self: end;      /* 44x44 Tap-Fläche */
   display: inline-flex; align-items: center; justify-content: center;
