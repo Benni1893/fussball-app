@@ -540,6 +540,9 @@
     const email = u.email || "—";
     const roleText = Roles.list.length ? Roles.list.map((r) => ROLE_LABEL[r] || r).join(" · ") : "Spieler";
     const verwaltung = Roles.canManageSchedule();
+    // Phase 3: Sportstaetten-Koordinaten-Verwaltung ausgeblendet (DB + Feed bleiben aktiv).
+    // ZUM REAKTIVIEREN diese eine Zeile auf sportstaettenCardHtml() setzen:
+    const sportstaettenCard = ""; /* = sportstaettenCardHtml(); */
     const syncTxt = DEMO.icalSyncedAt ? fmtTs(DEMO.icalSyncedAt) + " Uhr" : "noch nie";
 
     viewEl.innerHTML = `
@@ -583,7 +586,7 @@
           <div class="bfv-hint">Zuletzt synchronisiert: ${esc(syncTxt)}. Läuft zusätzlich täglich automatisch.</div>
         </div>
 
-        ${sportstaettenCardHtml()}
+        ${sportstaettenCard}
 
         <div class="section-title set-sub"><h3>Strafenkatalog</h3></div>
         <div class="card card-pad">
