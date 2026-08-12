@@ -2167,14 +2167,14 @@
   const ICON_NAV_PITCH = `<svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 5v14"/><circle cx="12" cy="12" r="2.4"/><path d="M3 9.5h3v5H3M21 9.5h-3v5h3"/></svg>`;
   const ICON_NAV_PERSON = `<svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>`;
 
-  // 5. Tab (unten rechts) nach höchster ECHTER Rolle: Admin „Mehr", Trainer
-  // „Trainer" (Aufstellung), Spieler „Profil". Rolle kommt aus der Session
-  // (Roles.real), nicht aus der Anzeige-Simulation.
+  // 5. Tab (unten rechts) nach höchster EFFEKTIVER Rolle: Admin „Mehr", Trainer
+  // „Trainer" (Aufstellung), Spieler „Profil". Effektiv = inkl. Admin-Vorschau
+  // (Simulation ist admin-only und rein Anzeige; die echte Absicherung ist RLS).
   function setupPrimaryNavTab() {
     const btn = document.getElementById("navMore");
     if (!btn) return;
-    const real = Roles.real || [];
-    const high = real.indexOf("admin") !== -1 ? "admin" : real.indexOf("coach") !== -1 ? "coach" : "player";
+    const roles = Roles.list || [];
+    const high = roles.indexOf("admin") !== -1 ? "admin" : roles.indexOf("coach") !== -1 ? "coach" : "player";
     btn.style.display = "";
     if (high === "admin") {
       btn.setAttribute("data-more", ""); btn.removeAttribute("data-view");
