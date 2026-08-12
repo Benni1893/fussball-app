@@ -302,6 +302,14 @@
 
   /* ---------- Übersicht ----------------------------------------------------- */
   let bfvMsg = ""; // letzte Rückmeldung des Spielplan-Syncs
+  let bfvEditing = false; // BFV-Eingabefeld sichtbar (statt Mannschaftsname)
+
+  // Aus einer eingefügten bfv.de-Adresse die 32-stellige teamPermanentId ziehen.
+  function extractTeamId(input) {
+    const parts = String(input || "").split(/[^0-9a-zA-Z]+/);
+    return parts.find((p) => p.length === 32) || null;
+  }
+  function bfvIcalUrl(id) { return "https://service.bfv.de/rest/icsexport/teammatches/teamPermanentId/" + id; }
   function renderDashboard() {
     const me = playerById[state.currentPlayerId];
     const naechste = DEMO.events.filter((e) => isFuture(e.datum)).sort((a, b) => a.datum.localeCompare(b.datum));
@@ -481,22 +489,36 @@
   function calendarSubscribeCardHtml() {
     return `
       <p class="cal-sub-desc">Alle Trainings und Spiele erscheinen automatisch in deinem Handy-Kalender. Ändert der Trainer einen Termin, aktualisiert er sich von selbst.</p>
-      <div class="cal-link" data-cal-link>Link wird geladen …</div>
-      <div class="cal-actions">
-        <a class="btn btn-primary" data-cal-open href="#" aria-disabled="true">Kalender hinzufügen</a>
-        <button class="btn" data-cal-copy>Link kopieren</button>
-      </div>
-      <button class="link-btn cal-regen" data-cal-regen>Neuen Link erzeugen</button>`;
+      <a class="btn btn-primary cal-add" data-cal-open href="#" aria-disabled="true">Zum Kalender hinzufügen</a>
+      <div class="cal-copied" data-cal-copied hidden></div>
+      <button class="link-btn cal-reset" data-cal-regen>Link zurücksetzen</button>`;
   }
-  // Füllt Link/Buttons, sobald der Token da ist (DOM der Einstellungen-Ansicht).
+  // Setzt den webcal-Link am Hauptbutton, sobald der Token da ist.
   function fillCalendarSubscribe() {
-    const linkEl = viewEl.querySelector("[data-cal-link]");
-    if (!linkEl) return; // nicht in der Einstellungen-Ansicht
     const openEl = viewEl.querySelector("[data-cal-open]");
-    if (!calendarToken) { linkEl.textContent = "Link wird geladen …"; return; }
-    const https = calendarSubscribeUrl();
-    linkEl.textContent = https;
-    if (openEl) { openEl.setAttribute("href", https.replace(/^https?:/i, "webcal:")); openEl.removeAttribute("aria-disabled"); }
+    if (!openEl || !calendarToken) return;
+    openEl.setAttribute("href", calendarSubscribeUrl().replace(/^https?:/i, "webcal:"));
+    openEl.removeAttribute("aria-disabled");
+  }
+  // Langdruck (oder Rechtsklick) auf den Hauptbutton kopiert die https-Variante
+  // – dezente Alternative für Android/Desktop, ohne den Bereich vollzustellen.
+  function wireCalLongPress() {
+    const btn = viewEl.querySelector("[data-cal-open]");
+    if (!btn) return;
+    let timer = null, longPressed = false;
+    const copyNow = async () => {
+      const url = calendarSubscribeUrl();
+      if (!url) return;
+      const ok = await copyText(url);
+      const fb = viewEl.querySelector("[data-cal-copied]");
+      if (fb) { fb.textContent = ok ? "Link kopiert" : "Kopieren nicht möglich"; fb.hidden = false; setTimeout(() => { fb.hidden = true; }, 1800); }
+    };
+    const start = () => { longPressed = false; timer = setTimeout(() => { longPressed = true; copyNow(); }, 500); };
+    const cancel = () => { if (timer) { clearTimeout(timer); timer = null; } };
+    btn.addEventListener("pointerdown", start);
+    ["pointerup", "pointerleave", "pointercancel"].forEach((e) => btn.addEventListener(e, cancel));
+    btn.addEventListener("click", (e) => { if (longPressed) { e.preventDefault(); longPressed = false; } });
+    btn.addEventListener("contextmenu", (e) => { e.preventDefault(); copyNow(); });
   }
 
   function renderKalender() {
@@ -531,6 +553,35 @@
     startCountdowns(); // Meldeschluss-Countdowns dieser Ansicht live halten
   }
 
+  // Spielplan-BFV-Bereich (nur Admin). Zwei Zustände: konfiguriert (Mannschaftsname
+  // + Zeitstempel + Aktualisieren) oder Eingabe (bfv.de-Adresse einfügen).
+  function bfvSectionHtml() {
+    const configured = DEMO.icalUrl && !bfvEditing;
+    const syncTxt = DEMO.icalSyncedAt ? fmtTs(DEMO.icalSyncedAt) + " Uhr" : "noch nie";
+    const msg = bfvMsg ? `<div class="bfv-msg">${esc(bfvMsg)}</div>` : "";
+    const body = configured ? `
+        <div class="bfv-team">
+          <div><span class="set-label">Mannschaft</span><div class="bfv-team-name">${esc(DEMO.teamName || "—")}</div></div>
+          <button class="link-btn bfv-change" data-bfv-change>Ändern</button>
+        </div>
+        <div class="bfv-hint">Zuletzt aktualisiert: ${esc(syncTxt)}. Läuft zusätzlich täglich automatisch.</div>
+        ${msg}
+        <div class="bfv-actions"><button class="btn btn-primary" data-bfv-sync>Jetzt aktualisieren</button></div>
+      ` : `
+        <label class="bfv-label" for="bfvUrl">Adresse der Mannschaftsseite von bfv.de hier einfügen</label>
+        <input id="bfvUrl" class="bfv-url" data-ical-input type="url" inputmode="url" autocapitalize="off" spellcheck="false"
+               placeholder="https://www.bfv.de/mannschaften/…">
+        ${msg}
+        <div class="bfv-actions">
+          <button class="btn btn-primary" data-bfv-connect>Speichern</button>
+          ${DEMO.icalUrl ? `<button class="btn" data-bfv-cancel>Abbrechen</button>` : ""}
+        </div>
+      `;
+    return `
+      <div class="section-title set-sub"><h3>Spielplan (BFV)</h3></div>
+      <div class="card card-pad bfv-card">${body}</div>`;
+  }
+
   /* ---------- Einstellungen (Tab „Mehr") ------------------------------------ */
   function renderEinstellungen() {
     document.body.classList.remove("auth-mode");
@@ -543,7 +594,6 @@
     // Phase 3: Sportstaetten-Koordinaten-Verwaltung ausgeblendet (DB + Feed bleiben aktiv).
     // ZUM REAKTIVIEREN diese eine Zeile auf sportstaettenCardHtml() setzen:
     const sportstaettenCard = ""; /* = sportstaettenCardHtml(); */
-    const syncTxt = DEMO.icalSyncedAt ? fmtTs(DEMO.icalSyncedAt) + " Uhr" : "noch nie";
 
     viewEl.innerHTML = `
       <div class="page-head"><h1>Einstellungen</h1></div>
@@ -572,19 +622,7 @@
       <div class="set-verwaltung">
         <div class="section-title"><h2>Verwaltung</h2></div>
 
-        <div class="section-title set-sub"><h3>Spielplan (BFV)</h3></div>
-        <div class="card card-pad bfv-card">
-          <label class="bfv-label" for="bfvUrl">iCal-URL des Teams</label>
-          <input id="bfvUrl" class="bfv-url" data-ical-input type="url" inputmode="url" autocapitalize="off" spellcheck="false"
-                 placeholder="https://service.bfv.de/rest/icsexport/..." value="${esc(DEMO.icalUrl || "")}">
-          <div class="bfv-find">Link finden: BFV-App öffnen → dein Team wählen → Drei-Punkte-Menü → „iCal-Abo".</div>
-          <div class="bfv-actions">
-            <button class="btn" data-ical-save>URL speichern</button>
-            <button class="btn btn-primary" data-bfv-sync>Spielplan jetzt aktualisieren</button>
-          </div>
-          ${bfvMsg ? `<div class="bfv-msg">${esc(bfvMsg)}</div>` : ""}
-          <div class="bfv-hint">Zuletzt synchronisiert: ${esc(syncTxt)}. Läuft zusätzlich täglich automatisch.</div>
-        </div>
+        ${Roles.isAdmin() ? bfvSectionHtml() : ""}
 
         ${sportstaettenCard}
 
@@ -598,8 +636,9 @@
       <button class="btn set-logout-danger" data-logout>Abmelden</button>
     `;
 
-    // Kalender-Link asynchron befüllen.
+    // Kalender-Link asynchron befüllen + Langdruck-Kopieren verdrahten.
     fillCalendarSubscribe();
+    wireCalLongPress();
     if (!calendarToken) ensureCalendarToken().then(() => { if (currentView === "einstellungen") fillCalendarSubscribe(); });
   }
 
@@ -1703,7 +1742,7 @@
       }
     }
 
-    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-ical-save],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-cal-copy],[data-cal-regen],[data-koord-save],[data-logout]");
+    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-cal-regen],[data-koord-save],[data-logout]");
     if (!t) return;
 
     // Abmelden (Button in den Einstellungen)
@@ -1725,19 +1764,9 @@
       return;
     }
 
-    // Kalender abonnieren: Link kopieren
-    if (t.hasAttribute("data-cal-copy")) {
-      const url = calendarSubscribeUrl();
-      if (!url) return;
-      const ok = await copyText(url);
-      const old = t.textContent;
-      t.textContent = ok ? "Kopiert!" : "Fehlgeschlagen";
-      setTimeout(() => { t.textContent = old; }, 1500);
-      return;
-    }
-    // Kalender abonnieren: neuen Link erzeugen (alter wird ungültig)
+    // Kalender abonnieren: Link zurücksetzen (alter wird ungültig)
     if (t.hasAttribute("data-cal-regen")) {
-      if (!window.confirm("Neuen Link erzeugen?\n\nDer alte Link funktioniert danach nicht mehr – Geräte, die ihn abonniert haben, müssen den Kalender neu abonnieren.")) return;
+      if (!window.confirm("Der alte Link funktioniert danach nicht mehr. Wirklich zurücksetzen?")) return;
       try { calendarToken = await DB.regenerateCalendarToken(); fillCalendarSubscribe(); }
       catch (err) { window.alert("Fehlgeschlagen: " + ((err && err.message) || err)); }
       return;
@@ -1751,14 +1780,28 @@
       return;
     }
 
-    // Spielplan (BFV): iCal-URL speichern
-    if (t.hasAttribute("data-ical-save")) {
+    // Spielplan (BFV): Mannschaftsseite einfügen -> teamPermanentId ziehen -> speichern -> sofort syncen
+    if (t.hasAttribute("data-bfv-connect")) {
       const el = viewEl.querySelector("[data-ical-input]");
-      const url = el ? el.value.trim() : "";
-      try { await DB.setIcalUrl(url); bfvMsg = "iCal-URL gespeichert."; await reloadData(); }
-      catch (err) { window.alert("Speichern fehlgeschlagen: " + ((err && err.message) || err)); }
+      const id = extractTeamId(el ? el.value : "");
+      if (!id) { bfvMsg = "Keine gültige BFV-Adresse erkannt. Bitte die komplette Adresse der Mannschaftsseite von bfv.de einfügen."; render(); return; }
+      t.disabled = true; const old = t.textContent; t.textContent = "Verbinde …";
+      try {
+        await DB.setIcalUrl(bfvIcalUrl(id));
+        const rr = await DB.syncNow();
+        bfvMsg = `Verbunden – ${rr.parsed} Spiele gefunden.`;
+        bfvEditing = false;
+        await reloadData();
+      } catch (err) {
+        bfvMsg = "Verbindung fehlgeschlagen: " + ((err && err.message) || err);
+        t.disabled = false; t.textContent = old;
+        render();
+      }
       return;
     }
+    // Spielplan (BFV): Eingabefeld öffnen / schließen
+    if (t.hasAttribute("data-bfv-change")) { bfvEditing = true; bfvMsg = ""; render(); return; }
+    if (t.hasAttribute("data-bfv-cancel")) { bfvEditing = false; bfvMsg = ""; render(); return; }
     // Spielplan (BFV): jetzt aktualisieren
     if (t.hasAttribute("data-bfv-sync")) {
       const el = viewEl.querySelector("[data-ical-input]");

@@ -547,6 +547,20 @@ tbody tr:hover { background: #fbfdfc; }
 }
 .set-logout-danger:hover, .set-logout-danger:active { background: #f6ddd9; }
 
+/* Mein Kalender – reduziert */
+.cal-add { width: 100%; min-height: 48px; display: inline-flex; align-items: center; justify-content: center; text-align: center; text-decoration: none; margin-top: 4px; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+.cal-add[aria-disabled="true"] { opacity: .55; pointer-events: none; }
+.cal-copied { font-size: .82rem; color: var(--green-700); font-weight: 600; margin-top: 8px; }
+.cal-copied[hidden] { display: none; }
+.cal-reset { display: inline-block; margin-top: 14px; font-size: .8rem; color: var(--muted); font-weight: 500; }
+.cal-reset:hover, .cal-reset:active { color: var(--ink); }
+
+/* Spielplan (BFV) – konfigurierter Zustand */
+.bfv-team { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.bfv-team-name { font-weight: 800; font-size: 1.05rem; margin-top: 2px; }
+.bfv-change { font-size: .85rem; }
+.bfv-actions { margin-top: 10px; }
+
 /* ====================== Aufstellungs-Builder ====================== */
 .lu-controls { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
 .lu-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
