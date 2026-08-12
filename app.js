@@ -486,39 +486,51 @@
     try { calendarToken = await DB.myCalendarToken(); } catch (e) { calendarToken = null; }
     return calendarToken;
   }
-  function calendarSubscribeCardHtml() {
-    return `
-      <p class="cal-sub-desc">Alle Trainings und Spiele erscheinen automatisch in deinem Handy-Kalender. Ändert der Trainer einen Termin, aktualisiert er sich von selbst.</p>
-      <a class="btn btn-primary cal-add" data-cal-open href="#" aria-disabled="true">Zum Kalender hinzufügen</a>
-      <div class="cal-copied" data-cal-copied hidden></div>
-      <button class="link-btn cal-reset" data-cal-regen>Link zurücksetzen</button>`;
-  }
-  // Setzt den webcal-Link am Hauptbutton, sobald der Token da ist.
-  function fillCalendarSubscribe() {
-    const openEl = viewEl.querySelector("[data-cal-open]");
-    if (!openEl || !calendarToken) return;
-    openEl.setAttribute("href", calendarSubscribeUrl().replace(/^https?:/i, "webcal:"));
-    openEl.removeAttribute("aria-disabled");
-  }
-  // Langdruck (oder Rechtsklick) auf den Hauptbutton kopiert die https-Variante
-  // – dezente Alternative für Android/Desktop, ohne den Bereich vollzustellen.
-  function wireCalLongPress() {
-    const btn = viewEl.querySelector("[data-cal-open]");
-    if (!btn) return;
-    let timer = null, longPressed = false;
-    const copyNow = async () => {
-      const url = calendarSubscribeUrl();
-      if (!url) return;
-      const ok = await copyText(url);
-      const fb = viewEl.querySelector("[data-cal-copied]");
-      if (fb) { fb.textContent = ok ? "Link kopiert" : "Kopieren nicht möglich"; fb.hidden = false; setTimeout(() => { fb.hidden = true; }, 1800); }
-    };
-    const start = () => { longPressed = false; timer = setTimeout(() => { longPressed = true; copyNow(); }, 500); };
-    const cancel = () => { if (timer) { clearTimeout(timer); timer = null; } };
-    btn.addEventListener("pointerdown", start);
-    ["pointerup", "pointerleave", "pointercancel"].forEach((e) => btn.addEventListener(e, cancel));
-    btn.addEventListener("click", (e) => { if (longPressed) { e.preventDefault(); longPressed = false; } });
-    btn.addEventListener("contextmenu", (e) => { e.preventDefault(); copyNow(); });
+  // Kalender-Icon (mit +) für die Kopfzeile der Kalenderansicht.
+  const ICON_CAL_ADD = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4M12 13v4M10 15h4"/></svg>`;
+
+  function closeCalSheet() { const ex = document.getElementById("calSheet"); if (ex) { ex.remove(); unlockBodyScroll(); } }
+  // Bottom-Sheet „In meinen Kalender" (aus der Kalender-Kopfzeile geöffnet).
+  async function openCalSheet() {
+    closeCalSheet();
+    await ensureCalendarToken();
+    const https = calendarSubscribeUrl();
+    const webcal = https ? https.replace(/^https?:/i, "webcal:") : "#";
+    const ov = document.createElement("div");
+    ov.className = "more-sheet"; ov.id = "calSheet";
+    ov.innerHTML = `
+      <button class="more-backdrop" data-sheet-close aria-label="Schließen"></button>
+      <div class="more-panel" role="dialog" aria-modal="true">
+        <div class="more-title">In meinen Kalender</div>
+        <p class="sheet-desc">Alle Termine automatisch in deinem Handy-Kalender.</p>
+        <a class="btn btn-primary cal-add" data-cal-open href="${esc(webcal)}"${https ? "" : ' aria-disabled="true"'}>Zum Kalender hinzufügen</a>
+        <div class="cal-copied" data-cal-copied hidden></div>
+        <div class="sheet-links">
+          <button class="link-btn" data-cal-copy>Link kopieren</button>
+          <button class="link-btn cal-reset" data-cal-regen>Link zurücksetzen</button>
+        </div>
+      </div>`;
+    document.body.appendChild(ov);
+    lockBodyScroll();
+    const q = (s) => ov.querySelector(s);
+    const feedback = (txt) => { const fb = q("[data-cal-copied]"); if (fb) { fb.textContent = txt; fb.hidden = false; setTimeout(() => { fb.hidden = true; }, 1800); } };
+
+    ov.addEventListener("click", (e) => { if (e.target === ov || e.target.closest("[data-sheet-close]")) closeCalSheet(); });
+    q("[data-cal-open]").addEventListener("click", () => setTimeout(closeCalSheet, 150)); // nach dem Abo-Sprung schließen
+    q("[data-cal-copy]").addEventListener("click", async () => {
+      const url = calendarSubscribeUrl(); if (!url) return;
+      feedback((await copyText(url)) ? "Link kopiert" : "Kopieren nicht möglich");
+    });
+    q("[data-cal-regen]").addEventListener("click", async () => {
+      if (!window.confirm("Der alte Link funktioniert danach nicht mehr. Wirklich zurücksetzen?")) return;
+      try {
+        calendarToken = await DB.regenerateCalendarToken();
+        const nu = calendarSubscribeUrl();
+        const open = q("[data-cal-open]");
+        if (open && nu) { open.setAttribute("href", nu.replace(/^https?:/i, "webcal:")); open.removeAttribute("aria-disabled"); }
+        feedback("Neuer Link erstellt");
+      } catch (err) { window.alert("Fehlgeschlagen: " + ((err && err.message) || err)); }
+    });
   }
 
   function renderKalender() {
@@ -538,7 +550,10 @@
     viewEl.innerHTML = `
       <div class="page-head page-head-row">
         <h1>Kalender</h1>
-        ${Roles.canManageSchedule() ? `<button class="btn btn-primary btn-termin-new" data-termin-new>+ Termin</button>` : ""}
+        <div class="kal-actions">
+          <button class="kal-icon-btn" data-cal-sheet type="button" aria-label="In meinen Kalender">${ICON_CAL_ADD}</button>
+          ${Roles.canManageSchedule() ? `<button class="btn btn-primary btn-termin-new" data-termin-new>+ Termin</button>` : ""}
+        </div>
       </div>
       <div class="toolbar">
         ${filters.map((f) => `<button class="chip ${kalFilter === f.k ? "is-active" : ""}" data-filter="${f.k}">${f.label}</button>`).join("")}
@@ -598,24 +613,13 @@
     viewEl.innerHTML = `
       <div class="page-head"><h1>Einstellungen</h1></div>
 
-      <div class="set-greeting">
-        <div class="set-greet-name">Angemeldet als ${esc(name)}</div>
-        <div class="set-greet-role">${esc(roleText)}</div>
-        <button class="set-logout-link" data-logout>Abmelden</button>
-      </div>
-
       <div class="set-section">
         <div class="section-title"><h2>Mein Profil</h2></div>
         <div class="card card-pad set-profile">
-          <div class="set-row"><span class="set-label">Name</span><span class="set-val">${esc(name)}</span></div>
+          <div class="set-greet-name">Angemeldet als ${esc(name)}</div>
+          <div class="set-greet-role">${esc(roleText)}</div>
+          <button class="set-logout-link" data-logout>Abmelden</button>
           <div class="set-row"><span class="set-label">E-Mail</span><span class="set-val">${esc(email)}</span></div>
-        </div>
-      </div>
-
-      <div class="set-section">
-        <div class="section-title"><h2>In meinen Kalender</h2></div>
-        <div class="card card-pad cal-sub">
-          ${calendarSubscribeCardHtml()}
         </div>
       </div>
 
@@ -634,11 +638,6 @@
         </div>
       </div>` : ""}
     `;
-
-    // Kalender-Link asynchron befüllen + Langdruck-Kopieren verdrahten.
-    fillCalendarSubscribe();
-    wireCalLongPress();
-    if (!calendarToken) ensureCalendarToken().then(() => { if (currentView === "einstellungen") fillCalendarSubscribe(); });
   }
 
   // Eigener Teamname aus den Einstellungen (Fallback, falls noch nicht gesynct).
@@ -1741,7 +1740,7 @@
       }
     }
 
-    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-cal-regen],[data-koord-save],[data-logout]");
+    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-cal-sheet],[data-koord-save],[data-logout]");
     if (!t) return;
 
     // Abmelden (in den Einstellungen) – prominent platziert, daher mit Rückfrage.
@@ -1767,13 +1766,8 @@
       return;
     }
 
-    // Kalender abonnieren: Link zurücksetzen (alter wird ungültig)
-    if (t.hasAttribute("data-cal-regen")) {
-      if (!window.confirm("Der alte Link funktioniert danach nicht mehr. Wirklich zurücksetzen?")) return;
-      try { calendarToken = await DB.regenerateCalendarToken(); fillCalendarSubscribe(); }
-      catch (err) { window.alert("Fehlgeschlagen: " + ((err && err.message) || err)); }
-      return;
-    }
+    // Kalender-Abo-Sheet öffnen (Icon in der Kalender-Kopfzeile)
+    if (t.hasAttribute("data-cal-sheet")) { openCalSheet(); return; }
 
     // Termin anlegen / bearbeiten (Trainer/Kassenwart – zusätzlich per RLS erzwungen)
     if (t.hasAttribute("data-termin-new")) { if (Roles.canManageSchedule()) openTerminModal(null); return; }

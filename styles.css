@@ -557,6 +557,20 @@ tbody tr:hover { background: #fbfdfc; }
 .cal-reset { display: inline-block; margin-top: 14px; font-size: .8rem; color: var(--muted); font-weight: 500; }
 .cal-reset:hover, .cal-reset:active { color: var(--ink); }
 
+/* Kalender-Kopfzeile: Abo-Icon + optional „+ Termin" */
+.kal-actions { display: flex; align-items: center; gap: 8px; }
+.kal-icon-btn {
+  width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center;
+  padding: 0; background: transparent; border: 0; color: var(--green-700); cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.kal-icon-btn svg { width: 24px; height: 24px; display: block; }
+.kal-icon-btn:active { opacity: .6; }
+
+/* Kalender-Abo-Sheet (nutzt .more-sheet/.more-panel) */
+.sheet-desc { margin: 4px 0 12px; color: var(--muted); font-size: .9rem; }
+.sheet-links { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; margin-top: 14px; }
+
 /* Spielplan (BFV) – konfigurierter Zustand */
 .bfv-team { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .bfv-team-name { font-weight: 800; font-size: 1.05rem; margin-top: 2px; }
