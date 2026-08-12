@@ -539,13 +539,15 @@ tbody tr:hover { background: #fbfdfc; }
 .set-greeting { margin: 2px 0 18px; }
 .set-greet-name { font-weight: 800; font-size: 1.05rem; }
 .set-greet-role { color: var(--muted); font-size: .85rem; margin-top: 2px; }
-/* Abmelden ganz unten, klar abgesetzt und rot */
-.set-logout-danger {
-  width: 100%; margin-top: 28px; min-height: 48px;
-  background: var(--red-050); color: var(--red-600); border: 1px solid #f0c8c2;
-  font-weight: 700;
+/* Abmelden: schmaler roter Textlink direkt unter Name/Rolle (kein grosser Button) */
+.set-logout-link {
+  display: inline-flex; align-items: center; min-height: 44px;  /* Tap-Flaeche, optisch schlank */
+  margin-top: 4px; padding: 0; background: none; border: 0; cursor: pointer;
+  color: var(--red-600); font: inherit; font-weight: 700; font-size: .9rem;
+  text-decoration: underline; text-underline-offset: 2px;
+  -webkit-tap-highlight-color: transparent;
 }
-.set-logout-danger:hover, .set-logout-danger:active { background: #f6ddd9; }
+.set-logout-link:hover, .set-logout-link:active { color: #a5271b; }
 
 /* Mein Kalender – reduziert */
 .cal-add { width: 100%; min-height: 48px; display: inline-flex; align-items: center; justify-content: center; text-align: center; text-decoration: none; margin-top: 4px; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }

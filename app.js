@@ -601,6 +601,7 @@
       <div class="set-greeting">
         <div class="set-greet-name">Angemeldet als ${esc(name)}</div>
         <div class="set-greet-role">${esc(roleText)}</div>
+        <button class="set-logout-link" data-logout>Abmelden</button>
       </div>
 
       <div class="set-section">
@@ -632,8 +633,6 @@
           <button class="btn" data-goto="katalog">Strafenkatalog öffnen</button>
         </div>
       </div>` : ""}
-
-      <button class="btn set-logout-danger" data-logout>Abmelden</button>
     `;
 
     // Kalender-Link asynchron befüllen + Langdruck-Kopieren verdrahten.
@@ -1745,8 +1744,12 @@
     const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-cal-regen],[data-koord-save],[data-logout]");
     if (!t) return;
 
-    // Abmelden (Button in den Einstellungen)
-    if (t.hasAttribute("data-logout")) { await logout(); return; }
+    // Abmelden (in den Einstellungen) – prominent platziert, daher mit Rückfrage.
+    if (t.hasAttribute("data-logout")) {
+      if (!window.confirm("Wirklich abmelden?")) return;
+      await logout();
+      return;
+    }
 
     // Sportstätte: Koordinaten speichern (Trainer/Kassenwart – zusätzlich per RLS)
     if (t.hasAttribute("data-koord-save")) {
