@@ -113,7 +113,7 @@ module.exports = async function handler(req, res) {
     const cutoff = `${cut.getUTCFullYear()}-${pad(cut.getUTCMonth() + 1)}-${pad(cut.getUTCDate())}`;
     const events = await sb(
       `events?club_id=eq.${clubId}&date=gte.${cutoff}` +
-      `&select=id,type,title,opponent,home,date,time,ende,starts_at,location_raw,spielstaette,note,status,ical_seq` +
+      `&select=id,type,title,opponent,home,date,time,ende,starts_at,location_raw,spielstaette,note,status,ical_seq,updated_at` +
       `&order=date.asc`
     );
 
@@ -143,6 +143,7 @@ module.exports = async function handler(req, res) {
       lines.push("BEGIN:VEVENT");
       lines.push("UID:evt-" + e.id + "@" + UID_HOST);
       lines.push("DTSTAMP:" + now);
+      lines.push("LAST-MODIFIED:" + (e.updated_at ? fmtUtc(new Date(e.updated_at)) : now));
 
       const hasTime = e.time && String(e.time).trim() !== "";
       if (hasTime && e.starts_at) {

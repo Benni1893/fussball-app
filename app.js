@@ -735,6 +735,26 @@
       ? `<span class="tag tag-friendly">Freundschaft</span>` : "";
     const cancelledTag = cancelled ? `<span class="tag tag-cancelled">Abgesagt</span>` : "";
 
+    // BFV: manuell geändert + Drift-Hinweis
+    const istBfv = e.quelle === "bfv";
+    const mb = e.manuellBearbeitet || {}, bn = e.bfvNeu || {};
+    const manuellTag = (istBfv && (mb.start || mb.ort)) ? `<span class="tag tag-manuell">manuell geändert</span>` : "";
+    const bfvBlock = (istBfv && Roles.canManageSchedule()) ? (() => {
+      const parts = [];
+      if (bn.date || bn.time) {
+        const t = bn.time || e.zeit || "";
+        const dd = bn.date ? ddmm(bn.date) + " " : "";
+        parts.push(`<div class="bfv-drift">BFV meldet abweichende Zeit: ${esc(dd + t)} <button class="link-btn" data-bfv-take="${e.id}" data-take-group="start">BFV-Wert übernehmen</button></div>`);
+      }
+      if (bn.location_raw) {
+        parts.push(`<div class="bfv-drift">BFV meldet abweichende Adresse. <button class="link-btn" data-bfv-take="${e.id}" data-take-group="ort">BFV-Wert übernehmen</button></div>`);
+      }
+      if (mb.start || mb.ort) {
+        parts.push(`<button class="link-btn bfv-reset" data-bfv-reset="${e.id}">Zurücksetzen auf BFV-Daten</button>`);
+      }
+      return parts.length ? `<div class="e-bfv">${parts.join("")}</div>` : "";
+    })() : "";
+
     // Meldeschluss-Hinweis/Countdown (nur Spiele & Trainings mit aktiver Automatik)
     let fristHtml = "";
     if (future && e.auto !== false && (e.typ === "spiel" || e.typ === "training")) {
@@ -777,17 +797,18 @@
           <span class="d-mon">${fmtMon(e.datum)}</span>
         </div>
         <div class="event-main">
-          <div class="e-title">${titel} ${tagMap[e.typ] || ""} ${friendlyTag} ${cancelledTag}</div>
+          <div class="e-title">${titel} ${tagMap[e.typ] || ""} ${friendlyTag} ${cancelledTag} ${manuellTag}</div>
           ${e.zeit ? `<div class="e-time">${e.zeit}${e.ende ? "&#8211;" + esc(e.ende) : ""} Uhr</div>` : ""}
           ${venue ? `<div class="e-meta">${venue}</div>` : ""}
           ${e.note ? `<div class="e-note">${esc(e.note)}</div>` : ""}
           ${fristHtml}
+          ${bfvBlock}
           ${(() => {
             const acts = [];
             if (e.typ === "spiel" && Roles.canManageEvents())
               acts.push(`<button class="btn btn-soft" data-kader-info="${e.id}">Kader-Info erstellen</button>`);
-            // Nur manuelle Termine sind bearbeitbar; BFV-Spiele nicht.
-            if (e.quelle === "manuell" && Roles.canManageSchedule())
+            // Trainer/Kassenwart/Admin: jeden Termin bearbeiten (auch BFV-Spiele).
+            if (Roles.canManageSchedule())
               acts.push(`<button class="icon-btn" title="Termin bearbeiten" aria-label="Termin bearbeiten" data-termin-edit="${e.id}">${ICON_PENCIL}</button>`);
             return acts.length ? `<div class="e-trainer">${acts.join("")}</div>` : "";
           })()}
@@ -839,6 +860,7 @@
     closeTerminModal();
     const isEdit = !!existing;
     const e = existing || {};
+    const isBfv = isEdit && e.quelle === "bfv"; // BFV-Spiel: Gegner/Wettbewerb gesperrt
     const typ0   = e.typ || "training";
     const titel0 = e.titel != null ? e.titel : (typ0 === "training" ? "Training" : "");
     const datum0 = e.datum || HEUTE;
@@ -847,9 +869,15 @@
     ov.className = "modal-ov"; ov.id = "terminModal";
     ov.innerHTML = `
       <div class="modal" role="dialog" aria-modal="true">
-        <div class="modal-head"><strong>${isEdit ? "Termin bearbeiten" : "Termin anlegen"}</strong>
+        <div class="modal-head"><strong>${isBfv ? "Spiel bearbeiten" : (isEdit ? "Termin bearbeiten" : "Termin anlegen")}</strong>
           <button class="modal-x" aria-label="Schließen">&times;</button></div>
         <form class="termin-form" novalidate>
+          ${isBfv ? `
+          <div class="bfv-ro">
+            <div class="bfv-ro-line">${(() => { const p = paarung(e); return `${p.home} <span class="vs">–</span> ${p.away}`; })()}</div>
+            ${e.wettbewerb ? `<div class="bfv-ro-sub">${esc(e.wettbewerb)}${e.liga ? " · " + esc(e.liga) : ""}</div>` : ""}
+            <div class="bfv-ro-hint">Gegner und Wettbewerb kommen vom BFV und sind gesperrt.</div>
+          </div>` : `
           <label class="tf-row">Typ
             <select data-tf="typ">
               <option value="training">Training</option>
@@ -866,7 +894,7 @@
               <input type="text" data-tf="gegner" placeholder="Gegnerischer Verein"></label>
             <label class="tf-row">Heim/Auswärts
               <select data-tf="heim"><option value="true">Heimspiel</option><option value="false">Auswärtsspiel</option></select></label>
-          </div>
+          </div>`}
           <label class="tf-row">Datum<input type="date" data-tf="datum"></label>
           <div class="tf-2col">
             <label class="tf-row">Start<input type="time" data-tf="zeit"></label>
@@ -886,8 +914,8 @@
           </fieldset>
           <div class="tf-summary" data-tf-summary hidden></div>`}
           <div class="modal-actions">
-            ${isEdit ? `<button type="button" class="btn btn-danger" data-tf-delete>Löschen</button>` : ""}
-            ${isEdit ? `<button type="button" class="btn" data-tf-cancel-toggle>${e.status === "abgesagt" ? "Findet statt" : "Fällt aus"}</button>` : ""}
+            ${(isEdit && !isBfv) ? `<button type="button" class="btn btn-danger" data-tf-delete>Löschen</button>` : ""}
+            ${(isEdit && !isBfv) ? `<button type="button" class="btn" data-tf-cancel-toggle>${e.status === "abgesagt" ? "Findet statt" : "Fällt aus"}</button>` : ""}
             <button type="submit" class="btn btn-primary">${isEdit ? "Speichern" : "Anlegen"}</button>
           </div>
           <div class="modal-hint" aria-live="polite" data-tf-hint></div>
@@ -897,19 +925,21 @@
     lockBodyScroll();
 
     const q = (sel) => ov.querySelector(sel);
+    const set = (sel, val) => { const el = q(sel); if (el) el.value = val; };
     const typSel = q('[data-tf="typ"]');
-    typSel.value = typ0;
-    q('[data-tf="titel"]').value = titel0;
-    q('[data-tf="datum"]').value = datum0;
-    q('[data-tf="zeit"]').value  = e.zeit || "";
-    q('[data-tf="ende"]').value  = e.ende || "";
-    q('[data-tf="ort"]').value   = e.locationRaw || e.ort || "";
-    q('[data-tf="notiz"]').value = e.note || "";
-    q('[data-tf="gegner"]').value = e.gegner || "";
-    q('[data-tf="heim"]').value  = e.heim === false ? "false" : "true";
+    if (typSel) typSel.value = typ0;
+    set('[data-tf="titel"]', titel0);
+    set('[data-tf="datum"]', datum0);
+    set('[data-tf="zeit"]', e.zeit || "");
+    set('[data-tf="ende"]', e.ende || "");
+    set('[data-tf="ort"]', e.locationRaw || e.ort || "");
+    set('[data-tf="notiz"]', e.note || "");
+    set('[data-tf="gegner"]', e.gegner || "");
+    set('[data-tf="heim"]', e.heim === false ? "false" : "true");
     const hint = q('[data-tf-hint]');
 
     function syncTypUI() {
+      if (!typSel) return; // BFV: keine Typ-/Titel-/Gegner-Felder
       const typ = typSel.value;
       q('[data-tf-spiel]').hidden = typ !== "spiel";
       q('[data-tf-titelrow]').hidden = typ === "spiel"; // Spiel: Titel = Paarung
@@ -929,24 +959,25 @@
     }
 
     syncTypUI(); summary();
-    typSel.addEventListener("change", syncTypUI);
+    if (typSel) typSel.addEventListener("change", syncTypUI);
     ov.querySelectorAll('input[name="wdh"]').forEach((r) => r.addEventListener("change", summary));
     ["datum","bis","zeit"].forEach((k) => { const el = q(`[data-tf="${k}"]`); if (el) el.addEventListener("input", summary); });
 
     ov.addEventListener("click", (ev) => { if (ev.target === ov) closeTerminModal(); });
     q(".modal-x").addEventListener("click", closeTerminModal);
 
+    const val = (sel, dflt) => { const el = q(sel); return el ? el.value : dflt; };
     function collect() {
       return {
-        typ: typSel.value,
-        titel: q('[data-tf="titel"]').value.trim(),
+        typ: typSel ? typSel.value : (e.typ || "spiel"),
+        titel: val('[data-tf="titel"]', e.titel || "").trim(),
         datum: q('[data-tf="datum"]').value,
         zeit: q('[data-tf="zeit"]').value,
         ende: q('[data-tf="ende"]').value,
         ort: q('[data-tf="ort"]').value.trim(),
         notiz: q('[data-tf="notiz"]').value.trim(),
-        gegner: q('[data-tf="gegner"]').value.trim(),
-        heim: q('[data-tf="heim"]').value === "true",
+        gegner: val('[data-tf="gegner"]', e.gegner || "").trim(),
+        heim: q('[data-tf="heim"]') ? q('[data-tf="heim"]').value === "true" : (e.heim === true),
         wdh: !isEdit && ov.querySelector('input[name="wdh"]:checked').value === "woechentlich",
         bis: isEdit ? "" : q('[data-tf="bis"]').value,
       };
@@ -959,7 +990,9 @@
       if (err) { hint.textContent = err; return; }
       const saveBtn = q(".termin-form button[type=submit]"); saveBtn.disabled = true;
       try {
-        if (!isEdit) await createTermine(b); else await saveTerminEdit(existing, b);
+        if (!isEdit) await createTermine(b);
+        else if (isBfv) await saveBfvEdit(existing, b);
+        else await saveTerminEdit(existing, b);
         closeTerminModal(); await reloadData();
       } catch (e2) { hint.textContent = /Abgebrochen/.test(e2 && e2.message) ? "" : "Fehler: " + ((e2 && e2.message) || e2); saveBtn.disabled = false; }
     });
@@ -1034,6 +1067,76 @@
       await DB.updateEvent(e.id, commonPatch);          // aktuellen immer mitnehmen
       await DB.updateSeriesFrom(e.serieId, from, commonPatch);
     }
+  }
+
+  // BFV-Spiel bearbeiten: geänderte Gruppen (start/ort) als manuell markieren,
+  // ursprünglichen BFV-Wert einfrieren; Notiz/Ende sind reine Zusatzfelder.
+  async function saveBfvEdit(e, b) {
+    const mb = Object.assign({}, e.manuellBearbeitet || {});
+    const orig = Object.assign({}, e.bfvOriginal || {});
+    const neu = Object.assign({}, e.bfvNeu || {});
+    const patch = { ende: b.ende || null, note: b.notiz || null };
+
+    const startChanged = (b.datum !== e.datum) || ((b.zeit || null) !== (e.zeit || null));
+    if (startChanged) {
+      orig.date = (neu.date != null ? neu.date : (orig.date != null ? orig.date : e.datum));
+      orig.time = (neu.time != null ? neu.time : (orig.time != null ? orig.time : (e.zeit || null)));
+      mb.start = true;
+      delete neu.date; delete neu.time;
+      patch.date = b.datum; patch.time = b.zeit || null;
+    }
+    const oldOrt = (e.locationRaw || e.ort) || null;
+    const ortChanged = (b.ort || null) !== oldOrt;
+    if (ortChanged) {
+      orig.location_raw = (neu.location_raw != null ? neu.location_raw : (orig.location_raw != null ? orig.location_raw : e.locationRaw));
+      orig.spielstaette = (neu.spielstaette != null ? neu.spielstaette : (orig.spielstaette != null ? orig.spielstaette : e.spielstaette));
+      orig.adresse = (neu.adresse != null ? neu.adresse : (orig.adresse != null ? orig.adresse : e.adresse));
+      mb.ort = true;
+      delete neu.location_raw; delete neu.spielstaette; delete neu.adresse;
+      patch.location_raw = b.ort || null; patch.location = b.ort || null;
+      patch.spielstaette = null; patch.adresse = null;
+    }
+    patch.manuell_bearbeitet = mb; patch.bfv_original = orig; patch.bfv_neu = neu;
+    await DB.updateEvent(e.id, patch);
+  }
+
+  // „Zurücksetzen auf BFV-Daten": alle Overrides raus, Werte = aktueller BFV.
+  function bfvResetPatch(e) {
+    const mb = e.manuellBearbeitet || {}, orig = e.bfvOriginal || {}, neu = e.bfvNeu || {};
+    const patch = { manuell_bearbeitet: {}, bfv_original: {}, bfv_neu: {} };
+    if (mb.start) {
+      patch.date = (neu.date != null ? neu.date : orig.date) || e.datum;
+      patch.time = (neu.time != null ? neu.time : orig.time) || null;
+    }
+    if (mb.ort) {
+      const lr = (neu.location_raw != null ? neu.location_raw : orig.location_raw) || null;
+      patch.location_raw = lr; patch.location = lr;
+      patch.spielstaette = (neu.spielstaette != null ? neu.spielstaette : orig.spielstaette) || null;
+      patch.adresse = (neu.adresse != null ? neu.adresse : orig.adresse) || null;
+    }
+    return patch;
+  }
+
+  // „BFV-Wert übernehmen": nur die gedriftete Gruppe auf den neuen BFV-Wert setzen.
+  function bfvTakePatch(e, group) {
+    const mb = Object.assign({}, e.manuellBearbeitet || {});
+    const orig = Object.assign({}, e.bfvOriginal || {});
+    const neu = Object.assign({}, e.bfvNeu || {});
+    const patch = {};
+    if (group === "start") {
+      if (neu.date != null) patch.date = neu.date;
+      if (neu.time != null) patch.time = neu.time;
+      delete mb.start; delete orig.date; delete orig.time; delete neu.date; delete neu.time;
+    } else if (group === "ort") {
+      const lr = neu.location_raw;
+      if (lr != null) { patch.location_raw = lr; patch.location = lr; }
+      patch.spielstaette = (neu.spielstaette != null ? neu.spielstaette : null);
+      patch.adresse = (neu.adresse != null ? neu.adresse : null);
+      delete mb.ort; delete orig.location_raw; delete orig.spielstaette; delete orig.adresse;
+      delete neu.location_raw; delete neu.spielstaette; delete neu.adresse;
+    }
+    patch.manuell_bearbeitet = mb; patch.bfv_original = orig; patch.bfv_neu = neu;
+    return patch;
   }
 
   async function deleteTermin(e) {
@@ -1771,7 +1874,7 @@
       }
     }
 
-    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-cal-sheet],[data-koord-save],[data-my-status],[data-logout]");
+    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-koord-save],[data-my-status],[data-logout]");
     if (!t) return;
 
     // Spieler: eigenen Fitnessstatus setzen (RLS/RPC erlauben nur die eigene Zeile)
@@ -1813,7 +1916,24 @@
     if (t.hasAttribute("data-termin-new")) { if (Roles.canManageSchedule()) openTerminModal(null); return; }
     if (t.dataset.terminEdit) {
       const e = DEMO.events.find((x) => x.id === t.dataset.terminEdit);
-      if (e && Roles.canManageSchedule() && e.quelle === "manuell") openTerminModal(e);
+      if (e && Roles.canManageSchedule()) openTerminModal(e);
+      return;
+    }
+    // BFV: manuelle Änderungen verwerfen (zurück auf BFV-Daten)
+    if (t.dataset.bfvReset) {
+      const e = DEMO.events.find((x) => x.id === t.dataset.bfvReset);
+      if (!e || !Roles.canManageSchedule()) return;
+      if (!window.confirm("Manuelle Änderungen verwerfen und wieder die BFV-Daten anzeigen?")) return;
+      try { await DB.updateEvent(e.id, bfvResetPatch(e)); await reloadData(); }
+      catch (err) { window.alert("Fehlgeschlagen: " + ((err && err.message) || err)); }
+      return;
+    }
+    // BFV: neuen abweichenden BFV-Wert einer Gruppe übernehmen
+    if (t.dataset.bfvTake) {
+      const e = DEMO.events.find((x) => x.id === t.dataset.bfvTake);
+      if (!e || !Roles.canManageSchedule()) return;
+      try { await DB.updateEvent(e.id, bfvTakePatch(e, t.dataset.takeGroup)); await reloadData(); }
+      catch (err) { window.alert("Fehlgeschlagen: " + ((err && err.message) || err)); }
       return;
     }
 

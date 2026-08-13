@@ -341,6 +341,7 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .tag-ausw     { background: #eef2ef; color: var(--muted); }
 .tag-friendly { background: var(--amber-050); color: var(--amber-600); }
 .tag-cancelled{ background: var(--red-050);   color: var(--red-600); }
+.tag-manuell  { background: var(--amber-050); color: var(--amber-600); }
 
 /* Abgesagtes Spiel: sichtbar, aber grau/durchgestrichen (nicht ausgeblendet) */
 .event.is-cancelled { opacity: .7; }
@@ -536,6 +537,16 @@ tbody tr:hover { background: #fbfdfc; }
 .set-sub h3 { font-size: 1rem; font-weight: 800; margin: 0; color: var(--ink); }
 .set-hint { color: var(--muted); font-size: .85rem; margin: 0 0 10px; }
 .bfv-find { font-size: .8rem; color: var(--muted); margin: 6px 0 2px; }
+
+/* BFV-Spiel manuell geändert: Hinweis/Reset in der Kachel + Read-only-Kopf im Modal */
+.e-bfv { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.bfv-drift { font-size: .82rem; color: var(--amber-600); }
+.bfv-drift .link-btn { font-size: .82rem; }
+.bfv-reset { font-size: .8rem; color: var(--muted); font-weight: 500; }
+.bfv-ro { background: var(--green-050); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.bfv-ro-line { font-weight: 700; }
+.bfv-ro-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+.bfv-ro-hint { font-size: .78rem; color: var(--muted); margin-top: 6px; }
 .set-greeting { margin: 2px 0 18px; }
 .set-greet-name { font-weight: 800; font-size: 1.05rem; }
 .set-greet-role { color: var(--muted); font-size: .85rem; margin-top: 2px; }

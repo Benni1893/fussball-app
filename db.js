@@ -65,6 +65,7 @@ window.DB = (function () {
         wettbewerb: e.wettbewerb, liga: e.liga,
         spielstaette: e.spielstaette, adresse: e.adresse, locationRaw: e.location_raw,
         ende: e.ende, serieId: e.serie_id, serieGeaendert: e.serie_geaendert,
+        manuellBearbeitet: e.manuell_bearbeitet || {}, bfvOriginal: e.bfv_original || {}, bfvNeu: e.bfv_neu || {},
       })),
       sportstaetten: sportstaetten.data.map((s) => ({
         id: s.id, name: s.name, adresse: s.adresse, norm: s.adresse_norm,
