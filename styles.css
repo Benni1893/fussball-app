@@ -36,7 +36,6 @@
   --spiel-ausw: #a3cbb8;   /* Auswärtsspiel: blasseres, helleres Grün */
   /* Randbalken-Ton je Termin-Typ (Nicht-Spiele) */
   --typ-training:         #2e8b57;  /* Grün */
-  --typ-mannschaftsabend: #6f5bd1;  /* Violett */
   --typ-sonstiges:        #7c8a82;  /* Neutraler Grauton */
 }
 
@@ -288,7 +287,6 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .event.typ-spiel.is-home { border-left-color: var(--spiel-heim); }
 .event.typ-spiel.is-away { border-left-color: var(--spiel-ausw); }
 .event.typ-training         { border-left-color: var(--typ-training); }
-.event.typ-mannschaftsabend { border-left-color: var(--typ-mannschaftsabend); }
 .event.typ-sonstiges        { border-left-color: var(--typ-sonstiges); }
 
 .event-date {
@@ -298,7 +296,6 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
   padding: 8px 4px;
   line-height: 1.1;
 }
-.event.typ-mannschaftsabend .event-date { background: #efeafc; }
 .event.typ-spiel .event-date { background: var(--gold-050); }
 .event-date .d-day  { font-size: 1.35rem; font-weight: 800; color: var(--green-800); display:block; }
 .event-date .d-mon  { font-size: .7rem; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); font-weight:700; }
@@ -336,7 +333,6 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 }
 .tag-spiel    { background: var(--gold-050); color: var(--gold-600); }
 .tag-training { background: var(--green-050); color: var(--green-600); }
-.tag-mannschaftsabend { background: #efeafc; color: #6f5bd1; }
 .tag-heim     { background: var(--green-700); color:#fff; }
 .tag-ausw     { background: #eef2ef; color: var(--muted); }
 .tag-friendly { background: var(--amber-050); color: var(--amber-600); }
@@ -477,7 +473,6 @@ tbody tr:hover { background: #fbfdfc; }
 
 /* ---- Termin-Formular ---- */
 .page-head-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.btn-termin-new { min-height: 44px; white-space: nowrap; }
 .termin-form { display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
 .tf-row { display: flex; flex-direction: column; gap: 5px; font-size: .8rem; font-weight: 600; color: var(--muted); }
 .termin-form input, .termin-form select, .termin-form textarea {
@@ -568,15 +563,19 @@ tbody tr:hover { background: #fbfdfc; }
 .cal-reset { display: inline-block; margin-top: 14px; font-size: .8rem; color: var(--muted); font-weight: 500; }
 .cal-reset:hover, .cal-reset:active { color: var(--ink); }
 
-/* Kalender-Kopfzeile: Abo-Icon + optional „+ Termin" */
-.kal-actions { display: flex; align-items: center; gap: 8px; }
-.kal-icon-btn {
-  width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center;
-  padding: 0; background: transparent; border: 0; color: var(--green-700); cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
+/* Kalender: zwei volle Buttons unter der Filterzeile (gestapelt) */
+.kal-cta { display: flex; flex-direction: column; gap: 10px; margin: 6px 0 20px; }
+.kal-cta-btn {
+  width: 100%; min-height: 48px; display: flex; align-items: center; justify-content: center;
+  gap: 10px; text-align: left;
 }
-.kal-icon-btn svg { width: 24px; height: 24px; display: block; }
-.kal-icon-btn:active { opacity: .6; }
+.kal-cta-btn svg { width: 22px; height: 22px; flex: none; }
+.kal-cta-txt { display: flex; flex-direction: column; line-height: 1.15; }
+.kal-cta-txt small { font-weight: 500; font-size: .74rem; opacity: .85; margin-top: 1px; }
+/* Sekundaerer Button (In meinen Kalender) */
+.kal-cta-sec { background: var(--card); border: 1px solid var(--line); color: var(--ink); }
+.kal-cta-sec svg { color: var(--green-700); }
+.kal-cta-sec:hover, .kal-cta-sec:active { background: var(--green-050); }
 
 /* Kalender-Abo-Sheet (nutzt .more-sheet/.more-panel) */
 .sheet-desc { margin: 4px 0 12px; color: var(--muted); font-size: .9rem; }

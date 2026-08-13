@@ -487,7 +487,7 @@
     try { calendarToken = await DB.myCalendarToken(); } catch (e) { calendarToken = null; }
     return calendarToken;
   }
-  // Kalender-Icon (mit +) für die Kopfzeile der Kalenderansicht.
+  // Kalender-Icon (mit +) für den Abo-Button. (Plus-Icon: siehe ICON_PLUS weiter unten.)
   const ICON_CAL_ADD = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4M12 13v4M10 15h4"/></svg>`;
 
   function closeCalSheet() { const ex = document.getElementById("calSheet"); if (ex) { ex.remove(); unlockBodyScroll(); } }
@@ -538,8 +538,7 @@
     const filters = [
       { k: "alle", label: "Alle" },
       { k: "spiel", label: "Spiele" },
-      { k: "training", label: "Trainings" },
-      { k: "mannschaftsabend", label: "Abende" },
+      { k: "training", label: "Training" },
       { k: "sonstiges", label: "Sonstiges" },
     ];
     const liste = DEMO.events
@@ -549,15 +548,13 @@
     const vergangen = liste.filter((e) => !isFuture(e.datum));
 
     viewEl.innerHTML = `
-      <div class="page-head page-head-row">
-        <h1>Kalender</h1>
-        <div class="kal-actions">
-          <button class="kal-icon-btn" data-cal-sheet type="button" aria-label="In meinen Kalender">${ICON_CAL_ADD}</button>
-          ${Roles.canManageSchedule() ? `<button class="btn btn-primary btn-termin-new" data-termin-new>+ Termin</button>` : ""}
-        </div>
-      </div>
+      <div class="page-head"><h1>Kalender</h1></div>
       <div class="toolbar">
         ${filters.map((f) => `<button class="chip ${kalFilter === f.k ? "is-active" : ""}" data-filter="${f.k}">${f.label}</button>`).join("")}
+      </div>
+      <div class="kal-cta">
+        ${Roles.canManageSchedule() ? `<button class="btn btn-primary kal-cta-btn" data-termin-new>${ICON_PLUS}<span class="kal-cta-txt">Termin hinzufügen</span></button>` : ""}
+        <button class="btn kal-cta-btn kal-cta-sec" data-cal-sheet type="button">${ICON_CAL_ADD}<span class="kal-cta-txt">In meinen Kalender<small>Alle Termine im iPhone-Kalender abonnieren</small></span></button>
       </div>
       ${kommend.length ? `<div class="event-list">${kommend.map((e) => eventCard(e, true)).join("")}</div>`
                        : `<div class="empty">Keine kommenden Termine in dieser Auswahl.</div>`}
@@ -714,7 +711,6 @@
     const tagMap = {
       spiel:            ``,  // kein "Spiel"-Label – die Paarung macht den Typ ohnehin klar
       training:         `<span class="tag tag-training">Training</span>`,
-      mannschaftsabend: `<span class="tag tag-mannschaftsabend">Mannschaftsabend</span>`,
       sonstiges:        ``,  // freier Titel steht ohnehin da
     };
     // Heim/Auswärts wird NICHT mehr als Text-Tag gezeigt, sondern als Farbbalken
@@ -881,7 +877,6 @@
           <label class="tf-row">Typ
             <select data-tf="typ">
               <option value="training">Training</option>
-              <option value="mannschaftsabend">Mannschaftsabend</option>
               <option value="spiel">Spiel</option>
               <option value="sonstiges">Sonstiges</option>
             </select>
