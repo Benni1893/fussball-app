@@ -11,10 +11,12 @@
   <!-- Splash-/Ladeanimation: inline, damit nichts nachgeladen wird und es im ersten Frame paint't.
        Farben aus den bestehenden Variablen (Fallback = gleicher Wert gegen weisses Aufblitzen). -->
   <style id="splash-style">
-    /* Overlay deckt den KOMPLETTEN Screen inkl. Safe Area ab (randlos, kein weisser Streifen).
-       100dvh statt inset:0/100vh -> reicht auf iOS bis zum echten unteren Rand, auch bei
-       ein-/ausfahrender Safari-Toolbar. */
-    #splash{position:fixed;top:0;left:0;right:0;height:100vh;height:100dvh;z-index:9999;
+    /* Kompletter, EINFARBIGER Hintergrund: nicht nur das Overlay, sondern das GANZE Dokument
+       (html + body) wird waehrend des Splash gruen gefaerbt. So kann kein weisser Streifen
+       durchscheinen - egal wie iOS Safe Area / Toolbar behandelt. Die Klasse .sp-lock wird
+       beim Entfernen des Splash wieder geloescht -> App danach normal hell. */
+    html.sp-lock, html.sp-lock body{background:#0f3d2e!important;background:var(--green-900,#0f3d2e)!important}
+    #splash{position:fixed;inset:0;height:100vh;height:100dvh;z-index:9999;
       display:flex;align-items:center;justify-content:center;
       background:#0f3d2e;background:var(--green-900,#0f3d2e);
       opacity:1;transition:opacity 200ms ease;will-change:opacity;-webkit-tap-highlight-color:transparent}
@@ -57,11 +59,13 @@
     var SVG6='<svg class="a6" viewBox="0 0 100 100"><line class="mid s-l" x1="50" y1="22" x2="50" y2="78" stroke-width="2" opacity=".55"/><circle class="ring s-w" cx="50" cy="50" r="24" fill="none" stroke-width="3" pathLength="100" transform="rotate(-90 50 50)"/><circle class="mid c-w" cx="50" cy="50" r="3"/></svg>';
     var SVGLOGO='<svg viewBox="0 0 100 100"><circle class="s-g" cx="50" cy="50" r="30" fill="none" stroke-width="3"/><circle cx="50" cy="50" r="26" fill="#144a37"/><text class="c-l" x="50" y="55" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="22">FN</text><text class="c-g" x="50" y="70" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="9">II</text></svg>';
     var splash=document.getElementById("splash"); if(!splash) return;
+    try{ document.documentElement.classList.add("sp-lock"); }catch(e){} // ganzes Dokument einfarbig gruen
     var stage=splash.querySelector(".sp-stage");
     var reduce=false; try{ reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches; }catch(e){}
     stage.innerHTML=reduce?SVGLOGO:SVG6;
     var MAX=3000, FADE=200, DUR=1700, hidden=false, wantHide=false;
     function remove(){
+      try{ document.documentElement.classList.remove("sp-lock"); }catch(e){} // Dokument-Faerbung wieder loesen -> App normal hell
       var s=document.getElementById("splash"); if(s&&s.parentNode) s.parentNode.removeChild(s);
       var st=document.getElementById("splash-style"); if(st&&st.parentNode) st.parentNode.removeChild(st); // Animationen sicher stoppen
     }
