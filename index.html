@@ -16,9 +16,12 @@
        durchscheinen - egal wie iOS Safe Area / Toolbar behandelt. Die Klasse .sp-lock wird
        beim Entfernen des Splash wieder geloescht -> App danach normal hell. */
     html.sp-lock, html.sp-lock body{background:#0f3d2e!important;background:var(--green-900,#0f3d2e)!important}
-    /* bottom bleedet um die untere Safe Area hinaus -> im installierten PWA-Modus deckt der
-       gruene Hintergrund die Home-Indicator-Zone mit ab (kein weisser Streifen/Flackern dort).
-       Eigene GPU-Ebene (translateZ), damit iOS den Hintergrund bei den Animations-Repaints haelt. */
+    /* KERN-FIX gegen den flackernden weissen Balken: Waehrend des Splash die fixe App-Chrome
+       (Kopfzeile, untere Navigation, Footer) komplett ausblenden. Diese Elemente stehen statisch
+       im HTML und werden von iOS als eigene position:fixed-Ebene UEBER dem Splash komponiert
+       (bekannter iOS-Bug bei mehreren fixed-Ebenen) -> die weisse Nav blitzte unten durch.
+       display:none entfernt die Ebene ganz. sp-lock liegt nur waehrend des Splash an. */
+    html.sp-lock .app-header, html.sp-lock .app-nav, html.sp-lock .app-footer{display:none!important}
     #splash{position:fixed;inset:0;z-index:9999;
       display:flex;align-items:center;justify-content:center;
       background:#0f3d2e;background:var(--green-900,#0f3d2e);
@@ -62,22 +65,38 @@
   <div id="splash" role="status" aria-label="Lädt"><div class="sp-stage"></div></div>
   <script>
   (function(){
-    // *** TEST-VERSION: komplett STATISCHER Splash, KEINE Animation (nur zur Ursachensuche). ***
+    // Ladeanimation #6 (Mittelkreis, transform-only). Reduced-Motion -> statisches Logo.
+    var SVG6='<div class="l6"><div class="base"></div><div class="line"></div><div class="spin"></div><div class="dot"></div></div>';
     var SVGLOGO='<svg viewBox="0 0 100 100"><circle class="s-g" cx="50" cy="50" r="30" fill="none" stroke-width="3"/><circle cx="50" cy="50" r="26" fill="#144a37"/><text class="c-l" x="50" y="55" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="22">FN</text><text class="c-g" x="50" y="70" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="9">II</text></svg>';
     var splash=document.getElementById("splash"); if(!splash) return;
-    try{ document.documentElement.classList.add("sp-lock"); }catch(e){} // ganzes Dokument einfarbig gruen
+    try{ document.documentElement.classList.add("sp-lock"); }catch(e){} // Dokument gruen + App-Chrome ausblenden
     var stage=splash.querySelector(".sp-stage");
-    stage.innerHTML=SVGLOGO;               // statisch, nichts bewegt sich
-    var start=Date.now(), MIN=500, MAX=3000, FADE=200, hidden=false;
+    var reduce=false; try{ reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches; }catch(e){}
+    stage.innerHTML=reduce?SVGLOGO:SVG6;
+    var MAX=3000, FADE=200, DUR=1100, hidden=false, wantHide=false;
     function remove(){
       var s=document.getElementById("splash"); if(s&&s.parentNode) s.parentNode.removeChild(s);
-      var st=document.getElementById("splash-style"); if(st&&st.parentNode) st.parentNode.removeChild(st);
+      var st=document.getElementById("splash-style"); if(st&&st.parentNode) st.parentNode.removeChild(st); // Animationen + Chrome-Ausblendung sicher aufheben
     }
     function hide(){ if(hidden) return; hidden=true;
-      try{ document.documentElement.classList.remove("sp-lock"); }catch(e){}
+      try{ document.documentElement.classList.remove("sp-lock"); }catch(e){} // Faerbung + Chrome-Ausblendung SOFORT loesen -> App erscheint sauber
       splash.classList.add("sp-hide"); setTimeout(remove, FADE+40); }
-    window.__hideSplash=function(){};              // TEST: NICHT vorzeitig ausblenden
-    setTimeout(function(){ hide(); }, 8000);       // TEST: 8s lang reines Gruen, App bleibt so lange verdeckt
+
+    if(reduce){
+      // Kein Bewegungsablauf -> statisches Logo, einfache Zeitsteuerung mit kleiner Mindestzeit gegen Flackern.
+      var start=Date.now(), MINR=400;
+      window.__hideSplash=function(){ var el=Date.now()-start; if(el>=MINR) hide(); else setTimeout(hide, MINR-el); };
+      setTimeout(function(){ if(window.__hideSplash) window.__hideSplash(); }, MAX);
+      return;
+    }
+
+    // Animierter Fall: NUR an Durchlauf-Grenzen ausblenden, nie mitten in der Drehung.
+    var ring=stage.querySelector(".spin");
+    function tryHide(){ if(wantHide && !hidden) hide(); }
+    if(ring && ring.addEventListener){ ring.addEventListener("animationiteration", tryHide); }
+    window.__hideSplash=function(){ wantHide=true; };               // Laden fertig -> beim naechsten Umdrehungsende ausblenden
+    setTimeout(function(){ wantHide=true; tryHide(); }, MAX);        // spaetestens nach 3s (ebenfalls zur Umdrehungsgrenze)
+    setTimeout(function(){ hide(); }, MAX + DUR + 400);             // Sicherheitsnetz, falls animationiteration nicht feuert
   })();
   </script>
 
