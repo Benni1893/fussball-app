@@ -11,21 +11,29 @@
   <!-- Splash-/Ladeanimation: inline, damit nichts nachgeladen wird und es im ersten Frame paint't.
        Farben aus den bestehenden Variablen (Fallback = gleicher Wert gegen weisses Aufblitzen). -->
   <style id="splash-style">
-    #splash{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
+    /* Overlay deckt den KOMPLETTEN Screen inkl. Safe Area ab (randlos, kein weisser Streifen).
+       100dvh statt inset:0/100vh -> reicht auf iOS bis zum echten unteren Rand, auch bei
+       ein-/ausfahrender Safari-Toolbar. */
+    #splash{position:fixed;top:0;left:0;right:0;height:100vh;height:100dvh;z-index:9999;
+      display:flex;align-items:center;justify-content:center;
       background:#0f3d2e;background:var(--green-900,#0f3d2e);
-      padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
       opacity:1;transition:opacity 200ms ease;will-change:opacity;-webkit-tap-highlight-color:transparent}
     #splash.sp-hide{opacity:0}
-    #splash .sp-stage{width:132px;height:132px;display:grid;place-items:center}
+    /* Nur der Inhalt respektiert die Safe Area (Margin), damit die Animation nicht unter dem
+       Home-Indicator / hinter dem Notch klebt. Das Overlay selbst bleibt randlos. */
+    #splash .sp-stage{width:132px;height:132px;display:grid;place-items:center;
+      margin:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
     #splash svg{width:100%;height:100%;display:block;overflow:visible}
     #splash .c-w{fill:var(--card,#fff)} #splash .c-g{fill:var(--gold-500,#d4af37)} #splash .c-l{fill:var(--green-050,#e9f3ee)}
     #splash .s-w{stroke:var(--card,#fff)} #splash .s-g{stroke:var(--gold-500,#d4af37)} #splash .s-l{stroke:var(--green-050,#e9f3ee)}
     #splash .sp-sh{fill:#000;opacity:.28}
-    /* Ladeanimation: Mittelkreis (Nr. 6 aus der Vorschau) */
+    /* Ladeanimation: Mittelkreis (Nr. 6 aus der Vorschau).
+       Nahtloser Loop: Start- UND Endzustand identisch (Kreis leer, Mitte unsichtbar) ->
+       zeichnen (bis 42%), halten (bis 58%), zuruecknehmen (bis 100%). Kein Sprung beim Neustart. */
     .a6 .ring{stroke-dasharray:100;stroke-dashoffset:100;animation:a6 1.7s ease-in-out infinite}
     .a6 .mid{opacity:0;animation:a6m 1.7s ease-in-out infinite}
-    @keyframes a6{0%{stroke-dashoffset:100}60%,100%{stroke-dashoffset:0}}
-    @keyframes a6m{0%,45%{opacity:0}70%,100%{opacity:1}}
+    @keyframes a6{0%{stroke-dashoffset:100}42%,58%{stroke-dashoffset:0}100%{stroke-dashoffset:100}}
+    @keyframes a6m{0%,22%{opacity:0}45%,62%{opacity:1}82%,100%{opacity:0}}
     /* Reduced-Motion: keine Bewegung, statisches Logo wird per JS eingesetzt */
     @media (prefers-reduced-motion: reduce){ #splash *{animation:none!important} }
   </style>
@@ -52,14 +60,31 @@
     var stage=splash.querySelector(".sp-stage");
     var reduce=false; try{ reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches; }catch(e){}
     stage.innerHTML=reduce?SVGLOGO:SVG6;
-    var start=Date.now(), MIN=400, MAX=3000, FADE=200, hidden=false, maxT;
+    var MAX=3000, FADE=200, DUR=1700, hidden=false, wantHide=false;
     function remove(){
       var s=document.getElementById("splash"); if(s&&s.parentNode) s.parentNode.removeChild(s);
       var st=document.getElementById("splash-style"); if(st&&st.parentNode) st.parentNode.removeChild(st); // Animationen sicher stoppen
     }
-    function hide(){ if(hidden) return; hidden=true; clearTimeout(maxT); splash.classList.add("sp-hide"); setTimeout(remove, FADE+40); }
-    window.__hideSplash=function(){ var el=Date.now()-start; if(el>=MIN) hide(); else setTimeout(hide, MIN-el); };
-    maxT=setTimeout(function(){ if(window.__hideSplash) window.__hideSplash(); }, MAX); // Notausblenden nach 3s
+    function hide(){ if(hidden) return; hidden=true; splash.classList.add("sp-hide"); setTimeout(remove, FADE+40); }
+
+    if(reduce){
+      // Kein Bewegungsablauf -> statisches Logo, einfache Zeitsteuerung mit kleiner Mindestzeit gegen Flackern.
+      var start=Date.now(), MINR=400;
+      window.__hideSplash=function(){ var el=Date.now()-start; if(el>=MINR) hide(); else setTimeout(hide, MINR-el); };
+      setTimeout(function(){ if(window.__hideSplash) window.__hideSplash(); }, MAX);
+      return;
+    }
+
+    // Animierter Fall: NUR an Durchlauf-Grenzen ausblenden, nie mitten in der Bewegung.
+    var ring=stage.querySelector(".ring");
+    function tryHide(){ if(wantHide && !hidden) hide(); }
+    if(ring && ring.addEventListener){ ring.addEventListener("animationiteration", tryHide); }
+    // Laden fertig -> Wunsch merken, aber erst am Ende des laufenden Durchlaufs ausblenden.
+    window.__hideSplash=function(){ wantHide=true; };
+    // Spaetestens nach 3s ausblenden - ebenfalls erst zur naechsten Durchlauf-Grenze.
+    setTimeout(function(){ wantHide=true; tryHide(); }, MAX);
+    // Sicherheitsnetz, falls animationiteration nie feuert (Animation entfernt o.ae.).
+    setTimeout(function(){ hide(); }, MAX + DUR + 400);
   })();
   </script>
 
