@@ -2210,13 +2210,16 @@
      --------------------------------------------------------------------------- */
   function syncHeaderHeight() {
     const header = document.querySelector(".app-header");
-    if (header) {
+    // Waehrend des Splash ist die Kopfzeile ausgeblendet (offsetHeight 0) -> NICHT auf 0 setzen,
+    // sonst rutscht der Inhalt unter die Kopfzeile. Fallback-Padding behalten, spaeter nachmessen.
+    if (header && header.offsetHeight > 0) {
       document.documentElement.style.setProperty("--header-h", header.offsetHeight + "px");
     }
   }
   window.addEventListener("resize", syncHeaderHeight);
   window.addEventListener("load", syncHeaderHeight);
   window.addEventListener("orientationchange", () => setTimeout(syncHeaderHeight, 200));
+  window.addEventListener("fn:chrome-shown", syncHeaderHeight); // nach dem Splash: echte Kopfzeilenhoehe nachmessen
 
   /* ===========================================================================
      AUTHENTIFIZIERUNG (Oberfläche)

@@ -16,12 +16,12 @@
        durchscheinen - egal wie iOS Safe Area / Toolbar behandelt. Die Klasse .sp-lock wird
        beim Entfernen des Splash wieder geloescht -> App danach normal hell. */
     html.sp-lock, html.sp-lock body{background:#0f3d2e!important;background:var(--green-900,#0f3d2e)!important}
-    /* KERN-FIX gegen den flackernden weissen Balken: Waehrend des Splash die fixe App-Chrome
-       (Kopfzeile, untere Navigation, Footer) komplett ausblenden. Diese Elemente stehen statisch
-       im HTML und werden von iOS als eigene position:fixed-Ebene UEBER dem Splash komponiert
-       (bekannter iOS-Bug bei mehreren fixed-Ebenen) -> die weisse Nav blitzte unten durch.
-       display:none entfernt die Ebene ganz. sp-lock liegt nur waehrend des Splash an. */
-    html.sp-lock .app-header, html.sp-lock .app-nav, html.sp-lock .app-footer{display:none!important}
+    /* KERN-FIX gegen den flackernden weissen Balken: Waehrend des Splash ALLES ausser dem Splash
+       ausblenden (Kopfzeile, Nav UND der komplette Inhalt). iOS hebt fixe UND als eigene Ebene
+       komponierte Elemente (Nav, Content-Karten in Scroll-Containern) UEBER den Splash, egal
+       welcher z-index - bekannter iOS-Bug bei mehreren Compositing-Ebenen. display:none nimmt
+       sie ganz aus dem Ebenenbaum. sp-lock liegt nur waehrend des Splash an. */
+    html.sp-lock body > *:not(#splash){display:none!important}
     #splash{position:fixed;inset:0;z-index:9999;
       display:flex;align-items:center;justify-content:center;
       background:#0f3d2e;background:var(--green-900,#0f3d2e);
@@ -79,7 +79,8 @@
       var st=document.getElementById("splash-style"); if(st&&st.parentNode) st.parentNode.removeChild(st); // Animationen + Chrome-Ausblendung sicher aufheben
     }
     function hide(){ if(hidden) return; hidden=true;
-      try{ document.documentElement.classList.remove("sp-lock"); }catch(e){} // Faerbung + Chrome-Ausblendung SOFORT loesen -> App erscheint sauber
+      try{ document.documentElement.classList.remove("sp-lock"); }catch(e){} // Faerbung + Ausblendung SOFORT loesen -> App erscheint sauber
+      try{ window.dispatchEvent(new Event("fn:chrome-shown")); }catch(e){}    // App-Chrome wieder sichtbar -> Kopfzeilenhoehe neu messen
       splash.classList.add("sp-hide"); setTimeout(remove, FADE+40); }
 
     if(reduce){
