@@ -2564,10 +2564,12 @@
      START: Sitzung prüfen -> Login ODER App laden
      =========================================================================== */
   async function init() {
+    const hideSplash = () => { try { window.__hideSplash && window.__hideSplash(); } catch (e) {} };
     // App über einen Passwort-Reset-Link geöffnet? -> direkt neues Passwort setzen.
     if (recoveryMode || window.location.hash.indexOf("type=recovery") !== -1) {
       recoveryMode = true;
       renderResetPassword();
+      hideSplash();
       return;
     }
     document.body.classList.remove("auth-mode");
@@ -2575,7 +2577,7 @@
 
     let session = null;
     try { session = await DB.getSession(); } catch (e) { session = null; }
-    if (!session) { renderLogin(); return; }
+    if (!session) { renderLogin(); hideSplash(); return; }
 
     try {
       DEMO = await DB.loadAll();
@@ -2588,20 +2590,22 @@
       if (!currentProfile.email) currentProfile.email = session.user.email;
       try { Roles.set(await DB.myRoles()); } catch (e) { Roles.set([]); }
 
-      if (!currentProfile.player_id) { renderPlayerLink(); return; }
+      if (!currentProfile.player_id) { renderPlayerLink(); hideSplash(); return; }
 
       state.currentPlayerId = currentProfile.player_id;
       fillIdentity();
       syncHeaderHeight();
       render();
+      hideSplash();
     } catch (err) {
       document.body.classList.remove("auth-mode");
       viewEl.innerHTML = `<div style="margin:20px;padding:18px;border:2px solid #c0392b;border-radius:12px;background:#fff;color:#7a1d14;font:12px/1.6 monospace;white-space:pre-wrap">Fehler beim Laden der App:\n\n${esc((err && err.message) || String(err))}\n\n${esc((err && err.stack) ? err.stack : "")}</div>`;
+      hideSplash();
     }
   }
 
   // App über Passwort-Reset-Link geöffnet? (Supabase meldet PASSWORD_RECOVERY)
-  DB.onPasswordRecovery(() => { recoveryMode = true; renderResetPassword(); });
+  DB.onPasswordRecovery(() => { recoveryMode = true; renderResetPassword(); try { window.__hideSplash && window.__hideSplash(); } catch (e) {} });
 
   init();
 })();
