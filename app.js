@@ -1266,8 +1266,16 @@
     const hint = ov.querySelector(".modal-hint");
     ov.addEventListener("click", (e) => { if (e.target === ov) closeShareModal(); });
     ov.querySelector(".modal-x").addEventListener("click", closeShareModal);
-    ov.querySelector("[data-wa]").addEventListener("click", () => {
-      window.open("https://wa.me/?text=" + encodeURIComponent(ta.value), "_blank", "noopener");
+    ov.querySelector("[data-wa]").addEventListener("click", async () => {
+      const msg = ta.value;
+      // 1) Natives Teilen (iOS Share-Sheet): sauberer Ruecksprung in die App, KEIN leerer
+      //    In-App-Browser-Tab. WhatsApp ist im Sheet als Ziel waehlbar.
+      if (navigator.share) {
+        try { await navigator.share({ text: msg }); closeShareModal(); return; }
+        catch (e) { if (e && e.name === "AbortError") return; } // Nutzer hat abgebrochen -> Modal offen lassen
+      }
+      // 2) Fallback: WhatsApp direkt per App-Schema (oeffnet ebenfalls keinen Browser-Tab).
+      window.location.href = "whatsapp://send?text=" + encodeURIComponent(msg);
     });
     ov.querySelector("[data-copy]").addEventListener("click", async () => {
       const ok = await copyText(ta.value);
