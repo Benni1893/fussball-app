@@ -76,8 +76,8 @@
     function hide(){ if(hidden) return; hidden=true;
       try{ document.documentElement.classList.remove("sp-lock"); }catch(e){}
       splash.classList.add("sp-hide"); setTimeout(remove, FADE+40); }
-    window.__hideSplash=function(){ var el=Date.now()-start; if(el>=MIN) hide(); else setTimeout(hide, MIN-el); };
-    setTimeout(function(){ hide(); }, MAX);
+    window.__hideSplash=function(){};              // TEST: NICHT vorzeitig ausblenden
+    setTimeout(function(){ hide(); }, 8000);       // TEST: 8s lang reines Gruen, App bleibt so lange verdeckt
   })();
   </script>
 
