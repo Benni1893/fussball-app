@@ -24,3 +24,8 @@ $RECYCLE.BIN/
 
 # Lokale Hilfsdateien
 qr.png
+# Vorschau-Seite zum Aussuchen der Ladeanimation - NICHT deployen
+preview/
+
+.vercel
+.env*
