@@ -16,7 +16,7 @@
        durchscheinen - egal wie iOS Safe Area / Toolbar behandelt. Die Klasse .sp-lock wird
        beim Entfernen des Splash wieder geloescht -> App danach normal hell. */
     html.sp-lock, html.sp-lock body{background:#0f3d2e!important;background:var(--green-900,#0f3d2e)!important}
-    #splash{position:fixed;inset:0;height:100vh;height:100dvh;z-index:9999;
+    #splash{position:fixed;inset:0;z-index:9999;
       display:flex;align-items:center;justify-content:center;
       background:#0f3d2e;background:var(--green-900,#0f3d2e);
       opacity:1;transition:opacity 200ms ease;will-change:opacity;-webkit-tap-highlight-color:transparent}
@@ -65,11 +65,12 @@
     stage.innerHTML=reduce?SVGLOGO:SVG6;
     var MAX=3000, FADE=200, DUR=1700, hidden=false, wantHide=false;
     function remove(){
-      try{ document.documentElement.classList.remove("sp-lock"); }catch(e){} // Dokument-Faerbung wieder loesen -> App normal hell
       var s=document.getElementById("splash"); if(s&&s.parentNode) s.parentNode.removeChild(s);
       var st=document.getElementById("splash-style"); if(st&&st.parentNode) st.parentNode.removeChild(st); // Animationen sicher stoppen
     }
-    function hide(){ if(hidden) return; hidden=true; splash.classList.add("sp-hide"); setTimeout(remove, FADE+40); }
+    function hide(){ if(hidden) return; hidden=true;
+      try{ document.documentElement.classList.remove("sp-lock"); }catch(e){} // Faerbung SOFORT loesen -> App scheint hell durch, kein gruenes Nachziehen
+      splash.classList.add("sp-hide"); setTimeout(remove, FADE+40); }
 
     if(reduce){
       // Kein Bewegungsablauf -> statisches Logo, einfache Zeitsteuerung mit kleiner Mindestzeit gegen Flackern.
