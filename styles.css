@@ -1017,7 +1017,8 @@ body.auth-mode .app-footer { display: none; }
 .tv-pitch { position: relative; aspect-ratio: 68/105; height: 100%; max-width: 100%; width: auto; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); user-select: none; touch-action: manipulation; }
 .tv-pitch-bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .tv-slot { position: absolute; transform: translate(-50%,-50%); width: 15%; min-width: 46px; max-width: 64px; display: flex; flex-direction: column; align-items: center; }
-.tv-disc { width: 100%; aspect-ratio: 1/1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; border: 2px solid rgba(255,255,255,.85); color: #fff; background: rgba(15,61,46,.34); }
+/* Deckende Fuellung: leere Positionen duerfen die Feldlinien nicht durchscheinen lassen. */
+.tv-disc { width: 100%; aspect-ratio: 1/1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; border: 2px solid rgba(255,255,255,.85); color: #fff; background: var(--green-800); }
 .tv-slot.filled .tv-disc { background: var(--card); color: var(--green-800); border-color: var(--gold-500); }
 .tv-slot.sel .tv-disc { box-shadow: 0 0 0 3px var(--gold-500), 0 4px 12px rgba(0,0,0,.3); transform: scale(1.06); }
 .tv-role { font-size: 10px; font-weight: 800; color: rgba(255,255,255,.85); letter-spacing: .3px; }
@@ -1080,12 +1081,21 @@ body.auth-mode .app-footer { display: none; }
 .tv-star { position: absolute; top: 4px; right: 4px; width: 44px; height: 44px; border-radius: 50%; border: 0; background: transparent; font-size: 18px; color: var(--line); }
 .tv-star.fav { color: var(--gold-500); }
 
-/* Menü-Einträge */
-/* Menü-Einträge exakt im App-Muster (.more-item): text-only, gleiche Abstände/Hover. */
-.tv-mi { display: block; width: 100%; text-align: left; min-height: 48px; padding: 12px 14px; border: 0; background: none; font: inherit; font-weight: 600; color: var(--ink); border-radius: 10px; }
+/* Menü-Einträge exakt im App-Muster (.more-item): text-only, buendig, gleicher Hover.
+   Schmale Body-Einrueckung, damit der Text am linken Sheet-Rand steht (wie eine Liste). */
+#tvMenuBody { padding: 4px 8px calc(6px + env(safe-area-inset-bottom)); }
+.tv-mi { display: block; width: 100%; text-align: left; min-height: 48px; padding: 12px 12px; border: 0; background: none; font: inherit; font-weight: 600; color: var(--ink); border-radius: 10px; }
 .tv-mi:hover, .tv-mi:active { background: var(--green-050); color: var(--green-800); }
-.tv-mi.danger { color: var(--red-600); }
+/* Destruktive Aktion optisch abgesetzt: rot + Trennlinie darueber. */
+.tv-mi.danger { color: var(--red-600); margin-top: 6px; padding-top: 14px; border-top: 1px solid var(--line); border-radius: 0 0 10px 10px; }
 .tv-mi.danger:hover, .tv-mi.danger:active { background: var(--red-050); color: var(--red-600); }
+
+/* Kader-Auswahl als VOLLBILD (deckt die Nav vollstaendig ab). */
+.tv-sheet.tv-kfull { top: 0; bottom: 0; left: 0; right: 0; height: 100dvh; max-height: none; border-radius: 0; transform: translateY(100%); }
+.tv-sheet.tv-kfull.open { transform: translateY(0); }
+.tv-sheet.tv-kfull .tv-sh { flex: 0 0 auto; padding-top: calc(env(safe-area-inset-top) + 12px); border-bottom: 1px solid var(--line); background: var(--card); }
+.tv-sheet.tv-kfull .tv-grip { display: none; }
+.tv-sheet.tv-kfull .tv-shbody { flex: 1 1 auto; min-height: 0; padding-bottom: calc(28px + env(safe-area-inset-bottom)); }
 
 /* Toast */
 .tv-toast { position: fixed; left: 50%; bottom: calc(70px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(8px); background: var(--green-900); color: #fff; font-size: 13px; font-weight: 700; padding: 9px 16px; border-radius: 999px; box-shadow: 0 6px 18px rgba(15,61,46,.3); opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; z-index: 95; }

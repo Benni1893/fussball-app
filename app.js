@@ -1788,8 +1788,14 @@
 
   // Jüngstes vergangenes Spiel mit aktiver Aufstellung (für „übernehmen & anpassen").
   function tvLastLineup() {
-    const past = DEMO.events.filter(e => e.typ === "spiel" && e.id !== tv.eventId && !isFuture(e.datum)).sort((a, b) => b.datum.localeCompare(a.datum));
-    for (const e of past) {
+    // Referenz = juengstes Spiel MIT aktiver Aufstellung, dessen Datum VOR dem gerade
+    // bearbeiteten Spiel liegt (nicht vor heute) -> passt sich dem geoeffneten Spiel an.
+    const cur = DEMO.events.find(e => e.id === tv.eventId);
+    const curDate = cur ? cur.datum : null;
+    const cand = DEMO.events
+      .filter(e => e.typ === "spiel" && e.id !== tv.eventId && (!curDate || e.datum < curDate))
+      .sort((a, b) => b.datum.localeCompare(a.datum));
+    for (const e of cand) {
       const lu = (DEMO.lineups || []).find(l => l.eventId === e.id && l.isActive && !l.isTemplate);
       if (lu && FORMATIONS[lu.formation]) return { event: e, formation: lu.formation, slots: lu.slots || {} };
     }
@@ -1918,7 +1924,7 @@
     const w = document.createElement("div"); w.id = "tvPanels";
     w.innerHTML =
       '<div class="tv-scrim" id="tvScrimKader" data-tvclose="kader"></div>' +
-      '<div class="tv-sheet" id="tvSheetKader" role="dialog" aria-modal="true" aria-label="Spieler wählen"><div class="tv-sh"><span class="tv-grip"></span><div><strong id="tvKaderTitle">Spieler wählen</strong><div class="tv-shsub" id="tvKaderSub"></div></div><button class="tv-shx" data-tvclose="kader" aria-label="Schließen">&times;</button></div><div class="tv-shbody" id="tvKaderBody"></div></div>' +
+      '<div class="tv-sheet tv-kfull" id="tvSheetKader" role="dialog" aria-modal="true" aria-label="Spieler wählen"><div class="tv-sh"><span class="tv-grip"></span><div><strong id="tvKaderTitle">Spieler wählen</strong><div class="tv-shsub" id="tvKaderSub"></div></div><button class="tv-shx" data-tvclose="kader" aria-label="Schließen">&times;</button></div><div class="tv-shbody" id="tvKaderBody"></div></div>' +
       '<div class="tv-scrim" id="tvScrimForm" data-tvclose="form"></div>' +
       '<div class="tv-sheet" id="tvSheetForm" role="dialog" aria-modal="true" aria-label="Formationen"><div class="tv-sh"><span class="tv-grip"></span><div><strong id="tvFormTitle">Formation wechseln</strong><div class="tv-shsub" id="tvFormSub"></div></div><button class="tv-shx" data-tvclose="form" aria-label="Schließen">&times;</button></div><div class="tv-shbody"><div class="tv-fgrid" id="tvFgrid"></div></div><div class="tv-shactions" id="tvFormActions"></div></div>' +
       '<div class="tv-scrim" id="tvScrimMenu" data-tvclose="menu"></div>' +
@@ -1926,6 +1932,27 @@
       '<div class="tv-toast" id="tvToast"></div>';
     document.body.appendChild(w);
     w.addEventListener("click", tvPanelClick);
+
+    // Kader-Vollbild: Wisch-nach-unten zum Schließen (nur wenn Liste oben steht).
+    var panel = document.getElementById("tvSheetKader");
+    var body  = document.getElementById("tvKaderBody");
+    var sy = 0, dragging = false, dy = 0;
+    panel.addEventListener("touchstart", function (e) {
+      if (!panel.classList.contains("open") || e.touches.length !== 1 || body.scrollTop > 0) { dragging = false; return; }
+      sy = e.touches[0].clientY; dy = 0; dragging = true; panel.style.transition = "none";
+    }, { passive: true });
+    panel.addEventListener("touchmove", function (e) {
+      if (!dragging) return;
+      dy = e.touches[0].clientY - sy;
+      if (dy <= 0 || body.scrollTop > 0) { panel.style.transform = "translateY(0)"; return; }
+      e.preventDefault();
+      panel.style.transform = "translateY(" + dy + "px)";
+    }, { passive: false });
+    panel.addEventListener("touchend", function () {
+      if (!dragging) return;
+      dragging = false; panel.style.transition = ""; panel.style.transform = "";
+      if (dy > 90) { tvCloseKader(); tvViewLineup(); }
+    }, { passive: true });
   }
   function tvTeardownPanels() { const w = document.getElementById("tvPanels"); if (w && w.parentNode) w.parentNode.removeChild(w); }
   function tvClosePanels() { ["tvScrimKader","tvSheetKader","tvScrimForm","tvSheetForm","tvScrimMenu","tvSheetMenu"].forEach(id => { const e = document.getElementById(id); if (e) e.classList.remove("open"); }); }
@@ -2727,6 +2754,7 @@
     window.addEventListener("touchstart", (e) => {
       if (refreshing || e.touches.length !== 1) { tracking = false; return; }
       if (document.body.classList.contains("auth-mode")) { tracking = false; return; } // nicht auf Login/Reset
+      if (document.querySelector(".tv-sheet.open")) { tracking = false; return; }        // nicht wenn ein Aufstellungs-Panel offen ist
       if (window.scrollY > 0) { tracking = false; return; }                             // nur ganz oben
       startY = e.touches[0].clientY; startX = e.touches[0].clientX;
       tracking = true; decided = false; active = false; pull = 0;
