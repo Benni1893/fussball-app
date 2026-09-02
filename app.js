@@ -1313,7 +1313,7 @@
     "3-5-2": [
       { key:"TW", role:"TW", x:50, y:95 },
       { key:"LIV", role:"IV", x:24, y:79 }, { key:"CIV", role:"IV", x:50, y:81 }, { key:"RIV", role:"IV", x:76, y:79 },
-      { key:"LM", role:"AV", x:9, y:53 }, { key:"LZM", role:"ZM", x:31, y:56 }, { key:"ZM", role:"ZM", x:50, y:58 }, { key:"RZM", role:"ZM", x:69, y:56 }, { key:"RM", role:"AV", x:91, y:53 },
+      { key:"LM", role:"AV", x:9, y:53 }, { key:"LZM", role:"ZM", x:30, y:56 }, { key:"ZM", role:"ZM", x:50, y:58 }, { key:"RZM", role:"ZM", x:70, y:56 }, { key:"RM", role:"AV", x:91, y:53 },
       { key:"LST", role:"ST", x:37, y:18 }, { key:"RST", role:"ST", x:63, y:18 },
     ],
     "3-4-3": [
