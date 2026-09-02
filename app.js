@@ -2205,6 +2205,132 @@
   resetBtn.title = "Daten neu aus Supabase laden";
   resetBtn.addEventListener("click", () => { init(); });
 
+  /* ---------------------------------------------------------------------------
+     Pull-to-Refresh (wiederverwendbares Modul)
+     attachPullToRefresh(container, onRefresh):
+       container = Element, das beim Ziehen verschoben wird (hier .scroll-area)
+       onRefresh = async () => {}  -> laedt Daten neu (hier reloadData)
+     Scroll = Fenster; Geste nur bei window.scrollY === 0. Nur transform/opacity.
+     --------------------------------------------------------------------------- */
+  function attachPullToRefresh(container, onRefresh) {
+    if (!container) return;
+    const THRESHOLD = 70;   // ab hier wird refresht
+    const MAX = 120;        // maximaler sichtbarer Zug
+    const REST = 64;        // Halteposition waehrend des Ladens
+    const MIN_SPIN = 500;   // Mindest-Spinnerdauer, damit es nicht zuckt
+    const TIMEOUT = 8000;   // Abbruch nach 8s
+    const SPRING = "transform 280ms cubic-bezier(.22,1,.36,1)";
+    const reduce = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+    // Indikator + Hinweis einmalig erzeugen (ausserhalb von #view).
+    const ind = document.createElement("div");
+    ind.className = "ptr-ind"; ind.setAttribute("aria-hidden", "true");
+    const spinner = document.createElement("div"); spinner.className = "ptr-spinner";
+    ind.appendChild(spinner); document.body.appendChild(ind);
+    const hint = document.createElement("div");
+    hint.className = "ptr-hint"; hint.setAttribute("role", "status"); hint.setAttribute("aria-live", "polite");
+    document.body.appendChild(hint);
+
+    let startY = 0, startX = 0, pull = 0, tracking = false, decided = false, active = false, refreshing = false, hintT = 0;
+
+    function setPos(px, withSpin) {
+      if (reduce) { // kein Feder-Feeling: nur hart ein-/ausblenden
+        container.style.transform = "";
+        ind.style.opacity = (px >= THRESHOLD || refreshing) ? "1" : "0";
+        ind.style.transform = "translateX(-50%)";
+        return;
+      }
+      container.style.transform = "translateY(" + px + "px)";
+      ind.style.opacity = String(Math.min(1, px / THRESHOLD));
+      ind.style.transform = "translateX(-50%) translateY(" + (px * 0.45) + "px)";
+      if (withSpin) spinner.style.transform = "rotate(" + (px * 3.2) + "deg)"; // dreht mit der Distanz
+    }
+    function clearTransition() { container.style.transition = "none"; ind.style.transition = "none"; }
+    function springTo(px) {
+      container.style.transition = SPRING;
+      ind.style.transition = "opacity 200ms ease, " + SPRING;
+      setPos(px, false);
+    }
+    function springBack() {
+      if (reduce) { container.style.transform = ""; ind.style.opacity = "0"; pull = 0; return; }
+      springTo(0); pull = 0;
+      setTimeout(() => { // Transform im Ruhezustand entfernen (kein bleibender Containing-Block)
+        if (!tracking && !refreshing) { container.style.transform = ""; container.style.transition = ""; }
+      }, 340);
+    }
+    function showHint(msg) {
+      hint.textContent = msg; hint.classList.add("show");
+      clearTimeout(hintT); hintT = setTimeout(() => hint.classList.remove("show"), 2600);
+    }
+
+    async function startRefresh() {
+      refreshing = true;
+      spinner.style.transform = "";          // Inline-Rotation raus -> CSS-Dauerrotation uebernimmt
+      ind.classList.add("is-spinning");
+      if (reduce) ind.style.opacity = "1"; else springTo(REST);
+      const started = Date.now();
+      let settled = false; // markiert, ob bereits abgeschlossen (Timeout ODER fertig)
+      const to = setTimeout(() => { if (settled) return; settled = true; finish(false); }, TIMEOUT);
+      try {
+        await onRefresh();
+        const el = Date.now() - started;
+        if (el < MIN_SPIN) await new Promise((r) => setTimeout(r, MIN_SPIN - el));
+        if (!settled) { settled = true; clearTimeout(to); finish(true); }
+      } catch (e) {
+        if (!settled) { settled = true; clearTimeout(to); finish(false); }
+      }
+    }
+    function finish(ok) {
+      ind.classList.remove("is-spinning");
+      if (!ok) showHint("Konnte nicht aktualisiert werden");
+      springBack();
+      setTimeout(() => { refreshing = false; }, reduce ? 0 : 320);
+    }
+
+    // --- Touch-Handling -----------------------------------------------------
+    window.addEventListener("touchstart", (e) => {
+      if (refreshing || e.touches.length !== 1) { tracking = false; return; }
+      if (document.body.classList.contains("auth-mode")) { tracking = false; return; } // nicht auf Login/Reset
+      if (window.scrollY > 0) { tracking = false; return; }                             // nur ganz oben
+      startY = e.touches[0].clientY; startX = e.touches[0].clientX;
+      tracking = true; decided = false; active = false; pull = 0;
+    }, { passive: true });
+
+    window.addEventListener("touchmove", (e) => {
+      if (!tracking || refreshing) return;
+      const dy = e.touches[0].clientY - startY;
+      const dx = e.touches[0].clientX - startX;
+      if (!decided) {
+        if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;                 // Richtung noch nicht eindeutig
+        if (Math.abs(dx) >= Math.abs(dy) || dy <= 0) { tracking = false; return; } // horizontal ODER nach oben -> normal scrollen
+        decided = true; active = true; clearTransition();                // eindeutig vertikal nach unten -> unsere Geste
+      }
+      if (window.scrollY > 0) { tracking = false; springBack(); return; } // zwischendrin doch gescrollt
+      if (dy <= 0) { pull = 0; setPos(0, true); return; }
+      e.preventDefault();                                                 // nativen Bounce unterdruecken
+      pull = dy / (1 + dy / MAX);                                         // Gummiband-Widerstand
+      setPos(pull, true);
+    }, { passive: false });
+
+    function end() {
+      if (!tracking || refreshing) { tracking = false; return; }
+      tracking = false;
+      if (!active) return;
+      if (pull >= THRESHOLD) startRefresh(); else springBack();
+    }
+    window.addEventListener("touchend", end, { passive: true });
+    window.addEventListener("touchcancel", () => {
+      if (tracking && active && !refreshing) springBack();
+      tracking = false;
+    }, { passive: true });
+  }
+
+  // Einmal registrieren: ein Scroll-Container (Fenster/.scroll-area), eine globale
+  // Refresh-Funktion. Alle Seiten teilen sich das, weil sie in denselben Container
+  // rendern und dieselbe Datenquelle (DEMO) nutzen. Modul bleibt generisch fuer
+  // spaetere Seiten mit eigenem Scroll-Container.
+  attachPullToRefresh(document.getElementById("scrollArea"), reloadData);
+
   // Simulations-Vorschau beenden -> zurück zur echten Admin-Ansicht.
   const simExitBtn = document.getElementById("simExit");
   if (simExitBtn) simExitBtn.addEventListener("click", () => {
