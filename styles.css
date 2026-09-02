@@ -1057,10 +1057,11 @@ body.auth-mode .app-footer { display: none; }
 /* Kader-Gruppen im Panel */
 .tv-emptybtn { width: 100%; min-height: 44px; border: 1px solid var(--line); background: var(--bg); border-radius: 12px; font-weight: 700; color: var(--red-600); margin-bottom: 8px; }
 /* Feste Aktions-Zeile im Kader-Vollbild (z. B. „Alle Zugesagten auf die Bank"). Sekundär. */
-.tv-kaction { flex: 0 0 auto; padding: 0 16px 10px; }
+/* Gleiche Abstaende oben/unten (16px: Header-Pad 8 + 8, bzw. 10 + Body-Pad 6). Trennlinie darunter. */
+.tv-kaction { flex: 0 0 auto; padding: 8px 16px 10px; border-bottom: 1px solid var(--line); }
 .tv-kaction:empty { display: none; }
-.tv-kall { width: 100%; min-height: 44px; border: 1px solid var(--green-500); background: var(--green-050); color: var(--green-800); font-weight: 700; font-size: 14px; border-radius: 10px; }
-.tv-kall:disabled { opacity: .55; border-color: var(--line); background: var(--bg); color: var(--muted); }
+.tv-kall { width: 100%; min-height: 44px; border: 0; background: var(--green-600); color: #fff; font-weight: 800; font-size: 14px; border-radius: 10px; }
+.tv-kall:disabled { background: var(--bg); color: var(--muted); border: 1px solid var(--line); }
 .tv-kall-reason { font-size: 11px; color: var(--muted); text-align: center; margin-top: 4px; }
 .tv-kg { margin-top: 12px; } .tv-kg:first-child { margin-top: 2px; }
 .tv-kg h4 { margin: 0 0 6px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
