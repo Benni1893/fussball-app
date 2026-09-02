@@ -1765,7 +1765,8 @@
      ========================================================================= */
   const LINEUP_V2 = true;
   const TV_FAV_KEY = "fn_lineup_favs";
-  const tv = { view: "games", eventId: null, formation: "4-4-2", assign: {}, sel: null, hideCta: false };
+  const tv = { view: "games", eventId: null, formation: "4-4-2", assign: {}, bank: [], sel: null, hideCta: false };
+  const TV_BANK_MAX = 7;
   let tvFavMode = false;
   let tvFav = (function () {
     try { const s = JSON.parse(localStorage.getItem(TV_FAV_KEY)); if (Array.isArray(s) && s.length >= 2) return s.slice(0, 4); } catch (e) {}
@@ -1783,7 +1784,9 @@
     if (p.status === "angeschlagen") return { cls: "ang", label: "angeschlagen", rank: 1 };
     return null;
   }
-  function tvUsableForAuto(p) { const a = tvAvail(p); return !a || a.rank <= 1; } // verfügbar oder angeschlagen
+  // Auto-Aufstellen: verfügbar, angeschlagen ODER ohne Rückmeldung sind nutzbar.
+  // Nicht nutzbar nur abgesagt (rank 3) und verletzt (rank 4).
+  function tvUsableForAuto(p) { const a = tvAvail(p); return !a || a.rank <= 2; }
   function tvMini(f) { const s = FORMATIONS[f] || []; return '<span class="tv-mini">' + s.map(x => '<i style="left:' + x.x + '%;top:' + x.y + '%"></i>').join("") + '</span>'; }
 
   // Jüngstes vergangenes Spiel mit aktiver Aufstellung (für „übernehmen & anpassen").
@@ -1831,9 +1834,12 @@
       tv.formation = lu.formation;
       const a = {}; FORMATIONS[lu.formation].forEach(s => { const pid = (lu.slots || {})[s.key]; if (pid && playerById[pid]) a[s.key] = pid; });
       tv.assign = a;
-    } else { tv.formation = tvFav[0] || "4-4-2"; tv.assign = {}; }
+      const placed = new Set(Object.values(a));
+      tv.bank = (Array.isArray(lu.bank) ? lu.bank : []).filter(id => playerById[id] && !placed.has(id)).slice(0, TV_BANK_MAX);
+    } else { tv.formation = tvFav[0] || "4-4-2"; tv.assign = {}; tv.bank = []; }
     tv.view = "lineup"; renderLineupV2();
   }
+  function tvPlacedAll() { return new Set([].concat(Object.values(tv.assign).filter(Boolean), tv.bank)); }
 
   /* ---- Zustand 2: Aufstellung ---- */
   function tvPitchBg() {
@@ -1868,6 +1874,7 @@
         '</div>' +
         '<div class="tv-formbar">' + tvFormbarHtml() + '</div>' +
         '<div class="tv-field"><div class="tv-pitch">' + tvPitchHtml() + '</div>' + ((n === 0 && last && !tv.hideCta) ? tvEmptyCta(last) : "") + '</div>' +
+        tvBankHtml() +
         '<div class="tv-actions"><button class="tv-primary" data-tvsave><span>Aufstellung speichern</span><small>' + n + '/11 gesetzt</small></button></div>' +
       '</div>';
   }
@@ -1875,6 +1882,20 @@
     return '<div class="tv-cta"><p>Vom letzten Spiel übernehmen<br><b>' + esc((last.event.heim ? "vs. " : "@ ") + (last.event.gegner || last.event.titel)) + '</b> – fehlende Spieler werden automatisch durch verfügbare ersetzt.</p>' +
       '<button class="tv-primary" data-tvadopt><span>Übernehmen &amp; anpassen</span></button>' +
       '<button class="tv-ghost" data-tvfresh>Leer starten</button></div>';
+  }
+  // Auswechselbank: 7 kompakte Slots. Optional, unabhaengig von der Startelf.
+  function tvBankHtml() {
+    let h = '<div class="tv-bank"><div class="tv-bank-h">Bank <span>' + tv.bank.length + '/' + TV_BANK_MAX + '</span></div><div class="tv-bank-row">';
+    for (let i = 0; i < TV_BANK_MAX; i++) {
+      const pid = tv.bank[i], p = pid ? playerById[pid] : null;
+      if (p) {
+        h += '<button class="tv-bslot filled" data-tvbankdel="' + pid + '" aria-label="' + esc(p.name) + ' von der Bank nehmen">' +
+             '<span class="tv-bnr">' + (p.nr != null ? p.nr : "") + '</span><span class="tv-bn">' + esc(shortName(p.name)) + '</span></button>';
+      } else {
+        h += '<button class="tv-bslot" data-tvbankadd aria-label="Bankspieler hinzufügen"><span class="tv-bplus">+</span></button>';
+      }
+    }
+    return h + '</div></div>';
   }
 
   function tvSwitchFormation(nf) {
@@ -1889,24 +1910,39 @@
     tv.formation = nf; tv.assign = na; tv.sel = null;
   }
   function tvAdopt() {
-    const last = tvLastLineup(); if (!last) return;
+    tv.hideCta = true;                       // Dialog in jedem Fall schließen
+    const last = tvLastLineup(); if (!last) { renderLineupV2(); tvToast("Kein Referenzspiel mit Aufstellung"); return; }
     tv.formation = last.formation;
     const slots = FORMATIONS[last.formation], used = new Set(), na = {};
+    // 1) Spieler aus dem Referenzspiel, die jetzt einsetzbar sind, auf ihre Position.
     slots.forEach(s => { const pid = last.slots[s.key], p = pid ? playerById[pid] : null; if (p && tvUsableForAuto(p) && !used.has(pid)) { na[s.key] = pid; used.add(pid); } });
+    // 2) Leere Positionen mit passenden verfügbaren Spielern auffüllen (Rollen-Affinität).
     slots.forEach(s => {
       if (na[s.key]) return;
       const cand = DEMO.players.filter(p => tvUsableForAuto(p) && !used.has(p.id)).map(p => ({ p, r: lbAffRank(p.pos, s.role) })).filter(x => x.r >= 0).sort((a, b) => a.r - b.r || byName(a.p, b.p))[0];
       if (cand) { na[s.key] = cand.p.id; used.add(cand.p.id); }
     });
-    tv.assign = na; tv.sel = null; renderLineupV2(); tvToast("Übernommen – fehlende Spieler ersetzt");
+    tv.assign = na; tv.sel = null; renderLineupV2();
+    const n = Object.keys(na).length;
+    tvToast(n ? ("Übernommen – " + n + "/11 gesetzt") : "Keine verfügbaren Spieler zum Übernehmen");
   }
-  function tvAssign(key, pid) { Object.keys(tv.assign).forEach(k => { if (tv.assign[k] === pid) delete tv.assign[k]; }); tv.assign[key] = pid; }
+  function tvAssign(key, pid) {
+    Object.keys(tv.assign).forEach(k => { if (tv.assign[k] === pid) delete tv.assign[k]; });
+    const bi = tv.bank.indexOf(pid); if (bi !== -1) tv.bank.splice(bi, 1);   // nicht gleichzeitig auf der Bank
+    tv.assign[key] = pid;
+  }
+  function tvAddBank(pid) {
+    if (!pid || tv.bank.length >= TV_BANK_MAX || tv.bank.indexOf(pid) !== -1) return;
+    if (Object.values(tv.assign).indexOf(pid) !== -1) return;                // nicht gleichzeitig in der Startelf
+    tv.bank.push(pid);
+  }
+  function tvBankDel(pid) { const i = tv.bank.indexOf(pid); if (i !== -1) tv.bank.splice(i, 1); }
   function tvCleanAssign() { const o = {}; Object.keys(tv.assign).forEach(k => { if (tv.assign[k]) o[k] = tv.assign[k]; }); return o; }
   async function tvSave() {
     if (!tv.eventId) return;
     const existing = (DEMO.lineups || []).find(l => l.eventId === tv.eventId && !l.isTemplate);
     const placedIds = new Set(Object.values(tv.assign).filter(Boolean));
-    const bank = DEMO.players.filter(p => tvRsvp(p.id) === "zu" && !placedIds.has(p.id)).map(p => p.id);
+    const bank = tv.bank.filter(id => id && playerById[id] && !placedIds.has(id)).slice(0, TV_BANK_MAX); // explizit gewaehlte Bank
     const btn = viewEl.querySelector("[data-tvsave]"); if (btn) btn.disabled = true;
     try {
       const row = await DB.saveLineup({ id: existing ? existing.id : null, clubId: DEMO.clubId, eventId: tv.eventId,
@@ -1968,12 +2004,23 @@
     const grp = slot ? lbTeamPart(slot.role) : null;
     if (grp) { const el = document.querySelector('#tvKaderBody [data-tvgrp="' + grp + '"]'); if (el) el.scrollIntoView({ block: "start" }); }
   }
+  // Kader-Auswahl fuer die BANK: alle Spieler, keine Positions-Vorfilterung.
+  function tvOpenBank() {
+    if (tv.bank.length >= TV_BANK_MAX) { tvToast("Bank ist voll (" + TV_BANK_MAX + ")"); return; }
+    tv.sel = { bank: true }; tvViewLineup();
+    document.getElementById("tvKaderTitle").textContent = "Spieler für die Bank";
+    document.getElementById("tvKaderSub").textContent = "Ersatzspieler antippen (" + tv.bank.length + "/" + TV_BANK_MAX + ")";
+    tvRenderKaderBody(null);
+    document.getElementById("tvScrimKader").classList.add("open");
+    document.getElementById("tvSheetKader").classList.add("open");
+  }
   function tvCloseKader() { tv.sel = null; const s = document.getElementById("tvScrimKader"), p = document.getElementById("tvSheetKader"); if (s) s.classList.remove("open"); if (p) p.classList.remove("open"); }
   function tvRenderKaderBody(key) {
     const body = document.getElementById("tvKaderBody"); if (!body) return;
-    const placed = tvPlaced(); const slot = FORMATIONS[tv.formation].find(s => s.key === key);
+    const placed = tvPlacedAll();                                      // Startelf UND Bank = vergeben
+    const slot = key ? FORMATIONS[tv.formation].find(s => s.key === key) : null;
     let h = "";
-    if (tv.assign[key]) h += '<button class="tv-emptybtn" data-tvempty>Position „' + (slot ? slot.role : "") + '" leeren</button>';
+    if (key && tv.assign[key]) h += '<button class="tv-emptybtn" data-tvempty>Position „' + (slot ? slot.role : "") + '" leeren</button>';
     if (!DEMO.players.length) { body.innerHTML = h + '<div class="empty">Kein Kader vorhanden.</div>'; return; }
     LB_GROUPS.forEach(([gk, label]) => {
       const list = DEMO.players.filter(p => lbTeamPart(p.pos) === gk).sort((a, b) => ((tvAvail(a) || { rank: 0 }).rank - (tvAvail(b) || { rank: 0 }).rank) || byName(a, b));
@@ -1981,8 +2028,10 @@
       h += '<div class="tv-kg" data-tvgrp="' + gk + '"><h4>' + label + ' <span>' + list.length + '</span></h4><div class="tv-kl">';
       list.forEach(p => {
         const isPl = placed.has(p.id), av = tvAvail(p), tap = !isPl;
-        const tag = isPl ? '<span class="tv-tag placed">aufgestellt</span>' : (av ? '<span class="tv-tag ' + av.cls + '">' + av.label + '</span>' : '<span class="tv-tag ok">verfügbar</span>');
-        h += '<div class="tv-pchip' + (isPl ? " placed" : "") + (av ? " off" : "") + '"' + (tap ? ' data-tvplayer="' + p.id + '"' : "") + '>' +
+        // Dezente Status-Zeilenfarbe. Farbe ist nie die einzige Info -> Badge bleibt.
+        const scls = av ? (av.rank === 4 ? " s-verl" : av.rank === 3 ? " s-abw" : av.rank === 2 ? " s-none" : " s-ang") : " s-zu";
+        const tag = isPl ? '<span class="tv-tag placed">vergeben</span>' : (av ? '<span class="tv-tag ' + av.cls + '">' + av.label + '</span>' : '<span class="tv-tag ok">verfügbar</span>');
+        h += '<div class="tv-pchip' + scls + (isPl ? " placed" : "") + '"' + (tap ? ' data-tvplayer="' + p.id + '"' : "") + '>' +
           '<span class="tv-pnr">' + (p.nr != null ? p.nr : "–") + '</span><span class="tv-pw"><span class="tv-pnm">' + esc(p.name) + '</span><span class="tv-pmeta">' + esc(p.pos || "") + '</span></span>' + tag + '</div>';
       });
       h += '</div></div>';
@@ -2029,7 +2078,7 @@
     const t = ev.target;
     const cl = t.closest("[data-tvclose]"); if (cl) { const w = cl.dataset.tvclose; if (w === "kader") { tvCloseKader(); tvViewLineup(); } else if (w === "form") tvCloseForm(); else tvCloseMenu(); return; }
     if (t.closest("[data-tvempty]")) { if (tv.sel) delete tv.assign[tv.sel.key]; tvCloseKader(); tvViewLineup(); return; }
-    const pl = t.closest("[data-tvplayer]"); if (pl) { if (tv.sel) tvAssign(tv.sel.key, pl.dataset.tvplayer); tvCloseKader(); tvViewLineup(); return; }
+    const pl = t.closest("[data-tvplayer]"); if (pl) { if (tv.sel && tv.sel.bank) tvAddBank(pl.dataset.tvplayer); else if (tv.sel) tvAssign(tv.sel.key, pl.dataset.tvplayer); tvCloseKader(); tvViewLineup(); return; }
     const star = t.closest("[data-tvstar]"); if (star) { ev.stopPropagation(); tvToggleFav(star.dataset.tvstar); tvRenderFgrid(); tvRenderFormActions(); return; }
     const fc = t.closest("[data-tvfcard]"); if (fc) { const f = fc.dataset.tvfcard; if (tvFavMode) { tvToggleFav(f); tvRenderFgrid(); tvRenderFormActions(); } else { tvSwitchFormation(f); tvCloseForm(); tvViewLineup(); } return; }
     if (t.closest("[data-tvfavdone]")) { if (tvFav.length < 2) return; if (!tvFav.includes(tv.formation)) tv.formation = tvFav[0]; tvCloseForm(); tvViewLineup(); return; }
@@ -2044,6 +2093,8 @@
     if (t.closest("[data-tvmenu]")) { tvOpenMenu(); return true; }
     if (t.closest("[data-tvsave]")) { tvSave(); return true; }
     const sl = t.closest("[data-tvslot]"); if (sl) { tvOpenKader(sl.dataset.tvslot); return true; }
+    if (t.closest("[data-tvbankadd]")) { tvOpenBank(); return true; }
+    const bd = t.closest("[data-tvbankdel]"); if (bd) { tvBankDel(bd.dataset.tvbankdel); tvViewLineup(); return true; }
     const fp = t.closest("[data-tvform]"); if (fp) { tvSwitchFormation(fp.dataset.tvform); tvViewLineup(); return true; }
     if (t.closest("[data-tvmoreform]")) { tvOpenForm(false); return true; }
     if (t.closest("[data-tvadopt]")) { tvAdopt(); return true; }

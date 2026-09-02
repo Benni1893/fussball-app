@@ -1071,6 +1071,24 @@ body.auth-mode .app-footer { display: none; }
 .tv-tag.verl { background: var(--red-050); color: var(--red-600); }
 .tv-tag.placed { background: var(--green-800); color: #fff; }
 
+/* Dezente Status-Zeilenfarbe (nur bestehende Tint-Variablen). Name bleibt gut lesbar. */
+.tv-pchip.s-zu   { background: var(--green-050); }
+.tv-pchip.s-ang  { background: var(--amber-050); }
+.tv-pchip.s-none { background: var(--bg); }
+.tv-pchip.s-abw  { background: var(--red-050); }
+.tv-pchip.s-verl { background: var(--red-050); }
+
+/* Auswechselbank: 7 kompakte Slots, passt auf 390px ohne H-Scroll. */
+.tv-bank { flex: 0 0 auto; padding: 6px clamp(8px,3vw,14px) 4px; background: var(--card); border-top: 1px solid var(--line); }
+.tv-bank-h { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin: 0 2px 4px; }
+.tv-bank-h span { opacity: .7; margin-left: 4px; }
+.tv-bank-row { display: flex; gap: 4px; }
+.tv-bslot { flex: 1 1 0; min-width: 0; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border: 1px dashed var(--line); background: var(--bg); border-radius: 10px; padding: 4px 2px; }
+.tv-bslot.filled { border-style: solid; border-color: var(--gold-500); background: var(--card); }
+.tv-bnr { width: 24px; height: 24px; border-radius: 50%; background: var(--green-050); color: var(--green-800); font-weight: 800; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+.tv-bn { font-size: 9.5px; font-weight: 700; color: var(--ink); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tv-bplus { font-size: 22px; font-weight: 400; color: var(--muted); line-height: 1; }
+
 /* Formationen-Raster */
 .tv-fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .tv-fcard { position: relative; border: 1px solid var(--line); border-radius: 14px; background: var(--card); padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 44px; }
