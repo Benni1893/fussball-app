@@ -802,6 +802,13 @@
           ${bfvBlock}
           ${(() => {
             const acts = [];
+            if (e.typ === "spiel" && Roles.canManageEvents()) {
+              const alu = (DEMO.lineups || []).find((l) => l.eventId === e.id && l.isActive && !l.isTemplate);
+              const cnt = alu ? Object.values(alu.slots || {}).filter(Boolean).length : 0;
+              const label = !future ? ("Aufstellung ansehen" + (cnt ? ` · ${cnt}/11` : ""))
+                : (cnt === 0 ? "Aufstellung erstellen" : "Aufstellung bearbeiten · " + cnt + "/11");
+              acts.push(`<button class="btn btn-soft lu-jump" data-lineup-edit="${e.id}">${label}</button>`);
+            }
             if (e.typ === "spiel" && Roles.canManageEvents())
               acts.push(`<button class="btn btn-soft" data-kader-info="${e.id}">Kader-Info erstellen</button>`);
             // Trainer/Kassenwart/Admin: jeden Termin bearbeiten (auch BFV-Spiele).
@@ -1765,7 +1772,8 @@
      ========================================================================= */
   const LINEUP_V2 = true;
   const TV_FAV_KEY = "fn_lineup_favs";
-  const tv = { view: "games", eventId: null, formation: "4-4-2", assign: {}, bank: [], sel: null, hideCta: false };
+  const tv = { view: "games", eventId: null, formation: "4-4-2", assign: {}, bank: [], sel: null, hideCta: false,
+               origin: null, originScroll: 0, readonly: false, dirty: false };
   const TV_BANK_MAX = 7;
   let tvFavMode = false;
   let tvFav = (function () {
@@ -1814,7 +1822,7 @@
 
   /* ---- Zustand 1: Spiel wählen ---- */
   function tvViewGames() {
-    tv.view = "games"; tvClosePanels();
+    tv.view = "games"; tv.dirty = false; tv.readonly = false; tvClosePanels();
     const up = DEMO.events.filter(e => e.typ === "spiel" && isFuture(e.datum)).sort((a, b) => a.datum.localeCompare(b.datum));
     viewEl.innerHTML =
       '<div class="page-head"><h1>Aufstellung</h1><p>Spiel wählen</p></div>' +
@@ -1829,7 +1837,7 @@
       '<span class="tv-gchip' + (active ? " on" : "") + '">' + (active ? "aktiv" : "offen") + '</span><span class="tv-garrow">›</span></button>';
   }
   function tvOpenGame(eventId) {
-    tv.eventId = eventId; tv.sel = null; tv.hideCta = false;
+    tv.eventId = eventId; tv.sel = null; tv.hideCta = false; tv.dirty = false;
     const lu = (DEMO.lineups || []).find(l => l.eventId === eventId && l.isActive && !l.isTemplate);
     if (lu && FORMATIONS[lu.formation]) {
       tv.formation = lu.formation;
@@ -1864,19 +1872,22 @@
   function tvViewLineup() {
     const e = DEMO.events.find(x => x.id === tv.eventId);
     if (!e) { tvViewGames(); return; }
-    const n = tvPlaced().size, last = tvLastLineup();
+    const n = tvPlaced().size, last = tvLastLineup(), ro = tv.readonly;
+    const backLbl = tv.origin != null ? "Zurück" : "Zurück zur Spielauswahl";
     viewEl.innerHTML =
-      '<div class="tv-lu">' +
+      '<div class="tv-lu' + (ro ? " tv-ro" : "") + '">' +
         '<div class="tv-top">' +
-          '<button class="tv-ic" data-tvback aria-label="Zurück zur Spielauswahl">‹</button>' +
+          '<button class="tv-ic" data-tvback aria-label="' + backLbl + '">‹</button>' +
           '<div class="tv-hi"><div class="tv-game">' + (e.heim ? "vs. " : "@ ") + esc(e.gegner || e.titel) + '</div>' +
-            '<div class="tv-sub">' + fmtDay(e.datum) + '. ' + fmtMon(e.datum) + (e.zeit ? " · " + e.zeit : "") + ' · ' + tv.formation + ' · ' + n + '/11</div></div>' +
-          '<button class="tv-ic" data-tvmenu aria-label="Mehr">⋯</button>' +
+            '<div class="tv-sub">' + fmtDay(e.datum) + '. ' + fmtMon(e.datum) + (e.zeit ? " · " + e.zeit : "") + ' · ' + tv.formation + ' · ' + n + '/11' + (ro ? ' · nur ansehen' : '') + '</div></div>' +
+          (ro ? '<span class="tv-ic" aria-hidden="true"></span>' : '<button class="tv-ic" data-tvmenu aria-label="Mehr">⋯</button>') +
         '</div>' +
         '<div class="tv-formbar">' + tvFormbarHtml() + '</div>' +
-        '<div class="tv-field"><div class="tv-pitch">' + tvPitchHtml() + '</div>' + ((n === 0 && last && !tv.hideCta) ? tvEmptyCta(last) : "") + '</div>' +
+        '<div class="tv-field"><div class="tv-pitch">' + tvPitchHtml() + '</div>' + ((!ro && n === 0 && last && !tv.hideCta) ? tvEmptyCta(last) : "") + '</div>' +
         tvBankHtml() +
-        '<div class="tv-actions"><button class="tv-primary" data-tvsave><span>Aufstellung speichern</span><small>' + n + '/11 gesetzt</small></button></div>' +
+        (ro
+          ? '<div class="tv-actions"><div class="tv-ro-note">Vergangenes Spiel – nur ansehen, nicht bearbeiten</div></div>'
+          : '<div class="tv-actions"><button class="tv-primary" data-tvsave><span>Aufstellung speichern</span><small>' + n + '/11 gesetzt</small></button></div>') +
       '</div>';
   }
   function tvEmptyCta(last) {
@@ -1886,16 +1897,21 @@
   }
   // Auswechselbank: 7 kompakte Slots. Optional, unabhaengig von der Startelf.
   function tvBankHtml() {
+    const ro = tv.readonly;
     let h = '<div class="tv-bank"><div class="tv-bank-h">Bank <span>' + tv.bank.length + '/' + TV_BANK_MAX + '</span></div><div class="tv-bank-row">';
-    for (let i = 0; i < TV_BANK_MAX; i++) {
+    const slots = ro ? tv.bank.length : TV_BANK_MAX;   // nur ansehen: keine Leer-Slots
+    for (let i = 0; i < slots; i++) {
       const pid = tv.bank[i], p = pid ? playerById[pid] : null;
-      if (p) {
+      if (p && ro) {
+        h += '<span class="tv-bslot filled"><span class="tv-bnr">' + (p.nr != null ? p.nr : "") + '</span><span class="tv-bn">' + esc(tvLastName(p.name)) + '</span></span>';
+      } else if (p) {
         h += '<button class="tv-bslot filled" data-tvbankdel="' + pid + '" aria-label="' + esc(p.name) + ' von der Bank nehmen">' +
              '<span class="tv-bnr">' + (p.nr != null ? p.nr : "") + '</span><span class="tv-bn">' + esc(tvLastName(p.name)) + '</span></button>';
       } else {
         h += '<button class="tv-bslot" data-tvbankadd aria-label="Bankspieler hinzufügen"><span class="tv-bplus">+</span></button>';
       }
     }
+    if (ro && !tv.bank.length) h += '<div class="tv-bank-empty">Keine Bank hinterlegt</div>';
     return h + '</div></div>';
   }
 
@@ -1908,7 +1924,7 @@
     pairs.sort((a, b) => a.cost - b.cost);
     const up = new Set(), uk = new Set(), na = {};
     pairs.forEach(p => { if (up.has(p.pid) || uk.has(p.key)) return; na[p.key] = p.pid; up.add(p.pid); uk.add(p.key); });
-    tv.formation = nf; tv.assign = na; tv.sel = null;
+    tv.formation = nf; tv.assign = na; tv.sel = null; tv.dirty = true;
   }
   function tvAdopt() {
     tv.hideCta = true;                       // Dialog in jedem Fall schließen
@@ -1923,36 +1939,144 @@
       const cand = DEMO.players.filter(p => tvUsableForAuto(p) && !used.has(p.id)).map(p => ({ p, r: lbAffRank(p.pos, s.role) })).filter(x => x.r >= 0).sort((a, b) => a.r - b.r || byName(a.p, b.p))[0];
       if (cand) { na[s.key] = cand.p.id; used.add(cand.p.id); }
     });
-    tv.assign = na; tv.sel = null; renderLineupV2();
+    tv.assign = na; tv.sel = null; tv.dirty = true; renderLineupV2();
     const n = Object.keys(na).length;
     tvToast(n ? ("Übernommen – " + n + "/11 gesetzt") : "Keine verfügbaren Spieler zum Übernehmen");
   }
   function tvAssign(key, pid) {
     Object.keys(tv.assign).forEach(k => { if (tv.assign[k] === pid) delete tv.assign[k]; });
     const bi = tv.bank.indexOf(pid); if (bi !== -1) tv.bank.splice(bi, 1);   // nicht gleichzeitig auf der Bank
-    tv.assign[key] = pid;
+    tv.assign[key] = pid; tv.dirty = true;
   }
   function tvAddBank(pid) {
     if (!pid || tv.bank.length >= TV_BANK_MAX || tv.bank.indexOf(pid) !== -1) return;
     if (Object.values(tv.assign).indexOf(pid) !== -1) return;                // nicht gleichzeitig in der Startelf
-    tv.bank.push(pid);
+    tv.bank.push(pid); tv.dirty = true;
   }
-  function tvBankDel(pid) { const i = tv.bank.indexOf(pid); if (i !== -1) tv.bank.splice(i, 1); }
+  function tvBankDel(pid) { const i = tv.bank.indexOf(pid); if (i !== -1) { tv.bank.splice(i, 1); tv.dirty = true; } }
   function tvCleanAssign() { const o = {}; Object.keys(tv.assign).forEach(k => { if (tv.assign[k]) o[k] = tv.assign[k]; }); return o; }
-  async function tvSave() {
+  // Nur persistieren (DB) + Daten neu laden. Keine Navigation. Wirft bei Fehler weiter.
+  async function tvSavePersist() {
     if (!tv.eventId) return;
     const existing = (DEMO.lineups || []).find(l => l.eventId === tv.eventId && !l.isTemplate);
     const placedIds = new Set(Object.values(tv.assign).filter(Boolean));
     const bank = tv.bank.filter(id => id && playerById[id] && !placedIds.has(id)).slice(0, TV_BANK_MAX); // explizit gewaehlte Bank
+    const row = await DB.saveLineup({ id: existing ? existing.id : null, clubId: DEMO.clubId, eventId: tv.eventId,
+      name: existing && existing.name ? existing.name : "Aufstellung", formation: tv.formation, slots: tvCleanAssign(), bank: bank, isTemplate: false });
+    await DB.setLineupActive(row.id);
+    tv.dirty = false;
+    await reloadData();                  // DEMO aktualisieren (Kachel/Fortschritt zeigen neuen Stand)
+  }
+
+  async function tvSave() {
+    if (!tv.eventId) return;
     const btn = viewEl.querySelector("[data-tvsave]"); if (btn) btn.disabled = true;
     try {
-      const row = await DB.saveLineup({ id: existing ? existing.id : null, clubId: DEMO.clubId, eventId: tv.eventId,
-        name: existing && existing.name ? existing.name : "Aufstellung", formation: tv.formation, slots: tvCleanAssign(), bank: bank, isTemplate: false });
-      await DB.setLineupActive(row.id);
-      tv.view = "games";                 // klarer Abschluss: zurück zur Spielauswahl (Spiel jetzt „aktiv")
-      await reloadData();                // render() -> renderLineupV2 -> Spielauswahl
+      await tvSavePersist();
       tvToast("Gespeichert & aktiv gesetzt");
+      if (tv.origin != null) { history.back(); }   // Kachel-Sprung: zurück zum Ursprung (popstate -> tvLeaveToOrigin, dirty schon false)
+      else { tv.view = "games"; render(); }        // Nav-Einstieg: zurück zur Spielauswahl
     } catch (err) { if (btn) btn.disabled = false; window.alert("Speichern fehlgeschlagen: " + ((err && err.message) || err)); }
+  }
+
+  /* ---- Sprung aus Spiel-Kachel + Zurück-Navigation (Ursprung, Scroll, ungespeichert) ---- */
+  function tvSetNavActive(view) {
+    const sheetViews = ["admin", "einstellungen", "lineup"];
+    document.querySelectorAll(".nav-btn").forEach((b) => {
+      const active = b.hasAttribute("data-more") ? sheetViews.indexOf(view) !== -1 : (b.dataset.view === view);
+      b.classList.toggle("is-active", active);
+    });
+  }
+
+  // Aufstellung eines konkreten Spiels betreten (Feld-Ansicht direkt, Spielauswahl übersprungen).
+  function tvEnterGame(eventId, readonly) {
+    tv.readonly = !!readonly;
+    currentView = "lineup"; tvSetNavActive("lineup");
+    tvOpenGame(eventId);   // setzt tv.view="lineup", tv.eventId, dirty=false
+  }
+
+  // Klick auf "Aufstellung …" in einer Spiel-Kachel.
+  function tvJumpFromCard(eventId) {
+    const e = (DEMO.events || []).find(x => x.id === eventId);
+    if (!e || e.typ !== "spiel" || !Roles.canManageEvents()) { if (Roles.canManageEvents()) window.alert("Spiel nicht gefunden."); return; }
+    tv.origin = currentView; tv.originScroll = window.scrollY || window.pageYOffset || 0;
+    try { history.pushState({ tvLineup: eventId }, "", "#lineup=" + encodeURIComponent(eventId)); } catch (er) {}
+    tvEnterGame(eventId, !isFuture(e.datum));
+  }
+
+  // Aufstellung verlassen und zur Ursprungsseite (Übersicht/Kalender) samt Scrollposition zurück.
+  function tvLeaveToOrigin() {
+    const origin = tv.origin || "dashboard", scroll = tv.originScroll || 0;
+    tv.origin = null; tv.readonly = false; tv.dirty = false; tv.eventId = null; tv.view = "games"; tv.sel = null;
+    tvClosePanels();
+    if (location.hash) { try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {} }
+    currentView = origin; tvSetNavActive(origin);
+    render();
+    window.scrollTo(0, scroll);
+  }
+
+  // Zurück-Pfeil oben links.
+  function tvBack() {
+    if (tv.origin != null) { history.back(); return; }   // Kachel-Sprung: über History (popstate erledigt dirty + leave)
+    // Nav-Einstieg: zurück zur Spielauswahl, mit Nachfrage bei ungespeicherten Änderungen.
+    if (tv.dirty && !tv.readonly) {
+      tvUnsavedDialog(function () { tvSavePersist().then(function () { tv.view = "games"; render(); }).catch(function (err) { window.alert("Speichern fehlgeschlagen: " + ((err && err.message) || err)); }); },
+                      function () { tv.dirty = false; tvViewGames(); }, null);
+    } else { tvViewGames(); }
+  }
+
+  // 3-Wege-Dialog: Speichern / Verwerfen / Abbrechen.
+  function tvUnsavedDialog(onSave, onDiscard, onCancel) {
+    const prev = document.getElementById("tvUnsaved"); if (prev) prev.remove();
+    const ov = document.createElement("div");
+    ov.className = "modal-ov"; ov.id = "tvUnsaved";
+    ov.innerHTML =
+      '<div class="modal" role="dialog" aria-modal="true" aria-labelledby="tvUnsH">' +
+        '<div class="modal-head"><strong id="tvUnsH">Ungespeicherte Änderungen</strong></div>' +
+        '<p class="modal-sub">Möchtest du die Aufstellung speichern, bevor du zurückgehst?</p>' +
+        '<div class="modal-actions modal-actions-col">' +
+          '<button class="btn btn-primary" data-uns="save">Speichern</button>' +
+          '<button class="btn btn-danger" data-uns="discard">Verwerfen</button>' +
+          '<button class="btn" data-uns="cancel">Abbrechen</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(ov);
+    ov.addEventListener("click", function (e) {
+      const b = e.target.closest("[data-uns]");
+      if (!b && e.target !== ov) return;           // Klick daneben im Modal-Inhalt ignorieren
+      const act = b ? b.dataset.uns : "cancel";     // Klick auf Overlay = Abbrechen
+      ov.remove();
+      if (act === "save") { onSave && onSave(); }
+      else if (act === "discard") { onDiscard && onDiscard(); }
+      else { onCancel && onCancel(); }
+    });
+  }
+
+  // Browser-/Hardware-Zurück aus einer per Kachel gesprungenen Aufstellung.
+  window.addEventListener("popstate", function () {
+    if (currentView !== "lineup" || tv.origin == null) return;   // nur die gesprungene Aufstellung betrifft uns
+    if (tv.dirty && !tv.readonly) {
+      tvUnsavedDialog(
+        function () { tvSavePersist().then(function () { tvLeaveToOrigin(); }).catch(function (err) { window.alert("Speichern fehlgeschlagen: " + ((err && err.message) || err)); }); },
+        function () { tvLeaveToOrigin(); },
+        function () { try { history.pushState({ tvLineup: tv.eventId }, "", "#lineup=" + encodeURIComponent(tv.eventId)); } catch (e) {} }  // Abbrechen: wieder rein (kein Reload -> Änderungen bleiben)
+      );
+    } else { tvLeaveToOrigin(); }
+  });
+
+  // Deep-Link / direkter Aufruf mit #lineup=<id> beim Start.
+  function tvRouteInitialHash() {
+    const m = /^#?lineup=(.+)$/.exec(location.hash || ""); if (!m) return;
+    const id = decodeURIComponent(m[1]);
+    const e = (DEMO && DEMO.events || []).find(x => x.id === id);
+    try { history.replaceState(null, "", location.pathname + location.search); } catch (er) {}   // Hash bereinigen (Reload bleibt nicht hängen)
+    if (!e || e.typ !== "spiel" || !Roles.canManageEvents()) {
+      if (Roles.canManageEvents()) window.alert("Aufstellung: Spiel nicht gefunden oder nicht verfügbar.");
+      return;   // bleibt auf der Standardansicht, kein Absturz
+    }
+    tv.origin = "dashboard"; tv.originScroll = 0;
+    try { history.pushState({ tvLineup: id }, "", "#lineup=" + encodeURIComponent(id)); } catch (er) {}
+    tvEnterGame(id, !isFuture(e.datum));
   }
 
   /* ---- Panels (persistieren in body -> flüssiges Ein-/Ausfahren) ---- */
@@ -2042,7 +2166,7 @@
     const take = tvBankCandidates().slice(0, free);
     if (!take.length) { tvToast("Keine zugesagten Spieler zum Setzen"); return; }
     const left = tvBankCandidates().length - take.length;
-    take.forEach(p => tv.bank.push(p.id));
+    take.forEach(p => tv.bank.push(p.id)); tv.dirty = true;
     tvCloseKader(); tvViewLineup();
     tvToast(left > 0 ? (take.length + " gesetzt · " + left + " passten nicht mehr") : (take.length + " Zugesagte auf die Bank"));
   }
@@ -2109,7 +2233,7 @@
   function tvPanelClick(ev) {
     const t = ev.target;
     const cl = t.closest("[data-tvclose]"); if (cl) { const w = cl.dataset.tvclose; if (w === "kader") { tvCloseKader(); tvViewLineup(); } else if (w === "form") tvCloseForm(); else tvCloseMenu(); return; }
-    if (t.closest("[data-tvempty]")) { if (tv.sel) delete tv.assign[tv.sel.key]; tvCloseKader(); tvViewLineup(); return; }
+    if (t.closest("[data-tvempty]")) { if (tv.sel) { delete tv.assign[tv.sel.key]; tv.dirty = true; } tvCloseKader(); tvViewLineup(); return; }
     if (t.closest("[data-tvbankall]")) { tvBankFillAll(); return; }
     const pl = t.closest("[data-tvplayer]"); if (pl) { if (tv.sel && tv.sel.bank) tvAddBank(pl.dataset.tvplayer); else if (tv.sel) tvAssign(tv.sel.key, pl.dataset.tvplayer); tvCloseKader(); tvViewLineup(); return; }
     const star = t.closest("[data-tvstar]"); if (star) { ev.stopPropagation(); tvToggleFav(star.dataset.tvstar); tvRenderFgrid(); tvRenderFormActions(); return; }
@@ -2117,12 +2241,13 @@
     if (t.closest("[data-tvfavdone]")) { if (tvFav.length < 2) return; if (!tvFav.includes(tv.formation)) tv.formation = tvFav[0]; tvCloseForm(); tvViewLineup(); return; }
     if (t.closest("[data-tvfavedit]")) { tvCloseMenu(); tvOpenForm(true); return; }
     if (t.closest("[data-tvadopt]")) { tvCloseMenu(); tvAdopt(); return; }
-    if (t.closest("[data-tvclear]")) { tvCloseMenu(); tv.assign = {}; tv.sel = null; tvViewLineup(); return; }
+    if (t.closest("[data-tvclear]")) { tvCloseMenu(); tv.assign = {}; tv.sel = null; tv.dirty = true; tvViewLineup(); return; }
   }
   function tvViewClick(ev) {
     const t = ev.target;
     const g = t.closest("[data-tvgame]"); if (g) { tvOpenGame(g.dataset.tvgame); return true; }
-    if (t.closest("[data-tvback]")) { tvViewGames(); return true; }
+    if (t.closest("[data-tvback]")) { tvBack(); return true; }
+    if (tv.readonly) return true;   // vergangenes Spiel: nur ansehen, keine Bearbeitung
     if (t.closest("[data-tvmenu]")) { tvOpenMenu(); return true; }
     if (t.closest("[data-tvsave]")) { tvSave(); return true; }
     const sl = t.closest("[data-tvslot]"); if (sl) { tvOpenKader(sl.dataset.tvslot); return true; }
@@ -2410,7 +2535,7 @@
       }
     }
 
-    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-koord-save],[data-my-status],[data-logout]");
+    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-lineup-edit],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-koord-save],[data-my-status],[data-logout]");
     if (!t) return;
 
     // Spieler: eigenen Fitnessstatus setzen (RLS/RPC erlauben nur die eigene Zeile)
@@ -2556,6 +2681,9 @@
       return;
     }
 
+    // Aus einer Spiel-Kachel direkt in die Aufstellung springen (Trainer/Admin; RLS schützt zusätzlich).
+    if (t.dataset.lineupEdit) { tvJumpFromCard(t.dataset.lineupEdit); return; }
+
     // Login <-> Registrieren umschalten
     if (t.dataset.auth) { authMode = t.dataset.auth; authError = ""; authInfo = ""; renderLogin(); return; }
 
@@ -2697,6 +2825,9 @@
   function switchView(view) {
     currentView = view;
     if (view === "lineup") { tv.view = "games"; tv.eventId = null; tv.sel = null; } // v2 startet immer bei der Spielauswahl
+    // Kachel-Sprung-Zustand (Ursprung/Readonly/Hash) beim normalen Tab-Wechsel verwerfen.
+    tv.origin = null; tv.readonly = false; tv.dirty = false;
+    if (/^#?lineup=/.test(location.hash || "")) { try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {} }
     // Bereiche im „Mehr"-Menü (Aufstellung/Rollen) markieren den Mehr-Tab als aktiv.
     // Bereiche, die im Admin-„Mehr"-Sheet liegen (dann ist der Mehr-Tab aktiv).
     const sheetViews = ["admin", "einstellungen", "lineup"];
@@ -3282,6 +3413,7 @@
       syncHeaderHeight();
       render();
       hideSplash();
+      tvRouteInitialHash();   // Deep-Link #lineup=<id> direkt öffnen (nach dem ersten Render)
     } catch (err) {
       document.body.classList.remove("auth-mode");
       viewEl.innerHTML = `<div style="margin:20px;padding:18px;border:2px solid #c0392b;border-radius:12px;background:#fff;color:#7a1d14;font:12px/1.6 monospace;white-space:pre-wrap">Fehler beim Laden der App:\n\n${esc((err && err.message) || String(err))}\n\n${esc((err && err.stack) ? err.stack : "")}</div>`;

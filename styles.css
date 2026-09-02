@@ -1037,6 +1037,11 @@ body.auth-mode .app-footer { display: none; }
 .tv-primary { width: 100%; min-height: 48px; border: 0; border-radius: 12px; background: var(--green-700); color: #fff; font-weight: 800; font-size: 15px; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 8px; line-height: 1.15; }
 .tv-primary:disabled { opacity: .6; }
 .tv-primary small { font-weight: 600; opacity: .8; font-size: 12px; }
+/* Nur-Ansehen (vergangene Spiele): keine Bearbeitung, Hinweis statt Speichern. */
+.tv-ro-note { text-align: center; color: var(--muted); font-weight: 600; font-size: 13px; padding: 12px 6px; }
+.tv-ro .tv-formbar, .tv-ro .tv-slot { pointer-events: none; }
+.tv-ro .tv-formbar { opacity: .7; }
+.tv-bank-empty { color: var(--muted); font-size: 12px; align-self: center; padding: 6px 2px; }
 
 /* Bottom-Sheets über der Nav */
 .tv-scrim { position: fixed; inset: 0; background: rgba(20,28,22,.45); opacity: 0; pointer-events: none; transition: opacity .2s ease; z-index: 90; }
