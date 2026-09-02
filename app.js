@@ -281,14 +281,14 @@
 
   function render() {
     stopCountdowns(); // Timer der vorigen Ansicht sauber aufräumen
-    if (currentView !== "lineup") lbTeardownPanels(); // Kader-/Mehr-Panel gehört nur zur Aufstellung
+    if (currentView !== "lineup") { lbTeardownPanels(); tvTeardownPanels(); } // Aufstellungs-Panels nur dort
     if (currentView === "dashboard") renderDashboard();
     else if (currentView === "kalender") renderKalender();
     else if (currentView === "katalog") renderKatalog();
     else if (currentView === "strafen") renderStrafen();
     else if (currentView === "einstellungen") renderEinstellungen();
     else if (currentView === "profil") renderProfil();
-    else if (currentView === "lineup") { if (Roles.canManageEvents()) renderLineup(); else renderDashboard(); }
+    else if (currentView === "lineup") { if (Roles.canManageEvents()) { if (LINEUP_V2) renderLineupV2(); else renderLineup(); } else renderDashboard(); }
     else if (currentView === "admin") { if (Roles.isAdmin()) renderAdmin(); else renderDashboard(); }
   }
 
@@ -1316,6 +1316,43 @@
       { key:"LM", role:"AV", x:12, y:52 }, { key:"LZM", role:"ZM", x:34, y:56 }, { key:"ZM", role:"ZM", x:50, y:58 }, { key:"RZM", role:"ZM", x:66, y:56 }, { key:"RM", role:"AV", x:88, y:52 },
       { key:"LST", role:"ST", x:38, y:22 }, { key:"RST", role:"ST", x:62, y:22 },
     ],
+    "3-4-3": [
+      { key:"TW", role:"TW", x:50, y:92 },
+      { key:"LIV", role:"IV", x:26, y:78 }, { key:"CIV", role:"IV", x:50, y:80 }, { key:"RIV", role:"IV", x:74, y:78 },
+      { key:"LWB", role:"AV", x:14, y:54 }, { key:"LZM", role:"ZM", x:38, y:56 }, { key:"RZM", role:"ZM", x:62, y:56 }, { key:"RWB", role:"AV", x:86, y:54 },
+      { key:"LA", role:"FL", x:20, y:24 }, { key:"ST", role:"ST", x:50, y:20 }, { key:"RA", role:"FL", x:80, y:24 },
+    ],
+    "4-1-4-1": [
+      { key:"TW", role:"TW", x:50, y:92 },
+      { key:"LV", role:"AV", x:16, y:76 }, { key:"LIV", role:"IV", x:38, y:80 }, { key:"RIV", role:"IV", x:62, y:80 }, { key:"RV", role:"AV", x:84, y:76 },
+      { key:"DM", role:"DM", x:50, y:62 },
+      { key:"LM", role:"FL", x:16, y:44 }, { key:"LZM", role:"ZM", x:38, y:46 }, { key:"RZM", role:"ZM", x:62, y:46 }, { key:"RM", role:"FL", x:84, y:44 },
+      { key:"ST", role:"ST", x:50, y:20 },
+    ],
+    "5-3-2": [
+      { key:"TW", role:"TW", x:50, y:92 },
+      { key:"LWB", role:"AV", x:10, y:72 }, { key:"LIV", role:"IV", x:30, y:80 }, { key:"CIV", role:"IV", x:50, y:82 }, { key:"RIV", role:"IV", x:70, y:80 }, { key:"RWB", role:"AV", x:90, y:72 },
+      { key:"LZM", role:"ZM", x:30, y:52 }, { key:"ZM", role:"ZM", x:50, y:55 }, { key:"RZM", role:"ZM", x:70, y:52 },
+      { key:"LST", role:"ST", x:38, y:24 }, { key:"RST", role:"ST", x:62, y:24 },
+    ],
+    "4-4-1-1": [
+      { key:"TW", role:"TW", x:50, y:92 },
+      { key:"LV", role:"AV", x:16, y:74 }, { key:"LIV", role:"IV", x:38, y:78 }, { key:"RIV", role:"IV", x:62, y:78 }, { key:"RV", role:"AV", x:84, y:74 },
+      { key:"LM", role:"FL", x:16, y:52 }, { key:"LZM", role:"ZM", x:38, y:54 }, { key:"RZM", role:"ZM", x:62, y:54 }, { key:"RM", role:"FL", x:84, y:52 },
+      { key:"OM", role:"OM", x:50, y:34 }, { key:"ST", role:"ST", x:50, y:18 },
+    ],
+    "3-4-1-2": [
+      { key:"TW", role:"TW", x:50, y:92 },
+      { key:"LIV", role:"IV", x:28, y:78 }, { key:"CIV", role:"IV", x:50, y:80 }, { key:"RIV", role:"IV", x:72, y:78 },
+      { key:"LWB", role:"AV", x:12, y:54 }, { key:"LZM", role:"ZM", x:38, y:56 }, { key:"RZM", role:"ZM", x:62, y:56 }, { key:"RWB", role:"AV", x:88, y:54 },
+      { key:"OM", role:"OM", x:50, y:36 }, { key:"LST", role:"ST", x:38, y:20 }, { key:"RST", role:"ST", x:62, y:20 },
+    ],
+    "4-5-1": [
+      { key:"TW", role:"TW", x:50, y:92 },
+      { key:"LV", role:"AV", x:16, y:76 }, { key:"LIV", role:"IV", x:38, y:80 }, { key:"RIV", role:"IV", x:62, y:80 }, { key:"RV", role:"AV", x:84, y:76 },
+      { key:"LM", role:"FL", x:12, y:52 }, { key:"LZM", role:"ZM", x:34, y:54 }, { key:"ZM", role:"ZM", x:50, y:56 }, { key:"RZM", role:"ZM", x:66, y:54 }, { key:"RM", role:"FL", x:88, y:52 },
+      { key:"ST", role:"ST", x:50, y:20 },
+    ],
   };
 
   let lb = { eventId: null, lineupId: null, name: "", formation: "4-4-2", assign: {}, sel: null, gaps: [], msg: "" };
@@ -1722,6 +1759,270 @@
   function lbOpenMore() { lbEnsurePanels(); lbRenderMoreBody(); document.getElementById("luMoreScrim").classList.add("open"); document.getElementById("luMore").classList.add("open"); }
   function lbCloseMore() { const m = document.getElementById("luMore"), s = document.getElementById("luMoreScrim"); if (m) m.classList.remove("open"); if (s) s.classList.remove("open"); }
 
+  /* =========================================================================
+     AUFSTELLUNG v2 (Neubau). Aktiv bei LINEUP_V2 = true; die Legacy-Seite
+     (renderLineup) bleibt via Flag erhalten, wird aber nicht mehr geroutet.
+     ========================================================================= */
+  const LINEUP_V2 = true;
+  const TV_FAV_KEY = "fn_lineup_favs";
+  const tv = { view: "games", eventId: null, formation: "4-4-2", assign: {}, sel: null };
+  let tvFavMode = false;
+  let tvFav = (function () {
+    try { const s = JSON.parse(localStorage.getItem(TV_FAV_KEY)); if (Array.isArray(s) && s.length >= 2) return s.slice(0, 4); } catch (e) {}
+    return ["4-4-2", "4-2-3-1", "4-3-3"];
+  })();
+  function tvSaveFav() { try { localStorage.setItem(TV_FAV_KEY, JSON.stringify(tvFav)); } catch (e) {} }
+
+  function tvPlaced() { return new Set(Object.values(tv.assign).filter(Boolean)); }
+  function tvRsvp(pid) { return (state.rsvp[tv.eventId + "|" + pid] || {}).status; }
+  function tvAvail(p) {
+    if (p.status === "verletzt") return { cls: "verl", label: "verletzt", rank: 4 };
+    const r = tvRsvp(p.id);
+    if (r === "ab") return { cls: "abw", label: "abgesagt", rank: 3 };
+    if (r !== "zu") return { cls: "none", label: "o. Rückm.", rank: 2 };
+    if (p.status === "angeschlagen") return { cls: "ang", label: "angeschlagen", rank: 1 };
+    return null;
+  }
+  function tvUsableForAuto(p) { const a = tvAvail(p); return !a || a.rank <= 1; } // verfügbar oder angeschlagen
+  function tvMini(f) { const s = FORMATIONS[f] || []; return '<span class="tv-mini">' + s.map(x => '<i style="left:' + x.x + '%;top:' + x.y + '%"></i>').join("") + '</span>'; }
+
+  // Jüngstes vergangenes Spiel mit aktiver Aufstellung (für „übernehmen & anpassen").
+  function tvLastLineup() {
+    const past = DEMO.events.filter(e => e.typ === "spiel" && e.id !== tv.eventId && !isFuture(e.datum)).sort((a, b) => b.datum.localeCompare(a.datum));
+    for (const e of past) {
+      const lu = (DEMO.lineups || []).find(l => l.eventId === e.id && l.isActive && !l.isTemplate);
+      if (lu && FORMATIONS[lu.formation]) return { event: e, formation: lu.formation, slots: lu.slots || {} };
+    }
+    return null;
+  }
+
+  function renderLineupV2() {
+    tvEnsurePanels();
+    if (!DEMO) { viewEl.innerHTML = '<div class="empty">Lädt …</div>'; return; }
+    if (tv.view === "lineup" && tv.eventId != null) tvViewLineup(); else tvViewGames();
+  }
+
+  /* ---- Zustand 1: Spiel wählen ---- */
+  function tvViewGames() {
+    tv.view = "games"; tvClosePanels();
+    const up = DEMO.events.filter(e => e.typ === "spiel" && isFuture(e.datum)).sort((a, b) => a.datum.localeCompare(b.datum));
+    viewEl.innerHTML =
+      '<div class="page-head"><h1>Aufstellung</h1><p>Spiel wählen</p></div>' +
+      (up.length ? up.map(tvGameCard).join("") : '<div class="empty">Kein anstehendes Spiel. Sobald im Kalender ein Spiel angelegt ist, kannst du hier die Aufstellung bauen.</div>');
+  }
+  function tvGameCard(e) {
+    const active = (DEMO.lineups || []).some(l => l.eventId === e.id && l.isActive && !l.isTemplate);
+    return '<button class="tv-gcard" data-tvgame="' + e.id + '">' +
+      '<span class="tv-gdate"><b>' + fmtDay(e.datum) + '</b><span>' + fmtMon(e.datum) + '</span></span>' +
+      '<span class="tv-gmain"><span class="tv-gopp">' + (e.heim ? "vs. " : "@ ") + esc(e.gegner || e.titel) + '</span>' +
+        '<span class="tv-gmeta">' + (e.zeit ? e.zeit + " Uhr · " : "") + (e.heim ? "Heim" : "Auswärts") + '</span></span>' +
+      '<span class="tv-gchip' + (active ? " on" : "") + '">' + (active ? "aktiv" : "offen") + '</span><span class="tv-garrow">›</span></button>';
+  }
+  function tvOpenGame(eventId) {
+    tv.eventId = eventId; tv.sel = null;
+    const lu = (DEMO.lineups || []).find(l => l.eventId === eventId && l.isActive && !l.isTemplate);
+    if (lu && FORMATIONS[lu.formation]) {
+      tv.formation = lu.formation;
+      const a = {}; FORMATIONS[lu.formation].forEach(s => { const pid = (lu.slots || {})[s.key]; if (pid && playerById[pid]) a[s.key] = pid; });
+      tv.assign = a;
+    } else { tv.formation = tvFav[0] || "4-4-2"; tv.assign = {}; }
+    tv.view = "lineup"; renderLineupV2();
+  }
+
+  /* ---- Zustand 2: Aufstellung ---- */
+  function tvPitchBg() {
+    return '<svg class="tv-pitch-bg" viewBox="0 0 68 105" preserveAspectRatio="none" aria-hidden="true"><rect width="68" height="105" fill="#2e7d46"/><g fill="none" stroke="rgba(255,255,255,.55)" stroke-width="0.5"><rect x="2" y="2" width="64" height="101"/><line x1="2" y1="52.5" x2="66" y2="52.5"/><circle cx="34" cy="52.5" r="9"/><rect x="14" y="2" width="40" height="16"/><rect x="24" y="2" width="20" height="6"/><rect x="14" y="87" width="40" height="16"/><rect x="24" y="97" width="20" height="6"/></g><circle cx="34" cy="52.5" r="0.8" fill="rgba(255,255,255,.6)"/></svg>';
+  }
+  function tvPitchHtml() {
+    const slots = FORMATIONS[tv.formation]; let h = tvPitchBg();
+    slots.forEach(s => {
+      const pid = tv.assign[s.key], p = pid ? playerById[pid] : null;
+      const sel = (tv.sel && tv.sel.key === s.key) ? " sel" : "";
+      h += '<div class="tv-slot' + (p ? " filled" : "") + sel + '" data-tvslot="' + s.key + '" style="left:' + s.x + '%;top:' + s.y + '%">' +
+        '<div class="tv-disc">' + (p ? ('<span>' + (p.nr != null ? p.nr : "") + '</span>') : ('<span class="tv-role">' + s.role + '</span>')) + '</div>' +
+        (p ? ('<span class="tv-pn">' + esc(shortName(p.name)) + '</span>') : '') + '</div>';
+    });
+    return h;
+  }
+  function tvFormbarHtml() {
+    return tvFav.map(f => '<button class="tv-fpill' + (f === tv.formation ? " on" : "") + '" data-tvform="' + f + '">' + tvMini(f) + '<span>' + f + '</span></button>').join("") +
+      '<button class="tv-fmore" data-tvmoreform>Weitere ›</button>';
+  }
+  function tvViewLineup() {
+    const e = DEMO.events.find(x => x.id === tv.eventId);
+    if (!e) { tvViewGames(); return; }
+    const n = tvPlaced().size, last = tvLastLineup();
+    viewEl.innerHTML =
+      '<div class="tv-lu">' +
+        '<div class="tv-top">' +
+          '<button class="tv-ic" data-tvback aria-label="Zurück zur Spielauswahl">‹</button>' +
+          '<div class="tv-hi"><div class="tv-game">' + (e.heim ? "vs. " : "@ ") + esc(e.gegner || e.titel) + '</div>' +
+            '<div class="tv-sub">' + fmtDay(e.datum) + '. ' + fmtMon(e.datum) + (e.zeit ? " · " + e.zeit : "") + ' · ' + tv.formation + ' · ' + n + '/11</div></div>' +
+          '<button class="tv-ic" data-tvmenu aria-label="Mehr">⋯</button>' +
+        '</div>' +
+        '<div class="tv-formbar">' + tvFormbarHtml() + '</div>' +
+        '<div class="tv-field"><div class="tv-pitch">' + tvPitchHtml() + '</div>' + ((n === 0 && last) ? tvEmptyCta(last) : "") + '</div>' +
+        '<div class="tv-actions"><button class="tv-primary" data-tvsave><span>Aufstellung speichern</span><small>' + n + '/11 gesetzt</small></button></div>' +
+      '</div>';
+  }
+  function tvEmptyCta(last) {
+    return '<div class="tv-cta"><p>Vom letzten Spiel übernehmen<br><b>' + esc((last.event.heim ? "vs. " : "@ ") + (last.event.gegner || last.event.titel)) + '</b> – fehlende Spieler werden automatisch durch verfügbare ersetzt.</p>' +
+      '<button class="tv-primary" data-tvadopt><span>Übernehmen &amp; anpassen</span></button>' +
+      '<button class="tv-ghost" data-tvfresh>Leer starten</button></div>';
+  }
+
+  function tvSwitchFormation(nf) {
+    if (!FORMATIONS[nf]) return;
+    const oldS = FORMATIONS[tv.formation], placed = [];
+    oldS.forEach(s => { const pid = tv.assign[s.key]; if (pid) placed.push({ pid, role: s.role, x: s.x }); });
+    const ns = FORMATIONS[nf], pairs = [];
+    placed.forEach(pl => ns.forEach(s => { const r = lbAffRank(pl.role, s.role); if (r < 0) return; pairs.push({ pid: pl.pid, key: s.key, cost: r * 1000 + Math.abs(pl.x - s.x) }); }));
+    pairs.sort((a, b) => a.cost - b.cost);
+    const up = new Set(), uk = new Set(), na = {};
+    pairs.forEach(p => { if (up.has(p.pid) || uk.has(p.key)) return; na[p.key] = p.pid; up.add(p.pid); uk.add(p.key); });
+    tv.formation = nf; tv.assign = na; tv.sel = null;
+  }
+  function tvAdopt() {
+    const last = tvLastLineup(); if (!last) return;
+    tv.formation = last.formation;
+    const slots = FORMATIONS[last.formation], used = new Set(), na = {};
+    slots.forEach(s => { const pid = last.slots[s.key], p = pid ? playerById[pid] : null; if (p && tvUsableForAuto(p) && !used.has(pid)) { na[s.key] = pid; used.add(pid); } });
+    slots.forEach(s => {
+      if (na[s.key]) return;
+      const cand = DEMO.players.filter(p => tvUsableForAuto(p) && !used.has(p.id)).map(p => ({ p, r: lbAffRank(p.pos, s.role) })).filter(x => x.r >= 0).sort((a, b) => a.r - b.r || byName(a.p, b.p))[0];
+      if (cand) { na[s.key] = cand.p.id; used.add(cand.p.id); }
+    });
+    tv.assign = na; tv.sel = null; renderLineupV2(); tvToast("Übernommen – fehlende Spieler ersetzt");
+  }
+  function tvAssign(key, pid) { Object.keys(tv.assign).forEach(k => { if (tv.assign[k] === pid) delete tv.assign[k]; }); tv.assign[key] = pid; }
+  function tvCleanAssign() { const o = {}; Object.keys(tv.assign).forEach(k => { if (tv.assign[k]) o[k] = tv.assign[k]; }); return o; }
+  async function tvSave() {
+    if (!tv.eventId) return;
+    const existing = (DEMO.lineups || []).find(l => l.eventId === tv.eventId && !l.isTemplate);
+    const placedIds = new Set(Object.values(tv.assign).filter(Boolean));
+    const bank = DEMO.players.filter(p => tvRsvp(p.id) === "zu" && !placedIds.has(p.id)).map(p => p.id);
+    const btn = viewEl.querySelector("[data-tvsave]"); if (btn) btn.disabled = true;
+    try {
+      const row = await DB.saveLineup({ id: existing ? existing.id : null, clubId: DEMO.clubId, eventId: tv.eventId,
+        name: existing && existing.name ? existing.name : "Aufstellung", formation: tv.formation, slots: tvCleanAssign(), bank: bank, isTemplate: false });
+      await DB.setLineupActive(row.id);
+      await reloadData();
+      tvToast("Gespeichert & aktiv gesetzt");
+    } catch (err) { if (btn) btn.disabled = false; window.alert("Speichern fehlgeschlagen: " + ((err && err.message) || err)); }
+  }
+
+  /* ---- Panels (persistieren in body -> flüssiges Ein-/Ausfahren) ---- */
+  function tvEnsurePanels() {
+    if (document.getElementById("tvPanels")) return;
+    const w = document.createElement("div"); w.id = "tvPanels";
+    w.innerHTML =
+      '<div class="tv-scrim" id="tvScrimKader" data-tvclose="kader"></div>' +
+      '<div class="tv-sheet" id="tvSheetKader" role="dialog" aria-modal="true" aria-label="Spieler wählen"><div class="tv-sh"><span class="tv-grip"></span><div><strong id="tvKaderTitle">Spieler wählen</strong><div class="tv-shsub" id="tvKaderSub"></div></div><button class="tv-shx" data-tvclose="kader" aria-label="Schließen">&times;</button></div><div class="tv-shbody" id="tvKaderBody"></div></div>' +
+      '<div class="tv-scrim" id="tvScrimForm" data-tvclose="form"></div>' +
+      '<div class="tv-sheet" id="tvSheetForm" role="dialog" aria-modal="true" aria-label="Formationen"><div class="tv-sh"><span class="tv-grip"></span><div><strong id="tvFormTitle">Formation wechseln</strong><div class="tv-shsub" id="tvFormSub"></div></div><button class="tv-shx" data-tvclose="form" aria-label="Schließen">&times;</button></div><div class="tv-shbody"><div class="tv-fgrid" id="tvFgrid"></div></div><div class="tv-shactions" id="tvFormActions"></div></div>' +
+      '<div class="tv-scrim" id="tvScrimMenu" data-tvclose="menu"></div>' +
+      '<div class="tv-sheet" id="tvSheetMenu" role="dialog" aria-modal="true" aria-label="Mehr"><div class="tv-sh"><span class="tv-grip"></span><div><strong>Mehr</strong></div><button class="tv-shx" data-tvclose="menu" aria-label="Schließen">&times;</button></div><div class="tv-shbody" id="tvMenuBody"></div></div>' +
+      '<div class="tv-toast" id="tvToast"></div>';
+    document.body.appendChild(w);
+    w.addEventListener("click", tvPanelClick);
+  }
+  function tvTeardownPanels() { const w = document.getElementById("tvPanels"); if (w && w.parentNode) w.parentNode.removeChild(w); }
+  function tvClosePanels() { ["tvScrimKader","tvSheetKader","tvScrimForm","tvSheetForm","tvScrimMenu","tvSheetMenu"].forEach(id => { const e = document.getElementById(id); if (e) e.classList.remove("open"); }); }
+
+  function tvOpenKader(key) {
+    tv.sel = { key: key }; tvViewLineup();
+    const slot = FORMATIONS[tv.formation].find(s => s.key === key);
+    document.getElementById("tvKaderTitle").textContent = "Spieler für " + (slot ? slot.role : "Position");
+    document.getElementById("tvKaderSub").textContent = tv.assign[key] ? "Ersetzen oder Position leeren" : "Passenden Spieler antippen";
+    tvRenderKaderBody(key);
+    document.getElementById("tvScrimKader").classList.add("open");
+    document.getElementById("tvSheetKader").classList.add("open");
+    const grp = slot ? lbTeamPart(slot.role) : null;
+    if (grp) { const el = document.querySelector('#tvKaderBody [data-tvgrp="' + grp + '"]'); if (el) el.scrollIntoView({ block: "start" }); }
+  }
+  function tvCloseKader() { tv.sel = null; const s = document.getElementById("tvScrimKader"), p = document.getElementById("tvSheetKader"); if (s) s.classList.remove("open"); if (p) p.classList.remove("open"); }
+  function tvRenderKaderBody(key) {
+    const body = document.getElementById("tvKaderBody"); if (!body) return;
+    const placed = tvPlaced(); const slot = FORMATIONS[tv.formation].find(s => s.key === key);
+    let h = "";
+    if (tv.assign[key]) h += '<button class="tv-emptybtn" data-tvempty>Position „' + (slot ? slot.role : "") + '" leeren</button>';
+    if (!DEMO.players.length) { body.innerHTML = h + '<div class="empty">Kein Kader vorhanden.</div>'; return; }
+    LB_GROUPS.forEach(([gk, label]) => {
+      const list = DEMO.players.filter(p => lbTeamPart(p.pos) === gk).sort((a, b) => ((tvAvail(a) || { rank: 0 }).rank - (tvAvail(b) || { rank: 0 }).rank) || byName(a, b));
+      if (!list.length) return;
+      h += '<div class="tv-kg" data-tvgrp="' + gk + '"><h4>' + label + ' <span>' + list.length + '</span></h4><div class="tv-kl">';
+      list.forEach(p => {
+        const isPl = placed.has(p.id), av = tvAvail(p), tap = !isPl;
+        const tag = isPl ? '<span class="tv-tag placed">aufgestellt</span>' : (av ? '<span class="tv-tag ' + av.cls + '">' + av.label + '</span>' : '<span class="tv-tag ok">verfügbar</span>');
+        h += '<div class="tv-pchip' + (isPl ? " placed" : "") + (av ? " off" : "") + '"' + (tap ? ' data-tvplayer="' + p.id + '"' : "") + '>' +
+          '<span class="tv-pnr">' + (p.nr != null ? p.nr : "–") + '</span><span class="tv-pw"><span class="tv-pnm">' + esc(p.name) + '</span><span class="tv-pmeta">' + esc(p.pos || "") + '</span></span>' + tag + '</div>';
+      });
+      h += '</div></div>';
+    });
+    body.innerHTML = h;
+  }
+
+  function tvOpenForm(edit) {
+    tvFavMode = !!edit;
+    document.getElementById("tvFormTitle").textContent = tvFavMode ? "Favoriten bearbeiten" : "Formation wechseln";
+    document.getElementById("tvFormSub").textContent = tvFavMode ? "2 bis 4 markieren" : "Tippen zum Wechseln · Stern = Favorit";
+    tvRenderFgrid(); tvRenderFormActions();
+    document.getElementById("tvScrimForm").classList.add("open");
+    document.getElementById("tvSheetForm").classList.add("open");
+  }
+  function tvCloseForm() { const s = document.getElementById("tvScrimForm"), p = document.getElementById("tvSheetForm"); if (s) s.classList.remove("open"); if (p) p.classList.remove("open"); }
+  function tvRenderFgrid() {
+    document.getElementById("tvFgrid").innerHTML = Object.keys(FORMATIONS).map(f => {
+      const fav = tvFav.includes(f), on = (!tvFavMode && f === tv.formation) || (tvFavMode && fav);
+      return '<div class="tv-fcard' + (on ? " on" : "") + '" data-tvfcard="' + f + '"><button class="tv-star' + (fav ? " fav" : "") + '" data-tvstar="' + f + '" aria-label="Favorit">' + (fav ? "★" : "☆") + '</button>' + tvMini(f) + '<span class="tv-fn">' + f + '</span></div>';
+    }).join("");
+  }
+  function tvRenderFormActions() {
+    document.getElementById("tvFormActions").innerHTML = tvFavMode
+      ? '<button class="tv-btnp" data-tvfavdone>Fertig (' + tvFav.length + '/4)</button>'
+      : '<button class="tv-btns" data-tvfavedit>Favoriten bearbeiten</button>';
+  }
+  function tvToggleFav(f) { const i = tvFav.indexOf(f); if (i >= 0) { if (tvFav.length > 2) tvFav.splice(i, 1); } else if (tvFav.length < 4) tvFav.push(f); tvSaveFav(); }
+
+  function tvOpenMenu() {
+    document.getElementById("tvMenuBody").innerHTML =
+      '<button class="tv-mi" data-tvadopt><span class="tv-miic">↩</span>Vom letzten Spiel übernehmen &amp; anpassen</button>' +
+      '<button class="tv-mi" data-tvfavedit><span class="tv-miic">★</span>Favoriten bearbeiten</button>' +
+      '<button class="tv-mi danger" data-tvclear><span class="tv-miic">🗑</span>Aufstellung leeren</button>';
+    document.getElementById("tvScrimMenu").classList.add("open");
+    document.getElementById("tvSheetMenu").classList.add("open");
+  }
+  function tvCloseMenu() { const s = document.getElementById("tvScrimMenu"), p = document.getElementById("tvSheetMenu"); if (s) s.classList.remove("open"); if (p) p.classList.remove("open"); }
+
+  let tvToastT = 0;
+  function tvToast(msg) { const t = document.getElementById("tvToast"); if (!t) return; t.textContent = msg; t.classList.add("show"); clearTimeout(tvToastT); tvToastT = setTimeout(() => t.classList.remove("show"), 2000); }
+
+  function tvPanelClick(ev) {
+    const t = ev.target;
+    const cl = t.closest("[data-tvclose]"); if (cl) { const w = cl.dataset.tvclose; if (w === "kader") { tvCloseKader(); tvViewLineup(); } else if (w === "form") tvCloseForm(); else tvCloseMenu(); return; }
+    if (t.closest("[data-tvempty]")) { if (tv.sel) delete tv.assign[tv.sel.key]; tvCloseKader(); tvViewLineup(); return; }
+    const pl = t.closest("[data-tvplayer]"); if (pl) { if (tv.sel) tvAssign(tv.sel.key, pl.dataset.tvplayer); tvCloseKader(); tvViewLineup(); return; }
+    const star = t.closest("[data-tvstar]"); if (star) { ev.stopPropagation(); tvToggleFav(star.dataset.tvstar); tvRenderFgrid(); tvRenderFormActions(); return; }
+    const fc = t.closest("[data-tvfcard]"); if (fc) { const f = fc.dataset.tvfcard; if (tvFavMode) { tvToggleFav(f); tvRenderFgrid(); tvRenderFormActions(); } else { tvSwitchFormation(f); tvCloseForm(); tvViewLineup(); } return; }
+    if (t.closest("[data-tvfavdone]")) { if (tvFav.length < 2) return; if (!tvFav.includes(tv.formation)) tv.formation = tvFav[0]; tvCloseForm(); tvViewLineup(); return; }
+    if (t.closest("[data-tvfavedit]")) { tvCloseMenu(); tvOpenForm(true); return; }
+    if (t.closest("[data-tvadopt]")) { tvCloseMenu(); tvAdopt(); return; }
+    if (t.closest("[data-tvclear]")) { tvCloseMenu(); tv.assign = {}; tv.sel = null; tvViewLineup(); return; }
+  }
+  function tvViewClick(ev) {
+    const t = ev.target;
+    const g = t.closest("[data-tvgame]"); if (g) { tvOpenGame(g.dataset.tvgame); return true; }
+    if (t.closest("[data-tvback]")) { tvViewGames(); return true; }
+    if (t.closest("[data-tvmenu]")) { tvOpenMenu(); return true; }
+    if (t.closest("[data-tvsave]")) { tvSave(); return true; }
+    const sl = t.closest("[data-tvslot]"); if (sl) { tvOpenKader(sl.dataset.tvslot); return true; }
+    const fp = t.closest("[data-tvform]"); if (fp) { tvSwitchFormation(fp.dataset.tvform); tvViewLineup(); return true; }
+    if (t.closest("[data-tvmoreform]")) { tvOpenForm(false); return true; }
+    if (t.closest("[data-tvadopt]")) { tvAdopt(); return true; }
+    if (t.closest("[data-tvfresh]")) { const c = viewEl.querySelector(".tv-cta"); if (c) c.remove(); return true; }
+    return false;
+  }
+
   /* ---------- Strafenkatalog ------------------------------------------------ */
   const SVG = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"';
   const ICON_EDIT  = `<svg ${SVG}><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>`;
@@ -1985,12 +2286,15 @@
   viewEl.addEventListener("click", async (ev) => {
     // Aufstellungs-Builder zuerst (eigene Tap-/Button-Logik)
     if (currentView === "lineup") {
-      const lu = ev.target.closest("[data-slot],[data-lu-saveactive],[data-lu-more]");
-      if (lu) {
-        if (lu.hasAttribute("data-slot")) lbTapSlot(lu.dataset.slot);
-        else if (lu.hasAttribute("data-lu-saveactive")) lbSaveActivate();
-        else if (lu.hasAttribute("data-lu-more")) lbOpenMore();
-        return;
+      if (LINEUP_V2) { if (tvViewClick(ev)) return; }
+      else {
+        const lu = ev.target.closest("[data-slot],[data-lu-saveactive],[data-lu-more]");
+        if (lu) {
+          if (lu.hasAttribute("data-slot")) lbTapSlot(lu.dataset.slot);
+          else if (lu.hasAttribute("data-lu-saveactive")) lbSaveActivate();
+          else if (lu.hasAttribute("data-lu-more")) lbOpenMore();
+          return;
+        }
       }
     }
 
@@ -2280,6 +2584,7 @@
      --------------------------------------------------------------------------- */
   function switchView(view) {
     currentView = view;
+    if (view === "lineup") { tv.view = "games"; tv.eventId = null; tv.sel = null; } // v2 startet immer bei der Spielauswahl
     // Bereiche im „Mehr"-Menü (Aufstellung/Rollen) markieren den Mehr-Tab als aktiv.
     // Bereiche, die im Admin-„Mehr"-Sheet liegen (dann ist der Mehr-Tab aktiv).
     const sheetViews = ["admin", "einstellungen", "lineup"];
