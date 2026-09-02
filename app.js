@@ -1292,63 +1292,63 @@
   // (Hochformat: y=0 oben/gegnerisches Tor, y=100 unten/eigenes Tor).
   const FORMATIONS = {
     "4-4-2": [
-      { key:"TW", role:"TW", x:50, y:95 },
+      { key:"TW", role:"TW", x:50, y:88 },
       { key:"LV", role:"AV", x:10, y:78 }, { key:"LIV", role:"IV", x:37, y:78 }, { key:"RIV", role:"IV", x:63, y:78 }, { key:"RV", role:"AV", x:90, y:78 },
       { key:"LM", role:"ZM", x:10, y:49 }, { key:"LZM", role:"ZM", x:37, y:49 }, { key:"RZM", role:"ZM", x:63, y:49 }, { key:"RM", role:"ZM", x:90, y:49 },
       { key:"LST", role:"ST", x:37, y:18 }, { key:"RST", role:"ST", x:63, y:18 },
     ],
     "4-3-3": [
-      { key:"TW", role:"TW", x:50, y:95 },
+      { key:"TW", role:"TW", x:50, y:88 },
       { key:"LV", role:"AV", x:10, y:78 }, { key:"LIV", role:"IV", x:37, y:78 }, { key:"RIV", role:"IV", x:63, y:78 }, { key:"RV", role:"AV", x:90, y:78 },
       { key:"LZM", role:"ZM", x:26, y:50 }, { key:"ZM", role:"ZM", x:50, y:53 }, { key:"RZM", role:"ZM", x:74, y:50 },
       { key:"LA", role:"OM", x:12, y:23 }, { key:"ST", role:"ST", x:50, y:16 }, { key:"RA", role:"OM", x:88, y:23 },
     ],
     "4-2-3-1": [
-      { key:"TW", role:"TW", x:50, y:95 },
+      { key:"TW", role:"TW", x:50, y:88 },
       { key:"LV", role:"AV", x:10, y:79 }, { key:"LIV", role:"IV", x:37, y:79 }, { key:"RIV", role:"IV", x:63, y:79 }, { key:"RV", role:"AV", x:90, y:79 },
       { key:"LDM", role:"ZM", x:34, y:64 }, { key:"RDM", role:"ZM", x:66, y:64 },
       { key:"LOM", role:"OM", x:12, y:42 }, { key:"ZOM", role:"OM", x:50, y:44 }, { key:"ROM", role:"OM", x:88, y:42 },
       { key:"ST", role:"ST", x:50, y:16 },
     ],
     "3-5-2": [
-      { key:"TW", role:"TW", x:50, y:95 },
+      { key:"TW", role:"TW", x:50, y:88 },
       { key:"LIV", role:"IV", x:24, y:79 }, { key:"CIV", role:"IV", x:50, y:81 }, { key:"RIV", role:"IV", x:76, y:79 },
       { key:"LM", role:"AV", x:9, y:53 }, { key:"LZM", role:"ZM", x:30, y:56 }, { key:"ZM", role:"ZM", x:50, y:58 }, { key:"RZM", role:"ZM", x:70, y:56 }, { key:"RM", role:"AV", x:91, y:53 },
       { key:"LST", role:"ST", x:37, y:18 }, { key:"RST", role:"ST", x:63, y:18 },
     ],
     "3-4-3": [
-      { key:"TW", role:"TW", x:50, y:95 },
+      { key:"TW", role:"TW", x:50, y:88 },
       { key:"LIV", role:"IV", x:24, y:79 }, { key:"CIV", role:"IV", x:50, y:81 }, { key:"RIV", role:"IV", x:76, y:79 },
       { key:"LWB", role:"AV", x:9, y:54 }, { key:"LZM", role:"ZM", x:37, y:56 }, { key:"RZM", role:"ZM", x:63, y:56 }, { key:"RWB", role:"AV", x:91, y:54 },
       { key:"LA", role:"FL", x:12, y:21 }, { key:"ST", role:"ST", x:50, y:15 }, { key:"RA", role:"FL", x:88, y:21 },
     ],
     "4-1-4-1": [
-      { key:"TW", role:"TW", x:50, y:95 },
+      { key:"TW", role:"TW", x:50, y:88 },
       { key:"LV", role:"AV", x:10, y:80 }, { key:"LIV", role:"IV", x:37, y:80 }, { key:"RIV", role:"IV", x:63, y:80 }, { key:"RV", role:"AV", x:90, y:80 },
       { key:"DM", role:"DM", x:50, y:65 },
       { key:"LM", role:"FL", x:9, y:47 }, { key:"LZM", role:"ZM", x:37, y:47 }, { key:"RZM", role:"ZM", x:63, y:47 }, { key:"RM", role:"FL", x:91, y:47 },
       { key:"ST", role:"ST", x:50, y:16 },
     ],
     "5-3-2": [
-      { key:"TW", role:"TW", x:50, y:95 },
+      { key:"TW", role:"TW", x:50, y:88 },
       { key:"LWB", role:"AV", x:9, y:74 }, { key:"LIV", role:"IV", x:29, y:80 }, { key:"CIV", role:"IV", x:50, y:82 }, { key:"RIV", role:"IV", x:71, y:80 }, { key:"RWB", role:"AV", x:91, y:74 },
       { key:"LZM", role:"ZM", x:29, y:51 }, { key:"ZM", role:"ZM", x:50, y:54 }, { key:"RZM", role:"ZM", x:71, y:51 },
       { key:"LST", role:"ST", x:37, y:19 }, { key:"RST", role:"ST", x:63, y:19 },
     ],
     "4-4-1-1": [
-      { key:"TW", role:"TW", x:50, y:95 },
+      { key:"TW", role:"TW", x:50, y:88 },
       { key:"LV", role:"AV", x:10, y:79 }, { key:"LIV", role:"IV", x:37, y:79 }, { key:"RIV", role:"IV", x:63, y:79 }, { key:"RV", role:"AV", x:90, y:79 },
       { key:"LM", role:"FL", x:9, y:55 }, { key:"LZM", role:"ZM", x:37, y:56 }, { key:"RZM", role:"ZM", x:63, y:56 }, { key:"RM", role:"FL", x:91, y:55 },
       { key:"OM", role:"OM", x:50, y:33 }, { key:"ST", role:"ST", x:50, y:15 },
     ],
     "3-4-1-2": [
-      { key:"TW", role:"TW", x:50, y:95 },
+      { key:"TW", role:"TW", x:50, y:88 },
       { key:"LIV", role:"IV", x:24, y:79 }, { key:"CIV", role:"IV", x:50, y:81 }, { key:"RIV", role:"IV", x:76, y:79 },
       { key:"LWB", role:"AV", x:9, y:55 }, { key:"LZM", role:"ZM", x:37, y:57 }, { key:"RZM", role:"ZM", x:63, y:57 }, { key:"RWB", role:"AV", x:91, y:55 },
       { key:"OM", role:"OM", x:50, y:35 }, { key:"LST", role:"ST", x:37, y:17 }, { key:"RST", role:"ST", x:63, y:17 },
     ],
     "4-5-1": [
-      { key:"TW", role:"TW", x:50, y:95 },
+      { key:"TW", role:"TW", x:50, y:88 },
       { key:"LV", role:"AV", x:10, y:80 }, { key:"LIV", role:"IV", x:37, y:80 }, { key:"RIV", role:"IV", x:63, y:80 }, { key:"RV", role:"AV", x:90, y:80 },
       { key:"LM", role:"FL", x:9, y:54 }, { key:"LZM", role:"ZM", x:30, y:56 }, { key:"ZM", role:"ZM", x:50, y:58 }, { key:"RZM", role:"ZM", x:70, y:56 }, { key:"RM", role:"FL", x:91, y:54 },
       { key:"ST", role:"ST", x:50, y:17 },
@@ -1961,7 +1961,7 @@
     const w = document.createElement("div"); w.id = "tvPanels";
     w.innerHTML =
       '<div class="tv-scrim" id="tvScrimKader" data-tvclose="kader"></div>' +
-      '<div class="tv-sheet tv-kfull" id="tvSheetKader" role="dialog" aria-modal="true" aria-label="Spieler wählen"><div class="tv-sh"><span class="tv-grip"></span><div><strong id="tvKaderTitle">Spieler wählen</strong><div class="tv-shsub" id="tvKaderSub"></div></div><button class="tv-shx" data-tvclose="kader" aria-label="Schließen">&times;</button></div><div class="tv-shbody" id="tvKaderBody"></div></div>' +
+      '<div class="tv-sheet tv-kfull" id="tvSheetKader" role="dialog" aria-modal="true" aria-label="Spieler wählen"><div class="tv-sh"><span class="tv-grip"></span><div><strong id="tvKaderTitle">Spieler wählen</strong><div class="tv-shsub" id="tvKaderSub"></div></div><button class="tv-shx" data-tvclose="kader" aria-label="Schließen">&times;</button></div><div class="tv-kaction" id="tvKaderAction"></div><div class="tv-shbody" id="tvKaderBody"></div></div>' +
       '<div class="tv-scrim" id="tvScrimForm" data-tvclose="form"></div>' +
       '<div class="tv-sheet" id="tvSheetForm" role="dialog" aria-modal="true" aria-label="Formationen"><div class="tv-sh"><span class="tv-grip"></span><div><strong id="tvFormTitle">Formation wechseln</strong><div class="tv-shsub" id="tvFormSub"></div></div><button class="tv-shx" data-tvclose="form" aria-label="Schließen">&times;</button></div><div class="tv-shbody"><div class="tv-fgrid" id="tvFgrid"></div></div><div class="tv-shactions" id="tvFormActions"></div></div>' +
       '<div class="tv-scrim" id="tvScrimMenu" data-tvclose="menu"></div>' +
@@ -1999,6 +1999,7 @@
     const slot = FORMATIONS[tv.formation].find(s => s.key === key);
     document.getElementById("tvKaderTitle").textContent = "Spieler für " + (slot ? slot.role : "Position");
     document.getElementById("tvKaderSub").textContent = tv.assign[key] ? "Ersetzen oder Position leeren" : "Passenden Spieler antippen";
+    document.getElementById("tvKaderAction").innerHTML = "";   // Sammel-Button nur im Bank-Modus
     tvRenderKaderBody(key);
     document.getElementById("tvScrimKader").classList.add("open");
     document.getElementById("tvSheetKader").classList.add("open");
@@ -2011,9 +2012,39 @@
     tv.sel = { bank: true }; tvViewLineup();
     document.getElementById("tvKaderTitle").textContent = "Spieler für die Bank";
     document.getElementById("tvKaderSub").textContent = "Ersatzspieler antippen (" + tv.bank.length + "/" + TV_BANK_MAX + ")";
+    tvRenderKaderAction();
     tvRenderKaderBody(null);
     document.getElementById("tvScrimKader").classList.add("open");
     document.getElementById("tvSheetKader").classList.add("open");
+  }
+  // Sammel-Button „Alle Zugesagten auf die Bank" (nur Bank-Modus, fest über der Liste).
+  function tvBankCandidates() {
+    const placed = tvPlacedAll();
+    const list = [];
+    LB_GROUPS.forEach(([gk]) => {
+      DEMO.players.filter(p => lbTeamPart(p.pos) === gk && tvAvail(p) === null && !placed.has(p.id))
+        .sort(byName).forEach(p => list.push(p));   // zugesagt+fit, nicht vergeben; nach Mannschaftsteil
+    });
+    return list;
+  }
+  function tvRenderKaderAction() {
+    const el = document.getElementById("tvKaderAction"); if (!el) return;
+    const free = TV_BANK_MAX - tv.bank.length;
+    const cand = tvBankCandidates();
+    const n = Math.min(free, cand.length);
+    const disabled = free <= 0 || cand.length === 0;
+    const reason = free <= 0 ? "Bank ist voll" : (cand.length === 0 ? "Keine zugesagten Spieler frei" : "");
+    el.innerHTML = '<button class="tv-kall" data-tvbankall' + (disabled ? " disabled" : "") + '>Alle Zugesagten auf die Bank' + (n > 0 ? " (" + n + ")" : "") + '</button>' +
+      (disabled ? '<div class="tv-kall-reason">' + reason + '</div>' : '');
+  }
+  function tvBankFillAll() {
+    const free = TV_BANK_MAX - tv.bank.length; if (free <= 0) return;
+    const take = tvBankCandidates().slice(0, free);
+    if (!take.length) { tvToast("Keine zugesagten Spieler zum Setzen"); return; }
+    const left = tvBankCandidates().length - take.length;
+    take.forEach(p => tv.bank.push(p.id));
+    tvCloseKader(); tvViewLineup();
+    tvToast(left > 0 ? (take.length + " gesetzt · " + left + " passten nicht mehr") : (take.length + " Zugesagte auf die Bank"));
   }
   function tvCloseKader() { tv.sel = null; const s = document.getElementById("tvScrimKader"), p = document.getElementById("tvSheetKader"); if (s) s.classList.remove("open"); if (p) p.classList.remove("open"); }
   function tvRenderKaderBody(key) {
@@ -2079,6 +2110,7 @@
     const t = ev.target;
     const cl = t.closest("[data-tvclose]"); if (cl) { const w = cl.dataset.tvclose; if (w === "kader") { tvCloseKader(); tvViewLineup(); } else if (w === "form") tvCloseForm(); else tvCloseMenu(); return; }
     if (t.closest("[data-tvempty]")) { if (tv.sel) delete tv.assign[tv.sel.key]; tvCloseKader(); tvViewLineup(); return; }
+    if (t.closest("[data-tvbankall]")) { tvBankFillAll(); return; }
     const pl = t.closest("[data-tvplayer]"); if (pl) { if (tv.sel && tv.sel.bank) tvAddBank(pl.dataset.tvplayer); else if (tv.sel) tvAssign(tv.sel.key, pl.dataset.tvplayer); tvCloseKader(); tvViewLineup(); return; }
     const star = t.closest("[data-tvstar]"); if (star) { ev.stopPropagation(); tvToggleFav(star.dataset.tvstar); tvRenderFgrid(); tvRenderFormActions(); return; }
     const fc = t.closest("[data-tvfcard]"); if (fc) { const f = fc.dataset.tvfcard; if (tvFavMode) { tvToggleFav(f); tvRenderFgrid(); tvRenderFormActions(); } else { tvSwitchFormation(f); tvCloseForm(); tvViewLineup(); } return; }
