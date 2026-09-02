@@ -998,12 +998,12 @@ body.auth-mode .app-footer { display: none; }
 /* Zustand 2: Aufstellung – füllt Bereich zwischen Kopfzeile und Nav */
 .view:has(.tv-lu) { padding: 0; max-width: none; }
 .tv-lu { height: calc(100dvh - var(--header-h, 78px) - 56px - env(safe-area-inset-bottom)); display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
-.tv-top { display: flex; align-items: center; gap: 10px; padding: 8px clamp(10px,3vw,14px); background: var(--card); border-bottom: 1px solid var(--line); color: var(--ink); }
+.tv-top { display: flex; align-items: center; gap: 10px; padding: 6px clamp(10px,3vw,14px); background: var(--card); border-bottom: 1px solid var(--line); color: var(--ink); }
 .tv-ic { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 11px; border: 1px solid var(--line); background: var(--bg); color: var(--green-800); font-size: 22px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
 .tv-hi { flex: 1 1 auto; min-width: 0; text-align: center; }
 .tv-game { font-weight: 800; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tv-sub { font-size: 11.5px; font-weight: 600; color: var(--muted); margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tv-formbar { display: flex; align-items: center; gap: 8px; overflow-x: auto; padding: 9px clamp(10px,3vw,14px); background: var(--card); border-bottom: 1px solid var(--line); scrollbar-width: none; }
+.tv-formbar { display: flex; align-items: center; gap: 8px; overflow-x: auto; padding: 6px clamp(10px,3vw,14px); background: var(--card); border-bottom: 1px solid var(--line); scrollbar-width: none; }
 .tv-formbar::-webkit-scrollbar { display: none; }
 .tv-fpill { flex: 0 0 auto; min-height: 44px; display: flex; align-items: center; gap: 8px; padding: 5px 12px 5px 7px; border: 1px solid var(--line); background: var(--bg); border-radius: 999px; font-weight: 700; font-size: 13px; color: var(--ink); }
 .tv-fpill.on { background: var(--green-050); border-color: var(--green-500); color: var(--green-800); }
@@ -1011,26 +1011,29 @@ body.auth-mode .app-footer { display: none; }
 /* Nur Punkte als Erkennungsmuster – kein Rasen, kein Rahmen, keine Linien. */
 .tv-mini { position: relative; display: inline-block; width: 20px; height: 26px; flex: 0 0 auto; }
 .tv-mini i { position: absolute; width: 2.5px; height: 2.5px; border-radius: 50%; background: var(--green-700); transform: translate(-50%,-50%); }
-.tv-field { flex: 1 1 auto; min-height: 0; position: relative; display: flex; align-items: center; justify-content: center; padding: 8px clamp(8px,3vw,14px); }
+.tv-field { flex: 1 1 auto; min-height: 0; position: relative; display: flex; align-items: center; justify-content: center; padding: 4px 6px; }
 /* height:100% (definit) statt max-height: die Pitch-Box hat nur absolut positionierte
    Kinder -> mit max-height fällt sie auf 0 zusammen. Definite Höhe verhindert den Kollaps. */
-.tv-pitch { position: relative; aspect-ratio: 68/105; height: 100%; max-width: 100%; width: auto; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); user-select: none; touch-action: manipulation; }
+.tv-pitch { position: relative; aspect-ratio: 68/105; height: 100%; max-width: 100%; width: auto; border-radius: 12px; overflow: hidden; user-select: none; touch-action: manipulation; }
 .tv-pitch-bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.tv-slot { position: absolute; transform: translate(-50%,-50%); width: 15%; min-width: 46px; max-width: 64px; display: flex; flex-direction: column; align-items: center; }
+/* Rasen ruhiger/entsaettigt (Variante A). Wechsel zu B: #587a68 setzen. Nur die Grundflaeche. */
+.tv-pitch-bg > rect { fill: var(--tv-pitch, #3d6b54); }
+.tv-slot { position: absolute; transform: translate(-50%,-50%); display: flex; flex-direction: column; align-items: center; }
 /* Deckende Fuellung: leere Positionen duerfen die Feldlinien nicht durchscheinen lassen. */
-.tv-disc { width: 100%; aspect-ratio: 1/1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; border: 2px solid rgba(255,255,255,.85); color: #fff; background: var(--green-800); }
-.tv-slot.filled .tv-disc { background: var(--card); color: var(--green-800); border-color: var(--gold-500); }
-.tv-slot.sel .tv-disc { box-shadow: 0 0 0 3px var(--gold-500), 0 4px 12px rgba(0,0,0,.3); transform: scale(1.06); }
-.tv-role { font-size: 10px; font-weight: 800; color: rgba(255,255,255,.85); letter-spacing: .3px; }
-.tv-pn { margin-top: 2px; font-size: 10px; font-weight: 700; color: #fff; text-align: center; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 1px 2px rgba(0,0,0,.5); }
+/* Einheitliche Kreisgroesse. Unbesetzt: gestrichelt + reduzierter Kontrast (deckend, kein Linien-Durchscheinen). */
+.tv-disc { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; border: 2px dashed rgba(255,255,255,.5); color: rgba(255,255,255,.75); background: var(--green-900); }
+.tv-slot.filled .tv-disc { background: var(--card); color: var(--green-800); border: 2px solid var(--gold-500); }
+.tv-slot.sel .tv-disc { box-shadow: 0 0 0 3px var(--gold-500); transform: scale(1.08); }
+.tv-role { font-size: 10px; font-weight: 800; color: rgba(255,255,255,.75); letter-spacing: .3px; }
+.tv-pn { margin-top: 3px; font-size: 10px; font-weight: 700; color: #fff; text-align: center; max-width: 46px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: rgba(0,0,0,.35); padding: 1px 4px; border-radius: 6px; }
 .tv-cta { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: min(88%,320px); background: rgba(15,61,46,.94); border-radius: 16px; padding: 16px; text-align: center; color: #fff; box-shadow: 0 8px 30px rgba(0,0,0,.3); }
 .tv-cta p { margin: 0 0 12px; font-size: 13px; line-height: 1.4; opacity: .92; }
 .tv-cta .tv-primary { margin-bottom: 8px; }
 .tv-ghost { width: 100%; min-height: 44px; border: 1px solid rgba(255,255,255,.4); background: transparent; color: #fff; border-radius: 12px; font-weight: 700; }
-.tv-actions { flex: 0 0 auto; padding: 9px clamp(12px,4vw,18px) 10px; background: var(--card); border-top: 1px solid var(--line); }
-.tv-primary { width: 100%; min-height: 52px; border: 0; border-radius: 14px; background: var(--green-700); color: #fff; font-weight: 800; font-size: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; line-height: 1.15; box-shadow: var(--shadow-sm); }
+.tv-actions { flex: 0 0 auto; padding: 6px clamp(12px,4vw,18px) 8px; background: var(--card); border-top: 1px solid var(--line); }
+.tv-primary { width: 100%; min-height: 48px; border: 0; border-radius: 12px; background: var(--green-700); color: #fff; font-weight: 800; font-size: 15px; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 8px; line-height: 1.15; }
 .tv-primary:disabled { opacity: .6; }
-.tv-primary small { font-weight: 600; opacity: .85; font-size: 12px; }
+.tv-primary small { font-weight: 600; opacity: .8; font-size: 12px; }
 
 /* Bottom-Sheets über der Nav */
 .tv-scrim { position: fixed; inset: 0; background: rgba(20,28,22,.45); opacity: 0; pointer-events: none; transition: opacity .2s ease; z-index: 90; }
@@ -1079,15 +1082,15 @@ body.auth-mode .app-footer { display: none; }
 .tv-pchip.s-verl { background: var(--red-050); }
 
 /* Auswechselbank: 7 kompakte Slots, passt auf 390px ohne H-Scroll. */
-.tv-bank { flex: 0 0 auto; padding: 6px clamp(8px,3vw,14px) 4px; background: var(--card); border-top: 1px solid var(--line); }
+.tv-bank { flex: 0 0 auto; padding: 4px clamp(8px,3vw,14px) 4px; background: var(--card); border-top: 1px solid var(--line); }
 .tv-bank-h { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin: 0 2px 4px; }
 .tv-bank-h span { opacity: .7; margin-left: 4px; }
 .tv-bank-row { display: flex; gap: 4px; }
-.tv-bslot { flex: 1 1 0; min-width: 0; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border: 1px dashed var(--line); background: var(--bg); border-radius: 10px; padding: 4px 2px; }
+.tv-bslot { flex: 1 1 0; min-width: 0; min-height: 46px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; border: 1px dashed var(--line); background: transparent; border-radius: 9px; padding: 3px 2px; }
 .tv-bslot.filled { border-style: solid; border-color: var(--gold-500); background: var(--card); }
-.tv-bnr { width: 24px; height: 24px; border-radius: 50%; background: var(--green-050); color: var(--green-800); font-weight: 800; font-size: 12px; display: flex; align-items: center; justify-content: center; }
-.tv-bn { font-size: 9.5px; font-weight: 700; color: var(--ink); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tv-bplus { font-size: 22px; font-weight: 400; color: var(--muted); line-height: 1; }
+.tv-bnr { width: 22px; height: 22px; border-radius: 50%; background: var(--green-050); color: var(--green-800); font-weight: 800; font-size: 11px; display: flex; align-items: center; justify-content: center; }
+.tv-bn { font-size: 9px; font-weight: 700; color: var(--ink); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tv-bplus { font-size: 20px; font-weight: 400; color: var(--line); line-height: 1; }
 
 /* Formationen-Raster */
 .tv-fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }

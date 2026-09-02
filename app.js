@@ -1292,66 +1292,66 @@
   // (Hochformat: y=0 oben/gegnerisches Tor, y=100 unten/eigenes Tor).
   const FORMATIONS = {
     "4-4-2": [
-      { key:"TW", role:"TW", x:50, y:92 },
-      { key:"LV", role:"AV", x:16, y:74 }, { key:"LIV", role:"IV", x:38, y:78 }, { key:"RIV", role:"IV", x:62, y:78 }, { key:"RV", role:"AV", x:84, y:74 },
-      { key:"LM", role:"ZM", x:16, y:50 }, { key:"LZM", role:"ZM", x:38, y:52 }, { key:"RZM", role:"ZM", x:62, y:52 }, { key:"RM", role:"ZM", x:84, y:50 },
-      { key:"LST", role:"ST", x:36, y:22 }, { key:"RST", role:"ST", x:64, y:22 },
+      { key:"TW", role:"TW", x:50, y:95 },
+      { key:"LV", role:"AV", x:10, y:78 }, { key:"LIV", role:"IV", x:37, y:78 }, { key:"RIV", role:"IV", x:63, y:78 }, { key:"RV", role:"AV", x:90, y:78 },
+      { key:"LM", role:"ZM", x:10, y:49 }, { key:"LZM", role:"ZM", x:37, y:49 }, { key:"RZM", role:"ZM", x:63, y:49 }, { key:"RM", role:"ZM", x:90, y:49 },
+      { key:"LST", role:"ST", x:37, y:18 }, { key:"RST", role:"ST", x:63, y:18 },
     ],
     "4-3-3": [
-      { key:"TW", role:"TW", x:50, y:92 },
-      { key:"LV", role:"AV", x:16, y:74 }, { key:"LIV", role:"IV", x:38, y:78 }, { key:"RIV", role:"IV", x:62, y:78 }, { key:"RV", role:"AV", x:84, y:74 },
-      { key:"LZM", role:"ZM", x:30, y:54 }, { key:"ZM", role:"ZM", x:50, y:58 }, { key:"RZM", role:"ZM", x:70, y:54 },
-      { key:"LA", role:"OM", x:18, y:26 }, { key:"ST", role:"ST", x:50, y:18 }, { key:"RA", role:"OM", x:82, y:26 },
+      { key:"TW", role:"TW", x:50, y:95 },
+      { key:"LV", role:"AV", x:10, y:78 }, { key:"LIV", role:"IV", x:37, y:78 }, { key:"RIV", role:"IV", x:63, y:78 }, { key:"RV", role:"AV", x:90, y:78 },
+      { key:"LZM", role:"ZM", x:26, y:50 }, { key:"ZM", role:"ZM", x:50, y:53 }, { key:"RZM", role:"ZM", x:74, y:50 },
+      { key:"LA", role:"OM", x:12, y:23 }, { key:"ST", role:"ST", x:50, y:16 }, { key:"RA", role:"OM", x:88, y:23 },
     ],
     "4-2-3-1": [
-      { key:"TW", role:"TW", x:50, y:92 },
-      { key:"LV", role:"AV", x:16, y:76 }, { key:"LIV", role:"IV", x:38, y:80 }, { key:"RIV", role:"IV", x:62, y:80 }, { key:"RV", role:"AV", x:84, y:76 },
-      { key:"LDM", role:"ZM", x:38, y:60 }, { key:"RDM", role:"ZM", x:62, y:60 },
-      { key:"LOM", role:"OM", x:20, y:38 }, { key:"ZOM", role:"OM", x:50, y:40 }, { key:"ROM", role:"OM", x:80, y:38 },
-      { key:"ST", role:"ST", x:50, y:18 },
+      { key:"TW", role:"TW", x:50, y:95 },
+      { key:"LV", role:"AV", x:10, y:79 }, { key:"LIV", role:"IV", x:37, y:79 }, { key:"RIV", role:"IV", x:63, y:79 }, { key:"RV", role:"AV", x:90, y:79 },
+      { key:"LDM", role:"ZM", x:34, y:64 }, { key:"RDM", role:"ZM", x:66, y:64 },
+      { key:"LOM", role:"OM", x:12, y:42 }, { key:"ZOM", role:"OM", x:50, y:44 }, { key:"ROM", role:"OM", x:88, y:42 },
+      { key:"ST", role:"ST", x:50, y:16 },
     ],
     "3-5-2": [
-      { key:"TW", role:"TW", x:50, y:92 },
-      { key:"LIV", role:"IV", x:28, y:78 }, { key:"CIV", role:"IV", x:50, y:80 }, { key:"RIV", role:"IV", x:72, y:78 },
-      { key:"LM", role:"AV", x:12, y:52 }, { key:"LZM", role:"ZM", x:34, y:56 }, { key:"ZM", role:"ZM", x:50, y:58 }, { key:"RZM", role:"ZM", x:66, y:56 }, { key:"RM", role:"AV", x:88, y:52 },
-      { key:"LST", role:"ST", x:38, y:22 }, { key:"RST", role:"ST", x:62, y:22 },
+      { key:"TW", role:"TW", x:50, y:95 },
+      { key:"LIV", role:"IV", x:24, y:79 }, { key:"CIV", role:"IV", x:50, y:81 }, { key:"RIV", role:"IV", x:76, y:79 },
+      { key:"LM", role:"AV", x:9, y:53 }, { key:"LZM", role:"ZM", x:31, y:56 }, { key:"ZM", role:"ZM", x:50, y:58 }, { key:"RZM", role:"ZM", x:69, y:56 }, { key:"RM", role:"AV", x:91, y:53 },
+      { key:"LST", role:"ST", x:37, y:18 }, { key:"RST", role:"ST", x:63, y:18 },
     ],
     "3-4-3": [
-      { key:"TW", role:"TW", x:50, y:92 },
-      { key:"LIV", role:"IV", x:26, y:78 }, { key:"CIV", role:"IV", x:50, y:80 }, { key:"RIV", role:"IV", x:74, y:78 },
-      { key:"LWB", role:"AV", x:14, y:54 }, { key:"LZM", role:"ZM", x:38, y:56 }, { key:"RZM", role:"ZM", x:62, y:56 }, { key:"RWB", role:"AV", x:86, y:54 },
-      { key:"LA", role:"FL", x:20, y:24 }, { key:"ST", role:"ST", x:50, y:20 }, { key:"RA", role:"FL", x:80, y:24 },
+      { key:"TW", role:"TW", x:50, y:95 },
+      { key:"LIV", role:"IV", x:24, y:79 }, { key:"CIV", role:"IV", x:50, y:81 }, { key:"RIV", role:"IV", x:76, y:79 },
+      { key:"LWB", role:"AV", x:9, y:54 }, { key:"LZM", role:"ZM", x:37, y:56 }, { key:"RZM", role:"ZM", x:63, y:56 }, { key:"RWB", role:"AV", x:91, y:54 },
+      { key:"LA", role:"FL", x:12, y:21 }, { key:"ST", role:"ST", x:50, y:15 }, { key:"RA", role:"FL", x:88, y:21 },
     ],
     "4-1-4-1": [
-      { key:"TW", role:"TW", x:50, y:92 },
-      { key:"LV", role:"AV", x:16, y:76 }, { key:"LIV", role:"IV", x:38, y:80 }, { key:"RIV", role:"IV", x:62, y:80 }, { key:"RV", role:"AV", x:84, y:76 },
-      { key:"DM", role:"DM", x:50, y:62 },
-      { key:"LM", role:"FL", x:16, y:44 }, { key:"LZM", role:"ZM", x:38, y:46 }, { key:"RZM", role:"ZM", x:62, y:46 }, { key:"RM", role:"FL", x:84, y:44 },
-      { key:"ST", role:"ST", x:50, y:20 },
+      { key:"TW", role:"TW", x:50, y:95 },
+      { key:"LV", role:"AV", x:10, y:80 }, { key:"LIV", role:"IV", x:37, y:80 }, { key:"RIV", role:"IV", x:63, y:80 }, { key:"RV", role:"AV", x:90, y:80 },
+      { key:"DM", role:"DM", x:50, y:65 },
+      { key:"LM", role:"FL", x:9, y:47 }, { key:"LZM", role:"ZM", x:37, y:47 }, { key:"RZM", role:"ZM", x:63, y:47 }, { key:"RM", role:"FL", x:91, y:47 },
+      { key:"ST", role:"ST", x:50, y:16 },
     ],
     "5-3-2": [
-      { key:"TW", role:"TW", x:50, y:92 },
-      { key:"LWB", role:"AV", x:10, y:72 }, { key:"LIV", role:"IV", x:30, y:80 }, { key:"CIV", role:"IV", x:50, y:82 }, { key:"RIV", role:"IV", x:70, y:80 }, { key:"RWB", role:"AV", x:90, y:72 },
-      { key:"LZM", role:"ZM", x:30, y:52 }, { key:"ZM", role:"ZM", x:50, y:55 }, { key:"RZM", role:"ZM", x:70, y:52 },
-      { key:"LST", role:"ST", x:38, y:24 }, { key:"RST", role:"ST", x:62, y:24 },
+      { key:"TW", role:"TW", x:50, y:95 },
+      { key:"LWB", role:"AV", x:9, y:74 }, { key:"LIV", role:"IV", x:29, y:80 }, { key:"CIV", role:"IV", x:50, y:82 }, { key:"RIV", role:"IV", x:71, y:80 }, { key:"RWB", role:"AV", x:91, y:74 },
+      { key:"LZM", role:"ZM", x:29, y:51 }, { key:"ZM", role:"ZM", x:50, y:54 }, { key:"RZM", role:"ZM", x:71, y:51 },
+      { key:"LST", role:"ST", x:37, y:19 }, { key:"RST", role:"ST", x:63, y:19 },
     ],
     "4-4-1-1": [
-      { key:"TW", role:"TW", x:50, y:92 },
-      { key:"LV", role:"AV", x:16, y:74 }, { key:"LIV", role:"IV", x:38, y:78 }, { key:"RIV", role:"IV", x:62, y:78 }, { key:"RV", role:"AV", x:84, y:74 },
-      { key:"LM", role:"FL", x:16, y:52 }, { key:"LZM", role:"ZM", x:38, y:54 }, { key:"RZM", role:"ZM", x:62, y:54 }, { key:"RM", role:"FL", x:84, y:52 },
-      { key:"OM", role:"OM", x:50, y:34 }, { key:"ST", role:"ST", x:50, y:18 },
+      { key:"TW", role:"TW", x:50, y:95 },
+      { key:"LV", role:"AV", x:10, y:79 }, { key:"LIV", role:"IV", x:37, y:79 }, { key:"RIV", role:"IV", x:63, y:79 }, { key:"RV", role:"AV", x:90, y:79 },
+      { key:"LM", role:"FL", x:9, y:55 }, { key:"LZM", role:"ZM", x:37, y:56 }, { key:"RZM", role:"ZM", x:63, y:56 }, { key:"RM", role:"FL", x:91, y:55 },
+      { key:"OM", role:"OM", x:50, y:33 }, { key:"ST", role:"ST", x:50, y:15 },
     ],
     "3-4-1-2": [
-      { key:"TW", role:"TW", x:50, y:92 },
-      { key:"LIV", role:"IV", x:28, y:78 }, { key:"CIV", role:"IV", x:50, y:80 }, { key:"RIV", role:"IV", x:72, y:78 },
-      { key:"LWB", role:"AV", x:12, y:54 }, { key:"LZM", role:"ZM", x:38, y:56 }, { key:"RZM", role:"ZM", x:62, y:56 }, { key:"RWB", role:"AV", x:88, y:54 },
-      { key:"OM", role:"OM", x:50, y:36 }, { key:"LST", role:"ST", x:38, y:20 }, { key:"RST", role:"ST", x:62, y:20 },
+      { key:"TW", role:"TW", x:50, y:95 },
+      { key:"LIV", role:"IV", x:24, y:79 }, { key:"CIV", role:"IV", x:50, y:81 }, { key:"RIV", role:"IV", x:76, y:79 },
+      { key:"LWB", role:"AV", x:9, y:55 }, { key:"LZM", role:"ZM", x:37, y:57 }, { key:"RZM", role:"ZM", x:63, y:57 }, { key:"RWB", role:"AV", x:91, y:55 },
+      { key:"OM", role:"OM", x:50, y:35 }, { key:"LST", role:"ST", x:37, y:17 }, { key:"RST", role:"ST", x:63, y:17 },
     ],
     "4-5-1": [
-      { key:"TW", role:"TW", x:50, y:92 },
-      { key:"LV", role:"AV", x:16, y:76 }, { key:"LIV", role:"IV", x:38, y:80 }, { key:"RIV", role:"IV", x:62, y:80 }, { key:"RV", role:"AV", x:84, y:76 },
-      { key:"LM", role:"FL", x:12, y:52 }, { key:"LZM", role:"ZM", x:34, y:54 }, { key:"ZM", role:"ZM", x:50, y:56 }, { key:"RZM", role:"ZM", x:66, y:54 }, { key:"RM", role:"FL", x:88, y:52 },
-      { key:"ST", role:"ST", x:50, y:20 },
+      { key:"TW", role:"TW", x:50, y:95 },
+      { key:"LV", role:"AV", x:10, y:80 }, { key:"LIV", role:"IV", x:37, y:80 }, { key:"RIV", role:"IV", x:63, y:80 }, { key:"RV", role:"AV", x:90, y:80 },
+      { key:"LM", role:"FL", x:9, y:54 }, { key:"LZM", role:"ZM", x:30, y:56 }, { key:"ZM", role:"ZM", x:50, y:58 }, { key:"RZM", role:"ZM", x:70, y:56 }, { key:"RM", role:"FL", x:91, y:54 },
+      { key:"ST", role:"ST", x:50, y:17 },
     ],
   };
 
@@ -1788,6 +1788,7 @@
   // Nicht nutzbar nur abgesagt (rank 3) und verletzt (rank 4).
   function tvUsableForAuto(p) { const a = tvAvail(p); return !a || a.rank <= 2; }
   function tvMini(f) { const s = FORMATIONS[f] || []; return '<span class="tv-mini">' + s.map(x => '<i style="left:' + x.x + '%;top:' + x.y + '%"></i>').join("") + '</span>'; }
+  function tvLastName(n) { const q = String(n || "").trim().split(/\s+/); return q[q.length - 1] || String(n || ""); }
 
   // Jüngstes vergangenes Spiel mit aktiver Aufstellung (für „übernehmen & anpassen").
   function tvLastLineup() {
@@ -1843,7 +1844,7 @@
 
   /* ---- Zustand 2: Aufstellung ---- */
   function tvPitchBg() {
-    return '<svg class="tv-pitch-bg" viewBox="0 0 68 105" preserveAspectRatio="none" aria-hidden="true"><rect width="68" height="105" fill="#2e7d46"/><g fill="none" stroke="rgba(255,255,255,.55)" stroke-width="0.5"><rect x="2" y="2" width="64" height="101"/><line x1="2" y1="52.5" x2="66" y2="52.5"/><circle cx="34" cy="52.5" r="9"/><rect x="14" y="2" width="40" height="16"/><rect x="24" y="2" width="20" height="6"/><rect x="14" y="87" width="40" height="16"/><rect x="24" y="97" width="20" height="6"/></g><circle cx="34" cy="52.5" r="0.8" fill="rgba(255,255,255,.6)"/></svg>';
+    return '<svg class="tv-pitch-bg" viewBox="0 0 68 105" preserveAspectRatio="none" aria-hidden="true"><rect width="68" height="105" fill="#2e7d46"/><g fill="none" stroke="rgba(255,255,255,.3)" stroke-width="0.3"><rect x="2" y="2" width="64" height="101"/><line x1="2" y1="52.5" x2="66" y2="52.5"/><circle cx="34" cy="52.5" r="9"/><rect x="14" y="2" width="40" height="16"/><rect x="24" y="2" width="20" height="6"/><rect x="14" y="87" width="40" height="16"/><rect x="24" y="97" width="20" height="6"/></g><circle cx="34" cy="52.5" r="0.7" fill="rgba(255,255,255,.35)"/></svg>';
   }
   function tvPitchHtml() {
     const slots = FORMATIONS[tv.formation]; let h = tvPitchBg();
@@ -1852,7 +1853,7 @@
       const sel = (tv.sel && tv.sel.key === s.key) ? " sel" : "";
       h += '<div class="tv-slot' + (p ? " filled" : "") + sel + '" data-tvslot="' + s.key + '" style="left:' + s.x + '%;top:' + s.y + '%">' +
         '<div class="tv-disc">' + (p ? ('<span>' + (p.nr != null ? p.nr : "") + '</span>') : ('<span class="tv-role">' + s.role + '</span>')) + '</div>' +
-        (p ? ('<span class="tv-pn">' + esc(shortName(p.name)) + '</span>') : '') + '</div>';
+        (p ? ('<span class="tv-pn">' + esc(tvLastName(p.name)) + '</span>') : '') + '</div>';
     });
     return h;
   }
@@ -1890,7 +1891,7 @@
       const pid = tv.bank[i], p = pid ? playerById[pid] : null;
       if (p) {
         h += '<button class="tv-bslot filled" data-tvbankdel="' + pid + '" aria-label="' + esc(p.name) + ' von der Bank nehmen">' +
-             '<span class="tv-bnr">' + (p.nr != null ? p.nr : "") + '</span><span class="tv-bn">' + esc(shortName(p.name)) + '</span></button>';
+             '<span class="tv-bnr">' + (p.nr != null ? p.nr : "") + '</span><span class="tv-bn">' + esc(tvLastName(p.name)) + '</span></button>';
       } else {
         h += '<button class="tv-bslot" data-tvbankadd aria-label="Bankspieler hinzufügen"><span class="tv-bplus">+</span></button>';
       }
