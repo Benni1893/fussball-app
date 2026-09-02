@@ -1765,7 +1765,7 @@
      ========================================================================= */
   const LINEUP_V2 = true;
   const TV_FAV_KEY = "fn_lineup_favs";
-  const tv = { view: "games", eventId: null, formation: "4-4-2", assign: {}, sel: null };
+  const tv = { view: "games", eventId: null, formation: "4-4-2", assign: {}, sel: null, hideCta: false };
   let tvFavMode = false;
   let tvFav = (function () {
     try { const s = JSON.parse(localStorage.getItem(TV_FAV_KEY)); if (Array.isArray(s) && s.length >= 2) return s.slice(0, 4); } catch (e) {}
@@ -1819,7 +1819,7 @@
       '<span class="tv-gchip' + (active ? " on" : "") + '">' + (active ? "aktiv" : "offen") + '</span><span class="tv-garrow">›</span></button>';
   }
   function tvOpenGame(eventId) {
-    tv.eventId = eventId; tv.sel = null;
+    tv.eventId = eventId; tv.sel = null; tv.hideCta = false;
     const lu = (DEMO.lineups || []).find(l => l.eventId === eventId && l.isActive && !l.isTemplate);
     if (lu && FORMATIONS[lu.formation]) {
       tv.formation = lu.formation;
@@ -1861,7 +1861,7 @@
           '<button class="tv-ic" data-tvmenu aria-label="Mehr">⋯</button>' +
         '</div>' +
         '<div class="tv-formbar">' + tvFormbarHtml() + '</div>' +
-        '<div class="tv-field"><div class="tv-pitch">' + tvPitchHtml() + '</div>' + ((n === 0 && last) ? tvEmptyCta(last) : "") + '</div>' +
+        '<div class="tv-field"><div class="tv-pitch">' + tvPitchHtml() + '</div>' + ((n === 0 && last && !tv.hideCta) ? tvEmptyCta(last) : "") + '</div>' +
         '<div class="tv-actions"><button class="tv-primary" data-tvsave><span>Aufstellung speichern</span><small>' + n + '/11 gesetzt</small></button></div>' +
       '</div>';
   }
@@ -1906,7 +1906,8 @@
       const row = await DB.saveLineup({ id: existing ? existing.id : null, clubId: DEMO.clubId, eventId: tv.eventId,
         name: existing && existing.name ? existing.name : "Aufstellung", formation: tv.formation, slots: tvCleanAssign(), bank: bank, isTemplate: false });
       await DB.setLineupActive(row.id);
-      await reloadData();
+      tv.view = "games";                 // klarer Abschluss: zurück zur Spielauswahl (Spiel jetzt „aktiv")
+      await reloadData();                // render() -> renderLineupV2 -> Spielauswahl
       tvToast("Gespeichert & aktiv gesetzt");
     } catch (err) { if (btn) btn.disabled = false; window.alert("Speichern fehlgeschlagen: " + ((err && err.message) || err)); }
   }
@@ -1979,16 +1980,16 @@
   }
   function tvRenderFormActions() {
     document.getElementById("tvFormActions").innerHTML = tvFavMode
-      ? '<button class="tv-btnp" data-tvfavdone>Fertig (' + tvFav.length + '/4)</button>'
-      : '<button class="tv-btns" data-tvfavedit>Favoriten bearbeiten</button>';
+      ? '<button class="btn btn-primary" data-tvfavdone>Fertig (' + tvFav.length + '/4)</button>'
+      : '<button class="btn" data-tvfavedit>Favoriten bearbeiten</button>';
   }
   function tvToggleFav(f) { const i = tvFav.indexOf(f); if (i >= 0) { if (tvFav.length > 2) tvFav.splice(i, 1); } else if (tvFav.length < 4) tvFav.push(f); tvSaveFav(); }
 
   function tvOpenMenu() {
     document.getElementById("tvMenuBody").innerHTML =
-      '<button class="tv-mi" data-tvadopt><span class="tv-miic">↩</span>Vom letzten Spiel übernehmen &amp; anpassen</button>' +
-      '<button class="tv-mi" data-tvfavedit><span class="tv-miic">★</span>Favoriten bearbeiten</button>' +
-      '<button class="tv-mi danger" data-tvclear><span class="tv-miic">🗑</span>Aufstellung leeren</button>';
+      '<button class="tv-mi" data-tvadopt>Vom letzten Spiel übernehmen &amp; anpassen</button>' +
+      '<button class="tv-mi" data-tvfavedit>Favoriten bearbeiten</button>' +
+      '<button class="tv-mi danger" data-tvclear>Aufstellung leeren</button>';
     document.getElementById("tvScrimMenu").classList.add("open");
     document.getElementById("tvSheetMenu").classList.add("open");
   }
@@ -2019,7 +2020,7 @@
     const fp = t.closest("[data-tvform]"); if (fp) { tvSwitchFormation(fp.dataset.tvform); tvViewLineup(); return true; }
     if (t.closest("[data-tvmoreform]")) { tvOpenForm(false); return true; }
     if (t.closest("[data-tvadopt]")) { tvAdopt(); return true; }
-    if (t.closest("[data-tvfresh]")) { const c = viewEl.querySelector(".tv-cta"); if (c) c.remove(); return true; }
+    if (t.closest("[data-tvfresh]")) { tv.hideCta = true; tvViewLineup(); return true; }
     return false;
   }
 

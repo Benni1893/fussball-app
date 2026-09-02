@@ -1008,10 +1008,13 @@ body.auth-mode .app-footer { display: none; }
 .tv-fpill { flex: 0 0 auto; min-height: 44px; display: flex; align-items: center; gap: 8px; padding: 5px 12px 5px 7px; border: 1px solid var(--line); background: var(--bg); border-radius: 999px; font-weight: 700; font-size: 13px; color: var(--ink); }
 .tv-fpill.on { background: var(--green-050); border-color: var(--green-500); color: var(--green-800); }
 .tv-fmore { flex: 0 0 auto; min-height: 44px; padding: 0 14px; border: 1px dashed var(--line); background: var(--card); border-radius: 999px; font-weight: 700; font-size: 13px; color: var(--muted); }
-.tv-mini { position: relative; display: inline-block; width: 22px; height: 30px; background: var(--green-600); border-radius: 4px; flex: 0 0 auto; }
-.tv-mini i { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: #fff; transform: translate(-50%,-50%); }
+/* Nur Punkte als Erkennungsmuster – kein Rasen, kein Rahmen, keine Linien. */
+.tv-mini { position: relative; display: inline-block; width: 20px; height: 26px; flex: 0 0 auto; }
+.tv-mini i { position: absolute; width: 2.5px; height: 2.5px; border-radius: 50%; background: var(--green-700); transform: translate(-50%,-50%); }
 .tv-field { flex: 1 1 auto; min-height: 0; position: relative; display: flex; align-items: center; justify-content: center; padding: 8px clamp(8px,3vw,14px); }
-.tv-pitch { position: relative; aspect-ratio: 68/105; max-height: 100%; max-width: 100%; width: auto; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); user-select: none; touch-action: manipulation; }
+/* height:100% (definit) statt max-height: die Pitch-Box hat nur absolut positionierte
+   Kinder -> mit max-height fällt sie auf 0 zusammen. Definite Höhe verhindert den Kollaps. */
+.tv-pitch { position: relative; aspect-ratio: 68/105; height: 100%; max-width: 100%; width: auto; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); user-select: none; touch-action: manipulation; }
 .tv-pitch-bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .tv-slot { position: absolute; transform: translate(-50%,-50%); width: 15%; min-width: 46px; max-width: 64px; display: flex; flex-direction: column; align-items: center; }
 .tv-disc { width: 100%; aspect-ratio: 1/1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; border: 2px solid rgba(255,255,255,.85); color: #fff; background: rgba(15,61,46,.34); }
@@ -1031,7 +1034,9 @@ body.auth-mode .app-footer { display: none; }
 /* Bottom-Sheets über der Nav */
 .tv-scrim { position: fixed; inset: 0; background: rgba(20,28,22,.45); opacity: 0; pointer-events: none; transition: opacity .2s ease; z-index: 90; }
 .tv-scrim.open { opacity: 1; pointer-events: auto; }
-.tv-sheet { position: fixed; left: 0; right: 0; bottom: calc(56px + env(safe-area-inset-bottom)); z-index: 91; background: var(--card); border-radius: 18px 18px 0 0; box-shadow: 0 -10px 30px rgba(15,61,46,.22); transform: translateY(120%); transition: transform .28s cubic-bezier(.22,1,.36,1); max-height: 66dvh; display: flex; flex-direction: column; }
+/* Geschlossen VOLLSTÄNDIG ausblenden: Sheet sitzt bei bottom:56px+safe (über der Nav),
+   daher muss der Versatz mit ins translate, sonst ragt die (leere, kurze) Kopfzeile über die Nav. */
+.tv-sheet { position: fixed; left: 0; right: 0; bottom: calc(56px + env(safe-area-inset-bottom)); z-index: 91; background: var(--card); border-radius: 18px 18px 0 0; box-shadow: 0 -10px 30px rgba(15,61,46,.22); transform: translateY(calc(100% + 56px + env(safe-area-inset-bottom) + 12px)); transition: transform .28s cubic-bezier(.22,1,.36,1); max-height: 66dvh; display: flex; flex-direction: column; }
 .tv-sheet.open { transform: translateY(0); }
 .tv-sh { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 15px 16px 8px; }
 .tv-grip { position: absolute; left: 50%; transform: translateX(-50%); top: 7px; width: 38px; height: 4px; border-radius: 999px; background: var(--line); }
@@ -1069,16 +1074,18 @@ body.auth-mode .app-footer { display: none; }
 .tv-fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .tv-fcard { position: relative; border: 1px solid var(--line); border-radius: 14px; background: var(--card); padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 44px; }
 .tv-fcard.on { border-color: var(--green-500); background: var(--green-050); }
-.tv-fcard .tv-mini { width: 48px; height: 64px; }
-.tv-fcard .tv-mini i { width: 5px; height: 5px; }
+.tv-fcard .tv-mini { width: 40px; height: 52px; }
+.tv-fcard .tv-mini i { width: 3.5px; height: 3.5px; }
 .tv-fn { font-weight: 800; font-size: 14px; }
 .tv-star { position: absolute; top: 4px; right: 4px; width: 44px; height: 44px; border-radius: 50%; border: 0; background: transparent; font-size: 18px; color: var(--line); }
 .tv-star.fav { color: var(--gold-500); }
 
 /* Menü-Einträge */
-.tv-mi { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; border: 0; background: transparent; padding: 0 6px; border-radius: 12px; font-weight: 700; font-size: 15px; text-align: left; color: var(--ink); }
+/* Menü-Einträge exakt im App-Muster (.more-item): text-only, gleiche Abstände/Hover. */
+.tv-mi { display: block; width: 100%; text-align: left; min-height: 48px; padding: 12px 14px; border: 0; background: none; font: inherit; font-weight: 600; color: var(--ink); border-radius: 10px; }
+.tv-mi:hover, .tv-mi:active { background: var(--green-050); color: var(--green-800); }
 .tv-mi.danger { color: var(--red-600); }
-.tv-miic { width: 26px; text-align: center; font-size: 18px; }
+.tv-mi.danger:hover, .tv-mi.danger:active { background: var(--red-050); color: var(--red-600); }
 
 /* Toast */
 .tv-toast { position: fixed; left: 50%; bottom: calc(70px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(8px); background: var(--green-900); color: #fff; font-size: 13px; font-weight: 700; padding: 9px 16px; border-radius: 999px; box-shadow: 0 6px 18px rgba(15,61,46,.3); opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; z-index: 95; }
