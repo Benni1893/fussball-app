@@ -2251,12 +2251,24 @@
       ind.style.transition = "opacity 200ms ease, " + SPRING;
       setPos(px, false);
     }
+    // Weiche, zusammenhaengende Rueckkehr nach oben: Inhalt UND Indikator in EINER
+    // Bewegung (300ms ease-out). Erzwungener Reflow committet den Startwert, damit iOS
+    // die Transition nicht ueberspringt (sonst harter Sprung). Spinner-Rotation erst
+    // NACH dem Ausblenden stoppen -> kein sichtbarer Snap.
     function springBack() {
-      if (reduce) { container.style.transform = ""; ind.style.opacity = "0"; pull = 0; return; }
-      springTo(0); pull = 0;
-      setTimeout(() => { // Transform im Ruhezustand entfernen (kein bleibender Containing-Block)
+      if (reduce) { ind.classList.remove("is-spinning"); container.style.transform = ""; ind.style.opacity = "0"; pull = 0; return; }
+      const RET = "300ms cubic-bezier(.22,1,.36,1)";
+      container.style.transition = "transform " + RET;
+      ind.style.transition = "transform " + RET + ", opacity " + RET;
+      void container.offsetHeight;                         // Startwert (Halteposition) sicher committen
+      container.style.transform = "translateY(0px)";       // Inhalt weich nach oben ...
+      ind.style.opacity = "0";                             // ... Indikator gleichzeitig aus (eine Bewegung)
+      ind.style.transform = "translateX(-50%) translateY(0px)";
+      pull = 0;
+      setTimeout(() => {
+        ind.classList.remove("is-spinning");               // Rotation erst nach dem Ausblenden stoppen
         if (!tracking && !refreshing) { container.style.transform = ""; container.style.transition = ""; }
-      }, 340);
+      }, 320);
     }
     function showHint(msg) {
       hint.textContent = msg; hint.classList.add("show");
@@ -2281,7 +2293,8 @@
       }
     }
     function finish(ok) {
-      ind.classList.remove("is-spinning");
+      // Daten sind hier bereits im DOM (onRefresh wurde davor awaited). is-spinning bleibt
+      // an, bis springBack() die Rotation NACH dem Ausblenden stoppt (kein Snap).
       if (!ok) showHint("Konnte nicht aktualisiert werden");
       springBack();
       setTimeout(() => { refreshing = false; }, reduce ? 0 : 320);
