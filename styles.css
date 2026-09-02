@@ -447,6 +447,9 @@ tbody tr:hover { background: #fbfdfc; }
 .ks-select { padding: 5px 8px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font: inherit; font-size: .85rem; }
 
 .e-trainer { margin-top: 8px; }
+/* Direktsprung in die Aufstellung: dezent (btn-soft), aber Touch-Ziel >=44px. */
+.lu-jump { min-height: 44px; }
+#tvUnsaved .btn { min-height: 44px; justify-content: center; }
 
 /* Buttons (sekundär/primär) */
 .btn-soft { background: #eef2ef; border-color: transparent; font-size: .85rem; }
