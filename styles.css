@@ -909,3 +909,75 @@ body.auth-mode .app-footer { display: none; }
   transition: opacity 200ms ease, transform 200ms ease;
 }
 .ptr-hint.show { opacity: 1; transform: translateX(-50%) translateY(2px); }
+
+/* ---------- Aufstellung (Variante B: formatfüllendes Feld + Kader-Panel) ---- */
+/* Die Aufstellungsseite füllt den Bereich zwischen Kopfzeile und Nav ohne Seiten-Scroll. */
+.view:has(.lu2) { padding: 0; max-width: none; }
+.lu2 {
+  height: calc(100dvh - var(--header-h, 78px) - 56px - env(safe-area-inset-bottom));
+  display: flex; flex-direction: column; min-height: 0; overflow: hidden;
+}
+/* Kopf: ruhige Spielinfo + Aktiv-Chip + Formation + „…" */
+.lu2-head { padding: 8px clamp(12px,4vw,18px) 6px; background: var(--card); border-bottom: 1px solid var(--line); }
+.lu2-game { font-size: .86rem; font-weight: 700; color: var(--ink); }
+.lu2-row2 { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 5px; }
+.lu2-chip { font-size: .72rem; font-weight: 700; color: var(--muted); background: var(--bg); border: 1px solid var(--line); padding: 5px 10px; border-radius: 999px; }
+.lu2-chip.is-on { color: var(--green-800); background: var(--green-050); border-color: var(--green-500); }
+.lu2-tools { display: flex; align-items: center; gap: 8px; }
+.lu2-form { min-height: 44px; }
+.lu2-more { width: 44px; height: 44px; border: 1px solid var(--line); background: var(--card); border-radius: 12px; font-size: 20px; color: var(--muted); }
+/* Feld formatfüllend */
+.lu2-field { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 6px clamp(8px,3vw,14px); }
+.lu2-field .pitch { aspect-ratio: 68/105; max-height: 100%; max-width: 100%; width: auto; height: auto; margin: 0; }
+/* Primär-Aktion */
+.lu2-actions { padding: 8px clamp(12px,4vw,18px) 10px; background: var(--card); border-top: 1px solid var(--line); }
+.lu2-primary { width: 100%; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; line-height: 1.15; }
+.lu2-primary small { font-weight: 600; opacity: .85; font-size: .72rem; }
+
+/* Bottom-Sheets (Kader-Panel + „Mehr") – sitzen ÜBER der fixen Nav, Scrim dimmt sie */
+.lu-scrim { position: fixed; inset: 0; background: rgba(20,28,22,.45); opacity: 0; pointer-events: none; transition: opacity .2s ease; z-index: 90; }
+.lu-scrim.open { opacity: 1; pointer-events: auto; }
+.lu-sheet {
+  position: fixed; left: 0; right: 0; bottom: calc(56px + env(safe-area-inset-bottom)); z-index: 91;
+  background: var(--card); border-radius: 18px 18px 0 0; box-shadow: 0 -10px 30px rgba(15,61,46,.22);
+  transform: translateY(120%); transition: transform .28s cubic-bezier(.22,1,.36,1);
+  max-height: 66dvh; display: flex; flex-direction: column;
+}
+.lu-sheet.open { transform: translateY(0); }
+.lu-sheet-head { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 15px 16px 8px; }
+.lu-grip { position: absolute; left: 50%; transform: translateX(-50%); top: 7px; width: 38px; height: 4px; border-radius: 999px; background: var(--line); }
+.lu-sheet-head strong { font-size: 1rem; }
+.lu-sheet-sub { font-size: .75rem; color: var(--muted); font-weight: 600; }
+.lu-sheet-x { border: 0; background: var(--bg); width: 40px; height: 40px; border-radius: 50%; font-size: 20px; color: var(--muted); }
+.lu-sheet-body { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 6px 16px 16px; }
+
+/* Kader nach Mannschaftsteilen – dezente Überschriften */
+.lu-kgroup { margin-top: 12px; }
+.lu-kgroup:first-child { margin-top: 2px; }
+.lu-kgroup h4 { margin: 0 0 6px; font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
+.lu-kgroup h4 span { opacity: .6; margin-left: 4px; }
+.lu-klist { display: flex; flex-direction: column; gap: 6px; }
+.lu-pchip { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 6px 10px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
+.lu-pchip[data-player] { cursor: pointer; }
+.lu-pchip.is-off { opacity: .72; }
+.lu-pchip.is-placed { opacity: .45; }
+.lu-pnr { flex: 0 0 auto; width: 30px; height: 30px; border-radius: 50%; background: var(--green-050); color: var(--green-800); font-weight: 800; font-size: .82rem; display: flex; align-items: center; justify-content: center; }
+.lu-pwho { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.lu-pname { font-weight: 700; font-size: .9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lu-pmeta { font-size: .7rem; color: var(--muted); }
+.lu-ptag { flex: 0 0 auto; font-size: .62rem; font-weight: 800; padding: 3px 8px; border-radius: 999px; letter-spacing: .3px; }
+.lu-ptag.ok { background: var(--green-050); color: var(--green-700); }
+.lu-ptag.ang { background: var(--amber-050); color: var(--amber-600); }
+.lu-ptag.none { background: var(--bg); color: var(--muted); border: 1px solid var(--line); }
+.lu-ptag.abw { background: var(--line); color: var(--muted); }
+.lu-ptag.verl { background: var(--red-050); color: var(--red-600); }
+.lu-ptag.placed { background: var(--green-800); color: #fff; }
+.lu-empty-btn { width: 100%; min-height: 44px; border: 1px solid var(--line); background: var(--bg); border-radius: 12px; font-weight: 700; color: var(--red-600); margin-bottom: 8px; }
+
+/* „Mehr"-Sheet Felder */
+.lu-mfield { display: flex; flex-direction: column; gap: 4px; font-size: .72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 10px; }
+.lu-mfield .lu-select, .lu-mfield .lu-name { text-transform: none; font-weight: 500; }
+#luMoreBody .btn { width: 100%; margin-bottom: 8px; min-height: 46px; }
+#luMoreBody .lu-msg { font-size: .82rem; color: var(--green-800); font-weight: 600; margin-top: 2px; }
+
+@media (prefers-reduced-motion: reduce) { .lu-scrim, .lu-sheet { transition: none; } }

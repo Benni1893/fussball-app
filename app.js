@@ -281,6 +281,7 @@
 
   function render() {
     stopCountdowns(); // Timer der vorigen Ansicht sauber aufräumen
+    if (currentView !== "lineup") lbTeardownPanels(); // Kader-/Mehr-Panel gehört nur zur Aufstellung
     if (currentView === "dashboard") renderDashboard();
     else if (currentView === "kalender") renderKalender();
     else if (currentView === "katalog") renderKatalog();
@@ -1320,6 +1321,29 @@
   let lb = { eventId: null, lineupId: null, name: "", formation: "4-4-2", assign: {}, sel: null, gaps: [], msg: "" };
   let lbDrag = null;
 
+  // Rollen-Affinität: Ziel-Rolle -> akzeptierte Quell-Rollen nach Ähnlichkeit (Index = Rang).
+  const LB_AFF = { TW:["TW"], IV:["IV","AV","DM"], AV:["AV","IV","FL","ZM"], DM:["DM","ZM","IV"],
+    ZM:["ZM","DM","OM"], OM:["OM","ZM","FL","ST"], FL:["FL","OM","AV","ST"], ST:["ST","OM","FL"] };
+  function lbAffRank(from, to) { const l = LB_AFF[to] || [to]; return l.indexOf(from); }
+  // Mannschaftsteil aus Positionskürzel.
+  function lbTeamPart(pos) {
+    const p = String(pos || "").toUpperCase();
+    if (p === "TW") return "TW";
+    if (p === "ST" || p[0] === "S") return "STU";
+    if (p.indexOf("V") !== -1) return "ABW";  // IV, AV, LV, RV …
+    return "MIT";
+  }
+  const LB_GROUPS = [["TW","Tor"], ["ABW","Abwehr"], ["MIT","Mittelfeld"], ["STU","Angriff"]];
+  // Verfügbarkeit für Kader-Panel: null = verfügbar; sonst {cls,label,rank}. Höherer Rang = weiter hinten.
+  function lbAvail(p) {
+    if (p.status === "verletzt") return { cls:"verl", label:"verletzt", rank:4 };
+    const r = (state.rsvp[lb.eventId + "|" + p.id] || {}).status;
+    if (r === "ab") return { cls:"abw", label:"abgesagt", rank:3 };
+    if (r !== "zu") return { cls:"none", label:"o. Rückm.", rank:2 };
+    if (p.status === "angeschlagen") return { cls:"ang", label:"angeschlagen", rank:1 };
+    return null;
+  }
+
   function shortName(name) {
     const p = String(name).trim().split(/\s+/);
     return p.length > 1 ? p[0][0] + ". " + p[p.length - 1] : name;
@@ -1379,7 +1403,7 @@
         const selCls = (lb.sel && lb.sel.kind === "slot" && lb.sel.key === s.key) ? " is-selected" : "";
         return `<div class="slot${p ? " is-filled" : ""}${selCls}${gap ? " is-gap" : ""}" data-slot="${s.key}" style="left:${s.x}%;top:${s.y}%">
           ${p
-            ? `<div class="field-pl${mism ? " is-mismatch" : ""}" draggable="true" data-slot-player="${s.key}" title="${mism ? "Position passt nicht: " + p.pos + " auf " + s.role : esc(p.name)}">
+            ? `<div class="field-pl${mism ? " is-mismatch" : ""}" title="${mism ? "Position passt nicht: " + p.pos + " auf " + s.role : esc(p.name)}">
                  <span class="fp-nr">${p.nr != null ? p.nr : ""}</span>
                  <span class="fp-name">${esc(shortName(p.name))}</span>
                  ${mism ? '<span class="fp-warn">!</span>' : ""}
@@ -1410,74 +1434,50 @@
     if (!spiele.length) {
       viewEl.innerHTML = `<div class="page-head"><h1>Aufstellung</h1></div>
         <div class="empty">Noch keine Spiele angelegt.</div>`;
+      lbTeardownPanels();
       return;
     }
+    lbEnsurePanels();
+    const ev        = DEMO.events.find((e) => e.id === lb.eventId);
     const varianten = (DEMO.lineups || []).filter((l) => l.eventId === lb.eventId && !l.isTemplate);
-    const vorlagen  = (DEMO.lineups || []).filter((l) => l.isTemplate);
     const aktiv     = varianten.find((l) => l.isActive);
     const istAktiv  = aktiv && aktiv.id === lb.lineupId;
+    const placedN   = Object.values(lb.assign).filter(Boolean).length;
 
-    const placed = new Set(Object.values(lb.assign).filter(Boolean));
-    const verletztIds = new Set(DEMO.players.filter((p) => p.status === "verletzt").map((p) => p.id));
-    const frei = DEMO.players.filter((p) => !verletztIds.has(p.id) && !placed.has(p.id));
-    const zu = (p) => (state.rsvp[lb.eventId + "|" + p.id] || {}).status === "zu";
-    const bank    = frei.filter(zu).sort(byName);
-    const weitere = frei.filter((p) => !zu(p)).sort(byName);
-    const lazarett = DEMO.players.filter((p) => p.status === "verletzt" && !placed.has(p.id)).sort(byName);
-
-    const evOpt = spiele.map((e) =>
-      `<option value="${e.id}" ${e.id === lb.eventId ? "selected" : ""}>${fmtDay(e.datum)}. ${fmtMon(e.datum)} · ${e.heim ? "vs." : "@"} ${esc(e.gegner || e.titel)}</option>`).join("");
     const formOpt = Object.keys(FORMATIONS).map((f) =>
       `<option value="${f}" ${f === lb.formation ? "selected" : ""}>${f}</option>`).join("");
-    const varOpt = `<option value="new" ${!lb.lineupId ? "selected" : ""}>Neue Aufstellung</option>` +
-      varianten.map((l) => `<option value="${l.id}" ${l.id === lb.lineupId ? "selected" : ""}>${esc(l.name)}${l.isActive ? " (aktiv)" : ""}</option>`).join("");
-    const tplOpt = `<option value="">Vorlage wählen …</option>` +
-      vorlagen.map((l) => `<option value="${l.id}">${esc(l.name)} (${l.formation})</option>`).join("");
+    const gameLine = ev
+      ? `${fmtDay(ev.datum)}. ${fmtMon(ev.datum)}${ev.zeit ? " · " + ev.zeit + " Uhr" : ""} · ${ev.heim ? "vs." : "@"} ${esc(ev.gegner || ev.titel)}`
+      : "Kein Spiel gewählt";
+    const chip = aktiv
+      ? `<span class="lu2-chip is-on">● Aktiv: ${esc(aktiv.name)}</span>`
+      : `<span class="lu2-chip">Noch keine aktive Aufstellung</span>`;
 
     viewEl.innerHTML = `
-      <div class="page-head"><h1>Aufstellung</h1>
-        <p>Team per Ziehen (Maus) oder Tippen (Handy) aufstellen. ${istAktiv ? '<span class="lu-activebadge">aktiv</span>' : ""}</p></div>
-
-      <div class="lu-controls card card-pad">
-        <div class="lu-row">
-          <label>Spiel <select class="lu-select" data-lu-event>${evOpt}</select></label>
-          <label>Formation <select class="lu-select" data-lu-formation>${formOpt}</select></label>
-          <label>Variante <select class="lu-select" data-lu-variant>${varOpt}</select></label>
-        </div>
-        <div class="lu-row">
-          <input class="lu-name" data-lu-name type="text" placeholder="Name der Variante (z. B. „Plan B ohne Lukas")" value="${esc(lb.name)}">
-          <button class="btn btn-primary" data-lu-save>Speichern</button>
-          <button class="btn" data-lu-active>${istAktiv ? "Aktiv" : "Aktiv setzen"}</button>
-          <button class="btn" data-lu-tplsave>Als Vorlage</button>
-          <button class="btn btn-danger" data-lu-delete>Löschen</button>
-        </div>
-        <div class="lu-row">
-          <label>Vorlage anwenden <select class="lu-select" data-lu-template>${tplOpt}</select></label>
-          <button class="btn btn-soft" data-lu-apply>Anwenden</button>
-          ${lb.msg ? `<span class="lu-msg">${esc(lb.msg)}</span>` : ""}
-        </div>
-      </div>
-
-      <div class="lu-main">
-        <div class="lu-pitch-wrap">${renderPitch(lb.formation, lb.assign)}</div>
-        <div class="lu-side">
-          <div class="lu-group">
-            <h3>Bank · Zusagen <span class="lu-count">${bank.length}</span></h3>
-            <div class="pl-pool" data-bank-drop>
-              ${bank.length ? bank.map((p) => poolChip(p)).join("") : '<div class="pl-empty">Alle Zusagen sind aufgestellt</div>'}
+      <div class="lu2">
+        <div class="lu2-head">
+          <div class="lu2-game">${gameLine}</div>
+          <div class="lu2-row2">
+            ${chip}
+            <div class="lu2-tools">
+              <select class="lu-select lu2-form" data-lu-formation aria-label="Formation">${formOpt}</select>
+              <button class="lu2-more" data-lu-more aria-label="Mehr: Spiel, Varianten, Vorlagen">⋯</button>
             </div>
           </div>
-          <details class="lu-group">
-            <summary>Ohne Rückmeldung / abgesagt <span class="lu-count">${weitere.length}</span></summary>
-            <div class="pl-pool">${weitere.length ? weitere.map((p) => poolChip(p)).join("") : '<div class="pl-empty">–</div>'}</div>
-          </details>
-          ${lazarett.length ? `<div class="lu-group">
-            <h3>Verletzt <span class="lu-count">${lazarett.length}</span></h3>
-            <div class="pl-pool">${lazarett.map((p) => poolChip(p, { injured: true })).join("")}</div>
-          </div>` : ""}
         </div>
-      </div>
-    `;
+        <div class="lu2-field">${renderPitch(lb.formation, lb.assign)}</div>
+        <div class="lu2-actions">
+          <button class="btn btn-primary lu2-primary" data-lu-saveactive>
+            <span>${istAktiv ? "Aktiv ✓ – Änderungen speichern" : "Speichern &amp; aktiv setzen"}</span>
+            <small>${placedN}/11 gesetzt</small>
+          </button>
+        </div>
+      </div>`;
+
+    lbRenderMoreBody();
+    if (document.getElementById("luPanel") && document.getElementById("luPanel").classList.contains("open") && lb.sel && lb.sel.kind === "slot") {
+      lbRenderPanelBody(lb.sel.key);
+    }
   }
 
   // --- Mutationen -------------------------------------------------------------
@@ -1494,26 +1494,17 @@
   }
   function lbRemove(key) { lb.assign[key] = null; }
 
-  // --- Tippen-zum-Zuweisen ----------------------------------------------------
+  // --- Tippen-zum-Zuweisen (Variante B) --------------------------------------
+  // Slot antippen -> Position merken + Kader-Panel von unten einfahren.
+  function lbTapSlot(key) {
+    lb.sel = { kind: "slot", key: key };
+    renderLineup();      // markiert die gewählte Position auf dem Feld
+    lbOpenPanel(key);    // Panel (persistiert in body) sanft einfahren
+  }
+  // Spieler im Panel antippen -> setzen, Panel wieder ausfahren.
   function lbTapPool(id) {
     if (!id) return;
-    lb.sel = (lb.sel && lb.sel.kind === "pool" && lb.sel.id === id) ? null : { kind: "pool", id: id };
-    renderLineup();
-  }
-  function lbTapSlot(key) {
-    if (lb.sel) {
-      if (lb.sel.kind === "pool") lbPlace(key, lb.sel.id);
-      else if (lb.sel.kind === "slot") lbSwap(lb.sel.key, key);
-      lb.sel = null;
-    } else if (lb.assign[key]) {
-      lb.sel = { kind: "slot", key: key };
-    }
-    renderLineup();
-  }
-  function lbTapBank() {
-    if (lb.sel && lb.sel.kind === "slot") lbRemove(lb.sel.key);
-    lb.sel = null;
-    renderLineup();
+    if (lb.sel && lb.sel.kind === "slot") { lbPlace(lb.sel.key, id); lb.sel = null; lbClosePanel(); renderLineup(); }
   }
 
   // --- Drag & Drop ------------------------------------------------------------
@@ -1529,12 +1520,21 @@
   }
 
   // --- Steuerung --------------------------------------------------------------
+  // Formationswechsel: gesetzte Spieler nach Rollen-Affinität auf die ähnlichste
+  // Position übernehmen (Flügel->Außenbahn, 10er->9er …), nur transform-freie Neuzuordnung.
   function lbChangeFormation(val) {
+    const oldSlots = FORMATIONS[lb.formation] || [];
     const placed = [];
-    (FORMATIONS[lb.formation] || []).forEach((s) => { if (lb.assign[s.key]) placed.push(lb.assign[s.key]); });
-    lb.formation = val;
-    lb.assign = {}; lb.gaps = [];
-    (FORMATIONS[val] || []).forEach((s, i) => { if (i < placed.length) lb.assign[s.key] = placed[i]; });
+    oldSlots.forEach((s) => { const pid = lb.assign[s.key]; if (pid) placed.push({ pid: pid, role: s.role, x: s.x }); });
+    const nsl = FORMATIONS[val] || [];
+    const pairs = [];
+    placed.forEach((pl) => {
+      nsl.forEach((s) => { const r = lbAffRank(pl.role, s.role); if (r < 0) return; pairs.push({ pid: pl.pid, key: s.key, cost: r * 1000 + Math.abs(pl.x - s.x) }); });
+    });
+    pairs.sort((a, b) => a.cost - b.cost);
+    const usedP = new Set(), usedK = new Set(), na = {};
+    pairs.forEach((p) => { if (usedP.has(p.pid) || usedK.has(p.key)) return; na[p.key] = p.pid; usedP.add(p.pid); usedK.add(p.key); });
+    lb.formation = val; lb.assign = na; lb.gaps = []; lb.sel = null;
   }
   function lbChangeVariant(val) {
     if (val === "new") lbNew();
@@ -1545,7 +1545,7 @@
     return "Variante " + String.fromCharCode(65 + n);
   }
   async function lbSave() {
-    const nameEl = viewEl.querySelector("[data-lu-name]");
+    const nameEl = document.querySelector("[data-lu-name]");
     lb.name = ((nameEl ? nameEl.value : lb.name) || "").trim() || defaultVariantName();
     if (!lb.eventId) { window.alert("Bitte zuerst ein Spiel wählen."); return; }
     try {
@@ -1564,7 +1564,7 @@
     catch (err) { window.alert("Konnte nicht aktiv setzen: " + ((err && err.message) || err)); }
   }
   async function lbSaveTemplate() {
-    const nameEl = viewEl.querySelector("[data-lu-name]");
+    const nameEl = document.querySelector("[data-lu-name]");
     let nm = window.prompt("Name der Vorlage:", ((nameEl ? nameEl.value : lb.name) || "").trim() || "Vorlage");
     if (nm === null) return;
     try {
@@ -1574,7 +1574,7 @@
     } catch (err) { window.alert("Vorlage speichern fehlgeschlagen: " + ((err && err.message) || err)); }
   }
   function lbApplyTemplate() {
-    const sel = viewEl.querySelector("[data-lu-template]");
+    const sel = document.querySelector("[data-lu-template]");
     const id = sel ? sel.value : "";
     if (!id) { window.alert("Bitte zuerst eine Vorlage wählen."); return; }
     const tpl = (DEMO.lineups || []).find((l) => l.id === id && l.isTemplate);
@@ -1599,6 +1599,128 @@
     try { await DB.deleteLineup(lb.lineupId); lbNew(); lb.msg = "Gelöscht."; await reloadData(); }
     catch (err) { window.alert("Löschen fehlgeschlagen: " + ((err && err.message) || err)); }
   }
+
+  // Primär-Aktion: aktuelle Aufstellung speichern UND als aktive setzen (ein Tap).
+  async function lbSaveActivate() {
+    if (!lb.eventId) { window.alert("Bitte zuerst ein Spiel wählen (Menü ⋯)."); return; }
+    const nameEl = document.querySelector("[data-lu-name]");
+    lb.name = ((nameEl ? nameEl.value : lb.name) || "").trim() || defaultVariantName();
+    try {
+      const row = await DB.saveLineup({
+        id: lb.lineupId, clubId: DEMO.clubId, eventId: lb.eventId,
+        name: lb.name, formation: lb.formation, slots: cleanAssign(lb.assign), bank: lbBankIds(), isTemplate: false,
+      });
+      lb.lineupId = row.id;
+      await DB.setLineupActive(lb.lineupId);
+      lb.msg = "Gespeichert & aktiv gesetzt.";
+      await reloadData();
+    } catch (err) { window.alert("Fehlgeschlagen: " + ((err && err.message) || err)); }
+  }
+
+  /* ---- Kader-Panel + „Mehr"-Sheet (persistieren in body -> flüssiges Ein-/Ausfahren) ---- */
+  function lbEnsurePanels() {
+    if (document.getElementById("luPanels")) return;
+    const wrap = document.createElement("div");
+    wrap.id = "luPanels";
+    wrap.innerHTML =
+      '<div class="lu-scrim" id="luScrim" data-lu-panel-close></div>' +
+      '<div class="lu-sheet" id="luPanel" role="dialog" aria-modal="true" aria-label="Spieler wählen">' +
+        '<div class="lu-sheet-head"><span class="lu-grip"></span>' +
+          '<div><strong id="luPanelTitle">Spieler wählen</strong><div class="lu-sheet-sub" id="luPanelSub"></div></div>' +
+          '<button class="lu-sheet-x" data-lu-panel-close aria-label="Schließen">&times;</button></div>' +
+        '<div class="lu-sheet-body" id="luPanelBody"></div></div>' +
+      '<div class="lu-scrim" id="luMoreScrim" data-lu-more-close></div>' +
+      '<div class="lu-sheet" id="luMore" role="dialog" aria-modal="true" aria-label="Mehr">' +
+        '<div class="lu-sheet-head"><span class="lu-grip"></span>' +
+          '<div><strong>Mehr</strong><div class="lu-sheet-sub">Spiel, Varianten &amp; Vorlagen</div></div>' +
+          '<button class="lu-sheet-x" data-lu-more-close aria-label="Schließen">&times;</button></div>' +
+        '<div class="lu-sheet-body" id="luMoreBody"></div></div>';
+    document.body.appendChild(wrap);
+
+    wrap.addEventListener("click", (ev) => {
+      const t = ev.target;
+      if (t.closest("[data-lu-panel-close]")) { lb.sel = null; lbClosePanel(); renderLineup(); return; }
+      const pl = t.closest("[data-player]"); if (pl) { lbTapPool(pl.dataset.player); return; }
+      if (t.closest("[data-lu-empty]")) { if (lb.sel && lb.sel.kind === "slot") lbRemove(lb.sel.key); lb.sel = null; lbClosePanel(); renderLineup(); return; }
+      if (t.closest("[data-lu-more-close]")) { lbCloseMore(); return; }
+      if (t.closest("[data-lu-save]"))    { lbCloseMore(); lbSave(); return; }
+      if (t.closest("[data-lu-tplsave]")) { lbCloseMore(); lbSaveTemplate(); return; }
+      if (t.closest("[data-lu-apply]"))   { lbCloseMore(); lbApplyTemplate(); return; }
+      if (t.closest("[data-lu-delete]"))  { lbCloseMore(); lbDeleteCurrent(); return; }
+    });
+    wrap.addEventListener("change", (ev) => {
+      const t = ev.target;
+      if (t.matches("[data-lu-event]"))   { lb.eventId = t.value; lbLoadActiveOrNew(); renderLineup(); }
+      else if (t.matches("[data-lu-variant]")) { lbChangeVariant(t.value); renderLineup(); }
+    });
+  }
+  function lbTeardownPanels() { const w = document.getElementById("luPanels"); if (w && w.parentNode) w.parentNode.removeChild(w); }
+
+  function lbRenderPanelBody(selKey) {
+    const body = document.getElementById("luPanelBody"); if (!body) return;
+    const placedSet = new Set(Object.values(lb.assign).filter(Boolean));
+    const slot = (FORMATIONS[lb.formation] || []).find((s) => s.key === selKey);
+    let html = "";
+    if (slot && lb.assign[selKey]) html += '<button class="lu-empty-btn" data-lu-empty>Position „' + esc(slot.role) + '" leeren</button>';
+    LB_GROUPS.forEach(([gk, label]) => {
+      const list = DEMO.players.filter((p) => lbTeamPart(p.pos) === gk)
+        .sort((a, b) => ((lbAvail(a) || { rank: 0 }).rank - (lbAvail(b) || { rank: 0 }).rank) || byName(a, b));
+      if (!list.length) return;
+      html += '<div class="lu-kgroup" data-grp="' + gk + '"><h4>' + label + ' <span>' + list.length + '</span></h4><div class="lu-klist">';
+      list.forEach((p) => {
+        const placed = placedSet.has(p.id);
+        const av = lbAvail(p);
+        const tap = !placed;   // Verletzte/Abgesagte bleiben setzbar; nur bereits Aufgestellte nicht.
+        const tag = placed ? '<span class="lu-ptag placed">aufgestellt</span>'
+          : (av ? '<span class="lu-ptag ' + av.cls + '">' + av.label + '</span>' : '<span class="lu-ptag ok">verfügbar</span>');
+        html += '<div class="lu-pchip' + (placed ? " is-placed" : "") + (av ? " is-off" : "") + '"' + (tap ? ' data-player="' + p.id + '"' : "") + '>' +
+          '<span class="lu-pnr">' + (p.nr != null ? p.nr : "–") + '</span>' +
+          '<span class="lu-pwho"><span class="lu-pname">' + esc(p.name) + '</span><span class="lu-pmeta">' + esc(p.pos || "") + '</span></span>' +
+          tag + '</div>';
+      });
+      html += '</div></div>';
+    });
+    body.innerHTML = html;
+  }
+  function lbRenderMoreBody() {
+    const body = document.getElementById("luMoreBody"); if (!body) return;
+    const spiele = DEMO.events.filter((e) => e.typ === "spiel").sort((a, b) => a.datum.localeCompare(b.datum));
+    const varianten = (DEMO.lineups || []).filter((l) => l.eventId === lb.eventId && !l.isTemplate);
+    const vorlagen  = (DEMO.lineups || []).filter((l) => l.isTemplate);
+    const evOpt = spiele.map((e) =>
+      `<option value="${e.id}" ${e.id === lb.eventId ? "selected" : ""}>${fmtDay(e.datum)}. ${fmtMon(e.datum)} · ${e.heim ? "vs." : "@"} ${esc(e.gegner || e.titel)}</option>`).join("");
+    const varOpt = `<option value="new" ${!lb.lineupId ? "selected" : ""}>Neue Aufstellung</option>` +
+      varianten.map((l) => `<option value="${l.id}" ${l.id === lb.lineupId ? "selected" : ""}>${esc(l.name)}${l.isActive ? " (aktiv)" : ""}</option>`).join("");
+    const tplOpt = `<option value="">Vorlage wählen …</option>` +
+      vorlagen.map((l) => `<option value="${l.id}">${esc(l.name)} (${l.formation})</option>`).join("");
+    body.innerHTML =
+      `<label class="lu-mfield">Spiel<select class="lu-select" data-lu-event>${evOpt}</select></label>` +
+      `<label class="lu-mfield">Variante<select class="lu-select" data-lu-variant>${varOpt}</select></label>` +
+      `<label class="lu-mfield">Name der Variante<input class="lu-name" data-lu-name type="text" value="${esc(lb.name)}" placeholder="z. B. Plan B ohne Lukas"></label>` +
+      `<button class="btn" data-lu-save>Als weitere Variante speichern</button>` +
+      `<button class="btn" data-lu-tplsave>Als Vorlage speichern</button>` +
+      `<label class="lu-mfield">Vorlage verwenden<select class="lu-select" data-lu-template>${tplOpt}</select></label>` +
+      `<button class="btn btn-soft" data-lu-apply>Vorlage anwenden</button>` +
+      `<button class="btn btn-danger" data-lu-delete>Aufstellung löschen</button>` +
+      (lb.msg ? `<div class="lu-msg">${esc(lb.msg)}</div>` : "");
+  }
+  function lbOpenPanel(key) {
+    lbEnsurePanels();
+    const slot = (FORMATIONS[lb.formation] || []).find((s) => s.key === key);
+    const tt = document.getElementById("luPanelTitle"); if (tt) tt.textContent = "Spieler für " + (slot ? slot.role : "Position");
+    const ss = document.getElementById("luPanelSub"); if (ss) ss.textContent = lb.assign[key] ? "Ersetzen oder Position leeren" : "Passenden Spieler antippen";
+    lbRenderPanelBody(key);
+    document.getElementById("luScrim").classList.add("open");
+    document.getElementById("luPanel").classList.add("open");
+    const grp = slot ? lbTeamPart(slot.role) : null;
+    if (grp) { const h = document.querySelector('#luPanelBody [data-grp="' + grp + '"]'); if (h) h.scrollIntoView({ block: "start" }); }
+  }
+  function lbClosePanel() {
+    const p = document.getElementById("luPanel"), s = document.getElementById("luScrim");
+    if (p) p.classList.remove("open"); if (s) s.classList.remove("open");
+  }
+  function lbOpenMore() { lbEnsurePanels(); lbRenderMoreBody(); document.getElementById("luMoreScrim").classList.add("open"); document.getElementById("luMore").classList.add("open"); }
+  function lbCloseMore() { const m = document.getElementById("luMore"), s = document.getElementById("luMoreScrim"); if (m) m.classList.remove("open"); if (s) s.classList.remove("open"); }
 
   /* ---------- Strafenkatalog ------------------------------------------------ */
   const SVG = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"';
@@ -1863,16 +1985,11 @@
   viewEl.addEventListener("click", async (ev) => {
     // Aufstellungs-Builder zuerst (eigene Tap-/Button-Logik)
     if (currentView === "lineup") {
-      const lu = ev.target.closest("[data-player],[data-slot],[data-bank-drop],[data-lu-save],[data-lu-active],[data-lu-tplsave],[data-lu-apply],[data-lu-delete]");
+      const lu = ev.target.closest("[data-slot],[data-lu-saveactive],[data-lu-more]");
       if (lu) {
-        if (lu.hasAttribute("data-player")) lbTapPool(lu.dataset.player);
-        else if (lu.hasAttribute("data-slot")) lbTapSlot(lu.dataset.slot);
-        else if (lu.hasAttribute("data-bank-drop") && ev.target.closest("[data-slot-player]") == null) lbTapBank();
-        else if (lu.hasAttribute("data-lu-save")) lbSave();
-        else if (lu.hasAttribute("data-lu-active")) lbActivate();
-        else if (lu.hasAttribute("data-lu-tplsave")) lbSaveTemplate();
-        else if (lu.hasAttribute("data-lu-apply")) lbApplyTemplate();
-        else if (lu.hasAttribute("data-lu-delete")) lbDeleteCurrent();
+        if (lu.hasAttribute("data-slot")) lbTapSlot(lu.dataset.slot);
+        else if (lu.hasAttribute("data-lu-saveactive")) lbSaveActivate();
+        else if (lu.hasAttribute("data-lu-more")) lbOpenMore();
         return;
       }
     }
