@@ -15,7 +15,7 @@
        (html + body) wird waehrend des Splash gruen gefaerbt. So kann kein weisser Streifen
        durchscheinen - egal wie iOS Safe Area / Toolbar behandelt. Die Klasse .sp-lock wird
        beim Entfernen des Splash wieder geloescht -> App danach normal hell. */
-    html.sp-lock, html.sp-lock body{background:#0f3d2e!important;background:var(--green-900,#0f3d2e)!important}
+    html.sp-lock, html.sp-lock body{background:#144a37!important;background:var(--green-800,#144a37)!important}
     /* KERN-FIX gegen den flackernden weissen Balken: Waehrend des Splash ALLES ausser dem Splash
        unsichtbar machen (Kopfzeile, Nav UND der komplette Inhalt). iOS hebt fixe UND als eigene
        Ebene komponierte Elemente (Nav, Content-Karten) UEBER den Splash, egal welcher z-index.
@@ -26,32 +26,30 @@
     html.sp-lock body > *:not(#splash){visibility:hidden!important}
     #splash{position:fixed;inset:0;z-index:9999;
       display:flex;align-items:center;justify-content:center;
-      background:#0f3d2e;background:var(--green-900,#0f3d2e);
+      background:#144a37;background:var(--green-800,#144a37);   /* = Icon-Hintergrund #144a37 -> Quadrat-Ecken verschwinden, nur das Wappen dreht sich */
       opacity:1;transition:opacity 200ms ease;-webkit-tap-highlight-color:transparent}
     #splash.sp-hide{opacity:0}
-    /* Bewusst OHNE Safe-Area-Margins: der 132px-Kreis sitzt in der Bildschirmmitte, weit weg von
-       Notch/Home-Indicator. Asymmetrische env()-Insets (oben~59 / unten~34) loesen sich erst nach
-       dem ersten Paint auf und wuerden die Flex-Zentrierung nach unten verschieben (~12px "Springen").
-       Zentrierung haengt jetzt NUR an Flex (#splash) + Grid (place-items) -> stabil ab dem ersten Frame,
-       unabhaengig von Adressleiste, Safe Area, App-Inhalt und Geraetedrehung. */
-    #splash .sp-stage{width:132px;height:132px;display:grid;place-items:center}
-    #splash svg{width:100%;height:100%;display:block;overflow:visible}
-    #splash .c-w{fill:var(--card,#fff)} #splash .c-g{fill:var(--gold-500,#d4af37)} #splash .c-l{fill:var(--green-050,#e9f3ee)}
-    #splash .s-w{stroke:var(--card,#fff)} #splash .s-g{stroke:var(--gold-500,#d4af37)} #splash .s-l{stroke:var(--green-050,#e9f3ee)}
-    #splash .sp-sh{fill:#000;opacity:.28}
-    /* Ladeanimation: Mittelkreis (Nr. 6). Bewusst NUR transform:rotate -> GPU-composited,
-       keine Repaints pro Frame -> kein Aufblitzen der unteren Safe Area im iOS-PWA-Modus.
-       Nahtloser Loop (0->360, Start = Ende). */
-    #splash .l6{position:relative;width:96px;height:96px}
-    #splash .l6 .base{position:absolute;inset:0;border-radius:50%;border:4px solid rgba(233,243,238,.16)}
-    #splash .l6 .line{position:absolute;top:16%;bottom:16%;left:50%;width:2px;margin-left:-1px;background:rgba(233,243,238,.42)}
-    #splash .l6 .spin{position:absolute;inset:0;border-radius:50%;border:4px solid transparent;
-      border-top-color:#d4af37;border-top-color:var(--gold-500,#d4af37);
-      animation:l6 1.1s linear infinite;will-change:transform}
-    #splash .l6 .dot{position:absolute;top:50%;left:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:#fff;background:var(--card,#fff)}
-    @keyframes l6{to{transform:rotate(360deg)}}
-    /* Reduced-Motion: keine Bewegung, statisches Logo wird per JS eingesetzt */
-    @media (prefers-reduced-motion: reduce){ #splash *{animation:none!important} }
+    /* Buehne: feste px-Groesse, KEINE Safe-Area-Margins (die verschoben frueher die Zentrierung).
+       Zentrierung nur ueber Flex (#splash). Logo (128px) dreht sich, Schatten liegt statisch darunter. */
+    #splash .sp-stage{position:relative;width:128px;height:128px}
+    /* Logo: feste 128px, Drehung AUSSCHLIESSLICH ueber transform:rotate um den eigenen Mittelpunkt.
+       Keine Aenderung von Position/Groesse/Layout. Nahtloser Loop (0deg = 360deg). */
+    #splash .sp-logo{position:absolute;top:0;left:0;width:128px;height:128px;display:block;
+      transform-origin:50% 50%;will-change:transform;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+      animation:sp-spin 1.5s linear infinite}
+    @keyframes sp-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    /* Schatten: weiche Ellipse per radial-gradient (KEIN box-shadow -> keine Per-Frame-Repaints),
+       liegt statisch unter dem Logo, dreht sich NICHT mit, "atmet" nur ueber transform:scaleX + opacity.
+       top:156 liegt UNTER dem Rotations-Huellkreis des Quadrats (Halbdiagonale ~90px, Mitte y=64 -> bis ~155),
+       damit die (unsichtbaren, weil hintergrundfarbenen) drehenden Ecken den Schatten nie anschneiden.
+       Das Logo "schwebt" dadurch leicht ueber dem Schatten. */
+    #splash .sp-shadow{position:absolute;left:50%;top:156px;width:96px;height:14px;margin-left:-48px;
+      border-radius:50%;background:radial-gradient(ellipse at center, rgba(0,0,0,.38) 0%, rgba(0,0,0,0) 70%);
+      transform-origin:50% 50%;will-change:transform,opacity;
+      animation:sp-breath 1.5s ease-in-out infinite}
+    @keyframes sp-breath{0%,100%{transform:scaleX(1);opacity:.9}50%{transform:scaleX(.8);opacity:.6}}
+    /* Reduced-Motion: keine Drehung, kein Atmen -> Logo statisch, Schatten bleibt ruhig sichtbar. */
+    @media (prefers-reduced-motion: reduce){ #splash .sp-logo, #splash .sp-shadow{animation:none} }
   </style>
   <link rel="icon" type="image/png" href="assets/logo.png" />
   <!-- Als Web-App / zum Startbildschirm: echtes Vereins-Logo als Icon -->
@@ -69,32 +67,33 @@
   <div id="splash" role="status" aria-label="Lädt"><div class="sp-stage"></div></div>
   <script>
   (function(){
-    // Ladeanimation #6 (Mittelkreis, transform-only). Reduced-Motion -> statisches Logo.
-    var SVG6='<div class="l6"><div class="base"></div><div class="line"></div><div class="spin"></div><div class="dot"></div></div>';
-    var SVGLOGO='<svg viewBox="0 0 100 100"><circle class="s-g" cx="50" cy="50" r="30" fill="none" stroke-width="3"/><circle cx="50" cy="50" r="26" fill="#144a37"/><text class="c-l" x="50" y="55" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="22">FN</text><text class="c-g" x="50" y="70" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="9">II</text></svg>';
+    // Splash: Vereinslogo dreht sich (nur transform:rotate), weicher statischer Schatten darunter.
+    var LOGO='<div class="sp-shadow"></div><img class="sp-logo" src="assets/icon-512.png" width="128" height="128" alt="" draggable="false">';
     var splash=document.getElementById("splash"); if(!splash) return;
     try{ document.documentElement.classList.add("sp-lock"); }catch(e){} // Dokument gruen + App-Chrome ausblenden
     var stage=splash.querySelector(".sp-stage");
     var reduce=false; try{ reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches; }catch(e){}
-    stage.innerHTML=reduce?SVGLOGO:SVG6;
-    /* iOS-Homescreen (standalone, black-translucent + viewport-fit=cover): der Viewport "setzt sich"
-       beim App-Start -> die Hoehe waechst nach unten, und die flex-zentrierte Buehne wuerde sichtbar
-       nach unten rutschen. Fix: den Kreis erst einblenden, wenn window.innerHeight stabil ist. Der
-       gruene Hintergrund liegt ab dem ersten Frame; der erste SICHTBARE Frame des Kreises sitzt damit
-       bereits exakt mittig und bewegt sich nicht. Nur opacity (Rotationsanimation bleibt unveraendert). */
+    stage.innerHTML=LOGO;
+    /* Anzeige erst, wenn (a) das Logo geladen UND (b) die Viewporthoehe stabil ist. Der gruene
+       Hintergrund liegt ab dem ersten Frame; so erscheint das Logo bereits mittig, in richtiger
+       Groesse und ohne das iOS-Standalone-Rutschen (die feste px-Groesse + width/height am <img>
+       verhindern zusaetzlich jeden Reflow beim Laden). Nur opacity. */
+    var logo=stage.querySelector(".sp-logo"), loaded=false;
+    if(logo.complete && logo.naturalWidth) loaded=true;
+    else { logo.addEventListener("load",function(){loaded=true;}); logo.addEventListener("error",function(){loaded=true;}); } // Fehler nicht ewig blockieren
+    stage.style.opacity="0";
+    if(!reduce) stage.style.transition="opacity 160ms ease";
     (function(){
-      stage.style.opacity="0";
-      if(!reduce) stage.style.transition="opacity 160ms ease";
       var lastH=-1, stable=0, tries=0;
       function settle(){
         var h=window.innerHeight;
         if(h===lastH){ stable++; } else { stable=0; lastH=h; }
-        if(stable>=2 || ++tries>30){ stage.style.opacity="1"; return; }  // stabil (2 Frames) oder Notausstieg (~0,5s)
+        if((stable>=2 && loaded) || ++tries>45){ stage.style.opacity="1"; return; }  // stabil+geladen oder Notausstieg (~0,75s)
         requestAnimationFrame(settle);
       }
       requestAnimationFrame(settle);
     })();
-    var MAX=3000, FADE=200, DUR=1100, hidden=false, wantHide=false;
+    var MAX=3000, FADE=200, DUR=1500, hidden=false, wantHide=false;   // DUR = Dauer einer Umdrehung
     function remove(){
       var s=document.getElementById("splash"); if(s&&s.parentNode) s.parentNode.removeChild(s);
       var st=document.getElementById("splash-style"); if(st&&st.parentNode) st.parentNode.removeChild(st); // Animationen + Chrome-Ausblendung sicher aufheben
@@ -113,9 +112,8 @@
     }
 
     // Animierter Fall: NUR an Durchlauf-Grenzen ausblenden, nie mitten in der Drehung.
-    var ring=stage.querySelector(".spin");
     function tryHide(){ if(wantHide && !hidden) hide(); }
-    if(ring && ring.addEventListener){ ring.addEventListener("animationiteration", tryHide); }
+    if(logo && logo.addEventListener){ logo.addEventListener("animationiteration", tryHide); } // je volle Umdrehung
     window.__hideSplash=function(){ wantHide=true; };               // Laden fertig -> beim naechsten Umdrehungsende ausblenden
     setTimeout(function(){ wantHide=true; tryHide(); }, MAX);        // spaetestens nach 3s (ebenfalls zur Umdrehungsgrenze)
     setTimeout(function(){ hide(); }, MAX + DUR + 400);             // Sicherheitsnetz, falls animationiteration nicht feuert
