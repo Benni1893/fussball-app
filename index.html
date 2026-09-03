@@ -29,10 +29,12 @@
       background:#0f3d2e;background:var(--green-900,#0f3d2e);
       opacity:1;transition:opacity 200ms ease;-webkit-tap-highlight-color:transparent}
     #splash.sp-hide{opacity:0}
-    /* Nur der Inhalt respektiert die Safe Area (Margin), damit die Animation nicht unter dem
-       Home-Indicator / hinter dem Notch klebt. Das Overlay selbst bleibt randlos. */
-    #splash .sp-stage{width:132px;height:132px;display:grid;place-items:center;
-      margin:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+    /* Bewusst OHNE Safe-Area-Margins: der 132px-Kreis sitzt in der Bildschirmmitte, weit weg von
+       Notch/Home-Indicator. Asymmetrische env()-Insets (oben~59 / unten~34) loesen sich erst nach
+       dem ersten Paint auf und wuerden die Flex-Zentrierung nach unten verschieben (~12px "Springen").
+       Zentrierung haengt jetzt NUR an Flex (#splash) + Grid (place-items) -> stabil ab dem ersten Frame,
+       unabhaengig von Adressleiste, Safe Area, App-Inhalt und Geraetedrehung. */
+    #splash .sp-stage{width:132px;height:132px;display:grid;place-items:center}
     #splash svg{width:100%;height:100%;display:block;overflow:visible}
     #splash .c-w{fill:var(--card,#fff)} #splash .c-g{fill:var(--gold-500,#d4af37)} #splash .c-l{fill:var(--green-050,#e9f3ee)}
     #splash .s-w{stroke:var(--card,#fff)} #splash .s-g{stroke:var(--gold-500,#d4af37)} #splash .s-l{stroke:var(--green-050,#e9f3ee)}
