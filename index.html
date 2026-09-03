@@ -74,25 +74,51 @@
     var stage=splash.querySelector(".sp-stage");
     var reduce=false; try{ reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches; }catch(e){}
     stage.innerHTML=LOGO;
+
+    /* ===================== SCHRITT 1: SICHTBARE MESSUNG (temporaer) =====================
+       Zeigt live auf dem Bildschirm, WAS sich beim Start verschiebt: Viewport, Overlay oder Logo.
+       Bleibt drin, bis die Position bestaetigt steht -> danach entfernen. */
+    (function(){
+      var dbg=document.createElement("div"); dbg.id="spdbg";
+      dbg.style.cssText="position:fixed;top:0;left:0;right:0;z-index:100000;"+
+        "font:11px/1.4 ui-monospace,Menlo,monospace;color:#fff;background:rgba(0,0,0,.75);"+
+        "padding:calc(env(safe-area-inset-top,0px) + 6px) 8px 6px;white-space:pre;pointer-events:none;text-align:left";
+      splash.appendChild(dbg);
+      var innerH0=window.innerHeight, logoTop0=null, splashTop0=null, splashH0=null;
+      function r(n){ return (n==null?"-":Math.round(n)); }
+      function upd(){
+        if(!document.getElementById("spdbg")) return;                 // Splash entfernt -> Schleife endet
+        var vv=window.visualViewport;
+        var sp=document.getElementById("splash");
+        var cnt=document.querySelectorAll("#splash").length;
+        var cs=sp?getComputedStyle(sp):null;
+        var spr=sp?sp.getBoundingClientRect():null;
+        var lg=sp?sp.querySelector(".sp-logo"):null;
+        var lr=lg?lg.getBoundingClientRect():null;
+        var par=sp&&sp.parentNode?(sp.parentNode.nodeName+(sp.parentNode.id?"#"+sp.parentNode.id:"")):"-";
+        if(logoTop0==null && lr){ logoTop0=lr.top; }
+        if(splashTop0==null && spr){ splashTop0=spr.top; splashH0=spr.height; }
+        var iH=window.innerHeight;
+        dbg.textContent=
+          "innerH0="+r(innerH0)+"  now="+r(iH)+"  d="+r(iH-innerH0)+"\n"+
+          "visualVH="+r(vv&&vv.height)+"  docClientH="+r(document.documentElement.clientHeight)+"  scrollY="+r(window.scrollY)+"\n"+
+          "#splash pos="+(cs?cs.position:"-")+"  parent="+par+"  count="+cnt+"\n"+
+          "splashRect top0="+r(splashTop0)+" now="+r(spr&&spr.top)+"  h0="+r(splashH0)+" now="+r(spr&&spr.height)+"\n"+
+          "logoRect top0="+r(logoTop0)+" now="+r(lr&&lr.top)+" d="+r(lr&&logoTop0!=null?lr.top-logoTop0:null)+"  left="+r(lr&&lr.left);
+        requestAnimationFrame(upd);
+      }
+      requestAnimationFrame(upd);
+    })();
+
     /* Anzeige erst, wenn (a) das Logo geladen UND (b) die Viewporthoehe stabil ist. Der gruene
        Hintergrund liegt ab dem ersten Frame; so erscheint das Logo bereits mittig, in richtiger
        Groesse und ohne das iOS-Standalone-Rutschen (die feste px-Groesse + width/height am <img>
        verhindern zusaetzlich jeden Reflow beim Laden). Nur opacity. */
-    var logo=stage.querySelector(".sp-logo"), loaded=false;
-    if(logo.complete && logo.naturalWidth) loaded=true;
-    else { logo.addEventListener("load",function(){loaded=true;}); logo.addEventListener("error",function(){loaded=true;}); } // Fehler nicht ewig blockieren
-    stage.style.opacity="0";
-    if(!reduce) stage.style.transition="opacity 160ms ease";
-    (function(){
-      var lastH=-1, stable=0, tries=0;
-      function settle(){
-        var h=window.innerHeight;
-        if(h===lastH){ stable++; } else { stable=0; lastH=h; }
-        if((stable>=2 && loaded) || ++tries>45){ stage.style.opacity="1"; return; }  // stabil+geladen oder Notausstieg (~0,75s)
-        requestAnimationFrame(settle);
-      }
-      requestAnimationFrame(settle);
-    })();
+    var logo=stage.querySelector(".sp-logo");
+    /* MESSPHASE (Schritt 1): Logo bewusst SOFORT sichtbar (keine "erst-wenn-stabil"-Einblendung),
+       damit eine etwaige Verschiebung sichtbar ist und mit den Messwerten korreliert werden kann.
+       Wird beim Umbau in Schritt 2 durch die endgueltige Loesung ersetzt. */
+    stage.style.opacity="1";
     var MAX=3000, FADE=200, DUR=1500, hidden=false, wantHide=false;   // DUR = Dauer einer Umdrehung
     function remove(){
       var s=document.getElementById("splash"); if(s&&s.parentNode) s.parentNode.removeChild(s);
