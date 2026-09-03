@@ -77,6 +77,23 @@
     var stage=splash.querySelector(".sp-stage");
     var reduce=false; try{ reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches; }catch(e){}
     stage.innerHTML=reduce?SVGLOGO:SVG6;
+    /* iOS-Homescreen (standalone, black-translucent + viewport-fit=cover): der Viewport "setzt sich"
+       beim App-Start -> die Hoehe waechst nach unten, und die flex-zentrierte Buehne wuerde sichtbar
+       nach unten rutschen. Fix: den Kreis erst einblenden, wenn window.innerHeight stabil ist. Der
+       gruene Hintergrund liegt ab dem ersten Frame; der erste SICHTBARE Frame des Kreises sitzt damit
+       bereits exakt mittig und bewegt sich nicht. Nur opacity (Rotationsanimation bleibt unveraendert). */
+    (function(){
+      stage.style.opacity="0";
+      if(!reduce) stage.style.transition="opacity 160ms ease";
+      var lastH=-1, stable=0, tries=0;
+      function settle(){
+        var h=window.innerHeight;
+        if(h===lastH){ stable++; } else { stable=0; lastH=h; }
+        if(stable>=2 || ++tries>30){ stage.style.opacity="1"; return; }  // stabil (2 Frames) oder Notausstieg (~0,5s)
+        requestAnimationFrame(settle);
+      }
+      requestAnimationFrame(settle);
+    })();
     var MAX=3000, FADE=200, DUR=1100, hidden=false, wantHide=false;
     function remove(){
       var s=document.getElementById("splash"); if(s&&s.parentNode) s.parentNode.removeChild(s);
