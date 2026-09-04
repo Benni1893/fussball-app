@@ -254,6 +254,22 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .kpi .kpi-sub { font-size: .82rem; color: var(--muted); margin-top: 2px; }
 .kpi.is-warn::before { background: var(--red-600); }
 .kpi.is-warn .kpi-value { color: var(--red-600); }
+/* Antippbare KPI-Kacheln: Cursor, sichtbares Feedback, dezenter Pfeil rechts. */
+.kpi-tap { cursor: pointer; padding-right: 30px; -webkit-tap-highlight-color: transparent;
+  transition: transform .08s ease, background-color .12s ease, box-shadow .12s ease; }
+.kpi-tap::after { content: "\203A"; position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: 1.5rem; line-height: 1; }
+.kpi-tap:active { transform: scale(.985); background: var(--green-050); }
+.kpi-tap:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; }
+/* Zurück-Chevron in der Ziel-Kopfzeile (nur nach Kachel-Sprung sichtbar). */
+.page-head:has(.pg-back) { display: flex; align-items: center; gap: 4px; }
+.pg-back { appearance: none; -webkit-appearance: none; border: 0; background: none; color: var(--green-800);
+  font-size: 1.9rem; line-height: 1; min-width: 44px; min-height: 44px; margin-left: -10px;
+  display: inline-flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.pg-back:active { color: var(--green-700); }
+/* Hervorhebung des angesprungenen Termins: goldener Ring, weich ausblenden nach ~2,5s. */
+@keyframes ev-hl { 0%,55% { box-shadow: 0 0 0 2px var(--gold-500); } 100% { box-shadow: 0 0 0 0 rgba(212,175,55,0); } }
+.event.ev-highlight { animation: ev-hl 2.5s ease-out forwards; }
 
 .grid-2 {
   display: grid;

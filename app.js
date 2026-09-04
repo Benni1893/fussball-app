@@ -370,22 +370,22 @@
       </div>
 
       <div class="kpi-grid">
-        <div class="kpi">
+        <div class="kpi kpi-tap" data-nav="termin" role="button" tabindex="0">
           <div class="kpi-label">Nächster Termin</div>
           <div class="kpi-value" style="font-size:1.25rem">${naechstes ? fmtLong(naechstes.datum).split(",")[0] + ", " + fmtDay(naechstes.datum) + ". " + fmtMon(naechstes.datum) : "–"}</div>
           <div class="kpi-sub">${naechstes ? esc(eventTitel(naechstes)) + " · " + naechstes.zeit + " Uhr" : "Keine Termine"}</div>
         </div>
-        <div class="kpi">
+        <div class="kpi kpi-tap" data-nav="spiele" role="button" tabindex="0">
           <div class="kpi-label">Kommende Spiele</div>
           <div class="kpi-value">${naechsteSpiele}</div>
           <div class="kpi-sub">in der Restsaison</div>
         </div>
-        <div class="kpi ${meineOffen > 0 ? "is-warn" : ""}">
+        <div class="kpi kpi-tap ${meineOffen > 0 ? "is-warn" : ""}" data-nav="meine-strafen" role="button" tabindex="0">
           <div class="kpi-label">Meine offenen Strafen</div>
           <div class="kpi-value">${euro(meineOffen)}</div>
           <div class="kpi-sub">${meineOffen > 0 ? "bitte begleichen" : "alles bezahlt – top!"}</div>
         </div>
-        <div class="kpi">
+        <div class="kpi kpi-tap" data-nav="kasse" role="button" tabindex="0">
           <div class="kpi-label">Mannschaftskasse offen</div>
           <div class="kpi-value">${euro(offeneGesamt)}</div>
           <div class="kpi-sub">${offene.length} offene Strafen im Team</div>
@@ -549,7 +549,7 @@
     const vergangen = liste.filter((e) => !isFuture(e.datum));
 
     viewEl.innerHTML = `
-      <div class="page-head"><h1>Kalender</h1></div>
+      <div class="page-head">${navBackChevronHtml()}<h1>Kalender</h1></div>
       <div class="toolbar">
         ${filters.map((f) => `<button class="chip ${kalFilter === f.k ? "is-active" : ""}" data-filter="${f.k}">${f.label}</button>`).join("")}
       </div>
@@ -787,7 +787,7 @@
 
     const venue = venueHtml(e);
     return `
-      <div class="event typ-${e.typ}${heimCls}${cancelled ? " is-cancelled" : ""}">
+      <div class="event typ-${e.typ}${heimCls}${cancelled ? " is-cancelled" : ""}" id="ev-${e.id}">
         <div class="event-date">
           <span class="d-wd">${fmtWd(e.datum)}</span>
           <span class="d-day">${fmtDay(e.datum)}</span>
@@ -2054,14 +2054,19 @@
 
   // Browser-/Hardware-Zurück aus einer per Kachel gesprungenen Aufstellung.
   window.addEventListener("popstate", function () {
-    if (currentView !== "lineup" || tv.origin == null) return;   // nur die gesprungene Aufstellung betrifft uns
-    if (tv.dirty && !tv.readonly) {
-      tvUnsavedDialog(
-        function () { tvSavePersist().then(function () { tvLeaveToOrigin(); }).catch(function (err) { window.alert("Speichern fehlgeschlagen: " + ((err && err.message) || err)); }); },
-        function () { tvLeaveToOrigin(); },
-        function () { try { history.pushState({ tvLineup: tv.eventId }, "", "#lineup=" + encodeURIComponent(tv.eventId)); } catch (e) {} }  // Abbrechen: wieder rein (kein Reload -> Änderungen bleiben)
-      );
-    } else { tvLeaveToOrigin(); }
+    // Aufstellungs-Sprung von einer Spiel-Karte (ggf. mit ungespeicherten Änderungen).
+    if (currentView === "lineup" && tv.origin != null) {
+      if (tv.dirty && !tv.readonly) {
+        tvUnsavedDialog(
+          function () { tvSavePersist().then(function () { tvLeaveToOrigin(); }).catch(function (err) { window.alert("Speichern fehlgeschlagen: " + ((err && err.message) || err)); }); },
+          function () { tvLeaveToOrigin(); },
+          function () { try { history.pushState({ tvLineup: tv.eventId }, "", "#lineup=" + encodeURIComponent(tv.eventId)); } catch (e) {} }  // Abbrechen: wieder rein (kein Reload -> Änderungen bleiben)
+        );
+      } else { tvLeaveToOrigin(); }
+      return;
+    }
+    // Allgemeiner Kachel-Sprung (Kalender/Strafen) -> zurück zur Übersicht mit Scrollposition.
+    if (navReturn) { navReturnTo(); return; }
   });
 
   // Deep-Link / direkter Aufruf mit #lineup=<id> beim Start.
@@ -2421,7 +2426,7 @@
 
     viewEl.innerHTML = `
       <div class="page-head">
-        <h1>Strafen-Konto</h1>
+        ${navBackChevronHtml()}<h1>Strafen-Konto</h1>
       </div>
 
       ${!linked ? `
@@ -2535,7 +2540,7 @@
       }
     }
 
-    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-lineup-edit],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-koord-save],[data-my-status],[data-logout]");
+    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-koord-save],[data-my-status],[data-logout]");
     if (!t) return;
 
     // Spieler: eigenen Fitnessstatus setzen (RLS/RPC erlauben nur die eigene Zeile)
@@ -2697,6 +2702,25 @@
     // Navigation per Link
     if (t.dataset.goto) { switchView(t.dataset.goto); return; }
 
+    // Zurück-Chevron in einer Ziel-Kopfzeile (nach einem Kachel-Sprung) -> zur Übersicht + Scroll.
+    if (t.hasAttribute("data-nav-back")) { navBack(); return; }
+
+    // Übersichts-Kachel angetippt -> passendes Ziel öffnen (Ursprung/Scroll gemerkt).
+    if (t.dataset.nav) {
+      const kind = t.dataset.nav;
+      if (kind === "termin") {
+        const next = DEMO.events.filter((e) => isFuture(e.datum)).sort((a, b) => a.datum.localeCompare(b.datum))[0];
+        if (next) { kalFilter = "alle"; navJumpTo("kalender", { eventId: next.id }); } else { kalFilter = "alle"; navJumpTo("kalender"); }
+      } else if (kind === "spiele") {
+        kalFilter = "alle"; navJumpTo("kalender");
+      } else if (kind === "meine-strafen") {
+        navJumpTo("strafen", { strafenFilter: "meine" });
+      } else if (kind === "kasse") {
+        navJumpTo("strafen", { strafenFilter: "offen" });
+      }
+      return;
+    }
+
     // PayPal.Me-Link in neuem Tab öffnen (Betrag wird übergeben). Phase 4: echte Integration.
     if (t.dataset.paypal) {
       window.open(paypalMeLink(t.dataset.paypal), "_blank", "noopener");
@@ -2822,11 +2846,49 @@
   /* ---------------------------------------------------------------------------
      Navigation, Spielerauswahl, Reset
      --------------------------------------------------------------------------- */
+  /* ---- Kachel-Sprung von der Übersicht (Ursprung + Scroll + Zurück-Chevron/History) ---- */
+  let navReturn = null;   // { view, scroll } wenn man von einer Übersichts-Kachel kam, sonst null
+
+  function navBackChevronHtml() {
+    return navReturn ? '<button class="pg-back" data-nav-back aria-label="Zurück zur Übersicht">‹</button>' : "";
+  }
+  // Von einer Kachel zu einem Tab-Ziel springen: Ursprung+Scroll merken, History-Eintrag setzen
+  // (Browser-/Wisch-Zurück -> popstate -> navReturnTo), Ziel-Tab aktiv, Ziel rendern.
+  function navJumpTo(target, opts) {
+    opts = opts || {};
+    navReturn = { view: currentView, scroll: window.scrollY || window.pageYOffset || 0 };
+    if (opts.strafenFilter) strafenFilter = opts.strafenFilter;
+    try { history.pushState({ navJump: true }, ""); } catch (e) {}
+    currentView = target; tvSetNavActive(target);
+    window.scrollTo(0, 0);
+    render();                                   // page-head zeigt jetzt den Zurück-Chevron (navReturn gesetzt)
+    if (opts.eventId) navScrollToEvent(opts.eventId);
+  }
+  function navReturnTo() {
+    if (!navReturn) return;
+    const ret = navReturn; navReturn = null;
+    currentView = ret.view; tvSetNavActive(ret.view);
+    render();
+    window.scrollTo(0, ret.scroll || 0);        // Scrollposition der Übersicht wiederherstellen
+  }
+  function navBack() { if (navReturn) history.back(); }   // Chevron -> wie Browser-Zurück (popstate erledigt den Rest)
+
+  // Im Kalender zum gewählten Termin scrollen und ihn kurz hervorheben (nach ~2,5s weich aus).
+  function navScrollToEvent(eventId) {
+    requestAnimationFrame(() => {
+      const el = document.getElementById("ev-" + eventId);
+      if (!el) return;                          // Termin zwischenzeitlich weg -> einfach kein Scroll, kein Absturz
+      try { el.scrollIntoView({ block: "center", behavior: "auto" }); } catch (e) { el.scrollIntoView(); }
+      el.classList.add("ev-highlight");
+      setTimeout(() => el.classList.remove("ev-highlight"), 2500);
+    });
+  }
+
   function switchView(view) {
     currentView = view;
     if (view === "lineup") { tv.view = "games"; tv.eventId = null; tv.sel = null; } // v2 startet immer bei der Spielauswahl
     // Kachel-Sprung-Zustand (Ursprung/Readonly/Hash) beim normalen Tab-Wechsel verwerfen.
-    tv.origin = null; tv.readonly = false; tv.dirty = false;
+    tv.origin = null; tv.readonly = false; tv.dirty = false; navReturn = null;
     if (/^#?lineup=/.test(location.hash || "")) { try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {} }
     // Bereiche im „Mehr"-Menü (Aufstellung/Rollen) markieren den Mehr-Tab als aktiv.
     // Bereiche, die im Admin-„Mehr"-Sheet liegen (dann ist der Mehr-Tab aktiv).
