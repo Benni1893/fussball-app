@@ -70,6 +70,16 @@
     // Splash: Vereinslogo dreht sich (nur transform:rotate), weicher statischer Schatten darunter.
     var LOGO='<div class="sp-shadow"></div><img class="sp-logo" src="assets/icon-512.png" width="128" height="128" alt="" draggable="false">';
     var splash=document.getElementById("splash"); if(!splash) return;
+    /* ===================== SCHRITT 2: HOEHE EINMALIG EINFRIEREN =====================
+       Messung bewies: #splash (inset:0) waechst mit innerHeight (797->844) -> zentriertes Logo rutscht.
+       Fix: Hoehe EINMAL als festen px-Wert setzen (volle, stabile Bildschirmhoehe) und von bottom:0
+       loesen -> der Kasten (und damit die Mitte) kann sich nicht mehr veraendern, egal was der
+       Viewport beim Start oder die Safari-Adressleiste tut. KEIN Resize-Update. */
+    (function(){
+      var H0=Math.max(window.innerHeight||0, document.documentElement.clientHeight||0, (window.screen&&window.screen.height)||0);
+      splash.style.height=H0+"px";
+      splash.style.bottom="auto";   // von inset:0 -> top:0 + feste Hoehe
+    })();
     try{ document.documentElement.classList.add("sp-lock"); }catch(e){} // Dokument gruen + App-Chrome ausblenden
     var stage=splash.querySelector(".sp-stage");
     var reduce=false; try{ reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches; }catch(e){}
@@ -93,10 +103,10 @@
         var cnt=document.querySelectorAll("#splash").length;
         var cs=sp?getComputedStyle(sp):null;
         var spr=sp?sp.getBoundingClientRect():null;
-        var lg=sp?sp.querySelector(".sp-logo"):null;
-        var lr=lg?lg.getBoundingClientRect():null;
+        var stg=sp?sp.querySelector(".sp-stage"):null;                 // .sp-stage dreht sich NICHT -> sauberes Positionssignal
+        var sr=stg?stg.getBoundingClientRect():null;
         var par=sp&&sp.parentNode?(sp.parentNode.nodeName+(sp.parentNode.id?"#"+sp.parentNode.id:"")):"-";
-        if(logoTop0==null && lr){ logoTop0=lr.top; }
+        if(logoTop0==null && sr){ logoTop0=sr.top; }
         if(splashTop0==null && spr){ splashTop0=spr.top; splashH0=spr.height; }
         var iH=window.innerHeight;
         dbg.textContent=
@@ -104,7 +114,7 @@
           "visualVH="+r(vv&&vv.height)+"  docClientH="+r(document.documentElement.clientHeight)+"  scrollY="+r(window.scrollY)+"\n"+
           "#splash pos="+(cs?cs.position:"-")+"  parent="+par+"  count="+cnt+"\n"+
           "splashRect top0="+r(splashTop0)+" now="+r(spr&&spr.top)+"  h0="+r(splashH0)+" now="+r(spr&&spr.height)+"\n"+
-          "logoRect top0="+r(logoTop0)+" now="+r(lr&&lr.top)+" d="+r(lr&&logoTop0!=null?lr.top-logoTop0:null)+"  left="+r(lr&&lr.left);
+          "stageRect top0="+r(logoTop0)+" now="+r(sr&&sr.top)+" d="+r(sr&&logoTop0!=null?sr.top-logoTop0:null)+"  left="+r(sr&&sr.left);
         requestAnimationFrame(upd);
       }
       requestAnimationFrame(upd);
