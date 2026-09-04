@@ -1172,3 +1172,52 @@ body.auth-mode .app-footer { display: none; }
 .tv-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 @media (prefers-reduced-motion: reduce) { .tv-scrim, .tv-sheet, .tv-toast { transition: none; } }
+
+/* ===================== Strafen-Liste (Konto + Kasse), vertikal, kein H-Scroll ===================== */
+.fine-list { display: flex; flex-direction: column; gap: 8px; }
+.fine-row { display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 8px 12px; box-shadow: var(--shadow-sm); min-height: 52px; }
+.fine-main { flex: 1; min-width: 0; }
+.fine-name { font-weight: 600; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.fine-desc { font-size: .8rem; color: var(--muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fine-right { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.fine-amt { font-weight: 800; color: var(--green-800); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.btn-sm { padding: 6px 12px; min-height: 44px; font-size: .82rem; white-space: nowrap; }
+
+/* ===================== Kasse ===================== */
+.kasse-glance { display: flex; gap: 10px; margin-bottom: 14px; }
+.kasse-glance > div { flex: 1; min-width: 0; background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 12px 14px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 2px; }
+.kg-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); font-weight: 700; }
+.kg-value { font-size: 1.35rem; font-weight: 800; color: var(--green-800); font-variant-numeric: tabular-nums; }
+.kasse-add { display: flex; flex-direction: column; gap: 10px; }
+.kasse-lbl { font-size: .8rem; font-weight: 700; color: var(--muted); }
+.kasse-count { background: var(--green-700); color: #fff; border-radius: 999px; padding: 1px 7px; font-size: .72rem; margin-left: 4px; }
+.kasse-players { display: flex; flex-wrap: wrap; gap: 6px; }
+.kasse-chip { font: inherit; font-size: .85rem; padding: 8px 12px; min-height: 40px; border: 1px solid var(--line);
+  border-radius: 999px; background: #fff; color: var(--ink); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.kasse-chip.is-on { background: var(--green-700); border-color: var(--green-700); color: #fff; font-weight: 700; }
+.kasse-select, .kasse-in { width: 100%; font: inherit; font-size: 16px; padding: 11px 12px; border: 1px solid var(--line);
+  border-radius: 10px; box-sizing: border-box; background: #fff; min-height: 44px; }
+.kasse-two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.kasse-staffel { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.kasse-staffel .kasse-in { flex: 1; min-width: 130px; }
+.kasse-staffel-hint { font-size: .78rem; color: var(--muted); }
+.kasse-sum { background: var(--green-050); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; }
+.kasse-sum-row { display: flex; justify-content: space-between; gap: 12px; font-size: .88rem; }
+.kasse-sum-row > span { color: var(--muted); flex: none; }
+.kasse-sum-row > b { text-align: right; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.kasse-sum-total { border-top: 1px solid var(--line); margin-top: 2px; padding-top: 6px; font-size: 1rem; }
+.kasse-sum-total > b { color: var(--green-800); font-variant-numeric: tabular-nums; }
+.kasse-sum-empty { color: var(--muted); font-size: .85rem; padding: 4px 2px; }
+.kasse-save:disabled { opacity: .5; }
+.kasse-paid { margin-top: 12px; }
+.kasse-paid > summary { cursor: pointer; color: var(--green-700); font-weight: 600; min-height: 44px; display: flex; align-items: center; }
+
+/* ===================== Katalog: Festbetrag / Gestaffelt ===================== */
+.kat-fixed { display: flex; align-items: center; gap: 8px; }
+.kat-fixed .kat-in-amount { flex: 1; min-width: 0; }
+.kat-staffel { display: none; }
+.kat-edit.is-staffel .kat-staffel { display: grid; gap: 8px; }
+.kat-edit.is-staffel .kat-fixed { display: none; }
+.kat-edit-actions { display: flex; justify-content: flex-end; gap: 2px; }

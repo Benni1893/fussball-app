@@ -289,6 +289,7 @@
     else if (currentView === "einstellungen") renderEinstellungen();
     else if (currentView === "profil") renderProfil();
     else if (currentView === "lineup") { if (Roles.canManageEvents()) { if (LINEUP_V2) renderLineupV2(); else renderLineup(); } else renderDashboard(); }
+    else if (currentView === "kasse") { if (Roles.canManageFines()) renderKasse(); else renderDashboard(); }
     else if (currentView === "admin") { if (Roles.isAdmin()) renderAdmin(); else renderDashboard(); }
   }
 
@@ -2288,22 +2289,39 @@
   let katEdit = null; // null | Katalog-id (Bearbeiten) | "new" (Hinzufügen)
 
   function katRowView(k, canEdit) {
+    const amt = k.typ === "staffel"
+      ? `${euro(k.proEinheit || 0).replace(/\s/g, " ")} / ${k.schritt || 1} ${esc(k.einheit || "")}${k.maxBetrag != null ? " · max " + euro(k.maxBetrag).replace(/\s/g, " ") : ""}`
+      : euro(k.betrag).replace(/\s/g, " ");
     return `<div class="kat-item">
-      <span class="kat-name">${esc(k.vergehen)}</span>
-      <span class="kat-amount">${euro(k.betrag)}</span>
+      <span class="kat-name">${esc(k.vergehen)}${k.typ === "staffel" ? ` <span class="badge badge-auto">gestaffelt</span>` : ""}</span>
+      <span class="kat-amount">${amt}</span>
       ${canEdit ? `<div class="kat-actions">
         <button class="icon-btn" data-kat-edit="${k.id}" aria-label="Bearbeiten">${ICON_EDIT}</button>
         <button class="icon-btn" data-kat-del="${k.id}" aria-label="Löschen">${ICON_TRASH}</button>
       </div>` : ""}
     </div>`;
   }
-  function katRowEdit(id, name, betrag) {
-    const amt = (betrag != null) ? String(betrag).replace(".", ",") : "";
-    return `<div class="kat-item kat-edit">
-      <input class="kat-in kat-in-name" data-kat-input="name" type="text" placeholder="Bezeichnung" value="${esc(name)}">
-      <div class="kat-edit-row2">
-        <input class="kat-in kat-in-amount" data-kat-input="amount" type="text" inputmode="decimal" placeholder="Betrag" value="${esc(amt)}">
+  function katRowEdit(k) {
+    const id = k ? k.id : "new";
+    const isStaffel = !!(k && k.typ === "staffel");
+    const nm = (n) => (n == null ? "" : String(n).replace(".", ","));
+    return `<div class="kat-item kat-edit${isStaffel ? " is-staffel" : ""}">
+      <input class="kat-in kat-in-name" data-kat-input="name" type="text" placeholder="Bezeichnung" value="${esc(k ? k.vergehen : "")}">
+      <select class="kat-in kat-type" data-kat-type>
+        <option value="fixed"${!isStaffel ? " selected" : ""}>Festbetrag</option>
+        <option value="staffel"${isStaffel ? " selected" : ""}>Gestaffelt</option>
+      </select>
+      <div class="kat-fixed">
+        <input class="kat-in kat-in-amount" data-kat-input="amount" type="text" inputmode="decimal" placeholder="Betrag" value="${esc(isStaffel ? "" : nm(k ? k.betrag : null))}">
         <span class="kat-eur">€</span>
+      </div>
+      <div class="kat-staffel">
+        <input class="kat-in" data-kat-input="proEinheit" inputmode="decimal" placeholder="Betrag je Schritt (€)" value="${esc(nm(k ? k.proEinheit : null))}">
+        <input class="kat-in" data-kat-input="schritt" inputmode="numeric" placeholder="je angefangene … (z. B. 5)" value="${esc(k && k.schritt != null ? String(k.schritt) : "")}">
+        <input class="kat-in" data-kat-input="einheit" type="text" placeholder="Einheit (z. B. Minuten)" value="${esc(k ? (k.einheit || "") : "")}">
+        <input class="kat-in" data-kat-input="maxBetrag" inputmode="decimal" placeholder="Höchstbetrag € (optional)" value="${esc(nm(k ? k.maxBetrag : null))}">
+      </div>
+      <div class="kat-edit-actions">
         <button class="icon-btn icon-ok" data-kat-save="${id}" aria-label="Speichern">${ICON_CHECK}</button>
         <button class="icon-btn" data-kat-cancel aria-label="Abbrechen">${ICON_X}</button>
       </div>
@@ -2315,9 +2333,9 @@
       <div class="page-head"><h1>Strafenkatalog</h1></div>
       <div class="kat-list">
         ${DEMO.katalog.map((k) => katEdit === k.id
-          ? katRowEdit(k.id, k.vergehen, k.betrag)
+          ? katRowEdit(k)
           : katRowView(k, canEdit)).join("")}
-        ${katEdit === "new" ? katRowEdit("new", "", null) : ""}
+        ${katEdit === "new" ? katRowEdit(null) : ""}
       </div>
       ${canEdit && katEdit !== "new" ? `<button class="kat-add" data-kat-add>${ICON_PLUS}<span>Strafe hinzufügen</span></button>` : ""}
     `;
@@ -2380,62 +2398,7 @@
     ];
 
     /* --- Daten für die Diagramme ------------------------------------------ */
-    const gesamt = offenGesamt + bezahltGesamt;
-    const pctBezahlt = gesamt ? Math.round((bezahltGesamt / gesamt) * 100) : 0;
-    const donut = donutChart(
-      [{ value: bezahltGesamt, color: "#d4af37" }, { value: offenGesamt, color: "#c0392b" }],
-      { centerTop: pctBezahlt + "%", centerBottom: "bezahlt" }
-    );
-
-    // Top-Beitragende (Summe je Spieler, aufgeteilt in bezahlt/offen)
-    const perPlayer = {};
-    alle.forEach((s) => {
-      const id = s.player.id;
-      if (!perPlayer[id]) perPlayer[id] = { name: s.player.name, total: 0, offen: 0 };
-      perPlayer[id].total += s.betrag;
-      if (!s.bezahlt) perPlayer[id].offen += s.betrag;
-    });
-    const top = Object.values(perPlayer).sort((a, b) => b.total - a.total).slice(0, 6);
-    const maxTotal = Math.max(...top.map((t) => t.total), 1);
-    const barsHtml = top.map((t) => {
-      const widthPct = Math.max(8, Math.round((t.total / maxTotal) * 100));
-      const paidShare = t.total ? ((t.total - t.offen) / t.total) * 100 : 0;
-      const openShare = t.total ? (t.offen / t.total) * 100 : 0;
-      return `
-        <div class="bar-row">
-          <div class="bar-head"><span>${esc(t.name)}</span><b>${euro(t.total)}</b></div>
-          <div class="bar-track">
-            <div class="bar-fill" style="width:${widthPct}%">
-              <span class="seg seg-paid" style="width:${paidShare}%"></span><span class="seg seg-open" style="width:${openShare}%"></span>
-            </div>
-          </div>
-          <div class="bar-sub">${t.offen > 0 ? euro(t.offen) + " offen" : "alles bezahlt"}</div>
-        </div>`;
-    }).join("");
-
-    const chartRow = `
-      <div class="grid-2 chart-row">
-        <div class="card card-pad chart-card">
-          <div class="chart-title">Bezahlt vs. Offen</div>
-          <div class="donut-wrap">
-            ${donut}
-            <ul class="chart-legend">
-              <li><span class="lg-dot" style="background:#d4af37"></span>Bezahlt <b>${euro(bezahltGesamt)}</b></li>
-              <li><span class="lg-dot" style="background:#c0392b"></span>Offen <b>${euro(offenGesamt)}</b></li>
-              <li><span class="lg-dot" style="background:#eef2ef"></span>Gesamt <b>${euro(gesamt)}</b></li>
-            </ul>
-          </div>
-        </div>
-        <div class="card card-pad chart-card">
-          <div class="chart-title">Top-Beitragende zur Kasse</div>
-          <div class="bars">${barsHtml || '<div class="empty">Keine Daten</div>'}</div>
-          <div class="bars-legend">
-            <span><span class="lg-dot" style="background:#d4af37"></span>bezahlt</span>
-            <span><span class="lg-dot" style="background:#c0392b"></span>offen</span>
-          </div>
-        </div>
-      </div>`;
-
+    // Diagramme entfernt (Entscheidung): Konto zeigt nur Kontostand, Summe offen und die Liste.
     viewEl.innerHTML = `
       <div class="page-head">
         ${navBackChevronHtml()}<h1>Strafen-Konto</h1>
@@ -2479,64 +2442,221 @@
 
       <div class="kpi-grid">
         <div class="kpi is-warn">
-          <div class="kpi-label">Offen im Team</div>
-          <div class="kpi-value">${euro(offenGesamt)}</div>
-          <div class="kpi-sub">${alle.filter((s)=>!s.bezahlt).length} Strafen</div>
+          <div class="kpi-label">Summe offen</div>
+          <div class="kpi-value kpi-amt">${euro(offenGesamt).replace(/\s/g, " ")}</div>
+          <div class="kpi-sub">${alle.filter((s)=>!s.bezahlt).length} offene Strafen</div>
         </div>
         <div class="kpi">
-          <div class="kpi-label">Bereits beglichen</div>
-          <div class="kpi-value">${euro(bezahltGesamt)}</div>
-          <div class="kpi-sub">${alle.filter((s)=>s.bezahlt).length} Strafen</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-label">Kassenstand (Soll)</div>
-          <div class="kpi-value">${euro(offenGesamt + bezahltGesamt)}</div>
+          <div class="kpi-label">Kontostand (Soll)</div>
+          <div class="kpi-value kpi-amt">${euro(offenGesamt + bezahltGesamt).replace(/\s/g, " ")}</div>
           <div class="kpi-sub">Gesamtvolumen Saison</div>
         </div>
       </div>
-
-      ${chartRow}
 
       <div class="toolbar">
         ${filters.map((f) => `<button class="chip ${strafenFilter === f.k ? "is-active" : ""}" data-sfilter="${f.k}">${f.label}</button>`).join("")}
       </div>
 
       ${gefiltert.length ? `
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Spieler</th><th>Vergehen</th><th>Datum</th><th class="num">Betrag</th><th>Status</th><th></th></tr></thead>
-          <tbody>
-            ${gefiltert.map((s) => `
-              <tr>
-                <td><div class="player-cell"><span class="avatar">${initials(s.player.name)}</span>${esc(s.player.name)}${statusBadge(s.player)}</div></td>
-                <td>${esc(vergehenName(s))}${s.auto ? ` <span class="badge badge-auto">automatisch</span>` : ""}${s.note ? `<div style="font-size:.78rem;color:var(--muted)">${esc(s.note)}</div>` : ""}</td>
-                <td style="color:var(--muted);white-space:nowrap">${fmtWd(s.datum)}, ${fmtDay(s.datum)}. ${fmtMon(s.datum)}</td>
-                <td class="num amount">${euro(s.betrag)}${
-                  zuschlagBetrag(s) > 0 ? `<div class="amt-sub">inkl. ${euro(zuschlagBetrag(s))} Mahnzuschlag</div>` : ""
-                }${
-                  !s.bezahlt ? `<div class="cd-wrap"><span class="cd" data-cd-created="${s.createdAt}" data-cd-step="${faelligeStufen(s, Date.now())}"></span></div>` : ""
-                }</td>
-                <td>${!s.bezahlt
-                  ? `<span class="badge badge-open">offen</span>`
-                  : s.selfReported
-                    ? `<span class="badge badge-self">selbst gemeldet</span>${s.paidAt ? `<div style="font-size:.7rem;color:var(--muted)">${fmtTs(s.paidAt)}</div>` : ""}`
-                    : `<span class="badge badge-paid">beglichen</span>`}</td>
-                <td style="text-align:right;white-space:nowrap">
-                  ${canPay ? `<button class="btn" data-toggle-paid="${s.id}">${s.bezahlt ? "Als offen" : "Als bezahlt"}</button>` : ""}
-                  ${s.auto && Roles.canDeleteAutoFine() ? `<button class="btn btn-danger" data-del-fine="${s.id}" title="Auto-Strafe entfernen (z. B. entschuldigt)">Entfernen</button>` : ""}
-                </td>
-              </tr>`).join("")}
-          </tbody>
-        </table>
+      <div class="fine-list">
+        ${gefiltert.map((s) => `
+          <div class="fine-row">
+            <span class="avatar">${initials(s.player.name)}</span>
+            <div class="fine-main">
+              <div class="fine-name">${esc(s.player.name)}${statusBadge(s.player)}${s.auto ? ` <span class="badge badge-auto">automatisch</span>` : ""}</div>
+              <div class="fine-desc">${esc(vergehenName(s))} · ${fmtDay(s.datum)}. ${fmtMon(s.datum)}</div>
+            </div>
+            <div class="fine-right">
+              <div class="fine-amt">${euro(s.betrag).replace(/\s/g, " ")}</div>
+              ${!s.bezahlt
+                ? `<span class="badge badge-open">offen</span>`
+                : s.selfReported ? `<span class="badge badge-self">selbst gemeldet</span>` : `<span class="badge badge-paid">beglichen</span>`}
+            </div>
+          </div>`).join("")}
       </div>` : `<div class="empty">Keine Strafen in dieser Auswahl.</div>`}
     `;
 
     startCountdowns(); // Live-Timer für alle Countdown-Felder dieser Ansicht
   }
 
+  /* =========================================================================
+     KASSE (nur Kassenwart/Admin). View-Guard ist Komfort; die echte Sperre
+     ist RLS: fines/fine_catalog SCHREIBEN nur treasurer/admin.
+     ========================================================================= */
+  const kasse = { players: [], catId: "", indiv: false, indivBetrag: "", indivGrund: "", bezug: "" };
+
+  // Betrag + Grund (Snapshot) fuer die aktuelle Auswahl. Bei Staffel: je angefangene Einheit, mit Deckel.
+  function kasseCompute() {
+    if (kasse.indiv) {
+      const b = parseFloat(String(kasse.indivBetrag).replace(",", "."));
+      return { valid: isFinite(b) && b >= 0 && kasse.indivGrund.trim().length > 0,
+               betrag: isFinite(b) ? b : 0, grund: kasse.indivGrund.trim(), catId: null };
+    }
+    const k = katById[kasse.catId];
+    if (!k) return { valid: false, betrag: 0, grund: "", catId: null };
+    if (k.typ === "staffel") {
+      const n = parseFloat(String(kasse.bezug).replace(",", "."));
+      if (!isFinite(n) || n <= 0) return { valid: false, betrag: 0, grund: k.vergehen, catId: k.id };
+      const step = Math.max(1, k.schritt || 1);
+      const steps = Math.ceil(n / step);
+      let betrag = steps * (k.proEinheit || 0);
+      if (k.maxBetrag != null) betrag = Math.min(betrag, k.maxBetrag);
+      return { valid: true, betrag: betrag, grund: k.vergehen + " (" + n + " " + (k.einheit || "") + ")", catId: k.id };
+    }
+    return { valid: true, betrag: k.betrag, grund: k.vergehen, catId: k.id };
+  }
+
+  function kasseSummaryHtml() {
+    const c = kasseCompute();
+    const names = kasse.players.map((id) => playerById[id] && playerById[id].name).filter(Boolean);
+    if (!names.length) return `<div class="kasse-sum-empty">Erst Spieler auswählen.</div>`;
+    if (!c.valid) return `<div class="kasse-sum-empty">${names.length} Spieler · ${kasse.indiv ? "Betrag und Grund eingeben" : (kasse.catId ? "Bezugsgröße eingeben" : "Strafe wählen")}</div>`;
+    const each = euro(c.betrag).replace(/\s/g, " ");
+    const total = euro(c.betrag * names.length).replace(/\s/g, " ");
+    return `<div class="kasse-sum">
+        <div class="kasse-sum-row"><span>Grund</span><b>${esc(c.grund)}</b></div>
+        <div class="kasse-sum-row"><span>Spieler</span><b>${names.map(esc).join(", ")}</b></div>
+        <div class="kasse-sum-row"><span>Betrag je Spieler</span><b>${each}</b></div>
+        <div class="kasse-sum-row kasse-sum-total"><span>Gesamt (${names.length})</span><b>${total}</b></div>
+      </div>`;
+  }
+
+  function renderKasse() {
+    const alle = DEMO.strafen.map((s) => ({ ...s, betrag: strafeBetrag(s), bezahlt: istBezahlt(s), player: playerById[s.playerId] })).filter((s) => s.player);
+    const offen = alle.filter((s) => !s.bezahlt);
+    const offenGesamt = offen.reduce((a, s) => a + s.betrag, 0);
+    const betroffene = new Set(offen.map((s) => s.playerId)).size;
+    const autoFines = alle.filter((s) => s.auto).sort((a, b) => b.datum.localeCompare(a.datum));
+    const bezahlt = alle.filter((s) => s.bezahlt).sort((a, b) => (b.paidAt || "").localeCompare(a.paidAt || ""));
+    const spieler = [...DEMO.players].sort((a, b) => nachname(a.name).localeCompare(nachname(b.name), "de"));
+    const c = kasseCompute();
+    const staffelK = (!kasse.indiv && katById[kasse.catId] && katById[kasse.catId].typ === "staffel") ? katById[kasse.catId] : null;
+    const catOpts = ['<option value="">Strafe aus dem Katalog wählen …</option>']
+      .concat(DEMO.katalog.map((k) => `<option value="${k.id}"${(!kasse.indiv && kasse.catId === k.id) ? " selected" : ""}>${esc(k.vergehen)}${k.typ === "staffel" ? " · gestaffelt" : " · " + euro(k.betrag).replace(/\s/g, " ")}</option>`))
+      .concat([`<option value="__indiv"${kasse.indiv ? " selected" : ""}>Individuelle Strafe …</option>`]).join("");
+
+    viewEl.innerHTML = `
+      <div class="page-head">${navBackChevronHtml()}<h1>Kasse</h1></div>
+
+      <div class="kasse-glance">
+        <div><span class="kg-label">Offen gesamt</span><span class="kg-value">${euro(offenGesamt).replace(/\s/g, " ")}</span></div>
+        <div><span class="kg-label">Betroffene Spieler</span><span class="kg-value">${betroffene}</span></div>
+      </div>
+
+      <div class="section-title"><h2>Strafe verhängen</h2></div>
+      <div class="card card-pad kasse-add">
+        <div class="kasse-lbl">Spieler auswählen${kasse.players.length ? ` <span class="kasse-count">${kasse.players.length}</span>` : ""}</div>
+        <div class="kasse-players">
+          ${spieler.map((p) => `<button type="button" class="kasse-chip ${kasse.players.includes(p.id) ? "is-on" : ""}" data-kasse-player="${p.id}">${esc(nachname(p.name))}</button>`).join("")}
+        </div>
+        <div class="kasse-lbl">Strafe</div>
+        <select class="kasse-select" data-kasse-cat>${catOpts}</select>
+        ${kasse.indiv ? `
+          <div class="kasse-two">
+            <input class="kasse-in" data-kasse-input="betrag" inputmode="decimal" placeholder="Betrag €" value="${esc(kasse.indivBetrag)}">
+            <input class="kasse-in" data-kasse-input="grund" type="text" placeholder="Grund" value="${esc(kasse.indivGrund)}">
+          </div>` : ""}
+        ${staffelK ? `
+          <div class="kasse-staffel">
+            <input class="kasse-in" data-kasse-input="bezug" inputmode="decimal" placeholder="${esc(staffelK.einheit || "Menge")}" value="${esc(kasse.bezug)}">
+            <span class="kasse-staffel-hint">${esc((staffelK.proEinheit != null ? euro(staffelK.proEinheit).replace(/\s/g, " ") + " je " + (staffelK.schritt || 1) + " " + (staffelK.einheit || "") : "") + (staffelK.maxBetrag != null ? " · max " + euro(staffelK.maxBetrag).replace(/\s/g, " ") : ""))}</span>
+          </div>` : ""}
+        <div id="kasseSummary">${kasseSummaryHtml()}</div>
+        <button class="tv-primary kasse-save" data-kasse-add${(!kasse.players.length || !c.valid) ? " disabled" : ""}>Strafe speichern</button>
+      </div>
+
+      <div class="section-title"><h2>Automatische Strafen</h2></div>
+      ${autoFines.length ? `<div class="fine-list">${autoFines.map((s) => `
+        <div class="fine-row">
+          <span class="avatar">${initials(s.player.name)}</span>
+          <div class="fine-main">
+            <div class="fine-name">${esc(s.player.name)} <span class="badge badge-auto">automatisch</span></div>
+            <div class="fine-desc">${esc(vergehenName(s))} · ${fmtDay(s.datum)}. ${fmtMon(s.datum)} · ${s.bezahlt ? "beglichen" : "offen"}</div>
+          </div>
+          <div class="fine-right">
+            <div class="fine-amt">${euro(s.betrag).replace(/\s/g, " ")}</div>
+            <button class="btn btn-danger btn-sm" data-kasse-del="${s.id}">Entfernen</button>
+          </div>
+        </div>`).join("")}</div>` : `<div class="empty">Keine automatischen Strafen.</div>`}
+
+      <div class="section-title"><h2>Zahlungen verbuchen</h2></div>
+      ${offen.length ? `<div class="fine-list">${offen.slice().sort((a, b) => a.player.name.localeCompare(b.player.name)).map((s) => `
+        <div class="fine-row">
+          <span class="avatar">${initials(s.player.name)}</span>
+          <div class="fine-main">
+            <div class="fine-name">${esc(s.player.name)}${s.auto ? ` <span class="badge badge-auto">automatisch</span>` : ""}</div>
+            <div class="fine-desc">${esc(vergehenName(s))}</div>
+          </div>
+          <div class="fine-right">
+            <div class="fine-amt">${euro(s.betrag).replace(/\s/g, " ")}</div>
+            <button class="btn btn-sm" data-kasse-pay="${s.id}">Als bezahlt</button>
+          </div>
+        </div>`).join("")}</div>` : `<div class="empty">Keine offenen Posten.</div>`}
+
+      ${bezahlt.length ? `
+      <details class="kasse-paid">
+        <summary>Zuletzt gebucht (${bezahlt.length}) · rückgängig</summary>
+        <div class="fine-list">${bezahlt.slice(0, 20).map((s) => `
+          <div class="fine-row">
+            <span class="avatar">${initials(s.player.name)}</span>
+            <div class="fine-main">
+              <div class="fine-name">${esc(s.player.name)}</div>
+              <div class="fine-desc">${esc(vergehenName(s))}${s.selfReported ? " · selbst gemeldet" : ""}</div>
+            </div>
+            <div class="fine-right">
+              <div class="fine-amt">${euro(s.betrag).replace(/\s/g, " ")}</div>
+              <button class="btn btn-sm" data-kasse-unpay="${s.id}">Rückgängig</button>
+            </div>
+          </div>`).join("")}</div>
+      </details>` : ""}
+    `;
+    startCountdowns();
+  }
+
+  // Strafe(n) verhängen: pro gewähltem Spieler ein Eintrag mit Snapshot (Grund+Betrag).
+  async function kasseSave() {
+    const c = kasseCompute();
+    if (!kasse.players.length || !c.valid) return;
+    const today = new Date().toISOString().slice(0, 10);
+    const rows = kasse.players.map((pid) => ({ clubId: DEMO.clubId, playerId: pid, catalogId: c.catId, offense: c.grund, betrag: c.betrag, date: today }));
+    const btn = viewEl.querySelector("[data-kasse-add]"); if (btn) btn.disabled = true;
+    try {
+      await DB.addFines(rows);
+      kasse.players = []; kasse.catId = ""; kasse.indiv = false; kasse.indivBetrag = ""; kasse.indivGrund = ""; kasse.bezug = "";
+      await reloadData();                          // rendert Kasse neu (aktualisierte Listen)
+      tvToast(rows.length + (rows.length > 1 ? " Strafen" : " Strafe") + " gespeichert");
+    } catch (e) { if (btn) btn.disabled = false; window.alert("Speichern fehlgeschlagen: " + ((e && e.message) || e)); }
+  }
+
   /* ---------------------------------------------------------------------------
      Interaktion (Event-Delegation)
      --------------------------------------------------------------------------- */
+  // Kasse: Katalogauswahl (Select) und Eingaben (Betrag/Grund/Bezugsgröße).
+  viewEl.addEventListener("change", (ev) => {
+    if (currentView === "kasse" && ev.target.matches("[data-kasse-cat]")) {
+      const v = ev.target.value;
+      if (v === "__indiv") { kasse.indiv = true; kasse.catId = ""; }
+      else { kasse.indiv = false; kasse.catId = v; kasse.bezug = ""; }
+      renderKasse();
+      return;
+    }
+    // Katalog: Typ-Umschalter blendet die Staffel-Felder ein/aus (ohne Re-Render -> Eingaben bleiben).
+    if (currentView === "katalog" && ev.target.matches("[data-kat-type]")) {
+      const row = ev.target.closest(".kat-edit");
+      if (row) row.classList.toggle("is-staffel", ev.target.value === "staffel");
+    }
+  });
+  viewEl.addEventListener("input", (ev) => {
+    if (currentView !== "kasse") return;
+    const t = ev.target; if (!t.matches("[data-kasse-input]")) return;
+    const f = t.dataset.kasseInput;
+    if (f === "betrag") kasse.indivBetrag = t.value;
+    else if (f === "grund") kasse.indivGrund = t.value;
+    else if (f === "bezug") kasse.bezug = t.value;
+    // Nur Zusammenfassung + Speichern-Button aktualisieren -> Eingabe-Fokus bleibt erhalten.
+    const sum = document.getElementById("kasseSummary"); if (sum) sum.innerHTML = kasseSummaryHtml();
+    const btn = viewEl.querySelector("[data-kasse-add]"); if (btn) { const c = kasseCompute(); btn.disabled = !(kasse.players.length && c.valid); }
+  });
   viewEl.addEventListener("click", async (ev) => {
     // Aufstellungs-Builder zuerst (eigene Tap-/Button-Logik)
     if (currentView === "lineup") {
@@ -2550,6 +2670,19 @@
           return;
         }
       }
+    }
+
+    // Kasse-Interaktionen (Schreiben ist zusätzlich per RLS auf treasurer/admin beschränkt)
+    if (currentView === "kasse") {
+      const pchip = ev.target.closest("[data-kasse-player]");
+      if (pchip) { const id = pchip.dataset.kassePlayer; const i = kasse.players.indexOf(id); if (i === -1) kasse.players.push(id); else kasse.players.splice(i, 1); renderKasse(); return; }
+      if (ev.target.closest("[data-kasse-add]")) { await kasseSave(); return; }
+      const del = ev.target.closest("[data-kasse-del]");
+      if (del) { if (window.confirm("Diese automatische Strafe wirklich entfernen?")) { try { await DB.deleteFine(del.dataset.kasseDel); await reloadData(); tvToast("Entfernt"); } catch (e) { window.alert("Löschen fehlgeschlagen: " + ((e && e.message) || e)); } } return; }
+      const pay = ev.target.closest("[data-kasse-pay]");
+      if (pay) { try { await DB.setFinePaid(pay.dataset.kassePay, true); await reloadData(); tvToast("Als bezahlt gebucht"); } catch (e) { window.alert("Buchen fehlgeschlagen: " + ((e && e.message) || e)); } return; }
+      const unpay = ev.target.closest("[data-kasse-unpay]");
+      if (unpay) { try { await DB.setFinePaid(unpay.dataset.kasseUnpay, false); await reloadData(); tvToast("Zurückgesetzt"); } catch (e) { window.alert("Rückgängig fehlgeschlagen: " + ((e && e.message) || e)); } return; }
     }
 
     const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-koord-save],[data-my-status],[data-logout]");
@@ -2660,15 +2793,31 @@
     if (t.hasAttribute("data-kat-cancel")) { katEdit = null; renderKatalog(); return; }
     if (t.hasAttribute("data-kat-add")) { katEdit = "new"; renderKatalog(); return; }
     if (t.dataset.katSave) {
-      const nameEl = viewEl.querySelector('[data-kat-input="name"]');
-      const amtEl  = viewEl.querySelector('[data-kat-input="amount"]');
-      const name = (nameEl ? nameEl.value : "").trim();
-      const amount = parseFloat(String(amtEl ? amtEl.value : "").replace(",", ".").replace(/[^0-9.]/g, ""));
+      const gv = (sel) => { const el = viewEl.querySelector(`[data-kat-input="${sel}"]`); return el ? el.value : ""; };
+      const num = (s) => parseFloat(String(s).replace(",", ".").replace(/[^0-9.]/g, ""));
+      const typeEl = viewEl.querySelector("[data-kat-type]");
+      const typ = typeEl && typeEl.value === "staffel" ? "staffel" : "fixed";
+      const name = gv("name").trim();
       if (!name) { window.alert("Bitte eine Bezeichnung eingeben."); return; }
-      if (!isFinite(amount) || amount <= 0) { window.alert("Bitte einen gültigen Betrag größer 0 eingeben."); return; }
       try {
-        if (t.dataset.katSave === "new") await DB.insertCatalog(DEMO.clubId, name, amount);
-        else await DB.updateCatalog(t.dataset.katSave, name, amount);
+        if (typ === "staffel") {
+          const proE = num(gv("proEinheit"));
+          const schritt = parseInt(String(gv("schritt")).replace(/[^0-9]/g, ""), 10);
+          const einheit = gv("einheit").trim();
+          const maxRaw = String(gv("maxBetrag")).trim();
+          const maxB = maxRaw ? num(maxRaw) : null;
+          if (!isFinite(proE) || proE < 0) { window.alert("Bitte einen gültigen Betrag je Schritt eingeben."); return; }
+          if (!isFinite(schritt) || schritt < 1) { window.alert("Bitte eine gültige Schrittweite (mindestens 1) eingeben."); return; }
+          if (!einheit) { window.alert("Bitte eine Einheit angeben (z. B. Minuten)."); return; }
+          const opts = { typ: "staffel", einheit, proEinheit: proE, schritt, maxBetrag: (maxB != null && isFinite(maxB)) ? maxB : null };
+          if (t.dataset.katSave === "new") await DB.insertCatalog(DEMO.clubId, name, 0, opts);
+          else await DB.updateCatalog(t.dataset.katSave, name, 0, opts);
+        } else {
+          const amount = num(gv("amount"));
+          if (!isFinite(amount) || amount <= 0) { window.alert("Bitte einen gültigen Betrag größer 0 eingeben."); return; }
+          if (t.dataset.katSave === "new") await DB.insertCatalog(DEMO.clubId, name, amount, { typ: "fixed" });
+          else await DB.updateCatalog(t.dataset.katSave, name, amount, { typ: "fixed" });
+        }
         katEdit = null;
         await reloadData();
       } catch (err) { window.alert("Speichern fehlgeschlagen: " + ((err && err.message) || err)); }
@@ -3198,6 +3347,7 @@
   const ICON_NAV_DOTS  = `<svg class="nav-ic" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>`;
   const ICON_NAV_PITCH = `<svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 5v14"/><circle cx="12" cy="12" r="2.4"/><path d="M3 9.5h3v5H3M21 9.5h-3v5h3"/></svg>`;
   const ICON_NAV_PERSON = `<svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>`;
+  const ICON_NAV_COIN  = `<svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v9M9.5 9.2c0-.9 1.1-1.6 2.5-1.6s2.5.6 2.5 1.5c0 1-1 1.4-2.5 1.7s-2.5.7-2.5 1.7c0 .9 1.1 1.5 2.5 1.5s2.5-.7 2.5-1.6"/></svg>`;
 
   // 5. Tab (unten rechts) nach höchster EFFEKTIVER Rolle: Admin „Mehr", Trainer
   // „Trainer" (Aufstellung), Spieler „Profil". Effektiv = inkl. Admin-Vorschau
@@ -3205,18 +3355,26 @@
   function setupPrimaryNavTab() {
     const btn = document.getElementById("navMore");
     if (!btn) return;
-    const roles = Roles.list || [];
-    const high = roles.indexOf("admin") !== -1 ? "admin" : roles.indexOf("coach") !== -1 ? "coach" : "player";
     btn.style.display = "";
-    if (high === "admin") {
+    // Zugaengliche Spezialbereiche (fuers Mehr-Menue + zum Zaehlen der Mehrfachrollen).
+    const specials = [];
+    if (Roles.canManageEvents()) specials.push("lineup");   // Trainer/Admin
+    if (Roles.canManageFines())  specials.push("kasse");     // Kassenwart/Admin
+    if (Roles.isAdmin())         specials.push("admin");     // Rollen
+    // Icon/Label = hoechste Rolle. Reihenfolge admin > coach > treasurer > player.
+    const icon = Roles.isAdmin() ? [ICON_NAV_DOTS, "Mehr"]
+      : Roles.has("coach") ? [ICON_NAV_PITCH, "Trainer"]
+      : Roles.has("treasurer") ? [ICON_NAV_COIN, "Kasse"]
+      : [ICON_NAV_PERSON, "Profil"];
+    btn.innerHTML = `${icon[0]}<span class="nav-label">${icon[1]}</span>`;
+    // Mehrere Spezialbereiche ODER Admin -> 5. Tab oeffnet das Mehr-Menue (alles Zugaengliche).
+    // Genau EIN Spezialbereich -> direkt dorthin. Kein Spezialbereich -> Profil.
+    if (specials.length >= 2 || Roles.isAdmin()) {
       btn.setAttribute("data-more", ""); btn.removeAttribute("data-view");
-      btn.innerHTML = `${ICON_NAV_DOTS}<span class="nav-label">Mehr</span>`;
-    } else if (high === "coach") {
-      btn.removeAttribute("data-more"); btn.setAttribute("data-view", "lineup");
-      btn.innerHTML = `${ICON_NAV_PITCH}<span class="nav-label">Trainer</span>`;
+    } else if (specials.length === 1) {
+      btn.removeAttribute("data-more"); btn.setAttribute("data-view", specials[0]);
     } else {
       btn.removeAttribute("data-more"); btn.setAttribute("data-view", "profil");
-      btn.innerHTML = `${ICON_NAV_PERSON}<span class="nav-label">Profil</span>`;
     }
   }
 
@@ -3225,10 +3383,13 @@
     // Header trägt keinen Namen/keine Rolle mehr (steht in den Einstellungen).
     // Sheet-Inhalte (nur Admin nutzt das „Mehr"-Sheet – Trainer hat den Trainer-Tab).
     const moreLineup = document.getElementById("moreLineup");
+    const moreKasse  = document.getElementById("moreKasse");
     const moreAdmin  = document.getElementById("moreAdmin");
-    if (moreLineup) moreLineup.style.display = Roles.isAdmin() ? "" : "none";
+    // Mehr-Menue zeigt ALLES Zugaengliche (Mehrfachrollen erreichen so ihre weiteren Bereiche).
+    if (moreLineup) moreLineup.style.display = Roles.canManageEvents() ? "" : "none";
+    if (moreKasse)  moreKasse.style.display  = Roles.canManageFines()  ? "" : "none";
     if (moreAdmin)  moreAdmin.style.display  = Roles.isAdmin() ? "" : "none";
-    setupPrimaryNavTab(); // 5. Tab je nach höchster ECHTER Rolle
+    setupPrimaryNavTab(); // 5. Tab je nach höchster Rolle; Menue-Inhalt je nach Rechten
     // Teamname mittig im Header (aus den Einstellungen, Fallback ohne Zusatz).
     const titleEl = document.getElementById("hdrTitle");
     if (titleEl && typeof DEMO !== "undefined" && DEMO) titleEl.textContent = DEMO.teamName || "FC Fasanerie-Nord";

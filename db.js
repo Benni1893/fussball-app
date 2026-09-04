@@ -73,6 +73,12 @@ window.DB = (function () {
       })),
       katalog: katalog.data.map((k) => ({
         id: k.id, vergehen: k.offense, betrag: Number(k.amount), kategorie: k.category,
+        // Staffel-Felder (Migration 0029). typ: 'fixed' | 'staffel'.
+        typ: k.fine_type || "fixed",
+        einheit: k.unit_label || null,
+        proEinheit: k.unit_amount != null ? Number(k.unit_amount) : null,
+        schritt: k.unit_step != null ? Number(k.unit_step) : null,
+        maxBetrag: k.max_amount != null ? Number(k.max_amount) : null,
       })),
       strafen: fines.data.map((s) => ({
         id: s.id, playerId: s.player_id, katalogId: s.catalog_id,
@@ -140,24 +146,59 @@ window.DB = (function () {
     if (error) throw error;
   }
 
-  /* ---- Strafenkatalog bearbeiten (nur treasurer/admin, per RLS) ---------- */
-  async function insertCatalog(clubId, offense, amount) {
-    const row = {
+  /* ---- Strafenkatalog bearbeiten (nur treasurer/admin, per RLS) ----------
+     opts: { typ:'fixed'|'staffel', einheit, proEinheit, schritt, maxBetrag }.
+     Bei 'staffel' zaehlt der Betrag je angefangene Einheit; `amount` wird 0 gesetzt. */
+  function catalogCols(offense, amount, opts) {
+    opts = opts || {};
+    const staffel = opts.typ === "staffel";
+    return {
+      offense: offense,
+      amount: staffel ? 0 : amount,
+      fine_type: staffel ? "staffel" : "fixed",
+      unit_label:  staffel ? (opts.einheit || null) : null,
+      unit_amount: staffel ? Number(opts.proEinheit) : null,
+      unit_step:   staffel ? Math.max(1, parseInt(opts.schritt, 10) || 1) : null,
+      max_amount:  staffel && opts.maxBetrag != null && opts.maxBetrag !== "" ? Number(opts.maxBetrag) : null,
+    };
+  }
+  async function insertCatalog(clubId, offense, amount, opts) {
+    const row = Object.assign({
       club_id: clubId,
       code: "u" + Date.now().toString(36), // eindeutiger interner Code (nicht sichtbar)
-      offense: offense, amount: amount, category: null,
-    };
+      category: null,
+    }, catalogCols(offense, amount, opts));
     const { data, error } = await client.from("fine_catalog").insert(row).select().single();
     if (error) throw error;
     return data;
   }
-  async function updateCatalog(id, offense, amount) {
+  async function updateCatalog(id, offense, amount, opts) {
     const { error } = await client.from("fine_catalog")
-      .update({ offense: offense, amount: amount }).eq("id", id);
+      .update(catalogCols(offense, amount, opts)).eq("id", id);
     if (error) throw error;
   }
   async function deleteCatalog(id) {
     const { error } = await client.from("fine_catalog").delete().eq("id", id);
+    if (error) throw error;
+  }
+
+  /* ---- Strafe(n) manuell verhaengen (nur treasurer/admin, per RLS fines_ins) ----
+     Snapshot: offense + base_amount werden gespeichert -> unabhaengig vom Katalog.
+     rows: [{ clubId, playerId, catalogId|null, offense, betrag, date, note }] */
+  async function addFines(rows) {
+    const payload = (rows || []).map((r) => ({
+      club_id: r.clubId,
+      player_id: r.playerId,
+      catalog_id: r.catalogId || null,
+      date: r.date,
+      offense: r.offense,
+      base_amount: Number(r.betrag),
+      surcharge: 0,
+      auto: false,
+      paid: false,
+      note: r.note || null,
+    }));
+    const { error } = await client.from("fines").insert(payload);
     if (error) throw error;
   }
 
@@ -356,7 +397,7 @@ window.DB = (function () {
   }
 
   return {
-    client, loadAll, setRsvp, deleteRsvp, setFinePaid, deleteFine,
+    client, loadAll, setRsvp, deleteRsvp, setFinePaid, deleteFine, addFines,
     insertCatalog, updateCatalog, deleteCatalog,
     insertEvents, updateEvent, updateSeriesFrom, deleteEvent, deleteSeriesFrom,
     upsertSportstaette,
