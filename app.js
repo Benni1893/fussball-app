@@ -19,7 +19,9 @@
   // Hier später den echten PayPal-Benutzernamen des Vereins eintragen:
   const PAYPAL_ME = "Teamkassefasanerie";
   function paypalMeLink(betrag) {
-    const amount = Number(betrag).toFixed(2).replace(".", ","); // z. B. 12,50
+    // PayPal.Me erwartet den Betrag mit PUNKT (12.50), NICHT mit Komma -> sonst leere/kaputte Seite.
+    const n = Number(String(betrag).replace(",", "."));
+    const amount = (isFinite(n) && n > 0 ? n : 0).toFixed(2);   // "12.50"
     return `https://paypal.me/${PAYPAL_ME}/${amount}EUR`;
   }
 
@@ -279,19 +281,39 @@
   const viewEl = document.getElementById("view");
   let currentView = "dashboard";
 
+  // Fallback-Ansicht statt weißem Bildschirm, wenn beim Rendern etwas wirft.
+  function renderErrorBoundary(err) {
+    try { console.error("Render-Fehler:", err); } catch (e) {}
+    try {
+      viewEl.innerHTML =
+        '<div class="page-head"><h1>Etwas ist schiefgelaufen</h1></div>' +
+        '<div class="card card-pad"><p style="margin:0 0 12px">Diese Ansicht konnte nicht geladen werden.</p>' +
+        '<p style="margin:0 0 14px;color:var(--muted);font-size:.85rem">' + esc((err && err.message) || String(err)) + '</p>' +
+        '<button class="btn btn-primary" data-goto="dashboard">Zurück zur Übersicht</button></div>';
+    } catch (e) {}
+  }
   function render() {
     stopCountdowns(); // Timer der vorigen Ansicht sauber aufräumen
-    if (currentView !== "lineup") { lbTeardownPanels(); tvTeardownPanels(); } // Aufstellungs-Panels nur dort
-    if (currentView === "dashboard") renderDashboard();
-    else if (currentView === "kalender") renderKalender();
-    else if (currentView === "katalog") renderKatalog();
-    else if (currentView === "strafen") renderStrafen();
-    else if (currentView === "einstellungen") renderEinstellungen();
-    else if (currentView === "profil") renderProfil();
-    else if (currentView === "lineup") { if (Roles.canManageEvents()) { if (LINEUP_V2) renderLineupV2(); else renderLineup(); } else renderDashboard(); }
-    else if (currentView === "kasse") { if (Roles.canManageFines()) renderKasse(); else renderDashboard(); }
-    else if (currentView === "admin") { if (Roles.isAdmin()) renderAdmin(); else renderDashboard(); }
+    try {
+      if (currentView !== "lineup") { lbTeardownPanels(); tvTeardownPanels(); } // Aufstellungs-Panels nur dort
+      if (currentView === "dashboard") renderDashboard();
+      else if (currentView === "kalender") renderKalender();
+      else if (currentView === "katalog") renderKatalog();
+      else if (currentView === "strafen") renderStrafen();
+      else if (currentView === "einstellungen") renderEinstellungen();
+      else if (currentView === "profil") renderProfil();
+      else if (currentView === "lineup") { if (Roles.canManageEvents()) { if (LINEUP_V2) renderLineupV2(); else renderLineup(); } else renderDashboard(); }
+      else if (currentView === "kasse") { if (Roles.canManageFines()) renderKasse(); else renderDashboard(); }
+      else if (currentView === "admin") { if (Roles.isAdmin()) renderAdmin(); else renderDashboard(); }
+    } catch (err) { renderErrorBoundary(err); }
   }
+
+  // Nichts bleibt unbemerkt weiß: unbehandelte Fehler/Rejections loggen; leere Ansicht abfangen.
+  window.addEventListener("error", (e) => {
+    try { console.error("Unbehandelter Fehler:", e.error || e.message); } catch (_) {}
+    try { if (viewEl && !viewEl.innerHTML.trim() && !document.body.classList.contains("auth-mode")) renderErrorBoundary(e.error || new Error(e.message)); } catch (_) {}
+  });
+  window.addEventListener("unhandledrejection", (e) => { try { console.error("Unbehandelte Promise-Rejection:", e.reason); } catch (_) {} });
 
   // Daten frisch aus Supabase holen und die aktuelle Ansicht neu rendern.
   async function reloadData() {
@@ -2636,7 +2658,11 @@
       kasse.players = []; kasse.mode = null; kasse.catId = ""; kasse.indivBetrag = ""; kasse.indivGrund = ""; kasse.bezug = "";
       await reloadData();                          // rendert Kasse neu (aktualisierte Listen)
       tvToast(rows.length + (rows.length > 1 ? " Strafen" : " Strafe") + " gespeichert");
-    } catch (e) { if (btn) btn.disabled = false; window.alert("Speichern fehlgeschlagen: " + ((e && e.message) || e)); }
+    } catch (e) {
+      if (btn) btn.disabled = false;
+      try { console.error("Strafe verhängen fehlgeschlagen:", { code: e && e.code, message: e && e.message, details: e && e.details, hint: e && e.hint }); } catch (x) {}
+      window.alert("Speichern fehlgeschlagen: " + ((e && e.message) || e) + ((e && e.hint) ? "\n(Hinweis: " + e.hint + ")" : ""));
+    }
   }
 
   /* ---- Vollbild-Spielerauswahl der Kasse (Stil wie die Trainer-Kaderauswahl) ---- */
@@ -2875,7 +2901,15 @@
         }
         katEdit = null;
         await reloadData();
-      } catch (err) { window.alert("Speichern fehlgeschlagen: " + ((err && err.message) || err)); }
+        tvToast("Gespeichert");
+      } catch (err) {
+        try { console.error("Katalog speichern fehlgeschlagen:", { code: err && err.code, message: err && err.message, details: err && err.details, hint: err && err.hint }); } catch (e) {}
+        const raw = (err && err.message) || String(err);
+        const staffelMissing = typ === "staffel" && /schema cache|fine_type|unit_(label|amount|step)|max_amount/i.test(raw + " " + ((err && err.details) || ""));
+        window.alert(staffelMissing
+          ? "Gestaffelte Strafen brauchen eine einmalige Datenbank-Aktualisierung (Migration 0029 in Supabase). Ein Festbetrag lässt sich schon jetzt speichern."
+          : "Speichern fehlgeschlagen: " + raw + ((err && err.hint) ? "\n(Hinweis: " + err.hint + ")" : ""));
+      }
       return;
     }
     if (t.dataset.katDel) {

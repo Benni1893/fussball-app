@@ -162,19 +162,27 @@ window.DB = (function () {
       max_amount:  staffel && opts.maxBetrag != null && opts.maxBetrag !== "" ? Number(opts.maxBetrag) : null,
     };
   }
+  // Staffel-Spalten fehlen (Migration 0029 nicht angewandt)? -> Festbetrag ohne die neuen Spalten.
+  function isMissingStaffelCol(error) {
+    const m = ((error && error.message) || "") + " " + ((error && error.details) || "");
+    return (error && error.code === "PGRST204") || /schema cache|fine_type|unit_(label|amount|step)|max_amount/i.test(m);
+  }
   async function insertCatalog(clubId, offense, amount, opts) {
-    const row = Object.assign({
-      club_id: clubId,
-      code: "u" + Date.now().toString(36), // eindeutiger interner Code (nicht sichtbar)
-      category: null,
-    }, catalogCols(offense, amount, opts));
-    const { data, error } = await client.from("fine_catalog").insert(row).select().single();
+    opts = opts || {};
+    const base = { club_id: clubId, code: "u" + Date.now().toString(36), category: null };
+    let { data, error } = await client.from("fine_catalog").insert(Object.assign({}, base, catalogCols(offense, amount, opts))).select().single();
+    if (error && opts.typ !== "staffel" && isMissingStaffelCol(error)) {
+      ({ data, error } = await client.from("fine_catalog").insert(Object.assign({}, base, { offense, amount })).select().single());
+    }
     if (error) throw error;
     return data;
   }
   async function updateCatalog(id, offense, amount, opts) {
-    const { error } = await client.from("fine_catalog")
-      .update(catalogCols(offense, amount, opts)).eq("id", id);
+    opts = opts || {};
+    let { error } = await client.from("fine_catalog").update(catalogCols(offense, amount, opts)).eq("id", id);
+    if (error && opts.typ !== "staffel" && isMissingStaffelCol(error)) {
+      ({ error } = await client.from("fine_catalog").update({ offense: offense, amount: amount }).eq("id", id));
+    }
     if (error) throw error;
   }
   async function deleteCatalog(id) {
