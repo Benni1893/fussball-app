@@ -29,27 +29,41 @@
       background:#144a37;background:var(--green-800,#144a37);   /* = Icon-Hintergrund #144a37 -> Quadrat-Ecken verschwinden, nur das Wappen dreht sich */
       opacity:1;transition:opacity 200ms ease;-webkit-tap-highlight-color:transparent}
     #splash.sp-hide{opacity:0}
-    /* Buehne: feste px-Groesse, KEINE Safe-Area-Margins (die verschoben frueher die Zentrierung).
-       Zentrierung nur ueber Flex (#splash). Logo (128px) dreht sich, Schatten liegt statisch darunter. */
-    #splash .sp-stage{position:relative;width:128px;height:128px}
-    /* Logo: feste 128px, Drehung AUSSCHLIESSLICH ueber transform:rotate um den eigenen Mittelpunkt.
-       Keine Aenderung von Position/Groesse/Layout. Nahtloser Loop (0deg = 360deg). */
-    #splash .sp-logo{position:absolute;top:0;left:0;width:128px;height:128px;display:block;
-      transform-origin:50% 50%;will-change:transform;backface-visibility:hidden;-webkit-backface-visibility:hidden;
-      animation:sp-spin 1.5s linear infinite}
-    @keyframes sp-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-    /* Schatten: weiche Ellipse per radial-gradient (KEIN box-shadow -> keine Per-Frame-Repaints),
-       liegt statisch unter dem Logo, dreht sich NICHT mit, "atmet" nur ueber transform:scaleX + opacity.
-       top:156 liegt UNTER dem Rotations-Huellkreis des Quadrats (Halbdiagonale ~90px, Mitte y=64 -> bis ~155),
-       damit die (unsichtbaren, weil hintergrundfarbenen) drehenden Ecken den Schatten nie anschneiden.
-       Das Logo "schwebt" dadurch leicht ueber dem Schatten. */
-    #splash .sp-shadow{position:absolute;left:50%;top:156px;width:96px;height:14px;margin-left:-48px;
-      border-radius:50%;background:radial-gradient(ellipse at center, rgba(0,0,0,.38) 0%, rgba(0,0,0,0) 70%);
-      transform-origin:50% 50%;will-change:transform,opacity;
-      animation:sp-breath 1.5s ease-in-out infinite}
-    @keyframes sp-breath{0%,100%{transform:scaleX(1);opacity:.9}50%{transform:scaleX(.8);opacity:.6}}
-    /* Reduced-Motion: keine Drehung, kein Atmen -> Logo statisch, Schatten bleibt ruhig sichtbar. */
-    @media (prefers-reduced-motion: reduce){ #splash .sp-logo, #splash .sp-shadow{animation:none} }
+    /* Buehne: feste px-Groesse, KEINE Safe-Area-Margins. Perspektive -> die rotateY-Drehung wirkt
+       raeumlich (Muenze), nicht wie flaches Zusammenschieben. Position steht (Hoehe eingefroren im
+       Skript) -> hier nichts an der Positionierung aendern. */
+    #splash .sp-stage{position:relative;width:128px;height:128px;perspective:700px}
+    /* Gedecktes, warmes Gold (metallisch). --goldL = helle Seite, --goldD = dunkle Seite. Default = gedeckt. */
+    #splash{--goldL:#D8BC72;--goldD:#7C6230}
+    /* Muenze: kippt um die vertikale Achse (rotateY) um den eigenen Mittelpunkt. Nur transform -> die
+       Bounding Box/Position aendert sich NICHT. */
+    #splash .sp-coin{position:absolute;inset:0;transform-origin:50% 50%;will-change:transform;
+      animation:sp-flip 2s infinite}
+    /* Pendeln: Mitte -> rechts -> Mitte -> links -> Mitte. Schnell durch die Mitte, weich an den
+       Umkehrpunkten (ease-out hin, ease-in zurueck). Start=Ende (0deg) -> nahtlos. |55| < 90 -> Rueckseite
+       nie sichtbar (Wappen nie spiegelverkehrt). */
+    @keyframes sp-flip{
+      0%{transform:rotateY(0deg);animation-timing-function:ease-out}
+      25%{transform:rotateY(55deg);animation-timing-function:ease-in}
+      50%{transform:rotateY(0deg);animation-timing-function:ease-out}
+      75%{transform:rotateY(-55deg);animation-timing-function:ease-in}
+      100%{transform:rotateY(0deg)}
+    }
+    /* Goldener Ring: metallischer Verlauf (hell oben-links -> dunkel unten-rechts). Teil der Muenze -> kippt mit. */
+    #splash .sp-ring{position:absolute;inset:0;border-radius:50%;
+      background:linear-gradient(135deg,var(--goldL) 0%,var(--goldD) 100%)}
+    /* Wappen rund beschnitten (Quadrat-Ecken weg), sitzt IM Ring (inset = Ringbreite, dezent). */
+    #splash .sp-disc{position:absolute;inset:5px;border-radius:50%;overflow:hidden;background:#144a37}
+    #splash .sp-logo{width:100%;height:100%;display:block}
+    /* Schatten: liegt flach unter der Muenze, kippt NICHT mit. Nimmt die Bewegung nur ueber scaleX+opacity
+       auf: breit/weich in Mittelstellung (0/50/100%), schmaler/dunkler bei starkem Kippen (25/75%).
+       KEIN animierter box-shadow/blur. */
+    #splash .sp-shadow{position:absolute;left:50%;top:142px;width:96px;height:14px;margin-left:-48px;
+      border-radius:50%;background:radial-gradient(ellipse at center, rgba(0,0,0,.42) 0%, rgba(0,0,0,0) 70%);
+      transform-origin:50% 50%;will-change:transform,opacity;animation:sp-shadow 2s ease-in-out infinite}
+    @keyframes sp-shadow{0%,50%,100%{transform:scaleX(1);opacity:.5}25%,75%{transform:scaleX(.78);opacity:.72}}
+    /* Reduced-Motion: keine Bewegung -> Muenze flach (Wappen + Ring sichtbar), Schatten ruhig. */
+    @media (prefers-reduced-motion: reduce){ #splash .sp-coin, #splash .sp-shadow{animation:none} }
   </style>
   <link rel="icon" type="image/png" href="assets/logo.png" />
   <!-- Als Web-App / zum Startbildschirm: echtes Vereins-Logo als Icon -->
@@ -67,8 +81,8 @@
   <div id="splash" role="status" aria-label="Lädt"><div class="sp-stage"></div></div>
   <script>
   (function(){
-    // Splash: Vereinslogo dreht sich (nur transform:rotate), weicher statischer Schatten darunter.
-    var LOGO='<div class="sp-shadow"></div><img class="sp-logo" src="assets/icon-512.png" width="128" height="128" alt="" draggable="false">';
+    // Splash: Vereinswappen kippt wie eine Muenze (rotateY, pendelnd), goldener Ring, flacher Schatten darunter.
+    var LOGO='<div class="sp-shadow"></div><div class="sp-coin"><div class="sp-ring"></div><div class="sp-disc"><img class="sp-logo" src="assets/icon-512.png" width="118" height="118" alt="" draggable="false"></div></div>';
     var splash=document.getElementById("splash"); if(!splash) return;
     /* ===================== SCHRITT 2: HOEHE EINMALIG EINFRIEREN =====================
        Messung bewies: #splash (inset:0) waechst mit innerHeight (797->844) -> zentriertes Logo rutscht.
@@ -85,51 +99,15 @@
     var reduce=false; try{ reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches; }catch(e){}
     stage.innerHTML=LOGO;
 
-    /* ===================== SCHRITT 1: SICHTBARE MESSUNG (temporaer) =====================
-       Zeigt live auf dem Bildschirm, WAS sich beim Start verschiebt: Viewport, Overlay oder Logo.
-       Bleibt drin, bis die Position bestaetigt steht -> danach entfernen. */
-    (function(){
-      var dbg=document.createElement("div"); dbg.id="spdbg";
-      dbg.style.cssText="position:fixed;top:0;left:0;right:0;z-index:100000;"+
-        "font:11px/1.4 ui-monospace,Menlo,monospace;color:#fff;background:rgba(0,0,0,.75);"+
-        "padding:calc(env(safe-area-inset-top,0px) + 6px) 8px 6px;white-space:pre;pointer-events:none;text-align:left";
-      splash.appendChild(dbg);
-      var innerH0=window.innerHeight, logoTop0=null, splashTop0=null, splashH0=null;
-      function r(n){ return (n==null?"-":Math.round(n)); }
-      function upd(){
-        if(!document.getElementById("spdbg")) return;                 // Splash entfernt -> Schleife endet
-        var vv=window.visualViewport;
-        var sp=document.getElementById("splash");
-        var cnt=document.querySelectorAll("#splash").length;
-        var cs=sp?getComputedStyle(sp):null;
-        var spr=sp?sp.getBoundingClientRect():null;
-        var stg=sp?sp.querySelector(".sp-stage"):null;                 // .sp-stage dreht sich NICHT -> sauberes Positionssignal
-        var sr=stg?stg.getBoundingClientRect():null;
-        var par=sp&&sp.parentNode?(sp.parentNode.nodeName+(sp.parentNode.id?"#"+sp.parentNode.id:"")):"-";
-        if(logoTop0==null && sr){ logoTop0=sr.top; }
-        if(splashTop0==null && spr){ splashTop0=spr.top; splashH0=spr.height; }
-        var iH=window.innerHeight;
-        dbg.textContent=
-          "innerH0="+r(innerH0)+"  now="+r(iH)+"  d="+r(iH-innerH0)+"\n"+
-          "visualVH="+r(vv&&vv.height)+"  docClientH="+r(document.documentElement.clientHeight)+"  scrollY="+r(window.scrollY)+"\n"+
-          "#splash pos="+(cs?cs.position:"-")+"  parent="+par+"  count="+cnt+"\n"+
-          "splashRect top0="+r(splashTop0)+" now="+r(spr&&spr.top)+"  h0="+r(splashH0)+" now="+r(spr&&spr.height)+"\n"+
-          "stageRect top0="+r(logoTop0)+" now="+r(sr&&sr.top)+" d="+r(sr&&logoTop0!=null?sr.top-logoTop0:null)+"  left="+r(sr&&sr.left);
-        requestAnimationFrame(upd);
-      }
-      requestAnimationFrame(upd);
-    })();
-
-    /* Anzeige erst, wenn (a) das Logo geladen UND (b) die Viewporthoehe stabil ist. Der gruene
-       Hintergrund liegt ab dem ersten Frame; so erscheint das Logo bereits mittig, in richtiger
-       Groesse und ohne das iOS-Standalone-Rutschen (die feste px-Groesse + width/height am <img>
-       verhindern zusaetzlich jeden Reflow beim Laden). Nur opacity. */
-    var logo=stage.querySelector(".sp-logo");
-    /* MESSPHASE (Schritt 1): Logo bewusst SOFORT sichtbar (keine "erst-wenn-stabil"-Einblendung),
-       damit eine etwaige Verschiebung sichtbar ist und mit den Messwerten korreliert werden kann.
-       Wird beim Umbau in Schritt 2 durch die endgueltige Loesung ersetzt. */
-    stage.style.opacity="1";
-    var MAX=3000, FADE=200, DUR=1500, hidden=false, wantHide=false;   // DUR = Dauer einer Umdrehung
+    /* Anzeige erst, wenn das Wappen geladen ist (Position steht ohnehin fix). Gruener Hintergrund ab
+       Frame 1; kein Aufblitzen in falscher Groesse. Nur opacity. */
+    var logo=stage.querySelector(".sp-logo"), coin=stage.querySelector(".sp-coin");
+    if(!reduce) stage.style.transition="opacity 140ms ease";
+    stage.style.opacity="0";
+    function show(){ stage.style.opacity="1"; }
+    if(logo.complete && logo.naturalWidth) show();
+    else { logo.addEventListener("load",show); logo.addEventListener("error",show); setTimeout(show,400); } // nicht ewig warten
+    var MAX=3000, FADE=200, DUR=2000, hidden=false, wantHide=false;   // DUR = Dauer eines vollen Pendel-Zyklus
     function remove(){
       var s=document.getElementById("splash"); if(s&&s.parentNode) s.parentNode.removeChild(s);
       var st=document.getElementById("splash-style"); if(st&&st.parentNode) st.parentNode.removeChild(st); // Animationen + Chrome-Ausblendung sicher aufheben
@@ -147,9 +125,9 @@
       return;
     }
 
-    // Animierter Fall: NUR an Durchlauf-Grenzen ausblenden, nie mitten in der Drehung.
+    // Animierter Fall: NUR an Zyklus-Grenzen ausblenden, nie mitten in der Pendelbewegung.
     function tryHide(){ if(wantHide && !hidden) hide(); }
-    if(logo && logo.addEventListener){ logo.addEventListener("animationiteration", tryHide); } // je volle Umdrehung
+    if(coin && coin.addEventListener){ coin.addEventListener("animationiteration", tryHide); } // je voller Pendel-Zyklus (endet in Mittelstellung)
     window.__hideSplash=function(){ wantHide=true; };               // Laden fertig -> beim naechsten Umdrehungsende ausblenden
     setTimeout(function(){ wantHide=true; tryHide(); }, MAX);        // spaetestens nach 3s (ebenfalls zur Umdrehungsgrenze)
     setTimeout(function(){ hide(); }, MAX + DUR + 400);             // Sicherheitsnetz, falls animationiteration nicht feuert
