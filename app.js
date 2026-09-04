@@ -6,6 +6,11 @@
 (function () {
   "use strict";
 
+  // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
+  var APP_BUILD = "2026-09-05-A";
+  try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
+  function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
+
   // Wandelt ein Date in einen lokalen ISO-Datumsstring (YYYY-MM-DD) um.
   function toISODate(d) {
     const y = d.getFullYear();
@@ -308,12 +313,7 @@
     } catch (err) { renderErrorBoundary(err); }
   }
 
-  // Nichts bleibt unbemerkt weiß: unbehandelte Fehler/Rejections loggen; leere Ansicht abfangen.
-  window.addEventListener("error", (e) => {
-    try { console.error("Unbehandelter Fehler:", e.error || e.message); } catch (_) {}
-    try { if (viewEl && !viewEl.innerHTML.trim() && !document.body.classList.contains("auth-mode")) renderErrorBoundary(e.error || new Error(e.message)); } catch (_) {}
-  });
-  window.addEventListener("unhandledrejection", (e) => { try { console.error("Unbehandelte Promise-Rejection:", e.reason); } catch (_) {} });
+  // (Globales Fehler-Logging + Diagnose-Seite liegen inline in index.html — auch aktiv, wenn app.js fehlt.)
 
   // Daten frisch aus Supabase holen und die aktuelle Ansicht neu rendern.
   async function reloadData() {
@@ -671,6 +671,7 @@
           <button class="btn" data-goto="katalog">Strafenkatalog öffnen</button>
         </div>
       </div>` : ""}
+      <p class="set-hint" style="text-align:center;margin-top:22px;opacity:.6">Build ${esc(APP_BUILD)}${(window.__HTML_BUILD && window.__HTML_BUILD !== APP_BUILD) ? " · HTML " + esc(window.__HTML_BUILD) + " (Versionen unterschiedlich – evtl. Cache)" : ""} · <a href="?debug=1" style="color:inherit">Diagnose</a></p>
     `;
   }
 
@@ -3765,18 +3766,20 @@
     if (recoveryMode || window.location.hash.indexOf("type=recovery") !== -1) {
       recoveryMode = true;
       renderResetPassword();
+      boot("ui:recovery");
       hideSplash();
       return;
     }
     document.body.classList.remove("auth-mode");
-    viewEl.innerHTML = `<div class="empty">Lädt …</div>`;
+    viewEl.innerHTML = `<div class="empty" id="__skeleton">Lädt …</div>`;   // Marker behalten, bis eine echte Ansicht rendert
 
     let session = null;
-    try { session = await withTimeout(DB.getSession(), 8000, "Sitzung laden"); } catch (e) { session = null; }
-    if (!session) { renderLogin(); hideSplash(); return; }
+    try { session = await withTimeout(DB.getSession(), 8000, "Sitzung laden"); boot("session:" + (session ? "ok" : "none")); } catch (e) { session = null; boot("session:fail (" + ((e && e.message) || e) + ")"); }
+    if (!session) { renderLogin(); boot("ui:login"); hideSplash(); return; }
 
     try {
       DEMO = await withTimeout(DB.loadAll(), 15000, "Daten laden");
+      boot("loadAll:ok");
       playerById = Object.fromEntries(DEMO.players.map((p) => [p.id, p]));
       katById    = Object.fromEntries(DEMO.katalog.map((k) => [k.id, k]));
       buildStateFromData();
@@ -3786,15 +3789,17 @@
       if (!currentProfile.email) currentProfile.email = session.user.email;
       try { Roles.set(await DB.myRoles()); } catch (e) { Roles.set([]); }
 
-      if (!currentProfile.player_id) { renderPlayerLink(); hideSplash(); return; }
+      if (!currentProfile.player_id) { renderPlayerLink(); boot("ui:playerlink"); hideSplash(); return; }
 
       state.currentPlayerId = currentProfile.player_id;
       fillIdentity();
       syncHeaderHeight();
       render();
+      boot("render:ok");
       hideSplash();
       tvRouteInitialHash();   // Deep-Link #lineup=<id> direkt öffnen (nach dem ersten Render)
     } catch (err) {
+      boot("boot:error (" + ((err && err.message) || err) + ")");
       document.body.classList.remove("auth-mode");
       viewEl.innerHTML = `<div style="margin:20px;padding:18px;border:2px solid #c0392b;border-radius:12px;background:#fff;color:#7a1d14;font:12px/1.6 monospace;white-space:pre-wrap">Fehler beim Laden der App:\n\n${esc((err && err.message) || String(err))}\n\n${esc((err && err.stack) ? err.stack : "")}</div>`;
       hideSplash();
@@ -3805,34 +3810,5 @@
   DB.onPasswordRecovery(() => { recoveryMode = true; renderResetPassword(); try { window.__hideSplash && window.__hideSplash(); } catch (e) {} });
 
   init();
-
-  // Notfall-UI statt weisser Bildschirm: hat die App nach 8s nichts Sinnvolles gerendert
-  // (haengender Boot/Netzwerk, den weder try/catch noch Error-Boundary fangen), zeige Aktionen.
-  function bootStillBlank() {
-    if (document.body.classList.contains("auth-mode")) return false;        // Login/Reset zaehlt als gerendert
-    const html = (viewEl && viewEl.innerHTML) || "";
-    return !html.trim() || html.indexOf('class="empty">Lädt') !== -1;       // leer oder nur "Lädt …"
-  }
-  function showBootRecovery(reason) {
-    try { window.__hideSplash && window.__hideSplash(); } catch (e) {}
-    if (!viewEl) return;
-    viewEl.innerHTML =
-      '<div class="page-head"><h1>App konnte nicht laden</h1></div>' +
-      '<div class="card card-pad"><p style="margin:0 0 6px">Der Start hängt (' + esc(reason || "keine Antwort") + ').</p>' +
-      '<p style="margin:0 0 14px;color:var(--muted);font-size:.85rem">Meist eine kurze Verbindungsstörung nach dem Wechsel aus einer anderen App.</p>' +
-      '<button class="btn btn-primary" id="bootReload" style="margin-right:8px">Neu laden</button>' +
-      '<button class="btn" id="bootHome">Zur Übersicht</button></div>';
-    const r = document.getElementById("bootReload"); if (r) r.onclick = () => location.reload();
-    const h = document.getElementById("bootHome"); if (h) h.onclick = () => { location.href = location.pathname + location.search; };
-  }
-  setTimeout(() => { if (bootStillBlank()) showBootRecovery("Zeitüberschreitung nach 8 Sekunden"); }, 8000);
-
-  // Wiedereinstieg (Resume/BFCache/Tab-Wechsel): ist die Ansicht KOMPLETT leer (Boot nie durchgelaufen),
-  // einmal sauber neu starten statt weiss bleiben. "Lädt …" oder Inhalt -> nichts tun (kein Reload-Loop).
-  window.addEventListener("pageshow", () => { if (viewEl && !viewEl.innerHTML.trim() && !document.body.classList.contains("auth-mode")) location.reload(); });
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState !== "visible") return;
-    // Beim Zurueckwechseln kurz gegenpruefen: haengt der Boot noch, Notfall-UI zeigen (kein Auto-Reload).
-    setTimeout(() => { if (bootStillBlank()) showBootRecovery("hängt seit dem Wechsel aus einer anderen App"); }, 1500);
-  });
+  // Boot-Watchdog + Diagnose-Seite liegen jetzt INLINE in index.html (laufen auch, wenn app.js gar nicht lädt).
 })();

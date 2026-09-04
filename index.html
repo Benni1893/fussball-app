@@ -77,6 +77,69 @@
 </head>
 <body>
 
+  <!-- ===================== Boot-Diagnose (laeuft VOR allen Scripten, unabhaengig von app.js) ===================== -->
+  <script>
+  (function(){
+    var BUILD = "2026-09-05-A";                 // Build-Kennung: bei jedem Deploy hochziehen
+    window.__HTML_BUILD = BUILD;
+    var K = "fnboot", P = "fnboot_prev";
+    try { var pr = localStorage.getItem(K); if (pr) localStorage.setItem(P, pr); } catch(e){}   // vorherigen Lauf sichern
+    var t0 = Date.now();
+    var L = { build: BUILD, at: new Date().toISOString(), url: location.href, phases: [], errors: [] };
+    try { L.standalone = !!((window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || navigator.standalone); } catch(e){ L.standalone = null; }
+    try { L.online = navigator.onLine; } catch(e){ L.online = null; }
+    function save(){ try { localStorage.setItem(K, JSON.stringify(L)); } catch(e){} }
+    window.__boot   = function(ph){ L.phases.push(ph + "@" + (Date.now()-t0) + "ms"); save(); };
+    window.__bootErr = function(kind,msg,src,line){ L.errors.push(kind + ": " + String(msg) + (src ? (" [" + src + ":" + (line||0) + "]") : "") + " @" + (Date.now()-t0) + "ms"); save(); };
+    window.__boot("boot:start");
+    window.addEventListener("error", function(e){ window.__bootErr("error", (e && (e.message || (e.error && e.error.message))) || "?", e && e.filename, e && e.lineno); });
+    window.addEventListener("unhandledrejection", function(e){ var r = e && e.reason; window.__bootErr("rejection", (r && (r.message || r)) || "?"); });
+    function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+    window.__showDiag = function(reason){
+      try { if (window.__hideSplash) window.__hideSplash(); } catch(e){}
+      try { document.documentElement.classList.remove("sp-lock"); } catch(e){}
+      var prev = null; try { prev = localStorage.getItem(P); } catch(e){}
+      var lastErr = L.errors.length ? L.errors[L.errors.length-1] : "—";
+      var lastPh  = L.phases.length ? L.phases[L.phases.length-1] : "—";
+      var payload = "";
+      try { payload = JSON.stringify({ current: L, previous: prev ? (function(){ try { return JSON.parse(prev); } catch(e){ return prev; } })() : null }, null, 2); } catch(e){ payload = "(Log nicht lesbar)"; }
+      var host = document.getElementById("view") || document.body;
+      host.innerHTML =
+        '<div style="max-width:560px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 20px) 16px 40px;font:14px/1.5 -apple-system,system-ui,sans-serif;color:#1c2620">'
+        + '<h1 style="font-size:1.2rem;margin:0 0 10px">Diagnose</h1>'
+        + '<div style="background:#f3f0e9;border:1px solid #ddd;border-radius:10px;padding:12px 14px;font:12px/1.55 ui-monospace,Menlo,monospace;white-space:pre-wrap;overflow-wrap:anywhere">'
+        + "Grund: " + esc(reason||"?") + "\n"
+        + "Build HTML: " + esc(BUILD) + "   App: " + esc(window.__APP_BUILD || "— (app.js nicht geladen)") + "\n"
+        + "Letzte Phase: " + esc(lastPh) + "\n"
+        + "Phasen: " + esc(L.phases.join("  →  ") || "—") + "\n"
+        + "Standalone (PWA): " + (L.standalone ? "ja" : (L.standalone===false ? "nein" : "?")) + "   Online: " + (L.online ? "ja" : (L.online===false ? "nein" : "?")) + "\n"
+        + "Letzter Fehler: " + esc(lastErr)
+        + '</div>'
+        + '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px">'
+        + '<button id="dgR" style="min-height:44px;padding:10px 14px;border:0;border-radius:10px;background:#144a37;color:#fff;font-weight:700">Neu laden</button>'
+        + '<button id="dgC" style="min-height:44px;padding:10px 14px;border:1px solid #ccc;border-radius:10px;background:#fff;font-weight:700">Cache leeren und neu laden</button>'
+        + '<button id="dgK" style="min-height:44px;padding:10px 14px;border:1px solid #ccc;border-radius:10px;background:#fff;font-weight:700">Log kopieren</button>'
+        + '</div>'
+        + (prev ? '<details style="margin-top:14px"><summary style="min-height:44px;display:flex;align-items:center;color:#144a37;font-weight:600">Vorheriger Start (Log)</summary><pre style="font:11px/1.4 ui-monospace,Menlo,monospace;white-space:pre-wrap;overflow-wrap:anywhere;background:#f3f0e9;border-radius:8px;padding:10px">' + esc(prev) + '</pre></details>' : '')
+        + '</div>';
+      var r = document.getElementById("dgR"); if (r) r.onclick = function(){ location.reload(); };
+      var c = document.getElementById("dgC"); if (c) c.onclick = function(){
+        try { if (window.caches && caches.keys) caches.keys().then(function(ks){ ks.forEach(function(k){ caches.delete(k); }); }); } catch(e){}
+        try { if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) navigator.serviceWorker.getRegistrations().then(function(rs){ rs.forEach(function(x){ x.unregister(); }); }); } catch(e){}
+        setTimeout(function(){ location.reload(); }, 400);
+      };
+      var k = document.getElementById("dgK"); if (k) k.onclick = function(){
+        try { navigator.clipboard.writeText(payload); k.textContent = "Kopiert ✓"; }
+        catch(e){ try { var ta = document.createElement("textarea"); ta.value = payload; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); k.textContent = "Kopiert ✓"; } catch(x){} }
+      };
+    };
+    // Watchdog: steht nach 8s noch das statische Skelett -> Boot ist nie durchgelaufen -> Diagnose.
+    setTimeout(function(){ var sk = document.getElementById("__skeleton"); var v = document.getElementById("view"); if (sk && v && v.contains(sk)) window.__showDiag("Watchdog: 8s, keine Ansicht gerendert"); }, 8000);
+    // Manuell aufrufbar: ?debug=1
+    if (/[?&]debug=1/.test(location.search)) setTimeout(function(){ window.__showDiag("debug=1 (manuell)"); }, 300);
+  })();
+  </script>
+
   <!-- ===================== Splash-/Ladeanimation ===================== -->
   <div id="splash" role="status" aria-label="Lädt"><div class="sp-stage"></div></div>
   <script>
@@ -143,7 +206,7 @@
 
   <!-- ===================== Inhalt (einziger Scroll-Bereich) ===================== -->
   <div class="scroll-area" id="scrollArea">
-    <main id="view" class="view"></main>
+    <main id="view" class="view"><div class="empty" id="__skeleton">Lädt …</div></main>
     <footer class="app-footer">
       <button id="resetBtn" class="link-btn" title="Neu laden">Neu laden</button>
     </footer>
@@ -193,9 +256,9 @@
   </div>
 
   <!-- Supabase-Client (CDN) -> config.js (Zugang) -> db.js (Datenzugriff) -> app.js -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
-  <script src="db.js"></script>
-  <script src="app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="window.__bootErr&&window.__bootErr('script','supabase-js CDN load failed');window.__showDiag&&window.__showDiag('Supabase-Bibliothek (CDN) konnte nicht geladen werden')"></script>
+  <script src="config.js" onerror="window.__bootErr&&window.__bootErr('script','config.js load failed');window.__showDiag&&window.__showDiag('config.js konnte nicht geladen werden')"></script>
+  <script src="db.js" onerror="window.__bootErr&&window.__bootErr('script','db.js load failed');window.__showDiag&&window.__showDiag('db.js konnte nicht geladen werden')"></script>
+  <script src="app.js" onerror="window.__bootErr&&window.__bootErr('script','app.js load failed');window.__showDiag&&window.__showDiag('app.js (Haupt-Script) konnte nicht geladen werden')"></script>
 </body>
 </html>
