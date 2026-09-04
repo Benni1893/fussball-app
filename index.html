@@ -35,7 +35,7 @@
     #splash .sp-stage{position:relative;width:128px;height:128px;perspective:700px}
     /* Gedecktes, warmes Gold (metallisch). --goldL = helle Seite, --goldD = dunkle Seite.
        --sp-turn = Dauer EINER Umdrehung (hier zum leichten Anpassen). */
-    #splash{--goldL:#D8BC72;--goldD:#7C6230;--sp-turn:1.4s}
+    #splash{--goldL:#D8BC72;--goldD:#7C6230;--sp-turn:0.9s}
     /* Muenze: volle rotateY-Umdrehungen im Wechsel (vor, dann zurueck), um den eigenen Mittelpunkt.
        Nur transform -> Bounding Box/Position aendern sich NICHT. Doppelseitig (preserve-3d), damit die
        Rueckseite das Wappen richtig herum (nicht spiegelverkehrt) zeigt. */
@@ -103,36 +103,29 @@
 
     /* Anzeige erst, wenn das Wappen geladen ist (Position steht ohnehin fix). Gruener Hintergrund ab
        Frame 1; kein Aufblitzen in falscher Groesse. Nur opacity. */
-    var logo=stage.querySelector(".sp-logo"), coin=stage.querySelector(".sp-coin");
+    var logo=stage.querySelector(".sp-logo");
     if(!reduce) stage.style.transition="opacity 140ms ease";
     stage.style.opacity="0";
     function show(){ stage.style.opacity="1"; }
     if(logo.complete && logo.naturalWidth) show();
     else { logo.addEventListener("load",show); logo.addEventListener("error",show); setTimeout(show,400); } // nicht ewig warten
-    var MAX=3000, FADE=200, DUR=2800, hidden=false, wantHide=false;   // DUR = ein Loop = 2 Umdrehungen (2 x --sp-turn); nur fuers Sicherheitsnetz-Timeout
+    var MAX=3000, FADE=200, MINR=400, hidden=false, start=Date.now();  // MAX=Maximaldauer, FADE=Fade-out, MINR=Mindestanzeige
     function remove(){
       var s=document.getElementById("splash"); if(s&&s.parentNode) s.parentNode.removeChild(s);
-      var st=document.getElementById("splash-style"); if(st&&st.parentNode) st.parentNode.removeChild(st); // Animationen + Chrome-Ausblendung sicher aufheben
+      var st=document.getElementById("splash-style"); if(st&&st.parentNode) st.parentNode.removeChild(st); // DOM + Keyframes weg -> Animation gestoppt
     }
     function hide(){ if(hidden) return; hidden=true;
       try{ document.documentElement.classList.remove("sp-lock"); }catch(e){} // Faerbung + Ausblendung SOFORT loesen -> App erscheint sauber
       try{ window.dispatchEvent(new Event("fn:chrome-shown")); }catch(e){}    // App-Chrome wieder sichtbar -> Kopfzeilenhoehe neu messen
-      splash.classList.add("sp-hide"); setTimeout(remove, FADE+40); }
-
-    if(reduce){
-      // Kein Bewegungsablauf -> statisches Logo, einfache Zeitsteuerung mit kleiner Mindestzeit gegen Flackern.
-      var start=Date.now(), MINR=400;
-      window.__hideSplash=function(){ var el=Date.now()-start; if(el>=MINR) hide(); else setTimeout(hide, MINR-el); };
-      setTimeout(function(){ if(window.__hideSplash) window.__hideSplash(); }, MAX);
-      return;
+      // Weicher Fade-out (CSS: #splash.sp-hide{opacity:0}, 200ms). Die Drehung laeuft dabei NORMAL
+      // weiter (kein Einfrieren, kein Zurueckspringen); erst nach dem Fade wird der Knoten entfernt.
+      splash.classList.add("sp-hide"); setTimeout(remove, FADE+40);
     }
-
-    // Animierter Fall: NUR an Zyklus-Grenzen ausblenden, nie mitten in der Pendelbewegung.
-    function tryHide(){ if(wantHide && !hidden) hide(); }
-    if(coin && coin.addEventListener){ coin.addEventListener("animationiteration", tryHide); } // je voller Pendel-Zyklus (endet in Mittelstellung)
-    window.__hideSplash=function(){ wantHide=true; };               // Laden fertig -> beim naechsten Umdrehungsende ausblenden
-    setTimeout(function(){ wantHide=true; tryHide(); }, MAX);        // spaetestens nach 3s (ebenfalls zur Umdrehungsgrenze)
-    setTimeout(function(){ hide(); }, MAX + DUR + 400);             // Sicherheitsnetz, falls animationiteration nicht feuert
+    // Ladevorgang fertig -> SOFORT ausblenden, auch mitten in der Drehung (keine Zyklus-Warterei mehr).
+    // __hideSplash wird erst nach dem ersten render() aufgerufen (erste Ansicht steht -> kein Layout-Shift).
+    // Einzige Bremse: Mindestanzeige 400ms gegen Aufblitzen bei sehr schnellem Laden.
+    window.__hideSplash=function(){ var el=Date.now()-start; if(el>=MINR) hide(); else setTimeout(hide, MINR-el); };
+    setTimeout(function(){ if(window.__hideSplash) window.__hideSplash(); }, MAX);   // spaetestens nach 3s
   })();
   </script>
 
