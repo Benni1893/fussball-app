@@ -371,24 +371,36 @@
 
       <div class="kpi-grid">
         <div class="kpi kpi-tap" data-nav="termin" role="button" tabindex="0">
-          <div class="kpi-label">Nächster Termin</div>
-          <div class="kpi-value" style="font-size:1.25rem">${naechstes ? fmtLong(naechstes.datum).split(",")[0] + ", " + fmtDay(naechstes.datum) + ". " + fmtMon(naechstes.datum) : "–"}</div>
-          <div class="kpi-sub">${naechstes ? esc(eventTitel(naechstes)) + " · " + naechstes.zeit + " Uhr" : "Keine Termine"}</div>
+          <div class="kpi-body">
+            <div class="kpi-label">Nächster Termin</div>
+            <div class="kpi-value" style="font-size:1.25rem">${naechstes ? fmtLong(naechstes.datum).split(",")[0] + ", " + fmtDay(naechstes.datum) + ". " + fmtMon(naechstes.datum) : "–"}</div>
+            <div class="kpi-sub">${naechstes ? esc(eventTitel(naechstes)) + " · " + naechstes.zeit + " Uhr" : "Keine Termine"}</div>
+          </div>
+          <span class="kpi-go" aria-hidden="true">${"›"}</span>
         </div>
         <div class="kpi kpi-tap" data-nav="spiele" role="button" tabindex="0">
-          <div class="kpi-label">Kommende Spiele</div>
-          <div class="kpi-value">${naechsteSpiele}</div>
-          <div class="kpi-sub">in der Restsaison</div>
+          <div class="kpi-body">
+            <div class="kpi-label">Kommende Spiele</div>
+            <div class="kpi-value">${naechsteSpiele}</div>
+            <div class="kpi-sub">in der Restsaison</div>
+          </div>
+          <span class="kpi-go" aria-hidden="true">${"›"}</span>
         </div>
         <div class="kpi kpi-tap ${meineOffen > 0 ? "is-warn" : ""}" data-nav="meine-strafen" role="button" tabindex="0">
-          <div class="kpi-label">Meine offenen Strafen</div>
-          <div class="kpi-value">${euro(meineOffen)}</div>
-          <div class="kpi-sub">${meineOffen > 0 ? "bitte begleichen" : "alles bezahlt – top!"}</div>
+          <div class="kpi-body">
+            <div class="kpi-label">Meine offenen Strafen</div>
+            <div class="kpi-value kpi-amt">${euro(meineOffen).replace(/\s/g, " ")}</div>
+            <div class="kpi-sub">${meineOffen > 0 ? "bitte begleichen" : "alles bezahlt – top!"}</div>
+          </div>
+          <span class="kpi-go" aria-hidden="true">${"›"}</span>
         </div>
         <div class="kpi kpi-tap" data-nav="kasse" role="button" tabindex="0">
-          <div class="kpi-label">Mannschaftskasse offen</div>
-          <div class="kpi-value">${euro(offeneGesamt)}</div>
-          <div class="kpi-sub">${offene.length} offene Strafen im Team</div>
+          <div class="kpi-body">
+            <div class="kpi-label">Mannschaftskasse offen</div>
+            <div class="kpi-value kpi-amt">${euro(offeneGesamt).replace(/\s/g, " ")}</div>
+            <div class="kpi-sub">${offene.length} offene Strafen im Team</div>
+          </div>
+          <span class="kpi-go" aria-hidden="true">${"›"}</span>
         </div>
       </div>
 
@@ -2705,14 +2717,15 @@
     // Zurück-Chevron in einer Ziel-Kopfzeile (nach einem Kachel-Sprung) -> zur Übersicht + Scroll.
     if (t.hasAttribute("data-nav-back")) { navBack(); return; }
 
-    // Übersichts-Kachel angetippt -> passendes Ziel öffnen (Ursprung/Scroll gemerkt).
+    // Übersichts-Kachel angetippt -> passendes Ziel + Reiter öffnen (Ursprung/Scroll gemerkt).
     if (t.dataset.nav) {
       const kind = t.dataset.nav;
       if (kind === "termin") {
+        // Allgemeiner Termin (jeder Typ) -> Standardreiter "Alle", damit der Eintrag in der Liste ist.
         const next = DEMO.events.filter((e) => isFuture(e.datum)).sort((a, b) => a.datum.localeCompare(b.datum))[0];
-        if (next) { kalFilter = "alle"; navJumpTo("kalender", { eventId: next.id }); } else { kalFilter = "alle"; navJumpTo("kalender"); }
+        navJumpTo("kalender", next ? { kalFilter: "alle", eventId: next.id } : { kalFilter: "alle" });
       } else if (kind === "spiele") {
-        kalFilter = "alle"; navJumpTo("kalender");
+        navJumpTo("kalender", { kalFilter: "spiel" });   // Reiter "Spiele"
       } else if (kind === "meine-strafen") {
         navJumpTo("strafen", { strafenFilter: "meine" });
       } else if (kind === "kasse") {
@@ -2857,12 +2870,14 @@
   function navJumpTo(target, opts) {
     opts = opts || {};
     navReturn = { view: currentView, scroll: window.scrollY || window.pageYOffset || 0 };
+    // Reiter/Filter VOR dem Render setzen -> steht beim ERSTEN Rendern korrekt, kein sichtbarer Sprung.
     if (opts.strafenFilter) strafenFilter = opts.strafenFilter;
+    if (opts.kalFilter) kalFilter = opts.kalFilter;
     try { history.pushState({ navJump: true }, ""); } catch (e) {}
     currentView = target; tvSetNavActive(target);
     window.scrollTo(0, 0);
-    render();                                   // page-head zeigt jetzt den Zurück-Chevron (navReturn gesetzt)
-    if (opts.eventId) navScrollToEvent(opts.eventId);
+    render();                                   // 1) Reiter steht schon; page-head zeigt Zurück-Chevron
+    if (opts.eventId) navScrollToEvent(opts.eventId);   // 2) scrollen 3) hervorheben (in navScrollToEvent)
   }
   function navReturnTo() {
     if (!navReturn) return;

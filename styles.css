@@ -254,11 +254,13 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .kpi .kpi-sub { font-size: .82rem; color: var(--muted); margin-top: 2px; }
 .kpi.is-warn::before { background: var(--red-600); }
 .kpi.is-warn .kpi-value { color: var(--red-600); }
-/* Antippbare KPI-Kacheln: Cursor, sichtbares Feedback, dezenter Pfeil rechts. */
-.kpi-tap { cursor: pointer; padding-right: 30px; -webkit-tap-highlight-color: transparent;
-  transition: transform .08s ease, background-color .12s ease, box-shadow .12s ease; }
-.kpi-tap::after { content: "\203A"; position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-  color: var(--muted); font-size: 1.5rem; line-height: 1; }
+/* Antippbare KPI-Kacheln: Inhalt und Pfeil je in EIGENER Spalte (Flex) -> Betrag/Text laufen nie
+   in den Pfeil, auch nicht bei vierstelligen Beträgen. Sichtbares Feedback beim Antippen. */
+.kpi-tap { cursor: pointer; display: flex; align-items: center; gap: 8px; -webkit-tap-highlight-color: transparent;
+  transition: transform .08s ease, background-color .12s ease; }
+.kpi-tap .kpi-body { flex: 1 1 auto; min-width: 0; }        /* schrumpft/umbricht im eigenen Bereich */
+.kpi-go { flex: 0 0 auto; color: var(--muted); font-size: 1.5rem; line-height: 1; }
+.kpi-value.kpi-amt { font-size: 1.25rem; font-variant-numeric: tabular-nums; }  /* kompakter Betrag, gleiche Ziffernbreite (schlaegt .kpi .kpi-value) */
 .kpi-tap:active { transform: scale(.985); background: var(--green-050); }
 .kpi-tap:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; }
 /* Zurück-Chevron in der Ziel-Kopfzeile (nur nach Kachel-Sprung sichtbar). */
