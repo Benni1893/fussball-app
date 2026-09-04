@@ -2974,7 +2974,7 @@
 
     // PayPal.Me-Link in neuem Tab öffnen (Betrag wird übergeben). Phase 4: echte Integration.
     if (t.dataset.paypal) {
-      window.open(paypalMeLink(t.dataset.paypal), "_blank", "noopener");
+      window.open(paypalMeLink(t.dataset.paypal), "_blank", "noopener,noreferrer");
       return;
     }
 
@@ -3752,6 +3752,13 @@
   /* ===========================================================================
      START: Sitzung prüfen -> Login ODER App laden
      =========================================================================== */
+  // Ein hängender await (z. B. Netzwerk nach Resume aus PayPal) wirft sonst NIE -> Reject erzwingen.
+  function withTimeout(promise, ms, label) {
+    return new Promise((resolve, reject) => {
+      const t = setTimeout(() => reject(new Error((label || "Anfrage") + " – Zeitüberschreitung. Bitte Internetverbindung prüfen und neu laden.")), ms);
+      Promise.resolve(promise).then((v) => { clearTimeout(t); resolve(v); }, (e) => { clearTimeout(t); reject(e); });
+    });
+  }
   async function init() {
     const hideSplash = () => { try { window.__hideSplash && window.__hideSplash(); } catch (e) {} };
     // App über einen Passwort-Reset-Link geöffnet? -> direkt neues Passwort setzen.
@@ -3765,11 +3772,11 @@
     viewEl.innerHTML = `<div class="empty">Lädt …</div>`;
 
     let session = null;
-    try { session = await DB.getSession(); } catch (e) { session = null; }
+    try { session = await withTimeout(DB.getSession(), 8000, "Sitzung laden"); } catch (e) { session = null; }
     if (!session) { renderLogin(); hideSplash(); return; }
 
     try {
-      DEMO = await DB.loadAll();
+      DEMO = await withTimeout(DB.loadAll(), 15000, "Daten laden");
       playerById = Object.fromEntries(DEMO.players.map((p) => [p.id, p]));
       katById    = Object.fromEntries(DEMO.katalog.map((k) => [k.id, k]));
       buildStateFromData();
@@ -3798,4 +3805,34 @@
   DB.onPasswordRecovery(() => { recoveryMode = true; renderResetPassword(); try { window.__hideSplash && window.__hideSplash(); } catch (e) {} });
 
   init();
+
+  // Notfall-UI statt weisser Bildschirm: hat die App nach 8s nichts Sinnvolles gerendert
+  // (haengender Boot/Netzwerk, den weder try/catch noch Error-Boundary fangen), zeige Aktionen.
+  function bootStillBlank() {
+    if (document.body.classList.contains("auth-mode")) return false;        // Login/Reset zaehlt als gerendert
+    const html = (viewEl && viewEl.innerHTML) || "";
+    return !html.trim() || html.indexOf('class="empty">Lädt') !== -1;       // leer oder nur "Lädt …"
+  }
+  function showBootRecovery(reason) {
+    try { window.__hideSplash && window.__hideSplash(); } catch (e) {}
+    if (!viewEl) return;
+    viewEl.innerHTML =
+      '<div class="page-head"><h1>App konnte nicht laden</h1></div>' +
+      '<div class="card card-pad"><p style="margin:0 0 6px">Der Start hängt (' + esc(reason || "keine Antwort") + ').</p>' +
+      '<p style="margin:0 0 14px;color:var(--muted);font-size:.85rem">Meist eine kurze Verbindungsstörung nach dem Wechsel aus einer anderen App.</p>' +
+      '<button class="btn btn-primary" id="bootReload" style="margin-right:8px">Neu laden</button>' +
+      '<button class="btn" id="bootHome">Zur Übersicht</button></div>';
+    const r = document.getElementById("bootReload"); if (r) r.onclick = () => location.reload();
+    const h = document.getElementById("bootHome"); if (h) h.onclick = () => { location.href = location.pathname + location.search; };
+  }
+  setTimeout(() => { if (bootStillBlank()) showBootRecovery("Zeitüberschreitung nach 8 Sekunden"); }, 8000);
+
+  // Wiedereinstieg (Resume/BFCache/Tab-Wechsel): ist die Ansicht KOMPLETT leer (Boot nie durchgelaufen),
+  // einmal sauber neu starten statt weiss bleiben. "Lädt …" oder Inhalt -> nichts tun (kein Reload-Loop).
+  window.addEventListener("pageshow", () => { if (viewEl && !viewEl.innerHTML.trim() && !document.body.classList.contains("auth-mode")) location.reload(); });
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState !== "visible") return;
+    // Beim Zurueckwechseln kurz gegenpruefen: haengt der Boot noch, Notfall-UI zeigen (kein Auto-Reload).
+    setTimeout(() => { if (bootStillBlank()) showBootRecovery("hängt seit dem Wechsel aus einer anderen App"); }, 1500);
+  });
 })();
