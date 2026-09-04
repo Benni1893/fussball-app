@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-05-C";
+  var APP_BUILD = "2026-09-05-D";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -20,8 +20,8 @@
   }
   const HEUTE = toISODate(new Date()); // echtes heutiges Datum
 
-  // PayPal.Me-Link (Betrag wird übergeben). Phase 4: echte Integration/Checkout.
-  // Hier später den echten PayPal-Benutzernamen des Vereins eintragen:
+  // PayPal.Me-Link (Betrag wird übergeben). Echter Vereins-/Kassen-Name (paypal.me/Teamkassefasanerie,
+  // Konto "Benjamin Lauck") – verifiziert gueltig. Betrag MUSS mit Punkt (12.50), nie mit Komma.
   const PAYPAL_ME = "Teamkassefasanerie";
   function paypalMeLink(betrag) {
     // PayPal.Me erwartet den Betrag mit PUNKT (12.50), NICHT mit Komma -> sonst leere/kaputte Seite.
@@ -2975,11 +2975,7 @@
 
     // PayPal.Me-Link in neuem Tab öffnen (Betrag wird übergeben). Phase 4: echte Integration.
     if (t.dataset.paypal) {
-      // Solange kein echter PayPal.Me-Name hinterlegt ist, NICHT auf die kaputte/leere PayPal-Seite schicken.
-      if (!PAYPAL_ME || PAYPAL_ME === "Teamkassefasanerie") {
-        window.alert("PayPal ist noch nicht eingerichtet.\n\nBitte den PayPal.Me-Namen des Vereins hinterlegen (z. B. paypal.me/DEINNAME), dann funktioniert die Zahlung.");
-        return;
-      }
+      if (!PAYPAL_ME) { window.alert("PayPal ist noch nicht eingerichtet."); return; }   // nur bei leerem Namen
       window.open(paypalMeLink(t.dataset.paypal), "_blank", "noopener,noreferrer");
       return;
     }
