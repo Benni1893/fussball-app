@@ -2890,15 +2890,17 @@
     // Indikator + Hinweis einmalig erzeugen (ausserhalb von #view).
     const ind = document.createElement("div");
     ind.className = "ptr-ind"; ind.setAttribute("aria-hidden", "true");
-    const spinner = document.createElement("div"); spinner.className = "ptr-spinner";
-    ind.appendChild(spinner); document.body.appendChild(ind);
+    const coin = document.createElement("div"); coin.className = "ptr-coin";
+    coin.innerHTML = '<div class="ptr-ring"></div><div class="ptr-disc"><img class="ptr-logo" src="assets/icon-512.png" width="30" height="30" alt="" draggable="false"></div>';
+    ind.appendChild(coin); document.body.appendChild(ind);
     const hint = document.createElement("div");
     hint.className = "ptr-hint"; hint.setAttribute("role", "status"); hint.setAttribute("aria-live", "polite");
     document.body.appendChild(hint);
 
     let startY = 0, startX = 0, pull = 0, tracking = false, decided = false, active = false, refreshing = false, hintT = 0;
 
-    function setPos(px, withSpin) {
+    // Positionen/Deckkraft von Container + Indikator (OHNE Muenzkippung - die laeuft getrennt).
+    function renderPull(px) {
       if (reduce) { // kein Feder-Feeling: nur hart ein-/ausblenden
         container.style.transform = "";
         ind.style.opacity = (px >= THRESHOLD || refreshing) ? "1" : "0";
@@ -2908,31 +2910,47 @@
       container.style.transform = "translateY(" + px + "px)";
       ind.style.opacity = String(Math.min(1, px / THRESHOLD));
       ind.style.transform = "translateX(-50%) translateY(" + (px * 0.45) + "px)";
-      if (withSpin) spinner.style.transform = "rotate(" + (px * 3.2) + "deg)"; // dreht mit der Distanz
     }
-    function clearTransition() { container.style.transition = "none"; ind.style.transition = "none"; }
+    // Zieh-Update gebuendelt per requestAnimationFrame (nicht direkt im touchmove): Position UND
+    // Muenzkippung. Kippung 0deg -> 55deg proportional zur Distanz, ohne Transition -> finger-genau.
+    let rafPending = false;
+    function scheduleDrag() { if (!rafPending) { rafPending = true; requestAnimationFrame(applyDrag); } }
+    function applyDrag() {
+      rafPending = false;
+      renderPull(pull);
+      if (!reduce) coin.style.transform = "rotateY(" + Math.min(55, (pull / THRESHOLD) * 55) + "deg)";
+    }
+    function clearTransition() {
+      container.style.transition = "none"; ind.style.transition = "none";
+      coin.style.transition = "none"; coin.style.willChange = "transform"; // waehrend der Geste
+    }
     function springTo(px) {
       container.style.transition = SPRING;
       ind.style.transition = "opacity 200ms ease, " + SPRING;
-      setPos(px, false);
+      renderPull(px);
     }
     // Weiche, zusammenhaengende Rueckkehr nach oben: Inhalt UND Indikator in EINER
     // Bewegung (300ms ease-out). Erzwungener Reflow committet den Startwert, damit iOS
     // die Transition nicht ueberspringt (sonst harter Sprung). Spinner-Rotation erst
     // NACH dem Ausblenden stoppen -> kein sichtbarer Snap.
     function springBack() {
-      if (reduce) { ind.classList.remove("is-spinning"); container.style.transform = ""; ind.style.opacity = "0"; pull = 0; return; }
+      if (reduce) { ind.classList.remove("is-spinning"); container.style.transform = ""; ind.style.opacity = "0"; coin.style.transform = ""; coin.style.willChange = ""; pull = 0; return; }
       const RET = "300ms cubic-bezier(.22,1,.36,1)";
       container.style.transition = "transform " + RET;
       ind.style.transition = "transform " + RET + ", opacity " + RET;
+      coin.style.transition = "transform " + RET;
       void container.offsetHeight;                         // Startwert (Halteposition) sicher committen
       container.style.transform = "translateY(0px)";       // Inhalt weich nach oben ...
       ind.style.opacity = "0";                             // ... Indikator gleichzeitig aus (eine Bewegung)
       ind.style.transform = "translateX(-50%) translateY(0px)";
+      coin.style.transform = "rotateY(0deg)";              // ... Muenze weich in die Mittelstellung
       pull = 0;
       setTimeout(() => {
-        ind.classList.remove("is-spinning");               // Rotation erst nach dem Ausblenden stoppen
-        if (!tracking && !refreshing) { container.style.transform = ""; container.style.transition = ""; }
+        ind.classList.remove("is-spinning");               // Animation erst nach dem Ausblenden stoppen (kein Snap)
+        if (!tracking && !refreshing) {
+          container.style.transform = ""; container.style.transition = "";
+          coin.style.transition = ""; coin.style.transform = ""; coin.style.willChange = "";
+        }
       }, 320);
     }
     function showHint(msg) {
@@ -2942,8 +2960,12 @@
 
     async function startRefresh() {
       refreshing = true;
-      spinner.style.transform = "";          // Inline-Rotation raus -> CSS-Dauerrotation uebernimmt
-      ind.classList.add("is-spinning");
+      // Nahtloser Uebergang: Kippung beim Loslassen ist 55deg (Distanz >= Schwelle -> gedeckelt) und
+      // exakt der 0%-Frame von @keyframes ptr-flip. Inline-55deg als Fallback setzen, Animation greift
+      // -> kein Sprung in die Mitte. Keine Transition (Animation uebernimmt).
+      coin.style.transition = "";
+      if (!reduce) coin.style.transform = "rotateY(55deg)";
+      ind.classList.add("is-spinning");      // -> selbstaendiges Pendeln ab der aktuellen Kippstellung
       if (reduce) ind.style.opacity = "1"; else springTo(REST);
       const started = Date.now();
       let settled = false; // markiert, ob bereits abgeschlossen (Timeout ODER fertig)
@@ -2958,11 +2980,21 @@
       }
     }
     function finish(ok) {
-      // Daten sind hier bereits im DOM (onRefresh wurde davor awaited). is-spinning bleibt
-      // an, bis springBack() die Rotation NACH dem Ausblenden stoppt (kein Snap).
+      // Daten sind hier bereits im DOM (onRefresh wurde davor awaited).
       if (!ok) showHint("Konnte nicht aktualisiert werden");
-      springBack();
-      setTimeout(() => { refreshing = false; }, reduce ? 0 : 320);
+      if (reduce) { ind.classList.remove("is-spinning"); container.style.transform = ""; ind.style.opacity = "0"; coin.style.transform = ""; pull = 0; }
+      else {
+        // Pendeln beenden: aktuelle Kippung "einfrieren" (kein Snap), weich in die Mittelstellung,
+        // DANN das bestehende weiche Zurueckfahren nach oben.
+        const cur = getComputedStyle(coin).transform;
+        ind.classList.remove("is-spinning");
+        coin.style.transform = (cur && cur !== "none") ? cur : "rotateY(0deg)";
+        void coin.offsetHeight;
+        coin.style.transition = "transform 200ms ease";
+        coin.style.transform = "rotateY(0deg)";
+        setTimeout(springBack, 200);
+      }
+      setTimeout(() => { refreshing = false; }, reduce ? 0 : 520);
     }
 
     // --- Touch-Handling -----------------------------------------------------
@@ -2985,10 +3017,10 @@
         decided = true; active = true; clearTransition();                // eindeutig vertikal nach unten -> unsere Geste
       }
       if (window.scrollY > 0) { tracking = false; springBack(); return; } // zwischendrin doch gescrollt
-      if (dy <= 0) { pull = 0; setPos(0, true); return; }
+      if (dy <= 0) { pull = 0; scheduleDrag(); return; }
       e.preventDefault();                                                 // nativen Bounce unterdruecken
       pull = dy / (1 + dy / MAX);                                         // Gummiband-Widerstand
-      setPos(pull, true);
+      scheduleDrag();                                                     // Position + Kippung im naechsten Frame
     }, { passive: false });
 
     function end() {
