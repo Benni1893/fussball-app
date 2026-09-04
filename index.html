@@ -80,7 +80,7 @@
   <!-- ===================== Boot-Diagnose (laeuft VOR allen Scripten, unabhaengig von app.js) ===================== -->
   <script>
   (function(){
-    var BUILD = "2026-09-05-A";                 // Build-Kennung: bei jedem Deploy hochziehen
+    var BUILD = "2026-09-05-B";                 // Build-Kennung: bei jedem Deploy hochziehen
     window.__HTML_BUILD = BUILD;
     var K = "fnboot", P = "fnboot_prev";
     try { var pr = localStorage.getItem(K); if (pr) localStorage.setItem(P, pr); } catch(e){}   // vorherigen Lauf sichern
@@ -137,6 +137,15 @@
     setTimeout(function(){ var sk = document.getElementById("__skeleton"); var v = document.getElementById("view"); if (sk && v && v.contains(sk)) window.__showDiag("Watchdog: 8s, keine Ansicht gerendert"); }, 8000);
     // Manuell aufrufbar: ?debug=1
     if (/[?&]debug=1/.test(location.search)) setTimeout(function(){ window.__showDiag("debug=1 (manuell)"); }, 300);
+    // Wiedereinstieg (z. B. Rueckkehr aus dem PayPal-Tab): Resume protokollieren; ist die Ansicht dann
+    // leer -> Diagnose automatisch zeigen (der Load-Watchdog laeuft bei BFCache-Resume NICHT erneut).
+    function checkResumeBlank(){
+      var v = document.getElementById("view");
+      var blank = !v || !v.innerHTML.trim() || !!document.getElementById("__skeleton");
+      if (blank && !(document.body && document.body.classList.contains("auth-mode"))) window.__showDiag("Wiedereinstieg: Ansicht leer (Resume/BFCache)");
+    }
+    window.addEventListener("pageshow", function(e){ window.__boot("pageshow persisted=" + (e && e.persisted ? "yes" : "no")); setTimeout(checkResumeBlank, 1500); });
+    document.addEventListener("visibilitychange", function(){ if (document.visibilityState === "visible") { window.__boot("visible"); setTimeout(checkResumeBlank, 1500); } });
   })();
   </script>
 
