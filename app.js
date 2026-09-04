@@ -2890,9 +2890,10 @@
     // Indikator + Hinweis einmalig erzeugen (ausserhalb von #view).
     const ind = document.createElement("div");
     ind.className = "ptr-ind"; ind.setAttribute("aria-hidden", "true");
-    const coin = document.createElement("div"); coin.className = "ptr-coin";
-    coin.innerHTML = '<div class="ptr-ring"></div><div class="ptr-disc"><img class="ptr-logo" src="assets/icon-512.png" width="30" height="30" alt="" draggable="false"></div>';
-    ind.appendChild(coin); document.body.appendChild(ind);
+    // Schatten ZUERST (liegt hinter der Muenze), dann die Muenze (Ring + rund beschnittenes Wappen).
+    ind.innerHTML = '<div class="ptr-shadow"></div><div class="ptr-coin"><div class="ptr-ring"></div><div class="ptr-disc"><img class="ptr-logo" src="assets/icon-512.png" width="30" height="30" alt="" draggable="false"></div></div>';
+    const coin = ind.querySelector(".ptr-coin");
+    document.body.appendChild(ind);
     const hint = document.createElement("div");
     hint.className = "ptr-hint"; hint.setAttribute("role", "status"); hint.setAttribute("aria-live", "polite");
     document.body.appendChild(hint);
@@ -2961,7 +2962,7 @@
     async function startRefresh() {
       refreshing = true;
       // Nahtloser Uebergang: Kippung beim Loslassen ist 55deg (Distanz >= Schwelle -> gedeckelt) und
-      // exakt der 0%-Frame von @keyframes ptr-flip. Inline-55deg als Fallback setzen, Animation greift
+      // exakt der 0%-Frame von @keyframes ptr-rotate. Inline-55deg als Fallback setzen, Animation greift
       // -> kein Sprung in die Mitte. Keine Transition (Animation uebernimmt).
       coin.style.transition = "";
       if (!reduce) coin.style.transform = "rotateY(55deg)";
@@ -2980,21 +2981,12 @@
       }
     }
     function finish(ok) {
-      // Daten sind hier bereits im DOM (onRefresh wurde davor awaited).
+      // Daten sind hier bereits im DOM (onRefresh wurde davor awaited). Bei voller Drehung faded die
+      // Muenze im Spin aus (is-spinning bleibt bis NACH dem Ausblenden -> kein Snap); springBack
+      // uebernimmt das weiche Zurueckfahren nach oben.
       if (!ok) showHint("Konnte nicht aktualisiert werden");
-      if (reduce) { ind.classList.remove("is-spinning"); container.style.transform = ""; ind.style.opacity = "0"; coin.style.transform = ""; pull = 0; }
-      else {
-        // Pendeln beenden: aktuelle Kippung "einfrieren" (kein Snap), weich in die Mittelstellung,
-        // DANN das bestehende weiche Zurueckfahren nach oben.
-        const cur = getComputedStyle(coin).transform;
-        ind.classList.remove("is-spinning");
-        coin.style.transform = (cur && cur !== "none") ? cur : "rotateY(0deg)";
-        void coin.offsetHeight;
-        coin.style.transition = "transform 200ms ease";
-        coin.style.transform = "rotateY(0deg)";
-        setTimeout(springBack, 200);
-      }
-      setTimeout(() => { refreshing = false; }, reduce ? 0 : 520);
+      springBack();
+      setTimeout(() => { refreshing = false; }, reduce ? 0 : 320);
     }
 
     // --- Touch-Handling -----------------------------------------------------
