@@ -33,22 +33,22 @@
        raeumlich (Muenze), nicht wie flaches Zusammenschieben. Position steht (Hoehe eingefroren im
        Skript) -> hier nichts an der Positionierung aendern. */
     #splash .sp-stage{position:relative;width:128px;height:128px;perspective:700px}
-    /* Gedecktes, warmes Gold (metallisch). --goldL = helle Seite, --goldD = dunkle Seite. Default = gedeckt. */
-    #splash{--goldL:#D8BC72;--goldD:#7C6230}
-    /* Muenze: kippt um die vertikale Achse (rotateY) um den eigenen Mittelpunkt. Nur transform -> die
-       Bounding Box/Position aendert sich NICHT. */
-    #splash .sp-coin{position:absolute;inset:0;transform-origin:50% 50%;will-change:transform;
-      animation:sp-flip 2s infinite}
-    /* Pendeln: Mitte -> rechts -> Mitte -> links -> Mitte. Schnell durch die Mitte, weich an den
-       Umkehrpunkten (ease-out hin, ease-in zurueck). Start=Ende (0deg) -> nahtlos. |55| < 90 -> Rueckseite
-       nie sichtbar (Wappen nie spiegelverkehrt). */
-    @keyframes sp-flip{
-      0%{transform:rotateY(0deg);animation-timing-function:ease-out}
-      25%{transform:rotateY(55deg);animation-timing-function:ease-in}
-      50%{transform:rotateY(0deg);animation-timing-function:ease-out}
-      75%{transform:rotateY(-55deg);animation-timing-function:ease-in}
-      100%{transform:rotateY(0deg)}
-    }
+    /* Gedecktes, warmes Gold (metallisch). --goldL = helle Seite, --goldD = dunkle Seite.
+       --sp-turn = Dauer EINER Umdrehung (hier zum leichten Anpassen). */
+    #splash{--goldL:#D8BC72;--goldD:#7C6230;--sp-turn:1.4s}
+    /* Muenze: volle rotateY-Umdrehungen im Wechsel (vor, dann zurueck), um den eigenen Mittelpunkt.
+       Nur transform -> Bounding Box/Position aendern sich NICHT. Doppelseitig (preserve-3d), damit die
+       Rueckseite das Wappen richtig herum (nicht spiegelverkehrt) zeigt. */
+    #splash .sp-coin{position:absolute;inset:0;transform-origin:50% 50%;transform-style:preserve-3d;
+      will-change:transform;animation:sp-rotate calc(var(--sp-turn,1.4s) * 2) ease-in-out infinite}
+    /* 0->360 (eine volle Umdrehung), dann 360->0 (zurueck). ease-in-out -> weiche Richtungswechsel an
+       0deg/360deg (jeweils frontal). Start=Ende (0deg) -> nahtloser Loop. Eine Umdrehung dauert --sp-turn. */
+    @keyframes sp-rotate{ 0%,100%{transform:rotateY(0deg)} 50%{transform:rotateY(360deg)} }
+    /* Zwei Flaechen: Vorderseite und (um 180deg gedrehte) Rueckseite, beide backface ausgeblendet.
+       Auf der Rueckseite das Wappen zusaetzlich scaleX(-1) -> nach der 180deg-Drehung wieder lesbar. */
+    #splash .sp-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+    #splash .sp-back{transform:rotateY(180deg)}
+    #splash .sp-back .sp-logo{transform:scaleX(-1)}
     /* Goldener Ring: metallischer Verlauf (hell oben-links -> dunkel unten-rechts). Teil der Muenze -> kippt mit. */
     #splash .sp-ring{position:absolute;inset:0;border-radius:50%;
       background:linear-gradient(135deg,var(--goldL) 0%,var(--goldD) 100%)}
@@ -81,8 +81,10 @@
   <div id="splash" role="status" aria-label="Lädt"><div class="sp-stage"></div></div>
   <script>
   (function(){
-    // Splash: Vereinswappen kippt wie eine Muenze (rotateY, pendelnd), goldener Ring, flacher Schatten darunter.
-    var LOGO='<div class="sp-shadow"></div><div class="sp-coin"><div class="sp-ring"></div><div class="sp-disc"><img class="sp-logo" src="assets/icon-512.png" width="118" height="118" alt="" draggable="false"></div></div>';
+    // Splash: Vereinswappen dreht sich wie eine Muenze (rotateY, volle Umdrehungen im Wechsel),
+    // goldener Ring, flacher Schatten darunter. Doppelseitig -> Rueckseite nie spiegelverkehrt.
+    var FACE='<div class="sp-ring"></div><div class="sp-disc"><img class="sp-logo" src="assets/icon-512.png" width="118" height="118" alt="" draggable="false"></div>';
+    var LOGO='<div class="sp-shadow"></div><div class="sp-coin"><div class="sp-face sp-front">'+FACE+'</div><div class="sp-face sp-back">'+FACE+'</div></div>';
     var splash=document.getElementById("splash"); if(!splash) return;
     /* ===================== SCHRITT 2: HOEHE EINMALIG EINFRIEREN =====================
        Messung bewies: #splash (inset:0) waechst mit innerHeight (797->844) -> zentriertes Logo rutscht.
@@ -107,7 +109,7 @@
     function show(){ stage.style.opacity="1"; }
     if(logo.complete && logo.naturalWidth) show();
     else { logo.addEventListener("load",show); logo.addEventListener("error",show); setTimeout(show,400); } // nicht ewig warten
-    var MAX=3000, FADE=200, DUR=2000, hidden=false, wantHide=false;   // DUR = Dauer eines vollen Pendel-Zyklus
+    var MAX=3000, FADE=200, DUR=2800, hidden=false, wantHide=false;   // DUR = ein Loop = 2 Umdrehungen (2 x --sp-turn); nur fuers Sicherheitsnetz-Timeout
     function remove(){
       var s=document.getElementById("splash"); if(s&&s.parentNode) s.parentNode.removeChild(s);
       var st=document.getElementById("splash-style"); if(st&&st.parentNode) st.parentNode.removeChild(st); // Animationen + Chrome-Ausblendung sicher aufheben
