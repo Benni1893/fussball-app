@@ -1214,6 +1214,26 @@ body.auth-mode .app-footer { display: none; }
 .kasse-paid { margin-top: 12px; }
 .kasse-paid > summary { cursor: pointer; color: var(--green-700); font-weight: 600; min-height: 44px; display: flex; align-items: center; }
 
+/* ===================== Kasse: Strafe verhängen (Picker/Katalogliste) ===================== */
+.kasse-picker { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;
+  min-height: 48px; padding: 12px 14px; font: inherit; font-weight: 700; color: var(--ink);
+  background: var(--green-050); border: 1px solid var(--line); border-radius: 12px; cursor: pointer;
+  -webkit-appearance: none; appearance: none; -webkit-tap-highlight-color: transparent; }
+.kasse-catrow, .ks-prow { -webkit-appearance: none; appearance: none; }
+.kasse-picker-arrow { color: var(--muted); font-size: 1.4rem; line-height: 1; flex: none; }
+.kasse-chosen { font-size: .82rem; color: var(--muted); margin-top: -2px; }
+/* Katalogliste in der Kasse: exakt der Katalog-Look (kat-item), aber als antippbare Auswahl. */
+.kasse-catrow { width: 100%; text-align: left; font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.kasse-catrow.is-sel { border-color: var(--green-600); box-shadow: 0 0 0 1px var(--green-600) inset; background: var(--green-050); }
+/* Spielerauswahl im Vollbild-Sheet: eine Zeile je Spieler (Katalog-Look) + Häkchen. */
+.ks-prow { width: 100%; text-align: left; font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; gap: 12px; }
+.ks-prow .kat-name { flex: 1; }
+.ks-prow.is-sel { border-color: var(--green-600); box-shadow: 0 0 0 1px var(--green-600) inset; background: var(--green-050); }
+.ks-check { flex: none; color: var(--green-600); display: inline-flex; width: 22px; height: 22px; }
+.ks-check svg { width: 22px; height: 22px; }
+.ks-done { font: inherit; font-weight: 700; color: #fff; background: var(--green-600); border: 0; border-radius: 10px;
+  padding: 8px 16px; min-height: 40px; cursor: pointer; flex: none; -webkit-tap-highlight-color: transparent; }
+
 /* ===================== Katalog: Festbetrag / Gestaffelt ===================== */
 .kat-fixed { display: flex; align-items: center; gap: 8px; }
 .kat-fixed .kat-in-amount { flex: 1; min-width: 0; }
