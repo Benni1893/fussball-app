@@ -2463,8 +2463,8 @@
           <div class="fine-row">
             <span class="avatar">${initials(s.player.name)}</span>
             <div class="fine-main">
-              <div class="fine-name">${esc(s.player.name)}${statusBadge(s.player)}${s.auto ? ` <span class="badge badge-auto">automatisch</span>` : ""}</div>
-              <div class="fine-desc">${esc(vergehenName(s))} · ${fmtDay(s.datum)}. ${fmtMon(s.datum)}</div>
+              <div class="fine-name">${esc(s.player.name)}</div>
+              <div class="fine-desc">${esc(vergehenName(s))} · ${fmtDay(s.datum)}. ${fmtMon(s.datum)}${s.auto ? " · automatisch" : ""}</div>
             </div>
             <div class="fine-right">
               <div class="fine-amt">${euro(s.betrag).replace(/\s/g, " ")}</div>
@@ -2483,7 +2483,7 @@
      KASSE (nur Kassenwart/Admin). View-Guard ist Komfort; die echte Sperre
      ist RLS: fines/fine_catalog SCHREIBEN nur treasurer/admin.
      ========================================================================= */
-  const kasse = { players: [], catId: "", indivBetrag: "", indivGrund: "", bezug: "" };
+  const kasse = { players: [], mode: null, catId: "", indivBetrag: "", indivGrund: "", bezug: "" };  // mode: null | 'indiv' | 'katalog'
 
   // Betrag + Grund (Snapshot). Katalog hat Vorrang (catId gesetzt), sonst freier Betrag.
   function kasseCompute() {
@@ -2547,13 +2547,18 @@
         </button>
         ${chosen.length ? `<div class="kasse-chosen">${chosen.map(esc).join(", ")}</div>` : ""}
 
-        <div class="kasse-lbl">Betrag frei eintippen</div>
+        <div class="kasse-modes">
+          <button type="button" class="kasse-mode${kasse.mode === "indiv" ? " is-on" : ""}" data-ks-mode="indiv">Individuelle Strafe</button>
+          <button type="button" class="kasse-mode${kasse.mode === "katalog" ? " is-on" : ""}" data-ks-mode="katalog">Strafe aus dem Katalog</button>
+        </div>
+
+        ${kasse.mode === "indiv" ? `
         <div class="kasse-two">
           <input class="kasse-in" data-kasse-input="betrag" inputmode="decimal" placeholder="Betrag €" value="${esc(kasse.indivBetrag)}">
           <input class="kasse-in" data-kasse-input="grund" type="text" placeholder="Grund" value="${esc(kasse.indivGrund)}">
-        </div>
+        </div>` : ""}
 
-        <div class="kasse-lbl">oder aus dem Katalog</div>
+        ${kasse.mode === "katalog" ? `
         <div class="kat-list kasse-catlist">
           ${DEMO.katalog.map((k) => `
             <button type="button" class="kat-item kasse-catrow${kasse.catId === k.id ? " is-sel" : ""}" data-kasse-catrow="${k.id}">
@@ -2564,10 +2569,11 @@
         ${staffelK ? `<div class="kasse-staffel" id="kasseStaffel">
           <input class="kasse-in" data-kasse-input="bezug" inputmode="decimal" placeholder="${esc(staffelK.einheit || "Menge")}" value="${esc(kasse.bezug)}">
           <span class="kasse-staffel-hint">${esc((staffelK.proEinheit != null ? euro(staffelK.proEinheit).replace(/\s/g, " ") + " je " + (staffelK.schritt || 1) + " " + (staffelK.einheit || "") : "") + (staffelK.maxBetrag != null ? " · max " + euro(staffelK.maxBetrag).replace(/\s/g, " ") : ""))}</span>
-        </div>` : ""}
+        </div>` : ""}` : ""}
 
+        ${kasse.mode ? `
         <div id="kasseSummary">${kasseSummaryHtml()}</div>
-        <button class="tv-primary kasse-save" data-kasse-add${(!kasse.players.length || !c.valid) ? " disabled" : ""}>Strafe speichern</button>
+        <button class="tv-primary kasse-save" data-kasse-add${(!kasse.players.length || !c.valid) ? " disabled" : ""}>Strafe speichern</button>` : ""}
       </div>
 
       <div class="section-title"><h2>Automatische Strafen</h2></div>
@@ -2575,7 +2581,7 @@
         <div class="fine-row">
           <span class="avatar">${initials(s.player.name)}</span>
           <div class="fine-main">
-            <div class="fine-name">${esc(s.player.name)} <span class="badge badge-auto">automatisch</span></div>
+            <div class="fine-name">${esc(s.player.name)}</div>
             <div class="fine-desc">${esc(vergehenName(s))} · ${fmtDay(s.datum)}. ${fmtMon(s.datum)} · ${s.bezahlt ? "beglichen" : "offen"}</div>
           </div>
           <div class="fine-right">
@@ -2589,8 +2595,8 @@
         <div class="fine-row">
           <span class="avatar">${initials(s.player.name)}</span>
           <div class="fine-main">
-            <div class="fine-name">${esc(s.player.name)}${s.auto ? ` <span class="badge badge-auto">automatisch</span>` : ""}</div>
-            <div class="fine-desc">${esc(vergehenName(s))}</div>
+            <div class="fine-name">${esc(s.player.name)}</div>
+            <div class="fine-desc">${esc(vergehenName(s))}${s.auto ? " · automatisch" : ""}</div>
           </div>
           <div class="fine-right">
             <div class="fine-amt">${euro(s.betrag).replace(/\s/g, " ")}</div>
@@ -2627,7 +2633,7 @@
     const btn = viewEl.querySelector("[data-kasse-add]"); if (btn) btn.disabled = true;
     try {
       await DB.addFines(rows);
-      kasse.players = []; kasse.catId = ""; kasse.indivBetrag = ""; kasse.indivGrund = ""; kasse.bezug = "";
+      kasse.players = []; kasse.mode = null; kasse.catId = ""; kasse.indivBetrag = ""; kasse.indivGrund = ""; kasse.bezug = "";
       await reloadData();                          // rendert Kasse neu (aktualisierte Listen)
       tvToast(rows.length + (rows.length > 1 ? " Strafen" : " Strafe") + " gespeichert");
     } catch (e) { if (btn) btn.disabled = false; window.alert("Speichern fehlgeschlagen: " + ((e && e.message) || e)); }
@@ -2715,6 +2721,14 @@
     // Kasse-Interaktionen (Schreiben ist zusätzlich per RLS auf treasurer/admin beschränkt)
     if (currentView === "kasse") {
       if (ev.target.closest("[data-ks-open-players]")) { ksOpenPlayers(); return; }
+      const mbtn = ev.target.closest("[data-ks-mode]");
+      if (mbtn) {
+        const m = mbtn.dataset.ksMode;
+        kasse.mode = (kasse.mode === m) ? null : m;       // erneut antippen = zuklappen
+        if (kasse.mode !== "katalog") { kasse.catId = ""; kasse.bezug = ""; }
+        if (kasse.mode !== "indiv") { kasse.indivBetrag = ""; kasse.indivGrund = ""; }
+        renderKasse(); return;
+      }
       const crow = ev.target.closest("[data-kasse-catrow]");
       if (crow) { const id = crow.dataset.kasseCatrow; kasse.catId = (kasse.catId === id) ? "" : id; if (kasse.catId) { kasse.indivBetrag = ""; kasse.indivGrund = ""; kasse.bezug = ""; } renderKasse(); return; }
       if (ev.target.closest("[data-kasse-add]")) { await kasseSave(); return; }
@@ -3304,6 +3318,24 @@
   // spaetere Seiten mit eigenem Scroll-Container.
   attachPullToRefresh(document.getElementById("scrollArea"), reloadData);
 
+  /* Tastatur-Fix (iOS): sobald ein Eingabefeld fokussiert ist, die unteren fixen Leisten
+     (Nav + Simulations-Bar) ausblenden -> kein Spalt, durch den Inhalt durchscheint. Nach dem
+     Schliessen wieder einblenden. Zusaetzlich das aktive Feld in den sichtbaren Bereich holen. */
+  (function () {
+    const isField = (el) => !!(el && el.matches && el.matches("input, textarea, select") && el.type !== "checkbox" && el.type !== "radio");
+    let blurT = 0;
+    document.addEventListener("focusin", (e) => {
+      if (!isField(e.target)) return;
+      clearTimeout(blurT);
+      document.body.classList.add("kb-open");
+      setTimeout(() => { try { e.target.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (x) {} }, 260);
+    });
+    document.addEventListener("focusout", (e) => {
+      if (!isField(e.target)) return;
+      blurT = setTimeout(() => { if (!isField(document.activeElement)) document.body.classList.remove("kb-open"); }, 120);
+    });
+  })();
+
   // Simulations-Vorschau beenden -> zurück zur echten Admin-Ansicht.
   const simExitBtn = document.getElementById("simExit");
   if (simExitBtn) simExitBtn.addEventListener("click", () => {
@@ -3391,8 +3423,8 @@
   const ICON_NAV_DOTS  = `<svg class="nav-ic" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>`;
   const ICON_NAV_PITCH = `<svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 5v14"/><circle cx="12" cy="12" r="2.4"/><path d="M3 9.5h3v5H3M21 9.5h-3v5h3"/></svg>`;
   const ICON_NAV_PERSON = `<svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>`;
-  // Muenze schraeg von oben, mit geriffeltem Rand (Provisorium Variante A; A/B siehe Preview).
-  const ICON_NAV_COIN  = `<svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="8.5" rx="8" ry="4"/><path d="M4 8.5v5c0 2.2 3.6 4 8 4s8-1.8 8-4v-5"/><path d="M7 13.4v2.1M12 13.9v2.3M17 13.4v2.1" stroke-width="1.4"/></svg>`;
+  // Muenzstapel (Provisorium Variante A: 3 gestapelte Muenzen; A/B siehe Preview).
+  const ICON_NAV_COIN  = `<svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6.8" rx="7" ry="2.6"/><path d="M5 6.8v8.4M19 6.8v8.4"/><path d="M5 15.2a7 2.6 0 0 0 14 0"/><path d="M5 10a7 2.6 0 0 0 14 0"/><path d="M5 12.6a7 2.6 0 0 0 14 0"/></svg>`;
 
   // 5. Tab (unten rechts) nach höchster EFFEKTIVER Rolle: Admin „Mehr", Trainer
   // „Trainer" (Aufstellung), Spieler „Profil". Effektiv = inkl. Admin-Vorschau

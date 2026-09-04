@@ -673,7 +673,7 @@ tbody tr:hover { background: #fbfdfc; }
   background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
   padding: 8px 10px 8px 14px; box-shadow: var(--shadow-sm); min-height: 52px;
 }
-.kat-name { font-weight: 600; min-width: 0; flex: 1; }
+.kat-name { font-weight: 600; min-width: 0; flex: 1; color: var(--ink); }
 .kat-amount { font-weight: 800; color: var(--green-800); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .kat-actions { display: flex; gap: 2px; flex: none; }
 
@@ -1173,12 +1173,16 @@ body.auth-mode .app-footer { display: none; }
 
 @media (prefers-reduced-motion: reduce) { .tv-scrim, .tv-sheet, .tv-toast { transition: none; } }
 
+/* Tastatur offen (Eingabefeld fokussiert): untere fixe Leisten ausblenden -> keine Luecke,
+   durch die der Inhalt durchscheint (iOS verschiebt nur den visuellen Viewport). */
+body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
+
 /* ===================== Strafen-Liste (Konto + Kasse), vertikal, kein H-Scroll ===================== */
 .fine-list { display: flex; flex-direction: column; gap: 8px; }
 .fine-row { display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--line);
-  border-radius: var(--radius); padding: 8px 12px; box-shadow: var(--shadow-sm); min-height: 52px; }
+  border-radius: var(--radius); padding: 8px 12px; box-shadow: var(--shadow-sm); min-height: 52px; color: var(--ink); }
 .fine-main { flex: 1; min-width: 0; }
-.fine-name { font-weight: 600; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.fine-name { font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .fine-desc { font-size: .8rem; color: var(--muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fine-right { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
 .fine-amt { font-weight: 800; color: var(--green-800); font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -1222,6 +1226,12 @@ body.auth-mode .app-footer { display: none; }
 .kasse-catrow, .ks-prow { -webkit-appearance: none; appearance: none; }
 .kasse-picker-arrow { color: var(--muted); font-size: 1.4rem; line-height: 1; flex: none; }
 .kasse-chosen { font-size: .82rem; color: var(--muted); margin-top: -2px; }
+/* Zwei getrennte Einstiege: Individuell / aus dem Katalog. Erst nach Antippen oeffnet sich der Weg. */
+.kasse-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.kasse-mode { -webkit-appearance: none; appearance: none; font: inherit; font-weight: 700; color: var(--ink);
+  min-height: 52px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff;
+  cursor: pointer; text-align: center; line-height: 1.2; -webkit-tap-highlight-color: transparent; }
+.kasse-mode.is-on { background: var(--green-700); border-color: var(--green-700); color: #fff; }
 /* Katalogliste in der Kasse: exakt der Katalog-Look (kat-item), aber als antippbare Auswahl. */
 .kasse-catrow { width: 100%; text-align: left; font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .kasse-catrow.is-sel { border-color: var(--green-600); box-shadow: 0 0 0 1px var(--green-600) inset; background: var(--green-050); }
