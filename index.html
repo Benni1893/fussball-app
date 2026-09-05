@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <!-- Versions-Query = Cache-Busting. MUSS bei jedem Deploy mit BUILD unten (und app.js/db.js) hochgezogen werden. -->
-  <link rel="stylesheet" href="styles.css?v=2026-09-05-I" />
+  <link rel="stylesheet" href="styles.css?v=2026-09-05-J" />
   <!-- Splash-/Ladeanimation: inline, damit nichts nachgeladen wird und es im ersten Frame paint't.
        Farben aus den bestehenden Variablen (Fallback = gleicher Wert gegen weisses Aufblitzen). -->
   <style id="splash-style">
@@ -81,7 +81,7 @@
   <!-- ===================== Boot-Diagnose (laeuft VOR allen Scripten, unabhaengig von app.js) ===================== -->
   <script>
   (function(){
-    var BUILD = "2026-09-05-I";                 // Build-Kennung: bei jedem Deploy hochziehen
+    var BUILD = "2026-09-05-J";                 // Build-Kennung: bei jedem Deploy hochziehen
     window.__HTML_BUILD = BUILD;
     var K = "fnboot", P = "fnboot_prev";
     try { var pr = localStorage.getItem(K); if (pr) localStorage.setItem(P, pr); } catch(e){}   // vorherigen Lauf sichern
@@ -268,7 +268,7 @@
   <!-- Supabase-Client (CDN) -> config.js (Zugang) -> db.js (Datenzugriff) -> app.js -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="window.__bootErr&&window.__bootErr('script','supabase-js CDN load failed');window.__showDiag&&window.__showDiag('Supabase-Bibliothek (CDN) konnte nicht geladen werden')"></script>
   <script src="config.js" onerror="window.__bootErr&&window.__bootErr('script','config.js load failed');window.__showDiag&&window.__showDiag('config.js konnte nicht geladen werden')"></script>
-  <script src="db.js?v=2026-09-05-I" onerror="window.__bootErr&&window.__bootErr('script','db.js load failed');window.__showDiag&&window.__showDiag('db.js konnte nicht geladen werden')"></script>
-  <script src="app.js?v=2026-09-05-I" onerror="window.__bootErr&&window.__bootErr('script','app.js load failed');window.__showDiag&&window.__showDiag('app.js (Haupt-Script) konnte nicht geladen werden')"></script>
+  <script src="db.js?v=2026-09-05-J" onerror="window.__bootErr&&window.__bootErr('script','db.js load failed');window.__showDiag&&window.__showDiag('db.js konnte nicht geladen werden')"></script>
+  <script src="app.js?v=2026-09-05-J" onerror="window.__bootErr&&window.__bootErr('script','app.js load failed');window.__showDiag&&window.__showDiag('app.js (Haupt-Script) konnte nicht geladen werden')"></script>
 </body>
 </html>

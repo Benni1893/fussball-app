@@ -1285,6 +1285,10 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 .kasse-comment { resize: none; line-height: 1.4; height: calc(2 * 1.4em + 24px); min-height: 0; font-family: inherit; }
 /* Volle-Breite-Sekundärbutton (Individuelle Strafe hinzufügen), gleiche Höhe wie die Felder. */
 .kasse-addbtn { width: 100%; min-height: 44px; }
+/* Datumsfeld linksbündig wie die anderen Felder: iOS zentriert den Wert sonst in einem
+   Shadow-Element und rendert den nativen Picker mit eigenem Layout. */
+.kasse-in[type="date"] { -webkit-appearance: none; appearance: none; text-align: left; }
+.kasse-in[type="date"]::-webkit-date-and-time-value { text-align: left; }
 
 /* Individuell-Chips (bereits hinzugefügte freie Strafen) */
 .ks-ichips { display: flex; flex-wrap: wrap; gap: 6px; }
