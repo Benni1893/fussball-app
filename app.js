@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-05-H";
+  var APP_BUILD = "2026-09-05-I";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -2595,16 +2595,19 @@
     return `<div class="hist-line">${fmtTs(h.at)} · ${esc(arrow)}${extra ? " · " + esc(extra) : ""}</div>`;
   }
 
-  // Eine Zeile im Prüf-/Verbuch-Bereich: Kopf (Name/Detail links, Betrag rechts in
-  // gleicher Spaltenflucht), darunter eine Aktionszeile + optional der Audit-Verlauf.
-  // sub/actions sind bereits fertiges HTML.
-  function krowHtml(s, sub, actions) {
+  // Eine Karte im Prüf-/Verbuch-Bereich – in allen drei Tabs identisch aufgebaut:
+  //   oben: Spieler + Strafe · rechts: Betrag rechtsbündig
+  //   darunter: Datum + Status(-Badge)
+  //   unten: Aktionsbuttons in einer Reihe · optional Audit-Verlauf
+  // strafeText/metaText/actions sind bereits fertiges HTML.
+  function krowHtml(s, strafeText, metaText, actions) {
     return `<div class="krow">
       <div class="krow-head">
         <span class="avatar">${initials(s.player.name)}</span>
         <div class="krow-info">
           <div class="krow-title">${esc(s.player.name)}</div>
-          <div class="krow-sub">${sub}</div>
+          <div class="krow-strafe">${strafeText}</div>
+          <div class="krow-meta"><span>${metaText}</span>${statusBadgeHtml(s)}</div>
           ${s.ablehnGrund && s.st === "offen" ? `<div class="fine-reason">Abgelehnt: ${esc(s.ablehnGrund)}</div>` : ""}
         </div>
         <div class="krow-amt">${euro(s.betrag).replace(/\s/g, " ")}</div>
@@ -2620,7 +2623,8 @@
     return `<div class="kasse-bulk"><button class="btn btn-sm" data-kasse-confirm-all>Alle bestätigen (${list.length})</button></div>
       <div class="krow-list">${sorted.map((s) => krowHtml(
         s,
-        `${esc(vergehenName(s))} · ${fmtDay(s.datum)}. ${fmtMon(s.datum)}`,
+        esc(vergehenName(s)),
+        `${fmtDay(s.datum)}. ${fmtMon(s.datum)}`,
         `<button class="krow-primary" data-kasse-confirm="${s.id}">Bestätigen</button>
          <button class="krow-secondary is-danger" data-kasse-reject="${s.id}">Ablehnen</button>`
       )).join("")}</div>`;
@@ -2631,7 +2635,8 @@
     const sorted = list.slice().sort((a, b) => a.player.name.localeCompare(b.player.name));
     return `<div class="krow-list">${sorted.map((s) => krowHtml(
       s,
-      `${esc(vergehenName(s))} · ${fmtDay(s.datum)}. ${fmtMon(s.datum)}${s.auto ? " · automatisch" : ""}`,
+      `${esc(vergehenName(s))}${s.auto ? " · automatisch" : ""}`,
+      `${fmtDay(s.datum)}. ${fmtMon(s.datum)}`,
       `<select class="kasse-method" data-kasse-method="${s.id}">
          <option value="bar">bar</option>
          <option value="ueberweisung">Überweisung</option>
@@ -2653,7 +2658,8 @@
       </select></div>`;
     const body = list.length ? `<div class="krow-list">${list.map((s) => krowHtml(
       s,
-      `${esc(vergehenName(s))}${s.zahlart ? " · " + (ZAHLART_LABEL[s.zahlart] || esc(s.zahlart)) : ""}${s.paidAt ? " · " + fmtTs(s.paidAt) : ""}`,
+      esc(vergehenName(s)),
+      `${s.paidAt ? fmtTs(s.paidAt) : (fmtDay(s.datum) + ". " + fmtMon(s.datum))}${s.zahlart ? " · " + (ZAHLART_LABEL[s.zahlart] || esc(s.zahlart)) : ""}`,
       `<button class="krow-secondary" data-kasse-unpay="${s.id}">Rückgängig</button>`
     )).join("")}</div>` : `<div class="empty">Keine Treffer.</div>`;
     return filter + body;
@@ -2728,19 +2734,16 @@
         </div>
 
         <div class="kasse-sub">Individuelle Strafe</div>
-        <div class="kasse-two">
-          <input class="kasse-in" data-kasse-input="betrag" inputmode="decimal" placeholder="Betrag €" value="${esc(kasse.indivBetrag)}">
-          <input class="kasse-in" data-kasse-input="grund" type="text" placeholder="Grund" value="${esc(kasse.indivGrund)}">
-          <button type="button" class="btn btn-sm" data-kasse-indiv-add>Hinzufügen</button>
-        </div>
+        <input class="kasse-in" data-kasse-input="betrag" inputmode="decimal" placeholder="Betrag €" value="${esc(kasse.indivBetrag)}">
+        <input class="kasse-in" data-kasse-input="grund" type="text" placeholder="Grund" value="${esc(kasse.indivGrund)}">
+        <button type="button" class="btn kasse-addbtn" data-kasse-indiv-add>Hinzufügen</button>
         ${kasse.indiv.length ? `<div class="ks-ichips">${kasse.indiv.map((e, i) => `
           <span class="ks-ichip">${esc(e.grund)} · ${euro(parseFloat(String(e.betrag).replace(",", ".")) || 0).replace(/\s/g, " ")}
             <button type="button" class="chip-x" data-kasse-indiv-del="${i}" aria-label="entfernen">×</button></span>`).join("")}</div>` : ""}
 
-        <div class="kasse-two kasse-daterow">
-          <input class="kasse-in" type="date" data-kasse-date value="${kasse.date}" aria-label="Datum">
-          <textarea class="kasse-in kasse-comment" data-kasse-input="comment" rows="2" placeholder="Kommentar (optional)" aria-label="Kommentar">${esc(kasse.comment)}</textarea>
-        </div>
+        <div class="kasse-sub">Datum &amp; Kommentar</div>
+        <input class="kasse-in" type="date" data-kasse-date value="${kasse.date}" aria-label="Datum">
+        <textarea class="kasse-in kasse-comment" data-kasse-input="comment" rows="2" placeholder="Kommentar (optional)" aria-label="Kommentar">${esc(kasse.comment)}</textarea>
 
         <div id="kasseSummary">${kasseSummaryHtml()}</div>
         <button class="tv-primary kasse-save" data-kasse-add${build.valid ? "" : " disabled"}>Strafen speichern</button>
