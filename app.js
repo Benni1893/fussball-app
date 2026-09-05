@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-05-F";
+  var APP_BUILD = "2026-09-05-G";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -2595,55 +2595,53 @@
     return `<div class="hist-line">${fmtTs(h.at)} · ${esc(arrow)}${extra ? " · " + esc(extra) : ""}</div>`;
   }
 
+  // Eine Zeile im Prüf-/Verbuch-Bereich: Kopf (Name/Detail links, Betrag rechts in
+  // gleicher Spaltenflucht), darunter eine Aktionszeile + optional der Audit-Verlauf.
+  // sub/actions sind bereits fertiges HTML.
+  function krowHtml(s, sub, actions) {
+    return `<div class="krow">
+      <div class="krow-head">
+        <span class="avatar">${initials(s.player.name)}</span>
+        <div class="krow-info">
+          <div class="krow-title">${esc(s.player.name)}</div>
+          <div class="krow-sub">${sub}</div>
+          ${s.ablehnGrund && s.st === "offen" ? `<div class="fine-reason">Abgelehnt: ${esc(s.ablehnGrund)}</div>` : ""}
+        </div>
+        <div class="krow-amt">${euro(s.betrag).replace(/\s/g, " ")}</div>
+      </div>
+      ${actions ? `<div class="krow-actions">${actions}</div>` : ""}
+      ${kasseHistHtml(s.id)}
+    </div>`;
+  }
+
   function renderKassePruefen(list) {
     if (!list.length) return `<div class="empty">Nichts zu prüfen.</div>`;
     const sorted = list.slice().sort((a, b) => a.player.name.localeCompare(b.player.name));
     return `<div class="kasse-bulk"><button class="btn btn-sm" data-kasse-confirm-all>Alle bestätigen (${list.length})</button></div>
-      <div class="fine-list">${sorted.map((s) => `
-        <div class="fine-row">
-          <span class="avatar">${initials(s.player.name)}</span>
-          <div class="fine-main">
-            <div class="fine-name">${esc(s.player.name)}</div>
-            <div class="fine-desc">${esc(vergehenName(s))} · ${fmtDay(s.datum)}. ${fmtMon(s.datum)}</div>
-            ${kasseHistHtml(s.id)}
-          </div>
-          <div class="fine-right">
-            <div class="fine-amt">${euro(s.betrag).replace(/\s/g, " ")}</div>
-            <div class="fine-actions">
-              <button class="btn btn-sm" data-kasse-confirm="${s.id}">Bestätigen</button>
-              <button class="btn btn-danger btn-sm" data-kasse-reject="${s.id}">Ablehnen</button>
-            </div>
-          </div>
-        </div>`).join("")}</div>`;
+      <div class="krow-list">${sorted.map((s) => krowHtml(
+        s,
+        `${esc(vergehenName(s))} · ${fmtDay(s.datum)}. ${fmtMon(s.datum)}`,
+        `<button class="krow-primary" data-kasse-confirm="${s.id}">Bestätigen</button>
+         <button class="krow-secondary is-danger" data-kasse-reject="${s.id}">Ablehnen</button>`
+      )).join("")}</div>`;
   }
 
   function renderKasseOffen(list) {
     if (!list.length) return `<div class="empty">Keine offenen Posten.</div>`;
     const sorted = list.slice().sort((a, b) => a.player.name.localeCompare(b.player.name));
-    return `<div class="fine-list">${sorted.map((s) => `
-      <div class="fine-row">
-        <span class="avatar">${initials(s.player.name)}</span>
-        <div class="fine-main">
-          <div class="fine-name">${esc(s.player.name)}</div>
-          <div class="fine-desc">${esc(vergehenName(s))} · ${fmtDay(s.datum)}. ${fmtMon(s.datum)}${s.auto ? " · automatisch" : ""}</div>
-          ${s.ablehnGrund ? `<div class="fine-reason">Abgelehnt: ${esc(s.ablehnGrund)}</div>` : ""}
-          ${kasseHistHtml(s.id)}
-        </div>
-        <div class="fine-right">
-          <div class="fine-amt">${euro(s.betrag).replace(/\s/g, " ")}</div>
-          <div class="fine-actions">
-            <select class="kasse-method" data-kasse-method="${s.id}">
-              <option value="bar">bar</option>
-              <option value="ueberweisung">Überweisung</option>
-              <option value="paypal">PayPal</option>
-            </select>
-            <button class="btn btn-sm" data-kasse-pay="${s.id}">Buchen</button>
-            ${s.auto
-              ? `<button class="btn btn-danger btn-sm" data-kasse-del="${s.id}">Entfernen</button>`
-              : `<button class="btn btn-danger btn-sm" data-kasse-cancel="${s.id}">Storno</button>`}
-          </div>
-        </div>
-      </div>`).join("")}</div>`;
+    return `<div class="krow-list">${sorted.map((s) => krowHtml(
+      s,
+      `${esc(vergehenName(s))} · ${fmtDay(s.datum)}. ${fmtMon(s.datum)}${s.auto ? " · automatisch" : ""}`,
+      `<select class="kasse-method" data-kasse-method="${s.id}">
+         <option value="bar">bar</option>
+         <option value="ueberweisung">Überweisung</option>
+         <option value="paypal">PayPal</option>
+       </select>
+       <button class="krow-primary" data-kasse-pay="${s.id}">Buchen</button>
+       ${s.auto
+         ? `<button class="krow-secondary is-danger" data-kasse-del="${s.id}">Entfernen</button>`
+         : `<button class="krow-secondary is-danger" data-kasse-cancel="${s.id}">Storno</button>`}`
+    )).join("")}</div>`;
   }
 
   function renderKasseBezahlt(list, all) {
@@ -2653,19 +2651,11 @@
         <option value="">Alle Spieler</option>
         ${players.map((p) => `<option value="${p.id}"${kasse.bezFilter === p.id ? " selected" : ""}>${esc(p.name)}</option>`).join("")}
       </select></div>`;
-    const body = list.length ? `<div class="fine-list">${list.map((s) => `
-      <div class="fine-row">
-        <span class="avatar">${initials(s.player.name)}</span>
-        <div class="fine-main">
-          <div class="fine-name">${esc(s.player.name)}</div>
-          <div class="fine-desc">${esc(vergehenName(s))}${s.zahlart ? " · " + (ZAHLART_LABEL[s.zahlart] || esc(s.zahlart)) : ""}${s.paidAt ? " · " + fmtTs(s.paidAt) : ""}</div>
-          ${kasseHistHtml(s.id)}
-        </div>
-        <div class="fine-right">
-          <div class="fine-amt">${euro(s.betrag).replace(/\s/g, " ")}</div>
-          <button class="btn btn-sm" data-kasse-unpay="${s.id}">Rückgängig</button>
-        </div>
-      </div>`).join("")}</div>` : `<div class="empty">Keine Treffer.</div>`;
+    const body = list.length ? `<div class="krow-list">${list.map((s) => krowHtml(
+      s,
+      `${esc(vergehenName(s))}${s.zahlart ? " · " + (ZAHLART_LABEL[s.zahlart] || esc(s.zahlart)) : ""}${s.paidAt ? " · " + fmtTs(s.paidAt) : ""}`,
+      `<button class="krow-secondary" data-kasse-unpay="${s.id}">Rückgängig</button>`
+    )).join("")}</div>` : `<div class="empty">Keine Treffer.</div>`;
     return filter + body;
   }
 
@@ -2747,9 +2737,9 @@
           <span class="ks-ichip">${esc(e.grund)} · ${euro(parseFloat(String(e.betrag).replace(",", ".")) || 0).replace(/\s/g, " ")}
             <button type="button" class="chip-x" data-kasse-indiv-del="${i}" aria-label="entfernen">×</button></span>`).join("")}</div>` : ""}
 
-        <div class="kasse-two">
-          <label class="kasse-datefield">Datum <input class="kasse-in" type="date" data-kasse-date value="${kasse.date}"></label>
-          <input class="kasse-in" data-kasse-input="comment" type="text" placeholder="Kommentar (optional)" value="${esc(kasse.comment)}">
+        <div class="kasse-two kasse-daterow">
+          <input class="kasse-in" type="date" data-kasse-date value="${kasse.date}" aria-label="Datum">
+          <textarea class="kasse-in kasse-comment" data-kasse-input="comment" rows="2" placeholder="Kommentar (optional)" aria-label="Kommentar">${esc(kasse.comment)}</textarea>
         </div>
 
         <div id="kasseSummary">${kasseSummaryHtml()}</div>
@@ -3471,11 +3461,18 @@
       pull = 0;
       setTimeout(() => {
         ind.classList.remove("is-spinning");               // Animation erst nach dem Ausblenden stoppen (kein Snap)
-        if (!tracking && !refreshing) {
-          container.style.transform = ""; container.style.transition = "";
-          coin.style.transition = ""; coin.style.transform = ""; coin.style.willChange = "";
-        }
+        // Nur wenn KEINE neue Geste/kein Refresh laeuft: harter, vollstaendiger Reset in den
+        // versteckten Grundzustand. Verhindert einen stehen bleibenden/„mitscrollenden" Indikator,
+        // falls die CSS-Transition auf Deckkraft 0 unterbrochen wurde.
+        if (!tracking && !refreshing) hardHide();
       }, 320);
+    }
+    // Harter Reset in den versteckten Grundzustand (Deckkraft 0, keine Transforms/Transition).
+    function hardHide() {
+      ind.classList.remove("is-spinning");
+      ind.style.transition = "none"; ind.style.opacity = "0"; ind.style.transform = "translateX(-50%)";
+      coin.style.transition = "none"; coin.style.transform = ""; coin.style.willChange = "";
+      container.style.transition = "none"; container.style.transform = "";
     }
     function showHint(msg) {
       hint.textContent = msg; hint.classList.add("show");
@@ -3520,6 +3517,7 @@
       if (window.scrollY > 0) { tracking = false; return; }                             // nur ganz oben
       startY = e.touches[0].clientY; startX = e.touches[0].clientX;
       tracking = true; decided = false; active = false; pull = 0;
+      hardHide();  // stale/haengengebliebenen Indikator vor einer neuen Geste sicher verstecken
     }, { passive: true });
 
     window.addEventListener("touchmove", (e) => {

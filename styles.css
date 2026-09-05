@@ -68,6 +68,11 @@ body {
 }
 .scroll-area { display: block; }  /* nur Container – gescrollt wird die Seite */
 
+/* Formular-Steuerelemente: iOS färbt <select>-Text sonst systemblau. Zentral auf die
+   normale Textfarbe zwingen – Blau bleibt echten Buttons/Links vorbehalten. */
+select, input, textarea { color: var(--ink); -webkit-text-fill-color: var(--ink); }
+select:disabled, input:disabled, textarea:disabled { -webkit-text-fill-color: var(--muted); color: var(--muted); }
+
 /* ---------- Kopfzeile ------------------------------------------------------ */
 .app-header {
   /* Drei Zonen: Logo (links) | Teamname mittig | Zahnrad (rechts) */
@@ -1271,7 +1276,9 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 /* Unter-Überschriften im Anlage-Block */
 .kasse-sub { font-size: .82rem; font-weight: 800; color: var(--ink); margin-top: 4px; display: flex; align-items: baseline; gap: 8px; }
 .kasse-sub-hint { font-size: .74rem; font-weight: 600; color: var(--muted); }
-.kasse-datefield { display: flex; flex-direction: column; gap: 4px; font-size: .74rem; font-weight: 700; color: var(--muted); }
+/* Datum + Kommentar: eine Formularzeile, gleiche Breite/Innenabstände; Kommentar zweizeilig. */
+.kasse-daterow { align-items: start; }
+.kasse-comment { resize: none; line-height: 1.35; min-height: 0; height: auto; font-family: inherit; }
 
 /* Individuell-Chips (bereits hinzugefügte freie Strafen) */
 .ks-ichips { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -1287,9 +1294,26 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
   background: #fff; min-height: 40px; -webkit-appearance: none; appearance: none; }
 .kasse-bezfilter { width: 100%; }
 
-/* Aktionsspalte in den Prüf-/Verbuch-Listen */
-.fine-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
-.fine-actions .kasse-method { max-width: 128px; }
+/* Prüf-/Verbuch-Zeilen: Trennlinien statt Kartenrahmen, klare Hierarchie,
+   Betrag rechtsbündig in gleicher Spaltenflucht, eigene Aktionszeile. */
+.krow-list { display: flex; flex-direction: column; }
+.krow { padding: 12px 2px; border-bottom: 1px solid var(--line); }
+.krow:last-child { border-bottom: 0; }
+.krow-head { display: flex; align-items: center; gap: 10px; }
+.krow-info { flex: 1; min-width: 0; }
+.krow-title { font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.krow-sub { font-size: .8rem; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.krow-amt { flex: none; font-weight: 800; color: var(--green-800); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.krow-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 10px; flex-wrap: nowrap; }
+.krow-actions .kasse-method { flex: 1 1 auto; min-width: 84px; max-width: 130px; }
+.krow-primary { -webkit-appearance: none; appearance: none; flex: none; font: inherit; font-weight: 700; font-size: .85rem;
+  min-height: 40px; padding: 8px 16px; border-radius: 10px; border: 0; background: var(--green-600); color: #fff;
+  cursor: pointer; -webkit-tap-highlight-color: transparent; white-space: nowrap; }
+.krow-secondary { -webkit-appearance: none; appearance: none; flex: none; font: inherit; font-weight: 600; font-size: .85rem;
+  min-height: 40px; padding: 8px 10px; border-radius: 10px; border: 0; background: none; color: var(--muted);
+  cursor: pointer; -webkit-tap-highlight-color: transparent; white-space: nowrap; }
+.krow-secondary.is-danger { color: var(--red-600); }
+.krow .fine-hist { margin-top: 6px; }
 .fine-reason { font-size: .78rem; color: var(--red-600); margin-top: 2px; white-space: normal; }
 
 /* Audit-Verlauf (aufklappbar) */
