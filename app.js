@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-05-E";
+  var APP_BUILD = "2026-09-05-F";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -110,10 +110,26 @@
     return (k && k.vergehen) || "—";
   }
 
-  // effektiver Bezahlt-Status (Demo + lokale Änderungen)
-  function istBezahlt(strafe) {
-    return state.paid[strafe.id] !== undefined ? state.paid[strafe.id] : strafe.bezahlt;
+  /* ---- Statusmodell (Migration 0030): offen | gemeldet | bestätigt | storniert ----
+     Der Status kommt aus der DB. istBezahlt bedeutet ab jetzt „bestätigt eingegangen". */
+  function fineStatus(strafe) {
+    return strafe.status || (strafe.bezahlt ? (strafe.selfReported ? "gemeldet" : "bestätigt") : "offen");
   }
+  function istBezahlt(strafe) { return fineStatus(strafe) === "bestätigt"; }
+  function istStorniert(strafe) { return fineStatus(strafe) === "storniert"; }
+  // Aktive Strafen = alles außer storniert (zählt für Summen/Listen).
+  function aktiveStrafen() { return DEMO.strafen.filter((s) => !istStorniert(s)); }
+  const STATUS_META = {
+    offen:      { label: "offen",           cls: "badge-open" },
+    gemeldet:   { label: "gemeldet",        cls: "badge-self" },
+    "bestätigt": { label: "eingegangen",    cls: "badge-paid" },
+    storniert:  { label: "storniert",       cls: "badge-cancel" },
+  };
+  function statusBadgeHtml(strafe) {
+    const m = STATUS_META[fineStatus(strafe)] || STATUS_META.offen;
+    return `<span class="badge ${m.cls}">${m.label}</span>`;
+  }
+  const ZAHLART_LABEL = { bar: "bar", ueberweisung: "Überweisung", paypal: "PayPal" };
   /* =========================================================================
      MAHNZUSCHLAG – EINE zentrale Logik für Betrag UND Countdown.
      Diese Formel ist 1:1 identisch zur SQL-Funktion apply_fine_surcharges()
@@ -150,10 +166,10 @@
   // >>> DIE EINZIGE Betragsfunktion der App: Grundbetrag + Mahnzuschlag. <<<
   function strafeBetrag(strafe) { return grundBetrag(strafe) + zuschlagBetrag(strafe); }
 
-  // Offene Gesamtsumme eines Spielers – ebenfalls nur über strafeBetrag.
+  // Offene Gesamtsumme eines Spielers – nur strikt OFFENE (nicht gemeldet/storniert).
   function summeOffenSpieler(playerId) {
     return DEMO.strafen
-      .filter((s) => s.playerId === playerId && !istBezahlt(s))
+      .filter((s) => s.playerId === playerId && fineStatus(s) === "offen")
       .reduce((a, s) => a + strafeBetrag(s), 0);
   }
 
@@ -340,7 +356,7 @@
     const naechste = DEMO.events.filter((e) => isFuture(e.datum)).sort((a, b) => a.datum.localeCompare(b.datum));
     const naechstes = naechste[0];
 
-    const offene = DEMO.strafen.filter((s) => !istBezahlt(s));
+    const offene = DEMO.strafen.filter((s) => fineStatus(s) === "offen");
     const offeneGesamt = offene.reduce((sum, s) => sum + strafeBetrag(s), 0);
     const meineOffen = summeOffenSpieler(me.id);
 
@@ -439,7 +455,7 @@
           <div class="section-title"><h2>Zuletzt verhängte Strafen</h2>
             <button class="link-btn" data-goto="strafen">Konto →</button></div>
           <div class="card card-pad">
-            ${[...DEMO.strafen].sort((a,b)=>b.datum.localeCompare(a.datum)).slice(0,5).map((s) => {
+            ${aktiveStrafen().sort((a,b)=>b.datum.localeCompare(a.datum)).slice(0,5).map((s) => {
               const p = playerById[s.playerId];
               return `<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)">
                 <span class="avatar">${initials(p.name)}</span>
@@ -449,7 +465,7 @@
                 </div>
                 <div style="text-align:right">
                   <div class="amount">${euro(strafeBetrag(s))}</div>
-                  <span class="badge ${istBezahlt(s) ? "badge-paid" : "badge-open"}">${istBezahlt(s) ? "bezahlt" : "offen"}</span>
+                  ${statusBadgeHtml(s)}
                 </div>
               </div>`;
             }).join("")}
@@ -2378,25 +2394,27 @@
     // „Als bezahlt" nur für Kassenwart/Admin (UI-Komfort; echte Sperre = RLS)
     const canPay = Roles.canManageFines();
 
-    const alle = DEMO.strafen.map((s) => ({
+    const alle = aktiveStrafen().map((s) => ({
       ...s,
       betrag: strafeBetrag(s),
       bezahlt: istBezahlt(s),
+      st: fineStatus(s),
       player: playerById[s.playerId],
       kat: katById[s.katalogId],
     }));
 
-    const offenGesamt   = alle.filter((s) => !s.bezahlt).reduce((a, s) => a + s.betrag, 0);
-    const bezahltGesamt = alle.filter((s) =>  s.bezahlt).reduce((a, s) => a + s.betrag, 0);
+    const offenGesamt   = alle.filter((s) => s.st === "offen").reduce((a, s) => a + s.betrag, 0);
+    const bezahltGesamt = alle.filter((s) => s.st === "bestätigt").reduce((a, s) => a + s.betrag, 0);
     const meineOffen    = linked ? summeOffenSpieler(me.id) : 0;
+    const meineGemeldet = linked ? alle.filter((s) => s.playerId === me.id && s.st === "gemeldet").length : 0;
     const meineGesamt   = linked ? alle.filter((s) => s.playerId === me.id).reduce((a, s) => a + s.betrag, 0) : 0;
-    const meinZuschlag  = linked ? alle.filter((s) => s.playerId === me.id && !s.bezahlt).reduce((a, s) => a + zuschlagBetrag(s), 0) : 0;
+    const meinZuschlag  = linked ? alle.filter((s) => s.playerId === me.id && s.st === "offen").reduce((a, s) => a + zuschlagBetrag(s), 0) : 0;
 
     // Für den Banner: meine offene Strafe mit der KÜRZESTEN Restzeit (nicht gedeckelt).
     let bannerCd = null;
     if (linked) {
       const jetzt = Date.now();
-      alle.filter((s) => s.playerId === me.id && !s.bezahlt).forEach((s) => {
+      alle.filter((s) => s.playerId === me.id && s.st === "offen").forEach((s) => {
         const info = mahnCountdown(s, jetzt);
         if (info.capped) return;
         if (bannerCd === null || info.remMs < bannerCd.remMs) {
@@ -2406,18 +2424,19 @@
     }
 
     let gefiltert = alle;
-    if (strafenFilter === "offen")   gefiltert = alle.filter((s) => !s.bezahlt);
-    if (strafenFilter === "bezahlt") gefiltert = alle.filter((s) =>  s.bezahlt);
-    if (strafenFilter === "selbst")  gefiltert = alle.filter((s) =>  s.bezahlt && s.selfReported);
-    if (strafenFilter === "meine")   gefiltert = linked ? alle.filter((s) => s.playerId === me.id) : [];
-    gefiltert.sort((a, b) => Number(a.bezahlt) - Number(b.bezahlt) || b.datum.localeCompare(a.datum));
+    if (strafenFilter === "offen")    gefiltert = alle.filter((s) => s.st === "offen");
+    if (strafenFilter === "gemeldet") gefiltert = alle.filter((s) => s.st === "gemeldet");
+    if (strafenFilter === "bezahlt")  gefiltert = alle.filter((s) => s.st === "bestätigt");
+    if (strafenFilter === "meine")    gefiltert = linked ? alle.filter((s) => s.playerId === me.id) : [];
+    const stRank = { offen: 0, gemeldet: 1, "bestätigt": 2 };
+    gefiltert.sort((a, b) => (stRank[a.st] - stRank[b.st]) || b.datum.localeCompare(a.datum));
 
     const filters = [
-      { k: "offen",   label: "Offen" },
-      { k: "bezahlt", label: "Beglichen" },
-      { k: "selbst",  label: "Selbst gemeldet" },
-      { k: "meine",   label: "Meine Strafen" },
-      { k: "alle",    label: "Alle" },
+      { k: "offen",    label: "Offen" },
+      { k: "gemeldet", label: "Gemeldet" },
+      { k: "bezahlt",  label: "Eingegangen" },
+      { k: "meine",    label: "Meine Strafen" },
+      { k: "alle",     label: "Alle" },
     ];
 
     /* --- Daten für die Diagramme ------------------------------------------ */
@@ -2439,26 +2458,27 @@
       <div class="mine-banner">
         <div class="mb-top">
           <span class="mb-label">Dein Konto · ${esc(me.name)}</span>
-          <span class="mb-state">${meineOffen > 0 ? "Du hast noch offene Strafen" : "Du bist schuldenfrei"}</span>
+          <span class="mb-state">${meineOffen > 0 ? "Du hast noch offene Strafen" : meineGemeldet > 0 ? "Zahlung gemeldet – wartet auf Bestätigung" : "Du bist schuldenfrei"}</span>
         </div>
         <div class="mb-figure">
           <span class="mb-value">${euro(meineOffen)}</span>
           <span class="mb-sub">offen · ${euro(meineGesamt)} gesamt</span>
         </div>
         ${meinZuschlag > 0 ? `<div class="mb-note">inkl. ${euro(meinZuschlag)} Mahnzuschlag</div>` : ""}
+        ${meineGemeldet > 0 ? `<div class="mb-note">${meineGemeldet} ${meineGemeldet === 1 ? "Strafe gemeldet" : "Strafen gemeldet"} · Kassenwart bestätigt den Eingang</div>` : ""}
         ${bannerCd ? `<div class="mb-countdown">
           <span class="mb-cd-label">Nächste Erhöhung in</span>
           <span class="cd" data-cd-created="${bannerCd.createdAt}" data-cd-step="${faelligeStufen({ createdAt: bannerCd.createdAt }, Date.now())}"></span>
         </div>` : ""}
         ${meineOffen > 0 ? `<div class="mb-actions">
-          <span class="mb-pay-cap">Offenen Betrag begleichen · bitte als „Freunde &amp; Familie" senden</span>
+          <span class="mb-pay-cap">Offenen Betrag senden, dann „Zahlung melden" · bitte als „Freunde &amp; Familie"</span>
           <a class="paypal-btn" href="${paypalMeLink(meineOffen)}" target="_blank" rel="noopener noreferrer" aria-label="Mit PayPal bezahlen">
             <svg class="pp-mark" viewBox="0 0 384 512" width="15" height="19" aria-hidden="true">
               <path fill="#003087" d="M111.4 295.9c-3.5 19.2-17.4 108.7-21.5 134-.3 1.8-1 2.5-3 2.5H12.3c-7.6 0-13.1-6.6-12.1-13.9L58.8 46.6c1.5-9.6 10.1-16.9 20-16.9 152.3 0 165.1-3.7 204 11.4 60.1 23.3 65.6 79.5 44 140.3-21.5 62.6-72.5 89.5-140.1 90.3-43.4 .7-69.5-7-75.3 24.2zM357.1 152c-1.8-1.3-2.5-1.8-3 1.3-2 11.4-5.1 22.5-8.8 33.6-39.9 113.8-150.5 103.9-204.5 103.9-6.1 0-10.1 3.3-10.9 9.4-22.6 140.4-27.1 169.7-27.1 169.7-1 7.1 3.5 12.9 10.6 12.9h63.5c8.6 0 15.7-6.3 17.4-14.9 .7-5.4-1.1 6.1 14.4-91.3 4.6-22 14.3-19.7 29.3-19.7 71 0 126.4-28.8 142.9-112.3 6.5-34.8 4.6-71.4-23.3-91.9z"/>
             </svg>
             <span class="pp-word"><span class="pp1">Pay</span><span class="pp2">Pal</span></span>
           </a>
-          <button class="paid-self-btn" data-paid-self>Ich habe bezahlt</button>
+          <button class="paid-self-btn" data-paid-self>Zahlung melden</button>
         </div>` : ""}
       </div>
       `}
@@ -2467,7 +2487,7 @@
         <div class="kpi is-warn">
           <div class="kpi-label">Summe offen</div>
           <div class="kpi-value kpi-amt">${euro(offenGesamt).replace(/\s/g, " ")}</div>
-          <div class="kpi-sub">${alle.filter((s)=>!s.bezahlt).length} offene Strafen</div>
+          <div class="kpi-sub">${alle.filter((s)=>s.st==="offen").length} offene Strafen</div>
         </div>
         <div class="kpi">
           <div class="kpi-label">Kontostand (Soll)</div>
@@ -2488,12 +2508,11 @@
             <div class="fine-main">
               <div class="fine-name">${esc(s.player.name)}</div>
               <div class="fine-desc">${esc(vergehenName(s))} · ${fmtDay(s.datum)}. ${fmtMon(s.datum)}${s.auto ? " · automatisch" : ""}</div>
+              ${s.st === "offen" && s.ablehnGrund ? `<div class="fine-reason">Abgelehnt: ${esc(s.ablehnGrund)}</div>` : ""}
             </div>
             <div class="fine-right">
               <div class="fine-amt">${euro(s.betrag).replace(/\s/g, " ")}</div>
-              ${!s.bezahlt
-                ? `<span class="badge badge-open">offen</span>`
-                : s.selfReported ? `<span class="badge badge-self">selbst gemeldet</span>` : `<span class="badge badge-paid">beglichen</span>`}
+              ${statusBadgeHtml(s)}
             </div>
           </div>`).join("")}
       </div>` : `<div class="empty">Keine Strafen in dieser Auswahl.</div>`}
@@ -2506,162 +2525,272 @@
      KASSE (nur Kassenwart/Admin). View-Guard ist Komfort; die echte Sperre
      ist RLS: fines/fine_catalog SCHREIBEN nur treasurer/admin.
      ========================================================================= */
-  const kasse = { players: [], mode: null, catId: "", indivBetrag: "", indivGrund: "", bezug: "" };  // mode: null | 'indiv' | 'katalog'
+  // Mehrfachauswahl: mehrere Spieler × mehrere Strafen (Katalog mit Menge + freie Einträge).
+  //   items:  { catId -> { menge } }   (Festbetrag: Menge = Anzahl; multipliziert den Betrag)
+  //   bezug:  { catId -> "n" }         (Staffel: Bezugsgröße, z. B. Minuten/Gramm)
+  //   indiv:  [ { betrag, grund } ]    (bereits hinzugefügte freie Strafen)
+  const kasse = {
+    players: [], items: {}, bezug: {}, indiv: [],
+    indivBetrag: "", indivGrund: "",
+    date: new Date().toISOString().slice(0, 10), comment: "",
+    tab: "pruefen", bezFilter: "",
+  };
 
-  // Betrag + Grund (Snapshot). Katalog hat Vorrang (catId gesetzt), sonst freier Betrag.
-  function kasseCompute() {
-    const k = katById[kasse.catId];
-    if (k) {
+  // Baut die Strafzeilen (je Zeile = eine Strafe pro gewähltem Spieler).
+  function kasseBuild() {
+    const lines = [];
+    let incomplete = false;
+    DEMO.katalog.forEach((k) => {
+      if (!kasse.items[k.id]) return;
       if (k.typ === "staffel") {
-        const n = parseFloat(String(kasse.bezug).replace(",", "."));
-        if (!isFinite(n) || n <= 0) return { valid: false, betrag: 0, grund: k.vergehen, catId: k.id };
+        const n = parseFloat(String(kasse.bezug[k.id] || "").replace(",", "."));
+        if (!isFinite(n) || n <= 0) { incomplete = true; return; }
         const step = Math.max(1, k.schritt || 1);
-        const steps = Math.ceil(n / step);
-        let betrag = steps * (k.proEinheit || 0);
+        let betrag = Math.ceil(n / step) * (k.proEinheit || 0);
         if (k.maxBetrag != null) betrag = Math.min(betrag, k.maxBetrag);
-        return { valid: true, betrag: betrag, grund: k.vergehen + " (" + n + " " + (k.einheit || "") + ")", catId: k.id };
+        lines.push({ catId: k.id, offense: k.vergehen + " (" + n + " " + (k.einheit || "") + ")", betrag: betrag });
+      } else {
+        const menge = Math.max(1, parseInt(kasse.items[k.id].menge, 10) || 1);
+        lines.push({ catId: k.id, offense: menge > 1 ? k.vergehen + " ×" + menge : k.vergehen, betrag: k.betrag * menge });
       }
-      return { valid: true, betrag: k.betrag, grund: k.vergehen, catId: k.id };
-    }
-    const b = parseFloat(String(kasse.indivBetrag).replace(",", "."));
-    return { valid: isFinite(b) && b >= 0 && kasse.indivGrund.trim().length > 0,
-             betrag: isFinite(b) ? b : 0, grund: kasse.indivGrund.trim(), catId: null };
+    });
+    kasse.indiv.forEach((e) => {
+      const b = parseFloat(String(e.betrag).replace(",", "."));
+      if (!isFinite(b) || b < 0 || !String(e.grund).trim()) return;
+      lines.push({ catId: null, offense: String(e.grund).trim(), betrag: b });
+    });
+    const nSp = kasse.players.length;
+    const proSpieler = lines.reduce((a, l) => a + l.betrag, 0);
+    return {
+      lines: lines, incomplete: incomplete,
+      valid: nSp > 0 && lines.length > 0 && !incomplete,
+      entries: nSp * lines.length, total: nSp * proSpieler, proSpieler: proSpieler,
+    };
   }
 
   function kasseSummaryHtml() {
-    const c = kasseCompute();
-    const names = kasse.players.map((id) => playerById[id] && playerById[id].name).filter(Boolean);
-    if (!names.length) return `<div class="kasse-sum-empty">Erst Spieler auswählen.</div>`;
-    if (!c.valid) return `<div class="kasse-sum-empty">${names.length} Spieler · ${kasse.catId ? "Bezugsgröße eingeben" : "Betrag und Grund eingeben"}</div>`;
-    const each = euro(c.betrag).replace(/\s/g, " ");
-    const total = euro(c.betrag * names.length).replace(/\s/g, " ");
+    const b = kasseBuild();
+    const nSp = kasse.players.length;
+    if (!nSp) return `<div class="kasse-sum-empty">Erst Spieler auswählen.</div>`;
+    if (!b.lines.length && !b.incomplete) return `<div class="kasse-sum-empty">${nSp} Spieler · Strafe(n) auswählen</div>`;
+    if (b.incomplete) return `<div class="kasse-sum-empty">${nSp} Spieler · Bezugsgröße bei gestaffelten Strafen eingeben</div>`;
     return `<div class="kasse-sum">
-        <div class="kasse-sum-row"><span>Grund</span><b>${esc(c.grund)}</b></div>
-        <div class="kasse-sum-row"><span>Spieler</span><b>${names.map(esc).join(", ")}</b></div>
-        <div class="kasse-sum-row"><span>Betrag je Spieler</span><b>${each}</b></div>
-        <div class="kasse-sum-row kasse-sum-total"><span>Gesamt (${names.length})</span><b>${total}</b></div>
+        <div class="kasse-sum-row"><span>Vorgang</span><b>${nSp} Spieler × ${b.lines.length} ${b.lines.length === 1 ? "Strafe" : "Strafen"} = ${b.entries} ${b.entries === 1 ? "Eintrag" : "Einträge"}</b></div>
+        <div class="kasse-sum-row"><span>Betrag je Spieler</span><b>${euro(b.proSpieler).replace(/\s/g, " ")}</b></div>
+        <div class="kasse-sum-row"><span>Datum</span><b>${fmtLong(kasse.date)}</b></div>
+        ${kasse.comment.trim() ? `<div class="kasse-sum-row"><span>Kommentar</span><b>${esc(kasse.comment.trim())}</b></div>` : ""}
+        <div class="kasse-sum-row kasse-sum-total"><span>Summe gesamt</span><b>${euro(b.total).replace(/\s/g, " ")}</b></div>
       </div>`;
   }
 
+  // Audit-Verlauf einer Strafe: aufklappbar, wird beim Öffnen einmalig geladen.
+  function kasseHistHtml(id) {
+    return `<div class="fine-hist"><button type="button" class="linklike" data-kasse-hist="${id}">Verlauf ▾</button>
+      <div class="fine-hist-body" id="hist-${id}" hidden></div></div>`;
+  }
+  function histLineHtml(h) {
+    const lab = (st) => (STATUS_META[st] && STATUS_META[st].label) || st || "neu";
+    const arrow = (h.from ? lab(h.from) : "angelegt") + " → " + lab(h.to);
+    const extra = [h.method ? (ZAHLART_LABEL[h.method] || h.method) : "", h.reason ? ("Grund: " + h.reason) : ""].filter(Boolean).join(" · ");
+    return `<div class="hist-line">${fmtTs(h.at)} · ${esc(arrow)}${extra ? " · " + esc(extra) : ""}</div>`;
+  }
+
+  function renderKassePruefen(list) {
+    if (!list.length) return `<div class="empty">Nichts zu prüfen.</div>`;
+    const sorted = list.slice().sort((a, b) => a.player.name.localeCompare(b.player.name));
+    return `<div class="kasse-bulk"><button class="btn btn-sm" data-kasse-confirm-all>Alle bestätigen (${list.length})</button></div>
+      <div class="fine-list">${sorted.map((s) => `
+        <div class="fine-row">
+          <span class="avatar">${initials(s.player.name)}</span>
+          <div class="fine-main">
+            <div class="fine-name">${esc(s.player.name)}</div>
+            <div class="fine-desc">${esc(vergehenName(s))} · ${fmtDay(s.datum)}. ${fmtMon(s.datum)}</div>
+            ${kasseHistHtml(s.id)}
+          </div>
+          <div class="fine-right">
+            <div class="fine-amt">${euro(s.betrag).replace(/\s/g, " ")}</div>
+            <div class="fine-actions">
+              <button class="btn btn-sm" data-kasse-confirm="${s.id}">Bestätigen</button>
+              <button class="btn btn-danger btn-sm" data-kasse-reject="${s.id}">Ablehnen</button>
+            </div>
+          </div>
+        </div>`).join("")}</div>`;
+  }
+
+  function renderKasseOffen(list) {
+    if (!list.length) return `<div class="empty">Keine offenen Posten.</div>`;
+    const sorted = list.slice().sort((a, b) => a.player.name.localeCompare(b.player.name));
+    return `<div class="fine-list">${sorted.map((s) => `
+      <div class="fine-row">
+        <span class="avatar">${initials(s.player.name)}</span>
+        <div class="fine-main">
+          <div class="fine-name">${esc(s.player.name)}</div>
+          <div class="fine-desc">${esc(vergehenName(s))} · ${fmtDay(s.datum)}. ${fmtMon(s.datum)}${s.auto ? " · automatisch" : ""}</div>
+          ${s.ablehnGrund ? `<div class="fine-reason">Abgelehnt: ${esc(s.ablehnGrund)}</div>` : ""}
+          ${kasseHistHtml(s.id)}
+        </div>
+        <div class="fine-right">
+          <div class="fine-amt">${euro(s.betrag).replace(/\s/g, " ")}</div>
+          <div class="fine-actions">
+            <select class="kasse-method" data-kasse-method="${s.id}">
+              <option value="bar">bar</option>
+              <option value="ueberweisung">Überweisung</option>
+              <option value="paypal">PayPal</option>
+            </select>
+            <button class="btn btn-sm" data-kasse-pay="${s.id}">Buchen</button>
+            ${s.auto
+              ? `<button class="btn btn-danger btn-sm" data-kasse-del="${s.id}">Entfernen</button>`
+              : `<button class="btn btn-danger btn-sm" data-kasse-cancel="${s.id}">Storno</button>`}
+          </div>
+        </div>
+      </div>`).join("")}</div>`;
+  }
+
+  function renderKasseBezahlt(list, all) {
+    if (!all.length) return `<div class="empty">Noch keine bestätigten Zahlungen.</div>`;
+    const players = [...new Set(all.map((s) => s.playerId))].map((id) => playerById[id]).filter(Boolean).sort((a, b) => a.name.localeCompare(b.name));
+    const filter = `<div class="toolbar"><select class="kasse-method kasse-bezfilter" data-kasse-bezfilter>
+        <option value="">Alle Spieler</option>
+        ${players.map((p) => `<option value="${p.id}"${kasse.bezFilter === p.id ? " selected" : ""}>${esc(p.name)}</option>`).join("")}
+      </select></div>`;
+    const body = list.length ? `<div class="fine-list">${list.map((s) => `
+      <div class="fine-row">
+        <span class="avatar">${initials(s.player.name)}</span>
+        <div class="fine-main">
+          <div class="fine-name">${esc(s.player.name)}</div>
+          <div class="fine-desc">${esc(vergehenName(s))}${s.zahlart ? " · " + (ZAHLART_LABEL[s.zahlart] || esc(s.zahlart)) : ""}${s.paidAt ? " · " + fmtTs(s.paidAt) : ""}</div>
+          ${kasseHistHtml(s.id)}
+        </div>
+        <div class="fine-right">
+          <div class="fine-amt">${euro(s.betrag).replace(/\s/g, " ")}</div>
+          <button class="btn btn-sm" data-kasse-unpay="${s.id}">Rückgängig</button>
+        </div>
+      </div>`).join("")}</div>` : `<div class="empty">Keine Treffer.</div>`;
+    return filter + body;
+  }
+
   function renderKasse() {
-    const alle = DEMO.strafen.map((s) => ({ ...s, betrag: strafeBetrag(s), bezahlt: istBezahlt(s), player: playerById[s.playerId] })).filter((s) => s.player);
-    const offen = alle.filter((s) => !s.bezahlt);
-    const offenGesamt = offen.reduce((a, s) => a + s.betrag, 0);
-    const betroffene = new Set(offen.map((s) => s.playerId)).size;
-    const autoFines = alle.filter((s) => s.auto).sort((a, b) => b.datum.localeCompare(a.datum));
-    const bezahlt = alle.filter((s) => s.bezahlt).sort((a, b) => (b.paidAt || "").localeCompare(a.paidAt || ""));
-    const c = kasseCompute();
-    const staffelK = (katById[kasse.catId] && katById[kasse.catId].typ === "staffel") ? katById[kasse.catId] : null;
+    const alle = aktiveStrafen().map((s) => ({ ...s, betrag: strafeBetrag(s), st: fineStatus(s), player: playerById[s.playerId] })).filter((s) => s.player);
+    const offen    = alle.filter((s) => s.st === "offen");
+    const gemeldet = alle.filter((s) => s.st === "gemeldet");
+    const bezahlt  = alle.filter((s) => s.st === "bestätigt").sort((a, b) => (b.paidAt || "").localeCompare(a.paidAt || ""));
+    const offenGesamt    = offen.reduce((a, s) => a + s.betrag, 0);
+    const gemeldetGesamt = gemeldet.reduce((a, s) => a + s.betrag, 0);
+    const bezahltGesamt  = bezahlt.reduce((a, s) => a + s.betrag, 0);
     const chosen = kasse.players.map((id) => playerById[id] && playerById[id].name).filter(Boolean);
+    const build = kasseBuild();
+    const bezahltGef = kasse.bezFilter ? bezahlt.filter((s) => s.playerId === kasse.bezFilter) : bezahlt;
 
     viewEl.innerHTML = `
       <div class="page-head">${navBackChevronHtml()}<h1>Kasse</h1></div>
 
-      <div class="kasse-glance">
-        <div><span class="kg-label">Offen gesamt</span><span class="kg-value">${euro(offenGesamt).replace(/\s/g, " ")}</span></div>
-        <div><span class="kg-label">Spieler mit offenen Strafen</span><span class="kg-value">${betroffene}</span></div>
+      <div class="kpi-grid kpi-3">
+        <div class="kpi is-warn">
+          <div class="kpi-label">Offen</div>
+          <div class="kpi-value kpi-amt">${euro(offenGesamt).replace(/\s/g, " ")}</div>
+          <div class="kpi-sub">${offen.length} Strafen</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Gemeldet</div>
+          <div class="kpi-value kpi-amt">${euro(gemeldetGesamt).replace(/\s/g, " ")}</div>
+          <div class="kpi-sub">${gemeldet.length} zu prüfen</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Eingegangen</div>
+          <div class="kpi-value kpi-amt">${euro(bezahltGesamt).replace(/\s/g, " ")}</div>
+          <div class="kpi-sub">Saison</div>
+        </div>
       </div>
 
-      <div class="section-title"><h2>Strafe verhängen</h2></div>
+      <div class="section-title"><h2>Strafen verhängen</h2></div>
       <div class="card card-pad kasse-add">
         <button type="button" class="kasse-picker" data-ks-open-players>
-          <span class="kasse-picker-txt">${chosen.length ? chosen.length + (chosen.length === 1 ? " Spieler" : " Spieler") + " gewählt" : "Spieler auswählen"}</span>
+          <span class="kasse-picker-txt">${chosen.length ? chosen.length + " Spieler gewählt" : "Spieler auswählen"}</span>
           <span class="kasse-picker-arrow" aria-hidden="true">›</span>
         </button>
         ${chosen.length ? `<div class="kasse-chosen">${chosen.map(esc).join(", ")}</div>` : ""}
 
-        <div class="kasse-modes">
-          <button type="button" class="kasse-mode${kasse.mode === "indiv" ? " is-on" : ""}" data-ks-mode="indiv">Individuelle Strafe</button>
-          <button type="button" class="kasse-mode${kasse.mode === "katalog" ? " is-on" : ""}" data-ks-mode="katalog">Strafe aus dem Katalog</button>
+        <div class="kasse-sub">Aus dem Katalog <span class="kasse-sub-hint">antippen zum Auswählen</span></div>
+        <div class="kat-list kasse-catlist">
+          ${DEMO.katalog.map((k) => {
+            const on = !!kasse.items[k.id];
+            const menge = (kasse.items[k.id] && kasse.items[k.id].menge) || 1;
+            const preis = k.typ === "staffel"
+              ? euro(k.proEinheit || 0).replace(/\s/g, " ") + " / " + (k.schritt || 1) + " " + esc(k.einheit || "")
+              : euro(k.betrag).replace(/\s/g, " ");
+            return `<div class="kasse-catrow${on ? " is-sel" : ""}">
+              <button type="button" class="kasse-catpick" data-kasse-catrow="${k.id}">
+                <span class="ks-check" aria-hidden="true">${on ? ICON_CHECK : ""}</span>
+                <span class="kat-name">${esc(k.vergehen)}${k.typ === "staffel" ? ` <span class="badge badge-auto">gestaffelt</span>` : ""}</span>
+                <span class="kat-amount">${preis}</span>
+              </button>
+              ${on && k.typ === "staffel" ? `<div class="kasse-bezugwrap">
+                <input class="kasse-in kasse-bezug" data-kasse-bezug="${k.id}" inputmode="decimal" placeholder="${esc(k.einheit || "Menge")}" value="${esc(kasse.bezug[k.id] || "")}">
+                ${k.maxBetrag != null ? `<span class="kasse-staffel-hint">max ${euro(k.maxBetrag).replace(/\s/g, " ")}</span>` : ""}
+              </div>` : ""}
+              ${on && k.typ !== "staffel" ? `<div class="kasse-qty">
+                <button type="button" class="qty-btn" data-kasse-qty="${k.id}" data-d="-1" aria-label="weniger">−</button>
+                <span class="qty-n">${menge}×</span>
+                <button type="button" class="qty-btn" data-kasse-qty="${k.id}" data-d="1" aria-label="mehr">+</button>
+              </div>` : ""}
+            </div>`;
+          }).join("")}
         </div>
 
-        ${kasse.mode === "indiv" ? `
+        <div class="kasse-sub">Individuelle Strafe</div>
         <div class="kasse-two">
           <input class="kasse-in" data-kasse-input="betrag" inputmode="decimal" placeholder="Betrag €" value="${esc(kasse.indivBetrag)}">
           <input class="kasse-in" data-kasse-input="grund" type="text" placeholder="Grund" value="${esc(kasse.indivGrund)}">
-        </div>` : ""}
-
-        ${kasse.mode === "katalog" ? `
-        <div class="kat-list kasse-catlist">
-          ${DEMO.katalog.map((k) => `
-            <button type="button" class="kat-item kasse-catrow${kasse.catId === k.id ? " is-sel" : ""}" data-kasse-catrow="${k.id}">
-              <span class="kat-name">${esc(k.vergehen)}${k.typ === "staffel" ? ` <span class="badge badge-auto">gestaffelt</span>` : ""}</span>
-              <span class="kat-amount">${k.typ === "staffel" ? euro(k.proEinheit || 0).replace(/\s/g, " ") + " / " + (k.schritt || 1) + " " + esc(k.einheit || "") : euro(k.betrag).replace(/\s/g, " ")}</span>
-            </button>`).join("")}
+          <button type="button" class="btn btn-sm" data-kasse-indiv-add>Hinzufügen</button>
         </div>
-        ${staffelK ? `<div class="kasse-staffel" id="kasseStaffel">
-          <input class="kasse-in" data-kasse-input="bezug" inputmode="decimal" placeholder="${esc(staffelK.einheit || "Menge")}" value="${esc(kasse.bezug)}">
-          <span class="kasse-staffel-hint">${esc((staffelK.proEinheit != null ? euro(staffelK.proEinheit).replace(/\s/g, " ") + " je " + (staffelK.schritt || 1) + " " + (staffelK.einheit || "") : "") + (staffelK.maxBetrag != null ? " · max " + euro(staffelK.maxBetrag).replace(/\s/g, " ") : ""))}</span>
-        </div>` : ""}` : ""}
+        ${kasse.indiv.length ? `<div class="ks-ichips">${kasse.indiv.map((e, i) => `
+          <span class="ks-ichip">${esc(e.grund)} · ${euro(parseFloat(String(e.betrag).replace(",", ".")) || 0).replace(/\s/g, " ")}
+            <button type="button" class="chip-x" data-kasse-indiv-del="${i}" aria-label="entfernen">×</button></span>`).join("")}</div>` : ""}
 
-        ${kasse.mode ? `
+        <div class="kasse-two">
+          <label class="kasse-datefield">Datum <input class="kasse-in" type="date" data-kasse-date value="${kasse.date}"></label>
+          <input class="kasse-in" data-kasse-input="comment" type="text" placeholder="Kommentar (optional)" value="${esc(kasse.comment)}">
+        </div>
+
         <div id="kasseSummary">${kasseSummaryHtml()}</div>
-        <button class="tv-primary kasse-save" data-kasse-add${(!kasse.players.length || !c.valid) ? " disabled" : ""}>Strafe speichern</button>` : ""}
+        <button class="tv-primary kasse-save" data-kasse-add${build.valid ? "" : " disabled"}>Strafen speichern</button>
       </div>
 
-      <div class="section-title"><h2>Automatische Strafen</h2></div>
-      ${autoFines.length ? `<div class="fine-list">${autoFines.map((s) => `
-        <div class="fine-row">
-          <span class="avatar">${initials(s.player.name)}</span>
-          <div class="fine-main">
-            <div class="fine-name">${esc(s.player.name)}</div>
-            <div class="fine-desc">${esc(vergehenName(s))} · ${fmtDay(s.datum)}. ${fmtMon(s.datum)} · ${s.bezahlt ? "beglichen" : "offen"}</div>
-          </div>
-          <div class="fine-right">
-            <div class="fine-amt">${euro(s.betrag).replace(/\s/g, " ")}</div>
-            <button class="btn btn-danger btn-sm" data-kasse-del="${s.id}">Entfernen</button>
-          </div>
-        </div>`).join("")}</div>` : `<div class="empty">Keine automatischen Strafen.</div>`}
+      <div class="section-title"><h2>Prüfen &amp; verbuchen</h2></div>
+      <div class="toolbar">
+        <button class="chip ${kasse.tab === "pruefen" ? "is-active" : ""}" data-kstab="pruefen">Zu prüfen (${gemeldet.length})</button>
+        <button class="chip ${kasse.tab === "offen" ? "is-active" : ""}" data-kstab="offen">Offen (${offen.length})</button>
+        <button class="chip ${kasse.tab === "bezahlt" ? "is-active" : ""}" data-kstab="bezahlt">Eingegangen (${bezahlt.length})</button>
+      </div>
 
-      <div class="section-title"><h2>Zahlungen verbuchen</h2></div>
-      ${offen.length ? `<div class="fine-list">${offen.slice().sort((a, b) => a.player.name.localeCompare(b.player.name)).map((s) => `
-        <div class="fine-row">
-          <span class="avatar">${initials(s.player.name)}</span>
-          <div class="fine-main">
-            <div class="fine-name">${esc(s.player.name)}</div>
-            <div class="fine-desc">${esc(vergehenName(s))}${s.auto ? " · automatisch" : ""}</div>
-          </div>
-          <div class="fine-right">
-            <div class="fine-amt">${euro(s.betrag).replace(/\s/g, " ")}</div>
-            <button class="btn btn-sm" data-kasse-pay="${s.id}">Als bezahlt</button>
-          </div>
-        </div>`).join("")}</div>` : `<div class="empty">Keine offenen Posten.</div>`}
-
-      ${bezahlt.length ? `
-      <details class="kasse-paid">
-        <summary>Zuletzt gebucht (${bezahlt.length}) · rückgängig</summary>
-        <div class="fine-list">${bezahlt.slice(0, 20).map((s) => `
-          <div class="fine-row">
-            <span class="avatar">${initials(s.player.name)}</span>
-            <div class="fine-main">
-              <div class="fine-name">${esc(s.player.name)}</div>
-              <div class="fine-desc">${esc(vergehenName(s))}${s.selfReported ? " · selbst gemeldet" : ""}</div>
-            </div>
-            <div class="fine-right">
-              <div class="fine-amt">${euro(s.betrag).replace(/\s/g, " ")}</div>
-              <button class="btn btn-sm" data-kasse-unpay="${s.id}">Rückgängig</button>
-            </div>
-          </div>`).join("")}</div>
-      </details>` : ""}
+      ${kasse.tab === "pruefen" ? renderKassePruefen(gemeldet) : ""}
+      ${kasse.tab === "offen"   ? renderKasseOffen(offen) : ""}
+      ${kasse.tab === "bezahlt" ? renderKasseBezahlt(bezahltGef, bezahlt) : ""}
     `;
     startCountdowns();
   }
 
-  // Strafe(n) verhängen: pro gewähltem Spieler ein Eintrag mit Snapshot (Grund+Betrag).
+  // Vorgang speichern: pro Spieler × Zeile ein Eintrag – alles in EINER Transaktion
+  // (gemeinsame batch_id) über die RPC create_fines_batch (all-or-none).
   async function kasseSave() {
-    const c = kasseCompute();
-    if (!kasse.players.length || !c.valid) return;
-    const today = new Date().toISOString().slice(0, 10);
-    const rows = kasse.players.map((pid) => ({ clubId: DEMO.clubId, playerId: pid, catalogId: c.catId, offense: c.grund, betrag: c.betrag, date: today }));
+    const build = kasseBuild();
+    if (!build.valid) return;
+    const rows = [];
+    kasse.players.forEach((pid) => {
+      build.lines.forEach((l) => {
+        rows.push({ playerId: pid, catalogId: l.catId, offense: l.offense, betrag: l.betrag, date: kasse.date });
+      });
+    });
     const btn = viewEl.querySelector("[data-kasse-add]"); if (btn) btn.disabled = true;
     try {
-      await DB.addFines(rows);
-      kasse.players = []; kasse.mode = null; kasse.catId = ""; kasse.indivBetrag = ""; kasse.indivGrund = ""; kasse.bezug = "";
+      await DB.createFinesBatch(rows, kasse.comment.trim() || null);
+      kasse.players = []; kasse.items = {}; kasse.bezug = {}; kasse.indiv = [];
+      kasse.indivBetrag = ""; kasse.indivGrund = ""; kasse.comment = "";
       await reloadData();                          // rendert Kasse neu (aktualisierte Listen)
-      tvToast(rows.length + (rows.length > 1 ? " Strafen" : " Strafe") + " gespeichert");
+      tvToast(rows.length + (rows.length > 1 ? " Einträge" : " Eintrag") + " gespeichert");
     } catch (e) {
       if (btn) btn.disabled = false;
-      try { console.error("Strafe verhängen fehlgeschlagen:", { code: e && e.code, message: e && e.message, details: e && e.details, hint: e && e.hint }); } catch (x) {}
+      try { console.error("Strafen anlegen fehlgeschlagen:", { code: e && e.code, message: e && e.message, details: e && e.details, hint: e && e.hint }); } catch (x) {}
       window.alert("Speichern fehlgeschlagen: " + ((e && e.message) || e) + ((e && e.hint) ? "\n(Hinweis: " + e.hint + ")" : ""));
     }
   }
@@ -2714,21 +2843,27 @@
   });
   viewEl.addEventListener("input", (ev) => {
     if (currentView !== "kasse") return;
-    const t = ev.target; if (!t.matches("[data-kasse-input]")) return;
-    const f = t.dataset.kasseInput;
-    if (f === "bezug") { kasse.bezug = t.value; }
-    else {
+    const t = ev.target;
+    // Staffel-Bezugsgröße je Katalogeintrag (ohne Re-Render -> Fokus bleibt).
+    if (t.matches("[data-kasse-bezug]")) { kasse.bezug[t.dataset.kasseBezug] = t.value; }
+    else if (t.matches("[data-kasse-input]")) {
+      const f = t.dataset.kasseInput;
       if (f === "betrag") kasse.indivBetrag = t.value;
       else if (f === "grund") kasse.indivGrund = t.value;
-      // Freier Betrag getippt -> Katalogauswahl aufheben (ohne Re-Render, damit der Fokus bleibt).
-      if (kasse.catId) {
-        kasse.catId = "";
-        viewEl.querySelectorAll(".kasse-catrow.is-sel").forEach((el) => el.classList.remove("is-sel"));
-        const st = document.getElementById("kasseStaffel"); if (st) st.remove();
-      }
-    }
+      else if (f === "comment") kasse.comment = t.value;
+    } else return;
     const sum = document.getElementById("kasseSummary"); if (sum) sum.innerHTML = kasseSummaryHtml();
-    const btn = viewEl.querySelector("[data-kasse-add]"); if (btn) { const cc = kasseCompute(); btn.disabled = !(kasse.players.length && cc.valid); }
+    const btn = viewEl.querySelector("[data-kasse-add]"); if (btn) btn.disabled = !kasseBuild().valid;
+  });
+  // Datum (change) + Spielerfilter im „Eingegangen"-Tab.
+  viewEl.addEventListener("change", (ev) => {
+    if (currentView !== "kasse") return;
+    if (ev.target.matches("[data-kasse-date]")) {
+      kasse.date = ev.target.value || new Date().toISOString().slice(0, 10);
+      const sum = document.getElementById("kasseSummary"); if (sum) sum.innerHTML = kasseSummaryHtml();
+    } else if (ev.target.matches("[data-kasse-bezfilter]")) {
+      kasse.bezFilter = ev.target.value; renderKasse();
+    }
   });
   viewEl.addEventListener("click", async (ev) => {
     // Aufstellungs-Builder zuerst (eigene Tap-/Button-Logik)
@@ -2745,26 +2880,93 @@
       }
     }
 
-    // Kasse-Interaktionen (Schreiben ist zusätzlich per RLS auf treasurer/admin beschränkt)
+    // Kasse-Interaktionen (Statuswechsel laufen über RPCs -> serverseitig erzwungen).
     if (currentView === "kasse") {
       if (ev.target.closest("[data-ks-open-players]")) { ksOpenPlayers(); return; }
-      const mbtn = ev.target.closest("[data-ks-mode]");
-      if (mbtn) {
-        const m = mbtn.dataset.ksMode;
-        kasse.mode = (kasse.mode === m) ? null : m;       // erneut antippen = zuklappen
-        if (kasse.mode !== "katalog") { kasse.catId = ""; kasse.bezug = ""; }
-        if (kasse.mode !== "indiv") { kasse.indivBetrag = ""; kasse.indivGrund = ""; }
+
+      // --- Anlage: Katalog auswählen / Menge / Individuell ---
+      const crow = ev.target.closest("[data-kasse-catrow]");
+      if (crow) {
+        const id = crow.dataset.kasseCatrow;
+        if (kasse.items[id]) { delete kasse.items[id]; delete kasse.bezug[id]; }
+        else kasse.items[id] = { menge: 1 };
         renderKasse(); return;
       }
-      const crow = ev.target.closest("[data-kasse-catrow]");
-      if (crow) { const id = crow.dataset.kasseCatrow; kasse.catId = (kasse.catId === id) ? "" : id; if (kasse.catId) { kasse.indivBetrag = ""; kasse.indivGrund = ""; kasse.bezug = ""; } renderKasse(); return; }
+      const qty = ev.target.closest("[data-kasse-qty]");
+      if (qty) {
+        const id = qty.dataset.kasseQty, d = parseInt(qty.dataset.d, 10) || 0;
+        if (kasse.items[id]) { kasse.items[id].menge = Math.max(1, (parseInt(kasse.items[id].menge, 10) || 1) + d); renderKasse(); }
+        return;
+      }
+      if (ev.target.closest("[data-kasse-indiv-add]")) {
+        const b = parseFloat(String(kasse.indivBetrag).replace(",", "."));
+        if (!isFinite(b) || b < 0 || !kasse.indivGrund.trim()) { window.alert("Bitte Betrag und Grund eingeben."); return; }
+        kasse.indiv.push({ betrag: kasse.indivBetrag, grund: kasse.indivGrund.trim() });
+        kasse.indivBetrag = ""; kasse.indivGrund = ""; renderKasse(); return;
+      }
+      const idel = ev.target.closest("[data-kasse-indiv-del]");
+      if (idel) { kasse.indiv.splice(parseInt(idel.dataset.kasseIndivDel, 10), 1); renderKasse(); return; }
       if (ev.target.closest("[data-kasse-add]")) { await kasseSave(); return; }
+
+      // --- Tabs ---
+      const tab = ev.target.closest("[data-kstab]");
+      if (tab) { kasse.tab = tab.dataset.kstab; renderKasse(); return; }
+
+      // --- Audit-Verlauf aufklappen (einmalig laden) ---
+      const hist = ev.target.closest("[data-kasse-hist]");
+      if (hist) {
+        const id = hist.dataset.kasseHist, box = document.getElementById("hist-" + id);
+        if (!box) return;
+        if (!box.hidden) { box.hidden = true; hist.textContent = "Verlauf ▾"; return; }
+        box.hidden = false; hist.textContent = "Verlauf ▴";
+        if (!box.dataset.loaded) {
+          box.innerHTML = `<div class="hist-line">lädt…</div>`;
+          try { const rows = await DB.fineHistory(id); box.dataset.loaded = "1";
+            box.innerHTML = rows.length ? rows.map(histLineHtml).join("") : `<div class="hist-line">Kein Verlauf.</div>`;
+          } catch (e) { box.innerHTML = `<div class="hist-line">Verlauf nicht ladbar.</div>`; }
+        }
+        return;
+      }
+
+      // --- Prüfen: bestätigen / ablehnen / alle bestätigen ---
+      const conf = ev.target.closest("[data-kasse-confirm]");
+      if (conf) { try { await DB.confirmFines([conf.dataset.kasseConfirm], "paypal"); await reloadData(); tvToast("Bestätigt"); } catch (e) { window.alert("Bestätigen fehlgeschlagen: " + ((e && e.message) || e)); } return; }
+      if (ev.target.closest("[data-kasse-confirm-all]")) {
+        const ids = aktiveStrafen().filter((s) => fineStatus(s) === "gemeldet").map((s) => s.id);
+        if (!ids.length) return;
+        if (!window.confirm(ids.length + " gemeldete Strafen bestätigen?")) return;
+        try { await DB.confirmFines(ids, "paypal"); await reloadData(); tvToast(ids.length + " bestätigt"); } catch (e) { window.alert("Bestätigen fehlgeschlagen: " + ((e && e.message) || e)); }
+        return;
+      }
+      const rej = ev.target.closest("[data-kasse-reject]");
+      if (rej) {
+        const grund = window.prompt("Grund der Ablehnung (der Spieler sieht ihn):");
+        if (grund == null || !grund.trim()) return;
+        try { await DB.rejectFine(rej.dataset.kasseReject, grund.trim()); await reloadData(); tvToast("Abgelehnt"); } catch (e) { window.alert("Ablehnen fehlgeschlagen: " + ((e && e.message) || e)); }
+        return;
+      }
+
+      // --- Offen: als bezahlt buchen (mit Zahlart) / stornieren / Auto entfernen ---
+      const pay = ev.target.closest("[data-kasse-pay]");
+      if (pay) {
+        const id = pay.dataset.kassePay;
+        const sel = viewEl.querySelector('[data-kasse-method="' + id + '"]');
+        const method = (sel && sel.value) || "bar";
+        try { await DB.markFinesPaid([id], method); await reloadData(); tvToast("Als bezahlt gebucht"); } catch (e) { window.alert("Buchen fehlgeschlagen: " + ((e && e.message) || e)); }
+        return;
+      }
+      const canc = ev.target.closest("[data-kasse-cancel]");
+      if (canc) {
+        if (!window.confirm("Diese Strafe stornieren? Sie zählt dann nicht mehr.")) return;
+        try { await DB.cancelFine(canc.dataset.kasseCancel); await reloadData(); tvToast("Storniert"); } catch (e) { window.alert("Stornieren fehlgeschlagen: " + ((e && e.message) || e)); }
+        return;
+      }
       const del = ev.target.closest("[data-kasse-del]");
       if (del) { if (window.confirm("Diese automatische Strafe wirklich entfernen?")) { try { await DB.deleteFine(del.dataset.kasseDel); await reloadData(); tvToast("Entfernt"); } catch (e) { window.alert("Löschen fehlgeschlagen: " + ((e && e.message) || e)); } } return; }
-      const pay = ev.target.closest("[data-kasse-pay]");
-      if (pay) { try { await DB.setFinePaid(pay.dataset.kassePay, true); await reloadData(); tvToast("Als bezahlt gebucht"); } catch (e) { window.alert("Buchen fehlgeschlagen: " + ((e && e.message) || e)); } return; }
+
+      // --- Eingegangen: Buchung rückgängig (zurück auf offen) ---
       const unpay = ev.target.closest("[data-kasse-unpay]");
-      if (unpay) { try { await DB.setFinePaid(unpay.dataset.kasseUnpay, false); await reloadData(); tvToast("Zurückgesetzt"); } catch (e) { window.alert("Rückgängig fehlgeschlagen: " + ((e && e.message) || e)); } return; }
+      if (unpay) { if (!window.confirm("Buchung rückgängig machen? Die Strafe steht wieder als offen.")) return; try { await DB.setFinePaid(unpay.dataset.kasseUnpay, false); await reloadData(); tvToast("Zurückgesetzt"); } catch (e) { window.alert("Rückgängig fehlgeschlagen: " + ((e && e.message) || e)); } return; }
     }
 
     const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-koord-save],[data-my-status],[data-logout]");
@@ -3051,11 +3253,12 @@
 
     // Selbstmeldung „Ich habe bezahlt" -> eigene offene Strafen melden
     if (t.hasAttribute("data-paid-self")) {
-      if (!window.confirm("Bestätige, dass du den offenen Betrag per PayPal gesendet hast.\n\nDeine offenen Strafen werden dann als bezahlt (selbst gemeldet) markiert.")) return;
+      if (!window.confirm("Bestätige, dass du den offenen Betrag gesendet hast.\n\nDeine offenen Strafen werden als gemeldet markiert. Der Kassenwart bestätigt den Eingang.")) return;
       t.disabled = true;
       try {
-        await DB.reportMyPayment();
+        const n = await DB.reportMyPayment();
         await reloadData();
+        tvToast((n || 0) + ((n === 1) ? " Strafe gemeldet" : " Strafen gemeldet"));
       } catch (err) {
         window.alert("Konnte die Zahlung nicht melden: " + ((err && err.message) || err));
         t.disabled = false;

@@ -665,6 +665,7 @@ tbody tr:hover { background: #fbfdfc; }
 }
 .badge-open { background: var(--red-050); color: var(--red-600); }
 .badge-paid { background: var(--green-050); color: var(--green-600); }
+.badge-cancel { background: #eceff1; color: #78909c; text-decoration: line-through; }
 
 /* Strafenkatalog als kompakte Kacheln (kein seitliches Scrollen) */
 .kat-list { display: flex; flex-direction: column; gap: 8px; }
@@ -1232,9 +1233,24 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
   min-height: 52px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff;
   cursor: pointer; text-align: center; line-height: 1.2; -webkit-tap-highlight-color: transparent; }
 .kasse-mode.is-on { background: var(--green-700); border-color: var(--green-700); color: #fff; }
-/* Katalogliste in der Kasse: exakt der Katalog-Look (kat-item), aber als antippbare Auswahl. */
-.kasse-catrow { width: 100%; text-align: left; font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+/* Katalogliste in der Kasse: Karte als Container, darin die antippbare Auswahlzeile
+   plus (nur wenn gewählt) Mengen-Stepper bzw. Staffel-Bezugsgröße. Mehrfachauswahl. */
+.kasse-catrow { display: flex; flex-direction: column; gap: 8px;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 8px 10px 8px 12px; box-shadow: var(--shadow-sm); }
 .kasse-catrow.is-sel { border-color: var(--green-600); box-shadow: 0 0 0 1px var(--green-600) inset; background: var(--green-050); }
+.kasse-catpick { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  font: inherit; background: none; border: 0; padding: 4px 2px; min-height: 44px; cursor: pointer;
+  -webkit-appearance: none; appearance: none; -webkit-tap-highlight-color: transparent; }
+.kasse-catpick .kat-name { flex: 1; }
+.kasse-catpick .ks-check { width: 22px; }
+.kasse-qty { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+.kasse-qty .qty-btn { -webkit-appearance: none; appearance: none; width: 40px; height: 40px; flex: none;
+  border: 1px solid var(--line); border-radius: 10px; background: #fff; font-size: 1.3rem; line-height: 1;
+  color: var(--ink); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.kasse-qty .qty-n { font-weight: 800; font-variant-numeric: tabular-nums; min-width: 34px; text-align: center; }
+.kasse-bezugwrap { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.kasse-bezugwrap .kasse-bezug { flex: 1; min-width: 120px; }
 /* Spielerauswahl im Vollbild-Sheet: eine Zeile je Spieler (Katalog-Look) + Häkchen. */
 .ks-prow { width: 100%; text-align: left; font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; gap: 12px; }
 .ks-prow .kat-name { flex: 1; }
@@ -1243,6 +1259,45 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 .ks-check svg { width: 22px; height: 22px; }
 .ks-done { font: inherit; font-weight: 700; color: #fff; background: var(--green-600); border: 0; border-radius: 10px;
   padding: 8px 16px; min-height: 40px; cursor: pointer; flex: none; -webkit-tap-highlight-color: transparent; }
+
+/* ===================== Kasse V2: Anlage, Prüf-/Verbuch-Tabs, Audit ===================== */
+/* Drei KPIs nebeneinander (Offen / Gemeldet / Eingegangen), auch auf schmalen iPhones. */
+.kpi-grid.kpi-3 { grid-template-columns: repeat(3, 1fr); }
+.kpi-3 .kpi { padding: 12px 10px; }
+.kpi-3 .kpi-amt { font-size: 1.05rem; }
+.kpi-3 .kpi-label { font-size: .68rem; }
+.kpi-3 .kpi-sub { font-size: .7rem; }
+
+/* Unter-Überschriften im Anlage-Block */
+.kasse-sub { font-size: .82rem; font-weight: 800; color: var(--ink); margin-top: 4px; display: flex; align-items: baseline; gap: 8px; }
+.kasse-sub-hint { font-size: .74rem; font-weight: 600; color: var(--muted); }
+.kasse-datefield { display: flex; flex-direction: column; gap: 4px; font-size: .74rem; font-weight: 700; color: var(--muted); }
+
+/* Individuell-Chips (bereits hinzugefügte freie Strafen) */
+.ks-ichips { display: flex; flex-wrap: wrap; gap: 6px; }
+.ks-ichip { display: inline-flex; align-items: center; gap: 8px; font-size: .82rem; padding: 6px 8px 6px 12px;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--green-050); color: var(--ink); }
+.ks-ichip .chip-x { -webkit-appearance: none; appearance: none; border: 0; background: none; cursor: pointer;
+  color: var(--muted); font-size: 1.1rem; line-height: 1; width: 24px; height: 24px; border-radius: 50%; }
+.ks-ichip .chip-x:hover { background: #fff; color: var(--red-600); }
+
+/* Bulk-Aktion + Zahlart-Auswahl */
+.kasse-bulk { margin-bottom: 8px; }
+.kasse-method { font: inherit; font-size: 15px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px;
+  background: #fff; min-height: 40px; -webkit-appearance: none; appearance: none; }
+.kasse-bezfilter { width: 100%; }
+
+/* Aktionsspalte in den Prüf-/Verbuch-Listen */
+.fine-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.fine-actions .kasse-method { max-width: 128px; }
+.fine-reason { font-size: .78rem; color: var(--red-600); margin-top: 2px; white-space: normal; }
+
+/* Audit-Verlauf (aufklappbar) */
+.fine-hist { margin-top: 4px; }
+.linklike { -webkit-appearance: none; appearance: none; border: 0; background: none; padding: 2px 0; cursor: pointer;
+  color: var(--green-700); font: inherit; font-size: .76rem; font-weight: 700; }
+.fine-hist-body { margin-top: 4px; display: flex; flex-direction: column; gap: 2px; }
+.hist-line { font-size: .74rem; color: var(--muted); }
 
 /* ===================== Katalog: Festbetrag / Gestaffelt ===================== */
 .kat-fixed { display: flex; align-items: center; gap: 8px; }

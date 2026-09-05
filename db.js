@@ -84,6 +84,9 @@ window.DB = (function () {
         id: s.id, playerId: s.player_id, katalogId: s.catalog_id,
         datum: s.date, bezahlt: s.paid, note: s.note,
         selfReported: s.self_reported, paidAt: s.paid_at,
+        // Statusmodell (Migration 0030): offen | gemeldet | bestätigt | storniert.
+        status: s.status || (s.paid ? (s.self_reported ? "gemeldet" : "bestätigt") : "offen"),
+        batchId: s.batch_id, zahlart: s.payment_method, ablehnGrund: s.reject_reason,
         grundbetrag: s.base_amount != null ? Number(s.base_amount) : null,
         zuschlag: Number(s.surcharge) || 0,
         zuschlagAt: s.surcharge_updated_at,
@@ -293,11 +296,75 @@ window.DB = (function () {
     if (error) throw error;
   }
 
-  // Spieler meldet seine eigene Zahlung (setzt eigene offene Strafen auf bezahlt).
+  // Spieler meldet seine eigene Zahlung: setzt eigene OFFENE Strafen auf
+  // 'gemeldet' (Migration 0030). Der Kassenwart bestätigt anschließend.
   async function reportMyPayment() {
     const { data, error } = await client.rpc("report_my_payment");
     if (error) throw error;
     return data; // Anzahl betroffener Strafen
+  }
+
+  /* ---- Strafen-Workflow über RPCs (serverseitig per Rolle/Übergang erzwungen) ----
+     Alle Statuswechsel laufen ausschließlich über diese SECURITY-DEFINER-Funktionen
+     (Migration 0030). Direktes Schreiben auf fines wird später per RLS gesperrt. */
+
+  // Mehrere Strafen in EINER Transaktion anlegen (gemeinsame batch_id = Vorgang).
+  // rows: [{ playerId, catalogId|null, offense, betrag, date?, note? }]
+  async function createFinesBatch(rows, note) {
+    const payload = (rows || []).map((r) => ({
+      player_id: r.playerId,
+      catalog_id: r.catalogId || null,
+      offense: r.offense,
+      base_amount: Number(r.betrag),
+      date: r.date || null,
+      note: r.note || null,
+    }));
+    const { data, error } = await client.rpc("create_fines_batch", { p_rows: payload, p_note: note || null });
+    if (error) throw error;
+    return data; // batch_id (uuid)
+  }
+
+  // Gemeldete/offene Strafen bestätigen (-> bestätigt), optional mit Zahlart.
+  async function confirmFines(ids, method) {
+    const { data, error } = await client.rpc("confirm_fines", { p_ids: ids, p_method: method || null });
+    if (error) throw error;
+    return data; // Anzahl
+  }
+
+  // Offene/gemeldete Strafen als bezahlt buchen (Pflicht-Zahlart: bar|Überweisung|PayPal).
+  async function markFinesPaid(ids, method) {
+    const { data, error } = await client.rpc("mark_fines_paid", { p_ids: ids, p_method: method });
+    if (error) throw error;
+    return data; // Anzahl
+  }
+
+  // Gemeldete Strafe ablehnen (-> offen) mit Pflichtgrund (der Spieler sieht ihn).
+  async function rejectFine(id, reason) {
+    const { error } = await client.rpc("reject_fine", { p_id: id, p_reason: reason });
+    if (error) throw error;
+  }
+
+  // Kompletten Vorgang stornieren (Fehlbuchung) bzw. einzelne Strafe stornieren.
+  async function cancelBatch(batchId) {
+    const { data, error } = await client.rpc("cancel_batch", { p_batch: batchId });
+    if (error) throw error;
+    return data; // Anzahl
+  }
+  async function cancelFine(id) {
+    const { error } = await client.rpc("cancel_fine", { p_id: id });
+    if (error) throw error;
+  }
+
+  // Audit-Verlauf einer Strafe (wer/wann/von→nach/Zahlart/Grund).
+  async function fineHistory(fineId) {
+    const { data, error } = await client
+      .from("fine_status_log").select("*")
+      .eq("fine_id", fineId).order("changed_at", { ascending: true });
+    if (error) throw error;
+    return (data || []).map((r) => ({
+      from: r.from_status, to: r.to_status, method: r.method,
+      reason: r.reason, by: r.changed_by, at: r.changed_at,
+    }));
   }
 
   /* ---- Authentifizierung & Profil ---------------------------------------- */
@@ -415,5 +482,6 @@ window.DB = (function () {
     getSession, signIn, signUp, signOut, loadProfile, setMyPlayer, setPlayerStatus,
     resetPassword, updatePassword, onPasswordRecovery, myRoles,
     listMembers, grantRole, revokeRole, reportMyPayment,
+    createFinesBatch, confirmFines, markFinesPaid, rejectFine, cancelBatch, cancelFine, fineHistory,
   };
 })();
