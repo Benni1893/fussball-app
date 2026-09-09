@@ -1,0 +1,90 @@
+<!-- @dsCard group="Bausteine" -->
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Formular</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
+  body { padding: 0; min-height: 0; }
+  .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+  .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
+  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; }
+</style>
+</head>
+<body>
+<div class="sp">
+
+  <div>
+    <div class="sp-h">Termin anlegen</div>
+    <div class="card card-pad">
+      <form class="termin-form" onsubmit="return false">
+        <label class="tf-row">
+          <span>Art</span>
+          <select>
+            <option>Spiel</option>
+            <option selected>Training</option>
+            <option>Sonstiges</option>
+          </select>
+        </label>
+
+        <label class="tf-row">
+          <span>Titel</span>
+          <input type="text" value="Abschlusstraining">
+        </label>
+
+        <div class="tf-2col">
+          <label class="tf-row">
+            <span>Beginn</span>
+            <input type="date" value="2026-09-17">
+          </label>
+          <label class="tf-row">
+            <span>Uhrzeit</span>
+            <input type="time" value="19:30">
+          </label>
+        </div>
+
+        <label class="tf-row">
+          <span>Ort</span>
+          <input type="text" value="Kunstrasen 2">
+        </label>
+
+        <fieldset class="tf-wdh">
+          <legend>Wiederholung</legend>
+          <label class="tf-radio"><input type="radio" name="wdh" checked> einmalig</label>
+          <label class="tf-radio"><input type="radio" name="wdh"> wöchentlich</label>
+          <label class="tf-row tf-bis">
+            <span>bis</span>
+            <input type="date" value="2026-12-17">
+          </label>
+        </fieldset>
+
+        <label class="tf-row">
+          <span>Hinweis an die Mannschaft</span>
+          <textarea>Bitte Stutzen und Schienbeinschoner mitbringen.</textarea>
+        </label>
+
+        <div class="tf-summary">Legt 1 Termin an — Mi, 17.09. um 19:30 Uhr.</div>
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary" type="submit">Termin speichern</button>
+          <button class="btn" type="button">Abbrechen</button>
+        </div>
+      </form>
+    </div>
+    <div class="meta">.termin-form &gt; .tf-row (Label + Feld) · .tf-2col · .tf-wdh mit .tf-radio · .tf-summary</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Zwei Regeln, die hier nicht verhandelbar sind</div>
+    <div class="card card-pad">
+      <p style="margin:0 0 8px"><b>16px Schriftgröße in jedem Eingabefeld.</b> Darunter zoomt iOS beim Fokus in die Seite hinein und kommt nicht sauber zurück.</p>
+      <p style="margin:0"><b>44px Mindesthöhe für alles Antippbare.</b> Die App wird am Spielfeldrand bedient, oft im Stehen und mit kalten Fingern.</p>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

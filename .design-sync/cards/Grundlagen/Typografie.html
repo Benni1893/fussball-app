@@ -1,0 +1,77 @@
+<!-- @dsCard group="Grundlagen" -->
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Typografie</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
+  body { padding: 0; min-height: 0; }
+  .sp { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+  .row { display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: baseline;
+         padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+  .row:last-child { border-bottom: 0; }
+  .meta { font-size: .68rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; text-align: right; white-space: nowrap; }
+  .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="sp">
+
+  <div class="sp-h">Inter · 400 – 800 · Grundgröße 15px / 1,5</div>
+
+  <div class="row">
+    <div class="page-head" style="margin:0"><h1>Übersicht</h1></div>
+    <div class="meta">.page-head h1<br>1.4rem · 800</div>
+  </div>
+
+  <div class="row">
+    <div class="section-title" style="margin:0"><h2>Nächste Termine</h2></div>
+    <div class="meta">.section-title h2<br>1.1rem · 700</div>
+  </div>
+
+  <div class="row">
+    <div>Fließtext der App. Alles, was nicht ausgezeichnet ist, sitzt auf dieser Größe — ruhig, gut lesbar auf dem Platz.</div>
+    <div class="meta">body<br>15px · 1,5</div>
+  </div>
+
+  <div class="row">
+    <div class="page-head" style="margin:0"><p>Begleittext unter einer Überschrift.</p></div>
+    <div class="meta">.page-head p<br>--muted</div>
+  </div>
+
+  <div class="row">
+    <div class="kpi-label">Offener Betrag</div>
+    <div class="meta">.kpi-label · thead th<br>.74rem · 700 · Versalien</div>
+  </div>
+
+  <div class="row">
+    <div class="kpi-value">128,50 €</div>
+    <div class="meta">.kpi-value<br>1.6rem · 800 · --green-800</div>
+  </div>
+
+  <div class="row">
+    <div class="kpi-sub">3 offene Strafen</div>
+    <div class="meta">.kpi-sub<br>.82rem · --muted</div>
+  </div>
+
+  <div class="row">
+    <div class="event-main"><div class="e-title"><span class="team-own">FC Fasanerie-Nord</span> <span class="vs">–</span> <span class="team-opp">SV Lohhof</span></div><div class="e-time">15:00 Uhr</div></div>
+    <div class="meta">.e-title / .e-time<br>700 · --fs-event-time</div>
+  </div>
+
+  <div class="row">
+    <div><span class="tag tag-spiel">Spiel</span> <span class="badge badge-paid">bezahlt</span></div>
+    <div class="meta">.tag .68rem · .badge .72rem<br>beide 700</div>
+  </div>
+
+  <div class="row">
+    <div class="amount">24,00 €</div>
+    <div class="meta">.amount / .num<br>tabular-nums · 700</div>
+  </div>
+
+</div>
+</body>
+</html>

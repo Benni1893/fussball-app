@@ -1,0 +1,59 @@
+<!-- @dsCard group="App-Rahmen" -->
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anmeldung</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
+  body { padding: 0; min-height: 0; }
+  .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+  .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
+  .sp .auth-wrap { min-height: 0; padding: 0; }
+  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; }
+</style>
+</head>
+<body>
+<div class="sp">
+
+  <div>
+    <div class="sp-h">Erster Bildschirm — ohne Navigation, ohne Fußzeile</div>
+    <div class="auth-wrap">
+      <form class="auth-card" onsubmit="return false">
+        <div class="auth-crest"><img src="../../../assets/icon-192.png" alt="FC Fasanerie-Nord"></div>
+        <h1 class="auth-title">Willkommen zurück</h1>
+        <p class="auth-sub">Mannschafts-App des FC Fasanerie-Nord</p>
+
+        <label class="auth-field">
+          <span>E-Mail</span>
+          <input type="email" value="michael.bauer@example.de">
+        </label>
+        <label class="auth-field">
+          <span>Passwort</span>
+          <input type="password" value="geheimespasswort">
+        </label>
+
+        <button class="auth-submit" type="submit">Anmelden</button>
+        <button class="link-btn auth-forgot" type="button">Passwort vergessen?</button>
+        <div class="auth-switch">Noch kein Zugang? <button class="link-btn" type="button">Registrieren</button></div>
+      </form>
+    </div>
+    <div class="meta">.auth-wrap &gt; .auth-card mit .auth-crest / .auth-title / .auth-sub / .auth-field / .auth-submit / .auth-switch</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Rückmeldung im selben Kasten</div>
+    <div class="auth-wrap">
+      <div class="auth-card">
+        <div class="auth-error">E-Mail oder Passwort stimmt nicht.</div>
+        <div class="auth-info">Wir haben dir eine E-Mail zum Zurücksetzen geschickt.</div>
+      </div>
+    </div>
+    <div class="meta">body.auth-mode blendet .app-nav und .app-footer aus, solange niemand angemeldet ist</div>
+  </div>
+
+</div>
+</body>
+</html>

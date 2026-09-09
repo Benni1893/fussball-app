@@ -1,0 +1,76 @@
+<!-- @dsCard group="Grundlagen" -->
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flächen und Schatten</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
+  body { padding: 0; min-height: 0; }
+  .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+  .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
+  .duo { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="sp">
+
+  <div>
+    <div class="sp-h">Karte — der Grundbaustein jeder Fläche</div>
+    <div class="duo">
+      <div>
+        <div class="card card-pad">
+          <b>.card .card-pad</b>
+          <div class="kpi-sub">Weiß auf --bg, 1px --line, --radius 14px, --shadow.</div>
+        </div>
+        <div class="meta">--shadow · Listen, Panels, Formulare</div>
+      </div>
+      <div>
+        <div class="kpi">
+          <div class="kpi-label">Mit Kantenstreifen</div>
+          <div class="kpi-value">7</div>
+          <div class="kpi-sub">.kpi trägt links 4px Gold</div>
+        </div>
+        <div class="meta">--shadow-sm · flacher, für Kacheln und Zeilen</div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="sp-h">Radien</div>
+    <div class="duo">
+      <div>
+        <div class="card" style="height:56px"></div>
+        <div class="meta">--radius 14px — Karten, Kacheln, Tabellenrahmen</div>
+      </div>
+      <div>
+        <div class="card" style="height:56px;border-radius:10px"></div>
+        <div class="meta">10px — Eingabefelder, Datumsblock, Hinweise</div>
+      </div>
+      <div>
+        <div class="card" style="height:56px;border-radius:999px"></div>
+        <div class="meta">999px — .tag, .badge, .cd, .chip</div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="sp-h">Grundflächen</div>
+    <div class="duo">
+      <div>
+        <div style="height:56px;border-radius:var(--radius);background:var(--bg);border:1px solid var(--line)"></div>
+        <div class="meta">--bg — Inhaltsfläche hinter allem</div>
+      </div>
+      <div>
+        <div style="height:56px;border-radius:var(--radius);background:linear-gradient(120deg, var(--green-900), var(--green-700))"></div>
+        <div class="meta">Kopfzeile — Verlauf green-900 → green-700</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
