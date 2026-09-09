@@ -1,0 +1,73 @@
+<!-- @dsCard group="App-Rahmen" -->
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Navigation</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System.
+     transform: translateZ(0) haelt die fixierten Leisten im Kasten. */
+  body { padding: 0; min-height: 0; }
+  .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+  .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
+  .frame { position: relative; transform: translateZ(0); border-radius: 14px; overflow: hidden;
+           border: 1px solid var(--line); background: var(--bg); }
+  .f-nav { height: 74px; }
+  .f-sheet { height: 300px; }
+  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; }
+</style>
+</head>
+<body>
+<div class="sp">
+
+  <div>
+    <div class="sp-h">Untere Leiste — vier Ziele, Daumen erreicht alle</div>
+    <div class="frame f-nav">
+      <nav class="app-nav">
+        <button class="nav-btn is-active" data-view="dashboard">
+          <svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h5v-6h4v6h5V9.5"/></svg>
+          <span class="nav-label">Übersicht</span>
+        </button>
+        <button class="nav-btn" data-view="kalender">
+          <svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>
+          <span class="nav-label">Kalender</span>
+        </button>
+        <button class="nav-btn" data-view="katalog">
+          <svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h14v16H7a2 2 0 0 1-2-2z"/><path d="M5 18a2 2 0 0 1 2-2h12"/><path d="M9 8h6M9 11h4"/></svg>
+          <span class="nav-label">Katalog</span>
+        </button>
+        <button class="nav-btn" data-view="strafen">
+          <svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><path d="M15.5 14.5h2.5"/></svg>
+          <span class="nav-label">Konto</span>
+        </button>
+        <button class="nav-btn" data-more>
+          <svg class="nav-ic" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+          <span class="nav-label">Mehr</span>
+        </button>
+      </nav>
+    </div>
+    <div class="meta">.app-nav &gt; .nav-btn — .is-active färbt grün und setzt den kurzen Balken oben an; „Mehr“ erscheint nur für Trainer und Admin</div>
+  </div>
+
+  <div>
+    <div class="sp-h">„Mehr“ — Bottom-Sheet über der Leiste</div>
+    <div class="frame f-sheet">
+      <div class="more-sheet">
+        <div class="more-backdrop"></div>
+        <div class="more-panel">
+          <div class="more-title">Trainer</div>
+          <button class="more-item">Termin anlegen</button>
+          <button class="more-item">Aufstellung</button>
+          <button class="more-item">Kasse</button>
+          <button class="more-item">Spielplan (BFV)</button>
+        </div>
+      </div>
+    </div>
+    <div class="meta">.more-sheet &gt; .more-backdrop + .more-panel &gt; .more-title / .more-item — geschlossen trägt das Sheet <code>hidden</code></div>
+  </div>
+
+</div>
+</body>
+</html>

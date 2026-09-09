@@ -29,3 +29,6 @@ preview/
 
 .vercel
 .env*
+
+# design-sync: Bauergebnis, wird aus .design-sync/ neu erzeugt
+ds-bundle/

@@ -1,0 +1,68 @@
+<!-- @dsCard group="Bausteine" -->
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KPI-Kacheln</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
+  body { padding: 0; min-height: 0; }
+  .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+  .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
+  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; }
+</style>
+</head>
+<body>
+<div class="sp">
+
+  <div>
+    <div class="sp-h">Kennzahlen der Übersicht</div>
+    <div class="kpi-grid" style="margin:0">
+      <div class="kpi">
+        <div class="kpi-label">Nächster Termin</div>
+        <div class="kpi-value">Sa</div>
+        <div class="kpi-sub">14.09. · 15:00 Uhr</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Zusagen</div>
+        <div class="kpi-value">14</div>
+        <div class="kpi-sub">von 22 im Kader</div>
+      </div>
+      <div class="kpi is-warn">
+        <div class="kpi-label">Offener Betrag</div>
+        <div class="kpi-value">128,50 €</div>
+        <div class="kpi-sub">3 offene Strafen</div>
+      </div>
+    </div>
+    <div class="meta">.kpi-grid &gt; .kpi — goldener 4px-Streifen links; .is-warn färbt Streifen und Wert rot</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Antippbar — führt in die Detailansicht</div>
+    <div class="kpi-grid" style="margin:0">
+      <button class="kpi kpi-tap" type="button">
+        <span class="kpi-body">
+          <span class="kpi-label" style="display:block">Dein Konto</span>
+          <span class="kpi-value kpi-amt" style="display:block">128,50 €</span>
+          <span class="kpi-sub" style="display:block">3 offene Strafen</span>
+        </span>
+        <span class="kpi-go">›</span>
+      </button>
+    </div>
+    <div class="meta">.kpi.kpi-tap — Inhalt in .kpi-body, Pfeil in .kpi-go; .kpi-amt hält vierstellige Beträge schmal</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Rücksprung aus der Zielansicht</div>
+    <div class="page-head">
+      <button class="pg-back" type="button" aria-label="Zurück">‹</button>
+      <h1>Dein Konto</h1>
+    </div>
+    <div class="meta">.page-head mit .pg-back — nur nach einem Kachel-Sprung sichtbar</div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,4 @@
+# Die design-sync-Skripte laufen unter bash. Mit CRLF-Zeilenenden bricht bash
+# ab ("$'\r': command not found"), deshalb hier fest auf LF - unabhaengig von
+# core.autocrlf auf dem jeweiligen Rechner.
+.design-sync/*.sh text eol=lf

@@ -1,0 +1,13 @@
+{
+  "projectId": "7e48a82b-b7ba-40ea-9e6b-30040a24c0d8",
+  "projectName": "FC Fasanerie-Nord App",
+  "shape": "off-script",
+  "readmeHeader": ".design-sync/conventions.md",
+  "note": "Kein Komponenten-Repo: reine Vanilla-JS/CSS-PWA ohne package.json, Build oder React. Der design-sync-Konverter ist hier nicht anwendbar; das Bundle wird deterministisch aus styles.css erzeugt (siehe .design-sync/build.sh und NOTES.md).",
+  "source": {
+    "stylesheet": "styles.css",
+    "tokenBlockLines": "5-40",
+    "shellMarkup": "index.html",
+    "outDir": "ds-bundle"
+  }
+}

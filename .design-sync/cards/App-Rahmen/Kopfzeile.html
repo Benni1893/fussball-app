@@ -1,0 +1,54 @@
+<!-- @dsCard group="App-Rahmen" -->
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kopfzeile</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System.
+     Das transform erzeugt einen Bezugsrahmen, damit die fixierte Kopfzeile
+     im Kasten bleibt statt am Kartenrand zu kleben. */
+  body { padding: 0; min-height: 0; }
+  .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+  .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
+  .frame { position: relative; transform: translateZ(0); height: 190px; border-radius: 14px;
+           overflow: hidden; border: 1px solid var(--line); background: var(--bg); }
+  .frame .view { padding-top: 74px; }
+  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; }
+</style>
+</head>
+<body>
+<div class="sp">
+
+  <div>
+    <div class="sp-h">Fest oben — Wappen links, Name mittig, Zahnrad rechts</div>
+    <div class="frame">
+      <header class="app-header">
+        <span class="hdr-logo">
+          <img src="../../../assets/logo.png" class="crest-logo" alt="FC Fasanerie-Nord">
+        </span>
+        <span class="hdr-title">FC Fasanerie-Nord</span>
+        <button class="hdr-gear" type="button" aria-label="Einstellungen öffnen">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span class="hdr-gear-dot"></span>
+        </button>
+      </header>
+      <main class="view">
+        <div class="page-head"><h1>Übersicht</h1><p>Alles Wichtige für die nächsten Wochen.</p></div>
+      </main>
+    </div>
+    <div class="meta">.app-header — position:fixed, Verlauf green-900 → green-700, Safe-Area oben eingerechnet</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Der Punkt am Zahnrad</div>
+    <div class="card card-pad">
+      <p style="margin:0">.hdr-gear-dot ist goldig und meldet, dass in den Einstellungen etwas auf den Trainer wartet. Ohne Anlass trägt der Punkt <code>hidden</code> — dann ist er weg, nicht bloß blass.</p>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
