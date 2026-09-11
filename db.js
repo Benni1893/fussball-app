@@ -158,6 +158,9 @@ window.DB = (function () {
     return {
       offense: offense,
       amount: staffel ? 0 : amount,
+      // Spalte gibt es seit 0001, wurde bisher nur nie geschrieben. Leer -> NULL,
+      // damit Eintraege ohne Kategorie keine leere Unterzeile erzeugen.
+      category: (opts.kategorie && String(opts.kategorie).trim()) || null,
       fine_type: staffel ? "staffel" : "fixed",
       unit_label:  staffel ? (opts.einheit || null) : null,
       unit_amount: staffel ? Number(opts.proEinheit) : null,
@@ -172,10 +175,11 @@ window.DB = (function () {
   }
   async function insertCatalog(clubId, offense, amount, opts) {
     opts = opts || {};
-    const base = { club_id: clubId, code: "u" + Date.now().toString(36), category: null };
+    const base = { club_id: clubId, code: "u" + Date.now().toString(36) };
+    const kat = (opts.kategorie && String(opts.kategorie).trim()) || null;
     let { data, error } = await client.from("fine_catalog").insert(Object.assign({}, base, catalogCols(offense, amount, opts))).select().single();
     if (error && opts.typ !== "staffel" && isMissingStaffelCol(error)) {
-      ({ data, error } = await client.from("fine_catalog").insert(Object.assign({}, base, { offense, amount })).select().single());
+      ({ data, error } = await client.from("fine_catalog").insert(Object.assign({}, base, { offense, amount, category: kat })).select().single());
     }
     if (error) throw error;
     return data;
@@ -184,7 +188,7 @@ window.DB = (function () {
     opts = opts || {};
     let { error } = await client.from("fine_catalog").update(catalogCols(offense, amount, opts)).eq("id", id);
     if (error && opts.typ !== "staffel" && isMissingStaffelCol(error)) {
-      ({ error } = await client.from("fine_catalog").update({ offense: offense, amount: amount }).eq("id", id));
+      ({ error } = await client.from("fine_catalog").update({ offense: offense, amount: amount, category: (opts.kategorie && String(opts.kategorie).trim()) || null }).eq("id", id));
     }
     if (error) throw error;
   }

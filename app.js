@@ -422,9 +422,11 @@
 
     const offene = DEMO.strafen.filter((s) => fineStatus(s) === "offen");
     const offeneGesamt = offene.reduce((sum, s) => sum + strafeBetrag(s), 0);
-    const meineOffen = summeOffenSpieler(me.id);
 
     const naechsteSpiele = naechste.filter((e) => e.typ === "spiel").length;
+    // Bei verknuepftem Konto traegt der gemeinsame Kontoblock den Betrag – dann
+    // entfaellt die Zeile „Meine offenen Strafen", sonst stuende er doppelt.
+    const kontoVerknuepft = !!(currentProfile && currentProfile.player_id && me);
 
 
     viewEl.innerHTML = `
@@ -433,6 +435,8 @@
       </div>
 
       ${terminHeroHtml(naechstes)}
+
+      ${kontoVerknuepft ? kontoBlockHtml() : ""}
 
       <div class="kpi-rows">
         <div class="kpi-row kpi-tap" data-nav="spiele" role="button" tabindex="0">
@@ -443,14 +447,13 @@
           <span class="kpi-value">${naechsteSpiele}</span>
           <span class="kpi-go" aria-hidden="true">${"›"}</span>
         </div>
-        <div class="kpi-row kpi-tap ${meineOffen > 0 ? "is-warn" : ""}" data-nav="meine-strafen" role="button" tabindex="0">
+        ${kontoVerknuepft ? "" : `<div class="kpi-row kpi-tap" data-nav="meine-strafen" role="button" tabindex="0">
           <div class="kpi-body">
             <div class="kpi-label">Meine offenen Strafen</div>
-            <div class="kpi-sub">${meineOffen > 0 ? "bitte begleichen" : "alles bezahlt – top!"}</div>
+            <div class="kpi-sub">Konto noch keinem Spieler zugeordnet</div>
           </div>
-          <span class="kpi-value kpi-amt">${euro(meineOffen).replace(/\s/g, " ")}</span>
           <span class="kpi-go" aria-hidden="true">${"›"}</span>
-        </div>
+        </div>`}
         <div class="kpi-row kpi-tap" data-nav="kasse" role="button" tabindex="0">
           <div class="kpi-body">
             <div class="kpi-label">Mannschaftskasse offen</div>
@@ -2490,7 +2493,10 @@
       ? `${euro(k.proEinheit || 0).replace(/\s/g, " ")} / ${k.schritt || 1} ${esc(k.einheit || "")}${k.maxBetrag != null ? " · max " + euro(k.maxBetrag).replace(/\s/g, " ") : ""}`
       : euro(k.betrag).replace(/\s/g, " ");
     return `<div class="kat-item">
-      <span class="kat-name">${esc(k.vergehen)}${k.typ === "staffel" ? ` <span class="badge badge-auto">gestaffelt</span>` : ""}</span>
+      <span class="kat-main">
+        <span class="kat-name">${esc(k.vergehen)}${k.typ === "staffel" ? ` <span class="badge badge-auto">gestaffelt</span>` : ""}</span>
+        ${k.kategorie ? `<span class="kat-kat">${esc(k.kategorie)}</span>` : ""}
+      </span>
       <span class="kat-amount">${amt}</span>
       ${canEdit ? `<div class="kat-actions">
         <button class="icon-btn" data-kat-edit="${k.id}" aria-label="Bearbeiten">${ICON_EDIT}</button>
@@ -2504,6 +2510,7 @@
     const nm = (n) => (n == null ? "" : String(n).replace(".", ","));
     return `<div class="kat-item kat-edit${isStaffel ? " is-staffel" : ""}">
       <input class="kat-in kat-in-name" data-kat-input="name" type="text" placeholder="Bezeichnung" value="${esc(k ? k.vergehen : "")}">
+      <input class="kat-in" data-kat-input="kategorie" type="text" placeholder="Kategorie (optional, z. B. Pünktlichkeit)" value="${esc(k ? (k.kategorie || "") : "")}">
       <select class="kat-in kat-type" data-kat-type>
         <option value="fixed"${!isStaffel ? " selected" : ""}>Festbetrag</option>
         <option value="staffel"${isStaffel ? " selected" : ""}>Gestaffelt</option>
@@ -2527,7 +2534,8 @@
   function renderKatalog() {
     const canEdit = Roles.canEditCatalog();
     viewEl.innerHTML = `
-      <div class="page-head"><h1>Strafenkatalog</h1></div>
+      <div class="page-head"><h1>Strafenkatalog</h1>
+        <p>Beträge gelten für die ganze Mannschaft. Änderungen wirken ab sofort.</p></div>
       <div class="kat-list">
         ${DEMO.katalog.map((k) => katEdit === k.id
           ? katRowEdit(k)
@@ -2543,77 +2551,36 @@
   /* ---------- Strafen-Konto ------------------------------------------------- */
   let strafenFilter = "offen"; // offen | bezahlt | alle | meine
 
-  function renderStrafen() {
+  /* Kontoblock „Dein Konto" – gemeinsam von der Konto-Ansicht und der Übersicht
+     genutzt. Rechnet sich selbst aus den geladenen Strafen aus, damit beide Orte
+     zwingend dieselbe Zahl zeigen und nicht auseinanderlaufen koennen. */
+  function kontoBlockHtml() {
     const me = playerById[state.currentPlayerId];
-    // Ist das eingeloggte Konto wirklich mit einem Spieler verknüpft?
-    // Nur dann zeigen wir „Dein Konto" + die Bezahl-/Selbstmeldungs-Buttons –
-    // sonst würde ein Fallback-Spieler fälschlich als „du" erscheinen.
     const linked = !!(currentProfile && currentProfile.player_id && me);
-    // „Als bezahlt" nur für Kassenwart/Admin (UI-Komfort; echte Sperre = RLS)
-    const canPay = Roles.canManageFines();
-
-    const alle = aktiveStrafen().map((s) => ({
-      ...s,
-      betrag: strafeBetrag(s),
-      bezahlt: istBezahlt(s),
-      st: fineStatus(s),
-      player: playerById[s.playerId],
-      kat: katById[s.katalogId],
-    }));
-
-    const offenGesamt   = alle.filter((s) => s.st === "offen").reduce((a, s) => a + s.betrag, 0);
-    const bezahltGesamt = alle.filter((s) => s.st === "bestätigt").reduce((a, s) => a + s.betrag, 0);
-    const meineOffen    = linked ? summeOffenSpieler(me.id) : 0;
-    const meineGemeldet = linked ? alle.filter((s) => s.playerId === me.id && s.st === "gemeldet").length : 0;
-    const meineGesamt   = linked ? alle.filter((s) => s.playerId === me.id).reduce((a, s) => a + s.betrag, 0) : 0;
-    const meinZuschlag  = linked ? alle.filter((s) => s.playerId === me.id && s.st === "offen").reduce((a, s) => a + zuschlagBetrag(s), 0) : 0;
-
-    // Für den Banner: meine offene Strafe mit der KÜRZESTEN Restzeit (nicht gedeckelt).
-    let bannerCd = null;
-    if (linked) {
-      const jetzt = Date.now();
-      alle.filter((s) => s.playerId === me.id && s.st === "offen").forEach((s) => {
-        const info = mahnCountdown(s, jetzt);
-        if (info.capped) return;
-        if (bannerCd === null || info.remMs < bannerCd.remMs) {
-          bannerCd = { remMs: info.remMs, createdAt: s.createdAt };
-        }
-      });
-    }
-
-    let gefiltert = alle;
-    if (strafenFilter === "offen")    gefiltert = alle.filter((s) => s.st === "offen");
-    if (strafenFilter === "gemeldet") gefiltert = alle.filter((s) => s.st === "gemeldet");
-    if (strafenFilter === "bezahlt")  gefiltert = alle.filter((s) => s.st === "bestätigt");
-    if (strafenFilter === "meine")    gefiltert = linked ? alle.filter((s) => s.playerId === me.id) : [];
-    const stRank = { offen: 0, gemeldet: 1, "bestätigt": 2 };
-    gefiltert.sort((a, b) => (stRank[a.st] - stRank[b.st]) || b.datum.localeCompare(a.datum));
-
-    const filters = [
-      { k: "offen",    label: "Offen" },
-      { k: "gemeldet", label: "Gemeldet" },
-      { k: "bezahlt",  label: "Eingegangen" },
-      { k: "meine",    label: "Meine Strafen" },
-      { k: "alle",     label: "Alle" },
-    ];
-
-    /* --- Daten für die Diagramme ------------------------------------------ */
-    // Diagramme entfernt (Entscheidung): Konto zeigt nur Kontostand, Summe offen und die Liste.
-    viewEl.innerHTML = `
-      <div class="page-head">
-        ${navBackChevronHtml()}<h1>Strafen-Konto</h1>
-      </div>
-
-      ${!linked ? `
-      <div class="mine-banner">
+    if (!linked) {
+      return `<div class="mine-banner">
         <div class="mb-top">
           <span class="mb-label">Dein Konto</span>
           <span class="mb-state">Noch keinem Spieler zugeordnet</span>
         </div>
         <div class="mb-note">Bitte einen Trainer/Admin um die Zuordnung – danach siehst du hier deine Strafen.</div>
-      </div>
-      ` : `
-      <div class="mine-banner">
+      </div>`;
+    }
+    const meine = aktiveStrafen().filter((s) => s.playerId === me.id);
+    const meineOffen    = summeOffenSpieler(me.id);
+    const meineGesamt   = meine.reduce((a, s) => a + strafeBetrag(s), 0);
+    const meineGemeldet = meine.filter((s) => fineStatus(s) === "gemeldet").length;
+    const meinZuschlag  = meine.filter((s) => fineStatus(s) === "offen").reduce((a, s) => a + zuschlagBetrag(s), 0);
+    // Offene Strafe mit der kuerzesten Restzeit (nicht gedeckelt) treibt den Countdown.
+    let bannerCd = null;
+    const jetzt = Date.now();
+    meine.filter((s) => fineStatus(s) === "offen").forEach((s) => {
+      const info = mahnCountdown(s, jetzt);
+      if (info.capped) return;
+      if (bannerCd === null || info.remMs < bannerCd.remMs) bannerCd = { remMs: info.remMs, createdAt: s.createdAt };
+    });
+
+    return `<div class="mine-banner${meineOffen > 0 ? "" : " is-clear"}">
         <div class="mb-top">
           <span class="mb-label">Dein Konto · ${esc(me.name)}</span>
           <span class="mb-state">${meineOffen > 0 ? "Du hast noch offene Strafen" : meineGemeldet > 0 ? "Zahlung gemeldet – wartet auf Bestätigung" : "Du bist schuldenfrei"}</span>
@@ -2638,8 +2605,54 @@
           </a>
           <button class="paid-self-btn" data-paid-self>Zahlung melden</button>
         </div>` : ""}
+      </div>`;
+  }
+
+  function renderStrafen() {
+    const me = playerById[state.currentPlayerId];
+    // Ist das eingeloggte Konto wirklich mit einem Spieler verknüpft?
+    // Nur dann zeigen wir „Dein Konto" + die Bezahl-/Selbstmeldungs-Buttons –
+    // sonst würde ein Fallback-Spieler fälschlich als „du" erscheinen.
+    const linked = !!(currentProfile && currentProfile.player_id && me);
+    // „Als bezahlt" nur für Kassenwart/Admin (UI-Komfort; echte Sperre = RLS)
+    const canPay = Roles.canManageFines();
+
+    const alle = aktiveStrafen().map((s) => ({
+      ...s,
+      betrag: strafeBetrag(s),
+      bezahlt: istBezahlt(s),
+      st: fineStatus(s),
+      player: playerById[s.playerId],
+      kat: katById[s.katalogId],
+    }));
+
+    const offenGesamt   = alle.filter((s) => s.st === "offen").reduce((a, s) => a + s.betrag, 0);
+    const bezahltGesamt = alle.filter((s) => s.st === "bestätigt").reduce((a, s) => a + s.betrag, 0);
+
+    let gefiltert = alle;
+    if (strafenFilter === "offen")    gefiltert = alle.filter((s) => s.st === "offen");
+    if (strafenFilter === "gemeldet") gefiltert = alle.filter((s) => s.st === "gemeldet");
+    if (strafenFilter === "bezahlt")  gefiltert = alle.filter((s) => s.st === "bestätigt");
+    if (strafenFilter === "meine")    gefiltert = linked ? alle.filter((s) => s.playerId === me.id) : [];
+    const stRank = { offen: 0, gemeldet: 1, "bestätigt": 2 };
+    gefiltert.sort((a, b) => (stRank[a.st] - stRank[b.st]) || b.datum.localeCompare(a.datum));
+
+    const filters = [
+      { k: "offen",    label: "Offen" },
+      { k: "gemeldet", label: "Gemeldet" },
+      { k: "bezahlt",  label: "Eingegangen" },
+      { k: "meine",    label: "Meine Strafen" },
+      { k: "alle",     label: "Alle" },
+    ];
+
+    /* --- Daten für die Diagramme ------------------------------------------ */
+    // Diagramme entfernt (Entscheidung): Konto zeigt nur Kontostand, Summe offen und die Liste.
+    viewEl.innerHTML = `
+      <div class="page-head">
+        ${navBackChevronHtml()}<h1>Strafen-Konto</h1>
       </div>
-      `}
+
+      ${kontoBlockHtml()}
 
       <div class="kpi-grid">
         <div class="kpi is-warn">
@@ -3244,14 +3257,14 @@
           if (!isFinite(proE) || proE < 0) { window.alert("Bitte einen gültigen Betrag je Schritt eingeben."); return; }
           if (!isFinite(schritt) || schritt < 1) { window.alert("Bitte eine gültige Schrittweite (mindestens 1) eingeben."); return; }
           if (!einheit) { window.alert("Bitte eine Einheit angeben (z. B. Minuten)."); return; }
-          const opts = { typ: "staffel", einheit, proEinheit: proE, schritt, maxBetrag: (maxB != null && isFinite(maxB)) ? maxB : null };
+          const opts = { typ: "staffel", einheit, proEinheit: proE, schritt, maxBetrag: (maxB != null && isFinite(maxB)) ? maxB : null, kategorie: gv("kategorie").trim() };
           if (t.dataset.katSave === "new") await DB.insertCatalog(DEMO.clubId, name, 0, opts);
           else await DB.updateCatalog(t.dataset.katSave, name, 0, opts);
         } else {
           const amount = num(gv("amount"));
           if (!isFinite(amount) || amount <= 0) { window.alert("Bitte einen gültigen Betrag größer 0 eingeben."); return; }
-          if (t.dataset.katSave === "new") await DB.insertCatalog(DEMO.clubId, name, amount, { typ: "fixed" });
-          else await DB.updateCatalog(t.dataset.katSave, name, amount, { typ: "fixed" });
+          if (t.dataset.katSave === "new") await DB.insertCatalog(DEMO.clubId, name, amount, { typ: "fixed", kategorie: gv("kategorie").trim() });
+          else await DB.updateCatalog(t.dataset.katSave, name, amount, { typ: "fixed", kategorie: gv("kategorie").trim() });
         }
         katEdit = null;
         await reloadData();
