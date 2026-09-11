@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1c2620;--muted:#66756d;--deep:#144a37;--green:#0f3d2e;--gr:#2e8b57;--gold:#d4af37;--red:#c0392b;--line:#e2e8e4;--bg:#f4f7f5;--cream:#faf3df;--onDark:#a8c9b8;--onDark2:#e9f3ee}
+*{box-sizing:border-box}
+body{margin:0;background:#eceeec;font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#1b5e3f}
+a:hover{color:#0f3d2e}
+.sect{padding:40px 44px 32px;border-bottom:1px solid rgba(0,0,0,.08)}
+.sect-h{display:flex;align-items:baseline;gap:10px;margin:0 0 20px}
+.sect-n{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none}
+.sect-t{font:600 13px/1.2 Inter,sans-serif;color:#1a1a1a}
+.rowwrap{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.frame{flex:none;display:flex;flex-direction:column;gap:9px}
+.frame-h{display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 Inter,sans-serif;color:rgba(0,0,0,.55)}
+.tagn{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;text-decoration:none}
+.note{margin:22px 0 0;font:12px/1.55 Inter,sans-serif;color:rgba(0,0,0,.5);max-width:900px}
+.ph{position:relative;width:390px;background:var(--bg);border:1px solid rgba(0,0,0,.1);border-radius:8px;overflow:hidden;display:flex;flex-direction:column}
+.hdb{background:var(--green);color:#fff;padding:14px 16px 18px;flex:none}
+.hdb-top{display:flex;align-items:center;gap:10px}
+.hdb-logo{height:30px;width:auto;display:block;flex:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.25))}
+.hdb-t{flex:1;min-width:0;font:700 14px Inter,sans-serif}
+.hdb-ic{width:22px;height:22px;display:block;flex:none;color:var(--onDark)}
+.pill{font:700 10px Inter,sans-serif;letter-spacing:.6px;color:var(--green);background:var(--gold);padding:3px 8px;border-radius:999px;flex:none}
+.eyebrow{margin-top:16px;font:700 11px Inter,sans-serif;letter-spacing:.7px;text-transform:uppercase;color:var(--onDark)}
+.dtitle{font:800 24px/1.15 Inter,sans-serif;color:#fff}
+.dmeta{font:600 15px Inter,sans-serif;color:var(--onDark2);font-variant-numeric:tabular-nums}
+.dsub{font:500 13px/1.45 Inter,sans-serif;color:var(--onDark)}
+.dnum{font:800 22px/1 Inter,sans-serif;color:var(--gold);font-variant-numeric:tabular-nums}
+.dnum.big{font-size:30px}
+.dnum-s{font:600 11px Inter,sans-serif;color:var(--onDark)}
+.dsplit{margin-top:6px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.dbtns{margin-top:14px;display:flex;gap:8px}
+.btn-gold{flex:1;min-height:46px;border:0;border-radius:10px;background:var(--gold);color:var(--green);font:800 14px Inter,sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 14px;text-align:center}
+.btn-ghost{min-height:46px;padding:0 16px;border:1px solid rgba(255,255,255,.4);border-radius:10px;background:transparent;color:#fff;font:700 14px Inter,sans-serif;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-ghost.wide{flex:1}
+.seg{margin-top:14px;display:flex;gap:6px;flex-wrap:wrap}
+.sg{font:600 12.5px Inter,sans-serif;color:#cfe3d8;border:1px solid rgba(255,255,255,.32);border-radius:999px;padding:0 12px;min-height:32px;display:flex;align-items:center}
+.sg.on{background:var(--gold);border-color:var(--gold);color:var(--green);font-weight:800}
+.dline{margin-top:14px;height:1px;background:rgba(255,255,255,.16)}
+.bd{padding:14px 16px 16px;flex:1}
+.h1{margin:0;font:800 22px/1.2 Inter,sans-serif;color:var(--ink)}
+.sub{margin:6px 0 0;font:400 13px/1.45 Inter,sans-serif;color:var(--muted)}
+.sec{margin:18px 0 10px;font:700 15px Inter,sans-serif;color:var(--ink);display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.sec a{font:600 13px Inter,sans-serif;text-decoration:underline}
+.lbl{font:700 10px Inter,sans-serif;letter-spacing:.5px;text-transform:uppercase;color:var(--muted)}
+.rs{font:500 12px Inter,sans-serif;color:var(--muted)}
+.rt{font:700 14px Inter,sans-serif;color:var(--ink)}
+.num{font-variant-numeric:tabular-nums}
+.kpi3{display:flex;gap:8px}
+.kpi{flex:1;min-width:0;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px}
+.kpi-v{margin-top:4px;font:800 20px/1.1 Inter,sans-serif;color:var(--deep);font-variant-numeric:tabular-nums}
+.kpi-v.warn{color:var(--red)}
+.kpi-v.sm{font-size:15px}
+.kpi-s{font:600 11px/1.3 Inter,sans-serif;color:var(--muted)}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}
+.list{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;padding:13px 14px;min-height:52px}
+.list .row+.row{border-top:1px solid var(--line)}
+.rmain{flex:1;min-width:0}
+.chev{font:700 18px Inter,sans-serif;color:var(--muted);flex:none}
+.bar{width:6px;height:34px;border-radius:3px;flex:none}
+.stack{display:flex;flex-direction:column;gap:8px}
+.btns{display:flex;gap:8px}
+.btn{flex:1;min-height:46px;border:0;border-radius:10px;background:var(--gold);color:var(--green);font:800 14px Inter,sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 14px;text-align:center}
+.btn.sec2{background:#fff;color:var(--ink);border:1px solid var(--line);font-weight:600;font-size:15px}
+.btn.wide{width:100%}
+.chips{display:flex;gap:7px;flex-wrap:wrap}
+.chip{font:600 13px Inter,sans-serif;color:var(--muted);background:#fff;border:1px solid var(--line);border-radius:999px;padding:0 13px;min-height:34px;display:flex;align-items:center}
+.chip.on{background:var(--green);border-color:var(--green);color:#fff}
+.bdg{font:700 10px Inter,sans-serif;letter-spacing:.4px;padding:3px 8px;border-radius:999px;display:inline-block;white-space:nowrap}
+.bdg-open{background:#fdecea;color:#a5281b;border:1px solid #f3c9c3}
+.bdg-rep{background:#fdf4e0;color:#7a5a0c;border:1px solid #ecdcae}
+.bdg-ok{background:#e6f2ea;color:#1b5e3f;border:1px solid #c8e0d2}
+.av{width:32px;height:32px;border-radius:50%;background:#e7efe9;color:var(--deep);font:700 12px Inter,sans-serif;display:flex;align-items:center;justify-content:center;flex:none}
+.av.dark{background:rgba(255,255,255,.14);color:#fff}
+.dbg{width:46px;text-align:center;background:var(--cream);border-radius:10px;padding:6px 0;flex:none}
+.dbg .wd{font:700 10px Inter,sans-serif;color:var(--muted)}
+.dbg .dy{font:800 19px/1 Inter,sans-serif;color:var(--deep)}
+.dbg .mo{font:700 9px Inter,sans-serif;color:var(--muted)}
+.amt{font:800 16px Inter,sans-serif;color:var(--deep);font-variant-numeric:tabular-nums}
+.amt.warn{color:var(--red)}
+.nav{display:flex;background:#fff;border-top:1px solid var(--line);flex:none}
+.nb{position:relative;flex:1;min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:7px 2px;color:var(--muted)}
+.nb span{font:600 11px/1 Inter,sans-serif}
+.nb.on{color:#1b5e3f}
+.nb.on span{font-weight:700}
+.nb.on::before{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);width:26px;height:3px;border-radius:0 0 3px 3px;background:var(--gold)}
+.ic{width:23px;height:23px;display:block}
+.in{width:100%;min-height:46px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:0 13px;font:500 15px Inter,sans-serif;color:var(--ink);display:flex;align-items:center}
+.in.pl{color:#9aa8a0}
+.fld{display:block;margin-top:12px}
+.fld .fl{display:block;margin-bottom:5px;font:600 12px Inter,sans-serif;color:var(--muted)}
+.pitch{position:relative;width:100%;aspect-ratio:68/95;border-radius:12px;overflow:hidden;background:#2e7d46}
+.slot{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:3px}
+.disc{width:34px;height:34px;border-radius:50%;background:#fff;color:var(--deep);font:800 13px Inter,sans-serif;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.28)}
+.pn{font:700 10px Inter,sans-serif;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+.bank{display:flex;gap:6px;margin-top:8px}
+.bslot{flex:1;min-height:54px;border-radius:10px;background:#fff;border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.bslot.empty{border-style:dashed;background:#f7faf8}
+.bnr{font:800 13px Inter,sans-serif;color:var(--deep)}
+.bn{font:600 9px Inter,sans-serif;color:var(--muted)}
+.sheet{position:absolute;inset:0;background:rgba(12,25,19,.52);display:flex;align-items:flex-end}
+.panel{width:100%;background:#fff;border-radius:18px 18px 0 0;padding:12px 16px 20px}
+.sh-t{padding:2px 0 10px;font:700 13px Inter,sans-serif;color:var(--muted);text-align:center}
+.mi{display:flex;align-items:center;justify-content:space-between;min-height:50px;padding:0 2px;border-top:1px solid var(--line);font:600 15px Inter,sans-serif;color:var(--ink)}
+.tbl{width:100%;border-collapse:collapse;background:#fff}
+.tbl th{padding:10px 8px;border-bottom:1px solid var(--line);font:700 10px Inter,sans-serif;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);text-align:left}
+.tbl td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tc{text-align:center}
+.box{width:20px;height:20px;border-radius:6px;border:1.5px solid #c6d2cb;display:inline-flex;align-items:center;justify-content:center;background:#fff;color:var(--green)}
+.box.on{background:var(--gold);border-color:var(--gold)}
+.auth{flex:1;background:var(--green);display:flex;align-items:center;justify-content:center;padding:38px 20px}
+.auth-card{width:100%;background:#fff;border-radius:18px;padding:24px 20px 22px;box-shadow:0 14px 34px rgba(0,0,0,.3)}
+.auth-crest{display:flex;justify-content:center;margin-bottom:14px}
+.auth-crest img{height:62px;width:auto;display:block}
+.auth-t{margin:0;font:800 22px/1.2 Inter,sans-serif;color:var(--ink);text-align:center}
+.auth-s{margin:6px 0 4px;font:500 12px Inter,sans-serif;color:var(--muted);text-align:center}
+.auth-sw{margin-top:14px;font:500 13px/1.4 Inter,sans-serif;color:var(--muted);text-align:center}
+.kat{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;min-height:52px}
+.list .kat+.kat{border-top:1px solid var(--line)}
+.kat-n{font:600 14px/1.3 Inter,sans-serif;color:var(--ink)}
+.kat-k{font:500 11px Inter,sans-serif;color:var(--muted)}
+</style>
+</helmet>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<g id="i-home" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h5v-6h4v6h5V9.5"></path></g>
+<g id="i-cal" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"></rect><path d="M3 9h18M8 2.5v4M16 2.5v4"></path></g>
+<g id="i-book" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h14v16H7a2 2 0 0 1-2-2z"></path><path d="M5 18a2 2 0 0 1 2-2h12"></path><path d="M9 8h6M9 11h4"></path></g>
+<g id="i-card" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"></rect><path d="M3 10h18"></path><path d="M15.5 14.5h2.5"></path></g>
+<g id="i-dots" fill="currentColor"><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle></g>
+<g id="i-gear" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></g>
+<g id="i-plus" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></g>
+<g id="i-check" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9.5 17.5 19.5 7"></path></g>
+<g id="i-pin" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"></path><circle cx="12" cy="11" r="2.2"></circle></g>
+</defs></svg>
+
+<section class="sect" id="t1">
+<div class="sect-h"><a class="sect-n" href="#t1">1</a><span class="sect-t">Übersicht &middot; das Cockpit aus 1b, Trainer und Spieler</span></div>
+<div class="rowwrap">
+
+<div class="frame" id="f-uebersicht-trainer">
+<div class="frame-h"><a class="tagn" href="#f-uebersicht-trainer">1a</a>Übersicht &middot; Trainer &amp; Kassenwart (Original 1b)</div>
+<div class="ph" data-screen-label="Übersicht Trainer">
+  <div class="hdb">
+    <div class="hdb-top"><img class="hdb-logo" src="assets/logo.png" alt="FC Fasanerie-Nord"><div class="hdb-t">FC Fasanerie-Nord II</div><span class="pill">TRAINER</span></div>
+    <div class="eyebrow">Nächster Termin &middot; in 4 Std.</div>
+    <div class="dsplit">
+      <div><div class="dtitle">Training</div><div class="dmeta">Do 10. Sep &middot; 19:30</div></div>
+      <div style="text-align:right;flex:none"><div class="dnum">0/16</div><div class="dnum-s">zugesagt</div></div>
+    </div>
+    <div class="dbtns"><button class="btn-gold">Kader anschreiben</button><button class="btn-ghost">Aufstellung</button></div>
+  </div>
+  <div class="bd">
+    <div class="kpi3">
+      <div class="kpi"><div class="lbl">Zu prüfen</div><div class="kpi-v">5</div><div class="kpi-s num">140,00 &euro;</div></div>
+      <div class="kpi"><div class="lbl">Offen</div><div class="kpi-v warn">99</div><div class="kpi-s num">2.596,00 &euro;</div></div>
+      <div class="kpi"><div class="lbl">Verletzt</div><div class="kpi-v">2</div><div class="kpi-s">im Kader</div></div>
+    </div>
+    <div class="sec">Was heute liegt</div>
+    <div class="list">
+      <div class="row"><div class="bar" style="background:var(--red)"></div><div class="rmain"><div class="rt">5 Zahlungen bestätigen</div><div class="rs">Kassenwart &middot; seit 2 Tagen</div></div><div class="chev">&rsaquo;</div></div>
+      <div class="row"><div class="bar" style="background:var(--gold)"></div><div class="rmain"><div class="rt">Aufstellung So 13. Sep</div><div class="rs">10 von 11 gesetzt</div></div><div class="chev">&rsaquo;</div></div>
+      <div class="row"><div class="bar" style="background:var(--gr)"></div><div class="rmain"><div class="rt">6 ohne Rückmeldung</div><div class="rs">Training heute &middot; Erinnerung senden</div></div><div class="chev">&rsaquo;</div></div>
+    </div>
+    <div class="sec">Danach<a href="#f-kalender">Kalender</a></div>
+    <div class="card" style="padding:12px 14px;display:flex;gap:12px;align-items:center">
+      <div class="dbg"><div class="wd">So</div><div class="dy">13</div><div class="mo">SEP</div></div>
+      <div style="min-width:0"><div class="rs">bei FC D. Griechen Pontos</div><div class="rt">15:00 &middot; BSA Wegenerstraße</div></div>
+    </div>
+  </div>
+  <div class="nav">
+    <div class="nb on"><svg class="ic" viewBox="0 0 24 24"><use href="#i-home"></use></svg><span>Übersicht</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-cal"></use></svg><span>Kalender</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-book"></use></svg><span>Katalog</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-card"></use></svg><span>Konto</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-dots"></use></svg><span>Mehr</span></div>
+  </div>
+</div>
+</div>
+
+<div class="frame" id="f-uebersicht-spieler">
+<div class="frame-h"><a class="tagn" href="#f-uebersicht-spieler">1b</a>Übersicht &middot; Spieler (Zusage statt Trainer-Aktionen)</div>
+<div class="ph" data-screen-label="Übersicht Spieler">
+  <div class="hdb">
+    <div class="hdb-top"><img class="hdb-logo" src="assets/logo.png" alt="FC Fasanerie-Nord"><div class="hdb-t">Servus, Tim</div><svg class="hdb-ic" viewBox="0 0 24 24"><use href="#i-gear"></use></svg></div>
+    <div class="eyebrow">Nächster Termin &middot; in 4 Std.</div>
+    <div class="dsplit">
+      <div><div class="dtitle">Training</div><div class="dmeta">Do 10. Sep &middot; 19:30</div></div>
+      <div style="text-align:right;flex:none"><div class="dnum">6:12</div><div class="dnum-s">bis Meldeschluss</div></div>
+    </div>
+    <div class="dbtns"><button class="btn-gold">Zusage</button><button class="btn-ghost wide">Absage</button></div>
+    <div class="dline"></div>
+    <div style="margin-top:12px;display:flex;align-items:center;gap:7px"><svg class="hdb-ic" viewBox="0 0 24 24" style="width:16px;height:16px"><use href="#i-pin"></use></svg><span class="dsub">Sportgelände Fasanerie, Platz 2</span></div>
+  </div>
+  <div class="bd">
+    <div class="kpi3">
+      <div class="kpi"><div class="lbl">Meine Strafen</div><div class="kpi-v warn sm">10,00 &euro;</div><div class="kpi-s">2 offen</div></div>
+      <div class="kpi"><div class="lbl">Meine Quote</div><div class="kpi-v">82%</div><div class="kpi-s">Zusagen Saison</div></div>
+      <div class="kpi"><div class="lbl">Status</div><div class="kpi-v sm">fit</div><div class="kpi-s">seit 12. Aug</div></div>
+    </div>
+    <div class="sec">Mein Konto<a href="#f-konto">Alle Strafen</a></div>
+    <div class="list">
+      <div class="row"><div class="bar" style="background:var(--red)"></div><div class="rmain"><div class="rt">Zu spät zum Training</div><div class="rs">4. Sep &middot; nächste Erhöhung in 3 Tagen</div></div><div class="amt warn" style="font-size:15px">5,00 &euro;</div></div>
+      <div class="row"><div class="bar" style="background:var(--red)"></div><div class="rmain"><div class="rt">Handy in der Besprechung</div><div class="rs">6. Sep</div></div><div class="amt warn" style="font-size:15px">5,00 &euro;</div></div>
+    </div>
+    <div class="btns" style="margin-top:10px"><button class="btn">Mit PayPal bezahlen</button><button class="btn sec2">Melden</button></div>
+    <div class="sec">Danach<a href="#f-kalender">Kalender</a></div>
+    <div class="stack">
+      <div class="card" style="padding:12px 14px;display:flex;gap:12px;align-items:center">
+        <div class="dbg"><div class="wd">So</div><div class="dy">13</div><div class="mo">SEP</div></div>
+        <div style="min-width:0"><div class="rs">bei FC D. Griechen Pontos</div><div class="rt">15:00 &middot; BSA Wegenerstraße</div></div>
+      </div>
+      <div class="card" style="padding:12px 14px;display:flex;gap:12px;align-items:center">
+        <div class="dbg"><div class="wd">Di</div><div class="dy">15</div><div class="mo">SEP</div></div>
+        <div style="min-width:0"><div class="rs">Training</div><div class="rt">19:30 &middot; Platz 2</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="nav">
+    <div class="nb on"><svg class="ic" viewBox="0 0 24 24"><use href="#i-home"></use></svg><span>Übersicht</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-cal"></use></svg><span>Kalender</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-book"></use></svg><span>Katalog</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-card"></use></svg><span>Konto</span></div>
+  </div>
+</div>
+</div>
+
+</div>
+<p class="note">Das Prinzip von 1b, auf alle Ansichten übertragen: jede Ansicht beginnt mit einem dunkelgrünen Kopfblock, der Lage und Hauptaktion trägt &ndash; Gold ist die Aktionsfarbe, kein Schmuck. Darunter liegt auf hellem Grund eine Kennzahlen-Reihe (drei Felder) und danach ruhige weiße Listen mit farbigem Balken links.</p>
+</section>
+
+<section class="sect" id="t2">
+<div class="sect-h"><a class="sect-n" href="#t2">2</a><span class="sect-t">Termine &middot; Kalender und Aufstellung</span></div>
+<div class="rowwrap">
+
+<div class="frame" id="f-kalender">
+<div class="frame-h"><a class="tagn" href="#f-kalender">2a</a>Kalender &middot; Filter wandern in den Kopfblock</div>
+<div class="ph" data-screen-label="Kalender">
+  <div class="hdb">
+    <div class="hdb-top"><img class="hdb-logo" src="assets/logo.png" alt="FC Fasanerie-Nord"><div class="hdb-t">Kalender</div><svg class="hdb-ic" viewBox="0 0 24 24"><use href="#i-gear"></use></svg></div>
+    <div class="eyebrow">Restsaison &middot; 18 Termine</div>
+    <div class="dsplit">
+      <div><div class="dtitle">7 Spiele</div><div class="dmeta">nächstes am So 13. Sep</div></div>
+      <div style="text-align:right;flex:none"><div class="dnum">11</div><div class="dnum-s">Trainings</div></div>
+    </div>
+    <div class="seg"><span class="sg on">Alle</span><span class="sg">Spiele</span><span class="sg">Training</span><span class="sg">Sonstiges</span></div>
+    <div class="dbtns"><button class="btn-gold">Termin hinzufügen</button><button class="btn-ghost">In meinen Kalender</button></div>
+  </div>
+  <div class="bd">
+    <div class="stack">
+      <div class="card" style="padding:13px 14px">
+        <div style="display:flex;gap:12px">
+          <div class="dbg"><div class="wd">Do</div><div class="dy">10</div><div class="mo">SEP</div></div>
+          <div class="rmain"><div class="rt">Training <span class="bdg bdg-ok">Training</span></div><div class="rs num">19:30&ndash;21:00 Uhr</div><div class="rs" style="display:flex;align-items:center;gap:5px;margin-top:3px"><svg class="ic" viewBox="0 0 24 24" style="width:15px;height:15px"><use href="#i-pin"></use></svg>Sportgelände Fasanerie, Platz 2</div></div>
+        </div>
+        <div class="btns" style="margin-top:11px"><button class="btn">Zusage</button><button class="btn sec2">Absage</button></div>
+        <div class="rs num" style="margin-top:8px">Meldeschluss in 6 Std 12 Min &middot; <b style="color:var(--ink)">10</b> / 16 zugesagt</div>
+      </div>
+      <div class="card" style="padding:13px 14px">
+        <div style="display:flex;gap:12px">
+          <div class="dbg"><div class="wd">So</div><div class="dy">13</div><div class="mo">SEP</div></div>
+          <div class="rmain"><div class="rt">FC D. Griechen Pontos <span style="color:var(--muted)">&ndash;</span> FC Fasanerie-Nord II</div><div class="rs num">15:00 Uhr</div><div class="rs" style="display:flex;align-items:center;gap:5px;margin-top:3px"><svg class="ic" viewBox="0 0 24 24" style="width:15px;height:15px"><use href="#i-pin"></use></svg>BSA Wegenerstraße</div></div>
+        </div>
+        <div class="btns" style="margin-top:11px"><button class="btn">Zusage</button><button class="btn sec2">Absage</button></div>
+        <div class="rs num" style="margin-top:8px"><b style="color:var(--ink)">12</b> / 16 zugesagt &middot; Aufstellung 10/11</div>
+      </div>
+      <div class="card" style="padding:13px 14px">
+        <div style="display:flex;gap:12px">
+          <div class="dbg"><div class="wd">Di</div><div class="dy">15</div><div class="mo">SEP</div></div>
+          <div class="rmain"><div class="rt">Training <span class="bdg bdg-ok">Training</span></div><div class="rs num">19:30&ndash;21:00 Uhr</div></div>
+        </div>
+        <div class="btns" style="margin-top:11px"><button class="btn">Zusage</button><button class="btn sec2">Absage</button></div>
+      </div>
+    </div>
+    <div class="sec">Vergangene Termine</div>
+    <div class="card" style="padding:13px 14px;display:flex;gap:12px;opacity:.72">
+      <div class="dbg"><div class="wd">So</div><div class="dy">06</div><div class="mo">SEP</div></div>
+      <div class="rmain"><div class="rt">FC Fasanerie-Nord II <span style="color:var(--muted)">&ndash;</span> SV Lochhausen</div><div class="rs num">15:00 Uhr &middot; Hauptplatz</div></div>
+    </div>
+  </div>
+  <div class="nav">
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-home"></use></svg><span>Übersicht</span></div>
+    <div class="nb on"><svg class="ic" viewBox="0 0 24 24"><use href="#i-cal"></use></svg><span>Kalender</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-book"></use></svg><span>Katalog</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-card"></use></svg><span>Konto</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-dots"></use></svg><span>Mehr</span></div>
+  </div>
+</div>
+</div>
+
+<div class="frame" id="f-lineup-pick">
+<div class="frame-h"><a class="tagn" href="#f-lineup-pick">2b</a>Aufstellung &middot; Spiel wählen</div>
+<div class="ph" data-screen-label="Aufstellung Spielauswahl">
+  <div class="hdb">
+    <div class="hdb-top"><img class="hdb-logo" src="assets/logo.png" alt="FC Fasanerie-Nord"><div class="hdb-t">Aufstellung</div><span class="pill">TRAINER</span></div>
+    <div class="eyebrow">Nächstes Spiel &middot; in 3 Tagen</div>
+    <div class="dsplit">
+      <div><div class="dtitle">@ Griechen Pontos</div><div class="dmeta">So 13. Sep &middot; 15:00</div></div>
+      <div style="text-align:right;flex:none"><div class="dnum">10/11</div><div class="dnum-s">gesetzt</div></div>
+    </div>
+    <div class="dbtns"><button class="btn-gold">Aufstellung fortsetzen</button><button class="btn-ghost">Vorlagen</button></div>
+  </div>
+  <div class="bd">
+    <div class="sec" style="margin-top:0">Weitere Spiele</div>
+    <div class="list">
+      <div class="row"><div class="dbg"><div class="wd">So</div><div class="dy">20</div><div class="mo">SEP</div></div><div class="rmain"><div class="rt">vs. SV Lochhausen</div><div class="rs num">15:00 Uhr &middot; Heim</div></div><span class="bdg bdg-rep">offen</span><div class="chev">&rsaquo;</div></div>
+      <div class="row"><div class="dbg"><div class="wd">So</div><div class="dy">27</div><div class="mo">SEP</div></div><div class="rmain"><div class="rt">@ TSV Allach</div><div class="rs num">14:00 Uhr &middot; Auswärts</div></div><span class="bdg bdg-rep">offen</span><div class="chev">&rsaquo;</div></div>
+      <div class="row"><div class="dbg"><div class="wd">So</div><div class="dy">04</div><div class="mo">OKT</div></div><div class="rmain"><div class="rt">vs. FC Phönix München</div><div class="rs num">15:00 Uhr &middot; Heim</div></div><span class="bdg bdg-rep">offen</span><div class="chev">&rsaquo;</div></div>
+    </div>
+    <div class="sec">Vorlagen</div>
+    <div class="list">
+      <div class="row"><div class="bar" style="background:var(--gold)"></div><div class="rmain"><div class="rt">4-4-2 Standard</div><div class="rs">zuletzt genutzt am 6. Sep</div></div><div class="chev">&rsaquo;</div></div>
+      <div class="row"><div class="bar" style="background:var(--gr)"></div><div class="rmain"><div class="rt">4-3-3 gegen tiefe Gegner</div><div class="rs">zuletzt genutzt am 23. Aug</div></div><div class="chev">&rsaquo;</div></div>
+    </div>
+  </div>
+  <div class="nav">
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-home"></use></svg><span>Übersicht</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-cal"></use></svg><span>Kalender</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-book"></use></svg><span>Katalog</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-card"></use></svg><span>Konto</span></div>
+    <div class="nb on"><svg class="ic" viewBox="0 0 24 24"><use href="#i-dots"></use></svg><span>Mehr</span></div>
+  </div>
+</div>
+</div>
+
+<div class="frame" id="f-lineup-pitch">
+<div class="frame-h"><a class="tagn" href="#f-lineup-pitch">2c</a>Aufstellung &middot; Platz und Bank</div>
+<div class="ph" data-screen-label="Aufstellung Platz">
+  <div class="hdb" style="padding-bottom:14px">
+    <div class="hdb-top"><span style="font:700 22px/1 Inter,sans-serif;flex:none">&lsaquo;</span><div class="hdb-t">@ FC D. Griechen Pontos</div><svg class="hdb-ic" viewBox="0 0 24 24"><use href="#i-dots"></use></svg></div>
+    <div class="dsplit" style="margin-top:12px">
+      <div><div class="dsub num">So 13. Sep &middot; 15:00 &middot; Auswärts</div></div>
+      <div style="text-align:right;flex:none"><div class="dnum">11/11</div><div class="dnum-s">gesetzt</div></div>
+    </div>
+    <div class="seg"><span class="sg on">4-4-2</span><span class="sg">4-3-3</span><span class="sg">3-5-2</span><span class="sg">Weitere &rsaquo;</span></div>
+  </div>
+  <div class="bd">
+    <div class="pitch">
+      <svg viewBox="0 0 68 105" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%" aria-hidden="true"><rect width="68" height="105" fill="#2e7d46"></rect><g fill="none" stroke="rgba(255,255,255,.3)" stroke-width="0.3"><rect x="2" y="2" width="64" height="101"></rect><line x1="2" y1="52.5" x2="66" y2="52.5"></line><circle cx="34" cy="52.5" r="9"></circle><rect x="14" y="2" width="40" height="16"></rect><rect x="24" y="2" width="20" height="6"></rect><rect x="14" y="87" width="40" height="16"></rect><rect x="24" y="97" width="20" height="6"></rect></g></svg>
+      <div class="slot" style="left:50%;top:92%"><div class="disc">1</div><span class="pn">Wagner</span></div>
+      <div class="slot" style="left:16%;top:76%"><div class="disc">2</div><span class="pn">Krüger</span></div>
+      <div class="slot" style="left:38%;top:79%"><div class="disc">4</div><span class="pn">Bauer</span></div>
+      <div class="slot" style="left:62%;top:79%"><div class="disc">5</div><span class="pn">Schmidt</span></div>
+      <div class="slot" style="left:84%;top:76%"><div class="disc">16</div><span class="pn">Lang</span></div>
+      <div class="slot" style="left:16%;top:52%"><div class="disc">7</div><span class="pn">Hofmann</span></div>
+      <div class="slot" style="left:38%;top:55%"><div class="disc">6</div><span class="pn">Becker</span></div>
+      <div class="slot" style="left:62%;top:55%"><div class="disc">8</div><span class="pn">Wolf</span></div>
+      <div class="slot" style="left:84%;top:52%"><div class="disc">10</div><span class="pn">Weber</span></div>
+      <div class="slot" style="left:40%;top:26%"><div class="disc">9</div><span class="pn">Fischer</span></div>
+      <div class="slot" style="left:60%;top:26%"><div class="disc">11</div><span class="pn">Richter</span></div>
+    </div>
+    <div class="sec" style="margin-bottom:0">Bank<span class="rs num">5/7</span></div>
+    <div class="bank">
+      <div class="bslot"><span class="bnr">21</span><span class="bn">Maier</span></div>
+      <div class="bslot"><span class="bnr">3</span><span class="bn">Neumann</span></div>
+      <div class="bslot"><span class="bnr">14</span><span class="bn">Schäfer</span></div>
+      <div class="bslot"><span class="bnr">17</span><span class="bn">Huber</span></div>
+      <div class="bslot"><span class="bnr">19</span><span class="bn">Koch</span></div>
+      <div class="bslot empty"><span class="bn">frei</span></div>
+      <div class="bslot empty"><span class="bn">frei</span></div>
+    </div>
+    <button class="btn wide" style="margin-top:14px;min-height:54px;flex-direction:column;gap:2px">Aufstellung speichern<small style="font:600 11px Inter,sans-serif;opacity:.75">11/11 gesetzt</small></button>
+  </div>
+</div>
+</div>
+
+</div>
+<p class="note">Filterleisten und Formationswahl sitzen in 1b im dunklen Kopfblock &ndash; das hält den hellen Bereich frei für Inhalt. Der Platz behält sein eigenes Grün; die Speicher-Schaltfläche ist gold, weil sie die Hauptaktion ist.</p>
+</section>
+
+<section class="sect" id="t3">
+<div class="sect-h"><a class="sect-n" href="#t3">3</a><span class="sect-t">Geld &middot; Konto, Katalog, Kasse</span></div>
+<div class="rowwrap">
+
+<div class="frame" id="f-konto">
+<div class="frame-h"><a class="tagn" href="#f-konto">3a</a>Strafen-Konto &middot; eigener Stand im Kopfblock</div>
+<div class="ph" data-screen-label="Strafen-Konto">
+  <div class="hdb">
+    <div class="hdb-top"><img class="hdb-logo" src="assets/logo.png" alt="FC Fasanerie-Nord"><div class="hdb-t">Strafen-Konto</div><svg class="hdb-ic" viewBox="0 0 24 24"><use href="#i-gear"></use></svg></div>
+    <div class="eyebrow">Dein Konto &middot; Lukas Weber</div>
+    <div class="dsplit">
+      <div><div class="dnum big">10,00 &euro;</div><div class="dsub">offen &middot; 35,00 &euro; gesamt</div></div>
+      <div style="text-align:right;flex:none"><div class="dmeta">2 Tg 14 Std</div><div class="dnum-s">bis zur Erhöhung</div></div>
+    </div>
+    <div class="dbtns"><button class="btn-gold">Mit PayPal bezahlen</button><button class="btn-ghost">Melden</button></div>
+    <div class="dline"></div>
+    <div style="margin-top:10px" class="dsub">Offenen Betrag senden, dann &bdquo;Zahlung melden&ldquo; &middot; bitte als &bdquo;Freunde &amp; Familie&ldquo;</div>
+  </div>
+  <div class="bd">
+    <div class="kpi3">
+      <div class="kpi"><div class="lbl">Summe offen</div><div class="kpi-v warn sm">245,00 &euro;</div><div class="kpi-s">18 Strafen</div></div>
+      <div class="kpi"><div class="lbl">Gemeldet</div><div class="kpi-v sm">60,00 &euro;</div><div class="kpi-s">5 Stück</div></div>
+      <div class="kpi"><div class="lbl">Kontostand</div><div class="kpi-v sm">2.596,00 &euro;</div><div class="kpi-s">Saison</div></div>
+    </div>
+    <div class="chips" style="margin-top:14px"><span class="chip on">Offen</span><span class="chip">Gemeldet</span><span class="chip">Eingegangen</span><span class="chip">Meine Strafen</span></div>
+    <div class="list" style="margin-top:12px">
+      <div class="row"><span class="av">TR</span><div class="rmain"><div class="rt">Tim Richter</div><div class="rs">Zu spät zum Spiel &middot; 6. Sep</div></div><div style="text-align:right"><div class="amt warn" style="font-size:15px">10,00 &euro;</div><span class="bdg bdg-open">offen</span></div></div>
+      <div class="row"><span class="av">FH</span><div class="rmain"><div class="rt">Felix Hofmann</div><div class="rs">Gelb-Rote Karte &middot; 6. Sep</div></div><div style="text-align:right"><div class="amt warn" style="font-size:15px">10,00 &euro;</div><span class="bdg bdg-open">offen</span></div></div>
+      <div class="row"><span class="av">LW</span><div class="rmain"><div class="rt">Lukas Weber</div><div class="rs">Zu spät zum Training &middot; 4. Sep</div></div><div style="text-align:right"><div class="amt warn" style="font-size:15px">5,00 &euro;</div><span class="bdg bdg-open">offen</span></div></div>
+      <div class="row"><span class="av">DK</span><div class="rmain"><div class="rt">Daniel Koch</div><div class="rs">Rote Karte &middot; 30. Aug &middot; automatisch</div></div><div style="text-align:right"><div class="amt warn" style="font-size:15px">20,00 &euro;</div><span class="bdg bdg-open">offen</span></div></div>
+      <div class="row"><span class="av">MS</span><div class="rmain"><div class="rt">Moritz Schäfer</div><div class="rs">Trikot vergessen &middot; 28. Aug</div></div><div style="text-align:right"><div class="amt" style="font-size:15px">5,00 &euro;</div><span class="bdg bdg-rep">gemeldet</span></div></div>
+    </div>
+  </div>
+  <div class="nav">
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-home"></use></svg><span>Übersicht</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-cal"></use></svg><span>Kalender</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-book"></use></svg><span>Katalog</span></div>
+    <div class="nb on"><svg class="ic" viewBox="0 0 24 24"><use href="#i-card"></use></svg><span>Konto</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-dots"></use></svg><span>Mehr</span></div>
+  </div>
+</div>
+</div>
+
+<div class="frame" id="f-katalog">
+<div class="frame-h"><a class="tagn" href="#f-katalog">3b</a>Strafenkatalog</div>
+<div class="ph" data-screen-label="Strafenkatalog">
+  <div class="hdb">
+    <div class="hdb-top"><img class="hdb-logo" src="assets/logo.png" alt="FC Fasanerie-Nord"><div class="hdb-t">Strafenkatalog</div><span class="pill">ADMIN</span></div>
+    <div class="eyebrow">Gültig für die ganze Mannschaft</div>
+    <div class="dsplit">
+      <div><div class="dtitle">14 Positionen</div><div class="dmeta">3,00 &euro; bis 25,00 &euro;</div></div>
+      <div style="text-align:right;flex:none"><div class="dnum">2</div><div class="dnum-s">gestaffelt</div></div>
+    </div>
+    <div class="dbtns"><button class="btn-gold">Strafe hinzufügen</button><button class="btn-ghost">Sortieren</button></div>
+  </div>
+  <div class="bd">
+    <div class="list">
+      <div class="kat"><div><div class="kat-n">Zu spät zum Training</div><div class="kat-k">Pünktlichkeit</div></div><div class="amt">5,00 &euro;</div></div>
+      <div class="kat"><div><div class="kat-n">Zu spät zum Spiel / Treffpunkt</div><div class="kat-k">Pünktlichkeit</div></div><div class="amt">10,00 &euro;</div></div>
+      <div class="kat"><div><div class="kat-n">Unentschuldigtes Fehlen (Training)</div><div class="kat-k">Absagen</div></div><div class="amt">15,00 &euro;</div></div>
+      <div class="kat"><div><div class="kat-n">Unentschuldigtes Fehlen (Spiel)</div><div class="kat-k">Absagen</div></div><div class="amt">25,00 &euro;</div></div>
+      <div class="kat"><div><div class="kat-n">Verspätete Absage (&lt; 24 Std.)</div><div class="kat-k">Absagen</div></div><div class="amt">8,00 &euro;</div></div>
+      <div class="kat"><div><div class="kat-n">Gelb-Rote Karte (Meckern)</div><div class="kat-k">Karten</div></div><div class="amt">10,00 &euro;</div></div>
+      <div class="kat"><div><div class="kat-n">Rote Karte (unsportlich)</div><div class="kat-k">Karten</div></div><div class="amt">20,00 &euro;</div></div>
+      <div class="kat"><div><div class="kat-n">Verspätung <span class="bdg bdg-rep">gestaffelt</span></div><div class="kat-k">Pünktlichkeit &middot; max 20,00 &euro;</div></div><div class="amt" style="font-size:14px">1,00 &euro; / 1 Min</div></div>
+      <div class="kat"><div><div class="kat-n">Geburtstag ohne Kuchen / Brezen</div><div class="kat-k">Tradition</div></div><div class="amt">15,00 &euro;</div></div>
+      <div class="kat"><div><div class="kat-n">Duschen mit Socken</div><div class="kat-k">Spaß</div></div><div class="amt">3,00 &euro;</div></div>
+    </div>
+  </div>
+  <div class="nav">
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-home"></use></svg><span>Übersicht</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-cal"></use></svg><span>Kalender</span></div>
+    <div class="nb on"><svg class="ic" viewBox="0 0 24 24"><use href="#i-book"></use></svg><span>Katalog</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-card"></use></svg><span>Konto</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-dots"></use></svg><span>Mehr</span></div>
+  </div>
+</div>
+</div>
+
+<div class="frame" id="f-kasse">
+<div class="frame-h"><a class="tagn" href="#f-kasse">3c</a>Kasse &middot; nur Kassenwart</div>
+<div class="ph" data-screen-label="Kasse">
+  <div class="hdb">
+    <div class="hdb-top"><img class="hdb-logo" src="assets/logo.png" alt="FC Fasanerie-Nord"><div class="hdb-t">Kasse</div><span class="pill">KASSENWART</span></div>
+    <div class="eyebrow">Mannschaftskasse &middot; Saison 2026/27</div>
+    <div class="dsplit">
+      <div><div class="dnum big">2.596,00 &euro;</div><div class="dsub">Gesamtvolumen</div></div>
+      <div style="text-align:right;flex:none"><div class="dmeta">5</div><div class="dnum-s">zu prüfen</div></div>
+    </div>
+    <div class="dbtns"><button class="btn-gold">Strafen verhängen</button><button class="btn-ghost">Prüfen (5)</button></div>
+  </div>
+  <div class="bd">
+    <div class="kpi3">
+      <div class="kpi"><div class="lbl">Offen</div><div class="kpi-v warn sm">245,00 &euro;</div><div class="kpi-s">18 Strafen</div></div>
+      <div class="kpi"><div class="lbl">Gemeldet</div><div class="kpi-v sm">60,00 &euro;</div><div class="kpi-s">5 zu prüfen</div></div>
+      <div class="kpi"><div class="lbl">Eingegangen</div><div class="kpi-v sm">2.351,00 &euro;</div><div class="kpi-s">Saison</div></div>
+    </div>
+    <div class="sec">Strafen verhängen</div>
+    <div class="card">
+      <div class="in" style="justify-content:space-between"><span>3 Spieler gewählt</span><span class="chev">&rsaquo;</span></div>
+      <div class="rs" style="margin-top:6px">Tim Richter, Felix Hofmann, Daniel Koch</div>
+      <div style="margin-top:14px;display:flex;align-items:baseline;justify-content:space-between;gap:10px"><span class="lbl">Aus dem Katalog</span><span class="rs">antippen zum Auswählen</span></div>
+      <div class="list" style="margin-top:8px">
+        <div class="row" style="padding:11px 12px;min-height:46px"><span class="box on"><svg viewBox="0 0 24 24" style="width:13px;height:13px"><use href="#i-check"></use></svg></span><div class="rmain"><div class="rt" style="font-weight:600">Zu spät zum Training</div></div><div class="amt" style="font-size:14px">5,00 &euro;</div></div>
+        <div class="row" style="padding:6px 12px 11px;min-height:0;justify-content:flex-end;gap:10px"><span class="box" style="width:30px;height:30px;font:700 15px Inter,sans-serif">&minus;</span><span class="num" style="font:700 14px Inter,sans-serif;color:var(--ink)">2&times;</span><span class="box" style="width:30px;height:30px;font:700 15px Inter,sans-serif">+</span></div>
+        <div class="row" style="padding:11px 12px;min-height:46px"><span class="box"></span><div class="rmain"><div class="rt" style="font-weight:600">Gelb-Rote Karte (Meckern)</div></div><div class="amt" style="font-size:14px">10,00 &euro;</div></div>
+        <div class="row" style="padding:11px 12px;min-height:46px"><span class="box"></span><div class="rmain"><div class="rt" style="font-weight:600">Trikot / Ausrüstung vergessen</div></div><div class="amt" style="font-size:14px">5,00 &euro;</div></div>
+      </div>
+      <div class="lbl" style="margin-top:14px">Individuelle Strafe</div>
+      <div class="stack" style="margin-top:8px">
+        <div class="in pl">Betrag &euro;</div>
+        <div class="in pl">Grund</div>
+        <button class="btn sec2 wide">Hinzufügen</button>
+      </div>
+      <div class="lbl" style="margin-top:14px">Datum &amp; Kommentar</div>
+      <div class="stack" style="margin-top:8px">
+        <div class="in num">10.09.2026</div>
+        <div class="in pl" style="min-height:64px;align-items:flex-start;padding-top:13px">Kommentar (optional)</div>
+      </div>
+      <div style="margin-top:12px;background:var(--green);border-radius:12px;padding:12px 13px;display:flex;justify-content:space-between;align-items:center;gap:10px"><div><div style="font:700 14px Inter,sans-serif;color:#fff">3 Spieler &times; 2 Strafen</div><div class="dnum-s">6 Einträge werden angelegt</div></div><div class="dnum">30,00 &euro;</div></div>
+      <button class="btn wide" style="margin-top:10px">Strafen speichern</button>
+    </div>
+    <div class="sec">Prüfen &amp; verbuchen</div>
+    <div class="chips"><span class="chip on">Zu prüfen (5)</span><span class="chip">Offen (18)</span><span class="chip">Eingegangen (42)</span></div>
+    <div class="stack" style="margin-top:12px">
+      <div class="card" style="padding:13px 14px">
+        <div style="display:flex;align-items:center;gap:12px"><span class="av">MS</span><div class="rmain"><div class="rt">Moritz Schäfer</div><div class="rs">Trikot vergessen &middot; gemeldet am 8. Sep</div></div><div class="amt" style="font-size:15px">5,00 &euro;</div></div>
+        <div class="btns" style="margin-top:10px"><button class="btn" style="min-height:42px">Eingang bestätigen</button><button class="btn sec2" style="min-height:42px;font-size:14px">Ablehnen</button></div>
+      </div>
+      <div class="card" style="padding:13px 14px">
+        <div style="display:flex;align-items:center;gap:12px"><span class="av">SL</span><div class="rmain"><div class="rt">Simon Lang</div><div class="rs">Handy in der Besprechung &middot; gemeldet am 8. Sep</div></div><div class="amt" style="font-size:15px">5,00 &euro;</div></div>
+        <div class="btns" style="margin-top:10px"><button class="btn" style="min-height:42px">Eingang bestätigen</button><button class="btn sec2" style="min-height:42px;font-size:14px">Ablehnen</button></div>
+      </div>
+    </div>
+  </div>
+  <div class="nav">
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-home"></use></svg><span>Übersicht</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-cal"></use></svg><span>Kalender</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-book"></use></svg><span>Katalog</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-card"></use></svg><span>Konto</span></div>
+    <div class="nb on"><svg class="ic" viewBox="0 0 24 24"><use href="#i-dots"></use></svg><span>Mehr</span></div>
+  </div>
+</div>
+</div>
+
+</div>
+<p class="note">Der wichtigste Betrag steht im Kopfblock groß in Gold, alles Weitere als Kennzahlen-Reihe darunter. Die Zusammenfassung vor dem Speichern ist in der Kasse dunkelgrün &ndash; sie ist der Moment vor der verbindlichen Aktion.</p>
+</section>
+
+<section class="sect" id="t4">
+<div class="sect-h"><a class="sect-n" href="#t4">4</a><span class="sect-t">Konto &amp; Verwaltung</span></div>
+<div class="rowwrap">
+
+<div class="frame" id="f-einstellungen">
+<div class="frame-h"><a class="tagn" href="#f-einstellungen">4a</a>Einstellungen</div>
+<div class="ph" data-screen-label="Einstellungen">
+  <div class="hdb">
+    <div class="hdb-top"><img class="hdb-logo" src="assets/logo.png" alt="FC Fasanerie-Nord"><div class="hdb-t">Einstellungen</div><svg class="hdb-ic" viewBox="0 0 24 24"><use href="#i-gear"></use></svg></div>
+    <div class="eyebrow">Angemeldet</div>
+    <div class="dsplit">
+      <div><div class="dtitle">Lukas Weber</div><div class="dsub">Trainer &middot; Kassenwart</div></div>
+      <span class="av dark" style="width:44px;height:44px;font-size:15px">LW</span>
+    </div>
+    <div class="dbtns"><button class="btn-ghost wide">Abmelden</button></div>
+  </div>
+  <div class="bd">
+    <div class="list">
+      <div class="row"><div class="rmain"><div class="lbl">E-Mail</div></div><span class="rs">lukas.weber@example.de</span></div>
+      <div class="row"><div class="rmain"><div class="lbl">Spieler</div></div><span class="rs">Lukas Weber &middot; Nr. 10</span></div>
+    </div>
+    <div class="sec">Verwaltung</div>
+    <div class="card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+        <div><div class="lbl">Spielplan (BFV)</div><div style="font:700 15px Inter,sans-serif;color:var(--ink);margin-top:3px">FC Fasanerie-Nord II</div></div>
+        <a href="#f-einstellungen" style="font:600 13px Inter,sans-serif">Ändern</a>
+      </div>
+      <div class="rs" style="margin-top:10px">Zuletzt aktualisiert: 09.09.2026, 04:12 Uhr. Läuft zusätzlich täglich automatisch.</div>
+      <button class="btn wide" style="margin-top:12px">Jetzt aktualisieren</button>
+    </div>
+    <div class="card" style="margin-top:8px">
+      <div class="lbl">Strafenkatalog</div>
+      <div class="rs" style="margin-top:4px">Vergehen und Beträge werden im Katalog gepflegt.</div>
+      <button class="btn sec2 wide" style="margin-top:10px">Strafenkatalog öffnen</button>
+    </div>
+    <p class="rs" style="text-align:center;margin-top:22px;opacity:.7">Build 2026-09-09-A &middot; <a href="#f-einstellungen">Diagnose</a></p>
+  </div>
+  <div class="nav">
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-home"></use></svg><span>Übersicht</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-cal"></use></svg><span>Kalender</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-book"></use></svg><span>Katalog</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-card"></use></svg><span>Konto</span></div>
+    <div class="nb on"><svg class="ic" viewBox="0 0 24 24"><use href="#i-dots"></use></svg><span>Mehr</span></div>
+  </div>
+</div>
+</div>
+
+<div class="frame" id="f-profil">
+<div class="frame-h"><a class="tagn" href="#f-profil">4b</a>Profil &middot; Status direkt im Kopfblock</div>
+<div class="ph" data-screen-label="Profil">
+  <div class="hdb">
+    <div class="hdb-top"><img class="hdb-logo" src="assets/logo.png" alt="FC Fasanerie-Nord"><div class="hdb-t">Profil</div><svg class="hdb-ic" viewBox="0 0 24 24"><use href="#i-gear"></use></svg></div>
+    <div class="dsplit" style="margin-top:16px">
+      <div><div class="dtitle">Tim Richter</div><div class="dsub">Spieler &middot; Nr. 11 &middot; Stürmer</div></div>
+      <span class="av dark" style="width:44px;height:44px;font-size:15px">TR</span>
+    </div>
+    <div class="eyebrow">Mein Fitnessstatus</div>
+    <div class="seg" style="margin-top:8px"><span class="sg on">fit</span><span class="sg">angeschlagen</span><span class="sg">verletzt</span></div>
+  </div>
+  <div class="bd">
+    <div class="kpi3">
+      <div class="kpi"><div class="lbl">Zusagen</div><div class="kpi-v">82%</div><div class="kpi-s">Saison</div></div>
+      <div class="kpi"><div class="lbl">Einsätze</div><div class="kpi-v">9</div><div class="kpi-s">von 11 Spielen</div></div>
+      <div class="kpi"><div class="lbl">Offen</div><div class="kpi-v warn sm">10,00 &euro;</div><div class="kpi-s">2 Strafen</div></div>
+    </div>
+    <div class="sec">Meine Rückmeldungen</div>
+    <div class="list">
+      <div class="row"><div class="bar" style="background:var(--gr)"></div><div class="rmain"><div class="rt">Training Do 10. Sep</div><div class="rs">Zugesagt am 8. Sep</div></div><span class="bdg bdg-ok">Zusage</span></div>
+      <div class="row"><div class="bar" style="background:var(--gold)"></div><div class="rmain"><div class="rt">Spiel So 13. Sep</div><div class="rs">Noch keine Rückmeldung</div></div><span class="bdg bdg-rep">offen</span></div>
+      <div class="row"><div class="bar" style="background:var(--gr)"></div><div class="rmain"><div class="rt">Training Di 15. Sep</div><div class="rs">Zugesagt am 8. Sep</div></div><span class="bdg bdg-ok">Zusage</span></div>
+    </div>
+  </div>
+  <div class="nav">
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-home"></use></svg><span>Übersicht</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-cal"></use></svg><span>Kalender</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-book"></use></svg><span>Katalog</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-card"></use></svg><span>Konto</span></div>
+  </div>
+</div>
+</div>
+
+<div class="frame" id="f-rollen">
+<div class="frame-h"><a class="tagn" href="#f-rollen">4c</a>Rollen verwalten &middot; nur Admin</div>
+<div class="ph" data-screen-label="Rollen verwalten">
+  <div class="hdb">
+    <div class="hdb-top"><img class="hdb-logo" src="assets/logo.png" alt="FC Fasanerie-Nord"><div class="hdb-t">Rollen verwalten</div><span class="pill">ADMIN</span></div>
+    <div class="dsplit" style="margin-top:16px">
+      <div><div class="dtitle">16 Mitglieder</div><div class="dsub">2 Trainer &middot; 1 Kassenwart &middot; 1 Admin</div></div>
+    </div>
+    <div class="eyebrow">Ansicht testen als</div>
+    <div class="seg" style="margin-top:8px"><span class="sg">Spieler</span><span class="sg">Trainer</span><span class="sg">Kassenwart</span><span class="sg on">Admin</span></div>
+    <div class="dsub" style="margin-top:10px">Reine Anzeige-Vorschau &ndash; ändert nichts an Rechten oder Daten. Alle Zugriffe bleiben serverseitig per RLS abgesichert.</div>
+  </div>
+  <div class="bd">
+    <div class="list">
+      <table class="tbl">
+        <thead><tr><th>Mitglied</th><th class="tc">Tr</th><th class="tc">Ka</th><th class="tc">Ad</th></tr></thead>
+        <tbody>
+          <tr><td><div style="display:flex;align-items:center;gap:9px"><span class="av" style="width:28px;height:28px;font-size:11px">LW</span><div><div class="rt" style="font-size:13px">Lukas Weber</div><div class="rs" style="font-size:11px">lukas.weber@example.de</div></div></div></td><td class="tc"><span class="box on"><svg viewBox="0 0 24 24" style="width:12px;height:12px"><use href="#i-check"></use></svg></span></td><td class="tc"><span class="box on"><svg viewBox="0 0 24 24" style="width:12px;height:12px"><use href="#i-check"></use></svg></span></td><td class="tc"><span class="box"></span></td></tr>
+          <tr><td><div style="display:flex;align-items:center;gap:9px"><span class="av" style="width:28px;height:28px;font-size:11px">JB</span><div><div class="rt" style="font-size:13px">Jonas Becker</div><div class="rs" style="font-size:11px">jonas.becker@example.de</div></div></div></td><td class="tc"><span class="box"></span></td><td class="tc"><span class="box"></span></td><td class="tc"><span class="box on"><svg viewBox="0 0 24 24" style="width:12px;height:12px"><use href="#i-check"></use></svg></span></td></tr>
+          <tr><td><div style="display:flex;align-items:center;gap:9px"><span class="av" style="width:28px;height:28px;font-size:11px">TR</span><div><div class="rt" style="font-size:13px">Tim Richter</div><div class="rs" style="font-size:11px">tim.richter@example.de</div></div></div></td><td class="tc"><span class="box"></span></td><td class="tc"><span class="box"></span></td><td class="tc"><span class="box"></span></td></tr>
+          <tr><td><div style="display:flex;align-items:center;gap:9px"><span class="av" style="width:28px;height:28px;font-size:11px">SM</span><div><div class="rt" style="font-size:13px">Sebastian Maier</div><div class="rs" style="font-size:11px">s.maier@example.de</div></div></div></td><td class="tc"><span class="box"></span></td><td class="tc"><span class="box on"><svg viewBox="0 0 24 24" style="width:12px;height:12px"><use href="#i-check"></use></svg></span></td><td class="tc"><span class="box"></span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="rs" style="margin-top:12px">Neue Mitglieder erscheinen hier, sobald sie sich registriert haben.</p>
+  </div>
+  <div class="nav">
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-home"></use></svg><span>Übersicht</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-cal"></use></svg><span>Kalender</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-book"></use></svg><span>Katalog</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-card"></use></svg><span>Konto</span></div>
+    <div class="nb on"><svg class="ic" viewBox="0 0 24 24"><use href="#i-dots"></use></svg><span>Mehr</span></div>
+  </div>
+</div>
+</div>
+
+<div class="frame" id="f-mehr">
+<div class="frame-h"><a class="tagn" href="#f-mehr">4d</a>Mehr-Menü</div>
+<div class="ph" data-screen-label="Mehr-Menü">
+  <div class="hdb">
+    <div class="hdb-top"><img class="hdb-logo" src="assets/logo.png" alt="FC Fasanerie-Nord"><div class="hdb-t">FC Fasanerie-Nord II</div><span class="pill">TRAINER</span></div>
+    <div class="eyebrow">Nächster Termin &middot; in 4 Std.</div>
+    <div class="dsplit">
+      <div><div class="dtitle">Training</div><div class="dmeta">Do 10. Sep &middot; 19:30</div></div>
+      <div style="text-align:right;flex:none"><div class="dnum">0/16</div><div class="dnum-s">zugesagt</div></div>
+    </div>
+    <div class="dbtns"><button class="btn-gold">Kader anschreiben</button><button class="btn-ghost">Aufstellung</button></div>
+  </div>
+  <div class="bd">
+    <div class="kpi3">
+      <div class="kpi"><div class="lbl">Zu prüfen</div><div class="kpi-v">5</div><div class="kpi-s num">140,00 &euro;</div></div>
+      <div class="kpi"><div class="lbl">Offen</div><div class="kpi-v warn">99</div><div class="kpi-s num">2.596,00 &euro;</div></div>
+      <div class="kpi"><div class="lbl">Verletzt</div><div class="kpi-v">2</div><div class="kpi-s">im Kader</div></div>
+    </div>
+    <div class="sec">Was heute liegt</div>
+    <div class="list">
+      <div class="row"><div class="bar" style="background:var(--red)"></div><div class="rmain"><div class="rt">5 Zahlungen bestätigen</div><div class="rs">Kassenwart &middot; seit 2 Tagen</div></div><div class="chev">&rsaquo;</div></div>
+      <div class="row"><div class="bar" style="background:var(--gold)"></div><div class="rmain"><div class="rt">Aufstellung So 13. Sep</div><div class="rs">10 von 11 gesetzt</div></div><div class="chev">&rsaquo;</div></div>
+    </div>
+  </div>
+  <div class="nav">
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-home"></use></svg><span>Übersicht</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-cal"></use></svg><span>Kalender</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-book"></use></svg><span>Katalog</span></div>
+    <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-card"></use></svg><span>Konto</span></div>
+    <div class="nb on"><svg class="ic" viewBox="0 0 24 24"><use href="#i-dots"></use></svg><span>Mehr</span></div>
+  </div>
+  <div class="sheet">
+    <div class="panel">
+      <div class="sh-t">Mehr</div>
+      <div class="mi">Aufstellung<span class="chev">&rsaquo;</span></div>
+      <div class="mi">Kasse<span class="chev">&rsaquo;</span></div>
+      <div class="mi">Rollen<span class="chev">&rsaquo;</span></div>
+      <div class="mi">Einstellungen<span class="chev">&rsaquo;</span></div>
+      <div class="mi">Profil<span class="chev">&rsaquo;</span></div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div>
+<p class="note">Auch Verwaltungsansichten bekommen den Kopfblock: er trägt dort die Identität (wer bin ich, welche Rolle) statt eines Termins. Die Rollen-Vorschau sitzt bewusst im Dunkeln &ndash; sie ist ein Werkzeug, kein Inhalt.</p>
+</section>
+
+<section class="sect" id="t5" style="border-bottom:0">
+<div class="sect-h"><a class="sect-n" href="#t5">5</a><span class="sect-t">Einstieg</span></div>
+<div class="rowwrap">
+
+<div class="frame" id="f-anmeldung">
+<div class="frame-h"><a class="tagn" href="#f-anmeldung">5a</a>Anmeldung</div>
+<div class="ph" style="min-height:720px" data-screen-label="Anmeldung">
+  <div class="auth">
+    <div class="auth-card">
+      <div class="auth-crest"><img src="assets/logo.png" alt="FC Fasanerie-Nord"></div>
+      <h1 class="auth-t">Anmelden</h1>
+      <p class="auth-s">FC Fasanerie-Nord &middot; Mannschaftsbereich</p>
+      <label class="fld"><span class="fl">E-Mail</span><span class="in pl">name@example.de</span></label>
+      <label class="fld"><span class="fl">Passwort</span><span class="in pl">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</span></label>
+      <button class="btn wide" style="margin-top:16px">Anmelden</button>
+      <div style="text-align:center;margin-top:12px"><a href="#f-anmeldung" style="font:600 13px Inter,sans-serif">Passwort vergessen?</a></div>
+      <div class="auth-sw">Noch kein Konto? <a href="#f-anmeldung" style="font-weight:700">Jetzt registrieren</a></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="frame" id="f-spielerwahl">
+<div class="frame-h"><a class="tagn" href="#f-spielerwahl">5b</a>Einmalige Spielerzuordnung</div>
+<div class="ph" data-screen-label="Spielerzuordnung">
+  <div class="hdb">
+    <div class="hdb-top"><img class="hdb-logo" src="assets/logo.png" alt="FC Fasanerie-Nord"><div class="hdb-t">FC Fasanerie-Nord II</div></div>
+    <div class="dsplit" style="margin-top:16px"><div><div class="dtitle">Willkommen!</div></div></div>
+    <div class="dsub" style="margin-top:8px">Bitte wähle einmalig, welcher Spieler du bist &ndash; dann ordnen wir dir Strafen, Termine und Zu-/Absagen korrekt zu.</div>
+  </div>
+  <div class="bd">
+    <div class="list">
+      <div class="row"><span class="av">TW</span><div class="rmain"><div class="rt">Tobias Wagner <span class="rs num">#1</span></div></div><div class="chev">&rsaquo;</div></div>
+      <div class="row"><span class="av">JK</span><div class="rmain"><div class="rt">Jan Krüger <span class="rs num">#2</span></div></div><div class="chev">&rsaquo;</div></div>
+      <div class="row"><span class="av">MB</span><div class="rmain"><div class="rt">Max Bauer <span class="rs num">#4</span></div></div><div class="chev">&rsaquo;</div></div>
+      <div class="row"><span class="av">JB</span><div class="rmain"><div class="rt">Jonas Becker <span class="rs num">#6</span></div></div><div class="chev">&rsaquo;</div></div>
+      <div class="row"><span class="av">LW</span><div class="rmain"><div class="rt">Lukas Weber <span class="rs num">#10</span></div></div><div class="chev">&rsaquo;</div></div>
+      <div class="row"><span class="av">TR</span><div class="rmain"><div class="rt">Tim Richter <span class="rs num">#11</span></div></div><div class="chev">&rsaquo;</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div>
+<p class="note">Die Anmeldung ist in 1b konsequent: die dunkelgrüne Fläche, die sonst nur oben liegt, füllt hier den ganzen Bildschirm. Danach schrumpft sie auf den Kopfblock zusammen &ndash; derselbe Stoff, nur weniger davon.</p>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{}'>
+  class Component extends DCLogic {
+    renderVals() { return {}; }
+  }
+</script>
+</body>
+</html>
