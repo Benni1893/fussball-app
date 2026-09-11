@@ -1151,7 +1151,12 @@ body.auth-mode .app-footer { display: none; }
 
 /* ---------- Trainerseite v2 (Aufstellung – Neubau) ------------------------- */
 /* Zustand 1: Spielauswahl (normale View-Scrollfläche) */
-.tv-gcard { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow-sm); padding: 12px 14px; margin-bottom: 10px; min-height: 64px; }
+.tv-gcard { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--gold-500); border-radius: 14px; box-shadow: var(--shadow-sm); padding: 12px 14px; margin-bottom: 10px; min-height: 64px; }
+.tv-gcard.is-home { border-left-color: var(--spiel-heim); }
+.tv-gcard.is-away { border-left-color: var(--spiel-ausw); }
+/* Datumsplakette: dieselbe wie in der Terminkarte, hier im Spiel-Ton. */
+.tv-gcard .event-date { display: block; background: var(--gold-050); }
+/* .tv-gdate: seit Paket 7b ungenutzt, bleibt bis zum Aufraeumpaket. */
 .tv-gdate { flex: 0 0 auto; width: 50px; text-align: center; }
 .tv-gdate b { display: block; font-size: 20px; font-weight: 800; color: var(--green-800); line-height: 1; }
 .tv-gdate span { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; }
@@ -1160,7 +1165,7 @@ body.auth-mode .app-footer { display: none; }
 .tv-gmeta { display: block; font-size: 12.5px; color: var(--muted); margin-top: 1px; }
 .tv-gchip { flex: 0 0 auto; font-size: 11px; font-weight: 800; padding: 4px 9px; border-radius: 999px; background: var(--bg); color: var(--muted); border: 1px solid var(--line); }
 .tv-gchip.on { background: var(--green-050); color: var(--green-800); border-color: var(--green-500); }
-.tv-garrow { flex: 0 0 auto; color: var(--line); font-size: 22px; font-weight: 800; }
+.tv-garrow { flex: 0 0 auto; color: var(--muted); font-size: 22px; font-weight: 800; }
 
 /* Zustand 2: Aufstellung – füllt Bereich zwischen Kopfzeile und Nav */
 .view:has(.tv-lu) { padding: 0; max-width: none; }
@@ -1172,9 +1177,9 @@ body.auth-mode .app-footer { display: none; }
 .tv-sub { font-size: 11.5px; font-weight: 600; color: var(--muted); margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tv-formbar { display: flex; align-items: center; gap: 8px; overflow-x: auto; padding: 6px clamp(10px,3vw,14px); background: var(--card); border-bottom: 1px solid var(--line); scrollbar-width: none; }
 .tv-formbar::-webkit-scrollbar { display: none; }
-.tv-fpill { flex: 0 0 auto; min-height: 44px; display: flex; align-items: center; gap: 8px; padding: 5px 12px 5px 7px; border: 1px solid var(--line); background: var(--bg); border-radius: 999px; font-weight: 700; font-size: 13px; color: var(--ink); }
+.tv-fpill { flex: 0 0 auto; min-height: 44px; display: flex; align-items: center; gap: 8px; padding: 5px 12px 5px 7px; border: 1px solid var(--line); background: var(--bg); border-radius: 10px; font-weight: 700; font-size: 13px; color: var(--ink); }
 .tv-fpill.on { background: var(--green-050); border-color: var(--green-500); color: var(--green-800); }
-.tv-fmore { flex: 0 0 auto; min-height: 44px; padding: 0 14px; border: 1px dashed var(--line); background: var(--card); border-radius: 999px; font-weight: 700; font-size: 13px; color: var(--muted); }
+.tv-fmore { flex: 0 0 auto; min-height: 44px; padding: 0 14px; border: 1px dashed var(--line); background: var(--card); border-radius: 10px; font-weight: 700; font-size: 13px; color: var(--muted); }
 /* Nur Punkte als Erkennungsmuster – kein Rasen, kein Rahmen, keine Linien. */
 .tv-mini { position: relative; display: inline-block; width: 20px; height: 26px; flex: 0 0 auto; }
 .tv-mini i { position: absolute; width: 2.5px; height: 2.5px; border-radius: 50%; background: var(--green-700); transform: translate(-50%,-50%); }
@@ -1201,7 +1206,8 @@ body.auth-mode .app-footer { display: none; }
 .tv-cta .tv-primary { margin-bottom: 8px; }
 .tv-ghost { width: 100%; min-height: 44px; border: 1px solid rgba(255,255,255,.4); background: transparent; color: #fff; border-radius: 12px; font-weight: 700; }
 .tv-actions { flex: 0 0 auto; padding: 6px clamp(12px,4vw,18px) 8px; background: var(--card); border-top: 1px solid var(--line); }
-.tv-primary { width: 100%; min-height: 48px; border: 0; border-radius: 12px; background: var(--green-700); color: #fff; font-weight: 800; font-size: 15px; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 8px; line-height: 1.15; }
+/* Zweizeilig (2a): Titel oben, Zaehler klein darunter. */
+.tv-primary { width: 100%; min-height: 54px; border: 0; border-radius: 12px; background: var(--green-700); color: #fff; font-weight: 800; font-size: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; line-height: 1.15; }
 .tv-primary:disabled { opacity: .6; }
 .tv-primary small { font-weight: 600; opacity: .8; font-size: 12px; }
 /* Nur-Ansehen (vergangene Spiele): keine Bearbeitung, Hinweis statt Speichern. */
@@ -1265,8 +1271,11 @@ body.auth-mode .app-footer { display: none; }
 
 /* Auswechselbank: 7 kompakte Slots, passt auf 390px ohne H-Scroll. */
 .tv-bank { flex: 0 0 auto; padding: 4px clamp(8px,3vw,14px) 4px; background: var(--card); border-top: 1px solid var(--line); }
-.tv-bank-h { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin: 0 2px 4px; }
-.tv-bank-h span { opacity: .7; margin-left: 4px; }
+/* Abschnittstitel-Sprache wie im Rest der App. Bewusst nur .95rem statt 1.1rem:
+   .tv-lu hat feste Hoehe, jede Zeile hier nimmt dem Spielfeld Platz weg. */
+.tv-bank-h { display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+  font-size: .95rem; font-weight: 700; color: var(--ink); margin: 0 2px 5px; }
+.tv-bank-h span { font-size: .8rem; font-weight: 600; color: var(--muted); }
 .tv-bank-row { display: flex; gap: 4px; }
 .tv-bslot { flex: 1 1 0; min-width: 0; min-height: 46px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; border: 1px dashed var(--line); background: transparent; border-radius: 9px; padding: 3px 2px; }
 .tv-bslot.filled { border-style: solid; border-color: var(--gold-500); background: var(--card); }

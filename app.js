@@ -2005,13 +2005,17 @@
     tv.view = "games"; tv.dirty = false; tv.readonly = false; tvClosePanels();
     const up = DEMO.events.filter(e => e.typ === "spiel" && isFuture(e.datum)).sort((a, b) => a.datum.localeCompare(b.datum));
     viewEl.innerHTML =
-      '<div class="page-head"><h1>Aufstellung</h1><p>Spiel wählen</p></div>' +
+      '<div class="page-head"><h1>Trainer</h1><p>Spiel wählen, danach baust du die Elf auf dem Platz.</p></div>' +
       (up.length ? up.map(tvGameCard).join("") : '<div class="empty">Kein anstehendes Spiel. Sobald im Kalender ein Spiel angelegt ist, kannst du hier die Aufstellung bauen.</div>');
   }
   function tvGameCard(e) {
     const active = (DEMO.lineups || []).some(l => l.eventId === e.id && l.isActive && !l.isTemplate);
-    return '<button class="tv-gcard" data-tvgame="' + e.id + '">' +
-      '<span class="tv-gdate"><b>' + fmtDay(e.datum) + '</b><span>' + fmtMon(e.datum) + '</span></span>' +
+    // Kante links und Datumsplakette wie im Kalender – gleiche Klassen, gleiche Tokens.
+    const heimCls = e.heim === true ? " is-home" : e.heim === false ? " is-away" : "";
+    return '<button class="tv-gcard' + heimCls + '" data-tvgame="' + e.id + '">' +
+      '<span class="event-date"><span class="d-wd">' + fmtWd(e.datum) + '</span>' +
+        '<span class="d-day">' + fmtDay(e.datum) + '</span>' +
+        '<span class="d-mon">' + fmtMon(e.datum) + '</span></span>' +
       '<span class="tv-gmain"><span class="tv-gopp">' + (e.heim ? "vs. " : "@ ") + esc(e.gegner || e.titel) + '</span>' +
         '<span class="tv-gmeta">' + (e.zeit ? e.zeit + " Uhr · " : "") + (e.heim ? "Heim" : "Auswärts") + '</span></span>' +
       '<span class="tv-gchip' + (active ? " on" : "") + '">' + (active ? "aktiv" : "offen") + '</span><span class="tv-garrow">›</span></button>';
@@ -2078,7 +2082,7 @@
   // Auswechselbank: 7 kompakte Slots. Optional, unabhaengig von der Startelf.
   function tvBankHtml() {
     const ro = tv.readonly;
-    let h = '<div class="tv-bank"><div class="tv-bank-h">Bank <span>' + tv.bank.length + '/' + TV_BANK_MAX + '</span></div><div class="tv-bank-row">';
+    let h = '<div class="tv-bank"><div class="tv-bank-h">Bank<span>' + tv.bank.length + '/' + TV_BANK_MAX + '</span></div><div class="tv-bank-row">';
     const slots = ro ? tv.bank.length : TV_BANK_MAX;   // nur ansehen: keine Leer-Slots
     for (let i = 0; i < slots; i++) {
       const pid = tv.bank[i], p = pid ? playerById[pid] : null;
