@@ -315,6 +315,7 @@
   }
   function render() {
     stopCountdowns(); // Timer der vorigen Ansicht sauber aufräumen
+    closeAllSheets(); // kein Sheet darf über der neuen Ansicht hängen bleiben
     try {
       if (currentView !== "lineup") { lbTeardownPanels(); tvTeardownPanels(); } // Aufstellungs-Panels nur dort
       if (currentView === "dashboard") renderDashboard();
@@ -3489,6 +3490,20 @@
 
   function openMoreSheet()  { const s = document.getElementById("moreSheet"); if (s) s.hidden = false; }
   function closeMoreSheet() { const s = document.getElementById("moreSheet"); if (s) s.hidden = true; }
+
+  /* Alle Bottom-Sheets schliessen. Laeuft am Anfang von render(), damit bei JEDEM
+     Ansichtswechsel keins ueber der neuen Seite haengen bleibt – Bottom-Nav,
+     Mehr-Menue, Kachel-Sprung und vor allem die Zurueck-Geste (popstate), die
+     sonst am Sheet vorbei die Ansicht wechselt.
+     Entscheidend wegen lockBodyScroll(): ohne das passende close() liefe
+     unlockBodyScroll() nie und der body bliebe fixiert – die neue Seite waere
+     dann nicht mehr scrollbar. Beide close()-Funktionen pruefen intern auf
+     Existenz, laufen also folgenlos ins Leere, wenn nichts offen ist. */
+  function closeAllSheets() {
+    closeMoreSheet();
+    closeCalSheet();
+    closeRsvpSheet();
+  }
 
   document.getElementById("appNav").addEventListener("click", (ev) => {
     const b = ev.target.closest(".nav-btn");
