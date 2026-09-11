@@ -1320,7 +1320,12 @@
       const slots = FORMATIONS[lu.formation] || [];
       const startelf = slots.map((s) => (lu.slots || {})[s.key]).filter(Boolean).map((id) => playerById[id]).filter(Boolean);
       const bank = (lu.bank || []).map((id) => playerById[id]).filter(Boolean);
-      return { modus: "aufstellung", startelf: startelf, bank: bank, dabei: startelf };
+      // Nur eine VOLLSTAENDIGE Aufstellung (jede Position der Formation besetzt)
+      // taugt als Kaderquelle. Halb gefuellt waere die Nachricht irrefuehrend –
+      // dann sind die Zusagen die ehrlichere Grundlage.
+      if (slots.length && startelf.length === slots.length) {
+        return { modus: "aufstellung", startelf: startelf, bank: bank, dabei: startelf };
+      }
     }
     const dabei = DEMO.players
       .filter((p) => (state.rsvp[e.id + "|" + p.id] || {}).status === "zu")
@@ -1335,19 +1340,17 @@
     const ort = e.ort ? ` (${e.ort})` : "";
     const gegner = e.gegner || "unbekannt";
     const spielTyp = e.heim ? `Heimspiel gegen ${gegner}` : `Auswärtsspiel bei ${gegner}`;
-    const namen = (arr) => arr.map((p) => p.name).join(", ");
 
     const zeilen = [];
     zeilen.push(`Kader für ${wt}, ${e.zeit} Uhr, ${spielTyp}${ort}.`);
     if (e.note) zeilen.push(e.note + (/[.!?]$/.test(e.note) ? "" : "."));
 
     const q = kaderQuelle(e);
-    if (q.modus === "aufstellung") {
-      zeilen.push(`Startelf: ${namen(q.startelf) || "–"}.`);
-      if (q.bank.length) zeilen.push(`Bank: ${namen(q.bank)}.`);
-    } else {
-      zeilen.push(q.dabei.length ? `Es spielen: ${namen(q.dabei)}.` : `Es haben noch keine Spieler zugesagt.`);
-    }
+    // Ein Name pro Zeile – gleiche Form in beiden Faellen, ohne Ueberschriften
+    // und ohne Trennzeile. Aufstellung: Elf zuerst, dann Bank. Sonst: alle Zusagen.
+    const alle = q.modus === "aufstellung" ? q.startelf.concat(q.bank) : q.dabei;
+    if (alle.length) alle.forEach((p) => zeilen.push(p.name));
+    else zeilen.push("Es haben noch keine Spieler zugesagt.");
     zeilen.push("Bitte pünktlich sein!");
     return zeilen.join("\n");
   }
