@@ -374,18 +374,21 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 
 /* ---------- Termin-Karten -------------------------------------------------- */
 .event-list { display: flex; flex-direction: column; gap: 10px; }
+/* Gestapelte Karte (Paket 7a): Kopfzeile aus Datumsplakette und Inhalt, darunter
+   Zu-/Absage, Statuszeile, BFV-Hinweis und Trainer-Aktionen. iPhone-first – am
+   Desktop wird die Karte breit statt dreispaltig, das ist so gewollt. */
 .event {
-  display: grid;
-  grid-template-columns: 56px 1fr auto;
-  gap: 12px;
-  align-items: center;
   background: var(--card);
   border: 1px solid var(--line);
   border-left: 4px solid var(--green-500);
   border-radius: var(--radius);
-  padding: 12px 14px;
+  padding: 13px 14px;
   box-shadow: var(--shadow-sm);
 }
+.ev-head { display: flex; align-items: flex-start; gap: 12px; }
+.ev-head .event-main { flex: 1 1 auto; min-width: 0; }
+.event-list.is-past { opacity: .72; }
+.kal-past-title { margin-top: 28px; }
 .event.typ-spiel    { border-left-color: var(--gold-500); } /* Spiel ohne bekannten Heim/Auswärts-Status */
 .event.typ-spiel.is-home { border-left-color: var(--spiel-heim); }
 .event.typ-spiel.is-away { border-left-color: var(--spiel-ausw); }
@@ -393,6 +396,8 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .event.typ-sonstiges        { border-left-color: var(--typ-sonstiges); }
 
 .event-date {
+  flex: none;
+  width: 48px;
   text-align: center;
   background: var(--green-050);
   border-radius: 10px;
@@ -458,6 +463,23 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .bfv-hint { font-size: .78rem; color: var(--muted); }
 
 /* ---------- RSVP ----------------------------------------------------------- */
+/* Zu-/Absage in der Terminkarte: volle Breite, zwei gleich grosse Flaechen (2a). */
+.ev-rsvp { display: flex; gap: 8px; margin-top: 11px; }
+.ev-rsvp .btn {
+  flex: 1 1 0; min-height: 46px; justify-content: center;
+  font-size: .95rem; border-radius: 10px;
+}
+.ev-rsvp .rsvp-cancelled { flex: 1 1 auto; }
+/* Statuszeile: Meldeschluss und Zusagezaehler in EINER Zeile unter den Schaltflaechen. */
+.ev-status {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px;
+  margin-top: 8px; font-size: .82rem;
+}
+.ev-status .frist { margin-top: 0; }
+.ev-status .frist-warn { flex-basis: 100%; }   /* Warnung bekommt eine eigene Zeile */
+.ev-sep { color: var(--muted); }
+
+/* .rsvp/.rsvp-buttons: seit Paket 7a ungenutzt, bleiben bis zum Aufraeumpaket. */
 .rsvp { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; min-width: 150px; }
 .rsvp-buttons { display: flex; gap: 6px; }
 .btn {
@@ -549,7 +571,11 @@ tbody tr:hover { background: #fbfdfc; }
 .ks-name { flex: 1; min-width: 0; font-weight: 600; }
 .ks-select { padding: 5px 8px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font: inherit; font-size: .85rem; }
 
-.e-trainer { margin-top: 8px; }
+/* Trainer-Aktionen sitzen seit Paket 7a ueber die volle Kartenbreite unter der
+   Statuszeile. Der Bearbeiten-Stift rueckt ans rechte Ende. */
+.e-trainer { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.e-trainer .icon-btn { margin-left: auto; }
+.e-trainer .btn { min-height: 44px; }
 /* Direktsprung in die Aufstellung: dezent (btn-soft), aber Touch-Ziel >=44px. */
 .lu-jump { min-height: 44px; }
 #tvUnsaved .btn { min-height: 44px; justify-content: center; }
@@ -672,7 +698,7 @@ tbody tr:hover { background: #fbfdfc; }
 /* Kalender: zwei volle Buttons unter der Filterzeile (gestapelt) */
 .kal-cta { display: flex; flex-direction: column; gap: 10px; margin: 6px 0 20px; }
 .kal-cta-btn {
-  width: 100%; min-height: 48px; display: flex; align-items: center; justify-content: center;
+  width: 100%; min-height: 56px; display: flex; align-items: center; justify-content: center;
   gap: 10px; text-align: left;
 }
 .kal-cta-btn svg { width: 22px; height: 22px; flex: none; }
@@ -804,7 +830,9 @@ tbody tr:hover { background: #fbfdfc; }
 .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
 .chip {
   border: 1px solid var(--line); background: var(--card); color: var(--muted);
-  border-radius: 999px; padding: 7px 14px; font: inherit; font-weight: 600; font-size: .85rem; cursor: pointer;
+  border-radius: 999px; padding: 0 16px; font: inherit; font-weight: 600; font-size: .85rem; cursor: pointer;
+  min-height: 44px;                                  /* harte Regel: Tap-Flaeche >= 44px */
+  display: inline-flex; align-items: center; justify-content: center;
   transition: all .12s;
 }
 .chip:hover { border-color: var(--green-500); color: var(--green-700); }
@@ -967,8 +995,7 @@ body.auth-mode .app-footer { display: none; }
 
 /* ---------- Responsiv ------------------------------------------------------ */
 @media (max-width: 640px) {
-  .event { grid-template-columns: 56px 1fr; }
-  .rsvp { grid-column: 1 / -1; align-items: stretch; flex-direction: row; justify-content: space-between; margin-top: 4px; }
+  /* .event/.rsvp brauchen hier nichts mehr: die Karte ist seit Paket 7a immer gestapelt. */
   .brand-text small { display: none; }
 }
 

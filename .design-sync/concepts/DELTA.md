@@ -412,10 +412,12 @@ Reihenfolge: erst Styling, dann Logik, dann Schema. Jedes Paket ist für sich te
 ### Paket 1a — App-weite 44px-Tap-Flächen *(nachgetragen am 11.09.2026)*
 **Dateien:** `styles.css`
 **Aufwand:** M — klein im Umfang, aber breit in der Wirkung: die Regel fasst jede Schaltfläche der App an
-**Inhalt:** Das Basis-`.btn` hat heute **keine** `min-height` und liegt bei rund 35px; `.chip` liegt bei rund 33px, `.link-btn` hat gar keine Mindesthöhe. Damit verfehlen die Zu-/Absage-Buttons auf allen Terminkarten, alle Filterleisten und alle Textlinks in Zeilen die harte 44px-Regel aus `conventions.md`. Das ist eine **vorbestehende Abweichung**, kein Konzeptfehler — beide Konzepte erben sie nur. Punktuelle Ausnahmen existieren bereits (`.bfv-actions .btn`, `.cal-actions .btn`, `.st-choice`, `.venue-link`), sie sollen in der allgemeinen Regel aufgehen.
-**Warum eigenes Paket:** Eine `min-height` an `.btn`, `.chip` und `.link-btn` verschiebt Zeilenhöhen und Umbrüche in praktisch jeder Ansicht. Das gehört nicht als Nebenwirkung in ein Feature-Paket, sondern einmal bewusst und einzeln getestet. In Paket 3 wurde die 46px-Höhe deshalb **nur** auf `.th-rsvp .btn` und `.th-links .link-btn` begrenzt.
-**Reihenfolge:** Vor den Logik-Paketen, nach Paket 1 — sonst wird jedes spätere Paket die Frage erneut aufwerfen.
-**iPhone-Test:** Als Spieler → Kalender → Zusage und Absage an einer Terminkarte mit dem Daumen treffen, ohne zu zielen; danach Filterleiste „Spiele/Training" antippen. Dann → Konto → Filterreihe durchtippen. Nichts darf umbrechen, keine Karte darf höher werden als nötig, kein waagerechtes Scrollen.
+**Inhalt:** Das Basis-`.btn` hat heute **keine** `min-height` und liegt bei rund 35px, `.link-btn` hat gar keine. Damit verfehlen alle Schaltflächen außerhalb der bereits angehobenen Stellen und alle Textlinks in Zeilen die harte 44px-Regel aus `conventions.md`. Das ist eine **vorbestehende Abweichung**, kein Konzeptfehler — beide Konzepte erben sie nur. Punktuelle Ausnahmen existieren bereits (`.bfv-actions .btn`, `.cal-actions .btn`, `.st-choice`, `.venue-link`, `.lu-jump`), sie sollen in der allgemeinen Regel aufgehen.
+**Bereits erledigt, nicht mehr Teil dieses Pakets:** `.chip` wurde in **Paket 7a** global auf 44px angehoben (Entscheidung vom 11.09.2026: eine Chip-Höhe nur für den Kalender hätte genau die Inkonsistenz erzeugt, vor der `conventions.md` warnt). Die Zu-/Absage-Flächen liegen in Übersicht (`.th-rsvp .btn`, Paket 3) und Kalender (`.ev-rsvp .btn`, Paket 7a) bereits bei 46px.
+**Was übrig bleibt:** `min-height` an `.btn` und `.link-btn` — betrifft vor allem Kasse, Einstellungen, Katalog und die Dialoge.
+**Warum weiterhin eigenes Paket:** Die Regel verschiebt Zeilenhöhen und Umbrüche in Ansichten, die sonst in keinem Paket angefasst werden. Das gehört einmal bewusst und einzeln getestet, nicht als Nebenwirkung in ein Feature-Paket.
+**Reihenfolge:** Vor den Logik-Paketen, nach Paket 1.
+**iPhone-Test:** Als Kassenwart → Kasse → die Schaltflächen „Hinzufügen", „Eingang bestätigen" und „Ablehnen" mit dem Daumen treffen, ohne zu zielen. Dann → Einstellungen → „Abmelden" und „Strafenkatalog öffnen". Nichts darf umbrechen, keine Karte darf höher werden als nötig, kein waagerechtes Scrollen.
 
 ### Paket 2 — Kopf und Navigation
 **Dateien:** `styles.css`, bei 1b zusätzlich `index.html`

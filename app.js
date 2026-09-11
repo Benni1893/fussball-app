@@ -665,8 +665,8 @@
       ${kommend.length ? `<div class="event-list">${kommend.map((e) => eventCard(e, true)).join("")}</div>`
                        : `<div class="empty">Keine kommenden Termine in dieser Auswahl.</div>`}
       ${vergangen.length ? `
-        <div class="section-title" style="margin-top:28px"><h2>Vergangene Termine</h2></div>
-        <div class="event-list" style="opacity:.72">${vergangen.map((e) => eventCard(e, false)).join("")}</div>` : ""}
+        <div class="section-title kal-past-title"><h2>Vergangene Termine</h2></div>
+        <div class="event-list is-past">${vergangen.map((e) => eventCard(e, false)).join("")}</div>` : ""}
     `;
 
     startCountdowns(); // Meldeschluss-Countdowns dieser Ansicht live halten
@@ -833,12 +833,9 @@
   }
 
   function eventCard(e, withRsvp = true) {
-    const tagMap = {
-      spiel:            ``,  // kein "Spiel"-Label – die Paarung macht den Typ ohnehin klar
-      training:         `<span class="tag tag-training">Training</span>`,
-      sonstiges:        ``,  // freier Titel steht ohnehin da
-    };
-    // Heim/Auswärts wird NICHT mehr als Text-Tag gezeigt, sondern als Farbbalken
+    // Typ-Marke als Text entfaellt (Paket 7a): Kante links und Titel tragen den Typ
+    // ohnehin. Die uebrigen Marken (Freundschaft, Abgesagt, manuell) bleiben.
+    // Heim/Auswärts wird NICHT als Text-Tag gezeigt, sondern als Farbbalken
     // links an der Kachel (Klassen is-home / is-away).
     const heimCls = e.typ === "spiel"
       ? (e.heim === true ? " is-home" : e.heim === false ? " is-away" : "")
@@ -881,39 +878,52 @@
 
     // Zusagen-Zahlen nur fuer Trainer/Admin. Spieler sehen nur ihren eigenen Status.
     const showCount = Roles.canManageEvents();
+
+    // Zu-/Absage: volle Breite unter dem Inhalt (2a). Bei abgesagten Terminen
+    // stehen dort keine Schaltflaechen, sondern der Hinweis.
     let rsvpHtml = "";
     if (cancelled) {
-      rsvpHtml = `<div class="rsvp"><span class="rsvp-cancelled">Abgesagt</span></div>`;
+      rsvpHtml = `<div class="ev-rsvp"><span class="rsvp-cancelled">Abgesagt</span></div>`;
     } else if (withRsvp && future) {
       rsvpHtml = `
-        <div class="rsvp">
-          <div class="rsvp-buttons">
-            <button class="btn btn-zu ${r.status === "zu" ? "is-on" : ""}" data-rsvp="zu" data-event="${e.id}">Zusage</button>
-            <button class="btn btn-ab ${r.status === "ab" ? "is-on" : ""}" data-rsvp="ab" data-event="${e.id}">Absage</button>
-          </div>
-          ${showCount ? `<div class="rsvp-count"><b>${zusagen}</b> / ${DEMO.players.length} zugesagt</div>` : ""}
-          ${r.status === "ab" && r.grund ? `<div class="rsvp-reason">Grund: ${esc(r.grund)}</div>` : ""}
+        <div class="ev-rsvp">
+          <button class="btn btn-zu ${r.status === "zu" ? "is-on" : ""}" data-rsvp="zu" data-event="${e.id}">Zusage</button>
+          <button class="btn btn-ab ${r.status === "ab" ? "is-on" : ""}" data-rsvp="ab" data-event="${e.id}">Absage</button>
         </div>`;
-    } else if (showCount) {
-      rsvpHtml = `<div class="rsvp"><div class="rsvp-count"><b>${zusagen}</b> / ${DEMO.players.length} dabei</div></div>`;
     }
+
+    // Statuszeile unter den Schaltflaechen: Meldeschluss und Zusagezaehler in
+    // EINER Zeile (2a). Der Zaehler bleibt Trainer/Admin vorbehalten.
+    const countHtml = (!cancelled && showCount)
+      ? `<span class="rsvp-count"><b>${zusagen}</b> / ${DEMO.players.length} ${(withRsvp && future) ? "zugesagt" : "dabei"}</span>`
+      : "";
+    const statusHtml = (fristHtml || countHtml)
+      ? `<div class="ev-status">${fristHtml}${fristHtml && countHtml ? `<span class="ev-sep" aria-hidden="true">·</span>` : ""}${countHtml}</div>`
+      : "";
+    const reasonHtml = (!cancelled && withRsvp && future && r.status === "ab" && r.grund)
+      ? `<div class="rsvp-reason">Grund: ${esc(r.grund)}</div>` : "";
 
     const venue = venueHtml(e);
     return `
       <div class="event typ-${e.typ}${heimCls}${cancelled ? " is-cancelled" : ""}" id="ev-${e.id}">
-        <div class="event-date">
-          <span class="d-wd">${fmtWd(e.datum)}</span>
-          <span class="d-day">${fmtDay(e.datum)}</span>
-          <span class="d-mon">${fmtMon(e.datum)}</span>
+        <div class="ev-head">
+          <div class="event-date">
+            <span class="d-wd">${fmtWd(e.datum)}</span>
+            <span class="d-day">${fmtDay(e.datum)}</span>
+            <span class="d-mon">${fmtMon(e.datum)}</span>
+          </div>
+          <div class="event-main">
+            <div class="e-title">${titel}${friendlyTag}${cancelledTag}${manuellTag}</div>
+            ${e.zeit ? `<div class="e-time">${e.zeit}${e.ende ? "&#8211;" + esc(e.ende) : ""} Uhr</div>` : ""}
+            ${venue ? `<div class="e-meta">${venue}</div>` : ""}
+            ${e.note ? `<div class="e-note">${esc(e.note)}</div>` : ""}
+          </div>
         </div>
-        <div class="event-main">
-          <div class="e-title">${titel} ${tagMap[e.typ] || ""} ${friendlyTag} ${cancelledTag} ${manuellTag}</div>
-          ${e.zeit ? `<div class="e-time">${e.zeit}${e.ende ? "&#8211;" + esc(e.ende) : ""} Uhr</div>` : ""}
-          ${venue ? `<div class="e-meta">${venue}</div>` : ""}
-          ${e.note ? `<div class="e-note">${esc(e.note)}</div>` : ""}
-          ${fristHtml}
-          ${bfvBlock}
-          ${(() => {
+        ${rsvpHtml}
+        ${statusHtml}
+        ${reasonHtml}
+        ${bfvBlock}
+        ${(() => {
             const acts = [];
             if (e.typ === "spiel" && Roles.canManageEvents()) {
               const alu = (DEMO.lineups || []).find((l) => l.eventId === e.id && l.isActive && !l.isTemplate);
@@ -929,8 +939,6 @@
               acts.push(`<button class="icon-btn" title="Termin bearbeiten" aria-label="Termin bearbeiten" data-termin-edit="${e.id}">${ICON_PENCIL}</button>`);
             return acts.length ? `<div class="e-trainer">${acts.join("")}</div>` : "";
           })()}
-        </div>
-        ${rsvpHtml}
       </div>`;
   }
 
