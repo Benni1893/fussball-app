@@ -409,6 +409,14 @@ Reihenfolge: erst Styling, dann Logik, dann Schema. Jedes Paket ist für sich te
 **Inhalt:** Kantenfarbe links an Karten (grün/gold/rot), 14px-Radius durchziehen, Zeilenhöhen und Abstände der Listen vereinheitlichen, Datumsplakette angleichen. Kein Markup, kein `app.js`.
 **iPhone-Test:** Als Spieler → Kalender → hoch und runter scrollen: alle Terminkarten haben dieselbe Kante links, keine Karte ist breiter als der Bildschirm, kein waagerechtes Scrollen.
 
+### Paket 1a — App-weite 44px-Tap-Flächen *(nachgetragen am 11.09.2026)*
+**Dateien:** `styles.css`
+**Aufwand:** M — klein im Umfang, aber breit in der Wirkung: die Regel fasst jede Schaltfläche der App an
+**Inhalt:** Das Basis-`.btn` hat heute **keine** `min-height` und liegt bei rund 35px; `.chip` liegt bei rund 33px, `.link-btn` hat gar keine Mindesthöhe. Damit verfehlen die Zu-/Absage-Buttons auf allen Terminkarten, alle Filterleisten und alle Textlinks in Zeilen die harte 44px-Regel aus `conventions.md`. Das ist eine **vorbestehende Abweichung**, kein Konzeptfehler — beide Konzepte erben sie nur. Punktuelle Ausnahmen existieren bereits (`.bfv-actions .btn`, `.cal-actions .btn`, `.st-choice`, `.venue-link`), sie sollen in der allgemeinen Regel aufgehen.
+**Warum eigenes Paket:** Eine `min-height` an `.btn`, `.chip` und `.link-btn` verschiebt Zeilenhöhen und Umbrüche in praktisch jeder Ansicht. Das gehört nicht als Nebenwirkung in ein Feature-Paket, sondern einmal bewusst und einzeln getestet. In Paket 3 wurde die 46px-Höhe deshalb **nur** auf `.th-rsvp .btn` und `.th-links .link-btn` begrenzt.
+**Reihenfolge:** Vor den Logik-Paketen, nach Paket 1 — sonst wird jedes spätere Paket die Frage erneut aufwerfen.
+**iPhone-Test:** Als Spieler → Kalender → Zusage und Absage an einer Terminkarte mit dem Daumen treffen, ohne zu zielen; danach Filterleiste „Spiele/Training" antippen. Dann → Konto → Filterreihe durchtippen. Nichts darf umbrechen, keine Karte darf höher werden als nötig, kein waagerechtes Scrollen.
+
 ### Paket 2 — Kopf und Navigation
 **Dateien:** `styles.css`, bei 1b zusätzlich `index.html`
 **Aufwand:** 2a = S · 1b = M
@@ -490,7 +498,7 @@ Grundlage: `.design-sync/conventions.md` (App-Rahmen, zwei harte Regeln), `.clau
 | 5 | **Aufstellung Variante B** (Tippen-zum-Zuweisen mit Kader-Vollbild) | Der Auswahlweg ist in keinem Entwurf dargestellt, beide zeigen nur die fertige Elf | 2a **und** 1b | Nicht ändern. Der Entwurf bildet nur den Endzustand ab, beim Bauen bleibt `tvOpenKader()` unangetastet |
 | 6 | dito | Beide Konzepte führen eine **Vorlagen-Liste** ein, die die aktive Aufstellung v2 bewusst nicht mehr zeigt | 2a **und** 1b | Produktentscheidung, siehe offene Frage 2 |
 | 7 | dito | 1b verschiebt die Formationsleiste in den mitscrollenden Kopfblock, weg vom Platz | nur 1b | Leiste über dem Platz belassen |
-| 8 | **Alles Antippbare mindestens 44px** | Filtermarken sind 34px (2a) bzw. 32px (1b) hoch | 2a **und** 1b | **Vorbestehende Abweichung**: das heutige `.chip` liegt bei rund 33px. Kein neuer Fehler, aber 1b macht es minimal schlimmer. Beim Umbau auf 44px anheben |
+| 8 | **Alles Antippbare mindestens 44px** | Filtermarken sind 34px (2a) bzw. 32px (1b) hoch | 2a **und** 1b | **Vorbestehende Abweichung**: `.chip` liegt heute bei rund 33px, das Basis-`.btn` bei rund 35px, `.link-btn` ohne Mindesthöhe. Kein neuer Fehler, aber 1b macht es minimal schlimmer. Als **Paket 1a** eigenständig eingeplant |
 | 9 | **Eingabefelder auf 16px** | In den Entwürfen sind Felder als Text dargestellt (15px), nicht als echte Felder | 2a **und** 1b | Reine Darstellungssache, beim Bauen das `.kat-in`-Muster mit 16px verwenden |
 | 10 | **Farbsprache: offen = rot, erledigt = dunkelgrün** | 1b zeigt den eigenen offenen Betrag groß in **Gold** | nur 1b | Siehe offene Frage 5 |
 | 11 | **Keine Utilities, semantische Klassen** | Beide Entwürfe arbeiten mit kurzen technischen Klassennamen (`.bd`, `.rt`, `.rs`, `.sg`) | 2a **und** 1b | Nur Entwurfssprache, bei der Umsetzung gilt die Klassenliste aus `conventions.md` |

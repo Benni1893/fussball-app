@@ -351,6 +351,64 @@
     return parts.find((p) => p.length === 32) || null;
   }
   function bfvIcalUrl(id) { return "https://service.bfv.de/rest/icsexport/teammatches/teamPermanentId/" + id; }
+  /* Termin-Hero der Übersicht (Paket 3). Baut auf den vorhandenen Bausteinen auf:
+     RSVP-Logik (data-rsvp/data-event), Spielstätten-Link, Meldeschluss-Helfer.
+     Trainer/Admin sehen Zusagezähler + Absprünge, Spieler den eigenen Meldeschluss. */
+  function terminHeroHtml(e) {
+    if (!e) {
+      return `<div class="termin-hero">
+        <div class="th-label">Nächster Termin</div>
+        <div class="empty">Keine kommenden Termine.</div>
+      </div>`;
+    }
+    // Kantenfarbe links: dieselben Modifier wie bei der Terminkarte.
+    const heimCls = e.typ === "spiel"
+      ? (e.heim === true ? " is-home" : e.heim === false ? " is-away" : "")
+      : "";
+    const titel = (e.typ === "spiel" && e.gegner)
+      ? (() => { const p = paarung(e); return `${p.home} <span class="vs">–</span> ${p.away}`; })()
+      : esc(e.titel);
+    const zeit = `${fmtWd(e.datum)}, ${fmtDay(e.datum)}. ${fmtMon(e.datum)}`
+      + (e.zeit ? ` · ${esc(e.zeit)}${e.ende ? "&#8211;" + esc(e.ende) : ""} Uhr` : "");
+    const venue = venueHtml(e);
+    const r = state.rsvp[e.id + "|" + state.currentPlayerId] || {};
+    const cancelled = e.status === "abgesagt";
+    const future = isFuture(e.datum);
+
+    // Zusagen-Zahlen nur fuer Trainer/Admin – Spieler sehen stattdessen ihre Frist.
+    const showCount = Roles.canManageEvents();
+    const zusagen = DEMO.players.filter((p) => (state.rsvp[e.id + "|" + p.id] || {}).status === "zu").length;
+    const unten = showCount
+      ? `<div class="th-links">
+           <span class="rsvp-count"><b>${zusagen}</b> / ${DEMO.players.length} zugesagt</span>
+           ${e.typ === "spiel" ? `<button class="link-btn" data-lineup-edit="${e.id}">Aufstellung</button>` : ""}
+           <button class="link-btn" disabled aria-disabled="true" title="Kommt im nächsten Schritt">Kader ansehen</button>
+         </div>`
+      : fristBlockHtml(e);
+
+    return `
+      <div class="termin-hero typ-${e.typ}${heimCls}${cancelled ? " is-cancelled" : ""}">
+        <div class="th-label">${e.datum === HEUTE ? "Heute" : "Nächster Termin"}</div>
+        <div class="th-head" data-nav="termin" role="button" tabindex="0">
+          <div class="th-body">
+            <div class="th-title">${titel}</div>
+            <div class="th-time">${zeit}</div>
+          </div>
+          <span class="kpi-go" aria-hidden="true">›</span>
+        </div>
+        ${venue ? `<div class="th-meta">${venue}</div>` : ""}
+        ${cancelled
+          ? `<div class="th-rsvp"><span class="rsvp-cancelled">Abgesagt</span></div>`
+          : future
+            ? `<div class="th-rsvp">
+                 <button class="btn btn-zu ${r.status === "zu" ? "is-on" : ""}" data-rsvp="zu" data-event="${e.id}">Zusage</button>
+                 <button class="btn btn-ab ${r.status === "ab" ? "is-on" : ""}" data-rsvp="ab" data-event="${e.id}">Absage</button>
+               </div>`
+            : ""}
+        ${unten}
+      </div>`;
+  }
+
   function renderDashboard() {
     const me = playerById[state.currentPlayerId];
     const naechste = DEMO.events.filter((e) => isFuture(e.datum)).sort((a, b) => a.datum.localeCompare(b.datum));
@@ -408,37 +466,31 @@
         <h1>Servus, ${esc(me.name.split(" ")[0])}!</h1>
       </div>
 
-      <div class="kpi-grid">
-        <div class="kpi kpi-tap" data-nav="termin" role="button" tabindex="0">
-          <div class="kpi-body">
-            <div class="kpi-label">Nächster Termin</div>
-            <div class="kpi-value" style="font-size:1.25rem">${naechstes ? fmtLong(naechstes.datum).split(",")[0] + ", " + fmtDay(naechstes.datum) + ". " + fmtMon(naechstes.datum) : "–"}</div>
-            <div class="kpi-sub">${naechstes ? esc(eventTitel(naechstes)) + " · " + naechstes.zeit + " Uhr" : "Keine Termine"}</div>
-          </div>
-          <span class="kpi-go" aria-hidden="true">${"›"}</span>
-        </div>
-        <div class="kpi kpi-tap" data-nav="spiele" role="button" tabindex="0">
+      ${terminHeroHtml(naechstes)}
+
+      <div class="kpi-rows">
+        <div class="kpi-row kpi-tap" data-nav="spiele" role="button" tabindex="0">
           <div class="kpi-body">
             <div class="kpi-label">Kommende Spiele</div>
-            <div class="kpi-value">${naechsteSpiele}</div>
             <div class="kpi-sub">in der Restsaison</div>
           </div>
+          <span class="kpi-value">${naechsteSpiele}</span>
           <span class="kpi-go" aria-hidden="true">${"›"}</span>
         </div>
-        <div class="kpi kpi-tap ${meineOffen > 0 ? "is-warn" : ""}" data-nav="meine-strafen" role="button" tabindex="0">
+        <div class="kpi-row kpi-tap ${meineOffen > 0 ? "is-warn" : ""}" data-nav="meine-strafen" role="button" tabindex="0">
           <div class="kpi-body">
             <div class="kpi-label">Meine offenen Strafen</div>
-            <div class="kpi-value kpi-amt">${euro(meineOffen).replace(/\s/g, " ")}</div>
             <div class="kpi-sub">${meineOffen > 0 ? "bitte begleichen" : "alles bezahlt – top!"}</div>
           </div>
+          <span class="kpi-value kpi-amt">${euro(meineOffen).replace(/\s/g, " ")}</span>
           <span class="kpi-go" aria-hidden="true">${"›"}</span>
         </div>
-        <div class="kpi kpi-tap" data-nav="kasse" role="button" tabindex="0">
+        <div class="kpi-row kpi-tap" data-nav="kasse" role="button" tabindex="0">
           <div class="kpi-body">
             <div class="kpi-label">Mannschaftskasse offen</div>
-            <div class="kpi-value kpi-amt">${euro(offeneGesamt).replace(/\s/g, " ")}</div>
             <div class="kpi-sub">${offene.length} offene Strafen im Team</div>
           </div>
+          <span class="kpi-value kpi-amt">${euro(offeneGesamt).replace(/\s/g, " ")}</span>
           <span class="kpi-go" aria-hidden="true">${"›"}</span>
         </div>
       </div>
@@ -475,6 +527,8 @@
 
       ${trainerHtml}
     `;
+
+    startCountdowns(); // Meldeschluss-Countdown im Termin-Hero live halten (Spieler-Ansicht)
   }
 
   // Adress-Bereinigung + Norm-Schlüssel – IDENTISCH zur Feed-Funktion in api/calendar.js,
@@ -760,6 +814,24 @@
     return text ? `<span>${esc(text)}</span>` : "";
   }
 
+  // Meldeschluss-Hinweis/Countdown (nur Spiele & Trainings mit aktiver Automatik).
+  // Gemeinsam genutzt von der Terminkarte und vom Termin-Hero der Übersicht –
+  // damit beide Orte dieselbe Frist zeigen und nur eine Stelle gepflegt wird.
+  function fristBlockHtml(e) {
+    if (!isFuture(e.datum) || e.auto === false || (e.typ !== "spiel" && e.typ !== "training")) return "";
+    const dl = meldeschlussMs(e);
+    const start = eventStartMs(e);
+    const now = Date.now();
+    if (dl != null && now < dl) {
+      return `<div class="frist"><span class="frist-label">Meldeschluss:</span> <span class="cd" data-cd-deadline="${new Date(dl).toISOString()}"></span></div>`;
+    }
+    if (start != null && now < start) {
+      const noResp = e.typ === "spiel" ? "25 €" : "15 €";
+      return `<div class="frist frist-warn">Meldeschluss vorbei – Rückmeldung jetzt kostet 8 €, keine Rückmeldung ${noResp}.</div>`;
+    }
+    return "";
+  }
+
   function eventCard(e, withRsvp = true) {
     const tagMap = {
       spiel:            ``,  // kein "Spiel"-Label – die Paarung macht den Typ ohnehin klar
@@ -804,19 +876,8 @@
       return parts.length ? `<div class="e-bfv">${parts.join("")}</div>` : "";
     })() : "";
 
-    // Meldeschluss-Hinweis/Countdown (nur Spiele & Trainings mit aktiver Automatik)
-    let fristHtml = "";
-    if (future && e.auto !== false && (e.typ === "spiel" || e.typ === "training")) {
-      const dl = meldeschlussMs(e);
-      const start = eventStartMs(e);
-      const now = Date.now();
-      if (dl != null && now < dl) {
-        fristHtml = `<div class="frist"><span class="frist-label">Meldeschluss:</span> <span class="cd" data-cd-deadline="${new Date(dl).toISOString()}"></span></div>`;
-      } else if (start != null && now < start) {
-        const noResp = e.typ === "spiel" ? "25 €" : "15 €";
-        fristHtml = `<div class="frist frist-warn">Meldeschluss vorbei – Rückmeldung jetzt kostet 8 €, keine Rückmeldung ${noResp}.</div>`;
-      }
-    }
+    // Meldeschluss-Hinweis/Countdown – gemeinsamer Helfer, siehe fristBlockHtml().
+    const fristHtml = fristBlockHtml(e);
 
     // Zusagen-Zahlen nur fuer Trainer/Admin. Spieler sehen nur ihren eigenen Status.
     const showCount = Roles.canManageEvents();

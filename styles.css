@@ -258,9 +258,9 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
   position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
   background: var(--gold-500);
 }
-.kpi .kpi-label { font-size: .74rem; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); font-weight: 700; }
+.kpi .kpi-label, .kpi-row .kpi-label { font-size: .74rem; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); font-weight: 700; }
 .kpi .kpi-value { font-size: 1.6rem; font-weight: 800; margin-top: 3px; color: var(--green-800); }
-.kpi .kpi-sub { font-size: .82rem; color: var(--muted); margin-top: 2px; }
+.kpi .kpi-sub, .kpi-row .kpi-sub { font-size: .82rem; color: var(--muted); margin-top: 2px; }
 .kpi.is-warn::before { background: var(--red-600); }
 .kpi.is-warn .kpi-value { color: var(--red-600); }
 /* Antippbare KPI-Kacheln: Inhalt und Pfeil je in EIGENER Spalte (Flex) -> Betrag/Text laufen nie
@@ -295,6 +295,82 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
   margin: 0 0 10px;
 }
 .section-title h2 { font-size: 1.1rem; font-weight: 700; margin: 0; }
+
+/* ---------- Termin-Hero (Übersicht) ---------------------------------------
+   Loest das Vier-Kachel-Raster ab. Kantenfarbe links kommt aus denselben
+   Tokens wie die Terminkarte, damit Uebersicht und Kalender gleich sprechen. */
+.termin-hero {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+.termin-hero.typ-spiel            { border-left-color: var(--gold-500); }
+.termin-hero.typ-spiel.is-home    { border-left-color: var(--spiel-heim); }
+.termin-hero.typ-spiel.is-away    { border-left-color: var(--spiel-ausw); }
+.termin-hero.typ-training         { border-left-color: var(--typ-training); }
+.termin-hero.typ-sonstiges        { border-left-color: var(--typ-sonstiges); }
+.termin-hero.is-cancelled         { border-left-color: var(--red-600); }
+.termin-hero.is-cancelled .th-title { text-decoration: line-through; color: var(--muted); }
+
+.th-label {
+  font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
+  color: var(--muted);
+}
+/* Kopfbereich ist der Absprung in den Kalender – Buttons liegen bewusst ausserhalb. */
+.th-head {
+  display: flex; align-items: center; gap: 10px;
+  min-height: 44px; margin-top: 6px;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: transform .08s ease;
+}
+.th-head:active { transform: scale(.99); }
+.th-head:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; border-radius: 8px; }
+.th-body { flex: 1 1 auto; min-width: 0; }
+.th-title {
+  font-size: 1.35rem; font-weight: 800; line-height: 1.2; color: var(--green-800);
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.th-time {
+  font-size: var(--fs-event-time); font-weight: 700; color: var(--ink);
+  font-variant-numeric: tabular-nums; margin-top: 2px;
+}
+.th-meta { margin-top: 2px; }
+/* Zu-/Absage im Hero: 46px, damit die Hauptaktion sicher zu treffen ist. */
+.th-rsvp { display: flex; gap: 8px; margin-top: 12px; }
+.th-rsvp .btn {
+  flex: 1 1 0; min-height: 46px; justify-content: center;
+  font-size: .95rem; border-radius: 10px;
+}
+.th-links {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  margin-top: 10px;
+}
+.th-links .link-btn { min-height: 44px; }
+.link-btn[disabled] { color: var(--muted); text-decoration: none; cursor: default; }
+.termin-hero .frist { margin-top: 10px; }
+.termin-hero .empty { padding: 10px 0; }
+
+/* ---------- Kennzahl-Zeilen (Übersicht) -----------------------------------
+   Ersetzen die uebrigen drei Kacheln. Gleiche Sprungziele wie zuvor. */
+.kpi-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.kpi-row {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 10px 14px;
+  min-height: 52px;
+}
+.kpi-row .kpi-body { flex: 1 1 auto; min-width: 0; }
+.kpi-row .kpi-value { font-size: 1.15rem; font-weight: 800; color: var(--green-800); flex: 0 0 auto; }
+.kpi-row .kpi-value.kpi-amt { font-variant-numeric: tabular-nums; }
+.kpi-row.is-warn { border-left: 4px solid var(--red-600); }
+.kpi-row.is-warn .kpi-value { color: var(--red-600); }
 
 /* ---------- Termin-Karten -------------------------------------------------- */
 .event-list { display: flex; flex-direction: column; gap: 10px; }
@@ -339,9 +415,9 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
   margin-top: 2px;
 }
 .event-main .e-title { font-weight: 700; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.e-title .team-own { font-weight: 800; }
-.e-title .team-opp { font-weight: 500; }
-.e-title .vs { color: var(--muted); font-weight: 500; }
+.e-title .team-own, .th-title .team-own { font-weight: 800; }
+.e-title .team-opp, .th-title .team-opp { font-weight: 500; }
+.e-title .vs, .th-title .vs { color: var(--muted); font-weight: 500; }
 .event-main .e-meta  { color: var(--muted); font-size: .88rem; margin-top: 3px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 /* Spielstätte als Karten-Link */
 .venue-link { display: inline-flex; align-items: center; gap: 5px; min-height: 44px; color: var(--green-700); text-decoration: underline; text-underline-offset: 2px; font-weight: 600; }
