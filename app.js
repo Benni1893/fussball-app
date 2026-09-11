@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-05-J";
+  var APP_BUILD = "2026-09-11-A";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -758,6 +758,7 @@
     const feedback = (txt) => { const fb = q("[data-cal-copied]"); if (fb) { fb.textContent = txt; fb.hidden = false; setTimeout(() => { fb.hidden = true; }, 1800); } };
 
     ov.addEventListener("click", (e) => { if (e.target === ov || e.target.closest("[data-sheet-close]")) closeCalSheet(); });
+    sheetSwipeToClose(ov.querySelector(".more-panel"), null, closeCalSheet);
     q("[data-cal-open]").addEventListener("click", () => setTimeout(closeCalSheet, 150)); // nach dem Abo-Sprung schließen
     q("[data-cal-copy]").addEventListener("click", async () => {
       const url = calendarSubscribeUrl(); if (!url) return;
@@ -829,6 +830,7 @@
     ov.addEventListener("click", (ev) => {
       if (ev.target === ov || ev.target.closest("[data-sheet-close]")) closeRsvpSheet();
     });
+    sheetSwipeToClose(ov.querySelector(".more-panel"), ov.querySelector(".rsvp-sheet"), closeRsvpSheet);
   }
 
   function renderKalender() {
@@ -2592,10 +2594,7 @@
       ? `${euro(k.proEinheit || 0).replace(/\s/g, " ")} / ${k.schritt || 1} ${esc(k.einheit || "")}${k.maxBetrag != null ? " · max " + euro(k.maxBetrag).replace(/\s/g, " ") : ""}`
       : euro(k.betrag).replace(/\s/g, " ");
     return `<div class="kat-item">
-      <span class="kat-main">
-        <span class="kat-name">${esc(k.vergehen)}${k.typ === "staffel" ? ` <span class="badge badge-auto">gestaffelt</span>` : ""}</span>
-        ${k.kategorie ? `<span class="kat-kat">${esc(k.kategorie)}</span>` : ""}
-      </span>
+      <span class="kat-name">${esc(k.vergehen)}${k.typ === "staffel" ? ` <span class="badge badge-auto">gestaffelt</span>` : ""}</span>
       <span class="kat-amount">${amt}</span>
       ${canEdit ? `<div class="kat-actions">
         <button class="icon-btn" data-kat-edit="${k.id}" aria-label="Bearbeiten">${ICON_EDIT}</button>
@@ -2609,7 +2608,6 @@
     const nm = (n) => (n == null ? "" : String(n).replace(".", ","));
     return `<div class="kat-item kat-edit${isStaffel ? " is-staffel" : ""}">
       <input class="kat-in kat-in-name" data-kat-input="name" type="text" placeholder="Bezeichnung" value="${esc(k ? k.vergehen : "")}">
-      <input class="kat-in" data-kat-input="kategorie" type="text" placeholder="Kategorie (optional, z. B. Pünktlichkeit)" value="${esc(k ? (k.kategorie || "") : "")}">
       <select class="kat-in kat-type" data-kat-type>
         <option value="fixed"${!isStaffel ? " selected" : ""}>Festbetrag</option>
         <option value="staffel"${isStaffel ? " selected" : ""}>Gestaffelt</option>
@@ -2871,16 +2869,20 @@
   //   unten: Aktionsbuttons in einer Reihe · optional Audit-Verlauf
   // strafeText/metaText/actions sind bereits fertiges HTML.
   function krowHtml(s, strafeText, metaText, actions) {
+    // Aufbau wie die Strafenzeile im Konto: Avatar, Name, Vergehen mit Datum,
+    // rechts Betrag ueber Zustandsmarke. Aktionen darunter.
     return `<div class="krow">
       <div class="krow-head">
         <span class="avatar">${initials(s.player.name)}</span>
         <div class="krow-info">
           <div class="krow-title">${esc(s.player.name)}</div>
-          <div class="krow-strafe">${strafeText}</div>
-          <div class="krow-meta"><span>${metaText}</span>${statusBadgeHtml(s)}</div>
+          <div class="krow-strafe">${strafeText}${metaText ? " · " + metaText : ""}</div>
           ${s.ablehnGrund && s.st === "offen" ? `<div class="fine-reason">Abgelehnt: ${esc(s.ablehnGrund)}</div>` : ""}
         </div>
-        <div class="krow-amt">${euro(s.betrag).replace(/\s/g, " ")}</div>
+        <div class="krow-right">
+          <div class="krow-amt">${euro(s.betrag).replace(/\s/g, " ")}</div>
+          ${statusBadgeHtml(s)}
+        </div>
       </div>
       ${actions ? `<div class="krow-actions">${actions}</div>` : ""}
       ${kasseHistHtml(s.id)}
@@ -3024,7 +3026,7 @@
         <button class="tv-primary kasse-save" data-kasse-add${build.valid ? "" : " disabled"}>Strafen speichern</button>
       </div>`}
 
-      <div class="section-title"><h2>Prüfen &amp; verbuchen</h2></div>
+      <div class="section-title kasse-verbuchen"><h2>Prüfen &amp; verbuchen</h2></div>
       <div class="toolbar">
         <button class="chip ${kasse.tab === "pruefen" ? "is-active" : ""}" data-kstab="pruefen">Zu prüfen (${gemeldet.length})</button>
         <button class="chip ${kasse.tab === "offen" ? "is-active" : ""}" data-kstab="offen">Offen (${offen.length})</button>
@@ -3365,14 +3367,14 @@
           if (!isFinite(proE) || proE < 0) { window.alert("Bitte einen gültigen Betrag je Schritt eingeben."); return; }
           if (!isFinite(schritt) || schritt < 1) { window.alert("Bitte eine gültige Schrittweite (mindestens 1) eingeben."); return; }
           if (!einheit) { window.alert("Bitte eine Einheit angeben (z. B. Minuten)."); return; }
-          const opts = { typ: "staffel", einheit, proEinheit: proE, schritt, maxBetrag: (maxB != null && isFinite(maxB)) ? maxB : null, kategorie: gv("kategorie").trim() };
+          const opts = { typ: "staffel", einheit, proEinheit: proE, schritt, maxBetrag: (maxB != null && isFinite(maxB)) ? maxB : null };
           if (t.dataset.katSave === "new") await DB.insertCatalog(DEMO.clubId, name, 0, opts);
           else await DB.updateCatalog(t.dataset.katSave, name, 0, opts);
         } else {
           const amount = num(gv("amount"));
           if (!isFinite(amount) || amount <= 0) { window.alert("Bitte einen gültigen Betrag größer 0 eingeben."); return; }
-          if (t.dataset.katSave === "new") await DB.insertCatalog(DEMO.clubId, name, amount, { typ: "fixed", kategorie: gv("kategorie").trim() });
-          else await DB.updateCatalog(t.dataset.katSave, name, amount, { typ: "fixed", kategorie: gv("kategorie").trim() });
+          if (t.dataset.katSave === "new") await DB.insertCatalog(DEMO.clubId, name, amount, { typ: "fixed" });
+          else await DB.updateCatalog(t.dataset.katSave, name, amount, { typ: "fixed" });
         }
         katEdit = null;
         await reloadData();
@@ -3654,8 +3656,45 @@
     render();
   }
 
-  function openMoreSheet()  { const s = document.getElementById("moreSheet"); if (s) s.hidden = false; }
-  function closeMoreSheet() { const s = document.getElementById("moreSheet"); if (s) s.hidden = true; }
+  /* Liegt irgendetwas ueber der Seite? Sheets, Dialoge, Aufstellungs-Panels.
+     Pull-to-Refresh darf dann NICHT ausloesen – sonst zieht die Geste die Seite
+     hinter dem offenen Sheet neu. Vorher wurde nur .tv-sheet geprueft; Abo-,
+     Rueckmeldungs- und Mehr-Sheet nutzen aber .more-sheet und fielen durch. */
+  function ueberlagerungOffen() {
+    return !!(document.querySelector(".more-sheet:not([hidden])")
+           || document.querySelector(".tv-sheet.open")
+           || document.querySelector(".modal-ov")
+           || document.querySelector("#ksSheet.open"));
+  }
+
+  /* Wisch nach unten schliesst ein Bottom-Sheet, wie unter iOS gewohnt.
+     Gemeinsam genutzt von Abo- und Rueckmeldungs-Sheet. Greift nur, wenn der
+     Inhalt schon ganz oben steht – sonst gewinnt das Scrollen im Sheet. */
+  function sheetSwipeToClose(panel, scrollEl, onClose) {
+    let sy = 0, dy = 0, dragging = false;
+    panel.addEventListener("touchstart", (e) => {
+      if (e.touches.length !== 1 || (scrollEl && scrollEl.scrollTop > 0)) { dragging = false; return; }
+      sy = e.touches[0].clientY; dy = 0; dragging = true; panel.style.transition = "none";
+    }, { passive: true });
+    panel.addEventListener("touchmove", (e) => {
+      if (!dragging) return;
+      dy = e.touches[0].clientY - sy;
+      if (dy <= 0 || (scrollEl && scrollEl.scrollTop > 0)) { panel.style.transform = "translateY(0)"; return; }
+      e.preventDefault();                       // sonst zieht iOS die Seite dahinter mit
+      panel.style.transform = "translateY(" + dy + "px)";
+    }, { passive: false });
+    panel.addEventListener("touchend", () => {
+      if (!dragging) return;
+      dragging = false; panel.style.transition = ""; panel.style.transform = "";
+      if (dy > 90) onClose();                   // weit genug gezogen -> schliessen
+    }, { passive: true });
+  }
+
+  // Mehr-Sheet sperrt den Hintergrund-Scroll wie die anderen Sheets auch.
+  // Paarweise und nur bei echtem Zustandswechsel, damit der Zaehler in
+  // lockBodyScroll()/unlockBodyScroll() nicht aus dem Tritt geraet.
+  function openMoreSheet()  { const s = document.getElementById("moreSheet"); if (s && s.hidden)  { s.hidden = false; lockBodyScroll(); } }
+  function closeMoreSheet() { const s = document.getElementById("moreSheet"); if (s && !s.hidden) { s.hidden = true;  unlockBodyScroll(); } }
 
   /* Alle Bottom-Sheets schliessen. Laeuft am Anfang von render(), damit bei JEDEM
      Ansichtswechsel keins ueber der neuen Seite haengen bleibt – Bottom-Nav,
@@ -3827,7 +3866,7 @@
     window.addEventListener("touchstart", (e) => {
       if (refreshing || e.touches.length !== 1) { tracking = false; return; }
       if (document.body.classList.contains("auth-mode")) { tracking = false; return; } // nicht auf Login/Reset
-      if (document.querySelector(".tv-sheet.open")) { tracking = false; return; }        // nicht wenn ein Aufstellungs-Panel offen ist
+      if (ueberlagerungOffen()) { tracking = false; return; }                            // nicht, solange irgendetwas darueber liegt
       if (window.scrollY > 0) { tracking = false; return; }                             // nur ganz oben
       startY = e.touches[0].clientY; startX = e.touches[0].clientX;
       tracking = true; decided = false; active = false; pull = 0;

@@ -155,18 +155,20 @@ window.DB = (function () {
   function catalogCols(offense, amount, opts) {
     opts = opts || {};
     const staffel = opts.typ === "staffel";
-    return {
+    // category NUR schreiben, wenn ein Wert uebergeben wurde. Das Formular zeigt
+    // die Kategorie nicht mehr an; wuerde hier trotzdem immer geschrieben, wuerde
+    // jede Bearbeitung die vorhandene Kategorie in der Datenbank auf NULL setzen.
+    const kat = Object.prototype.hasOwnProperty.call(opts, "kategorie")
+      ? { category: (opts.kategorie && String(opts.kategorie).trim()) || null } : {};
+    return Object.assign(kat, {
       offense: offense,
       amount: staffel ? 0 : amount,
-      // Spalte gibt es seit 0001, wurde bisher nur nie geschrieben. Leer -> NULL,
-      // damit Eintraege ohne Kategorie keine leere Unterzeile erzeugen.
-      category: (opts.kategorie && String(opts.kategorie).trim()) || null,
       fine_type: staffel ? "staffel" : "fixed",
       unit_label:  staffel ? (opts.einheit || null) : null,
       unit_amount: staffel ? Number(opts.proEinheit) : null,
       unit_step:   staffel ? Math.max(1, parseInt(opts.schritt, 10) || 1) : null,
       max_amount:  staffel && opts.maxBetrag != null && opts.maxBetrag !== "" ? Number(opts.maxBetrag) : null,
-    };
+    });
   }
   // Staffel-Spalten fehlen (Migration 0029 nicht angewandt)? -> Festbetrag ohne die neuen Spalten.
   function isMissingStaffelCol(error) {
@@ -188,7 +190,12 @@ window.DB = (function () {
     opts = opts || {};
     let { error } = await client.from("fine_catalog").update(catalogCols(offense, amount, opts)).eq("id", id);
     if (error && opts.typ !== "staffel" && isMissingStaffelCol(error)) {
-      ({ error } = await client.from("fine_catalog").update({ offense: offense, amount: amount, category: (opts.kategorie && String(opts.kategorie).trim()) || null }).eq("id", id));
+      // Auch hier: category nur mitschreiben, wenn ein Wert uebergeben wurde.
+      ({ error } = await client.from("fine_catalog").update(Object.assign(
+        { offense: offense, amount: amount },
+        Object.prototype.hasOwnProperty.call(opts, "kategorie")
+          ? { category: (opts.kategorie && String(opts.kategorie).trim()) || null } : {}
+      )).eq("id", id));
     }
     if (error) throw error;
   }
