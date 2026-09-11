@@ -567,11 +567,18 @@ tbody tr:hover { background: #fbfdfc; }
 .laz-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }
 .laz-row:last-child { border-bottom: 0; }
 
+/* Kader-Ansicht (Paket 4): Zeile im Stil der uebrigen 2a-Zeilen – Avatar links,
+   Name in der Mitte, Status-Auswahl rechts. Das <select> ist zugleich Marke und
+   Tap-Ziel, deshalb 44px hoch und 16px Schrift (sonst zoomt Safari beim Fokus). */
 .kader-status { display: flex; flex-direction: column; gap: 2px; }
-.ks-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.ks-row { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 4px 0; border-bottom: 1px solid var(--line); }
 .ks-row:last-child { border-bottom: 0; }
 .ks-name { flex: 1; min-width: 0; font-weight: 600; }
-.ks-select { padding: 5px 8px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font: inherit; font-size: .85rem; }
+.ks-select {
+  flex: 0 0 auto; min-height: 44px; padding: 0 8px;
+  border: 1px solid var(--line); border-radius: 10px; background: #fff;
+  font: inherit; font-size: 16px; font-weight: 600; color: var(--ink);
+}
 
 /* Trainer-Aktionen sitzen seit Paket 7a ueber die volle Kartenbreite unter der
    Statuszeile. Der Bearbeiten-Stift rueckt ans rechte Ende. */

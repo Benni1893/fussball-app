@@ -485,6 +485,23 @@ Reihenfolge: erst Styling, dann Logik, dann Schema. Jedes Paket ist für sich te
 **Inhalt:** Zuletzt und als eigenes Paket, weil es als Einziges einen neuen Zustellweg braucht.
 **iPhone-Test:** Als Trainer → Übersicht → „Erinnerung senden" → Bestätigung erscheint, ein zweiter Tap kurz danach ist gesperrt, ein betroffener Spieler bekommt die Nachricht.
 
+### Paket 13 — Aufräumen *(läuft mit, nachgetragen am 11.09.2026)*
+**Dateien:** `app.js`, `styles.css`
+**Aufwand:** S
+**Inhalt:** Beim Umbau sind Funktionen und Regeln verwaist. Alle wurden bewusst stehen gelassen, weil Aufräumen nicht in ein Feature-Paket gehört — hier gesammelt, damit nichts verloren geht. Jede Stelle trägt im Code bereits einen Kommentar.
+
+| Was | Wo | Verwaist seit | Warum |
+|---|---|---|---|
+| `eventTitel()` | `app.js` | Paket 3 | letzter Aufruf lag in der alten „Nächster Termin"-Kachel |
+| `.rsvp`, `.rsvp-buttons` | `styles.css` | Paket 7a | Terminkarte stapelt, Zu-/Absage liegt in `.ev-rsvp` |
+| `.tag-training` | `styles.css` | Paket 7a | Typ-Marke als Text entfällt, Kante und Titel tragen den Typ |
+| `.ev-sep`, `.rsvp-count` | `styles.css` | Rückmeldungs-Sheet | Zähler sitzt jetzt im antippbaren Eintrag |
+| `.tv-gdate` samt Kindregeln | `styles.css` | Paket 7b | Spielauswahl nutzt die Datumsplakette `.event-date` |
+| **`sheetViews` steht doppelt** | `app.js` Zeile 2196 und 3512 | vorbestehend | zwei identische Listen bestimmen, wann der „Mehr"-Tab aktiv gilt. **Keine tote Regel, sondern eine Stolperstelle:** wer eine Ansicht ergänzt und nur eine Kopie pflegt, bekommt einen stillen Fehler in der Navigationsmarkierung |
+
+**Reihenfolge:** jederzeit, unabhängig von allem anderen. Die `sheetViews`-Doppelung lohnt zuerst, weil sie als Einzige aktiv schaden kann.
+**iPhone-Test:** Nach dem Aufräumen einmal jede Ansicht öffnen und auf sichtbare Änderungen achten — es darf **keine** geben. Besonders: Terminkarte mit Zu-/Absage, Trainer-Spielauswahl, Rückmeldungs-Sheet, und der „Mehr"-Tab muss in Kader, Trainer, Kasse, Rollen und Einstellungen als aktiv markiert bleiben.
+
 ---
 
 # 4. Verstöße gegen die Fixpunkte

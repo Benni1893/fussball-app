@@ -324,6 +324,7 @@
       else if (currentView === "strafen") renderStrafen();
       else if (currentView === "einstellungen") renderEinstellungen();
       else if (currentView === "profil") renderProfil();
+      else if (currentView === "kader") { if (Roles.canManageEvents()) renderKader(); else renderDashboard(); }
       else if (currentView === "lineup") { if (Roles.canManageEvents()) { if (LINEUP_V2) renderLineupV2(); else renderLineup(); } else renderDashboard(); }
       else if (currentView === "kasse") { if (Roles.canManageFines()) renderKasse(); else renderDashboard(); }
       else if (currentView === "admin") { if (Roles.isAdmin()) renderAdmin(); else renderDashboard(); }
@@ -383,7 +384,7 @@
       ? `<div class="th-links">
            <button class="link-btn" data-rsvp-sheet="${e.id}">Zusagen · ${zusagen}/${DEMO.players.length}</button>
            ${e.typ === "spiel" ? `<button class="link-btn" data-lineup-edit="${e.id}">Aufstellung</button>` : ""}
-           <button class="link-btn" disabled aria-disabled="true" title="Kommt im nächsten Schritt">Kader ansehen</button>
+           <button class="link-btn" data-goto="kader">Kader ansehen</button>
          </div>`
       : fristBlockHtml(e);
 
@@ -421,46 +422,6 @@
 
     const naechsteSpiele = naechste.filter((e) => e.typ === "spiel").length;
 
-    // Trainer/Admin: Lazarett + Kader-Status
-    const lazarett = DEMO.players
-      .filter((p) => p.status && p.status !== "fit")
-      .sort((a, b) =>
-        (a.status === "verletzt" ? 0 : 1) - (b.status === "verletzt" ? 0 : 1) ||
-        nachname(a.name).localeCompare(nachname(b.name), "de"));
-    const kaderSort = [...DEMO.players].sort((a, b) => nachname(a.name).localeCompare(nachname(b.name), "de"));
-
-    const trainerHtml = Roles.canManageEvents() ? `
-      <div class="grid-2" style="margin-top:8px">
-        <div>
-          <div class="section-title"><h2>Lazarett</h2></div>
-          <div class="card card-pad">
-            ${lazarett.length ? lazarett.map((p) => `
-              <div class="laz-row">
-                <span class="avatar">${initials(p.name)}</span>
-                <div style="flex:1;min-width:0">
-                  <div style="font-weight:600">${esc(p.name)}${statusBadge(p)}</div>
-                  <div style="font-size:.8rem;color:var(--muted)">
-                    ${p.statusSince ? "seit " + fmtDay(p.statusSince) + ". " + fmtMon(p.statusSince) : ""}${p.statusUntil ? " · vor. zurück " + fmtDay(p.statusUntil) + ". " + fmtMon(p.statusUntil) : ""}${p.statusNote ? " · " + esc(p.statusNote) : ""}
-                  </div>
-                </div>
-              </div>`).join("") : `<div class="empty" style="padding:14px 0">Alle fit – kein Eintrag</div>`}
-          </div>
-        </div>
-        <div>
-          <div class="section-title"><h2>Kader-Status</h2></div>
-          <div class="card card-pad kader-status">
-            ${kaderSort.map((p) => `
-              <div class="ks-row">
-                <span class="ks-name">${esc(p.name)}${statusBadge(p)}</span>
-                <select class="ks-select" data-status-player="${p.id}">
-                  <option value="fit" ${p.status === "fit" ? "selected" : ""}>fit</option>
-                  <option value="angeschlagen" ${p.status === "angeschlagen" ? "selected" : ""}>angeschlagen</option>
-                  <option value="verletzt" ${p.status === "verletzt" ? "selected" : ""}>verletzt</option>
-                </select>
-              </div>`).join("")}
-          </div>
-        </div>
-      </div>` : "";
 
     viewEl.innerHTML = `
       <div class="page-head">
@@ -526,10 +487,77 @@
         </div>
       </div>
 
-      ${trainerHtml}
     `;
 
     startCountdowns(); // Meldeschluss-Countdown im Termin-Hero live halten (Spieler-Ansicht)
+  }
+
+  /* ---------- Kader (Trainer/Admin) -----------------------------------------
+     Nimmt die beiden Bloecke auf, die vorher auf der Uebersicht lagen:
+     Kader-Status zum Setzen von fit/angeschlagen/verletzt und das Lazarett.
+     Logik unveraendert – das <select> traegt weiterhin data-status-player,
+     der delegierte change-Handler an viewEl greift hier ohne Anpassung.
+     Schranke ist die DB: player_status liest nur coach/admin vollstaendig,
+     geschrieben wird ausschliesslich ueber set_player_status(). */
+  function renderKader() {
+    const kaderSort = [...DEMO.players].sort((a, b) => nachname(a.name).localeCompare(nachname(b.name), "de"));
+    // Lazarett: alle nicht-fitten, Verletzte zuerst, dann alphabetisch.
+    const lazarett = DEMO.players
+      .filter((p) => p.status && p.status !== "fit")
+      .sort((a, b) =>
+        (a.status === "verletzt" ? 0 : 1) - (b.status === "verletzt" ? 0 : 1) ||
+        nachname(a.name).localeCompare(nachname(b.name), "de"));
+    const fit = DEMO.players.filter((p) => !p.status || p.status === "fit").length;
+
+    viewEl.innerHTML = `
+      <div class="page-head">${navBackChevronHtml()}<h1>Kader</h1></div>
+
+      <div class="kpi-grid kpi-3">
+        <div class="kpi">
+          <div class="kpi-label">Spieler</div>
+          <div class="kpi-value">${DEMO.players.length}</div>
+          <div class="kpi-sub">im Kader</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Fit</div>
+          <div class="kpi-value">${fit}</div>
+          <div class="kpi-sub">einsatzbereit</div>
+        </div>
+        <div class="kpi ${lazarett.length ? "is-warn" : ""}">
+          <div class="kpi-label">Nicht fit</div>
+          <div class="kpi-value">${lazarett.length}</div>
+          <div class="kpi-sub">angeschlagen oder verletzt</div>
+        </div>
+      </div>
+
+      <div class="section-title"><h2>Kader-Status</h2></div>
+      <div class="card card-pad kader-status">
+        ${kaderSort.map((p) => `
+          <div class="ks-row">
+            <span class="avatar">${initials(p.name)}</span>
+            <span class="ks-name">${esc(p.name)}${statusBadge(p)}</span>
+            <select class="ks-select" data-status-player="${p.id}" aria-label="Status von ${esc(p.name)}">
+              <option value="fit" ${p.status === "fit" ? "selected" : ""}>fit</option>
+              <option value="angeschlagen" ${p.status === "angeschlagen" ? "selected" : ""}>angeschlagen</option>
+              <option value="verletzt" ${p.status === "verletzt" ? "selected" : ""}>verletzt</option>
+            </select>
+          </div>`).join("")}
+      </div>
+
+      <div class="section-title" style="margin-top:22px"><h2>Lazarett</h2></div>
+      <div class="card card-pad">
+        ${lazarett.length ? lazarett.map((p) => `
+          <div class="laz-row">
+            <span class="avatar">${initials(p.name)}</span>
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:600">${esc(p.name)}${statusBadge(p)}</div>
+              <div style="font-size:.8rem;color:var(--muted)">
+                ${p.statusSince ? "seit " + fmtDay(p.statusSince) + ". " + fmtMon(p.statusSince) : ""}${p.statusUntil ? " · vor. zurück " + fmtDay(p.statusUntil) + ". " + fmtMon(p.statusUntil) : ""}${p.statusNote ? " · " + esc(p.statusNote) : ""}
+              </div>
+            </div>
+          </div>`).join("") : `<div class="empty" style="padding:14px 0">Alle fit – kein Eintrag</div>`}
+      </div>
+    `;
   }
 
   // Adress-Bereinigung + Norm-Schlüssel – IDENTISCH zur Feed-Funktion in api/calendar.js,
@@ -2165,7 +2193,7 @@
 
   /* ---- Sprung aus Spiel-Kachel + Zurück-Navigation (Ursprung, Scroll, ungespeichert) ---- */
   function tvSetNavActive(view) {
-    const sheetViews = ["admin", "einstellungen", "lineup"];
+    const sheetViews = ["admin", "einstellungen", "lineup", "kader"];   // Liste steht doppelt (siehe Aufraeumpaket)
     document.querySelectorAll(".nav-btn").forEach((b) => {
       const active = b.hasAttribute("data-more") ? sheetViews.indexOf(view) !== -1 : (b.dataset.view === view);
       b.classList.toggle("is-active", active);
@@ -3481,7 +3509,7 @@
     if (/^#?lineup=/.test(location.hash || "")) { try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {} }
     // Bereiche im „Mehr"-Menü (Aufstellung/Rollen) markieren den Mehr-Tab als aktiv.
     // Bereiche, die im Admin-„Mehr"-Sheet liegen (dann ist der Mehr-Tab aktiv).
-    const sheetViews = ["admin", "einstellungen", "lineup"];
+    const sheetViews = ["admin", "einstellungen", "lineup", "kader"];   // Liste steht doppelt (siehe Aufraeumpaket)
     document.querySelectorAll(".nav-btn").forEach((b) => {
       const active = b.hasAttribute("data-more")
         ? sheetViews.indexOf(view) !== -1
@@ -3848,10 +3876,12 @@
   function fillIdentity() {
     // Header trägt keinen Namen/keine Rolle mehr (steht in den Einstellungen).
     // Sheet-Inhalte (nur Admin nutzt das „Mehr"-Sheet – Trainer hat den Trainer-Tab).
+    const moreKader  = document.getElementById("moreKader");
     const moreLineup = document.getElementById("moreLineup");
     const moreKasse  = document.getElementById("moreKasse");
     const moreAdmin  = document.getElementById("moreAdmin");
     // Mehr-Menue zeigt ALLES Zugaengliche (Mehrfachrollen erreichen so ihre weiteren Bereiche).
+    if (moreKader)  moreKader.style.display  = Roles.canManageEvents() ? "" : "none";
     if (moreLineup) moreLineup.style.display = Roles.canManageEvents() ? "" : "none";
     if (moreKasse)  moreKasse.style.display  = Roles.canManageFines()  ? "" : "none";
     if (moreAdmin)  moreAdmin.style.display  = Roles.isAdmin() ? "" : "none";
