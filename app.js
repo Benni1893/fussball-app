@@ -415,6 +415,100 @@
       </div>`;
   }
 
+  /* Aufgabenblock „Was heute liegt" (Paket 5).
+     Datengetrieben: jede Zeile erscheint nur, wenn die Rolle zustaendig ist UND
+     die Datenlage sie erfordert. Zeilen kombinieren sich frei; wer mehrere Rollen
+     hat, sieht die Summe. Ohne zutreffende Zeile entfaellt der Block ganz.
+     lineups sind fuer Spieler per RLS nicht lesbar – die Aufstellungszeile wird
+     fuer sie deshalb gar nicht erst gebaut. */
+  function aufgabenZeilen(naechstes) {
+    const zeilen = [];
+    const me = playerById[state.currentPlayerId];
+    const linked = !!(currentProfile && currentProfile.player_id && me);
+    const offenTermin = naechstes && naechstes.status !== "abgesagt";
+
+    // --- Spieler: eigene Rueckmeldung fehlt -----------------------------------
+    if (linked && offenTermin) {
+      const r = state.rsvp[naechstes.id + "|" + me.id] || {};
+      if (!r.status) {
+        zeilen.push({
+          art: "rsvp", zahl: "!", titel: "Rückmeldung fehlt",
+          sub: eventKurz(naechstes), attr: 'data-task-focus="rsvp"',
+        });
+      }
+    }
+
+    // --- Kassenwart/Admin: gemeldete Zahlungen pruefen -------------------------
+    if (Roles.canManageFines()) {
+      const n = aktiveStrafen().filter((s) => fineStatus(s) === "gemeldet").length;
+      if (n > 0) {
+        zeilen.push({
+          art: "pay", zahl: n, titel: n === 1 ? "Zahlung bestätigen" : "Zahlungen bestätigen",
+          sub: "Kassenwart · warten auf Eingang", attr: "data-task-pay",
+        });
+      }
+    }
+
+    // --- Trainer/Admin: unvollstaendige Aufstellung + fehlende Rueckmeldungen ---
+    if (Roles.canManageEvents()) {
+      const spiel = DEMO.events
+        .filter((e) => e.typ === "spiel" && isFuture(e.datum) && e.status !== "abgesagt")
+        .sort((a, b) => a.datum.localeCompare(b.datum))[0];
+      if (spiel) {
+        const lu = (DEMO.lineups || []).find((l) => l.eventId === spiel.id && l.isActive && !l.isTemplate);
+        const slots = lu ? (FORMATIONS[lu.formation] || []) : [];
+        const gesetzt = lu ? slots.map((s) => (lu.slots || {})[s.key]).filter(Boolean).length : 0;
+        const vollstaendig = !!(lu && slots.length && gesetzt === slots.length);
+        if (!vollstaendig) {
+          zeilen.push({
+            art: "lineup", zahl: gesetzt,
+            titel: "Aufstellung " + fmtWd(spiel.datum) + " " + fmtDay(spiel.datum) + ". " + fmtMon(spiel.datum),
+            sub: gesetzt + " von " + (slots.length || 11) + " gesetzt",
+            attr: 'data-lineup-edit="' + spiel.id + '"',
+          });
+        }
+      }
+      if (offenTermin) {
+        const ohne = DEMO.players.filter((p) => !(state.rsvp[naechstes.id + "|" + p.id] || {}).status).length;
+        if (ohne > 0) {
+          zeilen.push({
+            art: "rsvp", zahl: ohne, titel: "Ohne Rückmeldung",
+            sub: eventKurz(naechstes), attr: 'data-rsvp-sheet="' + naechstes.id + '"',
+          });
+        }
+      }
+    }
+
+    // --- Spieler: schuldenfrei. Ruhige Bestaetigung statt leerer Flaeche. -------
+    if (linked && summeOffenSpieler(me.id) === 0) {
+      zeilen.push({ art: "clear", zahl: "", titel: "Keine offenen Strafen", sub: "", attr: "" });
+    }
+    return zeilen;
+  }
+  // Kurzbezeichnung eines Termins fuer die Unterzeile der Aufgabenliste.
+  function eventKurz(e) {
+    const wann = fmtWd(e.datum) + " " + fmtDay(e.datum) + ". " + fmtMon(e.datum);
+    if (e.typ === "spiel") return wann + " · " + (e.heim ? "vs. " : "@ ") + esc(e.gegner || e.titel);
+    return wann + " · " + esc(e.titel);
+  }
+  function aufgabenBlockHtml(naechstes) {
+    const zeilen = aufgabenZeilen(naechstes);
+    if (!zeilen.length) return "";
+    return `
+      <div class="section-title"><h2>Was heute liegt</h2></div>
+      <div class="task-list">
+        ${zeilen.map((z) => `
+          <div class="task-row is-${z.art}"${z.attr ? " " + z.attr + ' role="button" tabindex="0"' : ""}>
+            ${z.zahl !== "" ? `<span class="task-num">${z.zahl}</span>` : `<span class="task-num task-ok">${ICON_CHECK}</span>`}
+            <div class="task-main">
+              <div class="task-title">${z.titel}</div>
+              ${z.sub ? `<div class="task-sub">${z.sub}</div>` : ""}
+            </div>
+            ${z.attr ? `<span class="task-go" aria-hidden="true">›</span>` : ""}
+          </div>`).join("")}
+      </div>`;
+  }
+
   function renderDashboard() {
     const me = playerById[state.currentPlayerId];
     const naechste = DEMO.events.filter((e) => isFuture(e.datum)).sort((a, b) => a.datum.localeCompare(b.datum));
@@ -427,6 +521,9 @@
     // Bei verknuepftem Konto traegt der gemeinsame Kontoblock den Betrag – dann
     // entfaellt die Zeile „Meine offenen Strafen", sonst stuende er doppelt.
     const kontoVerknuepft = !!(currentProfile && currentProfile.player_id && me);
+    // Kontoblock nur bei tatsaechlich offenem Betrag. Ist nichts offen, sagt das
+    // die gruene Zeile im Aufgabenblock – eine Null-Karte waere leeres Gewicht.
+    const meinOffen = kontoVerknuepft ? summeOffenSpieler(me.id) : 0;
 
 
     viewEl.innerHTML = `
@@ -436,7 +533,9 @@
 
       ${terminHeroHtml(naechstes)}
 
-      ${kontoVerknuepft ? kontoBlockHtml() : ""}
+      ${aufgabenBlockHtml(naechstes)}
+
+      ${kontoVerknuepft && meinOffen > 0 ? kontoBlockHtml() : ""}
 
       <div class="kpi-rows">
         <div class="kpi-row kpi-tap" data-nav="spiele" role="button" tabindex="0">
@@ -2580,31 +2679,30 @@
       if (bannerCd === null || info.remMs < bannerCd.remMs) bannerCd = { remMs: info.remMs, createdAt: s.createdAt };
     });
 
+    // Fortschritt: welcher Anteil der eigenen Strafen ist schon erledigt?
+    const anteil = meineGesamt > 0 ? Math.round(((meineGesamt - meineOffen) / meineGesamt) * 100) : 100;
+
     return `<div class="mine-banner${meineOffen > 0 ? "" : " is-clear"}">
-        <div class="mb-top">
-          <span class="mb-label">Dein Konto · ${esc(me.name)}</span>
-          <span class="mb-state">${meineOffen > 0 ? "Du hast noch offene Strafen" : meineGemeldet > 0 ? "Zahlung gemeldet – wartet auf Bestätigung" : "Du bist schuldenfrei"}</span>
-        </div>
-        <div class="mb-figure">
-          <span class="mb-value">${euro(meineOffen)}</span>
-          <span class="mb-sub">offen · ${euro(meineGesamt)} gesamt</span>
-        </div>
+        <div class="mb-label">Dein Konto · ${esc(me.name)}</div>
+        <div class="mb-value">${euro(meineOffen)}</div>
+        <div class="mb-sub">${meineOffen > 0
+          ? `offen von ${euro(meineGesamt)} · ${meine.length} ${meine.length === 1 ? "Strafe" : "Strafen"}`
+          : meineGemeldet > 0 ? "Zahlung gemeldet – wartet auf Bestätigung" : "Du bist schuldenfrei"}</div>
+        <div class="mb-bar" role="img" aria-label="${anteil}% erledigt"><i style="width:${anteil}%"></i></div>
         ${meinZuschlag > 0 ? `<div class="mb-note">inkl. ${euro(meinZuschlag)} Mahnzuschlag</div>` : ""}
-        ${meineGemeldet > 0 ? `<div class="mb-note">${meineGemeldet} ${meineGemeldet === 1 ? "Strafe gemeldet" : "Strafen gemeldet"} · Kassenwart bestätigt den Eingang</div>` : ""}
-        ${bannerCd ? `<div class="mb-countdown">
-          <span class="mb-cd-label">Nächste Erhöhung in</span>
-          <span class="cd" data-cd-created="${bannerCd.createdAt}" data-cd-step="${faelligeStufen({ createdAt: bannerCd.createdAt }, Date.now())}"></span>
-        </div>` : ""}
-        ${meineOffen > 0 ? `<div class="mb-actions">
-          <span class="mb-pay-cap">Offenen Betrag senden, dann „Zahlung melden" · bitte als „Freunde &amp; Familie"</span>
+        ${meineOffen > 0 ? `
           <a class="paypal-btn" href="${paypalMeLink(meineOffen)}" target="_blank" rel="noopener noreferrer" aria-label="Mit PayPal bezahlen">
             <svg class="pp-mark" viewBox="0 0 384 512" width="15" height="19" aria-hidden="true">
               <path fill="#003087" d="M111.4 295.9c-3.5 19.2-17.4 108.7-21.5 134-.3 1.8-1 2.5-3 2.5H12.3c-7.6 0-13.1-6.6-12.1-13.9L58.8 46.6c1.5-9.6 10.1-16.9 20-16.9 152.3 0 165.1-3.7 204 11.4 60.1 23.3 65.6 79.5 44 140.3-21.5 62.6-72.5 89.5-140.1 90.3-43.4 .7-69.5-7-75.3 24.2zM357.1 152c-1.8-1.3-2.5-1.8-3 1.3-2 11.4-5.1 22.5-8.8 33.6-39.9 113.8-150.5 103.9-204.5 103.9-6.1 0-10.1 3.3-10.9 9.4-22.6 140.4-27.1 169.7-27.1 169.7-1 7.1 3.5 12.9 10.6 12.9h63.5c8.6 0 15.7-6.3 17.4-14.9 .7-5.4-1.1 6.1 14.4-91.3 4.6-22 14.3-19.7 29.3-19.7 71 0 126.4-28.8 142.9-112.3 6.5-34.8 4.6-71.4-23.3-91.9z"/>
             </svg>
             <span class="pp-word"><span class="pp1">Pay</span><span class="pp2">Pal</span></span>
           </a>
-          <button class="paid-self-btn" data-paid-self>Zahlung melden</button>
-        </div>` : ""}
+          <div class="mb-pay-cap">Bitte als „Freunde &amp; Familie" senden</div>
+          <div class="mb-foot">
+            <button class="link-btn" data-paid-self>Zahlung melden</button>
+            ${bannerCd ? `<span class="mb-cd">Erhöhung in <span class="cd" data-cd-created="${bannerCd.createdAt}" data-cd-step="${faelligeStufen({ createdAt: bannerCd.createdAt }, Date.now())}"></span></span>` : ""}
+          </div>` : ""}
+        ${meineGemeldet > 0 ? `<div class="mb-note">${meineGemeldet} ${meineGemeldet === 1 ? "Strafe gemeldet" : "Strafen gemeldet"} · Kassenwart bestätigt den Eingang</div>` : ""}
       </div>`;
   }
 
@@ -2705,6 +2803,7 @@
     indivBetrag: "", indivGrund: "",
     date: new Date().toISOString().slice(0, 10), comment: "",
     tab: "pruefen", bezFilter: "",
+    formOpen: false,   // „Strafe verhaengen" ist eingeklappt, bis jemand es oeffnet
   };
 
   // Baut die Strafzeilen (je Zeile = eine Strafe pro gewähltem Spieler).
@@ -2869,7 +2968,12 @@
         </div>
       </div>
 
-      <div class="section-title"><h2>Strafen verhängen</h2></div>
+      ${!kasse.formOpen ? `
+      <button type="button" class="kasse-toggle" data-kasse-toggle>
+        ${ICON_PLUS}<span>Strafe verhängen</span>
+      </button>` : `
+      <div class="section-title"><h2>Strafe verhängen</h2>
+        <button class="link-btn" data-kasse-toggle>Schließen</button></div>
       <div class="card card-pad kasse-add">
         <button type="button" class="kasse-picker" data-ks-open-players>
           <span class="kasse-picker-txt">${chosen.length ? chosen.length + " Spieler gewählt" : "Spieler auswählen"}</span>
@@ -2918,7 +3022,7 @@
 
         <div id="kasseSummary">${kasseSummaryHtml()}</div>
         <button class="tv-primary kasse-save" data-kasse-add${build.valid ? "" : " disabled"}>Strafen speichern</button>
-      </div>
+      </div>`}
 
       <div class="section-title"><h2>Prüfen &amp; verbuchen</h2></div>
       <div class="toolbar">
@@ -2949,6 +3053,7 @@
     try {
       await DB.createFinesBatch(rows, kasse.comment.trim() || null);
       kasse.players = []; kasse.items = {}; kasse.bezug = {}; kasse.indiv = [];
+      kasse.formOpen = false;                      // nach dem Speichern wieder einklappen
       kasse.indivBetrag = ""; kasse.indivGrund = ""; kasse.comment = "";
       await reloadData();                          // rendert Kasse neu (aktualisierte Listen)
       tvToast(rows.length + (rows.length > 1 ? " Einträge" : " Eintrag") + " gespeichert");
@@ -3072,6 +3177,9 @@
       if (idel) { kasse.indiv.splice(parseInt(idel.dataset.kasseIndivDel, 10), 1); renderKasse(); return; }
       if (ev.target.closest("[data-kasse-add]")) { await kasseSave(); return; }
 
+      // --- „Strafe verhängen" auf-/zuklappen (Zustand gilt, solange die Ansicht offen ist) ---
+      if (ev.target.closest("[data-kasse-toggle]")) { kasse.formOpen = !kasse.formOpen; renderKasse(); return; }
+
       // --- Tabs ---
       const tab = ev.target.closest("[data-kstab]");
       if (tab) { kasse.tab = tab.dataset.kstab; renderKasse(); return; }
@@ -3133,7 +3241,7 @@
       if (unpay) { if (!window.confirm("Buchung rückgängig machen? Die Strafe steht wieder als offen.")) return; try { await DB.setFinePaid(unpay.dataset.kasseUnpay, false); await reloadData(); tvToast("Zurückgesetzt"); } catch (e) { window.alert("Rückgängig fehlgeschlagen: " + ((e && e.message) || e)); } return; }
     }
 
-    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-koord-save],[data-my-status],[data-logout]");
+    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-koord-save],[data-my-status],[data-logout]");
     if (!t) return;
 
     // Spieler: eigenen Fitnessstatus setzen (RLS/RPC erlauben nur die eigene Zeile)
@@ -3305,6 +3413,22 @@
 
     // Rückmeldungen ansehen (Trainer/Admin) -> Bottom-Sheet
     if (t.dataset.rsvpSheet) { openRsvpSheet(t.dataset.rsvpSheet); return; }
+
+    // Aufgabenblock: eigene Rückmeldung -> zum Hero scrollen und Zusage fokussieren.
+    if (t.dataset.taskFocus) {
+      const hero = viewEl.querySelector(".termin-hero");
+      const zu = hero && hero.querySelector('[data-rsvp="zu"]');
+      if (hero) {
+        try { hero.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) { hero.scrollIntoView(); }
+        hero.classList.add("is-flash");
+        setTimeout(() => hero.classList.remove("is-flash"), 1600);
+      }
+      if (zu) try { zu.focus({ preventScroll: true }); } catch (e) { zu.focus(); }
+      return;
+    }
+
+    // Aufgabenblock: gemeldete Zahlungen -> Kasse, Reiter „Zu prüfen".
+    if (t.hasAttribute("data-task-pay")) { kasse.tab = "pruefen"; switchView("kasse"); return; }
 
     // Aus einer Spiel-Kachel direkt in die Aufstellung springen (Trainer/Admin; RLS schützt zusätzlich).
     if (t.dataset.lineupEdit) { tvJumpFromCard(t.dataset.lineupEdit); return; }

@@ -454,6 +454,10 @@ Reihenfolge: erst Styling, dann Logik, dann Schema. Jedes Paket ist für sich te
 **Inhalt:** Drei Zeilen, jede rollenabhängig, jede mit Sprungziel. **Ohne** „Erinnerung senden".
 **iPhone-Test:** Als Kassenwart → Übersicht → Zeile „N Zahlungen bestätigen" tippen → landet in der Kasse im Reiter „Zu prüfen", die Zahl in der Zeile stimmt mit der im Reiter überein. Dieselbe Übersicht als Spieler öffnen → die Zeile ist nicht da.
 
+**✅ Erledigt am 11.09.2026** — zusammen mit der Umstellung auf die Vorlage „App in 2a - High End". Gebaut als **fünf** mögliche Zeilen statt drei, jede an Rolle **und** Datenlage gebunden, frei kombinierbar: eigene fehlende Rückmeldung (Spieler), gemeldete Zahlungen (Kassenwart), unvollständige Aufstellung (Trainer), fehlende Rückmeldungen im Team (Trainer), und „Keine offenen Strafen" als ruhige grüne Bestätigung. Trifft keine Zeile zu, entfällt der Block ganz. „Erinnerung senden" ist wie festgelegt **nicht** gebaut.
+
+**Neue Klassenfamilie für Paket 14:** `.task-list`, `.task-row` mit `.is-pay` / `.is-lineup` / `.is-rsvp` / `.is-clear`, `.task-num`, `.task-main`, `.task-title`, `.task-sub`, `.task-go`. Dazu `.kasse-toggle` (eingeklappte Kasse) und die überarbeitete `.mine-banner`-Familie mit `.mb-bar` und `.mb-foot`.
+
 ### Paket 6 — Konto- und Kassenansicht angleichen
 **Dateien:** `app.js` (`renderStrafen`, `renderKasse`), `styles.css`
 **Aufwand:** M
