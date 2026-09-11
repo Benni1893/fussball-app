@@ -349,7 +349,6 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
   display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
   margin-top: 10px;
 }
-.th-links .link-btn { min-height: 44px; }
 .link-btn[disabled] { color: var(--muted); text-decoration: none; cursor: default; }
 .termin-hero .frist { margin-top: 10px; }
 .termin-hero .empty { padding: 10px 0; }
@@ -458,7 +457,6 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .bfv-label { font-size: .74rem; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); font-weight: 700; }
 .bfv-url { width: 100%; font: inherit; font-size: 16px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; box-sizing: border-box; background: #fff; }
 .bfv-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-.bfv-actions .btn { min-height: 44px; }
 .bfv-msg { font-size: .85rem; font-weight: 600; color: var(--green-800); }
 .bfv-hint { font-size: .78rem; color: var(--muted); }
 
@@ -477,11 +475,12 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 }
 .ev-status .frist { margin-top: 0; }
 .ev-status .frist-warn { flex-basis: 100%; }   /* Warnung bekommt eine eigene Zeile */
-.ev-sep { color: var(--muted); }
 
-/* Ungenutzt, bleiben bis zum Aufraeumpaket:
-   .rsvp/.rsvp-buttons (seit Paket 7a), .ev-sep und .rsvp-count (seit dem
-   Rueckmeldungen-Sheet – der Zaehler sitzt jetzt im antippbaren Eintrag). */
+/* Von der App nicht mehr benutzt, aber NICHT entfernbar: die Design-System-Karte
+   cards/Bausteine/Terminkarte.html zeigt noch das alte dreispaltige Layout und
+   verweist auf diese Klassen. validate.sh bricht ab, wenn eine Karte eine Klasse
+   nutzt, die es hier nicht gibt. Aufloesung: Paket 14 in DELTA.md – Karten auf
+   den Stand seit Paket 7a nachziehen, danach koennen diese Regeln weg. */
 .rsvp { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; min-width: 150px; }
 .rsvp-buttons { display: flex; gap: 6px; }
 .btn {
@@ -495,7 +494,8 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
   border-radius: 9px;
   cursor: pointer;
   transition: all .12s;
-  display: inline-flex; align-items: center; gap: 6px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px;              /* harte Regel: jede Schaltflaeche >= 44px */
 }
 .btn:hover { border-color: var(--muted); }
 .btn-zu.is-on  { background: var(--green-600); border-color: var(--green-600); color:#fff; }
@@ -520,6 +520,11 @@ thead th {
   position: sticky; top: 0;
 }
 tbody td { padding: 12px 16px; border-bottom: 1px solid var(--line); }
+/* Rollen-Tabelle: native Checkbox. BEWUSSTE Ausnahme von der 44px-Regel – sie auf
+   44px zu bringen hiesse entweder, sie sichtbar zu vergroessern, oder die Tabelle
+   in Zeilen mit Schaltern umzubauen. Beides waere eine Layoutaenderung. Auf 24px
+   angehoben, den Rest traegt die Zeilenhoehe. Vermerkt in DELTA.md, Paket 1a. */
+.role-box { width: 24px; height: 24px; accent-color: var(--green-700); cursor: pointer; }
 tbody tr:last-child td { border-bottom: none; }
 tbody tr:hover { background: #fbfdfc; }
 .num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
@@ -556,8 +561,6 @@ tbody tr:hover { background: #fbfdfc; }
 .badge-auto { background: #eef2ef; color: var(--muted); }
 
 /* Entfernen-Button (Auto-Strafe zurücknehmen) */
-.btn-danger { color: var(--red-600); border-color: rgba(192,57,43,.35); margin-left: 6px; }
-.btn-danger:hover { background: var(--red-050); border-color: var(--red-600); }
 
 /* ---- Fitness-/Verletztenstatus ---- */
 .st-badge { display: inline-block; font-size: .68rem; font-weight: 700; padding: 1px 7px; border-radius: 999px; vertical-align: middle; white-space: nowrap; }
@@ -584,10 +587,8 @@ tbody tr:hover { background: #fbfdfc; }
    Statuszeile. Der Bearbeiten-Stift rueckt ans rechte Ende. */
 .e-trainer { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
 .e-trainer .icon-btn { margin-left: auto; }
-.e-trainer .btn { min-height: 44px; }
 /* Direktsprung in die Aufstellung: dezent (btn-soft), aber Touch-Ziel >=44px. */
 .lu-jump { min-height: 44px; }
-#tvUnsaved .btn { min-height: 44px; justify-content: center; }
 
 /* Buttons (sekundär/primär) */
 .btn-soft { background: #eef2ef; border-color: transparent; font-size: .85rem; }
@@ -600,7 +601,8 @@ tbody tr:hover { background: #fbfdfc; }
 .modal { background: #fff; border-radius: 16px; width: min(560px, 100%); max-width: 100%; max-height: 100%; overflow-x: hidden; overflow-y: auto; padding: 18px 18px 20px; box-shadow: 0 18px 50px rgba(0,0,0,.3); overscroll-behavior: contain; }
 .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .modal-head strong { font-size: 1.1rem; }
-.modal-x { border: 0; background: transparent; font-size: 1.1rem; cursor: pointer; color: var(--muted); line-height: 1; }
+.modal-x { border: 0; background: transparent; font-size: 1.1rem; cursor: pointer; color: var(--muted); line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin: -10px -10px -10px 0; }
 .modal-sub { color: var(--muted); font-size: .85rem; margin: 6px 0 10px; }
 .modal-text { width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font: inherit; font-size: .92rem; line-height: 1.5; resize: vertical; box-sizing: border-box; }
 .modal-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
@@ -608,8 +610,12 @@ tbody tr:hover { background: #fbfdfc; }
 .modal-actions-col .btn { width: 100%; }
 .modal-hint { font-size: .82rem; color: var(--green-800); margin-top: 8px; min-height: 1em; }
 .modal-sm { width: min(420px, 100%); }
-.btn-danger { background: var(--red-050); border-color: transparent; color: var(--red-600); font-weight: 700; }
-.btn-danger:hover { background: #f6ddd9; }
+/* Zusammengefuehrt aus zwei Definitionen (bekannter Befund aus NOTES.md).
+   Ergebnis entspricht exakt dem, was die Kaskade vorher ergab: Aussehen aus der
+   zweiten Definition, margin-left aus der ersten, Rahmenfarbe beim Hover
+   ebenfalls aus der ersten – sie wurde von der zweiten nie ueberschrieben. */
+.btn-danger { background: var(--red-050); border-color: transparent; color: var(--red-600); font-weight: 700; margin-left: 6px; }
+.btn-danger:hover { background: #f6ddd9; border-color: var(--red-600); }
 .btn-ghost { background: transparent; border-color: transparent; color: var(--muted); }
 
 /* ---- Termin-Formular ---- */
@@ -644,7 +650,7 @@ tbody tr:hover { background: #fbfdfc; }
 .cal-sub-desc { margin: 0; color: var(--muted); font-size: .9rem; }
 .cal-link { font-size: .82rem; color: var(--green-800); background: var(--green-050); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; overflow-wrap: anywhere; word-break: break-all; user-select: all; -webkit-user-select: all; }
 .cal-actions { display: flex; flex-wrap: wrap; gap: 10px; }
-.cal-actions .btn { min-height: 44px; flex: 1 1 auto; text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+.cal-actions .btn { flex: 1 1 auto; text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
 .cal-actions .btn-primary[aria-disabled="true"] { opacity: .55; pointer-events: none; }
 .cal-hint { margin: 0; color: var(--muted); font-size: .8rem; }
 .cal-regen { align-self: flex-start; min-height: 44px; }
@@ -658,7 +664,7 @@ tbody tr:hover { background: #fbfdfc; }
 .koord-adr { font-size: .82rem; color: var(--muted); overflow-wrap: anywhere; }
 .koord-inputs { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
 .koord-inputs input { font: inherit; font-size: 16px; min-height: 44px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px; background: #fff; box-sizing: border-box; flex: 1 1 90px; min-width: 0; }
-.koord-inputs .btn { min-height: 44px; flex: 0 0 auto; }
+.koord-inputs .btn { flex: 0 0 auto; }
 
 /* ---- Einstellungen-Seite ---- */
 .set-section { margin-bottom: 4px; }
@@ -830,7 +836,7 @@ tbody tr:hover { background: #fbfdfc; }
 .kat-item.kat-edit { flex-direction: column; align-items: stretch; gap: 8px; padding: 12px 14px; }
 .kat-in {
   width: 100%; font: inherit; font-size: 16px;   /* 16px -> Safari zoomt nicht rein */
-  padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; box-sizing: border-box; background: #fff;
+  padding: 10px 12px; min-height: 44px; border: 1px solid var(--line); border-radius: 10px; box-sizing: border-box; background: #fff;
 }
 .kat-edit-row2 { display: flex; align-items: center; gap: 8px; }
 .kat-in-amount { flex: 1; min-width: 0; }
@@ -959,7 +965,9 @@ tbody tr:hover { background: #fbfdfc; }
   display: flex; align-items: center; justify-content: center; gap: 12px;
   color: var(--muted); font-size: .8rem;
 }
-.link-btn { background:none; border:none; color: var(--green-700); font: inherit; font-weight:600; cursor:pointer; text-decoration: underline; }
+/* Textlink in einer Zeile: optisch schlank, Trefferflaeche trotzdem 44px hoch. */
+.link-btn { background:none; border:none; color: var(--green-700); font: inherit; font-weight:600; cursor:pointer; text-decoration: underline;
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0; }
 .link-btn:hover { color: var(--green-900); }
 
 /* ---------- Authentifizierung --------------------------------------------- */
@@ -1163,10 +1171,6 @@ body.auth-mode .app-footer { display: none; }
 .tv-gcard.is-away { border-left-color: var(--spiel-ausw); }
 /* Datumsplakette: dieselbe wie in der Terminkarte, hier im Spiel-Ton. */
 .tv-gcard .event-date { display: block; background: var(--gold-050); }
-/* .tv-gdate: seit Paket 7b ungenutzt, bleibt bis zum Aufraeumpaket. */
-.tv-gdate { flex: 0 0 auto; width: 50px; text-align: center; }
-.tv-gdate b { display: block; font-size: 20px; font-weight: 800; color: var(--green-800); line-height: 1; }
-.tv-gdate span { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; }
 .tv-gmain { flex: 1 1 auto; min-width: 0; }
 .tv-gopp { display: block; font-weight: 800; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tv-gmeta { display: block; font-size: 12.5px; color: var(--muted); margin-top: 1px; }
@@ -1393,7 +1397,7 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 .kasse-catpick .kat-name { flex: 1; }
 .kasse-catpick .ks-check { width: 22px; }
 .kasse-qty { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
-.kasse-qty .qty-btn { -webkit-appearance: none; appearance: none; width: 40px; height: 40px; flex: none;
+.kasse-qty .qty-btn { -webkit-appearance: none; appearance: none; width: 44px; height: 44px; flex: none;
   border: 1px solid var(--line); border-radius: 10px; background: #fff; font-size: 1.3rem; line-height: 1;
   color: var(--ink); cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .kasse-qty .qty-n { font-weight: 800; font-variant-numeric: tabular-nums; min-width: 34px; text-align: center; }
@@ -1434,7 +1438,12 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 .ks-ichip { display: inline-flex; align-items: center; gap: 8px; font-size: .82rem; padding: 6px 8px 6px 12px;
   border: 1px solid var(--line); border-radius: 999px; background: var(--green-050); color: var(--ink); }
 .ks-ichip .chip-x { -webkit-appearance: none; appearance: none; border: 0; background: none; cursor: pointer;
-  color: var(--muted); font-size: 1.1rem; line-height: 1; width: 24px; height: 24px; border-radius: 50%; }
+  color: var(--muted); font-size: 1.1rem; line-height: 1; width: 24px; height: 24px; border-radius: 50%;
+  position: relative; display: inline-flex; align-items: center; justify-content: center; }
+/* Unsichtbare 44px-Trefferflaeche um das 24px-X. Gleiches Muster wie .tv-slot:
+   der Chip selbst waechst dadurch nicht, die Tap-Flaeche erfuellt trotzdem die Regel. */
+.ks-ichip .chip-x::before { content: ""; position: absolute; top: 50%; left: 50%;
+  width: 44px; height: 44px; transform: translate(-50%,-50%); }
 .ks-ichip .chip-x:hover { background: #fff; color: var(--red-600); }
 
 /* Bulk-Aktion + Zahlart-Auswahl */

@@ -301,6 +301,10 @@
      --------------------------------------------------------------------------- */
   const viewEl = document.getElementById("view");
   let currentView = "dashboard";
+  // Ansichten, die im „Mehr"-Menü liegen: dort bleibt der Mehr-Tab aktiv markiert.
+  // EINE Liste für beide Stellen (tvSetNavActive und switchView) – vorher standen
+  // hier zwei Kopien, was bei jeder neuen Ansicht still auseinanderlaufen konnte.
+  const SHEET_VIEWS = ["admin", "einstellungen", "lineup", "kader"];
 
   // Fallback-Ansicht statt weißem Bildschirm, wenn beim Rendern etwas wirft.
   function renderErrorBoundary(err) {
@@ -870,11 +874,6 @@
   function paarungText(e) {
     const own = ownTeamName(), gegner = e.gegner || "Gegner";
     return e.heim ? `${own} – ${gegner}` : `${gegner} – ${own}`;
-  }
-
-  function eventTitel(e) {
-    if (e.typ === "spiel") return e.gegner ? paarungText(e) : e.titel;
-    return e.titel;
   }
 
   // Spielstätte als Karten-Link (Google Maps). Nur wenn Spielstätte UND Adresse
@@ -2193,9 +2192,8 @@
 
   /* ---- Sprung aus Spiel-Kachel + Zurück-Navigation (Ursprung, Scroll, ungespeichert) ---- */
   function tvSetNavActive(view) {
-    const sheetViews = ["admin", "einstellungen", "lineup", "kader"];   // Liste steht doppelt (siehe Aufraeumpaket)
     document.querySelectorAll(".nav-btn").forEach((b) => {
-      const active = b.hasAttribute("data-more") ? sheetViews.indexOf(view) !== -1 : (b.dataset.view === view);
+      const active = b.hasAttribute("data-more") ? SHEET_VIEWS.indexOf(view) !== -1 : (b.dataset.view === view);
       b.classList.toggle("is-active", active);
     });
   }
@@ -3509,10 +3507,9 @@
     if (/^#?lineup=/.test(location.hash || "")) { try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {} }
     // Bereiche im „Mehr"-Menü (Aufstellung/Rollen) markieren den Mehr-Tab als aktiv.
     // Bereiche, die im Admin-„Mehr"-Sheet liegen (dann ist der Mehr-Tab aktiv).
-    const sheetViews = ["admin", "einstellungen", "lineup", "kader"];   // Liste steht doppelt (siehe Aufraeumpaket)
     document.querySelectorAll(".nav-btn").forEach((b) => {
       const active = b.hasAttribute("data-more")
-        ? sheetViews.indexOf(view) !== -1
+        ? SHEET_VIEWS.indexOf(view) !== -1
         : (b.dataset.view === view);
       b.classList.toggle("is-active", active);
     });

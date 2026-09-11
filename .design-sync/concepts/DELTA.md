@@ -419,6 +419,17 @@ Reihenfolge: erst Styling, dann Logik, dann Schema. Jedes Paket ist für sich te
 **Reihenfolge:** Vor den Logik-Paketen, nach Paket 1.
 **iPhone-Test:** Als Kassenwart → Kasse → die Schaltflächen „Hinzufügen", „Eingang bestätigen" und „Ablehnen" mit dem Daumen treffen, ohne zu zielen. Dann → Einstellungen → „Abmelden" und „Strafenkatalog öffnen". Nichts darf umbrechen, keine Karte darf höher werden als nötig, kein waagerechtes Scrollen.
 
+**✅ Erledigt am 11.09.2026** — zusammen mit Paket 13. Angehoben: `.btn` und `.link-btn` global, `.kat-in`, `.kasse-qty .qty-btn`, `.modal-x`. Sechs punktuelle 44px-Regeln, die dadurch überflüssig wurden, sind entfallen. `.btn-danger` stand zweimal im Blatt (Befund aus `NOTES.md`) und wurde zu einer Definition zusammengeführt — das sichtbare Ergebnis der Kaskade blieb unverändert.
+
+**Zwei bewusste Ausnahmen von der 44px-Regel:**
+
+| Element | Höhe | Warum |
+|---|---|---|
+| `.ks-ichip` (Chip „freie Strafe") | ~32px | Der Chip ist nicht antippbar, nur sein X. Das X hat eine **unsichtbare** 44px-Trefferfläche per `::before` bekommen — dasselbe Muster, das `.tv-slot` auf dem Spielfeld schon nutzt. Der Chip wächst dadurch nicht. |
+| `.role-box` (Checkbox in der Rollen-Tabelle) | 24px | Eine native Checkbox in einer Tabellenzelle. 44px hieße entweder sichtbar vergrößern oder die Tabelle in Zeilen mit Schaltern umbauen — beides eine Layoutänderung. Von Browser-Standard auf 24px angehoben, den Rest trägt die Zeilenhöhe. **Bleibt eine offene Abweichung**, auflösbar nur mit einem Umbau der Rollen-Tabelle. |
+
+**Noch übrig, klein:** `.lu-jump` und `.btn-sm` tragen weiterhin ein eigenes `min-height: 44px`, das seit der Basisregel wirkungslos ist. Nicht mitentfernt, weil beide nicht auf der abgestimmten Liste standen.
+
 ### Paket 2 — Kopf und Navigation
 **Dateien:** `styles.css`, bei 1b zusätzlich `index.html`
 **Aufwand:** 2a = S · 1b = M
@@ -501,6 +512,18 @@ Reihenfolge: erst Styling, dann Logik, dann Schema. Jedes Paket ist für sich te
 
 **Reihenfolge:** jederzeit, unabhängig von allem anderen. Die `sheetViews`-Doppelung lohnt zuerst, weil sie als Einzige aktiv schaden kann.
 **iPhone-Test:** Nach dem Aufräumen einmal jede Ansicht öffnen und auf sichtbare Änderungen achten — es darf **keine** geben. Besonders: Terminkarte mit Zu-/Absage, Trainer-Spielauswahl, Rückmeldungs-Sheet, und der „Mehr"-Tab muss in Kader, Trainer, Kasse, Rollen und Einstellungen als aktiv markiert bleiben.
+
+**✅ Teilweise erledigt am 11.09.2026.** Entfernt: `eventTitel()`, `.ev-sep`, `.tv-gdate` samt Kindregeln. Die `sheetViews`-Doppelung ist aufgelöst — eine Konstante `SHEET_VIEWS`, beide Stellen greifen darauf zu.
+
+**Vier Klassen konnten NICHT entfernt werden:** `.rsvp`, `.rsvp-buttons`, `.rsvp-count` und `.tag-training` werden von den Design-System-Karten unter `.design-sync/cards/` noch verwendet, und `validate.sh` bricht ab, wenn eine Karte eine Klasse nutzt, die `styles.css` nicht definiert. Auflösung siehe Paket 14.
+
+### Paket 14 — Design-System nachziehen *(neu am 11.09.2026)*
+**Dateien:** `.design-sync/cards/Bausteine/Terminkarte.html`, `.design-sync/cards/Bausteine/Badges-und-Tags.html`, danach `styles.css`; Läufe von `build.sh`, `validate.sh`, `check-conventions.sh`
+**Aufwand:** M
+**Inhalt:** Die Karte **Terminkarte ist seit Paket 7a veraltet** — sie zeigt das alte dreispaltige Layout mit `.rsvp` und `.rsvp-buttons`, das die App nicht mehr hat, sowie die Typ-Marke „Training", die entfallen ist. Die Karte auf den heutigen Aufbau bringen: `.ev-head` mit Datumsplakette und Inhalt, `.ev-rsvp` über die volle Breite, `.ev-status`, `.e-trainer`. In **Badges-und-Tags** die Marke „Training" streichen. Erst danach können die vier oben genannten Klassen aus `styles.css` weg.
+**Warum eigenes Paket:** Es ändert, was das Design-System dokumentiert, und verlangt einen vollständigen design-sync-Lauf mit anschließendem Hochladen — das ist keine unsichtbare Aufräumarbeit.
+**Hinweis aus `NOTES.md`:** Noch gar nicht als Karte abgebildet sind Aufstellungs-Builder, Kasse V2, Pull-to-Refresh und der PayPal-Button. Dazu kommen seit den letzten Paketen `.termin-hero`, `.kpi-rows`, die Kader-Ansicht und das Rückmeldungs-Sheet. Wer dieses Paket angeht, sollte gleich prüfen, ob diese Familien Karten bekommen.
+**iPhone-Test:** entfällt — betrifft nur das Design-System, nicht die App. Prüfung ist, dass alle drei Skripte sauber durchlaufen.
 
 ---
 
