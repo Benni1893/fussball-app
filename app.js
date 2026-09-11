@@ -380,7 +380,7 @@
     const zusagen = DEMO.players.filter((p) => (state.rsvp[e.id + "|" + p.id] || {}).status === "zu").length;
     const unten = showCount
       ? `<div class="th-links">
-           <span class="rsvp-count"><b>${zusagen}</b> / ${DEMO.players.length} zugesagt</span>
+           <button class="link-btn" data-rsvp-sheet="${e.id}">Zusagen · ${zusagen}/${DEMO.players.length}</button>
            ${e.typ === "spiel" ? `<button class="link-btn" data-lineup-edit="${e.id}">Aufstellung</button>` : ""}
            <button class="link-btn" disabled aria-disabled="true" title="Kommt im nächsten Schritt">Kader ansehen</button>
          </div>`
@@ -640,6 +640,62 @@
     });
   }
 
+  /* ---------- Rückmeldungen-Sheet (Trainer/Admin) ---------------------------
+     Zeigt je Termin, wer zugesagt, abgesagt und noch nicht geantwortet hat.
+     Daten liegen bereits im Speicher. Die eigentliche Schranke ist die RLS:
+     rsvps_sel (Migration 0024) gibt fremde Antworten nur an coach/admin heraus –
+     ein Spieler bekaeme hier gar keine fremden Zeilen. */
+  function closeRsvpSheet() {
+    const ex = document.getElementById("rsvpSheet");
+    if (ex) { ex.remove(); unlockBodyScroll(); }
+  }
+  function openRsvpSheet(eventId) {
+    if (!Roles.canManageEvents()) return;   // zweite Schranke; RLS ist die erste
+    const e = DEMO.events.find((x) => x.id === eventId);
+    if (!e) return;
+    closeRsvpSheet();
+
+    const zu = [], ab = [], offen = [];
+    DEMO.players.forEach((p) => {
+      const r = state.rsvp[eventId + "|" + p.id] || {};
+      if (r.status === "zu") zu.push({ p: p, grund: "" });
+      else if (r.status === "ab") ab.push({ p: p, grund: r.grund || "" });
+      else offen.push({ p: p, grund: "" });
+    });
+    const byName = (a, b) => nachname(a.p.name).localeCompare(nachname(b.p.name), "de");
+    [zu, ab, offen].forEach((l) => l.sort(byName));
+
+    const row = (x) => `<li class="rs-row">
+        <span class="avatar">${initials(x.p.name)}</span>
+        <span class="rs-name">${esc(x.p.name)}${x.grund ? `<span class="rs-grund">Grund: ${esc(x.grund)}</span>` : ""}</span>
+      </li>`;
+    // Leere Gruppen bleiben sichtbar – so steht die Gliederung bei jedem Termin gleich.
+    const group = (titel, list) => `<div class="rs-group">
+        <div class="rs-head">${titel}<span class="rs-n">${list.length}</span></div>
+        ${list.length ? `<ul class="rs-list">${list.map(row).join("")}</ul>`
+                      : `<div class="rs-empty">niemand</div>`}
+      </div>`;
+
+    const kopf = (e.typ === "spiel" && e.gegner) ? (e.heim ? "vs. " : "@ ") + e.gegner : e.titel;
+    const ov = document.createElement("div");
+    ov.className = "more-sheet"; ov.id = "rsvpSheet";
+    ov.innerHTML = `
+      <button class="more-backdrop" data-sheet-close aria-label="Schließen"></button>
+      <div class="more-panel" role="dialog" aria-modal="true" aria-label="Rückmeldungen">
+        <div class="more-title">Rückmeldungen · ${fmtWd(e.datum)} ${fmtDay(e.datum)}. ${fmtMon(e.datum)} · ${esc(kopf)}</div>
+        <div class="rsvp-sheet">
+          ${group("Zugesagt", zu)}
+          ${group("Abgesagt", ab)}
+          ${group("Offen", offen)}
+        </div>
+      </div>`;
+    document.body.appendChild(ov);
+    lockBodyScroll();
+    ov.addEventListener("click", (ev) => {
+      if (ev.target === ov || ev.target.closest("[data-sheet-close]")) closeRsvpSheet();
+    });
+  }
+
   function renderKalender() {
     const filters = [
       { k: "alle", label: "Alle" },
@@ -892,14 +948,10 @@
         </div>`;
     }
 
-    // Statuszeile unter den Schaltflaechen: Meldeschluss und Zusagezaehler in
-    // EINER Zeile (2a). Der Zaehler bleibt Trainer/Admin vorbehalten.
-    const countHtml = (!cancelled && showCount)
-      ? `<span class="rsvp-count"><b>${zusagen}</b> / ${DEMO.players.length} ${(withRsvp && future) ? "zugesagt" : "dabei"}</span>`
-      : "";
-    const statusHtml = (fristHtml || countHtml)
-      ? `<div class="ev-status">${fristHtml}${fristHtml && countHtml ? `<span class="ev-sep" aria-hidden="true">·</span>` : ""}${countHtml}</div>`
-      : "";
+    // Statuszeile unter den Schaltflaechen: nur noch der Meldeschluss. Der
+    // Zusagezaehler sitzt als antippbarer Eintrag in der Aktionszeile und
+    // existiert dadurch genau einmal je Karte.
+    const statusHtml = fristHtml ? `<div class="ev-status">${fristHtml}</div>` : "";
     const reasonHtml = (!cancelled && withRsvp && future && r.status === "ab" && r.grund)
       ? `<div class="rsvp-reason">Grund: ${esc(r.grund)}</div>` : "";
 
@@ -934,6 +986,9 @@
             }
             if (e.typ === "spiel" && Roles.canManageEvents())
               acts.push(`<button class="btn btn-soft" data-kader-info="${e.id}">Kader-Info erstellen</button>`);
+            // Wer hat zu-, wer abgesagt, wer noch gar nicht? Nur Trainer/Admin.
+            if (showCount)
+              acts.push(`<button class="btn btn-soft" data-rsvp-sheet="${e.id}">Zusagen · ${zusagen}/${DEMO.players.length}</button>`);
             // Trainer/Kassenwart/Admin: jeden Termin bearbeiten (auch BFV-Spiele).
             if (Roles.canManageSchedule())
               acts.push(`<button class="icon-btn" title="Termin bearbeiten" aria-label="Termin bearbeiten" data-termin-edit="${e.id}">${ICON_PENCIL}</button>`);
@@ -3034,7 +3089,7 @@
       if (unpay) { if (!window.confirm("Buchung rückgängig machen? Die Strafe steht wieder als offen.")) return; try { await DB.setFinePaid(unpay.dataset.kasseUnpay, false); await reloadData(); tvToast("Zurückgesetzt"); } catch (e) { window.alert("Rückgängig fehlgeschlagen: " + ((e && e.message) || e)); } return; }
     }
 
-    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-koord-save],[data-my-status],[data-logout]");
+    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-koord-save],[data-my-status],[data-logout]");
     if (!t) return;
 
     // Spieler: eigenen Fitnessstatus setzen (RLS/RPC erlauben nur die eigene Zeile)
@@ -3203,6 +3258,9 @@
       if (e) openShareModal("Kader-Info · " + (e.gegner ? (e.heim ? "vs. " : "@ ") + e.gegner : e.titel), buildKaderInfoText(e));
       return;
     }
+
+    // Rückmeldungen ansehen (Trainer/Admin) -> Bottom-Sheet
+    if (t.dataset.rsvpSheet) { openRsvpSheet(t.dataset.rsvpSheet); return; }
 
     // Aus einer Spiel-Kachel direkt in die Aufstellung springen (Trainer/Admin; RLS schützt zusätzlich).
     if (t.dataset.lineupEdit) { tvJumpFromCard(t.dataset.lineupEdit); return; }

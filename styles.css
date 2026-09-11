@@ -479,7 +479,9 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .ev-status .frist-warn { flex-basis: 100%; }   /* Warnung bekommt eine eigene Zeile */
 .ev-sep { color: var(--muted); }
 
-/* .rsvp/.rsvp-buttons: seit Paket 7a ungenutzt, bleiben bis zum Aufraeumpaket. */
+/* Ungenutzt, bleiben bis zum Aufraeumpaket:
+   .rsvp/.rsvp-buttons (seit Paket 7a), .ev-sep und .rsvp-count (seit dem
+   Rueckmeldungen-Sheet – der Zaehler sitzt jetzt im antippbaren Eintrag). */
 .rsvp { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; min-width: 150px; }
 .rsvp-buttons { display: flex; gap: 6px; }
 .btn {
@@ -712,6 +714,24 @@ tbody tr:hover { background: #fbfdfc; }
 /* Kalender-Abo-Sheet (nutzt .more-sheet/.more-panel) */
 .sheet-desc { margin: 4px 0 12px; color: var(--muted); font-size: .9rem; }
 .sheet-links { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; margin-top: 14px; }
+
+/* Rückmeldungen-Sheet (Trainer/Admin): wer zugesagt, abgesagt, noch offen ist.
+   Eigener Scrollbereich, weil ein voller Kader sonst ueber den Rand laeuft. */
+.rsvp-sheet { max-height: 70vh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0 2px 2px; }
+.rs-group + .rs-group { margin-top: 14px; }
+.rs-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 6px 8px; border-bottom: 1px solid var(--line);
+  font-size: .74rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
+  color: var(--muted);
+}
+.rs-n { font-weight: 800; color: var(--green-800); font-variant-numeric: tabular-nums; }
+.rs-list { list-style: none; margin: 0; padding: 0; }
+.rs-row { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 4px 8px; }
+.rs-row + .rs-row { border-top: 1px solid var(--line); }
+.rs-name { min-width: 0; font-weight: 600; color: var(--ink); }
+.rs-grund { display: block; font-weight: 500; font-size: .8rem; color: var(--muted); }
+.rs-empty { padding: 10px 8px; color: var(--muted); font-size: .85rem; }
 
 /* Profil: eigener Fitnessstatus */
 .status-choose { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
