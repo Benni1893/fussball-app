@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-12-D";
+  var APP_BUILD = "2026-09-12-E";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -2928,13 +2928,13 @@
           <div class="kpi-sub">${alle.filter((s)=>s.st==="offen").length} offene Strafen</div>
         </div>
         <div class="kpi">
-          <div class="kpi-label">Kontostand (Soll)</div>
+          <div class="kpi-label">Kontostand</div>
           <div class="kpi-value kpi-amt">${euro(offenGesamt + bezahltGesamt).replace(/\s/g, " ")}</div>
           <div class="kpi-sub">Gesamtvolumen Saison</div>
         </div>
       </div>
 
-      <div class="toolbar">
+      <div class="chips" style="margin-bottom:12px">
         ${filters.map((f) => `<button class="chip ${strafenFilter === f.k ? "is-active" : ""}" data-sfilter="${f.k}">${f.label}</button>`).join("")}
       </div>
 
@@ -2949,7 +2949,7 @@
               ${s.st === "offen" && s.ablehnGrund ? `<div class="fine-reason">Abgelehnt: ${esc(s.ablehnGrund)}</div>` : ""}
             </div>
             <div class="fine-right">
-              <div class="fine-amt">${euro(s.betrag).replace(/\s/g, " ")}</div>
+              <div class="fine-amt${s.st === "offen" ? " is-warn" : ""}">${euro(s.betrag).replace(/\s/g, " ")}</div>
               ${statusBadgeHtml(s)}
             </div>
           </div>`).join("")}
