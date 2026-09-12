@@ -124,7 +124,7 @@ a:hover{color:#0f3d2e}
 
 /* ---- Feinschliff-Ebene: Tiefe, Material, Typo. Struktur unverändert. ---- */
 body{background:radial-gradient(120% 80% at 50% 0%,#f2f4f2 0%,#e6e9e7 100%)}
-.ph{border-radius:26px;border:1px solid rgba(16,40,30,.12);background:linear-gradient(180deg,#f7faf8 0%,#eff4f1 100%);box-shadow:0 1px 2px rgba(16,40,30,.06),0 18px 44px -16px rgba(16,40,30,.34),0 44px 90px -40px rgba(16,40,30,.3)}
+.ph{border-radius:26px;border:1px solid rgba(16,40,30,.12);background:linear-gradient(180deg,#eef0ef 0%,#e7eae9 100%);box-shadow:0 1px 2px rgba(16,40,30,.06),0 18px 44px -16px rgba(16,40,30,.34),0 44px 90px -40px rgba(16,40,30,.3)}
 .hd{background:linear-gradient(158deg,#17573f 0%,#0f3d2e 52%,#0b3125 100%);padding:14px 16px;box-shadow:inset 0 -1px 0 rgba(212,175,55,.32),0 6px 18px -10px rgba(11,49,37,.7);position:relative;z-index:3}
 .hd::after{content:"";position:absolute;inset:0 0 auto;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.26),transparent)}
 .hd-t{letter-spacing:-.01em}
@@ -180,7 +180,7 @@ body{background:radial-gradient(120% 80% at 50% 0%,#f2f4f2 0%,#e6e9e7 100%)}
 </defs></svg>
 
 <section class="sect" id="t1">
-<div class="sect-h"><a class="sect-n" href="#t1">1</a><span class="sect-t">Finales Konzept &middot; Konto nach 6c, Aufgabenliste nach 6d</span></div>
+<div class="sect-h"><a class="sect-n" href="#t1">1</a><span class="sect-t">Finales Konzept &middot; Übersicht mit Spieltag-Karte</span></div>
 <div class="rowwrap">
 
 <div class="frame" id="f-uebersicht-trainer">
@@ -195,8 +195,7 @@ body{background:radial-gradient(120% 80% at 50% 0%,#f2f4f2 0%,#e6e9e7 100%)}
         <div><div style="font:800 26px/1.15 Inter,sans-serif;color:var(--deep)">Training</div><div class="num" style="font:600 15px/1.3 Inter,sans-serif;color:var(--ink)">Do 10. Sep &middot; 19:30&ndash;21:00</div></div>
         <div style="text-align:right;flex:none"><div class="num" style="font:800 22px/1 Inter,sans-serif;color:var(--deep)">10/16</div><div class="rs">zugesagt</div></div>
       </div>
-      <div class="btns" style="margin-top:12px"><button class="btn">Zusage</button><button class="btn sec2">Absage</button></div>
-      <div style="margin-top:10px;font:600 13px Inter,sans-serif;color:var(--muted)"><a href="#f-uebersicht-trainer" style="font-weight:700">Kader ansehen</a> &middot; <a href="#f-lineup-pitch" style="font-weight:700">Aufstellung</a></div>
+      <div class="btns" style="margin-top:12px"><button class="btn sec2" style="min-height:46px;font-size:14px">Zusagen ansehen</button><button class="btn" style="min-height:46px;font-size:14px">6 erinnern</button></div>
     </div>
     <div class="sec">Was heute liegt</div>
     <div class="list" style="border:0;box-shadow:none;background:transparent;display:flex;flex-direction:column;gap:8px;overflow:visible">
@@ -208,10 +207,25 @@ body{background:radial-gradient(120% 80% at 50% 0%,#f2f4f2 0%,#e6e9e7 100%)}
       <div class="card" style="padding:12px 14px;display:flex;justify-content:space-between;align-items:center"><div style="font:600 14px Inter,sans-serif;color:var(--ink)">Meine Strafen</div><div class="amt warn">10,00 &euro; &rsaquo;</div></div>
       <div class="card" style="padding:12px 14px;display:flex;justify-content:space-between;align-items:center"><div style="font:600 14px Inter,sans-serif;color:var(--ink)">Mannschaftskasse</div><div class="amt">2.596,00 &euro; &rsaquo;</div></div>
     </div>
-    <div class="sec">Danach<a href="#f-kalender">Kalender</a></div>
-    <div class="card ay" style="padding:12px 14px;display:flex;gap:12px;align-items:center">
-      <div class="dbg"><div class="wd">So</div><div class="dy">13</div><div class="mo">SEP</div></div>
-      <div style="min-width:0"><div style="font:500 13px/1.3 Inter,sans-serif;color:var(--muted)">bei FC D. Griechen Pontos</div><div style="font:700 14px/1.3 Inter,sans-serif;color:var(--ink)">15:00 &middot; BSA Wegenerstraße</div></div>
+    <div class="sec">Nächstes Spiel<a href="#f-kalender">Kalender</a></div>
+    <div class="card" style="padding:15px 16px 14px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+        <div style="min-width:0">
+          <div class="lbl">Sonntag &middot; 15:00</div>
+          <div style="margin-top:6px;font:800 21px/1.2 Inter,sans-serif;color:var(--ink);letter-spacing:-.025em">Griechen Pontos</div>
+          <div class="rs" style="margin-top:3px">Auswärts &middot; Spieltag 4</div>
+          <div class="rs" style="display:flex;align-items:center;gap:5px;margin-top:5px"><svg class="ic" viewBox="0 0 24 24" style="width:15px;height:15px"><use href="#i-pin"></use></svg>BSA Wegenerstraße 12, München</div>
+        </div>
+        <span class="av" style="width:40px;height:40px;font-size:12px">GP</span>
+      </div>
+      <div style="margin-top:13px;display:flex;gap:8px">
+        <div style="flex:1;border:1px solid var(--line);border-radius:12px;padding:9px 11px;display:flex;align-items:center;gap:8px"><div class="rmain"><div class="num" style="font:800 17px/1 Inter,sans-serif;color:var(--deep)">12/16</div><div class="rs" style="margin-top:3px">zugesagt</div></div><div class="chev" style="font-size:16px">&rsaquo;</div></div>
+        <div style="flex:1;border:1px solid #e8d9a8;background:linear-gradient(180deg,#fdf6e4,#f8eed3);border-radius:12px;padding:9px 11px"><div class="num" style="font:800 17px/1 Inter,sans-serif;color:#7a5a0c">10/11</div><div class="rs" style="margin-top:3px;color:#6b4e0a">aufgestellt</div></div>
+      </div>
+      <button class="btn wide" style="margin-top:12px;min-height:48px">Aufstellung bearbeiten</button>
+      <div style="margin-top:11px;padding-top:11px;border-top:1px solid var(--line);text-align:center">
+        <a href="#f-lineup-pitch" style="font:700 13px Inter,sans-serif">Kader-Info erstellen</a>
+      </div>
     </div>
   </div>
   <div class="nav">
@@ -243,7 +257,8 @@ body{background:radial-gradient(120% 80% at 50% 0%,#f2f4f2 0%,#e6e9e7 100%)}
       <div class="num" style="margin-top:8px;font:800 52px/1 Inter,sans-serif;color:var(--red);letter-spacing:-.035em">10,00&thinsp;&euro;</div>
       <div class="rs num" style="margin-top:6px">offen von 35,00 &euro; &middot; 2 Strafen</div>
       <div style="margin:14px auto 0;max-width:250px;height:5px;border-radius:3px;background:#eef2ef;overflow:hidden"><div style="width:71%;height:100%;background:linear-gradient(90deg,#2d9265,#1f7049)"></div></div>
-      <button class="btn wide" style="margin-top:16px;min-height:52px;font-size:16px">Mit PayPal bezahlen</button>
+      <button class="btn wide" style="margin-top:16px;min-height:52px;font-size:16px">10,00 &euro; jetzt bezahlen</button>
+      <div style="margin-top:9px;display:flex;align-items:center;justify-content:center;gap:6px"><span class="rs">über</span><span style="display:inline-flex;align-items:center;font:800 13px/1 Inter,sans-serif;font-style:italic"><span style="color:#003087">Pay</span><span style="color:#009cde">Pal</span></span><span class="rs">&middot; Freunde &amp; Familie</span></div>
       <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center">
         <a href="#f-konto" style="font:700 13px Inter,sans-serif">Zahlung melden</a>
         <span class="rs num">Erhöhung in 2 Tg</span>
@@ -251,9 +266,18 @@ body{background:radial-gradient(120% 80% at 50% 0%,#f2f4f2 0%,#e6e9e7 100%)}
     </div>
     <div class="sec">Danach<a href="#f-kalender">Kalender</a></div>
     <div class="stack">
-      <div class="card ay" style="padding:12px 14px;display:flex;gap:12px;align-items:center">
-        <div class="dbg"><div class="wd">So</div><div class="dy">13</div><div class="mo">SEP</div></div>
-        <div style="min-width:0"><div style="font:500 13px/1.3 Inter,sans-serif;color:var(--muted)">bei FC D. Griechen Pontos</div><div style="font:700 14px/1.3 Inter,sans-serif;color:var(--ink)">15:00 &middot; BSA Wegenerstraße</div></div>
+      <div class="card" style="padding:15px 16px 14px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+          <div style="min-width:0">
+            <div class="lbl">Sonntag &middot; 15:00</div>
+            <div style="margin-top:6px;font:800 21px/1.2 Inter,sans-serif;color:var(--ink);letter-spacing:-.025em">Griechen Pontos</div>
+            <div class="rs" style="margin-top:3px">Auswärts &middot; Spieltag 4</div>
+            <div class="rs" style="display:flex;align-items:center;gap:5px;margin-top:5px"><svg class="ic" viewBox="0 0 24 24" style="width:15px;height:15px"><use href="#i-pin"></use></svg>BSA Wegenerstraße 12, München</div>
+          </div>
+          <span class="av" style="width:40px;height:40px;font-size:12px">GP</span>
+        </div>
+        <div class="btns" style="margin-top:14px"><button class="btn" style="min-height:50px;font-size:16px">Zusage</button><button class="btn sec2" style="min-height:50px;font-size:16px">Absage</button></div>
+        <div class="rs num" style="margin-top:10px;text-align:center">Meldeschluss in 2 Tg 6 Std</div>
       </div>
       <div class="card ag" style="padding:12px 14px;display:flex;gap:12px;align-items:center">
         <div class="dbg"><div class="wd">Di</div><div class="dy">15</div><div class="mo">SEP</div></div>
@@ -292,7 +316,7 @@ body{background:radial-gradient(120% 80% at 50% 0%,#f2f4f2 0%,#e6e9e7 100%)}
       <div class="card ag" style="padding:13px 14px">
         <div style="display:flex;gap:12px">
           <div class="dbg"><div class="wd">Do</div><div class="dy">10</div><div class="mo">SEP</div></div>
-          <div class="rmain"><div class="rt">Training <span class="bdg bdg-ok">Training</span></div><div class="rs num">19:30&ndash;21:00 Uhr</div><div class="rs" style="display:flex;align-items:center;gap:5px;margin-top:3px"><svg class="ic" viewBox="0 0 24 24" style="width:15px;height:15px"><use href="#i-pin"></use></svg>Sportgelände Fasanerie, Platz 2</div></div>
+          <div class="rmain"><div class="rt">Training</div><div class="rs num">19:30&ndash;21:00 Uhr</div><div class="rs" style="display:flex;align-items:center;gap:5px;margin-top:3px"><svg class="ic" viewBox="0 0 24 24" style="width:15px;height:15px"><use href="#i-pin"></use></svg>Sportgelände Fasanerie, Platz 2</div></div>
         </div>
         <div class="btns" style="margin-top:11px"><button class="btn">Zusage</button><button class="btn sec2">Absage</button></div>
         <div class="rs num" style="margin-top:8px">Meldeschluss in 6 Std 12 Min &middot; <b style="color:var(--ink)">10</b> / 16 zugesagt</div>
@@ -308,7 +332,7 @@ body{background:radial-gradient(120% 80% at 50% 0%,#f2f4f2 0%,#e6e9e7 100%)}
       <div class="card ag" style="padding:13px 14px">
         <div style="display:flex;gap:12px">
           <div class="dbg"><div class="wd">Di</div><div class="dy">15</div><div class="mo">SEP</div></div>
-          <div class="rmain"><div class="rt">Training <span class="bdg bdg-ok">Training</span></div><div class="rs num">19:30&ndash;21:00 Uhr</div></div>
+          <div class="rmain"><div class="rt">Training</div><div class="rs num">19:30&ndash;21:00 Uhr</div></div>
         </div>
         <div class="btns" style="margin-top:11px"><button class="btn">Zusage</button><button class="btn sec2">Absage</button></div>
       </div>
@@ -422,8 +446,8 @@ body{background:radial-gradient(120% 80% at 50% 0%,#f2f4f2 0%,#e6e9e7 100%)}
       <div class="num" style="margin-top:8px;font:800 52px/1 Inter,sans-serif;color:var(--red);letter-spacing:-.035em">10,00&thinsp;&euro;</div>
       <div class="rs num" style="margin-top:6px">offen von 35,00 &euro; &middot; 2 Strafen</div>
       <div style="margin:14px auto 0;max-width:250px;height:5px;border-radius:3px;background:#eef2ef;overflow:hidden"><div style="width:71%;height:100%;background:linear-gradient(90deg,#2d9265,#1f7049)"></div></div>
-      <button class="btn wide" style="margin-top:16px;min-height:52px;font-size:16px">Mit PayPal bezahlen</button>
-      <div class="rs" style="margin-top:9px">Bitte als &bdquo;Freunde &amp; Familie&ldquo; senden</div>
+      <button class="btn wide" style="margin-top:16px;min-height:52px;font-size:16px">10,00 &euro; jetzt bezahlen</button>
+      <div style="margin-top:9px;display:flex;align-items:center;justify-content:center;gap:6px"><span class="rs">über</span><span style="display:inline-flex;align-items:center;font:800 13px/1 Inter,sans-serif;font-style:italic"><span style="color:#003087">Pay</span><span style="color:#009cde">Pal</span></span><span class="rs">&middot; Freunde &amp; Familie</span></div>
       <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center">
         <a href="#f-konto" style="font:700 13px Inter,sans-serif">Zahlung melden</a>
         <span class="rs num">Erhöhung in 2 Tg</span>
@@ -520,16 +544,21 @@ body{background:radial-gradient(120% 80% at 50% 0%,#f2f4f2 0%,#e6e9e7 100%)}
     </div>
     <div class="sec">Prüfen &amp; verbuchen</div>
     <div class="chips"><span class="chip on">Zu prüfen (5)</span><span class="chip">Offen (18)</span><span class="chip">Eingegangen (42)</span></div>
-    <div class="stack" style="margin-top:12px">
-      <div class="card ay" style="padding:13px 14px">
-        <div style="display:flex;align-items:center;gap:12px"><span class="av">MS</span><div class="rmain"><div class="rt">Moritz Schäfer</div><div class="rs">Trikot vergessen &middot; gemeldet am 8. Sep</div></div><div class="amt" style="font-size:15px">5,00 &euro;</div></div>
-        <div class="btns" style="margin-top:10px"><button class="btn" style="min-height:42px;font-size:14px">Eingang bestätigen</button><button class="btn sec2" style="min-height:42px;font-size:14px">Ablehnen</button></div>
-      </div>
-      <div class="card ay" style="padding:13px 14px">
-        <div style="display:flex;align-items:center;gap:12px"><span class="av">SL</span><div class="rmain"><div class="rt">Simon Lang</div><div class="rs">Handy in der Besprechung &middot; gemeldet am 8. Sep</div></div><div class="amt" style="font-size:15px">5,00 &euro;</div></div>
-        <div class="btns" style="margin-top:10px"><button class="btn" style="min-height:42px;font-size:14px">Eingang bestätigen</button><button class="btn sec2" style="min-height:42px;font-size:14px">Ablehnen</button></div>
+    <div style="position:relative;margin-top:12px">
+      <div style="position:absolute;left:16px;right:16px;bottom:-12px;height:40px;border-radius:14px;background:#fff;border:1px solid rgba(16,40,30,.1);box-shadow:0 6px 16px -12px rgba(16,40,30,.6);opacity:.55"></div>
+      <div style="position:absolute;left:8px;right:8px;bottom:-6px;height:40px;border-radius:14px;background:#fff;border:1px solid rgba(16,40,30,.1);box-shadow:0 6px 16px -12px rgba(16,40,30,.6);opacity:.8"></div>
+      <div class="card" style="position:relative;padding:16px;text-align:center">
+        <div class="lbl">Meldung 1 von 5</div>
+        <span class="av" style="width:46px;height:46px;font-size:15px;margin:10px auto 0">MS</span>
+        <div style="margin-top:9px;font:700 17px Inter,sans-serif;color:var(--ink)">Moritz Schäfer</div>
+        <div class="rs">Trikot vergessen &middot; gemeldet am 8. Sep</div>
+        <div class="num" style="margin-top:12px;font:800 34px/1 Inter,sans-serif;color:var(--deep);letter-spacing:-.03em">5,00&thinsp;&euro;</div>
+        <div class="rs" style="margin-top:4px">per PayPal gemeldet</div>
+        <div class="btns" style="margin-top:16px"><button class="btn sec2" style="min-height:48px">Ablehnen</button><button class="btn" style="min-height:48px">Eingang bestätigen</button></div>
       </div>
     </div>
+    <div style="display:flex;gap:5px;justify-content:center;margin-top:24px"><span style="width:18px;height:4px;border-radius:2px;background:#1f7049"></span><span style="width:4px;height:4px;border-radius:2px;background:#c6d2cb"></span><span style="width:4px;height:4px;border-radius:2px;background:#c6d2cb"></span><span style="width:4px;height:4px;border-radius:2px;background:#c6d2cb"></span><span style="width:4px;height:4px;border-radius:2px;background:#c6d2cb"></span></div>
+    <div class="rs" style="margin-top:8px;text-align:center">Nach jeder Entscheidung rückt die nächste Meldung nach</div>
   </div>
   <div class="nav">
     <div class="nb"><svg class="ic" viewBox="0 0 24 24"><use href="#i-home"></use></svg><span>Übersicht</span></div>
@@ -588,6 +617,7 @@ body{background:radial-gradient(120% 80% at 50% 0%,#f2f4f2 0%,#e6e9e7 100%)}
   </div>
 </div>
 </div>
+
 
 <div class="frame" id="f-profil">
 <div class="frame-h"><a class="tagn" href="#f-profil">4b</a>Profil &middot; eigener Fitnessstatus</div>

@@ -3,40 +3,159 @@
    =========================================================================== */
 
 :root {
-  --green-900: #0f3d2e;
-  --green-800: #144a37;
-  --green-700: #1b5e3f;
-  --green-600: #237a52;
-  --green-500: #2e8b57;
+  /* =========================================================================
+     Tokenblock. EINZIGE Quelle fuer Farbe, Material und Mass.
+     Alle Werte sind 1:1 aus der Vorlage .design-sync/concepts/
+     "App in 2a - High End.dc.html" entnommen; der Kommentar hinter jedem Wert
+     nennt die Regel, aus der er stammt. Nichts hier ist geschaetzt.
+     Achtung: build.sh schneidet genau diesen Block heraus (config.json ->
+     source.tokenBlockLines). Zeilen verschoben? Dann dort nachziehen.
+     ========================================================================= */
+
+  /* ---- Gruen ------------------------------------------------------------- */
+  --green-900: #0f3d2e;   /* Vorlage --green  */
+  --green-800: #144a37;   /* Vorlage --deep   */
+  --green-700: #1b5e3f;   /* Vorlage a:hover / .nb.on */
+  --green-600: #237a52;   /* Vorlage .btn Grundfarbe */
+  --green-500: #2e8b57;   /* Vorlage --gr     */
   --green-050: #e9f3ee;
+  --green-750: #17573f;   /* .hd 0%, .chip.on 0%, .auth 0% */
+  --green-950: #0b3125;   /* .hd 100% */
+  --green-990: #0a2c21;   /* .auth 100% */
+  --green-650: #1f7049;   /* .btn 100%, .nb.on::before 0%, Fortschritt 100% */
+  --green-550: #2d9265;   /* .btn 0%, Fortschritt 0%, .box.on 0% */
+  --green-450: #3aa36a;   /* .ag::before 0%, Plakette gruen 0% */
+  --pitch-green: #2e7d46; /* .pitch Grundflaeche */
 
+  /* ---- Gold -------------------------------------------------------------- */
   --gold-600: #b8902f;
-  --gold-500: #d4af37;
-  --gold-050: #faf3df;
+  --gold-500: #d4af37;    /* .hd Innenkante unten (32 %) */
+  --gold-050: #faf3df;    /* Vorlage --cream */
+  --gold-700: #c39a22;    /* .ay::before 100%, Plakette gold 100% */
+  --gold-400: #e3c25c;    /* .ay::before 0%,   Plakette gold 0%   */
+  --gold-100: #fdf6e4;    /* .pill 0%, .dbg 0%, Aufgabenzeile gold 0% */
+  --gold-200: #f6ebcd;    /* .pill 100%, .dbg 100% */
+  --gold-250: #f8eed3;    /* Aufgabenzeile gold 100%, Statkachel 100% */
+  --gold-ink:   #7a5a0c;  /* .bdg-rep Text, "10/11 aufgestellt" */
+  --gold-ink-2: #6b4e0a;  /* Aufgabenzeile gold Text */
+  --gold-line:   #e3d09a; /* .pill Rand */
+  --gold-line-2: #e8d9a8; /* Aufgabenzeile gold + Statkachel Rand */
+  --gold-badge-bg:   #fdf4e0;
+  --gold-badge-line: #ecdcae;
+  --gold-chev: #96772a;
 
-  --red-600:  #c0392b;
-  --red-050:  #fbeae8;
-  --amber-600:#b9770e;
-  --amber-050:#fdf3e3;
+  /* ---- Rot --------------------------------------------------------------- */
+  --red-600: #c0392b;
+  --red-050: #fbeae8;
+  --red-700: #a5281b;     /* .ar::before 100%, .bdg-open Text */
+  --red-500: #d9543f;     /* .ar::before 0%,   Plakette rot 0%   */
+  --red-100: #fdeeeb;     /* Aufgabenzeile rot 0%   */
+  --red-200: #fbe4e0;     /* Aufgabenzeile rot 100% */
+  --red-line:     #f3c9c3;
+  --red-badge-bg: #fdecea;
+  --red-ink:   #7d1f14;   /* Aufgabenzeile rot Titel */
+  --red-ink-2: #8a3a2e;   /* Aufgabenzeile rot Untertitel */
+  --red-chev:  #a5544a;
+  --amber-600: #b9770e;
+  --amber-050: #fdf3e3;
 
-  --ink:      #1c2620;
-  --muted:    #66756d;
-  --line:     #e2e8e4;
-  --bg:       #f4f7f5;
-  --card:     #ffffff;
+  /* ---- Neutral / Flaechen ------------------------------------------------ */
+  --ink:   #1c2620;
+  --muted: #66756d;       /* 4,7:1 auf Weiss - auch der Platzhalterton */
+  --line:  #e2e8e4;
+  --bg:    #f4f7f5;
+  --card:  #ffffff;
+  --bg-1: #eef0ef;        /* App-Grund 0%   (.ph) */
+  --bg-2: #e7eae9;        /* App-Grund 100% (.ph) */
+  --card-2:    #fcfefd;   /* .card 100% */
+  --surface-2: #f6faf8;   /* .btn.sec2 100% */
+  --surface-3: #f7faf8;   /* .chip 100% */
+  --surface-4: #f8fbf9;   /* .bslot 100% */
+  --surface-5: #fcfdfc;   /* .in 0% */
+  --surface-6: #eef3f0;   /* .disc 100% */
+  --av-1: #eef5f0;        /* .av 0%   */
+  --av-2: #e0ebe4;        /* .av 100% */
+  --green-badge-bg:   #e6f2ea;
+  --green-badge-line: #c8e0d2;
+  --green-task-1: #eaf5ee; /* Aufgabenzeile gruen 0%   */
+  --green-task-2: #e0efe6; /* Aufgabenzeile gruen 100% */
+  --green-task-ink:   #14503a;
+  --green-task-ink-2: #2c6349;
+  --green-chev: #4c7a64;
+  --track:   #eef2ef;     /* Spur des Fortschrittsbalkens */
+  --dot-off: #c6d2cb;     /* Seitenpunkte, Rand leerer Kaestchen */
 
-  --radius:   14px;
-  --shadow:   0 1px 2px rgba(15,61,46,.06), 0 8px 24px rgba(15,61,46,.07);
-  --shadow-sm:0 1px 2px rgba(15,61,46,.08);
+  /* ---- Verlaeufe --------------------------------------------------------- */
+  --grad-app:      linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+  --grad-hd:       linear-gradient(158deg, var(--green-750) 0%, var(--green-900) 52%, var(--green-950) 100%);
+  --grad-hd-light: linear-gradient(90deg, transparent, rgba(255,255,255,.26), transparent);
+  --grad-card:     linear-gradient(180deg, var(--card) 0%, var(--card-2) 100%);
+  --grad-btn:      linear-gradient(180deg, var(--green-550) 0%, var(--green-650) 100%);
+  --grad-btn-sec:  linear-gradient(180deg, var(--card) 0%, var(--surface-2) 100%);
+  --grad-chip:     linear-gradient(180deg, var(--card) 0%, var(--surface-3) 100%);
+  --grad-chip-on:  linear-gradient(180deg, var(--green-750), var(--green-900));
+  --grad-gold:     linear-gradient(180deg, var(--gold-100), var(--gold-200));
+  --grad-in:       linear-gradient(180deg, var(--surface-5), var(--card));
+  --grad-av:       linear-gradient(180deg, var(--av-1), var(--av-2));
+  --grad-auth:     linear-gradient(168deg, var(--green-750) 0%, var(--green-900) 55%, var(--green-990) 100%);
+  --grad-bar:      linear-gradient(90deg, var(--green-550), var(--green-650));
+  --grad-navbar:   linear-gradient(90deg, var(--green-650), var(--green-500));
+  --grad-disc:     linear-gradient(180deg, var(--card), var(--surface-6));
+  --grad-bslot:    linear-gradient(180deg, var(--card), var(--surface-4));
+  --grad-edge-green: linear-gradient(180deg, var(--green-450), var(--green-650));
+  --grad-edge-gold:  linear-gradient(180deg, var(--gold-400),  var(--gold-700));
+  --grad-edge-red:   linear-gradient(180deg, var(--red-500),   var(--red-700));
+  --grad-task-red:   linear-gradient(180deg, var(--red-100),      var(--red-200));
+  --grad-task-gold:  linear-gradient(180deg, var(--gold-100),     var(--gold-250));
+  --grad-task-green: linear-gradient(180deg, var(--green-task-1), var(--green-task-2));
 
-  /* Schriftgröße der Anstoßzeit (steht unter dem Vereinsnamen) */
+  /* ---- Schatten ---------------------------------------------------------- */
+  --shadow-card:    0 1px 1px rgba(16,40,30,.04), 0 8px 20px -14px rgba(16,40,30,.45);
+  --shadow-hair:    0 1px 1px rgba(16,40,30,.04);
+  --shadow-btn:     inset 0 1px 0 rgba(255,255,255,.24), 0 1px 2px rgba(16,40,30,.14), 0 10px 20px -12px rgba(31,112,73,.85);
+  --shadow-btn-sec: 0 1px 1px rgba(16,40,30,.05), 0 6px 14px -12px rgba(16,40,30,.6);
+  --shadow-chip-on: inset 0 1px 0 rgba(255,255,255,.18), 0 4px 10px -6px rgba(15,61,46,.8);
+  --shadow-hd:      inset 0 -1px 0 rgba(212,175,55,.32), 0 6px 18px -10px rgba(11,49,37,.7);
+  --shadow-nav:     0 -8px 22px -16px rgba(16,40,30,.55);
+  --shadow-navbar:  0 1px 6px rgba(31,112,73,.55);
+  --shadow-sheet:   0 -14px 40px -14px rgba(0,0,0,.5);
+  --shadow-auth:    0 2px 4px rgba(0,0,0,.1), 0 22px 50px -18px rgba(0,0,0,.55);
+  --shadow-pitch:   inset 0 0 0 1px rgba(255,255,255,.14), 0 10px 28px -14px rgba(11,49,37,.8);
+  --shadow-disc:    inset 0 1px 0 #fff, 0 2px 8px rgba(0,0,0,.38);
+  --shadow-av:      inset 0 1px 0 #fff, 0 1px 2px rgba(16,40,30,.1);
+  --shadow-dbg:     inset 0 1px 0 rgba(255,255,255,.7), 0 1px 2px rgba(122,90,12,.1);
+  --shadow-in:      inset 0 1px 2px rgba(16,40,30,.05);
+  --shadow-sm:      0 1px 2px rgba(15,61,46,.08);
+  --shadow:         0 1px 1px rgba(16,40,30,.04), 0 8px 20px -14px rgba(16,40,30,.45);
+  --ov-sheet: rgba(10,28,21,.5);   /* .sheet Abdunklung */
+
+  /* ---- Randfarben mit Alpha (Vorlage: rgba(16,40,30,a)) ------------------- */
+  --line-soft:   rgba(16,40,30,.1);    /* .card, .list, .kpi, .nav */
+  --line-soft-2: rgba(16,40,30,.12);   /* .chip, .bslot */
+  --line-soft-3: rgba(16,40,30,.14);   /* .btn.sec2, .in */
+
+  /* ---- Masse ------------------------------------------------------------- */
+  --radius:        14px;   /* .card, .list, .kpi, .pitch */
+  --radius-btn:    10px;   /* .btn, .in, Plakette */
+  --radius-sheet:  18px;   /* .panel, .auth-card */
+  --radius-pill:  999px;
+  --radius-box:     6px;   /* .box */
+  --tap:           44px;   /* harte Regel, schlaegt die Vorlage */
+  --h-btn:         46px;   /* .btn */
+  --h-btn-lg:      48px;   /* "Aufstellung bearbeiten", "Eingang bestaetigen" */
+  --h-btn-xl:      52px;   /* "10,00 EUR jetzt bezahlen" */
+  --h-in:          46px;   /* .in */
+  --h-row:         52px;   /* .row, .kat */
+  --h-nav:         52px;   /* .nb */
+  --h-bslot:       54px;   /* .bslot */
+  --fs-input:      16px;   /* harte Regel: iOS zoomt sonst beim Fokus */
+
+  /* ---- Altbestand (wird mit den Ansichts-Commits abgeloest) --------------- */
   --fs-event-time: 1.02rem;
-  /* Farbbalken links an der Spielkachel – leicht anpassbar */
-  --spiel-heim: #0f3d2e;   /* Heimspiel: kräftiges, dunkles Vereinsgrün */
-  --spiel-ausw: #a3cbb8;   /* Auswärtsspiel: blasseres, helleres Grün */
-  /* Randbalken-Ton je Termin-Typ (Nicht-Spiele) */
-  --typ-training:         #2e8b57;  /* Grün */
-  --typ-sonstiges:        #7c8a82;  /* Neutraler Grauton */
+  --spiel-heim: #0f3d2e;
+  --spiel-ausw: #a3cbb8;
+  --typ-training:  #2e8b57;
+  --typ-sonstiges: #7c8a82;
 }
 
 * { box-sizing: border-box; }
@@ -45,7 +164,7 @@ html {
   -webkit-text-size-adjust: 100%; /* iOS: Schrift nicht ungewollt vergrößern/verkleinern */
   min-height: 100vh;              /* Fallback für Browser ohne dvh */
   min-height: 100dvh;             /* iOS: dynamische Viewport-Höhe, korrekt ab erstem Paint */
-  background: var(--green-900);   /* Overscroll-/Safe-Area-Bereich: grün, nie weiß */
+  background: var(--green-750);   /* Overscroll-/Safe-Area-Bereich: grün, nie weiß */
 }
 body {
   margin: 0;
@@ -778,7 +897,7 @@ tbody tr:hover { background: #fbfdfc; }
 .slot { position: absolute; transform: translate(-50%, -50%); width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; cursor: pointer; }
 .slot:not(.is-filled) { border: 2px dashed rgba(255,255,255,.7); background: rgba(255,255,255,.12); }
 .slot:not(.is-filled).is-gap { border-color: var(--amber-600); background: rgba(185,119,14,.25); }
-.slot.is-selected { box-shadow: 0 0 0 3px var(--gold, #d4af37); }
+.slot.is-selected { box-shadow: 0 0 0 3px var(--gold-500); }
 .slot-role { color: #fff; font-size: .68rem; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,.5); }
 
 .field-pl { position: relative; width: 52px; height: 52px; border-radius: 50%; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,.3); cursor: grab; line-height: 1.05; }
@@ -1263,7 +1382,7 @@ body.auth-mode .app-footer { display: none; }
 .tv-pitch { position: relative; aspect-ratio: 68/105; height: 100%; max-width: 100%; width: auto; border-radius: 12px; overflow: hidden; user-select: none; touch-action: manipulation; }
 .tv-pitch-bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 /* Rasen ruhiger/entsaettigt (Variante A). Wechsel zu B: #587a68 setzen. Nur die Grundflaeche. */
-.tv-pitch-bg > rect { fill: var(--tv-pitch, #3d6b54); }
+.tv-pitch-bg > rect { fill: var(--pitch-green);   /* Vorlage .pitch */ }
 .tv-slot { position: absolute; transform: translate(-50%,-50%); display: flex; flex-direction: column; align-items: center; }
 /* Unsichtbare 44px-Tap-Flaeche um den 40px-Kreis (Touch-Ziel bleibt >=44px). */
 .tv-slot::before { content: ""; position: absolute; top: 50%; left: 50%; width: 44px; height: 44px; transform: translate(-50%,-50%); }
@@ -1560,150 +1679,190 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 .kat-edit-actions { display: flex; justify-content: flex-end; gap: 2px; }
 
 /* ===========================================================================
-   Feinschliff-Ebene (Vorlage "App in 2a - High End")
+   Globale Materialebene - Vorlage "App in 2a - High End"
    ---------------------------------------------------------------------------
-   Legt Tiefe, Material und Typo ueber die unveraenderte Struktur. ALLE Werte
-   sind aus den bestehenden Tokens abgeleitet - per color-mix() gegen white bzw.
-   black oder als Transparenz. Kein neuer Farbton, kein Hex; der Tokenblock
-   bleibt auf Zeile 5-40, build.sh laeuft unveraendert.
+   Loest die frueher hier stehende color-mix()-Annaeherung ab. Jeder Wert kommt
+   jetzt als Token aus dem Block oben und damit 1:1 aus der Vorlage; kein Hex,
+   kein geschaetzter Ton, kein color-mix() mehr (und damit auch keine
+   iOS-16.2-Abhaengigkeit).
 
-   Bewusst NICHT uebernommen: der Verlauf in der 4px-Kante links. Dafuer haetten
-   .event, .termin-hero, .tv-gcard und .kpi-row von border-left auf ein ::before
-   umgebaut werden muessen - viel Regressionsrisiko fuer 4px Farbverlauf. Die
-   Kanten bleiben flach in Tokenfarbe.
+   Diese Ebene setzt NUR Material: Flaeche, Rand, Schatten, Radius, Hoehe,
+   Schriftgroesse der wiederkehrenden Bausteine. Struktur und Anordnung der
+   einzelnen Ansichten kommen in den folgenden Commits.
 
-   color-mix() setzt iOS 16.2+ voraus. Aeltere Safari ignorieren die einzelnen
-   Deklarationen und behalten den flachen Vorzustand - nichts bricht.
+   Bewusste Abweichungen von der Vorlage (Regeln aus CLAUDE.md schlagen sie):
+   - .chip zeichnet 34px, .fpill 33px  -> hier 44px Trefferflaeche
+   - Eingabefelder zeichnen 15px       -> hier 16px (sonst zoomt iOS)
+   - Platzhalter zeichnet #9aa8a0 (2,5:1) -> hier --muted (4,7:1)
+   Die Vorlage rechnet durchgehend in px. Die App haelt html/body auf 15px,
+   damit der noch nicht umgestellte Altbestand sich nicht verschiebt; alle
+   Werte hier sind deshalb ebenfalls px und treffen die Vorlage exakt.
    =========================================================================== */
+
+/* --- Grund: Verlauf statt Flaeche ------------------------------------------ */
+body {
+  background: var(--bg);              /* Rueckfall */
+  background-image: var(--grad-app);
+  background-repeat: no-repeat;
+}
 
 /* --- Kopfzeile: Verlauf, goldene Innenkante unten, Lichtkante oben ---------- */
 .app-header {
-  background: linear-gradient(158deg,
-    color-mix(in srgb, var(--green-900) 78%, var(--green-500)) 0%,
-    var(--green-900) 52%,
-    color-mix(in srgb, var(--green-900) 84%, black) 100%);
-  box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--gold-500) 32%, transparent),
-              0 6px 18px -10px color-mix(in srgb, var(--green-900) 70%, transparent);
+  background: var(--grad-hd);
+  box-shadow: var(--shadow-hd);
+  /* Vorlage: 14px oben und unten. Safe-Area bleibt zusaetzlich. */
+  padding: calc(env(safe-area-inset-top) + 14px) clamp(12px, 4vw, 40px) 14px;
 }
-.hdr-title { letter-spacing: -.01em; }
+.app-header::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px;
+  background: var(--grad-hd-light);
+}
+.hdr-logo .crest-logo { height: 32px; }          /* Vorlage .hd-logo */
+.hdr-title { font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
+.hdr-gear svg { width: 24px; height: 24px; }     /* Vorlage .hd-ic */
 
-/* --- Typografie: etwas enger, damit grosse Zahlen ruhiger stehen ------------ */
+/* --- Typografie: enger gesetzt, damit grosse Zahlen ruhig stehen ------------ */
 .page-head h1 { letter-spacing: -.025em; }
 .section-title h2 { letter-spacing: -.012em; }
 .kpi-label { letter-spacing: .68px; }
 .amount, .kpi-value, .mb-value, .fine-amt, .kat-amount { letter-spacing: -.018em; }
 
-/* --- Flaechen: weicherer Rand, zweistufiger Schatten, leiser Verlauf -------- */
+/* --- Flaechen: weicher Rand, zweistufiger Schatten, leiser Verlauf ---------- */
 .card, .kpi, .kpi-row, .event, .termin-hero, .mine-banner, .tv-gcard, .task-row {
-  border-color: color-mix(in srgb, var(--green-900) 10%, transparent);
-  box-shadow: 0 1px 1px color-mix(in srgb, var(--green-900) 4%, transparent),
-              0 8px 20px -14px color-mix(in srgb, var(--green-900) 45%, transparent);
+  border-color: var(--line-soft);
+  box-shadow: var(--shadow-card);
 }
-.card, .kpi, .kpi-row, .event, .termin-hero, .mine-banner {
-  background-image: linear-gradient(180deg,
-    var(--card) 0%, color-mix(in srgb, var(--card) 90%, var(--green-050)) 100%);
-}
+.card, .kpi, .mine-banner { background-image: var(--grad-card); }
+.kpi::before { background: var(--grad-edge-green); }          /* Kante mit Verlauf */
+.kpi.is-warn::before { background: var(--grad-edge-red); }
 
-/* --- Schaltflaechen: Verlauf, Innenhighlight, farbiger Schlagschatten ------- */
+/* --- Schaltflaechen -------------------------------------------------------- */
+/* App .btn entspricht in der Vorlage .btn.sec2 (weiss mit Rand),
+   App .btn-primary entspricht der Vorlage .btn (gruen). */
 .btn {
-  background-image: linear-gradient(180deg,
-    var(--card) 0%, color-mix(in srgb, var(--card) 88%, var(--green-050)) 100%);
-  box-shadow: 0 1px 1px color-mix(in srgb, var(--green-900) 5%, transparent),
-              0 6px 14px -12px color-mix(in srgb, var(--green-900) 60%, transparent);
+  background-image: var(--grad-btn-sec);
+  border-color: var(--line-soft-3);
+  box-shadow: var(--shadow-btn-sec);
+  border-radius: var(--radius-btn);
+  min-height: var(--h-btn);
+  font-size: 15px;
+  font-weight: 600;
+  padding: 8px 14px;   /* Vorlage 0 14px + min-height; hier zusaetzlich umbruchsicher */
+  gap: 8px;
+}
+.btn-primary, .btn-zu.is-on {
+  background: var(--grad-btn);
+  border-color: transparent;
+  color: #fff;
+  font-weight: 700;
   letter-spacing: -.005em;
+  box-shadow: var(--shadow-btn);
 }
-.btn-primary, .tv-primary, .btn-zu.is-on {
-  background-image: linear-gradient(180deg,
-    color-mix(in srgb, var(--green-600) 88%, white) 0%,
-    color-mix(in srgb, var(--green-700) 94%, black) 100%);
-  box-shadow: inset 0 1px 0 color-mix(in srgb, white 24%, transparent),
-              0 1px 2px color-mix(in srgb, var(--green-900) 14%, transparent),
-              0 10px 20px -12px color-mix(in srgb, var(--green-700) 85%, transparent);
-}
+.btn-primary:hover { filter: none; }
 .btn-ab.is-on {
-  background-image: linear-gradient(180deg,
-    color-mix(in srgb, var(--red-600) 88%, white) 0%,
-    color-mix(in srgb, var(--red-600) 92%, black) 100%);
-  box-shadow: inset 0 1px 0 color-mix(in srgb, white 22%, transparent),
-              0 10px 20px -12px color-mix(in srgb, var(--red-600) 80%, transparent);
+  background: var(--grad-edge-red);
+  border-color: transparent;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 10px 20px -12px rgba(165,40,27,.8);
 }
+.btn-soft { background-image: var(--grad-btn-sec); border-color: var(--line-soft-3); font-size: 15px; }
 
-/* --- Marken, Chips, Plaketten, Eingabefelder ------------------------------- */
+/* --- Marken, Chips, Plaketten ---------------------------------------------- */
 .chip {
-  background-image: linear-gradient(180deg,
-    var(--card) 0%, color-mix(in srgb, var(--card) 90%, var(--green-050)) 100%);
-  border-color: color-mix(in srgb, var(--green-900) 12%, transparent);
+  background-image: var(--grad-chip);
+  border-color: var(--line-soft-2);
+  box-shadow: var(--shadow-hair);
+  font-size: 13px;
+  padding: 0 13px;
+  min-height: var(--tap);       /* Vorlage 34px - harte Regel schlaegt sie */
 }
 .chip.is-active {
-  background-image: linear-gradient(180deg,
-    color-mix(in srgb, var(--green-700) 88%, var(--green-500)) 0%, var(--green-900) 100%);
-  box-shadow: inset 0 1px 0 color-mix(in srgb, white 18%, transparent),
-              0 4px 10px -6px color-mix(in srgb, var(--green-900) 80%, transparent);
+  background-image: var(--grad-chip-on);
+  border-color: var(--green-900);
+  box-shadow: var(--shadow-chip-on);
 }
-.badge, .st-badge, .tag { box-shadow: 0 1px 1px color-mix(in srgb, var(--green-900) 5%, transparent); }
-.avatar {
-  background-image: linear-gradient(180deg,
-    color-mix(in srgb, var(--green-700) 88%, white), var(--green-700));
-  box-shadow: inset 0 1px 0 color-mix(in srgb, white 20%, transparent),
-              0 1px 2px color-mix(in srgb, var(--green-900) 18%, transparent);
-}
-.event-date {
-  background-image: linear-gradient(180deg,
-    color-mix(in srgb, var(--green-050) 55%, white), var(--green-050));
-  box-shadow: inset 0 1px 0 color-mix(in srgb, white 70%, transparent),
-              0 1px 2px color-mix(in srgb, var(--green-900) 10%, transparent);
-}
-.event.typ-spiel .event-date, .tv-gcard .event-date {
-  background-image: linear-gradient(180deg,
-    color-mix(in srgb, var(--gold-050) 55%, white), var(--gold-050));
-  box-shadow: inset 0 1px 0 color-mix(in srgb, white 70%, transparent),
-              0 1px 2px color-mix(in srgb, var(--gold-600) 12%, transparent);
-}
-.kat-in, .kasse-in, .bfv-url, .ks-select {
-  background-image: linear-gradient(180deg, color-mix(in srgb, var(--card) 96%, var(--green-050)), var(--card));
-  border-color: color-mix(in srgb, var(--green-900) 14%, transparent);
-  box-shadow: inset 0 1px 2px color-mix(in srgb, var(--green-900) 5%, transparent);
+.badge, .st-badge, .tag {
+  border-radius: var(--radius-pill);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .4px;
+  padding: 3px 8px;
+  box-shadow: var(--shadow-hair);
 }
 
-/* --- Untere Navigation: durchscheinend mit Weichzeichner ------------------- */
+/* --- Avatar: in der Vorlage hell mit dunkelgruener Schrift ------------------ */
+.avatar {
+  background: var(--grad-av);
+  color: var(--green-800);
+  box-shadow: var(--shadow-av);
+}
+
+/* --- Datumswuerfel: in der Vorlage durchgehend creme ----------------------- */
+.event-date,
+.event.typ-spiel .event-date,
+.tv-gcard .event-date {
+  background: var(--grad-gold);
+  box-shadow: var(--shadow-dbg);
+}
+
+/* --- Eingabefelder --------------------------------------------------------- */
+.kat-in, .kasse-in, .bfv-url, .ks-select, .modal-text, .auth-field input {
+  background-image: var(--grad-in);
+  border-color: var(--line-soft-3);
+  box-shadow: var(--shadow-in);
+  border-radius: var(--radius-btn);
+  font-size: var(--fs-input);   /* harte Regel: 16px, sonst zoomt iOS */
+}
+.kat-in, .kasse-in, .bfv-url, .ks-select, .auth-field input { min-height: var(--h-in); }
+::placeholder { color: var(--muted); opacity: 1; }   /* Vorlage #9aa8a0 = 2,5:1 */
+
+/* --- Untere Navigation: durchscheinend mit Weichzeichner -------------------- */
 .app-nav {
-  background: color-mix(in srgb, var(--card) 94%, transparent);
+  background: rgba(255,255,255,.94);
   -webkit-backdrop-filter: saturate(140%) blur(8px);
   backdrop-filter: saturate(140%) blur(8px);
-  border-top-color: color-mix(in srgb, var(--green-900) 10%, transparent);
-  box-shadow: 0 -8px 22px -16px color-mix(in srgb, var(--green-900) 55%, transparent);
+  border-top-color: var(--line-soft);
+  box-shadow: var(--shadow-nav);
 }
+.nav-btn { min-height: var(--h-nav); }
+.nav-btn.is-active::after { background: var(--grad-navbar); box-shadow: var(--shadow-navbar); }
+
+/* --- Blaetter und Dialoge -------------------------------------------------- */
+.more-panel {
+  border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+  box-shadow: var(--shadow-sheet);
+}
+.modal-ov { background: var(--ov-sheet); }
+.modal { border-radius: 16px; box-shadow: 0 18px 50px rgba(0,0,0,.3); }
 
 /* --- Spielfeld: Rasenstreifen, Innenring, Tiefe ---------------------------- */
 .tv-pitch {
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, white 14%, transparent),
-              0 10px 28px -14px color-mix(in srgb, var(--green-900) 80%, transparent);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-pitch);
 }
 .tv-pitch::after {
   content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
   background:
     repeating-linear-gradient(180deg,
-      color-mix(in srgb, white 5%, transparent) 0 9.09%,
-      color-mix(in srgb, black 5%, transparent) 9.09% 18.18%),
-    radial-gradient(120% 70% at 50% 0%, color-mix(in srgb, white 16%, transparent), transparent 60%),
-    radial-gradient(120% 80% at 50% 100%, color-mix(in srgb, black 28%, transparent), transparent 62%);
+      rgba(255,255,255,.045) 0 9.09%,
+      rgba(0,0,0,.045) 9.09% 18.18%),
+    radial-gradient(120% 70% at 50% 0%, rgba(255,255,255,.16), transparent 60%),
+    radial-gradient(120% 80% at 50% 100%, rgba(0,0,0,.28), transparent 62%);
 }
 .tv-slot { z-index: 2; }
-.tv-disc {
-  background-image: linear-gradient(180deg, var(--card), color-mix(in srgb, var(--card) 88%, var(--green-050)));
-  box-shadow: inset 0 1px 0 white, 0 2px 8px color-mix(in srgb, black 38%, transparent);
-}
+.tv-disc { background: var(--grad-disc); box-shadow: var(--shadow-disc); }
 
-/* --- Anmeldung: Verlauf statt Flaeche ------------------------------------- */
+/* --- Anmeldung: dunkelgruener Verlauf, weisse Karte darauf ----------------- */
 .auth-card {
-  box-shadow: 0 2px 4px color-mix(in srgb, black 10%, transparent),
-              0 22px 50px -18px color-mix(in srgb, black 55%, transparent);
+  border-radius: var(--radius-sheet);
+  box-shadow: var(--shadow-auth);
 }
 
 /* --- Hero kurz hervorheben, wenn der Aufgabenblock dorthin fuehrt ---------- */
 .termin-hero.is-flash { animation: hero-flash 1.6s ease-out; }
 @keyframes hero-flash {
-  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--green-600) 55%, transparent); }
-  100% { box-shadow: 0 0 0 14px color-mix(in srgb, var(--green-600) 0%, transparent); }
+  0%   { box-shadow: 0 0 0 0 rgba(45,146,101,.55); }
+  100% { box-shadow: 0 0 0 14px rgba(45,146,101,0); }
 }
 @media (prefers-reduced-motion: reduce) { .termin-hero.is-flash { animation: none; } }
