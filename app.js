@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-12-G";
+  var APP_BUILD = "2026-09-12-H";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -1015,8 +1015,8 @@
         <div class="card card-pad set-profile">
           <div class="set-greet-name">Angemeldet als ${esc(name)}</div>
           <div class="set-greet-role">${esc(roleText)}</div>
-          <button class="set-logout-link" data-logout>Abmelden</button>
           <div class="set-row"><span class="set-label">E-Mail</span><span class="set-val">${esc(email)}</span></div>
+          <button class="btn set-logout" data-logout>Abmelden</button>
         </div>
       </div>
 
@@ -1039,30 +1039,64 @@
   }
 
   /* ---------- Profil (Spieler-Tab): eigener Fitnessstatus ------------------- */
+  /* ---------- Profil (Vorlage 4b) -------------------------------------------
+     Kopfkarte mit Avatar und Rueckennummer, eigener Fitnessstatus, darunter die
+     eigenen Rueckmeldungen zu den naechsten Terminen. */
   function renderProfil() {
     document.body.classList.remove("auth-mode");
     const u = currentProfile || {};
     const player = u.player_id ? playerById[u.player_id] : null;
     const name = player ? player.name : (u.email || "—");
     const roleText = Roles.list.length ? Roles.list.map((r) => ROLE_LABEL[r] || r).join(" · ") : "Spieler";
+    const nr = player && player.nr != null ? " · Nr. " + player.nr : "";
     const st = player ? (player.status || "fit") : null;
     const opt = (val, label) => `<button class="chip st-choice ${st === val ? "is-on st-" + val : ""}" data-my-status="${val}">${label}</button>`;
+
+    // Eigene Rueckmeldungen zu den naechsten Terminen. Zugesagt gruen,
+    // abgesagt rot, ohne Antwort gold - dieselben Toene wie ueberall sonst.
+    let rueck = "";
+    if (player) {
+      const kommend = DEMO.events.filter((e) => isFuture(e.datum))
+        .sort((a, b) => a.datum.localeCompare(b.datum)).slice(0, 5);
+      if (kommend.length) {
+        rueck = `
+          <div class="section-title"><h2>Meine Rückmeldungen</h2></div>
+          <div class="pr-list">
+            ${kommend.map((e) => {
+              const r = state.rsvp[e.id + "|" + player.id] || {};
+              const art = r.status === "zu" ? "zu" : r.status === "ab" ? "ab" : "offen";
+              const badge = art === "zu" ? `<span class="badge badge-paid">Zusage</span>`
+                : art === "ab" ? `<span class="badge badge-open">Absage</span>`
+                : `<span class="badge badge-self">offen</span>`;
+              const titel = (e.typ === "spiel" ? "Spiel " : e.typ === "training" ? "Training " : "")
+                + fmtWd(e.datum) + " " + fmtDay(e.datum) + ". " + fmtMon(e.datum);
+              const sub = art === "offen" ? "Noch keine Rückmeldung"
+                : (art === "zu" ? "Zugesagt" : "Abgesagt") + (r.grund ? " · " + esc(r.grund) : "");
+              return `<div class="pr-row">
+                <span class="pr-bar is-${art}" aria-hidden="true"></span>
+                <div class="pr-main"><div class="pr-t">${esc(titel)}</div><div class="rs">${sub}</div></div>
+                ${badge}
+              </div>`;
+            }).join("")}
+          </div>`;
+      }
+    }
+
     viewEl.innerHTML = `
       <div class="page-head"><h1>Profil</h1></div>
-      <div class="set-greeting">
-        <div class="set-greet-name">${esc(name)}</div>
-        <div class="set-greet-role">${esc(roleText)}</div>
+      <div class="card pr-head">
+        <span class="avatar pr-av">${initials(name)}</span>
+        <div><div class="pr-name">${esc(name)}</div><div class="rs">${esc(roleText)}${nr}</div></div>
       </div>
       ${player ? `
-      <div class="set-section">
-        <div class="section-title"><h2>Mein Fitnessstatus</h2></div>
-        <div class="card card-pad">
-          <p class="set-hint">Sag dem Trainerteam, wie es dir geht.</p>
-          <div class="status-choose">
-            ${opt("fit", "fit")}${opt("angeschlagen", "angeschlagen")}${opt("verletzt", "verletzt")}
-          </div>
+      <div class="section-title"><h2>Mein Fitnessstatus</h2></div>
+      <div class="card card-pad">
+        <p class="rs">Sag dem Trainerteam, wie es dir geht.</p>
+        <div class="status-choose">
+          ${opt("fit", "fit")}${opt("angeschlagen", "angeschlagen")}${opt("verletzt", "verletzt")}
         </div>
-      </div>` : `<div class="empty" style="padding:24px 0">Dein Konto ist noch keinem Spieler zugeordnet. Melde dich beim Trainerteam.</div>`}
+      </div>
+      ${rueck}` : `<div class="empty" style="padding:24px 0">Dein Konto ist noch keinem Spieler zugeordnet. Melde dich beim Trainerteam.</div>`}
     `;
   }
 
@@ -4207,10 +4241,9 @@
   const hdrGear = document.getElementById("hdrGear");
   if (hdrGear) hdrGear.addEventListener("click", () => switchView("einstellungen"));
   // Farbiger Punkt am Zahnrad, solange die Admin-Rollensimulation aktiv ist.
-  function updateGearDot() {
-    const dot = document.getElementById("hdrGearDot");
-    if (dot) dot.hidden = !Roles.isSimulating();
-  }
+  // Gate 24: der Punkt am Zahnrad entfaellt. Dass eine Rollen-Vorschau laeuft,
+  // sagt das Banner ueber der Seite deutlicher als ein 6px-Punkt.
+  function updateGearDot() {}
   // Vollständiges Abmelden (aus den Einstellungen). Beendet Simulation, setzt zurück.
   async function logout() {
     try { await DB.signOut(); } catch (e) {}
@@ -4421,18 +4454,18 @@
         </div>
         <div class="sim-switch-hint">Reine Anzeige-Vorschau – ändert nichts an deinen Rechten oder Daten. Alle Zugriffe bleiben serverseitig per RLS abgesichert.</div>
       </div>
-      <div class="table-wrap"><table>
+      <div class="card table-wrap"><table class="rollen-tbl">
         <thead><tr><th>Mitglied</th>
-          <th style="text-align:center">Trainer</th>
-          <th style="text-align:center">Kassenwart</th>
-          <th style="text-align:center">Admin</th></tr></thead>
+          <th style="text-align:center"><abbr title="Trainer">Tr</abbr></th>
+          <th style="text-align:center"><abbr title="Kassenwart">Ka</abbr></th>
+          <th style="text-align:center"><abbr title="Admin">Ad</abbr></th></tr></thead>
         <tbody>
           ${members.map((m) => {
             const name = nameOf(m);
             return `<tr>
-              <td><div class="player-cell"><span class="avatar">${initials(name)}</span>
-                <div><div style="font-weight:600">${esc(name)}</div>
-                <div style="font-size:.78rem;color:var(--muted)">${esc(m.email || "")}</div></div></div></td>
+              <td><div class="player-cell"><span class="avatar rollen-av">${initials(name)}</span>
+                <div><div class="rollen-name">${esc(name)}</div>
+                <div class="rollen-mail">${esc(m.email || "")}</div></div></div></td>
               ${cell(m, "coach")}${cell(m, "treasurer")}${cell(m, "admin")}
             </tr>`;
           }).join("")}
