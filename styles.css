@@ -82,6 +82,8 @@
   --green-task-ink:   #14503a;
   --green-task-ink-2: #2c6349;
   --green-chev: #4c7a64;
+  --pp-blue:  #003087;     /* PayPal-Wortmarke, Vorlage Kontoblock */
+  --pp-cyan:  #009cde;
   --track:   #eef2ef;     /* Spur des Fortschrittsbalkens */
   --dot-off: #c6d2cb;     /* Seitenpunkte, Rand leerer Kaestchen */
 
@@ -415,60 +417,47 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 }
 .section-title h2 { font-size: 1.1rem; font-weight: 700; margin: 0; }
 
-/* ---------- Termin-Hero (Übersicht) ---------------------------------------
-   Loest das Vier-Kachel-Raster ab. Kantenfarbe links kommt aus denselben
-   Tokens wie die Terminkarte, damit Uebersicht und Kalender gleich sprechen. */
-.termin-hero {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-left: 4px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
-  padding: 14px 16px;
-  margin-bottom: 12px;
-}
-.termin-hero.typ-spiel            { border-left-color: var(--gold-500); }
-.termin-hero.typ-spiel.is-home    { border-left-color: var(--spiel-heim); }
-.termin-hero.typ-spiel.is-away    { border-left-color: var(--spiel-ausw); }
-.termin-hero.typ-training         { border-left-color: var(--typ-training); }
-.termin-hero.typ-sonstiges        { border-left-color: var(--typ-sonstiges); }
-.termin-hero.is-cancelled         { border-left-color: var(--red-600); }
+/* ---------- Uebersicht: Termin-Hero (Vorlage 1a/1b) ------------------------
+   Karte mit gruener Verlaufskante links. Trainer sehen rechts oben die
+   Zusagen-Zahl und darunter „Zusagen ansehen" + „N erinnern"; die eigene
+   Zu-/Absage steht als eigene Zeile darunter (K7). Spieler sehen Ort,
+   Zu-/Absage und den Meldeschluss. */
+.termin-hero { padding: 16px; margin-bottom: 12px; }
 .termin-hero.is-cancelled .th-title { text-decoration: line-through; color: var(--muted); }
 
-.th-label {
-  font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
-  color: var(--muted);
+/* Verlaufskante links - als ::before, weil border-left keinen Verlauf kann. */
+.edge-green, .edge-gold, .edge-red { position: relative; overflow: hidden; }
+.edge-green::before, .edge-gold::before, .edge-red::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  border-radius: var(--radius) 0 0 var(--radius);
 }
-/* Kopfbereich ist der Absprung in den Kalender – Buttons liegen bewusst ausserhalb. */
-.th-head {
-  display: flex; align-items: center; gap: 10px;
-  min-height: 44px; margin-top: 6px;
+.edge-green::before { background: var(--grad-edge-green); }
+.edge-gold::before  { background: var(--grad-edge-gold); }
+.edge-red::before   { background: var(--grad-edge-red); }
+.termin-hero.is-cancelled::before { background: var(--grad-edge-red); }
+
+.th-top { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.th-body {
+  flex: 1 1 auto; min-width: 0;
   cursor: pointer; -webkit-tap-highlight-color: transparent;
   transition: transform .08s ease;
 }
-.th-head:active { transform: scale(.99); }
-.th-head:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; border-radius: 8px; }
-.th-body { flex: 1 1 auto; min-width: 0; }
-.th-title {
-  font-size: 1.35rem; font-weight: 800; line-height: 1.2; color: var(--green-800);
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-}
-.th-time {
-  font-size: var(--fs-event-time); font-weight: 700; color: var(--ink);
-  font-variant-numeric: tabular-nums; margin-top: 2px;
-}
-.th-meta { margin-top: 2px; }
-/* Zu-/Absage im Hero: 46px, damit die Hauptaktion sicher zu treffen ist. */
+.th-body:active { transform: scale(.99); }
+.th-body:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; border-radius: 8px; }
+.th-title { margin-top: 8px; font-size: 26px; font-weight: 800; line-height: 1.15; color: var(--green-800); }
+.th-time  { font-size: 15px; font-weight: 600; line-height: 1.3; color: var(--ink); }
+.th-count { flex: none; text-align: right; }
+.th-count-v { font-size: 22px; font-weight: 800; line-height: 1; color: var(--green-800); }
+.th-venue { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 12px; color: var(--muted); }
+.th-venue .venue-pin { width: 16px; height: 16px; flex: none; }
+
+.th-actions { display: flex; gap: 8px; margin-top: 12px; }
+.th-actions .btn { flex: 1 1 0; min-height: var(--h-btn); font-size: 14px; }
+/* K7: eigene Rueckmeldung des Trainers, eine Stufe leiser als die Hauptaktionen. */
+.th-own { display: flex; gap: 8px; margin-top: 8px; }
+.th-own .btn { flex: 1 1 0; min-height: var(--tap); font-size: 14px; }
 .th-rsvp { display: flex; gap: 8px; margin-top: 12px; }
-.th-rsvp .btn {
-  flex: 1 1 0; min-height: 46px; justify-content: center;
-  font-size: .95rem; border-radius: 10px;
-}
-.th-links {
-  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
-  margin-top: 10px;
-}
-.link-btn[disabled] { color: var(--muted); text-decoration: none; cursor: default; }
+.th-rsvp .btn { flex: 1 1 0; min-height: var(--h-btn); font-size: 15px; }
 .termin-hero .frist { margin-top: 10px; }
 .termin-hero .empty { padding: 10px 0; }
 
@@ -513,19 +502,18 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .event.typ-training         { border-left-color: var(--typ-training); }
 .event.typ-sonstiges        { border-left-color: var(--typ-sonstiges); }
 
+/* Datumswuerfel - Vorlage .dbg: 46px breit, creme, Tag gross und dunkelgruen. */
 .event-date {
   flex: none;
-  width: 48px;
+  width: 46px;
   text-align: center;
-  background: var(--green-050);
-  border-radius: 10px;
-  padding: 8px 4px;
+  border-radius: var(--radius-btn);
+  padding: 6px 0;
   line-height: 1.1;
 }
-.event.typ-spiel .event-date { background: var(--gold-050); }
-.event-date .d-day  { font-size: 1.35rem; font-weight: 800; color: var(--green-800); display:block; }
-.event-date .d-mon  { font-size: .7rem; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); font-weight:700; }
-.event-date .d-wd   { font-size: .68rem; color: var(--muted); }
+.event-date .d-wd   { display: block; font-size: 10px; font-weight: 700; color: var(--muted); }
+.event-date .d-day  { display: block; font-size: 19px; font-weight: 800; line-height: 1; color: var(--green-800); }
+.event-date .d-mon  { display: block; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); }
 
 .event-main { min-width: 0; }
 /* Anstoßzeit: kleine, fette Zeile direkt unter dem Vereinsnamen */
@@ -1000,62 +988,34 @@ tbody tr:hover { background: #fbfdfc; }
   color: var(--ink); border-radius: var(--radius); padding: 18px 16px 16px; margin-bottom: 14px;
   box-shadow: var(--shadow-sm); text-align: center;
 }
-.mb-label { color: var(--muted); text-transform: uppercase; letter-spacing:.6px; font-size:.74rem; font-weight:700; }
+.mb-label { color: var(--muted); text-transform: uppercase; letter-spacing:.68px; font-size:11px; font-weight:700; line-height:1; }
 .mb-value {
-  margin-top: 8px; font-size: 3.1rem; line-height: 1; font-weight: 800;
+  margin-top: 8px; font-size: 52px; line-height: 1; font-weight: 800;   /* Vorlage: 52px */
   color: var(--red-600); font-variant-numeric: tabular-nums; letter-spacing: -.035em;
 }
-.mb-sub { margin-top: 6px; color: var(--muted); font-size:.82rem; font-weight:600; font-variant-numeric: tabular-nums; }
+.mb-sub { margin-top: 6px; color: var(--muted); font-size:12px; font-weight:500; font-variant-numeric: tabular-nums; }
 .mb-bar {
   margin: 14px auto 0; max-width: 250px; width: 100%; height: 5px;
-  border-radius: 3px; background: var(--green-050); overflow: hidden;
+  border-radius: 3px; background: var(--track); overflow: hidden;
 }
-.mb-bar i { display: block; height: 100%; background: var(--green-600); }
-.mb-note { margin-top: 8px; font-size:.82rem; color: var(--muted); font-weight:600; }
-.mine-banner .paypal-btn { margin-top: 16px; min-height: 52px; }
-.mb-pay-cap { margin-top: 9px; font-size: .76rem; color: var(--muted); font-weight: 600; }
+.mb-bar i { display: block; height: 100%; background: var(--grad-bar); }
+.mb-note { margin-top: 8px; font-size:12px; color: var(--muted); font-weight:500; }
+/* Gate 16: kein PayPal-Branding mehr, sondern der gruene Knopf der Vorlage
+   mit der Wortmarke als Textzeile darunter. Ziel-Link unveraendert. */
+.mb-pay { width: 100%; margin-top: 16px; min-height: var(--h-btn-xl); font-size: 16px; text-decoration: none; }
+.mb-pp  { margin-top: 9px; display: flex; align-items: center; justify-content: center; gap: 6px; }
 .mb-foot {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line);
 }
-.mb-cd { font-size: .8rem; color: var(--muted); font-weight: 600; }
+.mb-foot .link-btn { font-size: 13px; font-weight: 700; }
+.mb-cd { font-size: 12px; color: var(--muted); font-weight: 500; font-variant-numeric: tabular-nums; }
 /* Schuldenfrei: 0,00 darf nicht alarmieren. */
 .mine-banner.is-clear .mb-value { color: var(--green-800); }
 
 /* ---------- Aufgabenblock „Was heute liegt" (Paket 5) ----------------------
    Getoente Zeile mit Zahlenplakette. Die Tonung leitet sich aus den 050-Tokens
    ab, die Plakette aus dem jeweiligen Volltonwert. */
-.task-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-.task-row {
-  display: flex; align-items: center; gap: 12px;
-  min-height: 56px; padding: 11px 14px; border-radius: var(--radius);
-  border: 1px solid var(--line); background: var(--card);
-  -webkit-tap-highlight-color: transparent;
-}
-.task-row[role="button"] { cursor: pointer; transition: transform .08s ease; }
-.task-row[role="button"]:active { transform: scale(.99); }
-.task-row[role="button"]:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; }
-.task-num {
-  flex: none; width: 34px; height: 34px; border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  color: #fff; font-weight: 800; font-size: .9rem; font-variant-numeric: tabular-nums;
-}
-.task-num svg { width: 17px; height: 17px; }
-/* Erledigt-Zeile: Haken statt Zahl, ruhiger als ein Zaehler. */
-.task-num.task-ok { font-size: 0; }
-.task-main { flex: 1; min-width: 0; }
-.task-title { font-weight: 700; font-size: .92rem; }
-.task-sub { font-size: .8rem; margin-top: 1px; opacity: .85; }
-.task-go { flex: none; font-size: 1.25rem; font-weight: 800; opacity: .55; }
-/* Zahlung = rot, Aufstellung = gold, Rueckmeldung = gruen, erledigt = gruen ruhig. */
-.task-row.is-pay    { background: var(--red-050);   border-color: var(--red-600);   color: var(--red-600); }
-.task-row.is-lineup { background: var(--gold-050);  border-color: var(--gold-600);  color: var(--gold-600); }
-.task-row.is-rsvp   { background: var(--green-050); border-color: var(--green-600); color: var(--green-800); }
-.task-row.is-clear  { background: var(--green-050); border-color: var(--green-500); color: var(--green-800); }
-.task-row.is-pay    .task-num { background: var(--red-600); }
-.task-row.is-lineup .task-num { background: var(--gold-600); }
-.task-row.is-rsvp   .task-num { background: var(--green-600); }
-.task-row.is-clear  .task-num { background: var(--green-500); }
 
 /* „Strafe verhängen" eingeklappt: eine Kachel, die das Formular oeffnet. */
 .kasse-toggle {
@@ -1067,24 +1027,6 @@ tbody tr:hover { background: #fbfdfc; }
 }
 .kasse-toggle svg { width: 20px; height: 20px; }
 .kasse-toggle:active { background: var(--green-050); }
-/* Mahnzuschlag-Countdown deutlich sichtbar */
-.mb-countdown {
-  display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  background: var(--amber-050); border: 1px solid var(--amber-600);
-  border-radius: 10px; padding: 10px 12px;
-}
-.mb-cd-label { font-size: .84rem; font-weight: 700; color: var(--amber-600); }
-.mb-countdown .cd { font-size: 1rem; font-weight: 800; padding: 4px 12px; }
-
-/* Bezahl-Bereich: Hinweis + zwei gleich große Buttons, klar gestapelt */
-.mb-actions { display: flex; flex-direction: column; gap: 8px; padding-top: 10px; border-top: 1px solid var(--line); }
-.mb-pay-cap { font-size: .76rem; color: var(--muted); font-weight: 600; text-align: left; }
-.mb-actions .paypal-btn,
-.mb-actions .paid-self-btn {
-  width: 100%; min-width: 0; height: 46px; margin: 0;
-  display: inline-flex; align-items: center; justify-content: center;
-}
-
 /* ---------- Diagramme ------------------------------------------------------ */
 .chart-row { margin-bottom: 22px; }
 .chart-card { display: flex; flex-direction: column; }
@@ -1113,18 +1055,10 @@ tbody tr:hover { background: #fbfdfc; }
 .bars-legend span { display: flex; align-items: center; gap: 7px; }
 
 /* ---------- PayPal-Button (offizielles Checkout-Design) ------------------- */
-.paypal-btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  background: #ffc439; border: none; border-radius: 999px; text-decoration: none; color: inherit;
-  padding: 13px 26px; min-height: 44px; cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0,0,0,.2); transition: background .15s, box-shadow .15s, transform .08s;
-}
-.paypal-btn:hover  { background: #f2ba36; box-shadow: 0 4px 12px rgba(0,0,0,.28); }
-.paypal-btn:active { transform: translateY(1px); }
-.paypal-btn .pp-mark { display: block; }
-.pp-word { font-family: Arial, Helvetica, sans-serif; font-weight: 700; font-style: italic; font-size: 1.18rem; letter-spacing: -.4px; line-height: 1; }
-.pp-word .pp1 { color: #003087; }
-.pp-word .pp2 { color: #009cde; }
+/* PayPal-Wortmarke als Textzeile unter dem Zahlknopf (Vorlage Kontoblock). */
+.pp-word { font-family: inherit; font-weight: 800; font-style: italic; font-size: 13px; line-height: 1; display: inline-flex; }
+.pp-word .pp1 { color: var(--pp-blue); }
+.pp-word .pp2 { color: var(--pp-cyan); }
 .paid-self-btn {
   background: #fff; color: var(--green-800); border: 1px solid rgba(255,255,255,.6);
   border-radius: 999px; padding: 9px 16px; font: inherit; font-weight: 700; cursor: pointer;
@@ -1677,6 +1611,153 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 .kat-edit.is-staffel .kat-staffel { display: grid; gap: 8px; }
 .kat-edit.is-staffel .kat-fixed { display: none; }
 .kat-edit-actions { display: flex; justify-content: flex-end; gap: 2px; }
+
+/* ===========================================================================
+   Uebersicht - Vorlage 1a (Trainer/Kassenwart) und 1b (Spieler)
+   ---------------------------------------------------------------------------
+   Aufgabenblock, Geldkacheln, Spieltag-Karte und die kompakte Terminzeile.
+   Der Termin-Hero steht weiter oben bei den Terminbausteinen.
+   =========================================================================== */
+
+/* --- Wiederkehrende Textbausteine der Vorlage ------------------------------ */
+.lbl {
+  font-size: 11px; font-weight: 700; line-height: 1; letter-spacing: .68px;
+  text-transform: uppercase; color: var(--muted);
+}
+.rs  { font-size: 12px; font-weight: 500; color: var(--muted); }
+.num { font-variant-numeric: tabular-nums; }
+
+/* Anrede mit Rollen-Plakette */
+.page-head h1 { font-size: 22px; }        /* Vorlage .h1 */
+.h1row { display: flex; align-items: center; gap: 9px; }
+.role-pill {
+  flex: none;
+  font-size: 10px; font-weight: 700; letter-spacing: .6px;
+  color: var(--green-900);
+  background: var(--grad-gold);
+  border: 1px solid var(--gold-line);
+  padding: 3px 8px; border-radius: var(--radius-pill);
+  box-shadow: 0 1px 1px rgba(122,90,12,.08);
+}
+
+/* --- Aufgabenblock „Was heute liegt" -------------------------------------- */
+.task-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.task-row {
+  display: flex; align-items: center; gap: 12px;
+  min-height: var(--h-row); padding: 13px 14px;
+  border: 1px solid var(--line); border-radius: var(--radius);
+}
+.task-row[role="button"] { cursor: pointer; transition: transform .08s ease; }
+.task-row[role="button"]:active { transform: scale(.99); }
+.task-row[role="button"]:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; }
+.task-num {
+  flex: none; width: 34px; height: 34px; border-radius: var(--radius-btn);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 14px; font-weight: 800;
+}
+.task-num svg { width: 17px; height: 17px; }
+.task-num.task-ok { font-size: 0; }
+.task-main  { flex: 1; min-width: 0; }
+.task-title { font-size: 14px; font-weight: 700; }
+.task-sub   { font-size: 12px; font-weight: 500; margin-top: 1px; }
+.task-go    { flex: none; font-size: 18px; font-weight: 700; }
+
+.task-row.is-pay {
+  background: var(--grad-task-red); border-color: var(--red-line);
+  box-shadow: 0 1px 1px rgba(165,40,27,.05);
+}
+.task-row.is-pay .task-num  { background: var(--grad-edge-red); }
+.task-row.is-pay .task-title{ color: var(--red-ink); }
+.task-row.is-pay .task-sub  { color: var(--red-ink-2); }
+.task-row.is-pay .task-go   { color: var(--red-chev); }
+
+.task-row.is-lineup {
+  background: var(--grad-task-gold); border-color: var(--gold-line-2);
+  box-shadow: 0 1px 1px rgba(122,90,12,.05);
+}
+.task-row.is-lineup .task-num   { background: var(--grad-edge-gold); font-size: 12px; }
+.task-row.is-lineup .task-title,
+.task-row.is-lineup .task-sub   { color: var(--gold-ink-2); }
+.task-row.is-lineup .task-go    { color: var(--gold-chev); }
+
+.task-row.is-rsvp, .task-row.is-clear {
+  background: var(--grad-task-green); border-color: var(--green-badge-line);
+  box-shadow: 0 1px 1px rgba(27,94,63,.05);
+}
+.task-row.is-rsvp .task-num, .task-row.is-clear .task-num { background: var(--grad-edge-green); }
+.task-row.is-rsvp .task-title, .task-row.is-clear .task-title { color: var(--green-task-ink); }
+.task-row.is-rsvp .task-sub,   .task-row.is-clear .task-sub   { color: var(--green-task-ink-2); }
+.task-row.is-rsvp .task-go,    .task-row.is-clear .task-go    { color: var(--green-chev); }
+
+/* --- Geldkacheln (1a) ------------------------------------------------------ */
+.tile-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.tile {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 14px; min-height: var(--tap);
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: transform .08s ease;
+}
+.tile:active { transform: scale(.99); }
+.tile:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; }
+.tile-t { font-size: 14px; font-weight: 600; color: var(--ink); }
+.tile .amount { font-size: 16px; font-weight: 800; }
+.amount.is-warn { color: var(--red-600); }
+
+/* --- Spieltag-Karte -------------------------------------------------------- */
+.spieltag { padding: 15px 16px 14px; margin-bottom: 16px; }
+.spieltag.is-cancelled .sg-title { text-decoration: line-through; color: var(--muted); }
+.sg-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.sg-body { min-width: 0; }
+.sg-title {
+  margin-top: 6px; font-size: 21px; font-weight: 800; line-height: 1.2;
+  color: var(--ink); letter-spacing: -.025em;
+}
+.sg-body .rs { display: block; margin-top: 3px; }
+.sg-venue { display: flex; align-items: center; gap: 5px; margin-top: 5px; font-size: 12px; color: var(--muted); }
+.sg-venue .venue-pin { width: 15px; height: 15px; flex: none; }
+.sg-av { flex: none; width: 40px; height: 40px; font-size: 12px; }
+
+.sg-stats { display: flex; gap: 8px; margin-top: 13px; }
+.sg-stat {
+  flex: 1 1 0; display: flex; align-items: center; gap: 8px;
+  border: 1px solid var(--line); border-radius: 12px; padding: 9px 11px;
+  min-height: var(--tap); background: var(--card);
+  font: inherit; text-align: left; color: inherit;
+}
+button.sg-stat { cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .08s ease; }
+button.sg-stat:active { transform: scale(.985); }
+button.sg-stat:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; }
+.sg-stat-v  { display: block; font-size: 17px; font-weight: 800; line-height: 1; color: var(--green-800); }
+.sg-stat .rs { display: block; margin-top: 3px; }
+.sg-stat > .sg-stat-v, .sg-stat > .rs { flex: 0 0 auto; }
+.sg-stat-go { margin-left: auto; flex: none; font-size: 16px; font-weight: 700; color: var(--muted); }
+.sg-stat.is-gold { background: var(--grad-task-gold); border-color: var(--gold-line-2); }
+.sg-stat.is-gold .sg-stat-v { color: var(--gold-ink); }
+.sg-stat.is-gold .rs { color: var(--gold-ink-2); }
+
+.sg-cta { width: 100%; margin-top: 12px; min-height: var(--h-btn-lg); }
+.sg-foot {
+  margin-top: 11px; padding-top: 11px; border-top: 1px solid var(--line);
+  text-align: center;
+}
+.sg-foot .link-btn { font-size: 13px; font-weight: 700; }
+.sg-rsvp { display: flex; gap: 8px; margin-top: 14px; }
+.sg-rsvp .btn { flex: 1 1 0; min-height: 50px; font-size: 16px; }
+.spieltag .frist { margin-top: 10px; justify-content: center; }
+
+/* --- Kompakte Terminzeile unter „Danach" ---------------------------------- */
+.mini-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.mini-ev {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; min-height: var(--tap);
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: transform .08s ease;
+}
+.mini-ev:active { transform: scale(.99); }
+.mini-ev:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; }
+.mini-body { min-width: 0; }
+.mini-typ  { font-size: 13px; font-weight: 500; line-height: 1.3; color: var(--muted); }
+.mini-sub  { font-size: 14px; font-weight: 700; line-height: 1.3; color: var(--ink); }
 
 /* ===========================================================================
    Globale Materialebene - Vorlage "App in 2a - High End"

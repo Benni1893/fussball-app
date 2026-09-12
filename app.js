@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-12-A";
+  var APP_BUILD = "2026-09-12-B";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -360,66 +360,123 @@
   /* Termin-Hero der Übersicht (Paket 3). Baut auf den vorhandenen Bausteinen auf:
      RSVP-Logik (data-rsvp/data-event), Spielstätten-Link, Meldeschluss-Helfer.
      Trainer/Admin sehen Zusagezähler + Absprünge, Spieler den eigenen Meldeschluss. */
+  /* ---------- Uebersicht (Vorlage 1a/1b) ------------------------------------
+     1a = Trainer/Kassenwart, 1b = Spieler. Beide teilen Hero, Aufgabenblock und
+     Spieltag-Karte; unterschiedlich sind nur die Knopfzeile im Hero und der
+     Geldblock (Trainer: zwei Kacheln, Spieler: voller Kontoblock).
+     -------------------------------------------------------------------------- */
+
+  // "Heute Abend" / "Morgen" / "Sonntag" - die Vorlage beschriftet den Hero
+  // umgangssprachlich, nicht mit einem Datum.
+  function wannLabel(e) {
+    const d = parseDate(e.datum);
+    const heute = parseDate(HEUTE);
+    const tage = Math.round((d - heute) / 86400000);
+    const std = e.zeit ? parseInt(String(e.zeit).slice(0, 2), 10) : NaN;
+    const abend = !isNaN(std) && std >= 17;
+    if (tage === 0) return abend ? "Heute Abend" : "Heute";
+    if (tage === 1) return abend ? "Morgen Abend" : "Morgen";
+    return WT_LANG[d.getDay()];
+  }
+  // Kurzer Name des Termins fuer Hero und Spieltag-Karte: beim Spiel der Gegner,
+  // sonst der Titel. (Die volle Paarung steht auf der Terminkarte im Kalender.)
+  function terminName(e) {
+    return esc(e.typ === "spiel" ? (e.gegner || e.titel) : e.titel);
+  }
+  function heimLabel(e) {
+    if (e.typ !== "spiel" || e.heim == null) return "";
+    return e.heim ? "Heim" : "Auswärts";
+  }
+  // Spieler ohne Rueckmeldung zu einem Termin, nach Nachnamen sortiert.
+  function ohneRueckmeldung(e) {
+    return DEMO.players
+      .filter((p) => !(state.rsvp[e.id + "|" + p.id] || {}).status)
+      .sort((a, b) => nachname(a.name).localeCompare(nachname(b.name), "de"));
+  }
+  // Rollen-Plakette neben der Anrede. Hoechste Rolle gewinnt, Spieler tragen keine.
+  function rollenPillHtml() {
+    const r = Roles.isAdmin() ? "ADMIN"
+      : Roles.has("coach") ? "TRAINER"
+      : Roles.has("treasurer") ? "KASSENWART" : "";
+    return r ? `<span class="role-pill">${r}</span>` : "";
+  }
+
+  /* „N erinnern" (Gate S2, Weg b): kein Versand-Backend, sondern ein fertiger
+     Text zum Teilen - dieselbe Mechanik wie „Kader-Info erstellen". */
+  function erinnernText(e) {
+    const offen = ohneRueckmeldung(e);
+    const kopf = (e.typ === "spiel" ? (e.heim ? "Heimspiel gegen " : "Auswärtsspiel bei ") + (e.gegner || e.titel) : e.titel)
+      + "\n" + fmtWd(e.datum) + " " + fmtDay(e.datum) + ". " + fmtMon(e.datum)
+      + (e.zeit ? " · " + e.zeit + " Uhr" : "");
+    if (!offen.length) return kopf + "\n\nAlle haben sich zurückgemeldet.";
+    return kopf + "\n\nBitte noch zurückmelden:\n" + offen.map((p) => p.name).join("\n");
+  }
+
   function terminHeroHtml(e) {
     if (!e) {
-      return `<div class="termin-hero">
-        <div class="th-label">Nächster Termin</div>
+      return `<div class="card termin-hero is-empty">
+        <div class="lbl">Nächster Termin</div>
         <div class="empty">Keine kommenden Termine.</div>
       </div>`;
     }
-    // Kantenfarbe links: dieselben Modifier wie bei der Terminkarte.
-    const heimCls = e.typ === "spiel"
-      ? (e.heim === true ? " is-home" : e.heim === false ? " is-away" : "")
-      : "";
-    const titel = (e.typ === "spiel" && e.gegner)
-      ? (() => { const p = paarung(e); return `${p.home} <span class="vs">–</span> ${p.away}`; })()
-      : esc(e.titel);
-    const zeit = `${fmtWd(e.datum)}, ${fmtDay(e.datum)}. ${fmtMon(e.datum)}`
-      + (e.zeit ? ` · ${esc(e.zeit)}${e.ende ? "&#8211;" + esc(e.ende) : ""} Uhr` : "");
-    const venue = venueHtml(e);
-    const r = state.rsvp[e.id + "|" + state.currentPlayerId] || {};
     const cancelled = e.status === "abgesagt";
-    const future = isFuture(e.datum);
+    const future    = isFuture(e.datum);
+    const trainer   = Roles.canManageEvents();
+    const me        = playerById[state.currentPlayerId];
+    const linked    = !!(currentProfile && currentProfile.player_id && me);
+    const r         = state.rsvp[e.id + "|" + state.currentPlayerId] || {};
+    const zeit = `${fmtWd(e.datum)} ${fmtDay(e.datum)}. ${fmtMon(e.datum)}`
+      + (e.zeit ? ` · ${esc(e.zeit)}${e.ende ? "&#8211;" + esc(e.ende) : ""}` : "");
+    const venue = venueHtml(e);
 
-    // Zusagen-Zahlen nur fuer Trainer/Admin – Spieler sehen stattdessen ihre Frist.
-    const showCount = Roles.canManageEvents();
     const zusagen = DEMO.players.filter((p) => (state.rsvp[e.id + "|" + p.id] || {}).status === "zu").length;
-    const unten = showCount
-      ? `<div class="th-links">
-           <button class="link-btn" data-rsvp-sheet="${e.id}">Zusagen · ${zusagen}/${DEMO.players.length}</button>
-           ${e.typ === "spiel" ? `<button class="link-btn" data-lineup-edit="${e.id}">Aufstellung</button>` : ""}
-           <button class="link-btn" data-goto="kader">Kader ansehen</button>
-         </div>`
-      : fristBlockHtml(e);
+    const offenN  = ohneRueckmeldung(e).length;
+
+    const rsvpZeile = (klasse) => `
+      <div class="${klasse}">
+        <button class="btn btn-zu ${r.status === "zu" ? "is-on" : ""}" data-rsvp="zu" data-event="${e.id}">Zusage</button>
+        <button class="btn btn-ab ${r.status === "ab" ? "is-on" : ""}" data-rsvp="ab" data-event="${e.id}">Absage</button>
+      </div>`;
+
+    // Trainer (1a): Zahl rechts oben, darunter „Zusagen ansehen" + „N erinnern".
+    // K7: die eigene Zu-/Absage kommt als kompakte Zeile darunter zurueck -
+    // Trainer sind auch Spieler.
+    const trainerTeil = `
+      <div class="th-actions">
+        <button class="btn" data-rsvp-sheet="${e.id}">Zusagen ansehen</button>
+        ${offenN > 0 ? `<button class="btn btn-primary" data-remind="${e.id}">${offenN} erinnern</button>` : ""}
+      </div>
+      ${!cancelled && future && linked ? rsvpZeile("th-own") : ""}`;
+
+    // Spieler (1b): Ort, Zu-/Absage, Meldeschluss.
+    const spielerTeil = `
+      ${venue ? `<div class="th-venue">${venue}</div>` : ""}
+      ${!cancelled && future ? rsvpZeile("th-rsvp") : ""}
+      ${fristBlockHtml(e)}`;
 
     return `
-      <div class="termin-hero typ-${e.typ}${heimCls}${cancelled ? " is-cancelled" : ""}">
-        <div class="th-label">${e.datum === HEUTE ? "Heute" : "Nächster Termin"}</div>
-        <div class="th-head" data-nav="termin" role="button" tabindex="0">
-          <div class="th-body">
-            <div class="th-title">${titel}</div>
-            <div class="th-time">${zeit}</div>
+      <div class="card termin-hero edge-green${cancelled ? " is-cancelled" : ""}">
+        <div class="th-top">
+          <div class="th-body" data-nav="termin" role="button" tabindex="0">
+            <div class="lbl">${wannLabel(e)}</div>
+            <div class="th-title">${terminName(e)}</div>
+            <div class="th-time num">${zeit}${e.zeit ? " Uhr" : ""}</div>
           </div>
-          <span class="kpi-go" aria-hidden="true">›</span>
+          ${trainer && !cancelled ? `<div class="th-count">
+            <div class="th-count-v num">${zusagen}/${DEMO.players.length}</div>
+            <div class="rs">zugesagt</div>
+          </div>` : ""}
         </div>
-        ${venue ? `<div class="th-meta">${venue}</div>` : ""}
-        ${cancelled
-          ? `<div class="th-rsvp"><span class="rsvp-cancelled">Abgesagt</span></div>`
-          : future
-            ? `<div class="th-rsvp">
-                 <button class="btn btn-zu ${r.status === "zu" ? "is-on" : ""}" data-rsvp="zu" data-event="${e.id}">Zusage</button>
-                 <button class="btn btn-ab ${r.status === "ab" ? "is-on" : ""}" data-rsvp="ab" data-event="${e.id}">Absage</button>
-               </div>`
-            : ""}
-        ${unten}
+        ${cancelled ? `<div class="th-rsvp"><span class="rsvp-cancelled">Abgesagt</span></div>`
+          : trainer ? trainerTeil : spielerTeil}
       </div>`;
   }
 
-  /* Aufgabenblock „Was heute liegt" (Paket 5).
+  /* Aufgabenblock „Was heute liegt".
      Datengetrieben: jede Zeile erscheint nur, wenn die Rolle zustaendig ist UND
      die Datenlage sie erfordert. Zeilen kombinieren sich frei; wer mehrere Rollen
      hat, sieht die Summe. Ohne zutreffende Zeile entfaellt der Block ganz.
-     lineups sind fuer Spieler per RLS nicht lesbar – die Aufstellungszeile wird
+     lineups sind fuer Spieler per RLS nicht lesbar - die Aufstellungszeile wird
      fuer sie deshalb gar nicht erst gebaut. */
   function aufgabenZeilen(naechstes) {
     const zeilen = [];
@@ -469,11 +526,11 @@
         }
       }
       if (offenTermin) {
-        const ohne = DEMO.players.filter((p) => !(state.rsvp[naechstes.id + "|" + p.id] || {}).status).length;
+        const ohne = ohneRueckmeldung(naechstes).length;
         if (ohne > 0) {
           zeilen.push({
             art: "rsvp", zahl: ohne, titel: "Ohne Rückmeldung",
-            sub: eventKurz(naechstes), attr: 'data-rsvp-sheet="' + naechstes.id + '"',
+            sub: "Erinnerung senden", attr: 'data-rsvp-sheet="' + naechstes.id + '"',
           });
         }
       }
@@ -509,93 +566,136 @@
       </div>`;
   }
 
+  /* Spieltag-Karte: das naechste Spiel mit Gegner, Ort, Kennzahlen und den
+     Handlungen der jeweiligen Rolle. Trainer bekommt Aufstellung und Kader-Info,
+     Spieler seine Zu-/Absage samt Meldeschluss. */
+  function spieltagKarteHtml(spiel) {
+    if (!spiel) return "";
+    const trainer = Roles.canManageEvents();
+    const heim = heimLabel(spiel);
+    const zusagen = DEMO.players.filter((p) => (state.rsvp[spiel.id + "|" + p.id] || {}).status === "zu").length;
+    const r = state.rsvp[spiel.id + "|" + state.currentPlayerId] || {};
+    const future = isFuture(spiel.datum);
+    const cancelled = spiel.status === "abgesagt";
+
+    const lu = (DEMO.lineups || []).find((l) => l.eventId === spiel.id && l.isActive && !l.isTemplate);
+    const slots = lu ? (FORMATIONS[lu.formation] || []) : [];
+    const gesetzt = lu ? slots.map((s) => (lu.slots || {})[s.key]).filter(Boolean).length : 0;
+
+    const kopf = `
+      <div class="sg-top">
+        <div class="sg-body">
+          <div class="lbl">${WT_LANG[parseDate(spiel.datum).getDay()]}${spiel.zeit ? " · " + esc(spiel.zeit) : ""}</div>
+          <div class="sg-title">${terminName(spiel)}</div>
+          ${heim ? `<div class="rs">${heim}</div>` : ""}
+          ${venueHtml(spiel) ? `<div class="sg-venue">${venueHtml(spiel)}</div>` : ""}
+        </div>
+        <span class="avatar sg-av">${initials(spiel.gegner || spiel.titel)}</span>
+      </div>`;
+
+    const unten = trainer
+      ? `<div class="sg-stats">
+           <button class="sg-stat" data-rsvp-sheet="${spiel.id}">
+             <span class="sg-stat-v num">${zusagen}/${DEMO.players.length}</span>
+             <span class="rs">zugesagt</span>
+             <span class="sg-stat-go" aria-hidden="true">›</span>
+           </button>
+           <div class="sg-stat is-gold">
+             <span class="sg-stat-v num">${gesetzt}/${slots.length || 11}</span>
+             <span class="rs">aufgestellt</span>
+           </div>
+         </div>
+         <button class="btn btn-primary sg-cta" data-lineup-edit="${spiel.id}">Aufstellung bearbeiten</button>
+         <div class="sg-foot"><button class="link-btn" data-kader-info="${spiel.id}">Kader-Info erstellen</button></div>`
+      : cancelled
+        ? `<div class="th-rsvp"><span class="rsvp-cancelled">Abgesagt</span></div>`
+        : future
+          ? `<div class="sg-rsvp">
+               <button class="btn btn-zu ${r.status === "zu" ? "is-on" : ""}" data-rsvp="zu" data-event="${spiel.id}">Zusage</button>
+               <button class="btn btn-ab ${r.status === "ab" ? "is-on" : ""}" data-rsvp="ab" data-event="${spiel.id}">Absage</button>
+             </div>
+             ${fristBlockHtml(spiel)}`
+          : "";
+
+    return `<div class="card spieltag${cancelled ? " is-cancelled" : ""}">${kopf}${unten}</div>`;
+  }
+
+  // Kompakte Terminzeile unter „Danach" - Datumswuerfel, Typ, Zeit und Ort.
+  function miniEventHtml(e) {
+    const ort = (e.spielstaette || e.ort || "").trim();
+    const zweite = [e.zeit ? esc(e.zeit) : "", ort ? esc(ort) : ""].filter(Boolean).join(" · ");
+    return `<div class="card mini-ev edge-green" data-nav-event="${e.id}" role="button" tabindex="0">
+      <div class="event-date">
+        <span class="d-wd">${fmtWd(e.datum)}</span>
+        <span class="d-day">${fmtDay(e.datum)}</span>
+        <span class="d-mon">${fmtMon(e.datum).toUpperCase()}</span>
+      </div>
+      <div class="mini-body">
+        <div class="mini-typ">${e.typ === "spiel" ? "Spiel" : esc(e.titel)}</div>
+        ${zweite ? `<div class="mini-sub num">${zweite}</div>` : ""}
+      </div>
+    </div>`;
+  }
+
   function renderDashboard() {
     const me = playerById[state.currentPlayerId];
     const naechste = DEMO.events.filter((e) => isFuture(e.datum)).sort((a, b) => a.datum.localeCompare(b.datum));
     const naechstes = naechste[0];
+    const trainer = Roles.canManageEvents();
 
-    const offene = DEMO.strafen.filter((s) => fineStatus(s) === "offen");
-    const offeneGesamt = offene.reduce((sum, s) => sum + strafeBetrag(s), 0);
+    // Naechstes Spiel fuer die Spieltag-Karte. Ist es bereits der Hero-Termin,
+    // entfaellt die Karte - sonst stuende derselbe Termin zweimal untereinander.
+    const spiel = naechste.find((e) => e.typ === "spiel" && e.status !== "abgesagt");
+    const spieltag = (spiel && naechstes && spiel.id === naechstes.id) ? null : spiel;
 
-    const naechsteSpiele = naechste.filter((e) => e.typ === "spiel").length;
-    // Bei verknuepftem Konto traegt der gemeinsame Kontoblock den Betrag – dann
-    // entfaellt die Zeile „Meine offenen Strafen", sonst stuende er doppelt.
+    // „Danach": alles nach dem Hero, ohne den Termin der Spieltag-Karte.
+    const danach = naechste
+      .filter((e) => (!naechstes || e.id !== naechstes.id) && (!spieltag || e.id !== spieltag.id))
+      .slice(0, 3);
+
     const kontoVerknuepft = !!(currentProfile && currentProfile.player_id && me);
-    // Kontoblock nur bei tatsaechlich offenem Betrag. Ist nichts offen, sagt das
-    // die gruene Zeile im Aufgabenblock – eine Null-Karte waere leeres Gewicht.
-    const meinOffen = kontoVerknuepft ? summeOffenSpieler(me.id) : 0;
+    const meinOffen  = kontoVerknuepft ? summeOffenSpieler(me.id) : 0;
+    const kassenBestand = aktiveStrafen()
+      .filter((s) => fineStatus(s) === "bezahlt")
+      .reduce((a, s) => a + strafeBetrag(s), 0);
 
+    // Geldblock: Trainer/Kassenwart sehen die beiden Kacheln aus 1a,
+    // Spieler den vollen Kontoblock aus 1b.
+    const geld = trainer || Roles.canManageFines()
+      ? `<div class="tile-rows">
+          ${kontoVerknuepft ? `<div class="card tile" data-nav="meine-strafen" role="button" tabindex="0">
+            <span class="tile-t">Meine Strafen</span>
+            <span class="amount num${meinOffen > 0 ? " is-warn" : ""}">${euro(meinOffen)} ›</span>
+          </div>` : ""}
+          <div class="card tile" data-nav="kasse" role="button" tabindex="0">
+            <span class="tile-t">Mannschaftskasse</span>
+            <span class="amount num">${euro(kassenBestand)} ›</span>
+          </div>
+        </div>`
+      : (kontoVerknuepft ? kontoBlockHtml() : "");
 
     viewEl.innerHTML = `
-      <div class="page-head">
-        <h1>Servus, ${esc(me.name.split(" ")[0])}!</h1>
+      <div class="page-head h1row">
+        <h1>Servus, ${esc(me.name.split(" ")[0])}</h1>
+        ${rollenPillHtml()}
       </div>
 
       ${terminHeroHtml(naechstes)}
 
       ${aufgabenBlockHtml(naechstes)}
 
-      ${kontoVerknuepft && meinOffen > 0 ? kontoBlockHtml() : ""}
+      ${!trainer && !Roles.canManageFines() && kontoVerknuepft
+        ? `<div class="section-title"><h2>Mein Konto</h2><button class="link-btn" data-goto="strafen">Alle Strafen</button></div>` : ""}
+      ${geld}
 
-      <div class="kpi-rows">
-        <div class="kpi-row kpi-tap" data-nav="spiele" role="button" tabindex="0">
-          <div class="kpi-body">
-            <div class="kpi-label">Kommende Spiele</div>
-            <div class="kpi-sub">in der Restsaison</div>
-          </div>
-          <span class="kpi-value">${naechsteSpiele}</span>
-          <span class="kpi-go" aria-hidden="true">${"›"}</span>
-        </div>
-        ${kontoVerknuepft ? "" : `<div class="kpi-row kpi-tap" data-nav="meine-strafen" role="button" tabindex="0">
-          <div class="kpi-body">
-            <div class="kpi-label">Meine offenen Strafen</div>
-            <div class="kpi-sub">Konto noch keinem Spieler zugeordnet</div>
-          </div>
-          <span class="kpi-go" aria-hidden="true">${"›"}</span>
-        </div>`}
-        <div class="kpi-row kpi-tap" data-nav="kasse" role="button" tabindex="0">
-          <div class="kpi-body">
-            <div class="kpi-label">Mannschaftskasse offen</div>
-            <div class="kpi-sub">${offene.length} offene Strafen im Team</div>
-          </div>
-          <span class="kpi-value kpi-amt">${euro(offeneGesamt).replace(/\s/g, " ")}</span>
-          <span class="kpi-go" aria-hidden="true">${"›"}</span>
-        </div>
-      </div>
+      ${spieltag ? `<div class="section-title"><h2>Nächstes Spiel</h2><button class="link-btn" data-goto="kalender">Kalender</button></div>
+      ${spieltagKarteHtml(spieltag)}` : ""}
 
-      <div class="grid-2">
-        <div>
-          <div class="section-title"><h2>Nächste Termine</h2>
-            <button class="link-btn" data-goto="kalender">Alle anzeigen →</button></div>
-          <div class="event-list">
-            ${naechste.slice(0, 4).map((e) => eventCard(e)).join("")}
-          </div>
-        </div>
-        <div>
-          <div class="section-title"><h2>Zuletzt verhängte Strafen</h2>
-            <button class="link-btn" data-goto="strafen">Konto →</button></div>
-          <div class="card card-pad">
-            ${aktiveStrafen().sort((a,b)=>b.datum.localeCompare(a.datum)).slice(0,5).map((s) => {
-              const p = playerById[s.playerId];
-              return `<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)">
-                <span class="avatar">${initials(p.name)}</span>
-                <div style="flex:1;min-width:0">
-                  <div style="font-weight:600">${esc(p.name)}${statusBadge(p)}</div>
-                  <div style="font-size:.82rem;color:var(--muted)">${esc(vergehenName(s))}</div>
-                </div>
-                <div style="text-align:right">
-                  <div class="amount">${euro(strafeBetrag(s))}</div>
-                  ${statusBadgeHtml(s)}
-                </div>
-              </div>`;
-            }).join("")}
-          </div>
-        </div>
-      </div>
-
+      ${danach.length ? `<div class="section-title"><h2>Danach</h2>${spieltag ? "" : `<button class="link-btn" data-goto="kalender">Kalender</button>`}</div>
+      <div class="mini-list">${danach.map(miniEventHtml).join("")}</div>` : ""}
     `;
 
-    startCountdowns(); // Meldeschluss-Countdown im Termin-Hero live halten (Spieler-Ansicht)
+    startCountdowns(); // Meldeschluss-Countdown im Hero und in der Spieltag-Karte
   }
 
   /* ---------- Kader (Trainer/Admin) -----------------------------------------
@@ -2689,13 +2789,8 @@
         <div class="mb-bar" role="img" aria-label="${anteil}% erledigt"><i style="width:${anteil}%"></i></div>
         ${meinZuschlag > 0 ? `<div class="mb-note">inkl. ${euro(meinZuschlag)} Mahnzuschlag</div>` : ""}
         ${meineOffen > 0 ? `
-          <a class="paypal-btn" href="${paypalMeLink(meineOffen)}" target="_blank" rel="noopener noreferrer" aria-label="Mit PayPal bezahlen">
-            <svg class="pp-mark" viewBox="0 0 384 512" width="15" height="19" aria-hidden="true">
-              <path fill="#003087" d="M111.4 295.9c-3.5 19.2-17.4 108.7-21.5 134-.3 1.8-1 2.5-3 2.5H12.3c-7.6 0-13.1-6.6-12.1-13.9L58.8 46.6c1.5-9.6 10.1-16.9 20-16.9 152.3 0 165.1-3.7 204 11.4 60.1 23.3 65.6 79.5 44 140.3-21.5 62.6-72.5 89.5-140.1 90.3-43.4 .7-69.5-7-75.3 24.2zM357.1 152c-1.8-1.3-2.5-1.8-3 1.3-2 11.4-5.1 22.5-8.8 33.6-39.9 113.8-150.5 103.9-204.5 103.9-6.1 0-10.1 3.3-10.9 9.4-22.6 140.4-27.1 169.7-27.1 169.7-1 7.1 3.5 12.9 10.6 12.9h63.5c8.6 0 15.7-6.3 17.4-14.9 .7-5.4-1.1 6.1 14.4-91.3 4.6-22 14.3-19.7 29.3-19.7 71 0 126.4-28.8 142.9-112.3 6.5-34.8 4.6-71.4-23.3-91.9z"/>
-            </svg>
-            <span class="pp-word"><span class="pp1">Pay</span><span class="pp2">Pal</span></span>
-          </a>
-          <div class="mb-pay-cap">Bitte als „Freunde &amp; Familie" senden</div>
+          <a class="btn btn-primary mb-pay" href="${paypalMeLink(meineOffen)}" target="_blank" rel="noopener noreferrer">${euro(meineOffen)} jetzt bezahlen</a>
+          <div class="mb-pp"><span class="rs">über</span><span class="pp-word"><span class="pp1">Pay</span><span class="pp2">Pal</span></span><span class="rs">· Freunde &amp; Familie</span></div>
           <div class="mb-foot">
             <button class="link-btn" data-paid-self>Zahlung melden</button>
             ${bannerCd ? `<span class="mb-cd">Erhöhung in <span class="cd" data-cd-created="${bannerCd.createdAt}" data-cd-step="${faelligeStufen({ createdAt: bannerCd.createdAt }, Date.now())}"></span></span>` : ""}
@@ -3243,7 +3338,7 @@
       if (unpay) { if (!window.confirm("Buchung rückgängig machen? Die Strafe steht wieder als offen.")) return; try { await DB.setFinePaid(unpay.dataset.kasseUnpay, false); await reloadData(); tvToast("Zurückgesetzt"); } catch (e) { window.alert("Rückgängig fehlgeschlagen: " + ((e && e.message) || e)); } return; }
     }
 
-    const t = ev.target.closest("[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-koord-save],[data-my-status],[data-logout]");
+    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-koord-save],[data-my-status],[data-logout]");
     if (!t) return;
 
     // Spieler: eigenen Fitnessstatus setzen (RLS/RPC erlauben nur die eigene Zeile)
@@ -3452,6 +3547,18 @@
     if (t.hasAttribute("data-nav-back")) { navBack(); return; }
 
     // Übersichts-Kachel angetippt -> passendes Ziel + Reiter öffnen (Ursprung/Scroll gemerkt).
+    // „N erinnern" (Gate S2, Weg b): fertiger Text mit den Namen der Offenen
+    // zum Teilen - es gibt in der App keinen Versandweg, also gibt sie den Text.
+    if (t.dataset.remind) {
+      const ev = DEMO.events.find((x) => x.id === t.dataset.remind);
+      if (ev) openShareModal("Erinnerung", erinnernText(ev));
+      return;
+    }
+    // Kompakte Terminzeile der Uebersicht -> Kalender, zum Termin gescrollt.
+    if (t.dataset.navEvent) {
+      navJumpTo("kalender", { kalFilter: "alle", eventId: t.dataset.navEvent });
+      return;
+    }
     if (t.dataset.nav) {
       const kind = t.dataset.nav;
       if (kind === "termin") {

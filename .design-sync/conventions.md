@@ -72,7 +72,7 @@ Zustände hängen sich als zweite Klasse an: `.btn.btn-zu.is-on`, `.kpi.is-warn`
 
 ## Farben nur über Tokens
 
-Nie ein Hex ins Markup. Alles liegt in `tokens/tokens.css` (127 Tokens):
+Nie ein Hex ins Markup. Alles liegt in `tokens/tokens.css` (129 Tokens):
 
 - Vereinsgrün `--green-900 … --green-050` — Kopfzeile, Primäraktion, Erfolg
 - Gold `--gold-600 --gold-500 --gold-050` — Akzent, Spiele, KPI-Kante

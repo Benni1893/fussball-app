@@ -34,7 +34,7 @@ Dateien unter `.design-sync/`.
 ## Risiken beim nächsten Lauf
 
 - **Zeilennummern des Tokenblocks.** `build.sh` schneidet `:root` aus
-  `styles.css` heraus (aktuell Zeilen 5–159, in `config.json` als
+  `styles.css` heraus (aktuell Zeilen 5–161, in `config.json` als
   `tokenBlockLines`). Verschiebt sich der Block, **bricht der Bau mit klarer
   Meldung ab** statt falsch zu schneiden — dann nur die beiden Zahlen in
   `build.sh` und `config.json` nachziehen.
@@ -48,6 +48,13 @@ Dateien unter `.design-sync/`.
   `body`-Regel. Sieht dann nur leicht anders aus, ist kein Fehler.
 
 ## Befunde im Repo (nicht behoben, nur notiert)
+
+- **Tote Klassen nach der Vorlagen-Umstellung (fuer Paket 14).** Die Uebersicht
+  nutzt seit Commit 2 weder `.kpi-rows`/`.kpi-row` noch `.grid-2` noch die
+  Kachelvariante `.kpi-tap`/`.kpi-go`/`.kpi-body`. Die letzten drei sind noch in
+  einer Karte unter `.design-sync/cards/` referenziert - `validate.sh` bricht ab,
+  wenn man sie vorher entfernt. Also erst die Karten in Paket 14 neu zeichnen,
+  dann alle sechs Familien streichen.
 
 - **`.btn-danger` ist zweimal definiert** — Zeile ~459 (roter Text auf weiß,
   `margin-left: 6px`) und Zeile ~500 (roter Text auf `--red-050`, randlos, 700).
