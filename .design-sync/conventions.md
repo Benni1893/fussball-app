@@ -58,7 +58,7 @@ Layout-Beiwerk kommt als `style="…"` mit Tokens oder als neue, sprechende Klas
 |---|---|
 | Fläche, Seite | `.card` `.card-pad` · `.page-head` `.page-head-row` `.pg-back` · `.section-title` · `.grid-2` · `.empty` `.em-ico` |
 | Kennzahlen | `.kpi-grid` `.kpi` `.kpi-label` `.kpi-value` `.kpi-sub` · antippbar: `.kpi-tap` `.kpi-body` `.kpi-go` `.kpi-amt` · `.is-warn` |
-| Termine | `.event-list` `.event` · Art: `.typ-spiel` `.typ-training` `.typ-sonstiges` · `.is-home` `.is-away` `.is-cancelled` · `.event-date` `.d-day` `.d-mon` `.d-wd` · `.event-main` `.e-title` `.e-time` `.e-meta` `.e-note` · `.team-own` `.team-opp` `.vs` · `.venue-link` `.venue-pin` · `.frist` `.frist-label` `.frist-warn` |
+| Termine | `.event-list` `.event` · Art: `.typ-spiel` `.typ-training` `.typ-sonstiges` `.is-cancelled` · `.event-date` `.d-day` `.d-mon` `.d-wd` · `.event-main` `.e-title` `.e-time` `.e-meta` `.e-note` · `.team-own` `.team-opp` `.vs` · `.venue-link` `.venue-pin` · `.frist` `.frist-label` `.frist-warn` |
 | Zu-/Absage | `.rsvp` `.rsvp-buttons` `.rsvp-count` `.rsvp-reason` `.rsvp-cancelled` |
 | Aktionen | `.btn` + `.btn-primary` `.btn-soft` `.btn-danger` `.btn-ghost` `.btn-sm` `.btn-zu` `.btn-ab` (Zustand `.is-on`) · `.icon-btn` `.icon-ok` · `.link-btn` · `.toolbar` `.chip` (`.is-active`) |
 | Status | `.tag` + `.tag-spiel` `.tag-training` `.tag-heim` `.tag-ausw` `.tag-friendly` `.tag-cancelled` `.tag-manuell` · `.badge` + `.badge-open` `.badge-paid` `.badge-cancel` `.badge-auto` `.badge-self` · `.cd` + `.cd-neutral` `.cd-amber` `.cd-red` `.cd-due` `.cd-capped` |
@@ -68,7 +68,7 @@ Layout-Beiwerk kommt als `style="…"` mit Tokens oder als neue, sprechende Klas
 | Sheets, Rollen | `.more-sheet` `.more-backdrop` `.more-panel` `.more-title` `.more-item` · `.sim-bar` `.sim-exit` |
 
 Zustände hängen sich als zweite Klasse an: `.btn.btn-zu.is-on`, `.kpi.is-warn`,
-`.event.typ-spiel.is-home`. Geschlossene Sheets tragen `hidden`, nicht `display:none`.
+`.event.typ-spiel`. Geschlossene Sheets tragen `hidden`, nicht `display:none`.
 
 ## Farben nur über Tokens
 

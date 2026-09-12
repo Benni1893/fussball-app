@@ -101,6 +101,7 @@ window.DB = (function () {
         id: l.id, eventId: l.event_id, name: l.name, formation: l.formation,
         slots: l.slots || {}, bank: l.bank || [],
         isActive: l.is_active, isTemplate: l.is_template,
+        updatedAt: l.updated_at,
       })),
     };
   }

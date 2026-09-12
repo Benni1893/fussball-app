@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-12-C";
+  var APP_BUILD = "2026-09-12-D";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -2234,26 +2234,91 @@
     if (tv.view === "lineup" && tv.eventId != null) tvViewLineup(); else tvViewGames();
   }
 
-  /* ---- Zustand 1: Spiel wählen ---- */
+  /* ---- Zustand 1: Spiel wählen (Vorlage 2b) ---- */
   function tvViewGames() {
     tv.view = "games"; tv.dirty = false; tv.readonly = false; tvClosePanels();
     const up = DEMO.events.filter(e => e.typ === "spiel" && isFuture(e.datum)).sort((a, b) => a.datum.localeCompare(b.datum));
     viewEl.innerHTML =
       '<div class="page-head"><h1>Trainer</h1><p>Spiel wählen, danach baust du die Elf auf dem Platz.</p></div>' +
-      (up.length ? up.map(tvGameCard).join("") : '<div class="empty">Kein anstehendes Spiel. Sobald im Kalender ein Spiel angelegt ist, kannst du hier die Aufstellung bauen.</div>');
+      // K3: ein reiner Trainer kommt ueber den 5. Tab direkt hierher und haette
+      // sonst keinen Weg zum Kader. Darum steht der Sprung im Kopf der Seite.
+      '<div class="tv-headlinks"><button class="link-btn" data-goto="kader">Kader ansehen</button></div>' +
+      (up.length ? '<div class="tv-glist">' + up.map(tvGameCard).join("") + '</div>'
+                 : '<div class="empty">Kein anstehendes Spiel. Sobald im Kalender ein Spiel angelegt ist, kannst du hier die Aufstellung bauen.</div>') +
+      tvTemplatesHtml();
   }
   function tvGameCard(e) {
     const active = (DEMO.lineups || []).some(l => l.eventId === e.id && l.isActive && !l.isTemplate);
-    // Kante links und Datumsplakette wie im Kalender – gleiche Klassen, gleiche Tokens.
-    const heimCls = e.heim === true ? " is-home" : e.heim === false ? " is-away" : "";
-    return '<button class="tv-gcard' + heimCls + '" data-tvgame="' + e.id + '">' +
+    return '<button class="card tv-gcard" data-tvgame="' + e.id + '">' +
       '<span class="event-date"><span class="d-wd">' + fmtWd(e.datum) + '</span>' +
         '<span class="d-day">' + fmtDay(e.datum) + '</span>' +
         '<span class="d-mon">' + fmtMon(e.datum) + '</span></span>' +
       '<span class="tv-gmain"><span class="tv-gopp">' + (e.heim ? "vs. " : "@ ") + esc(e.gegner || e.titel) + '</span>' +
-        '<span class="tv-gmeta">' + (e.zeit ? e.zeit + " Uhr · " : "") + (e.heim ? "Heim" : "Auswärts") + '</span></span>' +
+        '<span class="tv-gmeta num">' + (e.zeit ? e.zeit + " Uhr · " : "") + (e.heim ? "Heim" : "Auswärts") + '</span></span>' +
       '<span class="tv-gchip' + (active ? " on" : "") + '">' + (active ? "aktiv" : "offen") + '</span><span class="tv-garrow">›</span></button>';
   }
+
+  /* Vorlagen (K1). Gespeichert werden sie in der Platzansicht ueber das
+     ⋯-Menue, angewendet ebenfalls dort (dort ist ein Spiel offen, auf das man
+     sie anwenden kann). Hier stehen sie zum Nachsehen und zum Loeschen -
+     damit ist der Kreis aus Speichern, Anwenden und Loeschen geschlossen.
+     Abweichung von der Vorlage: statt eines Chevrons traegt die Zeile einen
+     Papierkorb, weil ein Antippen ohne offenes Spiel kein Ziel haette. */
+  function tvTemplatesHtml() {
+    const tpl = (DEMO.lineups || []).filter(l => l.isTemplate);
+    if (!tpl.length) return "";
+    return '<div class="section-title"><h2>Vorlagen</h2></div>' +
+      '<div class="card tv-tpls">' + tpl.map(l =>
+        '<div class="tv-tpl"><span class="tv-tpl-main"><span class="tv-tpl-n">' + esc(l.name) + '</span>' +
+        '<span class="rs">' + esc(l.formation) + tvTplStand(l) + '</span></span>' +
+        '<button class="icon-btn" data-tvtpldel="' + l.id + '" title="Vorlage löschen" aria-label="Vorlage ' + esc(l.name) + ' löschen">' + ICON_TRASH + '</button></div>'
+      ).join("") + '</div>';
+  }
+  // Die Vorlage schreibt „zuletzt genutzt"; die Tabelle kennt nur updated_at,
+  // also steht hier ehrlich „zuletzt geändert".
+  function tvTplStand(l) {
+    if (!l.updatedAt) return "";
+    const d = new Date(l.updatedAt);
+    if (isNaN(d)) return "";
+    return " · zuletzt geändert am " + d.getDate() + ". " + MON[d.getMonth()];
+  }
+  async function tvSaveTemplate() {
+    const nm = window.prompt("Name der Vorlage:", tv.formation + " Standard");
+    if (nm === null) return;
+    try {
+      await DB.saveLineup({ clubId: DEMO.clubId, eventId: null, name: (nm.trim() || "Vorlage"),
+        formation: tv.formation, slots: tvCleanAssign(), bank: [], isTemplate: true });
+      await reloadData(); tvToast("Als Vorlage gespeichert");
+    } catch (err) { window.alert("Vorlage speichern fehlgeschlagen: " + ((err && err.message) || err)); }
+  }
+  async function tvDeleteTemplate(id) {
+    const l = (DEMO.lineups || []).find(x => x.id === id && x.isTemplate);
+    if (!l) return;
+    if (!window.confirm("Vorlage „" + l.name + "“ wirklich löschen?")) return;
+    try { await DB.deleteLineup(id); await reloadData(); render(); tvToast("Vorlage gelöscht"); }
+    catch (err) { window.alert("Löschen fehlgeschlagen: " + ((err && err.message) || err)); }
+  }
+  /* Vorlage auf das offene Spiel anwenden. Spieler ohne Zusage oder mit
+     Verletzung bleiben weg - dieselbe Regel wie beim Uebernehmen vom letzten
+     Spiel, damit man nie versehentlich einen Verletzten aufstellt. */
+  function tvApplyTemplate(id) {
+    const tpl = (DEMO.lineups || []).find(l => l.id === id && l.isTemplate);
+    if (!tpl || !FORMATIONS[tpl.formation]) return;
+    tvCloseMenu();
+    const zu = new Set(zusagenIds(tv.eventId));
+    const a = {}; let weg = 0;
+    FORMATIONS[tpl.formation].forEach(s => {
+      const pid = (tpl.slots || {})[s.key];
+      if (!pid) return;
+      const p = playerById[pid];
+      if (p && p.status !== "verletzt" && zu.has(pid)) a[s.key] = pid; else weg++;
+    });
+    tv.formation = tpl.formation; tv.assign = a; tv.bank = []; tv.sel = null;
+    tv.dirty = true; tv.hideCta = true;
+    renderLineupV2();
+    tvToast(weg ? ((weg === 1 ? "1 Platz" : weg + " Plätze") + " leer – ohne Zusage oder verletzt") : "Vorlage angewendet");
+  }
+
   function tvOpenGame(eventId) {
     tv.eventId = eventId; tv.sel = null; tv.hideCta = false; tv.dirty = false;
     const lu = (DEMO.lineups || []).find(l => l.eventId === eventId && l.isActive && !l.isTemplate);
@@ -2640,8 +2705,13 @@
   function tvToggleFav(f) { const i = tvFav.indexOf(f); if (i >= 0) { if (tvFav.length > 2) tvFav.splice(i, 1); } else if (tvFav.length < 4) tvFav.push(f); tvSaveFav(); }
 
   function tvOpenMenu() {
+    const tpl = (DEMO.lineups || []).filter(l => l.isTemplate);
     document.getElementById("tvMenuBody").innerHTML =
       '<button class="tv-mi" data-tvadopt>Vom letzten Spiel übernehmen &amp; anpassen</button>' +
+      '<button class="tv-mi" data-tvtplsave>Als Vorlage speichern</button>' +
+      (tpl.length ? '<div class="tv-mgroup">Vorlage anwenden</div>' + tpl.map(l =>
+        '<button class="tv-mi tv-mi-sub" data-tvtplapply="' + l.id + '">' + esc(l.name) +
+        '<small>' + esc(l.formation) + '</small></button>').join("") : "") +
       '<button class="tv-mi" data-tvfavedit>Favoriten bearbeiten</button>' +
       '<button class="tv-mi danger" data-tvclear>Aufstellung leeren</button>';
     document.getElementById("tvScrimMenu").classList.add("open");
@@ -2663,10 +2733,13 @@
     if (t.closest("[data-tvfavdone]")) { if (tvFav.length < 2) return; if (!tvFav.includes(tv.formation)) tv.formation = tvFav[0]; tvCloseForm(); tvViewLineup(); return; }
     if (t.closest("[data-tvfavedit]")) { tvCloseMenu(); tvOpenForm(true); return; }
     if (t.closest("[data-tvadopt]")) { tvCloseMenu(); tvAdopt(); return; }
+    if (t.closest("[data-tvtplsave]")) { tvCloseMenu(); tvSaveTemplate(); return; }
+    const ta = t.closest("[data-tvtplapply]"); if (ta) { tvApplyTemplate(ta.dataset.tvtplapply); return; }
     if (t.closest("[data-tvclear]")) { tvCloseMenu(); tv.assign = {}; tv.sel = null; tv.dirty = true; tvViewLineup(); return; }
   }
   function tvViewClick(ev) {
     const t = ev.target;
+    const td = t.closest("[data-tvtpldel]"); if (td) { tvDeleteTemplate(td.dataset.tvtpldel); return true; }
     const g = t.closest("[data-tvgame]"); if (g) { tvOpenGame(g.dataset.tvgame); return true; }
     if (t.closest("[data-tvback]")) { tvBack(); return true; }
     if (tv.readonly) return true;   // vergangenes Spiel: nur ansehen, keine Bearbeitung

@@ -49,6 +49,12 @@ Dateien unter `.design-sync/`.
 
 ## Befunde im Repo (nicht behoben, nur notiert)
 
+- **Tote Tokens nach der Vorlagen-Umstellung (fuer Paket 14).** Weder styles.css
+  noch app.js benutzen noch `--spiel-heim`, `--spiel-ausw`, `--fs-event-time`,
+  `--typ-training` oder `--typ-sonstiges`; sie haengen nur noch an Karten unter
+  `.design-sync/cards/`. Erst Karten neu zeichnen, dann die fuenf streichen und
+  die Tokenblock-Zeilen in build.sh/config.json/NOTES.md/conventions.md nachziehen.
+
 - **Tote Klassen nach der Vorlagen-Umstellung (fuer Paket 14).** Die Uebersicht
   nutzt seit Commit 2 weder `.kpi-rows`/`.kpi-row` noch `.grid-2` noch die
   Kachelvariante `.kpi-tap`/`.kpi-go`/`.kpi-body`. Die letzten drei sind noch in
