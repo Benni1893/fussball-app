@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-12-E";
+  var APP_BUILD = "2026-09-12-F";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -2766,12 +2766,17 @@
   let katEdit = null; // null | Katalog-id (Bearbeiten) | "new" (Hinzufügen)
 
   function katRowView(k, canEdit) {
-    const amt = k.typ === "staffel"
-      ? `${euro(k.proEinheit || 0).replace(/\s/g, " ")} / ${k.schritt || 1} ${esc(k.einheit || "")}${k.maxBetrag != null ? " · max " + euro(k.maxBetrag).replace(/\s/g, " ") : ""}`
+    // Vorlage 3b: Bezeichnung links (bei Staffel mit Plakette und dem Deckel als
+    // Unterzeile), Betrag rechts. Kategorien bleiben aus der Anzeige (K5).
+    const staffel = k.typ === "staffel";
+    const amt = staffel
+      ? `${euro(k.proEinheit || 0).replace(/\s/g, " ")} / ${k.schritt || 1} ${esc(k.einheit || "")}`
       : euro(k.betrag).replace(/\s/g, " ");
+    const deckel = (staffel && k.maxBetrag != null)
+      ? `<span class="kat-sub">max ${euro(k.maxBetrag).replace(/\s/g, " ")}</span>` : "";
     return `<div class="kat-item">
-      <span class="kat-name">${esc(k.vergehen)}${k.typ === "staffel" ? ` <span class="badge badge-auto">gestaffelt</span>` : ""}</span>
-      <span class="kat-amount">${amt}</span>
+      <span class="kat-name">${esc(k.vergehen)}${staffel ? ` <span class="badge badge-self">gestaffelt</span>` : ""}${deckel}</span>
+      <span class="kat-amount${staffel ? " is-staffel" : ""}">${amt}</span>
       ${canEdit ? `<div class="kat-actions">
         <button class="icon-btn" data-kat-edit="${k.id}" aria-label="Bearbeiten">${ICON_EDIT}</button>
         <button class="icon-btn" data-kat-del="${k.id}" aria-label="Löschen">${ICON_TRASH}</button>
