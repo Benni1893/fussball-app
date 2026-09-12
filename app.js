@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-12-F";
+  var APP_BUILD = "2026-09-12-G";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -2977,6 +2977,7 @@
     indivBetrag: "", indivGrund: "",
     date: new Date().toISOString().slice(0, 10), comment: "",
     tab: "pruefen", bezFilter: "",
+    pruefIdx: 0,       // welche Meldung im Kartenstapel gerade vorn liegt
     formOpen: false,   // „Strafe verhaengen" ist eingeklappt, bis jemand es oeffnet
   };
 
@@ -3065,17 +3066,41 @@
     </div>`;
   }
 
+  /* „Prüfen & verbuchen" als Kartenstapel (Vorlage 3c): immer genau EINE
+     Meldung im Blick, dahinter zwei Geisterkarten als Stapeltiefe. Nach jeder
+     Entscheidung wird die Liste kuerzer, der Index bleibt stehen - dadurch
+     rueckt die naechste Meldung von selbst nach. */
   function renderKassePruefen(list) {
     if (!list.length) return `<div class="empty">Nichts zu prüfen.</div>`;
     const sorted = list.slice().sort((a, b) => a.player.name.localeCompare(b.player.name));
-    return `<div class="kasse-bulk"><button class="btn btn-sm" data-kasse-confirm-all>Alle bestätigen (${list.length})</button></div>
-      <div class="krow-list">${sorted.map((s) => krowHtml(
-        s,
-        esc(vergehenName(s)),
-        `${fmtDay(s.datum)}. ${fmtMon(s.datum)}`,
-        `<button class="krow-primary" data-kasse-confirm="${s.id}">Bestätigen</button>
-         <button class="krow-secondary is-danger" data-kasse-reject="${s.id}">Ablehnen</button>`
-      )).join("")}</div>`;
+    if (kasse.pruefIdx >= sorted.length || kasse.pruefIdx < 0) kasse.pruefIdx = 0;
+    const i = kasse.pruefIdx, s = sorted[i], rest = sorted.length - 1;
+    const zahlart = s.zahlart ? (ZAHLART_LABEL[s.zahlart] || s.zahlart) : "";
+    // Die Vorlage zeigt fuenf Punkte. Ab neun Meldungen traegt der Zaehler
+    // die Aussage besser als eine Punktreihe, die nicht mehr in die Zeile passt.
+    const dots = sorted.length > 1 && sorted.length <= 8
+      ? `<div class="ks-dots">${sorted.map((_, n) => `<span class="${n === i ? "is-on" : ""}"></span>`).join("")}</div>` : "";
+    return `
+      ${sorted.length > 1 ? `<div class="ks-bulk"><button class="link-btn" data-kasse-confirm-all>Alle ${sorted.length} bestätigen</button></div>` : ""}
+      <div class="ks-deck">
+        ${rest >= 2 ? `<div class="ks-ghost ks-ghost-2" aria-hidden="true"></div>` : ""}
+        ${rest >= 1 ? `<div class="ks-ghost ks-ghost-1" aria-hidden="true"></div>` : ""}
+        <div class="card ks-card">
+          <div class="lbl">Meldung ${i + 1} von ${sorted.length}</div>
+          <span class="avatar ks-av">${initials(s.player.name)}</span>
+          <div class="ks-name">${esc(s.player.name)}</div>
+          <div class="rs">${esc(vergehenName(s))} · Strafe vom ${fmtDay(s.datum)}. ${fmtMon(s.datum)}</div>
+          <div class="ks-amt num">${euro(s.betrag).replace(/\s/g, " ")}</div>
+          <div class="rs">${zahlart ? "per " + esc(zahlart) + " gemeldet" : "Zahlung gemeldet"}</div>
+          <div class="ks-actions">
+            <button class="btn" data-kasse-reject="${s.id}">Ablehnen</button>
+            <button class="btn btn-primary" data-kasse-confirm="${s.id}">Eingang bestätigen</button>
+          </div>
+          ${kasseHistHtml(s.id)}
+        </div>
+      </div>
+      ${dots}
+      <div class="ks-cap">Nach jeder Entscheidung rückt die nächste Meldung nach</div>`;
   }
 
   function renderKasseOffen(list) {
@@ -3203,17 +3228,47 @@
       </div>`}
 
       <div class="section-title kasse-verbuchen"><h2>Prüfen &amp; verbuchen</h2></div>
-      <div class="toolbar">
-        <button class="chip ${kasse.tab === "pruefen" ? "is-active" : ""}" data-kstab="pruefen">Zu prüfen (${gemeldet.length})</button>
-        <button class="chip ${kasse.tab === "offen" ? "is-active" : ""}" data-kstab="offen">Offen (${offen.length})</button>
-        <button class="chip ${kasse.tab === "bezahlt" ? "is-active" : ""}" data-kstab="bezahlt">Eingegangen (${bezahlt.length})</button>
+      <div class="ks-pane" data-ks-swipe>
+        <div class="chips ks-tabs">
+          <button class="chip ${kasse.tab === "pruefen" ? "is-active" : ""}" data-kstab="pruefen">Zu prüfen (${gemeldet.length})</button>
+          <button class="chip ${kasse.tab === "offen" ? "is-active" : ""}" data-kstab="offen">Offen (${offen.length})</button>
+          <button class="chip ${kasse.tab === "bezahlt" ? "is-active" : ""}" data-kstab="bezahlt">Eingegangen (${bezahlt.length})</button>
+        </div>
+        ${kasse.tab === "pruefen" ? renderKassePruefen(gemeldet) : ""}
+        ${kasse.tab === "offen"   ? renderKasseOffen(offen) : ""}
+        ${kasse.tab === "bezahlt" ? renderKasseBezahlt(bezahltGef, bezahlt) : ""}
       </div>
-
-      ${kasse.tab === "pruefen" ? renderKassePruefen(gemeldet) : ""}
-      ${kasse.tab === "offen"   ? renderKasseOffen(offen) : ""}
-      ${kasse.tab === "bezahlt" ? renderKasseBezahlt(bezahltGef, bezahlt) : ""}
     `;
+    ksAttachSwipe();
     startCountdowns();
+  }
+
+  /* K4: die drei Reiter sind horizontal wischbare Seiten. Der Wisch wechselt den
+     Reiter - nicht die Meldung im Stapel; die rueckt nach einer Entscheidung
+     von selbst nach (so steht es auch in der Bildunterschrift der Vorlage).
+     Senkrechte Gesten bleiben Scrollen, darum die 1,5-fache Schwelle. */
+  const KS_TABS = ["pruefen", "offen", "bezahlt"];
+  function ksAttachSwipe() {
+    const pane = viewEl.querySelector("[data-ks-swipe]");
+    if (!pane) return;
+    let x0 = 0, y0 = 0, aktiv = false;
+    pane.addEventListener("touchstart", (ev) => {
+      if (ev.touches.length !== 1) { aktiv = false; return; }
+      x0 = ev.touches[0].clientX; y0 = ev.touches[0].clientY; aktiv = true;
+    }, { passive: true });
+    pane.addEventListener("touchend", (ev) => {
+      if (!aktiv) return;
+      aktiv = false;
+      const t = ev.changedTouches && ev.changedTouches[0];
+      if (!t) return;
+      const dx = t.clientX - x0, dy = t.clientY - y0;
+      if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+      const i = KS_TABS.indexOf(kasse.tab);
+      const next = i + (dx < 0 ? 1 : -1);
+      if (next < 0 || next >= KS_TABS.length) return;
+      kasse.tab = KS_TABS[next];
+      renderKasse();
+    }, { passive: true });
   }
 
   // Vorgang speichern: pro Spieler × Zeile ein Eintrag – alles in EINER Transaktion

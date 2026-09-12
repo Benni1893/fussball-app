@@ -1028,12 +1028,13 @@ tbody tr:hover { background: #fbfdfc; }
 /* „Strafe verhängen" eingeklappt: eine Kachel, die das Formular oeffnet. */
 .kasse-toggle {
   display: flex; align-items: center; justify-content: center; gap: 8px;
-  width: 100%; min-height: 56px; margin-bottom: 16px;
-  background: none; border: 1.5px dashed var(--line); border-radius: var(--radius);
-  color: var(--green-700); font: inherit; font-weight: 700; cursor: pointer;
+  width: 100%; min-height: var(--h-btn); margin-bottom: 16px;
+  background: var(--grad-btn-sec); border: 1px dashed var(--line-soft-3); border-radius: var(--radius-btn);
+  color: var(--green-800); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
+  box-shadow: var(--shadow-btn-sec);
   -webkit-tap-highlight-color: transparent;
 }
-.kasse-toggle svg { width: 20px; height: 20px; }
+.kasse-toggle svg { width: 19px; height: 19px; }
 .kasse-toggle:active { background: var(--green-050); }
 /* ---------- Diagramme ------------------------------------------------------ */
 .chart-row { margin-bottom: 22px; }
@@ -1561,7 +1562,7 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
   font: inherit; background: none; border: 0; padding: 4px 2px; min-height: 44px; cursor: pointer;
   -webkit-appearance: none; appearance: none; -webkit-tap-highlight-color: transparent; }
 .kasse-catpick .kat-name { flex: 1; }
-.kasse-catpick .ks-check { width: 22px; }
+.kasse-catpick .ks-check { flex: none; }
 .kasse-qty { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
 .kasse-qty .qty-btn { -webkit-appearance: none; appearance: none; width: 44px; height: 44px; flex: none;
   border: 1px solid var(--line); border-radius: 10px; background: #fff; font-size: 1.3rem; line-height: 1;
@@ -1573,8 +1574,15 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 .ks-prow { width: 100%; text-align: left; font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; gap: 12px; }
 .ks-prow .kat-name { flex: 1; }
 .ks-prow.is-sel { border-color: var(--green-600); box-shadow: 0 0 0 1px var(--green-600) inset; background: var(--green-050); }
-.ks-check { flex: none; color: var(--green-600); display: inline-flex; width: 22px; height: 22px; }
-.ks-check svg { width: 22px; height: 22px; }
+/* Vorlage .box: 20px-Kaestchen, leer mit Rand, gewaehlt gruen gefuellt.
+   Die 44px-Trefferflaeche traegt die ganze Zeile (.kasse-catpick/.ks-prow). */
+.ks-check {
+  flex: none; width: 20px; height: 20px; border-radius: var(--radius-box);
+  border: 1.5px solid var(--dot-off); background: var(--card); color: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.ks-check svg { width: 13px; height: 13px; }
+.is-sel .ks-check { background: var(--grad-btn); border-color: var(--green-650); box-shadow: inset 0 1px 0 rgba(255,255,255,.25); }
 .ks-done { font: inherit; font-weight: 700; color: #fff; background: var(--green-600); border: 0; border-radius: 10px;
   padding: 8px 16px; min-height: 40px; cursor: pointer; flex: none; -webkit-tap-highlight-color: transparent; }
 
@@ -1619,16 +1627,16 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 .kasse-bezfilter { width: 100%; }
 
 /* Prüf-/Verbuch-Einträge: jede Zeile eine eigene Karte, in allen drei Tabs identisch. */
-.krow-list { display: flex; flex-direction: column; gap: 10px; }
+.krow-list { display: flex; flex-direction: column; gap: 8px; }
 .krow { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
   box-shadow: var(--shadow-sm); padding: 12px 14px; }
 /* Kopf wie die Strafenzeile im Konto: mittig ausgerichtet, rechts Betrag ueber Marke. */
 .krow-head { display: flex; align-items: center; gap: 10px; }
 .krow-info { flex: 1; min-width: 0; }
-.krow-title { font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.krow-strafe { font-size: .8rem; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.krow-title { font-size: 14px; font-weight: 700; line-height: 1.3; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.krow-strafe { font-size: 12px; font-weight: 500; color: var(--muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .krow-right { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-.krow-amt { font-weight: 800; color: var(--green-800); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.krow-amt { font-size: 15px; font-weight: 800; color: var(--green-800); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .krow-actions { display: flex; align-items: center; justify-content: flex-start; gap: 8px; margin-top: 12px; flex-wrap: nowrap; }
 .krow-actions .kasse-method { flex: 1 1 auto; min-width: 84px; max-width: 150px; }
 /* 44px: lagen vorher bei 40px und verfehlten damit die harte Tap-Regel. */
@@ -1805,6 +1813,37 @@ button.sg-stat:focus-visible { outline: 2px solid var(--green-700); outline-offs
 .mini-body { min-width: 0; }
 .mini-typ  { font-size: 13px; font-weight: 500; line-height: 1.3; color: var(--muted); }
 .mini-sub  { font-size: 14px; font-weight: 700; line-height: 1.3; color: var(--ink); }
+
+/* ---------- Kasse: Prüfen & verbuchen als Kartenstapel (Vorlage 3c) --------
+   Genau eine Meldung im Blick, dahinter zwei Geisterkarten als Stapeltiefe.
+   Die drei Reiter sind horizontal wischbare Seiten (K4). */
+.ks-pane { touch-action: pan-y; }
+.ks-tabs { margin-bottom: 12px; }
+.ks-bulk { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+
+.ks-deck { position: relative; margin-top: 12px; }
+.ks-ghost {
+  position: absolute; height: 40px; border-radius: var(--radius);
+  background: var(--card); border: 1px solid var(--line-soft);
+  box-shadow: 0 6px 16px -12px rgba(16,40,30,.6);
+}
+.ks-ghost-2 { left: 16px; right: 16px; bottom: -12px; opacity: .55; }
+.ks-ghost-1 { left: 8px;  right: 8px;  bottom: -6px;  opacity: .8; }
+.ks-card { position: relative; padding: 16px; text-align: center; }
+.ks-av { width: 46px; height: 46px; font-size: 15px; margin: 10px auto 0; }
+.ks-name { margin-top: 9px; font-size: 17px; font-weight: 700; color: var(--ink); }
+.ks-amt {
+  margin-top: 12px; font-size: 34px; font-weight: 800; line-height: 1;
+  color: var(--green-800); letter-spacing: -.03em;
+}
+.ks-actions { display: flex; gap: 8px; margin-top: 16px; }
+.ks-actions .btn { flex: 1 1 0; min-height: var(--h-btn-lg); }
+.ks-card .fine-hist { margin-top: 12px; text-align: center; }
+
+.ks-dots { display: flex; gap: 5px; justify-content: center; margin-top: 24px; }
+.ks-dots span { width: 4px; height: 4px; border-radius: 2px; background: var(--dot-off); }
+.ks-dots span.is-on { width: 18px; background: var(--green-650); }
+.ks-cap { margin-top: 8px; text-align: center; font-size: 12px; font-weight: 500; color: var(--muted); }
 
 /* ===========================================================================
    Globale Materialebene - Vorlage "App in 2a - High End"
