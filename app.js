@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-12-B";
+  var APP_BUILD = "2026-09-12-C";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -948,7 +948,7 @@
 
     viewEl.innerHTML = `
       <div class="page-head">${navBackChevronHtml()}<h1>Kalender</h1></div>
-      <div class="toolbar">
+      <div class="chips">
         ${filters.map((f) => `<button class="chip ${kalFilter === f.k ? "is-active" : ""}" data-filter="${f.k}">${f.label}</button>`).join("")}
       </div>
       <div class="kal-cta">
@@ -1121,27 +1121,21 @@
   }
 
   function eventCard(e, withRsvp = true) {
-    // Typ-Marke als Text entfaellt (Paket 7a): Kante links und Titel tragen den Typ
-    // ohnehin. Die uebrigen Marken (Freundschaft, Abgesagt, manuell) bleiben.
-    // Heim/Auswärts wird NICHT als Text-Tag gezeigt, sondern als Farbbalken
-    // links an der Kachel (Klassen is-home / is-away).
-    const heimCls = e.typ === "spiel"
-      ? (e.heim === true ? " is-home" : e.heim === false ? " is-away" : "")
-      : "";
+    // Die Kantenfarbe haengt im CSS an der Typklasse: Spiel gold, sonst gruen,
+    // abgesagt rot. Die frueheren Heim-/Auswaertstoene entfallen.
+    const cancelled = e.status === "abgesagt";
     const titel = (e.typ === "spiel" && e.gegner)
       ? (() => { const p = paarung(e); return `${p.home} <span class="vs">–</span> ${p.away}`; })()
       : esc(e.titel);
 
-    // RSVP-Zähler
     const zusagen = DEMO.players.filter((p) => (state.rsvp[e.id + "|" + p.id] || {}).status === "zu").length;
     const r = state.rsvp[e.id + "|" + state.currentPlayerId] || {};
     const future = isFuture(e.datum);
-    const cancelled = e.status === "abgesagt";
     const friendlyTag = (e.typ === "spiel" && e.wettbewerb && /freundschaft/i.test(e.wettbewerb))
       ? `<span class="tag tag-friendly">Freundschaft</span>` : "";
     const cancelledTag = cancelled ? `<span class="tag tag-cancelled">Abgesagt</span>` : "";
 
-    // BFV: manuell geändert + Drift-Hinweis
+    // BFV: manuell geaendert + Drift-Hinweis (Gate 3)
     const istBfv = e.quelle === "bfv";
     const mb = e.manuellBearbeitet || {}, bn = e.bfvNeu || {};
     const manuellTag = (istBfv && (mb.start || mb.ort)) ? `<span class="tag tag-manuell">manuell geändert</span>` : "";
@@ -1161,14 +1155,14 @@
       return parts.length ? `<div class="e-bfv">${parts.join("")}</div>` : "";
     })() : "";
 
-    // Meldeschluss-Hinweis/Countdown – gemeinsamer Helfer, siehe fristBlockHtml().
-    const fristHtml = fristBlockHtml(e);
-
     // Zusagen-Zahlen nur fuer Trainer/Admin. Spieler sehen nur ihren eigenen Status.
     const showCount = Roles.canManageEvents();
+    // Aufstellungsstand einmal berechnen - die Fusszeile zeigt ihn, der Knopf auch.
+    const alu = (e.typ === "spiel" && showCount)
+      ? (DEMO.lineups || []).find((l) => l.eventId === e.id && l.isActive && !l.isTemplate) : null;
+    const luSlots = alu ? (FORMATIONS[alu.formation] || []).length : 11;
+    const luCnt = alu ? Object.values(alu.slots || {}).filter(Boolean).length : 0;
 
-    // Zu-/Absage: volle Breite unter dem Inhalt (2a). Bei abgesagten Terminen
-    // stehen dort keine Schaltflaechen, sondern der Hinweis.
     let rsvpHtml = "";
     if (cancelled) {
       rsvpHtml = `<div class="ev-rsvp"><span class="rsvp-cancelled">Abgesagt</span></div>`;
@@ -1180,16 +1174,29 @@
         </div>`;
     }
 
-    // Statuszeile unter den Schaltflaechen: nur noch der Meldeschluss. Der
-    // Zusagezaehler sitzt als antippbarer Eintrag in der Aktionszeile und
-    // existiert dadurch genau einmal je Karte.
-    const statusHtml = fristHtml ? `<div class="ev-status">${fristHtml}</div>` : "";
+    // Fusszeile nach Vorlage: Meldeschluss, Zusagezaehler und Aufstellungsstand
+    // in EINER Zeile. Fuer Trainer/Admin ist sie antippbar und oeffnet die
+    // Rueckmeldungen (Gate 5) - damit existiert der Zaehler genau einmal je Karte.
+    // Die 8-Euro-Warnung (Gate 7) bleibt bewusst ausserhalb: sie ist ein Hinweis,
+    // kein Sprungziel.
+    const fristTxt = fristBlockHtml(e);
+    const istWarn  = fristTxt.indexOf("frist-warn") >= 0;
+    const teile = [];
+    if (fristTxt && !istWarn) teile.push(fristTxt);
+    if (showCount && !cancelled) teile.push(`<span><b>${zusagen}</b> / ${DEMO.players.length} zugesagt</span>`);
+    if (showCount && e.typ === "spiel") teile.push(`<span>Aufstellung ${luCnt}/${luSlots}</span>`);
+    const footInner = teile.join('<span class="ev-dot" aria-hidden="true">·</span>');
+    const footHtml = !teile.length ? ""
+      : showCount && !cancelled
+        ? `<button class="ev-foot is-tap" data-rsvp-sheet="${e.id}">${footInner}</button>`
+        : `<div class="ev-foot">${footInner}</div>`;
+
     const reasonHtml = (!cancelled && withRsvp && future && r.status === "ab" && r.grund)
       ? `<div class="rsvp-reason">Grund: ${esc(r.grund)}</div>` : "";
 
     const venue = venueHtml(e);
     return `
-      <div class="event typ-${e.typ}${heimCls}${cancelled ? " is-cancelled" : ""}" id="ev-${e.id}">
+      <div class="card event typ-${e.typ}${cancelled ? " is-cancelled" : ""}" id="ev-${e.id}">
         <div class="ev-head">
           <div class="event-date">
             <span class="d-wd">${fmtWd(e.datum)}</span>
@@ -1198,30 +1205,26 @@
           </div>
           <div class="event-main">
             <div class="e-title">${titel}${friendlyTag}${cancelledTag}${manuellTag}</div>
-            ${e.zeit ? `<div class="e-time">${e.zeit}${e.ende ? "&#8211;" + esc(e.ende) : ""} Uhr</div>` : ""}
+            ${e.zeit ? `<div class="e-time num">${e.zeit}${e.ende ? "&#8211;" + esc(e.ende) : ""} Uhr</div>` : ""}
             ${venue ? `<div class="e-meta">${venue}</div>` : ""}
             ${e.note ? `<div class="e-note">${esc(e.note)}</div>` : ""}
           </div>
         </div>
         ${rsvpHtml}
-        ${statusHtml}
+        ${footHtml}
+        ${istWarn ? fristTxt : ""}
         ${reasonHtml}
         ${bfvBlock}
         ${(() => {
+            // Gate 1/2/4: Trainer- und Pflegefunktionen, die die Vorlage nicht
+            // zeichnet, aber ohne die der Kalender nicht pflegbar waere.
             const acts = [];
-            if (e.typ === "spiel" && Roles.canManageEvents()) {
-              const alu = (DEMO.lineups || []).find((l) => l.eventId === e.id && l.isActive && !l.isTemplate);
-              const cnt = alu ? Object.values(alu.slots || {}).filter(Boolean).length : 0;
-              const label = !future ? ("Aufstellung ansehen" + (cnt ? ` · ${cnt}/11` : ""))
-                : (cnt === 0 ? "Aufstellung erstellen" : "Aufstellung bearbeiten · " + cnt + "/11");
+            if (e.typ === "spiel" && showCount) {
+              const label = !future ? ("Aufstellung ansehen" + (luCnt ? ` · ${luCnt}/${luSlots}` : ""))
+                : (luCnt === 0 ? "Aufstellung erstellen" : "Aufstellung bearbeiten");
               acts.push(`<button class="btn btn-soft lu-jump" data-lineup-edit="${e.id}">${label}</button>`);
-            }
-            if (e.typ === "spiel" && Roles.canManageEvents())
               acts.push(`<button class="btn btn-soft" data-kader-info="${e.id}">Kader-Info erstellen</button>`);
-            // Wer hat zu-, wer abgesagt, wer noch gar nicht? Nur Trainer/Admin.
-            if (showCount)
-              acts.push(`<button class="btn btn-soft" data-rsvp-sheet="${e.id}">Zusagen · ${zusagen}/${DEMO.players.length}</button>`);
-            // Trainer/Kassenwart/Admin: jeden Termin bearbeiten (auch BFV-Spiele).
+            }
             if (Roles.canManageSchedule())
               acts.push(`<button class="icon-btn" title="Termin bearbeiten" aria-label="Termin bearbeiten" data-termin-edit="${e.id}">${ICON_PENCIL}</button>`);
             return acts.length ? `<div class="e-trainer">${acts.join("")}</div>` : "";
