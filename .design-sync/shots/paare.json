@@ -11,8 +11,40 @@
       "Feldname":     { "ref": ".fld .fl",     "app": ".auth-field span" },
       "Eingabefeld":  { "ref": ".fld .in",     "app": ".auth-field input" },
       "Knopf":        { "ref": ".auth-card .btn.wide", "app": ".auth-submit" },
-      "Vergessen":    { "ref": ".auth-card a[href='#f-anmeldung']", "app": ".auth-forgot" },
       "Wechsel":      { "ref": ".auth-sw",     "app": ".auth-switch" }
+    }
+  },
+
+  "uebersicht-trainer": {
+    "frame": "f-uebersicht-trainer",
+    "weg": [".nav-btn[data-view=\"dashboard\"]"],
+    "elemente": {
+      "Kopfzeile":       { "ref": ".hd",            "app": ".app-header" },
+      "Kopf-Logo":       { "ref": ".hd-logo",       "app": ".hdr-logo .crest-logo" },
+      "Kopf-Titel":      { "ref": ".hd-t",          "app": ".hdr-title" },
+      "Anrede":          { "ref": ".h1",            "app": ".page-head h1" },
+      "Anredezeile":     { "ref": ".h1row",         "app": ".page-head.h1row" },
+      "Rollen-Plakette": { "ref": ".pill",          "app": ".role-pill" },
+      "Hero":            { "ref": ".card.ag",       "app": ".termin-hero" },
+      "Hero-Marke":      { "ref": ".card.ag .lbl",  "app": ".termin-hero .lbl" },
+      "Hero-Kopf":       { "ref": ".card.ag > div:nth-child(2)", "app": ".th-top" },
+      "Hero-Knoepfe":    { "ref": ".card.ag .btns", "app": ".th-actions" },
+      "Hero-Knopf 2":    { "ref": ".card.ag .btns .btn.sec2", "app": ".th-actions .btn:not(.btn-primary)" },
+      "Hero-Knopf 1":    { "ref": ".card.ag .btns .btn:not(.sec2)", "app": ".th-actions .btn-primary" },
+      "Abschnitt":       { "ref": ".sec",           "app": ".section-title" },
+      "Abschnitt-Titel": { "ref": ".sec",           "app": ".section-title h2" },
+      "Aufgabenliste":   { "ref": "#f-uebersicht-trainer .list", "app": ".task-list" },
+      "Aufgabenzeile":   { "ref": ".list .row",     "app": ".task-row" },
+      "Aufgaben-Plakette": { "ref": ".list .row > span:first-child", "app": ".task-num" },
+      "Aufgaben-Titel":  { "ref": ".list .row .rt", "app": ".task-title" },
+      "Aufgaben-Unter":  { "ref": ".list .row .rs", "app": ".task-sub" },
+      "Geldkachel":      { "ref": ".stack .card",   "app": ".tile" },
+      "Kachel-Titel":    { "ref": ".stack .card > div:first-child", "app": ".tile-t" },
+      "Kachel-Betrag":   { "ref": ".stack .card .amt", "app": ".tile .amount" },
+      "Nav":             { "ref": ".nav",           "app": ".app-nav" },
+      "Nav-Knopf":       { "ref": ".nb",            "app": ".nav-btn" },
+      "Nav-Symbol":      { "ref": ".nb .ic",        "app": ".nav-ic" },
+      "Nav-Text":        { "ref": ".nb span",       "app": ".nav-label" }
     }
   }
 }

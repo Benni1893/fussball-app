@@ -38,7 +38,9 @@ const schuss = async (name) => {
   const h = await page.evaluate(() => document.documentElement.scrollHeight);
   console.log('  ' + name.padEnd(24) + '390 x ' + h);
 };
-const tippe = async (sel) => { await page.click(sel); await ruhe(500); };
+// ueber evaluate klicken: Elemente in Blaettern sind fuer page.click() oft
+// 'nicht sichtbar', obwohl sie reagieren.
+const tippe = async (sel) => { await page.evaluate((s) => { const e = document.querySelector(s); if (e) e.click(); }, sel); await ruhe(500); };
 const nav = async (view) => { await tippe(`.nav-btn[data-view="${view}"]`); };
 
 await page.goto(URL, { waitUntil: 'networkidle' });
@@ -74,7 +76,7 @@ async function alsRolle(rolle) {
   const admin = await page.$('#moreAdmin');
   if (admin) { await page.evaluate(() => document.getElementById('moreAdmin').click()); await ruhe(900); }
   const sel = `[data-sim="${rolle}"]`;
-  if (await page.$(sel)) { await tippe(sel); await ruhe(1200); }
+  if (await page.$(sel)) { await tippe(sel); await ruhe(1600); }
 }
 
 // ---- Admin-Sicht ------------------------------------------------------------

@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-13-A";
+  var APP_BUILD = "2026-09-13-B";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -456,9 +456,9 @@
 
     return `
       <div class="card termin-hero edge-green${cancelled ? " is-cancelled" : ""}">
+        <div class="lbl">${wannLabel(e)}</div>
         <div class="th-top">
           <div class="th-body" data-nav="termin" role="button" tabindex="0">
-            <div class="lbl">${wannLabel(e)}</div>
             <div class="th-title">${terminName(e)}</div>
             <div class="th-time num">${zeit}${e.zeit ? " Uhr" : ""}</div>
           </div>
