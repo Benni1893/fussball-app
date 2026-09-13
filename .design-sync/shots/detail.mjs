@@ -18,21 +18,17 @@ await p.click('.auth-submit');
 await p.waitForSelector('.app-nav', { timeout: 25000 });
 await p.waitForTimeout(2200);
 
-await p.evaluate(() => document.querySelector('.nav-btn[data-view="strafen"]').click());
+await p.evaluate(() => { document.getElementById('navMore').click(); }); await p.waitForTimeout(400);
+ await p.evaluate(() => document.getElementById('moreKasse').click());
 await p.waitForTimeout(1600);
 
 console.log(await p.evaluate(() => {
-  const o = [], h = (el) => Math.round(el.getBoundingClientRect().height);
-  const k = document.querySelector('.kpi');
-  if (k) { const c = getComputedStyle(k);
-    o.push('Kennzahl        : ' + h(k) + 'px, innen ' + c.paddingTop + '/' + c.paddingLeft); }
-  const ch = document.querySelector('.kpi-grid + .chips');
-  if (ch) { const r1 = document.querySelector('.kpi-grid').getBoundingClientRect(), r2 = ch.getBoundingClientRect();
-    o.push('Kacheln -> Chips: ' + Math.round(r2.top - r1.bottom) + 'px Luft, z-index=' + getComputedStyle(ch).zIndex); }
-  const l = document.querySelector('.fine-list');
-  if (l) { const r1 = document.querySelector('.chips').getBoundingClientRect();
-    o.push('Chips -> Liste  : ' + Math.round(l.getBoundingClientRect().top - r1.bottom) + 'px'); }
-  return o.join('\n');
+  const t = document.querySelector('.kasse-toggle'), v = document.querySelector('.kasse-verbuchen');
+  if (!t || !v) return 'nicht gefunden';
+  const ct = getComputedStyle(t), cv = getComputedStyle(v);
+  return 'Knopf margin-bottom = ' + ct.marginBottom
+    + ' | Abschnitt margin-top = ' + cv.marginTop
+    + ' | gemessene Luft = ' + Math.round(v.getBoundingClientRect().top - t.getBoundingClientRect().bottom) + 'px';
 }));
 await b.close();
 server.close();

@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-13-P";
+  var APP_BUILD = "2026-09-13-R";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -2263,7 +2263,9 @@
   const LINEUP_V2 = true;
   const TV_FAV_KEY = "fn_lineup_favs";
   const tv = { view: "games", eventId: null, formation: "4-4-2", assign: {}, bank: [], sel: null, hideCta: false,
-               origin: null, originScroll: 0, readonly: false, dirty: false };
+               origin: null, originScroll: 0, readonly: false, dirty: false,
+               alleSpiele: false,     // C1: Liste auf drei Spiele gekuerzt
+               mark: null };          // C2: markierte Position zum Tauschen
   const TV_BANK_MAX = 7;
   let tvFavMode = false;
   let tvFav = (function () {
@@ -2321,7 +2323,10 @@
       '<div class="page-head tv-head"><div class="tv-headrow"><h1>Trainer</h1>' +
       '<button class="link-btn" data-goto="kader">Kader ansehen</button></div>' +
       '<p>Spiel wählen, danach baust du die Elf auf dem Platz.</p></div>' +
-      (up.length ? '<div class="tv-glist">' + up.map(tvGameCard).join("") + '</div>'
+      (up.length ? '<div class="tv-glist">' + (tv.alleSpiele ? up : up.slice(0, 3)).map(tvGameCard).join("") +
+        (!tv.alleSpiele && up.length > 3
+          ? '<button class="link-btn tv-mehr" data-tvallgames>Alle Spiele (' + up.length + ')</button>' : "") +
+        '</div>'
                  : '<div class="empty">Kein anstehendes Spiel. Sobald im Kalender ein Spiel angelegt ist, kannst du hier die Aufstellung bauen.</div>') +
       tvTemplatesHtml();
   }
@@ -2425,7 +2430,7 @@
     const slots = FORMATIONS[tv.formation]; let h = tvPitchBg();
     slots.forEach(s => {
       const pid = tv.assign[s.key], p = pid ? playerById[pid] : null;
-      const sel = (tv.sel && tv.sel.key === s.key) ? " sel" : "";
+      const sel = ((tv.sel && tv.sel.key === s.key) || (tv.mark && tv.mark.art === 'feld' && tv.mark.key === s.key)) ? " sel" : "";
       h += '<div class="tv-slot' + (p ? " filled" : "") + sel + '" data-tvslot="' + s.key + '" style="left:' + s.x + '%;top:' + s.y + '%">' +
         '<div class="tv-disc">' + (p ? ('<span>' + (p.nr != null ? p.nr : "") + '</span>') : ('<span class="tv-role">' + s.role + '</span>')) + '</div>' +
         (p ? ('<span class="tv-pn">' + esc(tvLastName(p.name)) + '</span>') : '') + '</div>';
@@ -2476,8 +2481,11 @@
       if (p && ro) {
         h += '<span class="tv-bslot filled"><span class="tv-bnr">' + (p.nr != null ? p.nr : "") + '</span><span class="tv-bn">' + esc(tvLastName(p.name)) + '</span></span>';
       } else if (p) {
-        h += '<button class="tv-bslot filled" data-tvbankdel="' + pid + '" aria-label="' + esc(p.name) + ' von der Bank nehmen">' +
-             '<span class="tv-bnr">' + (p.nr != null ? p.nr : "") + '</span><span class="tv-bn">' + esc(tvLastName(p.name)) + '</span></button>';
+        // C2: Tap markiert oder tauscht; das Kreuz nimmt von der Bank.
+        const markiert = (tv.mark && tv.mark.art === 'bank' && tv.mark.idx === i) ? ' sel' : '';
+        h += '<button class="tv-bslot filled' + markiert + '" data-tvbanktap="' + i + '" aria-label="' + esc(p.name) + ' tauschen">' +
+             '<span class="tv-bnr">' + (p.nr != null ? p.nr : "") + '</span><span class="tv-bn">' + esc(tvLastName(p.name)) + '</span>' +
+             '<span class="tv-bx" data-tvbankdel="' + pid + '" role="button" aria-label="' + esc(p.name) + ' von der Bank nehmen">&times;</span></button>';
       } else {
         h += '<button class="tv-bslot" data-tvbankadd aria-label="Bankspieler hinzufügen">' +
              '<span class="tv-bplus">+</span><span class="tv-bfrei">frei</span></button>';
@@ -2694,6 +2702,51 @@
   function tvTeardownPanels() { const w = document.getElementById("tvPanels"); if (w && w.parentNode) w.parentNode.removeChild(w); }
   function tvClosePanels() { ["tvScrimKader","tvSheetKader","tvScrimForm","tvSheetForm","tvScrimMenu","tvSheetMenu"].forEach(id => { const e = document.getElementById(id); if (e) e.classList.remove("open"); }); }
 
+  /* C2: Tauschen per Tap.
+     Erster Tap auf eine BESETZTE Position markiert sie (goldener Ring).
+     Zweiter Tap auf eine besetzte Position tauscht beide, auf eine leere
+     verschiebt er den Spieler dorthin. Tap auf die markierte Position selbst
+     hebt die Markierung auf. Ohne Markierung oeffnet eine leere Position wie
+     bisher das Kader-Vollbild. Bankplaetze spielen mit: ein markierter
+     Feldspieler und ein Bankplatz tauschen ebenso. */
+  function tvSlotTap(key) {
+    const belegt = !!tv.assign[key];
+    const m = tv.mark;
+
+    if (m && m.art === "feld" && m.key === key) { tv.mark = null; tvViewLineup(); return; }
+
+    if (m) {
+      if (m.art === "feld") {
+        const a = tv.assign[m.key], b = tv.assign[key];
+        if (b) tv.assign[m.key] = b; else delete tv.assign[m.key];
+        if (a) tv.assign[key] = a; else delete tv.assign[key];
+      } else {                                   // Bankplatz <-> Feldposition
+        const bankId = tv.bank[m.idx], feldId = tv.assign[key];
+        if (feldId) tv.bank[m.idx] = feldId; else tv.bank.splice(m.idx, 1);
+        if (bankId) tv.assign[key] = bankId; else delete tv.assign[key];
+      }
+      tv.mark = null; tv.dirty = true; tvViewLineup();
+      return;
+    }
+
+    if (belegt) { tv.mark = { art: "feld", key: key }; tvViewLineup(); return; }
+    tvOpenKader(key);                            // leer und nichts markiert
+  }
+
+  // Tap auf einen besetzten Bankplatz: markieren bzw. mit der Markierung tauschen.
+  function tvBankTap(idx) {
+    const m = tv.mark;
+    if (m && m.art === "bank" && m.idx === idx) { tv.mark = null; tvViewLineup(); return; }
+    if (m && m.art === "feld") {
+      const feldId = tv.assign[m.key], bankId = tv.bank[idx];
+      if (bankId) tv.assign[m.key] = bankId; else delete tv.assign[m.key];
+      tv.bank[idx] = feldId;
+      tv.mark = null; tv.dirty = true; tvViewLineup();
+      return;
+    }
+    tv.mark = { art: "bank", idx: idx }; tvViewLineup();
+  }
+
   function tvOpenKader(key) {
     tv.sel = { key: key }; tvViewLineup();
     const slot = FORMATIONS[tv.formation].find(s => s.key === key);
@@ -2828,15 +2881,18 @@
   }
   function tvViewClick(ev) {
     const t = ev.target;
+    if (t.closest("[data-tvallgames]")) { tv.alleSpiele = true; tvViewGames(); return true; }
     const td = t.closest("[data-tvtpldel]"); if (td) { tvDeleteTemplate(td.dataset.tvtpldel); return true; }
     const g = t.closest("[data-tvgame]"); if (g) { tvOpenGame(g.dataset.tvgame); return true; }
     if (t.closest("[data-tvback]")) { tvBack(); return true; }
     if (tv.readonly) return true;   // vergangenes Spiel: nur ansehen, keine Bearbeitung
     if (t.closest("[data-tvmenu]")) { tvOpenMenu(); return true; }
     if (t.closest("[data-tvsave]")) { tvSave(); return true; }
-    const sl = t.closest("[data-tvslot]"); if (sl) { tvOpenKader(sl.dataset.tvslot); return true; }
+    const sl = t.closest("[data-tvslot]"); if (sl) { tvSlotTap(sl.dataset.tvslot); return true; }
     if (t.closest("[data-tvbankadd]")) { tvOpenBank(); return true; }
-    const bd = t.closest("[data-tvbankdel]"); if (bd) { tvBankDel(bd.dataset.tvbankdel); tvViewLineup(); return true; }
+    // Das Kreuz liegt IM Bankplatz - es muss vor dem Tausch geprueft werden.
+    const bd = t.closest("[data-tvbankdel]"); if (bd) { tvBankDel(bd.dataset.tvbankdel); tv.mark = null; tvViewLineup(); return true; }
+    const bt = t.closest("[data-tvbanktap]"); if (bt) { tvBankTap(Number(bt.dataset.tvbanktap)); return true; }
     const fp = t.closest("[data-tvform]"); if (fp) { tvSwitchFormation(fp.dataset.tvform); tvViewLineup(); return true; }
     if (t.closest("[data-tvmoreform]")) { tvOpenForm(false); return true; }
     if (t.closest("[data-tvadopt]")) { tvAdopt(); return true; }
@@ -2861,10 +2917,12 @@
     const amt = staffel
       ? `${euro(k.proEinheit || 0).replace(/\s/g, " ")} / ${k.schritt || 1} ${esc(k.einheit || "")}`
       : euro(k.betrag).replace(/\s/g, " ");
-    // B8: Kategorien bleiben aus der Anzeige. Die Spalte in der Datenbank
-    // bleibt bestehen, db.js schreibt sie nur bei uebergebenem Wert.
-    const unten = (staffel && k.maxBetrag != null)
-      ? "max " + euro(k.maxBetrag).replace(/\s/g, " ") : "";
+    // C5 (K5 endgueltig): Kategorie als Unterzeile, bei Staffelstrafen
+    // gemeinsam mit dem Deckel - so zeichnet es die Vorlage.
+    const unten = [
+      (k.kategorie || "").trim() ? esc(k.kategorie.trim()) : "",
+      (staffel && k.maxBetrag != null) ? "max " + euro(k.maxBetrag).replace(/\s/g, " ") : "",
+    ].filter(Boolean).join(" · ");
     return `<div class="kat-item">
       <span class="kat-name">${esc(k.vergehen)}${staffel ? ` <span class="badge badge-self">gestaffelt</span>` : ""}${unten ? `<span class="kat-sub">${unten}</span>` : ""}</span>
       <span class="kat-amount${staffel ? " is-staffel" : ""}">${amt}</span>
@@ -2880,6 +2938,7 @@
     const nm = (n) => (n == null ? "" : String(n).replace(".", ","));
     return `<div class="kat-item kat-edit${isStaffel ? " is-staffel" : ""}">
       <input class="kat-in kat-in-name" data-kat-input="name" type="text" placeholder="Bezeichnung" value="${esc(k ? k.vergehen : "")}">
+      <input class="kat-in" data-kat-input="kategorie" type="text" placeholder="Kategorie (z. B. Pünktlichkeit)" value="${esc(k ? (k.kategorie || "") : "")}">
       <select class="kat-in kat-type" data-kat-type>
         <option value="fixed"${!isStaffel ? " selected" : ""}>Festbetrag</option>
         <option value="staffel"${isStaffel ? " selected" : ""}>Gestaffelt</option>
@@ -3727,6 +3786,7 @@
       const typ = typeEl && typeEl.value === "staffel" ? "staffel" : "fixed";
       const name = gv("name").trim();
       if (!name) { window.alert("Bitte eine Bezeichnung eingeben."); return; }
+      const kategorie = gv("kategorie").trim();   // C5: wird mitgeschrieben
       try {
         if (typ === "staffel") {
           const proE = num(gv("proEinheit"));
@@ -3737,14 +3797,14 @@
           if (!isFinite(proE) || proE < 0) { window.alert("Bitte einen gültigen Betrag je Schritt eingeben."); return; }
           if (!isFinite(schritt) || schritt < 1) { window.alert("Bitte eine gültige Schrittweite (mindestens 1) eingeben."); return; }
           if (!einheit) { window.alert("Bitte eine Einheit angeben (z. B. Minuten)."); return; }
-          const opts = { typ: "staffel", einheit, proEinheit: proE, schritt, maxBetrag: (maxB != null && isFinite(maxB)) ? maxB : null };
+          const opts = { typ: "staffel", kategorie, einheit, proEinheit: proE, schritt, maxBetrag: (maxB != null && isFinite(maxB)) ? maxB : null };
           if (t.dataset.katSave === "new") await DB.insertCatalog(DEMO.clubId, name, 0, opts);
           else await DB.updateCatalog(t.dataset.katSave, name, 0, opts);
         } else {
           const amount = num(gv("amount"));
           if (!isFinite(amount) || amount <= 0) { window.alert("Bitte einen gültigen Betrag größer 0 eingeben."); return; }
-          if (t.dataset.katSave === "new") await DB.insertCatalog(DEMO.clubId, name, amount, { typ: "fixed" });
-          else await DB.updateCatalog(t.dataset.katSave, name, amount, { typ: "fixed" });
+          if (t.dataset.katSave === "new") await DB.insertCatalog(DEMO.clubId, name, amount, { typ: "fixed", kategorie });
+          else await DB.updateCatalog(t.dataset.katSave, name, amount, { typ: "fixed", kategorie });
         }
         katEdit = null;
         await reloadData();
