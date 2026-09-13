@@ -16,7 +16,7 @@ window.DB = (function () {
 
   // Lädt alle Tabellen und formt sie in die bekannte „DEMO"-Struktur um.
   async function loadAll() {
-    const [clubs, players, events, katalog, fines, rsvps, lineups, sportstaetten, playerStatus] = await Promise.all([
+    const [clubs, players, events, katalog, fines, rsvps, lineups, sportstaetten, playerStatus, meldeLog] = await Promise.all([
       client.from("clubs").select("*").eq("slug", CLUB_SLUG).limit(1),
       client.from("players").select("*").order("number", { ascending: true }),
       client.from("events").select("*").order("date", { ascending: true }),
@@ -26,11 +26,20 @@ window.DB = (function () {
       client.from("lineups").select("*").order("created_at", { ascending: true }),
       client.from("sportstaetten").select("*"),
       client.from("player_status").select("*"),
+      // A4: Wann wurde gemeldet? Der Verlauf fuehrt jeden Statuswechsel; hier
+      // interessiert nur der Sprung nach "gemeldet".
+      client.from("fine_status_log").select("fine_id,changed_at")
+        .eq("to_status", "gemeldet").order("changed_at", { ascending: true }),
     ]);
 
     for (const res of [clubs, players, events, katalog, fines, rsvps, lineups, sportstaetten, playerStatus]) {
       if (res.error) throw res.error;
     }
+
+    // Letzter Wechsel nach "gemeldet" je Strafe. Faellt die Abfrage aus (z. B.
+    // per RLS gesperrt), bleibt die Karte leer statt die App zu stoppen.
+    const meldeAm = {};
+    if (!meldeLog.error) for (const r of (meldeLog.data || [])) meldeAm[r.fine_id] = r.changed_at;
 
     // Verletzungs-/Fitnessstatus (eigene Tabelle, per RLS gefiltert) nach player_id.
     const psById = {};
@@ -87,6 +96,7 @@ window.DB = (function () {
         // Statusmodell (Migration 0030): offen | gemeldet | bestätigt | storniert.
         status: s.status || (s.paid ? (s.self_reported ? "gemeldet" : "bestätigt") : "offen"),
         batchId: s.batch_id, zahlart: s.payment_method, ablehnGrund: s.reject_reason,
+        gemeldetAm: meldeAm[s.id] || null,   // aus fine_status_log (A4)
         grundbetrag: s.base_amount != null ? Number(s.base_amount) : null,
         zuschlag: Number(s.surcharge) || 0,
         zuschlagAt: s.surcharge_updated_at,

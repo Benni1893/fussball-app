@@ -349,6 +349,7 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
   padding: 18px 16px 16px;   /* Vorlage .bd */
 }
 .page-head { margin-bottom: 0; }
+.page-head + .chips { margin-top: 12px; }
 .page-head h1 { font-size: 1.4rem; font-weight: 800; margin: 0; }
 .page-head p { margin: 6px 0 0; font-size: 13px; font-weight: 400; line-height: 1.45; color: var(--muted); }
 
@@ -442,7 +443,9 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 }
 .th-body:active { transform: scale(.99); }
 .th-body:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; border-radius: 8px; }
-.th-title { font-size: 26px; font-weight: 800; line-height: 1.15; color: var(--green-800); }
+/* B4: 21px statt 26px - so bleibt auch ein langer Gegnername einzeilig.
+   Die Vorlage setzt 26px nur beim kurzen Wort "Training". */
+.th-title { font-size: 21px; font-weight: 800; line-height: 1.2; letter-spacing: -.025em; color: var(--green-800); }
 .th-time  { font-size: 15px; font-weight: 600; line-height: 1.3; color: var(--ink); }
 .th-count { flex: none; text-align: right; }
 .th-count-v { font-size: 22px; font-weight: 800; line-height: 1; color: var(--green-800); }
@@ -701,8 +704,15 @@ tbody tr:hover { background: #fbfdfc; }
 
 /* Trainer-Aktionen sitzen seit Paket 7a ueber die volle Kartenbreite unter der
    Statuszeile. Der Bearbeiten-Stift rueckt ans rechte Ende. */
-.e-trainer { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-.e-trainer .icon-btn { margin-left: auto; }
+.e-trainer {
+  display: flex; align-items: center; gap: 14px;
+  margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line);
+}
+.e-trainer .link-btn { font-size: 13px; font-weight: 600; }
+.e-trainer .e-tr-rechts { margin-left: auto; display: flex; align-items: center; gap: 2px; }
+/* Der Stift stand frei schwebend neben zwei Kaesten - jetzt sitzt er mit dem
+   Papierkorb rechts in derselben Zeile, ohne Rahmen. */
+.e-trainer .icon-btn { width: var(--tap); height: var(--tap); margin: -10px 0; }
 /* Direktsprung in die Aufstellung: dezent (btn-soft), aber Touch-Ziel >=44px. */
 .lu-jump { min-height: 44px; }
 
@@ -981,7 +991,14 @@ tbody tr:hover { background: #fbfdfc; }
 
 /* ---------- Filterleiste / Toolbar ---------------------------------------- */
 .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
-.chips   { display: flex; gap: 7px; flex-wrap: wrap; }
+.sim-switch-btns { flex-wrap: wrap; }   /* Rollen-Vorschau darf umbrechen, sie steht in einer Karte */
+.chips {
+  display: flex; gap: 7px; flex-wrap: nowrap;
+  overflow-x: auto; scrollbar-width: none;
+  margin-left: -16px; margin-right: -16px; padding: 0 16px;   /* bis an den Rand scrollen */
+}
+.chips::-webkit-scrollbar { display: none; }
+.chips .chip { flex: none; }
 .chip {
   border: 1px solid var(--line); background: var(--card); color: var(--muted);
   border-radius: 999px; padding: 0 16px; font: inherit; font-weight: 600; font-size: .85rem; cursor: pointer;
@@ -990,6 +1007,10 @@ tbody tr:hover { background: #fbfdfc; }
   transition: all .12s;
 }
 .chip:hover { border-color: var(--green-500); color: var(--green-700); }
+.chip::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 50%;
+  height: var(--tap); transform: translateY(-50%);
+}
 .chip.is-active { background: var(--green-700); border-color: var(--green-700); color: #fff; }
 
 /* ---------- „Meine Strafen" Banner ---------------------------------------- */
@@ -997,9 +1018,10 @@ tbody tr:hover { background: #fbfdfc; }
    Keine farbige Kante – der Betrag traegt die Farbe. Offen rot, erledigt gruen. */
 .mine-banner {
   display: block;
+  margin-top: 16px;
   background: var(--card);
   border: 1px solid var(--line);
-  color: var(--ink); border-radius: var(--radius); padding: 18px 16px 16px; margin-bottom: 14px;
+  color: var(--ink); border-radius: var(--radius); padding: 18px 16px 16px;
   box-shadow: var(--shadow-sm); text-align: center;
 }
 .mb-label { display: block; color: var(--muted); text-transform: uppercase; letter-spacing:.68px; font-size:11px; font-weight:700; line-height:1; }
@@ -1032,6 +1054,9 @@ tbody tr:hover { background: #fbfdfc; }
    ab, die Plakette aus dem jeweiligen Volltonwert. */
 
 /* „Strafe verhängen" eingeklappt: eine Kachel, die das Formular oeffnet. */
+/* B6: Abstaende der Kasse-Bloecke. */
+.kasse-add, .kasse-toggle { margin-top: 16px; }
+.kasse-verbuchen { margin-top: 24px; }
 .kasse-toggle {
   display: flex; align-items: center; justify-content: center; gap: 8px;
   width: 100%; min-height: var(--h-btn); margin-bottom: 16px;
@@ -1388,10 +1413,14 @@ body.auth-mode .view { padding-left: 0; padding-right: 0; }
 .tv-sub { font-size: 11.5px; font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums; line-height: 1.3; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tv-formbar { display: flex; gap: 7px; overflow-x: auto; padding: 0 16px; margin: 14px 0 10px; scrollbar-width: none; }
 .tv-formbar::-webkit-scrollbar { display: none; }
-.tv-fpill { flex: 0 0 auto; min-height: var(--tap); display: flex; align-items: center; justify-content: center; padding: 8px 12px; border: 1px solid var(--line-soft-2); background: var(--grad-chip); border-radius: var(--radius-btn); font-weight: 700; font-size: 12px; color: var(--muted); box-shadow: var(--shadow-hair); }
+.tv-fpill { position: relative; flex: 0 0 auto; min-height: 33px; display: flex; align-items: center; justify-content: center; padding: 8px 12px; border: 1px solid var(--line-soft-2); background: var(--grad-chip); border-radius: var(--radius-btn); font-weight: 700; font-size: 12px; color: var(--muted); box-shadow: var(--shadow-hair); }
+.tv-fpill::after, .tv-fmore::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 50%;
+  height: var(--tap); transform: translateY(-50%);
+}
 .tv-fpill.on { background: var(--grad-chip-on); border-color: var(--green-900); color: #fff; box-shadow: var(--shadow-chip-on); }
 .tv-fpill.on .tv-mini i { background: #fff; }
-.tv-fmore { flex: 0 0 auto; min-height: var(--tap); padding: 0 14px; border: 1px dashed var(--line-soft-2); background: var(--card); border-radius: var(--radius-btn); font-weight: 700; font-size: 12px; color: var(--muted); }
+.tv-fmore { position: relative; flex: 0 0 auto; min-height: 33px; padding: 0 14px; border: 1px dashed var(--line-soft-2); background: var(--card); border-radius: var(--radius-btn); font-weight: 700; font-size: 12px; color: var(--muted); }
 /* Nur Punkte als Erkennungsmuster – kein Rasen, kein Rahmen, keine Linien. */
 .tv-mini { position: relative; display: inline-block; width: 20px; height: 26px; flex: 0 0 auto; }
 .tv-mini i { position: absolute; width: 2.5px; height: 2.5px; border-radius: 50%; background: var(--green-700); transform: translate(-50%,-50%); }
@@ -1595,13 +1624,17 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 .kasse-paid > summary { cursor: pointer; color: var(--green-700); font-weight: 600; min-height: 44px; display: flex; align-items: center; }
 
 /* ===================== Kasse: Strafe verhängen (Picker/Katalogliste) ===================== */
-.kasse-picker { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;
-  min-height: 48px; padding: 12px 14px; font: inherit; font-weight: 700; color: var(--ink);
-  background: var(--green-050); border: 1px solid var(--line); border-radius: 12px; cursor: pointer;
-  -webkit-appearance: none; appearance: none; -webkit-tap-highlight-color: transparent; }
+.kasse-picker {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;
+  min-height: var(--h-in); padding: 0 13px;
+  font: inherit; font-size: 15px; font-weight: 500; color: var(--ink);
+  background-image: var(--grad-in); border: 1px solid var(--line-soft-3);
+  border-radius: var(--radius-btn); box-shadow: var(--shadow-in); cursor: pointer;
+  -webkit-appearance: none; appearance: none; -webkit-tap-highlight-color: transparent;
+}
 .kasse-catrow, .ks-prow { -webkit-appearance: none; appearance: none; }
-.kasse-picker-arrow { color: var(--muted); font-size: 1.4rem; line-height: 1; flex: none; }
-.kasse-chosen { font-size: .82rem; color: var(--muted); margin-top: -2px; }
+.kasse-picker-arrow { color: var(--muted); font-size: 18px; font-weight: 700; line-height: 1; flex: none; }
+.kasse-chosen { font-size: 12px; font-weight: 500; color: var(--muted); margin-top: 6px; }
 /* Zwei getrennte Einstiege: Individuell / aus dem Katalog. Erst nach Antippen oeffnet sich der Weg. */
 .kasse-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .kasse-mode { -webkit-appearance: none; appearance: none; font: inherit; font-weight: 700; color: var(--ink);
@@ -1645,7 +1678,22 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 /* ===================== Kasse V2: Anlage, Prüf-/Verbuch-Tabs, Audit ===================== */
 /* Drei KPIs nebeneinander (Offen / Gemeldet / Eingegangen), auch auf schmalen iPhones. */
 .kpi-grid.kpi-3 { grid-template-columns: repeat(3, 1fr); }
-.kpi-3 .kpi-value, .kpi-3 .kpi-amt { font-size: 17px; }   /* Vorlage .kpis.k3 */
+/* B6: Vorlagengroesse 17px, verkleinert sich aber, wenn der Betrag sonst
+   umbricht ("2.649,00 EUR" in einer 114px breiten Kachel). */
+.kpi-3 .kpi-value, .kpi-3 .kpi-amt {
+  font-size: clamp(13px, 4.4vw, 17px);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+/* Antippbare Kennzahl: springt in den passenden Reiter. */
+.kpi-tapbar {
+  width: 100%; text-align: left; font: inherit; color: inherit;
+  border: 0; background: none; padding: 0;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: transform .08s ease;
+}
+.kpi-tapbar:active { transform: scale(.985); }
+.kpi-tapbar:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; }
 
 /* Unter-Überschriften im Anlage-Block */
 .kasse-sub { font-size: .82rem; font-weight: 800; color: var(--ink); margin-top: 4px; display: flex; align-items: baseline; gap: 8px; }
@@ -1798,7 +1846,7 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 .task-row.is-rsvp .task-go,    .task-row.is-clear .task-go    { color: var(--green-chev); }
 
 /* --- Geldkacheln (1a) ------------------------------------------------------ */
-.tile-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.tile-rows { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
 .tile {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding: 12px 14px; min-height: var(--tap);
@@ -2061,9 +2109,10 @@ body {
   background-image: var(--grad-chip);
   border-color: var(--line-soft-2);
   box-shadow: var(--shadow-hair);
+  position: relative;
   font-size: 13px;
   padding: 0 13px;
-  min-height: var(--tap);       /* Vorlage 34px - harte Regel schlaegt sie */
+  min-height: 34px;             /* Vorlage; Trefferflaeche siehe ::after */
 }
 .chip.is-active {
   background-image: var(--grad-chip-on);

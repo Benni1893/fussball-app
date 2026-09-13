@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-13-M";
+  var APP_BUILD = "2026-09-13-N";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -513,13 +513,15 @@
     if (Roles.canManageFines()) {
       const gemeldet = aktiveStrafen().filter((s) => fineStatus(s) === "gemeldet");
       if (gemeldet.length) {
-        // A4: „seit N Tagen" aus dem aeltesten gemeldeten Eintrag. Ein
-        // Meldezeitpunkt steht nicht in fines, darum das Datum der Strafe -
-        // das ist die aelteste belastbare Marke, die ohne Nachladen da ist.
-        const aeltestes = gemeldet.map((s) => s.datum).filter(Boolean).sort()[0];
-        const tage = aeltestes
-          ? Math.floor((parseDate(HEUTE) - parseDate(aeltestes)) / 86400000) : 0;
-        const seit = tage <= 0 ? "seit heute" : tage === 1 ? "seit einem Tag" : "seit " + tage + " Tagen";
+        // A4: „seit N Tagen" aus dem Verlauf - der Wechsel nach „gemeldet",
+        // geladen in db.js aus fine_status_log. Ohne Verlaufseintrag (alte
+        // Meldungen vor Migration 0030) bleibt die Zeitangabe weg.
+        const marken = gemeldet.map((s) => s.gemeldetAm).filter(Boolean).sort();
+        let seit = "warten auf Eingang";
+        if (marken.length) {
+          const tage = Math.floor((Date.now() - new Date(marken[0]).getTime()) / 86400000);
+          seit = tage <= 0 ? "seit heute" : tage === 1 ? "seit einem Tag" : "seit " + tage + " Tagen";
+        }
         zeilen.push({
           art: "pay", zahl: gemeldet.length,
           titel: gemeldet.length === 1 ? "Zahlung bestätigen" : "Zahlungen bestätigen",
@@ -1284,16 +1286,20 @@
         ${(() => {
             // Gate 1/2/4: Trainer- und Pflegefunktionen, die die Vorlage nicht
             // zeichnet, aber ohne die der Kalender nicht pflegbar waere.
-            const acts = [];
+            // B3: eine Zeile - links Textlinks, rechts Stift und Papierkorb.
+            const links = [];
             if (e.typ === "spiel" && showCount) {
-              const label = !future ? ("Aufstellung ansehen" + (luCnt ? ` · ${luCnt}/${luSlots}` : ""))
-                : (luCnt === 0 ? "Aufstellung erstellen" : "Aufstellung bearbeiten");
-              acts.push(`<button class="btn btn-soft lu-jump" data-lineup-edit="${e.id}">${label}</button>`);
-              acts.push(`<button class="btn btn-soft" data-kader-info="${e.id}">Kader-Info erstellen</button>`);
+              links.push(`<button class="link-btn lu-jump" data-lineup-edit="${e.id}">${!future ? "Aufstellung ansehen" : "Aufstellung"}</button>`);
+              links.push(`<button class="link-btn" data-kader-info="${e.id}">Kader-Info</button>`);
             }
-            if (Roles.canManageSchedule())
-              acts.push(`<button class="icon-btn" title="Termin bearbeiten" aria-label="Termin bearbeiten" data-termin-edit="${e.id}">${ICON_PENCIL}</button>`);
-            return acts.length ? `<div class="e-trainer">${acts.join("")}</div>` : "";
+            const rechts = [];
+            if (Roles.canManageSchedule()) {
+              rechts.push(`<button class="icon-btn" title="Termin bearbeiten" aria-label="Termin bearbeiten" data-termin-edit="${e.id}">${ICON_PENCIL}</button>`);
+              rechts.push(`<button class="icon-btn" title="Termin löschen" aria-label="Termin löschen" data-termin-del="${e.id}">${ICON_TRASH}</button>`);
+            }
+            if (!links.length && !rechts.length) return "";
+            return `<div class="e-trainer">${links.join("")}` +
+              (rechts.length ? `<span class="e-tr-rechts">${rechts.join("")}</span>` : "") + `</div>`;
           })()}
       </div>`;
   }
@@ -2850,10 +2856,10 @@
     const amt = staffel
       ? `${euro(k.proEinheit || 0).replace(/\s/g, " ")} / ${k.schritt || 1} ${esc(k.einheit || "")}`
       : euro(k.betrag).replace(/\s/g, " ");
-    const unten = [
-      (k.kategorie || "").trim() ? esc(k.kategorie.trim()) : "",
-      (staffel && k.maxBetrag != null) ? "max " + euro(k.maxBetrag).replace(/\s/g, " ") : "",
-    ].filter(Boolean).join(" · ");
+    // B8: Kategorien bleiben aus der Anzeige. Die Spalte in der Datenbank
+    // bleibt bestehen, db.js schreibt sie nur bei uebergebenem Wert.
+    const unten = (staffel && k.maxBetrag != null)
+      ? "max " + euro(k.maxBetrag).replace(/\s/g, " ") : "";
     return `<div class="kat-item">
       <span class="kat-name">${esc(k.vergehen)}${staffel ? ` <span class="badge badge-self">gestaffelt</span>` : ""}${unten ? `<span class="kat-sub">${unten}</span>` : ""}</span>
       <span class="kat-amount${staffel ? " is-staffel" : ""}">${amt}</span>
@@ -2869,7 +2875,6 @@
     const nm = (n) => (n == null ? "" : String(n).replace(".", ","));
     return `<div class="kat-item kat-edit${isStaffel ? " is-staffel" : ""}">
       <input class="kat-in kat-in-name" data-kat-input="name" type="text" placeholder="Bezeichnung" value="${esc(k ? k.vergehen : "")}">
-      <input class="kat-in kat-in-kat" data-kat-input="kategorie" type="text" placeholder="Kategorie (z. B. Pünktlichkeit)" value="${esc(k ? (k.kategorie || "") : "")}">
       <select class="kat-in kat-type" data-kat-type>
         <option value="fixed"${!isStaffel ? " selected" : ""}>Festbetrag</option>
         <option value="staffel"${isStaffel ? " selected" : ""}>Gestaffelt</option>
@@ -3235,21 +3240,21 @@
       <div class="page-head">${navBackChevronHtml()}<h1>Kasse</h1></div>
 
       <div class="kpi-grid kpi-3">
-        <div class="kpi is-warn">
+        <button type="button" class="kpi is-warn kpi-tapbar" data-kstab="offen">
           <div class="kpi-label">Offen</div>
           <div class="kpi-value kpi-amt">${euro(offenGesamt).replace(/\s/g, " ")}</div>
           <div class="kpi-sub">${offen.length} Strafen</div>
-        </div>
-        <div class="kpi">
+        </button>
+        <button type="button" class="kpi kpi-tapbar" data-kstab="pruefen">
           <div class="kpi-label">Gemeldet</div>
           <div class="kpi-value kpi-amt">${euro(gemeldetGesamt).replace(/\s/g, " ")}</div>
           <div class="kpi-sub">${gemeldet.length} zu prüfen</div>
-        </div>
-        <div class="kpi">
+        </button>
+        <button type="button" class="kpi kpi-tapbar" data-kstab="bezahlt">
           <div class="kpi-label">Eingegangen</div>
           <div class="kpi-value kpi-amt">${euro(bezahltGesamt).replace(/\s/g, " ")}</div>
           <div class="kpi-sub">Saison</div>
-        </div>
+        </button>
       </div>
 
       ${!kasse.formOpen ? `
@@ -3555,7 +3560,7 @@
       if (unpay) { if (!window.confirm("Buchung rückgängig machen? Die Strafe steht wieder als offen.")) return; try { await DB.setFinePaid(unpay.dataset.kasseUnpay, false); await reloadData(); tvToast("Zurückgesetzt"); } catch (e) { window.alert("Rückgängig fehlgeschlagen: " + ((e && e.message) || e)); } return; }
     }
 
-    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-koord-save],[data-my-status],[data-logout]");
+    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-koord-save],[data-my-status],[data-logout]");
     if (!t) return;
 
     // Spieler: eigenen Fitnessstatus setzen (RLS/RPC erlauben nur die eigene Zeile)
@@ -3595,6 +3600,12 @@
 
     // Termin anlegen / bearbeiten (Trainer/Kassenwart – zusätzlich per RLS erzwungen)
     if (t.hasAttribute("data-termin-new")) { if (Roles.canManageSchedule()) openTerminModal(null); return; }
+    // B3: Loeschen direkt von der Karte (bisher nur im Bearbeiten-Dialog).
+    if (t.dataset.terminDel) {
+      const ev = DEMO.events.find((x) => x.id === t.dataset.terminDel);
+      if (ev) await deleteTermin(ev);
+      return;
+    }
     if (t.dataset.terminEdit) {
       const e = DEMO.events.find((x) => x.id === t.dataset.terminEdit);
       if (e && Roles.canManageSchedule()) openTerminModal(e);
@@ -3669,8 +3680,6 @@
       const typ = typeEl && typeEl.value === "staffel" ? "staffel" : "fixed";
       const name = gv("name").trim();
       if (!name) { window.alert("Bitte eine Bezeichnung eingeben."); return; }
-      // K5: die Kategorie steht wieder im Formular und in der Liste.
-      const kategorie = gv("kategorie").trim();
       try {
         if (typ === "staffel") {
           const proE = num(gv("proEinheit"));
@@ -3681,14 +3690,14 @@
           if (!isFinite(proE) || proE < 0) { window.alert("Bitte einen gültigen Betrag je Schritt eingeben."); return; }
           if (!isFinite(schritt) || schritt < 1) { window.alert("Bitte eine gültige Schrittweite (mindestens 1) eingeben."); return; }
           if (!einheit) { window.alert("Bitte eine Einheit angeben (z. B. Minuten)."); return; }
-          const opts = { typ: "staffel", kategorie, einheit, proEinheit: proE, schritt, maxBetrag: (maxB != null && isFinite(maxB)) ? maxB : null };
+          const opts = { typ: "staffel", einheit, proEinheit: proE, schritt, maxBetrag: (maxB != null && isFinite(maxB)) ? maxB : null };
           if (t.dataset.katSave === "new") await DB.insertCatalog(DEMO.clubId, name, 0, opts);
           else await DB.updateCatalog(t.dataset.katSave, name, 0, opts);
         } else {
           const amount = num(gv("amount"));
           if (!isFinite(amount) || amount <= 0) { window.alert("Bitte einen gültigen Betrag größer 0 eingeben."); return; }
-          if (t.dataset.katSave === "new") await DB.insertCatalog(DEMO.clubId, name, amount, { typ: "fixed", kategorie });
-          else await DB.updateCatalog(t.dataset.katSave, name, amount, { typ: "fixed", kategorie });
+          if (t.dataset.katSave === "new") await DB.insertCatalog(DEMO.clubId, name, amount, { typ: "fixed" });
+          else await DB.updateCatalog(t.dataset.katSave, name, amount, { typ: "fixed" });
         }
         katEdit = null;
         await reloadData();
