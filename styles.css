@@ -358,7 +358,7 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
-.card-pad { padding: 14px; }
+.card-pad { padding: 16px; }   /* Vorlage .card */
 
 /* ---------- Übersicht / KPI ------------------------------------------------ */
 /* Vorlage .kpis: zwei gleich breite Kacheln, 8px Abstand. */
@@ -783,13 +783,13 @@ tbody tr:hover { background: #fbfdfc; }
 .set-section .cal-sub { margin-top: 0; }
 .set-profile .set-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); }
 .set-profile .set-row:first-child { padding-top: 0; }
-.set-label { color: var(--muted); font-weight: 600; }
-.set-val { text-align: right; overflow-wrap: anywhere; font-weight: 600; }
-.set-logout { width: 100%; margin-top: 12px; color: var(--red-600); border-color: var(--red-line); }
+.set-label { color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .68px; text-transform: uppercase; }
+.set-val { text-align: right; overflow-wrap: anywhere; font-size: 12px; font-weight: 500; color: var(--muted); }
+.btn.set-logout { display: flex; width: 100%; margin-top: 12px; color: var(--red-600); border-color: var(--red-line); }
 .set-verwaltung { margin-top: 28px; padding-top: 4px; border-top: 2px solid var(--line); }
 .set-sub { margin-top: 16px; }
 .set-sub h3 { font-size: 1rem; font-weight: 800; margin: 0; color: var(--ink); }
-.set-hint { color: var(--muted); font-size: .85rem; margin: 0 0 10px; }
+.set-hint { color: var(--muted); font-size: 12px; font-weight: 500; margin: 0 0 12px; }
 .bfv-find { font-size: .8rem; color: var(--muted); margin: 6px 0 2px; }
 
 /* BFV-Spiel manuell geändert: Hinweis/Reset in der Kachel + Read-only-Kopf im Modal */
@@ -801,8 +801,8 @@ tbody tr:hover { background: #fbfdfc; }
 .bfv-ro-line { font-weight: 700; }
 .bfv-ro-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
 .bfv-ro-hint { font-size: .78rem; color: var(--muted); margin-top: 6px; }
-.set-greet-name { font-weight: 800; font-size: 1.05rem; }
-.set-greet-role { color: var(--muted); font-size: .85rem; margin-top: 2px; }
+.set-greet-name { font-size: 16px; font-weight: 700; }
+.set-greet-role { color: var(--muted); font-size: 12px; font-weight: 500; margin-top: 2px; }
 /* Abmelden (Vorlage 4a): Sekundaerknopf ueber die volle Breite, roter Text
    und roter Rand - deutlich, aber nicht so laut wie eine rote Flaeche. */
 
@@ -1882,7 +1882,7 @@ button.sg-stat:focus-visible { outline: 2px solid var(--green-700); outline-offs
    =========================================================================== */
 
 /* --- Profil (4b) ----------------------------------------------------------- */
-.pr-head { display: flex; align-items: center; gap: 12px; padding: 14px; margin-bottom: 4px; }
+.pr-head { display: flex; align-items: center; gap: 12px; padding: 16px; margin-top: 16px; }
 .pr-av   { width: 44px; height: 44px; font-size: 15px; }
 .pr-name { font-size: 16px; font-weight: 700; color: var(--ink); }
 .pr-list { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
