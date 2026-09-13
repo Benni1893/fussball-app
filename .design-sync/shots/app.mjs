@@ -32,7 +32,14 @@ page.on('console', (m) => { if (m.type() === 'error') fehler.push('console: ' + 
 
 const ruhe = async (ms = 700) => { await page.waitForTimeout(ms); };
 // Ganze Seite inklusive fixer Kopfzeile und Nav - so, wie das iPhone sie zeigt.
+const zuBlatt = async () => { await page.evaluate(() => {
+  const s = document.getElementById('moreSheet'); if (s) s.hidden = true;
+  ['tvScrimKader','tvSheetKader','tvScrimForm','tvSheetForm','tvScrimMenu','tvSheetMenu']
+    .forEach((id) => { const e = document.getElementById(id); if (e) e.classList.remove('open'); });
+  document.querySelectorAll('.tv-sheet, .tv-scrim').forEach((e) => e.classList.remove('open'));
+}); };
 const schuss = async (name) => {
+  if (name !== 'mehr') await zuBlatt();
   await ruhe(350);
   await page.screenshot({ path: path.join(OUT, name + '.png'), fullPage: true });
   const h = await page.evaluate(() => document.documentElement.scrollHeight);
