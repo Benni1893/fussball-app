@@ -363,7 +363,7 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 
 /* ---------- Übersicht / KPI ------------------------------------------------ */
 /* Vorlage .kpis: zwei gleich breite Kacheln, 8px Abstand. */
-.kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }   /* Vorlage 3a */
 .kpi {
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -1003,7 +1003,7 @@ tbody tr:hover { background: #fbfdfc; }
   overflow-x: auto; scrollbar-width: none;
   margin-left: -16px; margin-right: -16px; padding: 0 16px;   /* bis an den Rand scrollen */
 }
-.kpi-grid + .chips { margin-top: 12px; }
+.kpi-grid + .chips { margin-top: 14px; }   /* Vorlage 3a */
 .chips::-webkit-scrollbar { display: none; }
 .chips .chip { flex: none; }
 .chip {
