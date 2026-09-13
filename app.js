@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-13-J";
+  var APP_BUILD = "2026-09-13-K";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -2380,7 +2380,9 @@
     return h;
   }
   function tvFormbarHtml() {
-    return tvFav.map(f => '<button class="tv-fpill' + (f === tv.formation ? " on" : "") + '" data-tvform="' + f + '">' + tvMini(f) + '<span>' + f + '</span></button>').join("") +
+    // Die Vorlage zeichnet die Formationspille als reinen Text. Das
+    // Mini-Diagramm steht weiter in der Formationsauswahl im Blatt.
+    return tvFav.map(f => '<button class="tv-fpill' + (f === tv.formation ? " on" : "") + '" data-tvform="' + f + '"><span>' + f + '</span></button>').join("") +
       '<button class="tv-fmore" data-tvmoreform>Weitere ›</button>';
   }
   function tvViewLineup() {

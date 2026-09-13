@@ -558,5 +558,63 @@
         "app": ".ks-tabs .chip"
       }
     }
+  },
+  "trainer-platz": {
+    "frame": "f-lineup-pitch",
+    "weg": [
+      "#navMore",
+      "#moreLineup",
+      "[data-tvgame]"
+    ],
+    "elemente": {
+      "Kopfzeile": {
+        "ref": ".hd",
+        "app": ".tv-top"
+      },
+      "Spieltitel": {
+        "ref": ".hd-t, .hd > div > div:first-child",
+        "app": ".tv-game"
+      },
+      "Formationsreihe": {
+        "ref": ".fpills",
+        "app": ".tv-formbar"
+      },
+      "Formationspille": {
+        "ref": ".fpill",
+        "app": ".tv-fpill"
+      },
+      "Platz": {
+        "ref": ".pitch",
+        "app": ".tv-pitch"
+      },
+      "Trikotscheibe": {
+        "ref": ".disc",
+        "app": ".tv-disc"
+      },
+      "Spielername": {
+        "ref": ".pn",
+        "app": ".tv-pn"
+      },
+      "Bankreihe": {
+        "ref": ".bank",
+        "app": ".tv-bank-row"
+      },
+      "Bankplatz": {
+        "ref": ".bslot",
+        "app": ".tv-bslot"
+      },
+      "Banknummer": {
+        "ref": ".bnr",
+        "app": ".tv-bnr"
+      },
+      "Bankname": {
+        "ref": ".bn",
+        "app": ".tv-bn"
+      },
+      "Speichern": {
+        "ref": ".btn.wide",
+        "app": ".tv-primary"
+      }
+    }
   }
 }

@@ -1373,25 +1373,28 @@ body.auth-mode .view { padding-left: 0; padding-right: 0; }
 
 /* Zustand 2: Aufstellung – füllt Bereich zwischen Kopfzeile und Nav */
 .view:has(.tv-lu) { padding: 0; max-width: none; }
-.tv-lu { height: calc(100dvh - var(--header-h, 78px) - 56px - env(safe-area-inset-bottom)); display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
-.tv-top { display: flex; align-items: center; gap: 10px; padding: 6px clamp(10px,3vw,14px); background: var(--card); border-bottom: 1px solid var(--line); color: var(--ink); }
-.tv-ic { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 11px; border: 1px solid var(--line); background: var(--bg); color: var(--green-800); font-size: 22px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
-.tv-hi { flex: 1 1 auto; min-width: 0; text-align: center; }
-.tv-game { font-weight: 700; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tv-sub { font-size: 11.5px; font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tv-formbar { display: flex; align-items: center; gap: 8px; overflow-x: auto; padding: 6px clamp(10px,3vw,14px); background: var(--card); border-bottom: 1px solid var(--line); scrollbar-width: none; }
+.tv-lu { display: flex; flex-direction: column; }
+/* Vorlage 2c zeichnet die Spiel-Kopfzeile im gruenen Verlauf. Sie steht in
+   der App unter der festen App-Kopfzeile, die als Fixpunkt bleibt. */
+.tv-top { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: var(--grad-hd); box-shadow: var(--shadow-hd); color: #fff; }
+.tv-ic { flex: 0 0 auto; width: 24px; height: 24px; position: relative; border: 0; background: none; color: #fff; font-size: 22px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.tv-ic::after { content: ""; position: absolute; top: 50%; left: 50%; width: var(--tap); height: var(--tap); transform: translate(-50%,-50%); }
+.tv-hi { flex: 1 1 auto; min-width: 0; text-align: left; }
+.tv-game { font-weight: 700; font-size: 15px; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tv-sub { font-size: 11.5px; font-weight: 500; color: #a8c9b8; font-variant-numeric: tabular-nums; line-height: 1.3; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tv-formbar { display: flex; gap: 7px; overflow-x: auto; padding: 0 16px; margin: 14px 0 10px; scrollbar-width: none; }
 .tv-formbar::-webkit-scrollbar { display: none; }
-.tv-fpill { flex: 0 0 auto; min-height: var(--tap); display: flex; align-items: center; gap: 8px; padding: 5px 12px 5px 7px; border: 1px solid var(--line-soft-2); background: var(--grad-chip); border-radius: var(--radius-btn); font-weight: 700; font-size: 12px; color: var(--muted); box-shadow: var(--shadow-hair); }
+.tv-fpill { flex: 0 0 auto; min-height: var(--tap); display: flex; align-items: center; justify-content: center; padding: 8px 12px; border: 1px solid var(--line-soft-2); background: var(--grad-chip); border-radius: var(--radius-btn); font-weight: 700; font-size: 12px; color: var(--muted); box-shadow: var(--shadow-hair); }
 .tv-fpill.on { background: var(--grad-chip-on); border-color: var(--green-900); color: #fff; box-shadow: var(--shadow-chip-on); }
 .tv-fpill.on .tv-mini i { background: #fff; }
 .tv-fmore { flex: 0 0 auto; min-height: var(--tap); padding: 0 14px; border: 1px dashed var(--line-soft-2); background: var(--card); border-radius: var(--radius-btn); font-weight: 700; font-size: 12px; color: var(--muted); }
 /* Nur Punkte als Erkennungsmuster – kein Rasen, kein Rahmen, keine Linien. */
 .tv-mini { position: relative; display: inline-block; width: 20px; height: 26px; flex: 0 0 auto; }
 .tv-mini i { position: absolute; width: 2.5px; height: 2.5px; border-radius: 50%; background: var(--green-700); transform: translate(-50%,-50%); }
-.tv-field { flex: 1 1 auto; min-height: 0; position: relative; display: flex; align-items: center; justify-content: center; padding: 4px 6px; }
+.tv-field { position: relative; padding: 0 16px; }
 /* height:100% (definit) statt max-height: die Pitch-Box hat nur absolut positionierte
    Kinder -> mit max-height fällt sie auf 0 zusammen. Definite Höhe verhindert den Kollaps. */
-.tv-pitch { position: relative; aspect-ratio: 68/105; height: 100%; max-width: 100%; width: auto; border-radius: 12px; overflow: hidden; user-select: none; touch-action: manipulation; }
+.tv-pitch { position: relative; width: 100%; aspect-ratio: 68/95; border-radius: var(--radius); overflow: hidden; user-select: none; touch-action: manipulation; }
 .tv-pitch-bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 /* Rasen ruhiger/entsaettigt (Variante A). Wechsel zu B: #587a68 setzen. Nur die Grundflaeche. */
 .tv-pitch-bg > rect { fill: var(--pitch-green);   /* Vorlage .pitch */ }
@@ -1401,7 +1404,7 @@ body.auth-mode .view { padding-left: 0; padding-right: 0; }
 /* Deckende Fuellung: leere Positionen duerfen die Feldlinien nicht durchscheinen lassen. */
 /* Einheitliche Kreisgroesse. Unbesetzt: gestrichelt + reduzierter Kontrast (deckend, kein Linien-Durchscheinen). */
 .tv-disc { width: 34px; height: 34px;   /* Vorlage .disc */ border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; border: 2px dashed rgba(255,255,255,.5); color: rgba(255,255,255,.75); background: var(--green-900); }
-.tv-slot.filled .tv-disc { background: var(--card); color: var(--green-800); border: 2px solid var(--gold-500); }
+.tv-slot.filled .tv-disc { background: var(--grad-disc); color: var(--green-800); border: 0; }
 .tv-slot.sel .tv-disc { box-shadow: 0 0 0 3px var(--gold-500); transform: scale(1.08); }
 .tv-role { font-size: 10px; font-weight: 800; color: rgba(255,255,255,.75); letter-spacing: .3px; }
 /* Name absolut unter dem Kreis -> Kreis sitzt exakt auf y%, Name beeinflusst die Position nicht. */
@@ -1411,7 +1414,7 @@ body.auth-mode .view { padding-left: 0; padding-right: 0; }
 .tv-cta p { margin: 0 0 12px; font-size: 13px; line-height: 1.4; opacity: .92; }
 .tv-cta .tv-primary { margin-bottom: 8px; }
 .tv-ghost { width: 100%; min-height: 44px; border: 1px solid rgba(255,255,255,.4); background: transparent; color: #fff; border-radius: 12px; font-weight: 700; }
-.tv-actions { flex: 0 0 auto; padding: 6px clamp(12px,4vw,18px) 8px; background: var(--card); border-top: 1px solid var(--line); }
+.tv-actions { padding: 14px 16px 16px; }
 /* Zweizeilig (2a): Titel oben, Zaehler klein darunter. */
 .tv-primary { width: 100%; min-height: 54px; border: 0; border-radius: var(--radius-btn); background: var(--grad-btn); box-shadow: var(--shadow-btn); color: #fff; font-weight: 700; font-size: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; line-height: 1.15; }
 .tv-primary:disabled { opacity: .6; }
@@ -1476,14 +1479,14 @@ body.auth-mode .view { padding-left: 0; padding-right: 0; }
 .tv-pchip.s-verl { background: var(--red-050); }
 
 /* Auswechselbank: 7 kompakte Slots, passt auf 390px ohne H-Scroll. */
-.tv-bank { flex: 0 0 auto; padding: 4px clamp(8px,3vw,14px) 4px; background: var(--card); border-top: 1px solid var(--line); }
+.tv-bank { padding: 0 16px; }
 /* Abschnittstitel-Sprache wie im Rest der App. Bewusst nur .95rem statt 1.1rem:
    .tv-lu hat feste Hoehe, jede Zeile hier nimmt dem Spielfeld Platz weg. */
 .tv-bank-h { display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
   font-size: .95rem; font-weight: 700; color: var(--ink); margin: 0 2px 5px; }
 .tv-bank-h span { font-size: .8rem; font-weight: 600; color: var(--muted); }
-.tv-bank-row { display: flex; gap: 4px; }
-.tv-bslot { flex: 1 1 0; min-width: 0; min-height: var(--h-bslot); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; border: 1px dashed var(--line); background: transparent; border-radius: var(--radius-btn); padding: 3px 2px; }
+.tv-bank-row { display: flex; gap: 6px; margin-top: 8px; }
+.tv-bslot { flex: 1 1 0; min-width: 0; min-height: var(--h-bslot); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border: 1px dashed var(--line); background: transparent; border-radius: var(--radius-btn); padding: 0; }
 .tv-bslot.filled { border-style: solid; border-color: var(--line-soft-2); background: var(--grad-bslot); box-shadow: var(--shadow-hair); }
 /* Vorlage .bnr/.bn: Nummer schlicht, kein Kreis. */
 .tv-bnr { color: var(--green-800); font-weight: 800; font-size: 13px; line-height: 1.1; }
