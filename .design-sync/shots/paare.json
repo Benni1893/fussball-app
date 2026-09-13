@@ -3,48 +3,406 @@
     "frame": "f-anmeldung",
     "weg": [],
     "elemente": {
-      "Grundflaeche": { "ref": ".auth",        "app": ".auth-wrap" },
-      "Karte":        { "ref": ".auth-card",   "app": ".auth-card" },
-      "Wappen":       { "ref": ".auth-crest img", "app": ".auth-crest img" },
-      "Titel":        { "ref": ".auth-t",      "app": ".auth-title" },
-      "Untertitel":   { "ref": ".auth-s",      "app": ".auth-sub" },
-      "Feldname":     { "ref": ".fld .fl",     "app": ".auth-field span" },
-      "Eingabefeld":  { "ref": ".fld .in",     "app": ".auth-field input" },
-      "Knopf":        { "ref": ".auth-card .btn.wide", "app": ".auth-submit" },
-      "Wechsel":      { "ref": ".auth-sw",     "app": ".auth-switch" }
+      "Grundflaeche": {
+        "ref": ".auth",
+        "app": ".auth-wrap"
+      },
+      "Karte": {
+        "ref": ".auth-card",
+        "app": ".auth-card"
+      },
+      "Wappen": {
+        "ref": ".auth-crest img",
+        "app": ".auth-crest img"
+      },
+      "Titel": {
+        "ref": ".auth-t",
+        "app": ".auth-title"
+      },
+      "Untertitel": {
+        "ref": ".auth-s",
+        "app": ".auth-sub"
+      },
+      "Feldname": {
+        "ref": ".fld .fl",
+        "app": ".auth-field span"
+      },
+      "Eingabefeld": {
+        "ref": ".fld .in",
+        "app": ".auth-field input"
+      },
+      "Knopf": {
+        "ref": ".auth-card .btn.wide",
+        "app": ".auth-submit"
+      },
+      "Wechsel": {
+        "ref": ".auth-sw",
+        "app": ".auth-switch"
+      }
     }
   },
-
   "uebersicht-trainer": {
     "frame": "f-uebersicht-trainer",
-    "weg": [".nav-btn[data-view=\"dashboard\"]"],
+    "weg": [
+      ".nav-btn[data-view=\"dashboard\"]"
+    ],
     "elemente": {
-      "Kopfzeile":       { "ref": ".hd",            "app": ".app-header" },
-      "Kopf-Logo":       { "ref": ".hd-logo",       "app": ".hdr-logo .crest-logo" },
-      "Kopf-Titel":      { "ref": ".hd-t",          "app": ".hdr-title" },
-      "Anrede":          { "ref": ".h1",            "app": ".page-head h1" },
-      "Anredezeile":     { "ref": ".h1row",         "app": ".page-head.h1row" },
-      "Rollen-Plakette": { "ref": ".pill",          "app": ".role-pill" },
-      "Hero":            { "ref": ".card.ag",       "app": ".termin-hero" },
-      "Hero-Marke":      { "ref": ".card.ag .lbl",  "app": ".termin-hero .lbl" },
-      "Hero-Kopf":       { "ref": ".card.ag > div:nth-child(2)", "app": ".th-top" },
-      "Hero-Knoepfe":    { "ref": ".card.ag .btns", "app": ".th-actions" },
-      "Hero-Knopf 2":    { "ref": ".card.ag .btns .btn.sec2", "app": ".th-actions .btn:not(.btn-primary)" },
-      "Hero-Knopf 1":    { "ref": ".card.ag .btns .btn:not(.sec2)", "app": ".th-actions .btn-primary" },
-      "Abschnitt":       { "ref": ".sec",           "app": ".section-title" },
-      "Abschnitt-Titel": { "ref": ".sec",           "app": ".section-title h2" },
-      "Aufgabenliste":   { "ref": "#f-uebersicht-trainer .list", "app": ".task-list" },
-      "Aufgabenzeile":   { "ref": ".list .row",     "app": ".task-row" },
-      "Aufgaben-Plakette": { "ref": ".list .row > span:first-child", "app": ".task-num" },
-      "Aufgaben-Titel":  { "ref": ".list .row .rt", "app": ".task-title" },
-      "Aufgaben-Unter":  { "ref": ".list .row .rs", "app": ".task-sub" },
-      "Geldkachel":      { "ref": ".stack .card",   "app": ".tile" },
-      "Kachel-Titel":    { "ref": ".stack .card > div:first-child", "app": ".tile-t" },
-      "Kachel-Betrag":   { "ref": ".stack .card .amt", "app": ".tile .amount" },
-      "Nav":             { "ref": ".nav",           "app": ".app-nav" },
-      "Nav-Knopf":       { "ref": ".nb",            "app": ".nav-btn" },
-      "Nav-Symbol":      { "ref": ".nb .ic",        "app": ".nav-ic" },
-      "Nav-Text":        { "ref": ".nb span",       "app": ".nav-label" }
+      "Kopfzeile": {
+        "ref": ".hd",
+        "app": ".app-header"
+      },
+      "Kopf-Logo": {
+        "ref": ".hd-logo",
+        "app": ".hdr-logo .crest-logo"
+      },
+      "Kopf-Titel": {
+        "ref": ".hd-t",
+        "app": ".hdr-title"
+      },
+      "Anrede": {
+        "ref": ".h1",
+        "app": ".page-head h1"
+      },
+      "Anredezeile": {
+        "ref": ".h1row",
+        "app": ".page-head.h1row"
+      },
+      "Rollen-Plakette": {
+        "ref": ".pill",
+        "app": ".role-pill"
+      },
+      "Hero": {
+        "ref": ".card.ag",
+        "app": ".termin-hero"
+      },
+      "Hero-Marke": {
+        "ref": ".card.ag .lbl",
+        "app": ".termin-hero .lbl"
+      },
+      "Hero-Kopf": {
+        "ref": ".card.ag > div:nth-child(2)",
+        "app": ".th-top"
+      },
+      "Hero-Knoepfe": {
+        "ref": ".card.ag .btns",
+        "app": ".th-actions"
+      },
+      "Hero-Knopf 2": {
+        "ref": ".card.ag .btns .btn.sec2",
+        "app": ".th-actions .btn:not(.btn-primary)"
+      },
+      "Hero-Knopf 1": {
+        "ref": ".card.ag .btns .btn:not(.sec2)",
+        "app": ".th-actions .btn-primary"
+      },
+      "Abschnitt": {
+        "ref": ".sec",
+        "app": ".section-title"
+      },
+      "Abschnitt-Titel": {
+        "ref": ".sec",
+        "app": ".section-title h2"
+      },
+      "Aufgabenliste": {
+        "ref": "#f-uebersicht-trainer .list",
+        "app": ".task-list"
+      },
+      "Aufgabenzeile": {
+        "ref": ".list .row",
+        "app": ".task-row"
+      },
+      "Aufgaben-Plakette": {
+        "ref": ".list .row > span:first-child",
+        "app": ".task-num"
+      },
+      "Aufgaben-Titel": {
+        "ref": ".list .row .rt",
+        "app": ".task-title"
+      },
+      "Aufgaben-Unter": {
+        "ref": ".list .row .rs",
+        "app": ".task-sub"
+      },
+      "Geldkachel": {
+        "ref": ".stack .card",
+        "app": ".tile"
+      },
+      "Kachel-Titel": {
+        "ref": ".stack .card > div:first-child",
+        "app": ".tile-t"
+      },
+      "Kachel-Betrag": {
+        "ref": ".stack .card .amt",
+        "app": ".tile .amount"
+      },
+      "Nav": {
+        "ref": ".nav",
+        "app": ".app-nav"
+      },
+      "Nav-Knopf": {
+        "ref": ".nb",
+        "app": ".nav-btn"
+      },
+      "Nav-Symbol": {
+        "ref": ".nb .ic",
+        "app": ".nav-ic"
+      },
+      "Nav-Text": {
+        "ref": ".nb span",
+        "app": ".nav-label"
+      }
+    }
+  },
+  "kalender": {
+    "frame": "f-kalender",
+    "weg": [
+      ".nav-btn[data-view=\"kalender\"]"
+    ],
+    "elemente": {
+      "Filterreihe": {
+        "ref": ".chips",
+        "app": ".chips"
+      },
+      "Filter-Chip": {
+        "ref": ".chip",
+        "app": ".chip"
+      },
+      "Termin-Knopf": {
+        "ref": ".stack .btn.wide:not(.sec2)",
+        "app": ".kal-cta-btn:not(.kal-cta-sec)"
+      },
+      "Abo-Knopf": {
+        "ref": ".stack .btn.sec2.wide",
+        "app": ".kal-cta-sec"
+      },
+      "Terminliste": {
+        "ref": ".stack:nth-of-type(2)",
+        "app": ".event-list"
+      },
+      "Terminkarte": {
+        "ref": ".card.ag",
+        "app": ".event"
+      },
+      "Datumswuerfel": {
+        "ref": ".dbg",
+        "app": ".event-date"
+      },
+      "Wuerfel-Tag": {
+        "ref": ".dbg .dy",
+        "app": ".event-date .d-day"
+      },
+      "Wuerfel-Monat": {
+        "ref": ".dbg .mo",
+        "app": ".event-date .d-mon"
+      },
+      "Wuerfel-Wochentag": {
+        "ref": ".dbg .wd",
+        "app": ".event-date .d-wd"
+      },
+      "Termin-Titel": {
+        "ref": ".card.ag .rt",
+        "app": ".e-title"
+      },
+      "Termin-Zeit": {
+        "ref": ".card.ag .rs.num",
+        "app": ".e-time"
+      },
+      "Zusage-Knopf": {
+        "ref": ".card.ag .btns .btn:not(.sec2)",
+        "app": ".ev-rsvp .btn-zu"
+      },
+      "Absage-Knopf": {
+        "ref": ".card.ag .btns .btn.sec2",
+        "app": ".ev-rsvp .btn-ab"
+      },
+      "Fusszeile": {
+        "ref": ".card.ag .rs.num:last-child",
+        "app": ".ev-foot"
+      }
+    }
+  },
+  "katalog": {
+    "frame": "f-katalog",
+    "weg": [
+      ".nav-btn[data-view=\"katalog\"]"
+    ],
+    "elemente": {
+      "Seitentitel": {
+        "ref": ".h1",
+        "app": ".page-head h1"
+      },
+      "Begleitsatz": {
+        "ref": ".sub",
+        "app": ".page-head p"
+      },
+      "Liste": {
+        "ref": ".list",
+        "app": ".kat-list"
+      },
+      "Zeile": {
+        "ref": ".kat",
+        "app": ".kat-item"
+      },
+      "Bezeichnung": {
+        "ref": ".kat-n",
+        "app": ".kat-name"
+      },
+      "Betrag": {
+        "ref": ".kat .amt",
+        "app": ".kat-amount"
+      },
+      "Hinzufuegen": {
+        "ref": ".btn.sec2.wide",
+        "app": ".kat-add"
+      }
+    }
+  },
+  "einstellungen": {
+    "frame": "f-einstellungen",
+    "weg": [
+      "#navMore",
+      "#moreEinstellungen"
+    ],
+    "elemente": {
+      "Seitentitel": {
+        "ref": ".h1",
+        "app": ".page-head h1"
+      },
+      "Abschnitt": {
+        "ref": ".sec",
+        "app": ".set-section .section-title"
+      },
+      "Profilkarte": {
+        "ref": ".set-section .card, .bd > .card",
+        "app": ".set-profile"
+      },
+      "Angemeldet": {
+        "ref": ".card > div:first-child",
+        "app": ".set-greet-name"
+      },
+      "Rollenzeile": {
+        "ref": ".card .rs",
+        "app": ".set-greet-role"
+      },
+      "Abmelden": {
+        "ref": ".btn.sec2.wide",
+        "app": ".set-logout"
+      },
+      "Fusszeile": {
+        "ref": ".rs[style*=\"center\"]",
+        "app": ".set-hint[style*=\"center\"]"
+      }
+    }
+  },
+  "profil": {
+    "frame": "f-profil",
+    "weg": [
+      "#navMore",
+      "#moreProfil"
+    ],
+    "elemente": {
+      "Seitentitel": {
+        "ref": ".h1",
+        "app": ".page-head h1"
+      },
+      "Kopfkarte": {
+        "ref": ".card",
+        "app": ".pr-head"
+      },
+      "Avatar": {
+        "ref": ".card .av",
+        "app": ".pr-av"
+      },
+      "Name": {
+        "ref": ".card > div > div:first-child",
+        "app": ".pr-name"
+      },
+      "Statuschip": {
+        "ref": ".chips .chip",
+        "app": ".status-choose .chip"
+      },
+      "Rueckmeldeliste": {
+        "ref": ".list",
+        "app": ".pr-list"
+      },
+      "Rueckmeldezeile": {
+        "ref": ".list .row",
+        "app": ".pr-row"
+      },
+      "Farbbalken": {
+        "ref": ".bar",
+        "app": ".pr-bar"
+      },
+      "Zeilentitel": {
+        "ref": ".list .rt",
+        "app": ".pr-t"
+      }
+    }
+  },
+  "mehr": {
+    "frame": "f-mehr",
+    "weg": [
+      ".nav-btn[data-view=\"dashboard\"]",
+      "#navMore"
+    ],
+    "elemente": {
+      "Blatt": {
+        "ref": ".panel",
+        "app": ".more-panel"
+      },
+      "Blatt-Titel": {
+        "ref": ".sh-t",
+        "app": ".more-title"
+      },
+      "Eintrag": {
+        "ref": ".mi",
+        "app": ".more-item"
+      }
+    }
+  },
+  "rollen": {
+    "frame": "f-rollen",
+    "weg": [
+      "#navMore",
+      "#moreAdmin"
+    ],
+    "elemente": {
+      "Seitentitel": {
+        "ref": ".h1",
+        "app": ".page-head h1"
+      },
+      "Vorschaukarte": {
+        "ref": ".card",
+        "app": ".sim-switch"
+      },
+      "Vorschau-Marke": {
+        "ref": ".card .lbl",
+        "app": ".sim-switch .kpi-label, .sim-switch .lbl"
+      },
+      "Tabelle": {
+        "ref": ".tbl",
+        "app": ".rollen-tbl"
+      },
+      "Kopfzelle": {
+        "ref": ".tbl th",
+        "app": ".rollen-tbl th"
+      },
+      "Datenzelle": {
+        "ref": ".tbl td",
+        "app": ".rollen-tbl td"
+      },
+      "Zeilenavatar": {
+        "ref": ".tbl .av",
+        "app": ".rollen-av"
+      },
+      "Zeilenname": {
+        "ref": ".tbl .rt",
+        "app": ".rollen-name"
+      },
+      "Kaestchen": {
+        "ref": ".box",
+        "app": ".role-box, .rollen-tbl .box"
+      }
     }
   }
 }

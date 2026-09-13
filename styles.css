@@ -508,16 +508,17 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
   text-align: center;
   border-radius: var(--radius-btn);
   padding: 6px 0;
-  line-height: 1.1;
+  line-height: normal;
 }
 .event-date .d-wd   { display: block; font-size: 10px; font-weight: 700; color: var(--muted); }
 .event-date .d-day  { display: block; font-size: 19px; font-weight: 800; line-height: 1; color: var(--green-800); }
-.event-date .d-mon  { display: block; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); }
+.event-date .d-mon  { display: block; font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--muted); }
 
 .event-main { min-width: 0; }
 /* Anstoßzeit: kleine, fette Zeile direkt unter dem Vereinsnamen */
-.event-main .e-time { font-size: 12px; font-weight: 500; color: var(--muted); line-height: 1.3; margin-top: 1px; }
-.event-main .e-title { font-size: 14px; font-weight: 700; line-height: 1.3; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.event-main .e-time { font-size: 12px; font-weight: 500; color: var(--muted); line-height: normal; }
+.event-main .e-title { font-size: 14px; font-weight: 700; line-height: normal; }
+.event-main .e-title .tag { margin-left: 6px; vertical-align: middle; }
 .e-title .team-own, .th-title .team-own { font-weight: 800; }
 .e-title .team-opp, .th-title .team-opp { font-weight: 500; }
 .e-title .vs, .th-title .vs { color: var(--muted); font-weight: 500; }
@@ -577,8 +578,13 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .ev-foot .frist { margin-top: 0; font-size: 12px; }
 .ev-foot .ev-dot { color: var(--line); }
 .ev-foot.is-tap {
-  min-height: var(--tap); cursor: pointer; -webkit-tap-highlight-color: transparent;
-  transition: transform .08s ease;
+  position: relative; padding: 0; cursor: pointer;
+  -webkit-tap-highlight-color: transparent; transition: transform .08s ease;
+}
+/* 44px hoch zum Tippen, ohne die Karte zu dehnen. */
+.ev-foot.is-tap::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 50%;
+  height: var(--tap); transform: translateY(-50%);
 }
 .ev-foot.is-tap:active { transform: scale(.99); }
 .ev-foot.is-tap:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; border-radius: 8px; }
@@ -635,7 +641,6 @@ tbody td { padding: 12px 16px; border-bottom: 1px solid var(--line); }
 .role-box { width: 24px; height: 24px; accent-color: var(--green-700); cursor: pointer; }
 tbody tr:last-child td { border-bottom: none; }
 tbody tr:hover { background: #fbfdfc; }
-.num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
 .amount { font-weight: 700; color: var(--green-800); font-variant-numeric: tabular-nums; }
 .amount .amt-sub  { font-size: .7rem; font-weight: 600; color: var(--muted); margin-top: 2px; }
 .amount .cd-wrap  { margin-top: 3px; }
@@ -819,7 +824,7 @@ tbody tr:hover { background: #fbfdfc; }
 .kal-cta-btn svg { width: 19px; height: 19px; flex: none; }
 .kal-cta-txt { display: block; line-height: 1.15; }
 /* Abo-Knopf: hoeher, Inhalt linksbuendig, Icon in Vereinsgruen (Vorlage). */
-.kal-cta-sec { min-height: 58px; justify-content: flex-start; gap: 11px; text-align: left; }
+.btn.kal-cta-sec { min-height: 58px; justify-content: flex-start; gap: 11px; text-align: left; }
 .kal-cta-sec svg { width: 21px; height: 21px; }
 .kal-cta-sec .kal-cta-txt small { display: block; font-weight: 500; font-size: 11px; color: var(--muted); margin-top: 1px; }
 /* Sekundaerer Button (In meinen Kalender) */
