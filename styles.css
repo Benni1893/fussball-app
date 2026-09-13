@@ -449,9 +449,6 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 
 .th-actions { display: flex; gap: 8px; margin-top: 12px; }
 .th-actions .btn { flex: 1 1 0; min-height: var(--h-btn); font-size: 14px; }
-/* K7: eigene Rueckmeldung des Trainers, eine Stufe leiser als die Hauptaktionen. */
-.th-own { display: flex; gap: 8px; margin-top: 8px; }
-.th-own .btn { flex: 1 1 0; min-height: var(--tap); font-size: 14px; }
 .th-rsvp { display: flex; gap: 8px; margin-top: 12px; }
 .th-rsvp .btn { flex: 1 1 0; min-height: var(--h-btn); font-size: 15px; }
 .termin-hero .frist { margin-top: 10px; }

@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-13-C";
+  var APP_BUILD = "2026-09-13-D";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -422,8 +422,6 @@
     const cancelled = e.status === "abgesagt";
     const future    = isFuture(e.datum);
     const trainer   = Roles.canManageEvents();
-    const me        = playerById[state.currentPlayerId];
-    const linked    = !!(currentProfile && currentProfile.player_id && me);
     const r         = state.rsvp[e.id + "|" + state.currentPlayerId] || {};
     const zeit = `${fmtWd(e.datum)} ${fmtDay(e.datum)}. ${fmtMon(e.datum)}`
       + (e.zeit ? ` · ${esc(e.zeit)}${e.ende ? "&#8211;" + esc(e.ende) : ""}` : "");
@@ -439,14 +437,13 @@
       </div>`;
 
     // Trainer (1a): Zahl rechts oben, darunter „Zusagen ansehen" + „N erinnern".
-    // K7: die eigene Zu-/Absage kommt als kompakte Zeile darunter zurueck -
-    // Trainer sind auch Spieler.
+    // K7: keine eigene Zu-/Absage im Hero - der Screenshot zeigt sie nicht.
+    // Der Trainer sagt fuer sich selbst auf der Terminkarte im Kalender zu.
     const trainerTeil = `
       <div class="th-actions">
         <button class="btn" data-rsvp-sheet="${e.id}">Zusagen ansehen</button>
         ${offenN > 0 ? `<button class="btn btn-primary" data-remind="${e.id}">${offenN} erinnern</button>` : ""}
-      </div>
-      ${!cancelled && future && linked ? rsvpZeile("th-own") : ""}`;
+      </div>`;
 
     // Spieler (1b): Ort, Zu-/Absage, Meldeschluss.
     const spielerTeil = `
