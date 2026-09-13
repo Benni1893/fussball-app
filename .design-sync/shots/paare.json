@@ -472,5 +472,91 @@
         "app": ".fine-right .badge"
       }
     }
+  },
+  "trainer-spielauswahl": {
+    "frame": "f-lineup-pick",
+    "weg": [
+      "#navMore",
+      "#moreLineup"
+    ],
+    "elemente": {
+      "Seitentitel": {
+        "ref": ".h1",
+        "app": ".page-head h1"
+      },
+      "Begleitsatz": {
+        "ref": ".sub",
+        "app": ".page-head p"
+      },
+      "Spielkarte": {
+        "ref": ".stack .card",
+        "app": ".tv-gcard"
+      },
+      "Datumswuerfel": {
+        "ref": ".stack .dbg",
+        "app": ".tv-gcard .event-date"
+      },
+      "Gegner": {
+        "ref": ".stack .rt",
+        "app": ".tv-gopp"
+      },
+      "Spielmeta": {
+        "ref": ".stack .rs.num",
+        "app": ".tv-gmeta"
+      },
+      "Plakette": {
+        "ref": ".stack .bdg",
+        "app": ".tv-gchip"
+      },
+      "Chevron": {
+        "ref": ".stack .chev",
+        "app": ".tv-garrow"
+      },
+      "Vorlagenliste": {
+        "ref": ".list",
+        "app": ".tv-tpls"
+      },
+      "Vorlagenzeile": {
+        "ref": ".list .row",
+        "app": ".tv-tpl"
+      },
+      "Vorlagenname": {
+        "ref": ".list .rt",
+        "app": ".tv-tpl-n"
+      }
+    }
+  },
+  "kasse": {
+    "frame": "f-kasse",
+    "weg": [
+      "#navMore",
+      "#moreKasse"
+    ],
+    "elemente": {
+      "Kennzahlraster": {
+        "ref": ".kpis.k3",
+        "app": ".kpi-grid.kpi-3"
+      },
+      "Kennzahl": {
+        "ref": ".kpi",
+        "app": ".kpi"
+      },
+      "Kennzahl-Wert": {
+        "ref": ".kpi-v",
+        "app": ".kpi-value"
+      },
+      "Abschnitt": {
+        "ref": ".sec",
+        "app": ".kasse-verbuchen"
+      },
+      "Reiter": {
+        "ref": ".chips",
+        "app": ".ks-tabs"
+      },
+      "Reiter-Chip": {
+        "ref": ".chip",
+        "app": ".ks-tabs .chip"
+      }
+    }
   }
 }

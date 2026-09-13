@@ -1332,6 +1332,7 @@ body.auth-mode .view { padding-left: 0; padding-right: 0; }
   display: flex; align-items: center; gap: 12px;
   width: 100%; text-align: left; padding: 12px 14px; min-height: var(--h-row);
 }
+.tv-gcard { border-left: 0; }
 .tv-gcard::before {
   content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
   border-radius: var(--radius) 0 0 var(--radius);
@@ -1339,14 +1340,15 @@ body.auth-mode .view { padding-left: 0; padding-right: 0; }
 }
 .tv-gcard .event-date { display: block; }
 .tv-gmain { flex: 1 1 auto; min-width: 0; }
-.tv-gopp { display: block; font-size: 14px; font-weight: 700; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tv-gmeta { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-top: 1px; }
+.tv-gopp { display: block; font-size: 14px; font-weight: 700; line-height: normal; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tv-gmeta { display: block; font-size: 12px; font-weight: 500; color: var(--muted); }
 /* Plakette wie .bdg in der Vorlage: aktiv gruen, offen gold. */
 .tv-gchip {
   flex: 0 0 auto; font-size: 10px; font-weight: 700; letter-spacing: .4px;
   padding: 3px 8px; border-radius: var(--radius-pill);
   background: var(--gold-badge-bg); color: var(--gold-ink); border: 1px solid var(--gold-badge-line);
-  box-shadow: var(--shadow-hair);
+  box-shadow: 0 1px 1px rgba(16,40,30,.05);
+  line-height: normal;
 }
 .tv-gchip.on { background: var(--green-badge-bg); color: var(--green-700); border-color: var(--green-badge-line); }
 .tv-garrow { flex: 0 0 auto; color: var(--muted); font-size: 18px; font-weight: 700; }
@@ -1625,10 +1627,7 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 /* ===================== Kasse V2: Anlage, Prüf-/Verbuch-Tabs, Audit ===================== */
 /* Drei KPIs nebeneinander (Offen / Gemeldet / Eingegangen), auch auf schmalen iPhones. */
 .kpi-grid.kpi-3 { grid-template-columns: repeat(3, 1fr); }
-.kpi-3 .kpi { padding: 12px 10px; }
-.kpi-3 .kpi-amt { font-size: 1.05rem; }
-.kpi-3 .kpi-label { font-size: .68rem; }
-.kpi-3 .kpi-sub { font-size: .7rem; }
+.kpi-3 .kpi-value, .kpi-3 .kpi-amt { font-size: 17px; }   /* Vorlage .kpis.k3 */
 
 /* Unter-Überschriften im Anlage-Block */
 .kasse-sub { font-size: .82rem; font-weight: 800; color: var(--ink); margin-top: 4px; display: flex; align-items: baseline; gap: 8px; }
