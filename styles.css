@@ -1526,16 +1526,26 @@ body.auth-mode .view { padding-left: 0; padding-right: 0; }
 .tv-bank { padding: 0 16px; }
 /* Abschnittstitel-Sprache wie im Rest der App. Bewusst nur .95rem statt 1.1rem:
    .tv-lu hat feste Hoehe, jede Zeile hier nimmt dem Spielfeld Platz weg. */
+.tv-bank { margin-top: 16px; }
 .tv-bank-h { display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
   font-size: .95rem; font-weight: 700; color: var(--ink); margin: 0 2px 5px; }
 .tv-bank-h span { font-size: .8rem; font-weight: 600; color: var(--muted); }
-.tv-bank-row { display: flex; gap: 6px; margin-top: 8px; }
-.tv-bslot { flex: 1 1 0; min-width: 0; min-height: var(--h-bslot); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border: 1px dashed var(--line); background: transparent; border-radius: var(--radius-btn); padding: 0; }
+.tv-bank-row { display: flex; gap: 8px; margin-top: 8px; }
+.tv-bslot {
+  flex: 1 1 0; min-width: 0; min-height: var(--h-bslot);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  border: 1px dashed var(--line-soft-3); border-radius: var(--radius-btn);
+  background: var(--bg); padding: 0; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.tv-bslot:active { transform: scale(.97); }
+/* Leerer Platz: "frei" wie in der Vorlage statt eines blassen Pluszeichens. */
+.tv-bslot .tv-bfrei { font-size: 9px; font-weight: 600; color: var(--muted); }
 .tv-bslot.filled { border-style: solid; border-color: var(--line-soft-2); background: var(--grad-bslot); box-shadow: var(--shadow-hair); }
 /* Vorlage .bnr/.bn: Nummer schlicht, kein Kreis. */
 .tv-bnr { color: var(--green-800); font-weight: 800; font-size: 13px; line-height: 1.1; }
 .tv-bn { font-size: 9px; font-weight: 600; color: var(--muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tv-bplus { font-size: 20px; font-weight: 400; color: var(--line); line-height: 1; }
+.tv-bplus { font-size: 16px; font-weight: 700; color: var(--muted); line-height: 1; }
 
 /* Formationen-Raster */
 .tv-fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -1918,7 +1928,7 @@ button.sg-stat:focus-visible { outline: 2px solid var(--green-700); outline-offs
 /* ---------- Kasse: Prüfen & verbuchen als Kartenstapel (Vorlage 3c) --------
    Genau eine Meldung im Blick, dahinter zwei Geisterkarten als Stapeltiefe.
    Die drei Reiter sind horizontal wischbare Seiten (K4). */
-.ks-pane { touch-action: pan-y; }
+.ks-deck { touch-action: pan-y; }   /* A4: hier wird geblaettert */
 .ks-tabs { margin-bottom: 12px; }
 .ks-bulk { display: flex; justify-content: flex-end; margin-bottom: 8px; }
 

@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-13-N";
+  var APP_BUILD = "2026-09-13-O";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -691,12 +691,15 @@
       .reduce((a, s) => a + strafeBetrag(s), 0);
 
     // A3: Wer verknuepft ist und offene Strafen hat, sieht den Kontoblock mit
-    // dem Bezahlweg - auch als Trainer oder Kassenwart. Die Kachel "Meine
-    // Strafen" entfaellt dann, sie stuende sonst doppelt.
+    // dem Bezahlweg - auch als Trainer oder Kassenwart.
+    // A5: Die Zeile "Meine Strafen" gibt es nur noch fuer Konten OHNE
+    // Spielerzuordnung. Ist verknuepft und offen, traegt der Kontoblock den
+    // Betrag; ist verknuepft und nichts offen, sagt das die gruene Zeile im
+    // Aufgabenblock - eine Null-Zeile daneben waere leeres Gewicht.
     const eigenerBlock = (kontoVerknuepft && meinOffen > 0) ? kontoBlockHtml() : "";
     const teamZeile = (trainer || Roles.canManageFines())
       ? `<div class="tile-rows">
-          ${(kontoVerknuepft && !eigenerBlock) ? `<div class="card tile" data-nav="meine-strafen" role="button" tabindex="0">
+          ${!kontoVerknuepft ? `<div class="card tile" data-nav="meine-strafen" role="button" tabindex="0">
             <span class="tile-t">Meine Strafen</span>
             <span class="amount num">${euro(meinOffen)} ›</span>
           </div>` : ""}
@@ -1036,7 +1039,7 @@
     const name = player ? player.name : (u.email || "—");
     const email = u.email || "—";
     const roleText = Roles.list.length ? Roles.list.map((r) => ROLE_LABEL[r] || r).join(" · ") : "Spieler";
-    const verwaltung = Roles.canManageSchedule();
+    const verwaltung = Roles.canManageSchedule() || Roles.canEditCatalog();
     // Phase 3: Sportstaetten-Koordinaten-Verwaltung ausgeblendet (DB + Feed bleiben aktiv).
     // ZUM REAKTIVIEREN diese eine Zeile auf sportstaettenCardHtml() setzen:
     const sportstaettenCard = ""; /* = sportstaettenCardHtml(); */
@@ -1050,6 +1053,7 @@
           <div class="set-greet-name">Angemeldet als ${esc(name)}</div>
           <div class="set-greet-role">${esc(roleText)}</div>
           <div class="set-row"><span class="set-label">E-Mail</span><span class="set-val">${esc(email)}</span></div>
+          ${u.player_id ? `<button class="btn" data-view-jump="profil" style="width:100%;margin-top:12px">Profil öffnen</button>` : ""}
           <button class="btn set-logout" data-logout>Abmelden</button>
         </div>
       </div>
@@ -2475,7 +2479,8 @@
         h += '<button class="tv-bslot filled" data-tvbankdel="' + pid + '" aria-label="' + esc(p.name) + ' von der Bank nehmen">' +
              '<span class="tv-bnr">' + (p.nr != null ? p.nr : "") + '</span><span class="tv-bn">' + esc(tvLastName(p.name)) + '</span></button>';
       } else {
-        h += '<button class="tv-bslot" data-tvbankadd aria-label="Bankspieler hinzufügen"><span class="tv-bplus">+</span></button>';
+        h += '<button class="tv-bslot" data-tvbankadd aria-label="Bankspieler hinzufügen">' +
+             '<span class="tv-bplus">+</span><span class="tv-bfrei">frei</span></button>';
       }
     }
     if (ro && !tv.bank.length) h += '<div class="tv-bank-empty">Keine Bank hinterlegt</div>';
@@ -3314,7 +3319,7 @@
       </div>`}
 
       <div class="section-title kasse-verbuchen"><h2>Prüfen &amp; verbuchen</h2></div>
-      <div class="ks-pane" data-ks-swipe>
+      <div class="ks-pane">
         <div class="chips ks-tabs">
           <button class="chip ${kasse.tab === "pruefen" ? "is-active" : ""}" data-kstab="pruefen">Zu prüfen (${gemeldet.length})</button>
           <button class="chip ${kasse.tab === "offen" ? "is-active" : ""}" data-kstab="offen">Offen (${offen.length})</button>
@@ -3329,32 +3334,58 @@
     startCountdowns();
   }
 
-  /* K4: die drei Reiter sind horizontal wischbare Seiten. Der Wisch wechselt den
-     Reiter - nicht die Meldung im Stapel; die rueckt nach einer Entscheidung
-     von selbst nach (so steht es auch in der Bildunterschrift der Vorlage).
-     Senkrechte Gesten bleiben Scrollen, darum die 1,5-fache Schwelle. */
+  /* A4: Der Wisch blaettert im Kartenstapel zur naechsten oder vorigen Meldung -
+     nicht mehr durch die Reiter (K4 damit revidiert). Die Reiter wechselt man
+     per Tap auf die Chips. Die Karte wandert dabei kurz zur Seite und kommt von
+     der anderen zurueck. */
   const KS_TABS = ["pruefen", "offen", "bezahlt"];
   function ksAttachSwipe() {
-    const pane = viewEl.querySelector("[data-ks-swipe]");
-    if (!pane) return;
+    const deck = viewEl.querySelector(".ks-deck");
+    if (!deck) return;
+    const karte = deck.querySelector(".ks-card");
+    if (!karte || karte.classList.contains("ks-leer")) return;
+
     let x0 = 0, y0 = 0, aktiv = false;
-    pane.addEventListener("touchstart", (ev) => {
+    deck.addEventListener("touchstart", (ev) => {
       if (ev.touches.length !== 1) { aktiv = false; return; }
       x0 = ev.touches[0].clientX; y0 = ev.touches[0].clientY; aktiv = true;
     }, { passive: true });
-    pane.addEventListener("touchend", (ev) => {
+    deck.addEventListener("touchend", (ev) => {
       if (!aktiv) return;
       aktiv = false;
       const t = ev.changedTouches && ev.changedTouches[0];
       if (!t) return;
       const dx = t.clientX - x0, dy = t.clientY - y0;
       if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
-      const i = KS_TABS.indexOf(kasse.tab);
-      const next = i + (dx < 0 ? 1 : -1);
-      if (next < 0 || next >= KS_TABS.length) return;
-      kasse.tab = KS_TABS[next];
-      renderKasse();
+      ksBlaettern(dx < 0 ? 1 : -1, karte);
     }, { passive: true });
+  }
+
+  /* Eine Meldung weiter oder zurueck, mit kurzer Bewegung. Der Stapel ist
+     ringfoermig: hinter der letzten kommt wieder die erste. */
+  function ksBlaettern(richtung, karte) {
+    const anzahl = aktiveStrafen().filter((s) => fineStatus(s) === "gemeldet").length;
+    if (anzahl < 2) return;
+    const neu = (kasse.pruefIdx + richtung + anzahl) % anzahl;
+    if (neu === kasse.pruefIdx) return;
+    const fertig = () => { kasse.pruefIdx = neu; renderKasse(); };
+    if (!karte || !karte.animate) { fertig(); return; }
+    const weg = richtung > 0 ? -70 : 70;
+    karte.animate(
+      [{ transform: "translateX(0)", opacity: 1 },
+       { transform: `translateX(${weg}px)`, opacity: 0 }],
+      { duration: 130, easing: "ease-in" }
+    ).addEventListener("finish", () => {
+      fertig();
+      const neueKarte = viewEl.querySelector(".ks-card");
+      if (neueKarte && neueKarte.animate) {
+        neueKarte.animate(
+          [{ transform: `translateX(${-weg}px)`, opacity: 0 },
+           { transform: "translateX(0)", opacity: 1 }],
+          { duration: 160, easing: "ease-out" }
+        );
+      }
+    });
   }
 
   // Vorgang speichern: pro Spieler × Zeile ein Eintrag – alles in EINER Transaktion
@@ -3560,7 +3591,7 @@
       if (unpay) { if (!window.confirm("Buchung rückgängig machen? Die Strafe steht wieder als offen.")) return; try { await DB.setFinePaid(unpay.dataset.kasseUnpay, false); await reloadData(); tvToast("Zurückgesetzt"); } catch (e) { window.alert("Rückgängig fehlgeschlagen: " + ((e && e.message) || e)); } return; }
     }
 
-    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-koord-save],[data-my-status],[data-logout]");
+    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-koord-save],[data-my-status],[data-logout]");
     if (!t) return;
 
     // Spieler: eigenen Fitnessstatus setzen (RLS/RPC erlauben nur die eigene Zeile)
@@ -3601,6 +3632,7 @@
     // Termin anlegen / bearbeiten (Trainer/Kassenwart – zusätzlich per RLS erzwungen)
     if (t.hasAttribute("data-termin-new")) { if (Roles.canManageSchedule()) openTerminModal(null); return; }
     // B3: Loeschen direkt von der Karte (bisher nur im Bearbeiten-Dialog).
+    if (t.dataset.viewJump) { switchView(t.dataset.viewJump); return; }
     if (t.dataset.terminDel) {
       const ev = DEMO.events.find((x) => x.id === t.dataset.terminDel);
       if (ev) await deleteTermin(ev);
@@ -4330,8 +4362,9 @@
     canManageFines() { return this.has("treasurer") || this.isAdmin(); },
     // Auto-Strafen darf auch der Trainer entfernen (Spieler war entschuldigt).
     canDeleteAutoFine() { return this.canManageFines() || this.canManageEvents(); },
-    // Spielplan/BFV: Trainer, Kassenwart oder Admin.
-    canManageSchedule() { return this.canManageEvents() || this.canManageFines(); },
+    // Spielplan und Terminpflege: Trainer oder Admin. Der Kassenwart hat
+    // hier nichts zu bearbeiten (A1).
+    canManageSchedule() { return this.canManageEvents(); },
   };
 
   function authErrorText(msg) {
@@ -4375,7 +4408,9 @@
     } else if (specials.length === 1) {
       btn.removeAttribute("data-more"); btn.setAttribute("data-view", specials[0]);
     } else {
-      btn.removeAttribute("data-more"); btn.setAttribute("data-view", "profil");
+      // A2: reine Spieler haben vier Tabs. Das Profil erreichen sie ueber
+      // das Zahnrad in der Kopfzeile, nicht ueber einen fuenften Tab.
+      btn.style.display = "none";
     }
   }
 
