@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-13-L";
+  var APP_BUILD = "2026-09-13-M";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -204,6 +204,23 @@
     return isFinite(t) ? t : null;
   }
   // Meldeschluss: Spiel 24 h, Training 3 h vor Beginn. null, wenn nicht relevant.
+  /* Ende eines Termins in Millisekunden. Mit hinterlegtem Ende genau das,
+     sonst Beginn plus 2 h beim Spiel und plus 1,5 h beim Training. Ohne Zeit
+     laeuft der Termin bis Mitternacht. (A1) */
+  function terminEndeMs(e) {
+    const start = eventStartMs(e);
+    const tagEnde = parseDate(e.datum).getTime() + 24 * 60 * 60 * 1000;
+    if (start == null) return tagEnde;
+    if (!e.zeit) return tagEnde;
+    if (e.ende && /^\d{1,2}:\d{2}$/.test(e.ende)) {
+      const t = new Date(`${e.datum}T${e.ende}:00`).getTime();
+      if (isFinite(t)) return t > start ? t : t + 24 * 60 * 60 * 1000;   // ueber Mitternacht
+    }
+    return start + (e.typ === "spiel" ? 120 : 90) * 60 * 1000;
+  }
+  // Termin laeuft noch oder steht bevor.
+  function istOffen(e) { return terminEndeMs(e) > Date.now(); }
+
   function meldeschlussMs(e) {
     if (e.typ !== "spiel" && e.typ !== "training") return null;
     const start = eventStartMs(e);
@@ -494,11 +511,19 @@
 
     // --- Kassenwart/Admin: gemeldete Zahlungen pruefen -------------------------
     if (Roles.canManageFines()) {
-      const n = aktiveStrafen().filter((s) => fineStatus(s) === "gemeldet").length;
-      if (n > 0) {
+      const gemeldet = aktiveStrafen().filter((s) => fineStatus(s) === "gemeldet");
+      if (gemeldet.length) {
+        // A4: „seit N Tagen" aus dem aeltesten gemeldeten Eintrag. Ein
+        // Meldezeitpunkt steht nicht in fines, darum das Datum der Strafe -
+        // das ist die aelteste belastbare Marke, die ohne Nachladen da ist.
+        const aeltestes = gemeldet.map((s) => s.datum).filter(Boolean).sort()[0];
+        const tage = aeltestes
+          ? Math.floor((parseDate(HEUTE) - parseDate(aeltestes)) / 86400000) : 0;
+        const seit = tage <= 0 ? "seit heute" : tage === 1 ? "seit einem Tag" : "seit " + tage + " Tagen";
         zeilen.push({
-          art: "pay", zahl: n, titel: n === 1 ? "Zahlung bestätigen" : "Zahlungen bestätigen",
-          sub: "Kassenwart · warten auf Eingang", attr: "data-task-pay",
+          art: "pay", zahl: gemeldet.length,
+          titel: gemeldet.length === 1 ? "Zahlung bestätigen" : "Zahlungen bestätigen",
+          sub: "Kassenwart · " + seit, attr: "data-task-pay",
         });
       }
     }
@@ -506,8 +531,8 @@
     // --- Trainer/Admin: unvollstaendige Aufstellung + fehlende Rueckmeldungen ---
     if (Roles.canManageEvents()) {
       const spiel = DEMO.events
-        .filter((e) => e.typ === "spiel" && isFuture(e.datum) && e.status !== "abgesagt")
-        .sort((a, b) => a.datum.localeCompare(b.datum))[0];
+        .filter((e) => e.typ === "spiel" && istOffen(e) && e.status !== "abgesagt")
+        .sort((a, b) => (eventStartMs(a) || 0) - (eventStartMs(b) || 0))[0];
       if (spiel) {
         const lu = (DEMO.lineups || []).find((l) => l.eventId === spiel.id && l.isActive && !l.isTemplate);
         const slots = lu ? (FORMATIONS[lu.formation] || []) : [];
@@ -636,7 +661,11 @@
 
   function renderDashboard() {
     const me = playerById[state.currentPlayerId];
-    const naechste = DEMO.events.filter((e) => isFuture(e.datum)).sort((a, b) => a.datum.localeCompare(b.datum));
+    // A1: „naechster Termin" heisst noch nicht zu Ende, nicht „heute oder
+    // spaeter". Sonst steht ein Spiel von 15:00 abends um acht noch als HEUTE
+    // im Hero. Sortiert wird nach Beginn, nicht nur nach Datum.
+    const naechste = DEMO.events.filter(istOffen)
+      .sort((a, b) => (eventStartMs(a) || 0) - (eventStartMs(b) || 0));
     const naechstes = naechste[0];
     const trainer = Roles.canManageEvents();
 
@@ -652,24 +681,30 @@
 
     const kontoVerknuepft = !!(currentProfile && currentProfile.player_id && me);
     const meinOffen  = kontoVerknuepft ? summeOffenSpieler(me.id) : 0;
-    const kassenBestand = aktiveStrafen()
-      .filter((s) => fineStatus(s) === "bezahlt")
+    // A2: der Filter stand auf "bezahlt", der Status heisst aber "bestätigt" -
+    // die Summe war deshalb immer 0,00 EUR. Die Zeile zeigt jetzt, was sie
+    // verspricht: die offenen Strafen des Teams.
+    const teamOffen = aktiveStrafen()
+      .filter((s) => fineStatus(s) === "offen")
       .reduce((a, s) => a + strafeBetrag(s), 0);
 
-    // Geldblock: Trainer/Kassenwart sehen die beiden Kacheln aus 1a,
-    // Spieler den vollen Kontoblock aus 1b.
-    const geld = trainer || Roles.canManageFines()
+    // A3: Wer verknuepft ist und offene Strafen hat, sieht den Kontoblock mit
+    // dem Bezahlweg - auch als Trainer oder Kassenwart. Die Kachel "Meine
+    // Strafen" entfaellt dann, sie stuende sonst doppelt.
+    const eigenerBlock = (kontoVerknuepft && meinOffen > 0) ? kontoBlockHtml() : "";
+    const teamZeile = (trainer || Roles.canManageFines())
       ? `<div class="tile-rows">
-          ${kontoVerknuepft ? `<div class="card tile" data-nav="meine-strafen" role="button" tabindex="0">
+          ${(kontoVerknuepft && !eigenerBlock) ? `<div class="card tile" data-nav="meine-strafen" role="button" tabindex="0">
             <span class="tile-t">Meine Strafen</span>
-            <span class="amount num${meinOffen > 0 ? " is-warn" : ""}">${euro(meinOffen)} ›</span>
+            <span class="amount num">${euro(meinOffen)} ›</span>
           </div>` : ""}
           <div class="card tile" data-nav="kasse" role="button" tabindex="0">
             <span class="tile-t">Mannschaftskasse</span>
-            <span class="amount num">${euro(kassenBestand)} ›</span>
+            <span class="amount num${teamOffen > 0 ? " is-warn" : ""}">${euro(teamOffen)} ›</span>
           </div>
         </div>`
-      : (kontoVerknuepft ? kontoBlockHtml() : "");
+      : "";
+    const geld = eigenerBlock + teamZeile;
 
     viewEl.innerHTML = `
       <div class="page-head h1row">
@@ -2270,10 +2305,12 @@
     tv.view = "games"; tv.dirty = false; tv.readonly = false; tvClosePanels();
     const up = DEMO.events.filter(e => e.typ === "spiel" && isFuture(e.datum)).sort((a, b) => a.datum.localeCompare(b.datum));
     viewEl.innerHTML =
-      '<div class="page-head"><h1>Trainer</h1><p>Spiel wählen, danach baust du die Elf auf dem Platz.</p></div>' +
-      // K3: ein reiner Trainer kommt ueber den 5. Tab direkt hierher und haette
-      // sonst keinen Weg zum Kader. Darum steht der Sprung im Kopf der Seite.
-      '<div class="tv-headlinks"><button class="link-btn" data-goto="kader">Kader ansehen</button></div>' +
+      // A6/K3: „Kader ansehen" steht als kleiner Link rechts neben dem Titel,
+      // nicht als frei stehende Zeile darunter. Ein reiner Trainer kommt ueber
+      // den 5. Tab direkt hierher und haette sonst keinen Weg zum Kader.
+      '<div class="page-head tv-head"><div class="tv-headrow"><h1>Trainer</h1>' +
+      '<button class="link-btn" data-goto="kader">Kader ansehen</button></div>' +
+      '<p>Spiel wählen, danach baust du die Elf auf dem Platz.</p></div>' +
       (up.length ? '<div class="tv-glist">' + up.map(tvGameCard).join("") + '</div>'
                  : '<div class="empty">Kein anstehendes Spiel. Sobald im Kalender ein Spiel angelegt ist, kannst du hier die Aufstellung bauen.</div>') +
       tvTemplatesHtml();
@@ -2297,7 +2334,13 @@
      Papierkorb, weil ein Antippen ohne offenes Spiel kein Ziel haette. */
   function tvTemplatesHtml() {
     const tpl = (DEMO.lineups || []).filter(l => l.isTemplate);
-    if (!tpl.length) return "";
+    // A6: Der Abschnitt steht immer da. Ohne Vorlage sagt er, wie man eine anlegt -
+    // sonst sucht man den Weg vergeblich.
+    if (!tpl.length) {
+      return '<div class="section-title"><h2>Vorlagen</h2></div>' +
+        '<div class="card card-pad tv-tpl-leer"><p class="rs">Noch keine Vorlage. ' +
+        'Speichere eine Aufstellung über das Menü ⋯ als Vorlage.</p></div>';
+    }
     return '<div class="section-title"><h2>Vorlagen</h2></div>' +
       '<div class="card tv-tpls">' + tpl.map(l =>
         '<div class="tv-tpl"><span class="tv-tpl-main"><span class="tv-tpl-n">' + esc(l.name) + '</span>' +
@@ -2399,7 +2442,9 @@
           (ro ? '<span class="tv-ic" aria-hidden="true"></span>' : '<button class="tv-ic" data-tvmenu aria-label="Mehr">⋯</button>') +
         '</div>' +
         '<div class="tv-formbar">' + tvFormbarHtml() + '</div>' +
-        '<div class="tv-field"><div class="tv-pitch">' + tvPitchHtml() + '</div>' + ((!ro && n === 0 && last && !tv.hideCta) ? tvEmptyCta(last) : "") + '</div>' +
+        '<div class="tv-field"><div class="tv-pitch">' + tvPitchHtml() +
+          ((!ro && n === 0 && last && !tv.hideCta) ? '<div class="tv-cta-ov">' + tvEmptyCta(last) + '</div>' : "") +
+          '</div></div>' +
         tvBankHtml() +
         (ro
           ? '<div class="tv-actions"><div class="tv-ro-note">Vergangenes Spiel – nur ansehen, nicht bearbeiten</div></div>'
@@ -3107,7 +3152,7 @@
      Entscheidung wird die Liste kuerzer, der Index bleibt stehen - dadurch
      rueckt die naechste Meldung von selbst nach. */
   function renderKassePruefen(list) {
-    if (!list.length) return `<div class="empty">Nichts zu prüfen.</div>`;
+    if (!list.length) return `<div class="ks-deck"><div class="card ks-card ks-leer"><div class="lbl">Prüfen &amp; verbuchen</div><div class="ks-leer-t">Nichts zu prüfen</div><div class="rs">Sobald jemand eine Zahlung meldet, liegt sie hier.</div></div></div>`;
     const sorted = list.slice().sort((a, b) => a.player.name.localeCompare(b.player.name));
     if (kasse.pruefIdx >= sorted.length || kasse.pruefIdx < 0) kasse.pruefIdx = 0;
     const i = kasse.pruefIdx, s = sorted[i], rest = sorted.length - 1;
@@ -3140,7 +3185,7 @@
   }
 
   function renderKasseOffen(list) {
-    if (!list.length) return `<div class="empty">Keine offenen Posten.</div>`;
+    if (!list.length) return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Keine offenen Posten</div></div>`;
     const sorted = list.slice().sort((a, b) => a.player.name.localeCompare(b.player.name));
     return `<div class="krow-list">${sorted.map((s) => krowHtml(
       s,
@@ -3159,7 +3204,7 @@
   }
 
   function renderKasseBezahlt(list, all) {
-    if (!all.length) return `<div class="empty">Noch keine bestätigten Zahlungen.</div>`;
+    if (!all.length) return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Noch keine bestätigten Zahlungen</div></div>`;
     const players = [...new Set(all.map((s) => s.playerId))].map((id) => playerById[id]).filter(Boolean).sort((a, b) => a.name.localeCompare(b.name));
     const filter = `<div class="toolbar"><select class="kasse-method kasse-bezfilter" data-kasse-bezfilter>
         <option value="">Alle Spieler</option>
