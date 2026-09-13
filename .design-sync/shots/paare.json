@@ -404,5 +404,69 @@
         "app": ".role-box, .rollen-tbl .box"
       }
     }
+  },
+  "konto": {
+    "frame": "f-konto",
+    "weg": [
+      ".nav-btn[data-view=\"strafen\"]"
+    ],
+    "elemente": {
+      "Kontoblock": {
+        "ref": ".bd > .card:first-of-type",
+        "app": ".mine-banner"
+      },
+      "Kontomarke": {
+        "ref": ".bd > .card .lbl",
+        "app": ".mb-label"
+      },
+      "Betrag": {
+        "ref": ".bd > .card .num",
+        "app": ".mb-value"
+      },
+      "Kennzahlraster": {
+        "ref": ".kpis",
+        "app": ".kpi-grid"
+      },
+      "Kennzahl": {
+        "ref": ".kpi",
+        "app": ".kpi"
+      },
+      "Kennzahl-Wert": {
+        "ref": ".kpi-v",
+        "app": ".kpi-value"
+      },
+      "Kennzahl-Unter": {
+        "ref": ".kpi-s",
+        "app": ".kpi-sub"
+      },
+      "Liste": {
+        "ref": ".list",
+        "app": ".fine-list"
+      },
+      "Zeile": {
+        "ref": ".list .row",
+        "app": ".fine-row"
+      },
+      "Avatar": {
+        "ref": ".list .av",
+        "app": ".fine-row .avatar"
+      },
+      "Name": {
+        "ref": ".list .rt",
+        "app": ".fine-name"
+      },
+      "Vergehen": {
+        "ref": ".list .rs",
+        "app": ".fine-desc"
+      },
+      "Betrag rechts": {
+        "ref": ".list .amt",
+        "app": ".fine-amt"
+      },
+      "Plakette": {
+        "ref": ".list .bdg",
+        "app": ".fine-right .badge"
+      }
+    }
   }
 }
