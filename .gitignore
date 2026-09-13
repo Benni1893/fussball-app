@@ -33,3 +33,4 @@ preview/
 # design-sync: Bauergebnis, wird aus .design-sync/ neu erzeugt
 ds-bundle/
 node_modules/
+migrations/
