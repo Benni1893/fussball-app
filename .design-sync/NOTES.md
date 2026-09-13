@@ -49,6 +49,15 @@ Dateien unter `.design-sync/`.
 
 ## Befunde im Repo (nicht behoben, nur notiert)
 
+- **Spielzeile der Platzansicht bleibt hell.** Vorlage 2c und der Screenshot
+  zeichnen die Zeile mit Gegner, Datum und Formation im dunkelgruenen Verlauf.
+  Dort gibt es keine App-Kopfzeile; in der App ist die feste Kopfzeile mit Logo
+  und Zahnrad ein Fixpunkt. Beide gruen waeren zwei gleiche Leisten
+  uebereinander. Entscheidung vom 13.09.2026: die Spielzeile bleibt hell mit
+  grauer Trennlinie. Die Masse der Vorlage gelten weiter - 14px oben und unten,
+  16px seitlich, 12px Luecke, 24px-Symbole mit 44px-Trefferflaeche, Titel 15px
+  mit 1,2 Zeilenhoehe, Unterzeile 11,5px.
+
 - **Tote Tokens nach der Vorlagen-Umstellung (fuer Paket 14).** Weder styles.css
   noch app.js benutzen noch `--spiel-heim`, `--spiel-ausw`, `--fs-event-time`,
   `--typ-training` oder `--typ-sonstiges`; sie haengen nur noch an Karten unter

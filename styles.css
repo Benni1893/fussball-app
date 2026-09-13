@@ -1374,14 +1374,17 @@ body.auth-mode .view { padding-left: 0; padding-right: 0; }
 /* Zustand 2: Aufstellung – füllt Bereich zwischen Kopfzeile und Nav */
 .view:has(.tv-lu) { padding: 0; max-width: none; }
 .tv-lu { display: flex; flex-direction: column; }
-/* Vorlage 2c zeichnet die Spiel-Kopfzeile im gruenen Verlauf. Sie steht in
-   der App unter der festen App-Kopfzeile, die als Fixpunkt bleibt. */
-.tv-top { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: var(--grad-hd); box-shadow: var(--shadow-hd); color: #fff; }
-.tv-ic { flex: 0 0 auto; width: 24px; height: 24px; position: relative; border: 0; background: none; color: #fff; font-size: 22px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+/* Bewusste Abweichung von Vorlage 2c: dort ist die Spielzeile dunkelgruen,
+   weil die Vorlage auf diesem Screen die App-Kopfzeile weglaesst. Die feste
+   Kopfzeile ist Fixpunkt, also stuenden hier zwei gruene Leisten
+   uebereinander - eine Doppelung. Die Spielzeile bleibt darum hell.
+   Masse (14/16px innen, 12px Luecke, 24px-Symbole) kommen aus der Vorlage. */
+.tv-top { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: var(--card); border-bottom: 1px solid var(--line); color: var(--ink); }
+.tv-ic { flex: 0 0 auto; width: 24px; height: 24px; position: relative; border: 0; background: none; color: var(--green-800); font-size: 22px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
 .tv-ic::after { content: ""; position: absolute; top: 50%; left: 50%; width: var(--tap); height: var(--tap); transform: translate(-50%,-50%); }
 .tv-hi { flex: 1 1 auto; min-width: 0; text-align: left; }
 .tv-game { font-weight: 700; font-size: 15px; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tv-sub { font-size: 11.5px; font-weight: 500; color: #a8c9b8; font-variant-numeric: tabular-nums; line-height: 1.3; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tv-sub { font-size: 11.5px; font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums; line-height: 1.3; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tv-formbar { display: flex; gap: 7px; overflow-x: auto; padding: 0 16px; margin: 14px 0 10px; scrollbar-width: none; }
 .tv-formbar::-webkit-scrollbar { display: none; }
 .tv-fpill { flex: 0 0 auto; min-height: var(--tap); display: flex; align-items: center; justify-content: center; padding: 8px 12px; border: 1px solid var(--line-soft-2); background: var(--grad-chip); border-radius: var(--radius-btn); font-weight: 700; font-size: 12px; color: var(--muted); box-shadow: var(--shadow-hair); }
