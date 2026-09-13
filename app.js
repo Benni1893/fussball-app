@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-13-H";
+  var APP_BUILD = "2026-09-13-I";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -4452,7 +4452,7 @@
           <button class="chip" data-sim="player">Spieler</button>
           <button class="chip" data-sim="coach">Trainer</button>
           <button class="chip" data-sim="treasurer">Kassenwart</button>
-          <button class="chip" data-sim="admin">Admin (normal)</button>
+          <button class="chip" data-sim="admin">Admin</button>
         </div>
         <div class="sim-switch-hint">Reine Anzeige-Vorschau – ändert nichts an deinen Rechten oder Daten. Alle Zugriffe bleiben serverseitig per RLS abgesichert.</div>
       </div>

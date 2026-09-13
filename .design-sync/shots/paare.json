@@ -377,7 +377,7 @@
       },
       "Vorschau-Marke": {
         "ref": ".card .lbl",
-        "app": ".sim-switch .kpi-label, .sim-switch .lbl"
+        "app": ".sim-switch-label"
       },
       "Tabelle": {
         "ref": ".tbl",
@@ -402,6 +402,10 @@
       "Kaestchen": {
         "ref": ".box",
         "app": ".role-box, .rollen-tbl .box"
+      },
+      "Vorschau-Hinweis": {
+        "ref": ".card .rs",
+        "app": ".sim-switch-hint"
       }
     }
   },

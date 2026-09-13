@@ -336,11 +336,11 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 }
 
 /* Umschalter in der Rollen-Ansicht */
-.sim-switch { margin-bottom: 14px; }
-.sim-switch-label { font-size: .74rem; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); font-weight: 700; margin-bottom: 8px; }
-.sim-switch-btns { display: flex; gap: 8px; flex-wrap: wrap; }
-.sim-switch-btns .chip { min-height: 40px; }
-.sim-switch-hint { font-size: .78rem; color: var(--muted); margin-top: 8px; }
+.sim-switch { margin-top: 16px; }
+.sim-switch-label { font-size: 11px; line-height: 1; text-transform: uppercase; letter-spacing: .68px; color: var(--muted); font-weight: 700; margin-bottom: 10px; }
+.sim-switch-btns { display: flex; gap: 7px; flex-wrap: wrap; }
+.sim-switch-btns .chip { min-height: var(--tap); }
+.sim-switch-hint { font-size: 12px; font-weight: 500; color: var(--muted); margin-top: 10px; }
 
 /* ---------- Layout --------------------------------------------------------- */
 .view {
@@ -618,8 +618,12 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .rsvp-reason { font-size: .8rem; color: var(--red-600); }
 
 /* ---------- Tabellen ------------------------------------------------------- */
-.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); box-shadow: var(--shadow-sm); }
-table { width: 100%; border-collapse: collapse; min-width: 540px; }
+.table-wrap {
+  margin-top: 16px; overflow: hidden;
+  border-radius: var(--radius); border: 1px solid var(--line-soft);
+  background: var(--card); box-shadow: var(--shadow-card);
+}
+table { width: 100%; border-collapse: collapse; }
 thead th {
   text-align: left;
   font-size: .74rem;
@@ -1911,7 +1915,30 @@ button.sg-stat:focus-visible { outline: 2px solid var(--green-700); outline-offs
 }
 .rollen-tbl td { padding: 9px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; }
 .rollen-av   { width: 28px; height: 28px; font-size: 11px; }
-.rollen-name { font-size: 13px; font-weight: 700; line-height: 1.3; }
+/* Kontrollkaestchen im Vorlagenstil (.box). Die 44px-Trefferflaeche sitzt
+   als Pseudo-Element darum, damit die Tabellenzeile nicht waechst. */
+.role-box {
+  -webkit-appearance: none; appearance: none; position: relative;
+  width: 20px; height: 20px; margin: 0; vertical-align: middle;
+  border: 1.5px solid var(--dot-off); border-radius: var(--radius-box);
+  background: var(--card); cursor: pointer;
+}
+.role-box::after {
+  content: ""; position: absolute; top: 50%; left: 50%;
+  width: var(--tap); height: var(--tap); transform: translate(-50%, -50%);
+}
+.role-box:checked {
+  background: var(--grad-btn); border-color: var(--green-650);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.25);
+}
+/* Haken als gedrehtes Winkelstueck - kein Zeichensatz noetig. */
+.role-box:checked::before {
+  content: ""; position: absolute; left: 6px; top: 2px;
+  width: 5px; height: 10px; border: solid #fff; border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.role-box:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; }
+.rollen-name { font-size: 13px; font-weight: 700; line-height: normal; }
 .rollen-mail { font-size: 11px; font-weight: 500; color: var(--muted); }
 
 /* --- Anmeldung (5a) -------------------------------------------------------- */
