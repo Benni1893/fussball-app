@@ -1,0 +1,18 @@
+{
+  "anmeldung": {
+    "frame": "f-anmeldung",
+    "weg": [],
+    "elemente": {
+      "Grundflaeche": { "ref": ".auth",        "app": ".auth-wrap" },
+      "Karte":        { "ref": ".auth-card",   "app": ".auth-card" },
+      "Wappen":       { "ref": ".auth-crest img", "app": ".auth-crest img" },
+      "Titel":        { "ref": ".auth-t",      "app": ".auth-title" },
+      "Untertitel":   { "ref": ".auth-s",      "app": ".auth-sub" },
+      "Feldname":     { "ref": ".fld .fl",     "app": ".auth-field span" },
+      "Eingabefeld":  { "ref": ".fld .in",     "app": ".auth-field input" },
+      "Knopf":        { "ref": ".auth-card .btn.wide", "app": ".auth-submit" },
+      "Vergessen":    { "ref": ".auth-card a[href='#f-anmeldung']", "app": ".auth-forgot" },
+      "Wechsel":      { "ref": ".auth-sw",     "app": ".auth-switch" }
+    }
+  }
+}

@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-12-H";
+  var APP_BUILD = "2026-09-13-A";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -4378,7 +4378,7 @@
           ${authError ? `<div class="auth-error">${esc(authError)}</div>` : ""}
           ${authInfo ? `<div class="auth-info">${esc(authInfo)}</div>` : ""}
           <label class="auth-field"><span>E-Mail</span>
-            <input type="email" name="email" autocomplete="email" required></label>
+            <input type="email" name="email" autocomplete="email" placeholder="name@example.de" required></label>
           ${needPw ? `<label class="auth-field"><span>Passwort</span>
             <input type="password" name="password" minlength="6"
               autocomplete="${mode === "login" ? "current-password" : "new-password"}" required></label>` : ""}
