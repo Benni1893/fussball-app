@@ -18,32 +18,20 @@ await p.click('.auth-submit');
 await p.waitForSelector('.app-nav', { timeout: 25000 });
 await p.waitForTimeout(2200);
 
-await p.evaluate(() => document.querySelector('.nav-btn[data-view="kalender"]').click());
+await p.evaluate(() => document.querySelector('.nav-btn[data-view="strafen"]').click());
 await p.waitForTimeout(1600);
 
 console.log(await p.evaluate(() => {
-  const o = [];
-  const h = (el) => Math.round(el.getBoundingClientRect().height);
-  const c = document.querySelector('.chip');
-  const ch = document.querySelector('.chips');
-  if (c) {
-    o.push('Chip sichtbar   : ' + h(c) + 'px');
-    o.push('Chip Treffer    : ' + getComputedStyle(c, '::after').height);
-  }
-  if (ch) o.push('Filterreihe     : ' + h(ch) + 'px, wrap=' + getComputedStyle(ch).flexWrap);
-  const pc = document.querySelector('.page-head + .chips');
-  if (pc) o.push('Titel -> Filter : ' + getComputedStyle(pc).marginTop);
-  const tr = document.querySelector('.e-trainer');
-  if (tr) {
-    o.push('Aktionszeile    : ' + h(tr) + 'px');
-    o.push('  Inhalt        : ' + [...tr.children]
-      .map((x) => x.tagName.toLowerCase() + '.' + String(x.className).split(' ')[0]).join(' + '));
-    const ib = tr.querySelector('.icon-btn');
-    if (ib) o.push('  Icon-Knopf    : ' + h(ib) + 'px');
-    o.push('  Rahmen        : ' + getComputedStyle(tr.querySelector('.link-btn') || tr).borderWidth);
-  } else {
-    o.push('Aktionszeile    : keine gefunden');
-  }
+  const o = [], h = (el) => Math.round(el.getBoundingClientRect().height);
+  const k = document.querySelector('.kpi');
+  if (k) { const c = getComputedStyle(k);
+    o.push('Kennzahl        : ' + h(k) + 'px, innen ' + c.paddingTop + '/' + c.paddingLeft); }
+  const ch = document.querySelector('.kpi-grid + .chips');
+  if (ch) { const r1 = document.querySelector('.kpi-grid').getBoundingClientRect(), r2 = ch.getBoundingClientRect();
+    o.push('Kacheln -> Chips: ' + Math.round(r2.top - r1.bottom) + 'px Luft, z-index=' + getComputedStyle(ch).zIndex); }
+  const l = document.querySelector('.fine-list');
+  if (l) { const r1 = document.querySelector('.chips').getBoundingClientRect();
+    o.push('Chips -> Liste  : ' + Math.round(l.getBoundingClientRect().top - r1.bottom) + 'px'); }
   return o.join('\n');
 }));
 await b.close();

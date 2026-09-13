@@ -367,7 +367,8 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .kpi {
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 12px 13px;
+  padding: 12px 14px;
+  min-height: 84px;
   position: relative;
   overflow: hidden;
 }
@@ -706,13 +707,20 @@ tbody tr:hover { background: #fbfdfc; }
    Statuszeile. Der Bearbeiten-Stift rueckt ans rechte Ende. */
 .e-trainer {
   display: flex; align-items: center; gap: 14px;
-  margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line);
+  min-height: 40px;
+  margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line);
 }
 .e-trainer .link-btn { font-size: 13px; font-weight: 600; }
 .e-trainer .e-tr-rechts { margin-left: auto; display: flex; align-items: center; gap: 2px; }
 /* Der Stift stand frei schwebend neben zwei Kaesten - jetzt sitzt er mit dem
    Papierkorb rechts in derselben Zeile, ohne Rahmen. */
-.e-trainer .icon-btn { width: var(--tap); height: var(--tap); margin: -10px 0; }
+/* Symbol 20px sichtbar, 44px Trefferflaeche - ohne die Zeile zu dehnen. */
+.e-trainer .icon-btn { position: relative; width: 28px; height: 28px; margin: -8px 0; }
+.e-trainer .icon-btn svg { width: 20px; height: 20px; }
+.e-trainer .icon-btn::after {
+  content: ""; position: absolute; top: 50%; left: 50%;
+  width: var(--tap); height: var(--tap); transform: translate(-50%,-50%);
+}
 /* Direktsprung in die Aufstellung: dezent (btn-soft), aber Touch-Ziel >=44px. */
 .lu-jump { min-height: 44px; }
 
@@ -993,10 +1001,12 @@ tbody tr:hover { background: #fbfdfc; }
 .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
 .sim-switch-btns { flex-wrap: wrap; }   /* Rollen-Vorschau darf umbrechen, sie steht in einer Karte */
 .chips {
+  position: relative; z-index: 1;
   display: flex; gap: 7px; flex-wrap: nowrap;
   overflow-x: auto; scrollbar-width: none;
   margin-left: -16px; margin-right: -16px; padding: 0 16px;   /* bis an den Rand scrollen */
 }
+.kpi-grid + .chips { margin-top: 12px; }
 .chips::-webkit-scrollbar { display: none; }
 .chips .chip { flex: none; }
 .chip {
@@ -1691,14 +1701,13 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 /* B6: Vorlagengroesse 17px, verkleinert sich aber, wenn der Betrag sonst
    umbricht ("2.649,00 EUR" in einer 114px breiten Kachel). */
 .kpi-3 .kpi-value, .kpi-3 .kpi-amt {
-  font-size: clamp(13px, 4.4vw, 17px);
+  font-size: 17px;
   font-variant-numeric: tabular-nums;
-  white-space: nowrap;
 }
 /* Antippbare Kennzahl: springt in den passenden Reiter. */
 .kpi-tapbar {
   width: 100%; text-align: left; font: inherit; color: inherit;
-  border: 0; background: none; padding: 0;
+  border: 0;
   cursor: pointer; -webkit-tap-highlight-color: transparent;
   transition: transform .08s ease;
 }
@@ -1957,6 +1966,34 @@ button.sg-stat:focus-visible { outline: 2px solid var(--green-700); outline-offs
 .ks-leer .rs { display: block; margin-top: 4px; }
 /* A6: Leerzustand der Vorlagenliste. */
 .tv-tpl-leer .rs { line-height: 1.45; }
+/* B3: Reiter "Offen" und "Eingegangen" im Stil der Stapelkarte.
+   Zahlart als drei kleine Chips statt Auswahlfeld, Buchen als Primaerknopf,
+   Storno und Rueckgaengig als Textlink. */
+.zart-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.zart {
+  position: relative;
+  min-height: 28px; padding: 0 10px;
+  border: 1px solid var(--line-soft-2); border-radius: var(--radius-pill);
+  background: var(--grad-chip); color: var(--muted);
+  font: inherit; font-size: 12px; font-weight: 600; cursor: pointer;
+  display: inline-flex; align-items: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.zart::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 50%;
+  height: var(--tap); transform: translateY(-50%);
+}
+.zart.is-on {
+  background: var(--grad-chip-on); border-color: var(--green-900); color: #fff;
+  box-shadow: var(--shadow-chip-on);
+}
+.krow-tun { display: flex; align-items: center; gap: 14px; margin-top: 10px; }
+.krow-buchen { flex: none; min-height: var(--tap); padding: 0 18px; font-size: 14px; }
+.krow-tun .link-btn { font-size: 13px; font-weight: 600; }
+.krow-tun .link-btn.is-danger { color: var(--red-600); }
+.kasse-filter { display: block; margin-bottom: 12px; }
+.kasse-filter .lbl { display: block; margin-bottom: 6px; }
+.kasse-filter .kasse-in { width: 100%; }
 .ks-dots { display: flex; gap: 5px; justify-content: center; margin-top: 24px; }
 .ks-dots span { width: 4px; height: 4px; border-radius: 2px; background: var(--dot-off); }
 .ks-dots span.is-on { width: 18px; background: var(--green-650); }

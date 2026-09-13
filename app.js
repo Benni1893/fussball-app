@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-13-O";
+  var APP_BUILD = "2026-09-13-P";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -3069,6 +3069,7 @@
     date: new Date().toISOString().slice(0, 10), comment: "",
     tab: "pruefen", bezFilter: "",
     pruefIdx: 0,       // welche Meldung im Kartenstapel gerade vorn liegt
+    zahlart: {},       // gewaehlte Zahlart je Strafe (B3), Vorgabe "bar"
     formOpen: false,   // „Strafe verhaengen" ist eingeklappt, bis jemand es oeffnet
   };
 
@@ -3194,38 +3195,46 @@
       <div class="ks-cap">Nach jeder Entscheidung rückt die nächste Meldung nach</div>`;
   }
 
+  /* B3: Reiter „Offen" - Zeilen im Stil der Stapelkarte statt eines Formulars.
+     Die Zahlart steht als drei kleine Chips (ausgewaehlter gefuellt), nicht
+     mehr als Auswahlfeld; gebucht wird mit dem Primaerknopf daneben. */
+  const KASSE_ZAHLARTEN = [["bar", "bar"], ["ueberweisung", "Überweisung"], ["paypal", "PayPal"]];
   function renderKasseOffen(list) {
     if (!list.length) return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Keine offenen Posten</div></div>`;
     const sorted = list.slice().sort((a, b) => a.player.name.localeCompare(b.player.name));
-    return `<div class="krow-list">${sorted.map((s) => krowHtml(
-      s,
-      `${esc(vergehenName(s))}${s.auto ? " · automatisch" : ""}`,
-      `${fmtDay(s.datum)}. ${fmtMon(s.datum)}`,
-      `<select class="kasse-method" data-kasse-method="${s.id}">
-         <option value="bar">bar</option>
-         <option value="ueberweisung">Überweisung</option>
-         <option value="paypal">PayPal</option>
-       </select>
-       <button class="krow-primary" data-kasse-pay="${s.id}">Buchen</button>
-       ${s.auto
-         ? `<button class="krow-secondary is-danger" data-kasse-del="${s.id}">Entfernen</button>`
-         : `<button class="krow-secondary is-danger" data-kasse-cancel="${s.id}">Storno</button>`}`
-    )).join("")}</div>`;
+    return `<div class="krow-list">${sorted.map((s) => {
+      const gewaehlt = kasse.zahlart[s.id] || "bar";
+      const arten = KASSE_ZAHLARTEN.map(([k, label]) =>
+        `<button class="zart${gewaehlt === k ? " is-on" : ""}" data-kasse-zart="${s.id}" data-wert="${k}">${label}</button>`).join("");
+      return krowHtml(
+        s,
+        `${esc(vergehenName(s))}${s.auto ? " · automatisch" : ""}`,
+        `${fmtDay(s.datum)}. ${fmtMon(s.datum)}`,
+        `<div class="zart-row">${arten}</div>
+         <div class="krow-tun">
+           <button class="btn btn-primary krow-buchen" data-kasse-pay="${s.id}">Buchen</button>
+           ${s.auto
+             ? `<button class="link-btn is-danger" data-kasse-del="${s.id}">Entfernen</button>`
+             : `<button class="link-btn is-danger" data-kasse-cancel="${s.id}">Storno</button>`}
+         </div>`
+      );
+    }).join("")}</div>`;
   }
 
   function renderKasseBezahlt(list, all) {
     if (!all.length) return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Noch keine bestätigten Zahlungen</div></div>`;
     const players = [...new Set(all.map((s) => s.playerId))].map((id) => playerById[id]).filter(Boolean).sort((a, b) => a.name.localeCompare(b.name));
-    const filter = `<div class="toolbar"><select class="kasse-method kasse-bezfilter" data-kasse-bezfilter>
+    const filter = `<label class="kasse-filter"><span class="lbl">Spieler</span>
+      <select class="kasse-in kasse-bezfilter" data-kasse-bezfilter>
         <option value="">Alle Spieler</option>
         ${players.map((p) => `<option value="${p.id}"${kasse.bezFilter === p.id ? " selected" : ""}>${esc(p.name)}</option>`).join("")}
-      </select></div>`;
+      </select></label>`;
     const body = list.length ? `<div class="krow-list">${list.map((s) => krowHtml(
       s,
       esc(vergehenName(s)),
       `${s.paidAt ? fmtTs(s.paidAt) : (fmtDay(s.datum) + ". " + fmtMon(s.datum))}${s.zahlart ? " · " + (ZAHLART_LABEL[s.zahlart] || esc(s.zahlart)) : ""}`,
-      `<button class="krow-secondary" data-kasse-unpay="${s.id}">Rückgängig</button>`
-    )).join("")}</div>` : `<div class="empty">Keine Treffer.</div>`;
+      `<div class="krow-tun"><button class="link-btn" data-kasse-unpay="${s.id}">Rückgängig</button></div>`
+    )).join("")}</div>` : `<div class="card card-pad ks-leer"><div class="ks-leer-t">Keine Treffer</div></div>`;
     return filter + body;
   }
 
@@ -3569,11 +3578,17 @@
       }
 
       // --- Offen: als bezahlt buchen (mit Zahlart) / stornieren / Auto entfernen ---
+      // B3: Zahlart als Chips - ein Tap merkt sie, der naechste bucht.
+      const zart = ev.target.closest("[data-kasse-zart]");
+      if (zart) {
+        kasse.zahlart[zart.dataset.kasseZart] = zart.dataset.wert;
+        renderKasse();
+        return;
+      }
       const pay = ev.target.closest("[data-kasse-pay]");
       if (pay) {
         const id = pay.dataset.kassePay;
-        const sel = viewEl.querySelector('[data-kasse-method="' + id + '"]');
-        const method = (sel && sel.value) || "bar";
+        const method = kasse.zahlart[id] || "bar";
         try { await DB.markFinesPaid([id], method); await reloadData(); tvToast("Als bezahlt gebucht"); } catch (e) { window.alert("Buchen fehlgeschlagen: " + ((e && e.message) || e)); }
         return;
       }
