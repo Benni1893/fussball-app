@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-13-D";
+  var APP_BUILD = "2026-09-13-E";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -2797,16 +2797,18 @@
   let katEdit = null; // null | Katalog-id (Bearbeiten) | "new" (Hinzufügen)
 
   function katRowView(k, canEdit) {
-    // Vorlage 3b: Bezeichnung links (bei Staffel mit Plakette und dem Deckel als
-    // Unterzeile), Betrag rechts. Kategorien bleiben aus der Anzeige (K5).
+    // Vorlage 3b: Bezeichnung links, darunter die Kategorie (K5) und bei
+    // Staffelstrafen der Deckel in derselben Zeile; Betrag rechts.
     const staffel = k.typ === "staffel";
     const amt = staffel
       ? `${euro(k.proEinheit || 0).replace(/\s/g, " ")} / ${k.schritt || 1} ${esc(k.einheit || "")}`
       : euro(k.betrag).replace(/\s/g, " ");
-    const deckel = (staffel && k.maxBetrag != null)
-      ? `<span class="kat-sub">max ${euro(k.maxBetrag).replace(/\s/g, " ")}</span>` : "";
+    const unten = [
+      (k.kategorie || "").trim() ? esc(k.kategorie.trim()) : "",
+      (staffel && k.maxBetrag != null) ? "max " + euro(k.maxBetrag).replace(/\s/g, " ") : "",
+    ].filter(Boolean).join(" · ");
     return `<div class="kat-item">
-      <span class="kat-name">${esc(k.vergehen)}${staffel ? ` <span class="badge badge-self">gestaffelt</span>` : ""}${deckel}</span>
+      <span class="kat-name">${esc(k.vergehen)}${staffel ? ` <span class="badge badge-self">gestaffelt</span>` : ""}${unten ? `<span class="kat-sub">${unten}</span>` : ""}</span>
       <span class="kat-amount${staffel ? " is-staffel" : ""}">${amt}</span>
       ${canEdit ? `<div class="kat-actions">
         <button class="icon-btn" data-kat-edit="${k.id}" aria-label="Bearbeiten">${ICON_EDIT}</button>
@@ -2820,6 +2822,7 @@
     const nm = (n) => (n == null ? "" : String(n).replace(".", ","));
     return `<div class="kat-item kat-edit${isStaffel ? " is-staffel" : ""}">
       <input class="kat-in kat-in-name" data-kat-input="name" type="text" placeholder="Bezeichnung" value="${esc(k ? k.vergehen : "")}">
+      <input class="kat-in kat-in-kat" data-kat-input="kategorie" type="text" placeholder="Kategorie (z. B. Pünktlichkeit)" value="${esc(k ? (k.kategorie || "") : "")}">
       <select class="kat-in kat-type" data-kat-type>
         <option value="fixed"${!isStaffel ? " selected" : ""}>Festbetrag</option>
         <option value="staffel"${isStaffel ? " selected" : ""}>Gestaffelt</option>
@@ -3619,6 +3622,8 @@
       const typ = typeEl && typeEl.value === "staffel" ? "staffel" : "fixed";
       const name = gv("name").trim();
       if (!name) { window.alert("Bitte eine Bezeichnung eingeben."); return; }
+      // K5: die Kategorie steht wieder im Formular und in der Liste.
+      const kategorie = gv("kategorie").trim();
       try {
         if (typ === "staffel") {
           const proE = num(gv("proEinheit"));
@@ -3629,14 +3634,14 @@
           if (!isFinite(proE) || proE < 0) { window.alert("Bitte einen gültigen Betrag je Schritt eingeben."); return; }
           if (!isFinite(schritt) || schritt < 1) { window.alert("Bitte eine gültige Schrittweite (mindestens 1) eingeben."); return; }
           if (!einheit) { window.alert("Bitte eine Einheit angeben (z. B. Minuten)."); return; }
-          const opts = { typ: "staffel", einheit, proEinheit: proE, schritt, maxBetrag: (maxB != null && isFinite(maxB)) ? maxB : null };
+          const opts = { typ: "staffel", kategorie, einheit, proEinheit: proE, schritt, maxBetrag: (maxB != null && isFinite(maxB)) ? maxB : null };
           if (t.dataset.katSave === "new") await DB.insertCatalog(DEMO.clubId, name, 0, opts);
           else await DB.updateCatalog(t.dataset.katSave, name, 0, opts);
         } else {
           const amount = num(gv("amount"));
           if (!isFinite(amount) || amount <= 0) { window.alert("Bitte einen gültigen Betrag größer 0 eingeben."); return; }
-          if (t.dataset.katSave === "new") await DB.insertCatalog(DEMO.clubId, name, amount, { typ: "fixed" });
-          else await DB.updateCatalog(t.dataset.katSave, name, amount, { typ: "fixed" });
+          if (t.dataset.katSave === "new") await DB.insertCatalog(DEMO.clubId, name, amount, { typ: "fixed", kategorie });
+          else await DB.updateCatalog(t.dataset.katSave, name, amount, { typ: "fixed", kategorie });
         }
         katEdit = null;
         await reloadData();
