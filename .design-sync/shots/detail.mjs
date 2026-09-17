@@ -19,16 +19,18 @@ await p.waitForSelector('.app-nav', { timeout: 25000 });
 await p.waitForTimeout(2200);
 
 await p.evaluate(() => { document.getElementById('navMore').click(); }); await p.waitForTimeout(400);
- await p.evaluate(() => document.getElementById('moreKasse').click());
+ await p.evaluate(() => document.getElementById('moreKader').click());
 await p.waitForTimeout(1600);
 
 console.log(await p.evaluate(() => {
-  const t = document.querySelector('.kasse-toggle'), v = document.querySelector('.kasse-verbuchen');
-  if (!t || !v) return 'nicht gefunden';
-  const ct = getComputedStyle(t), cv = getComputedStyle(v);
-  return 'Knopf margin-bottom = ' + ct.marginBottom
-    + ' | Abschnitt margin-top = ' + cv.marginTop
-    + ' | gemessene Luft = ' + Math.round(v.getBoundingClientRect().top - t.getBoundingClientRect().bottom) + 'px';
+  const h1 = document.querySelector('.page-head h1');
+  const rows = document.querySelectorAll('.ks-row');
+  const chips = document.querySelectorAll('.ks-row .st-choice');
+  const leer = document.querySelector('.empty');
+  return 'Titel: ' + (h1 ? h1.textContent : '-')
+    + ' | Zeilen: ' + rows.length + ' | Chips gesamt: ' + chips.length
+    + ' | Hoehe: ' + document.documentElement.scrollHeight
+    + (leer ? ' | Hinweis: ' + leer.textContent.trim().slice(0,50) : '');
 }));
 await b.close();
 server.close();

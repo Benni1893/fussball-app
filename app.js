@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-17-C";
+  var APP_BUILD = "2026-09-17-D";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -87,10 +87,70 @@
   }
 
   /* ---- Fitness-/Verletztenstatus ----------------------------------------- */
+  /* ---------- Fitnessstatus: eine Quelle fuer alle drei Orte ----------------
+     Uebersicht ("Mein Status"), Profil und Kader zeichnen dieselben vier Chips
+     und dieselben Zusatzfelder. Geschrieben wird ausschliesslich ueber
+     set_player_status(); die Datenbank entscheidet, wer darf - Spieler nur sich
+     selbst, coach/admin alle (Migration 0026, erweitert in 0031 um "urlaub").
+     -------------------------------------------------------------------------- */
+  const STATUS_WAHL = [
+    ["fit", "fit"],
+    ["angeschlagen", "angeschlagen"],
+    ["verletzt", "verletzt"],
+    ["urlaub", "Urlaub"],
+  ];
+  // "urlaub" zaehlt ueberall wie verletzt: nicht einsatzbereit.
+  function istFit(p) { return !p || !p.status || p.status === "fit"; }
+
+  /* Chips plus - bei allem ausser "fit" - Datum und Notiz. Die Felder speichern
+     beim Verlassen, es gibt keinen Knopf. */
+  function statusWahlHtml(p, opts) {
+    opts = opts || {};
+    const st = p.status || "fit";
+    const chips = STATUS_WAHL.map(([wert, label]) =>
+      `<button class="chip st-choice${st === wert ? " is-on st-" + wert : ""}" data-status-set="${p.id}" data-wert="${wert}">${label}</button>`
+    ).join("");
+    const felder = istFit(p) ? "" : `
+      <div class="st-felder">
+        <label class="st-feld">
+          <span class="lbl">voraussichtlich bis</span>
+          <input class="kasse-in" type="date" data-status-until="${p.id}" value="${esc(p.statusUntil || "")}" aria-label="voraussichtlich bis">
+        </label>
+        <label class="st-feld">
+          <span class="lbl">Notiz</span>
+          <input class="kasse-in" type="text" data-status-note="${p.id}" value="${esc(p.statusNote || "")}" placeholder="optional" aria-label="Notiz zum Status">
+        </label>
+      </div>`;
+    return `<div class="st-wahl"${opts.kompakt ? ' data-kompakt=""' : ""}>
+      <div class="chips st-chips">${chips}</div>${felder}
+    </div>`;
+  }
+
+  /* Status schreiben und kurz bestaetigen. Datum und Notiz kommen aus den
+     Feldern derselben Gruppe, damit ein Chipwechsel sie nicht verwirft. */
+  async function statusSpeichern(playerId, status, opts) {
+    opts = opts || {};
+    const feld = (was) => {
+      const el = viewEl.querySelector(`[data-status-${was}="${playerId}"]`);
+      return el ? el.value : null;
+    };
+    const until = status === "fit" ? null : (opts.until !== undefined ? opts.until : feld("until"));
+    const note  = status === "fit" ? null : (opts.note  !== undefined ? opts.note  : feld("note"));
+    try {
+      await DB.setPlayerStatus(playerId, status, note, until);
+      await reloadData();
+      render();
+      tvToast("gespeichert");
+    } catch (err) {
+      window.alert("Status konnte nicht gesetzt werden: " + ((err && err.message) || err));
+    }
+  }
+
   function statusInfo(status) {
-    if (status === "verletzt")    return { label: "verletzt", cls: "st-red" };
+    if (status === "verletzt")     return { label: "verletzt", cls: "st-red" };
     if (status === "angeschlagen") return { label: "angeschlagen", cls: "st-amber" };
-    return null; // fit -> kein Badge
+    if (status === "urlaub")       return { label: "Urlaub", cls: "st-blue" };
+    return null; // fit -> keine Marke
   }
   // Kleines Status-Badge neben einem Spielernamen (leer, wenn fit).
   function statusBadge(player) {
@@ -728,27 +788,31 @@
 
       ${danach.length ? `<div class="section-title"><h2>Danach</h2>${spieltag ? "" : `<button class="link-btn" data-goto="kalender">Kalender</button>`}</div>
       <div class="mini-list">${danach.map(miniEventHtml).join("")}</div>` : ""}
+
+      ${kontoVerknuepft ? `<div class="section-title"><h2>Mein Status</h2></div>
+      <div class="card card-pad">${statusWahlHtml(me)}</div>` : ""}
     `;
 
     startCountdowns(); // Meldeschluss-Countdown im Hero und in der Spieltag-Karte
   }
 
   /* ---------- Kader (Trainer/Admin) -----------------------------------------
-     Nimmt die beiden Bloecke auf, die vorher auf der Uebersicht lagen:
-     Kader-Status zum Setzen von fit/angeschlagen/verletzt und das Lazarett.
-     Logik unveraendert – das <select> traegt weiterhin data-status-player,
-     der delegierte change-Handler an viewEl greift hier ohne Anpassung.
-     Schranke ist die DB: player_status liest nur coach/admin vollstaendig,
-     geschrieben wird ausschliesslich ueber set_player_status(). */
+     Status setzen ueber dieselben vier Chips wie auf der Uebersicht und im
+     Profil - ein Baustein, drei Orte. Bei allem ausser "fit" stehen Datum und
+     Notiz inline unter der Zeile und speichern beim Verlassen des Feldes.
+     Schranke ist die Datenbank: player_status liest nur coach/admin
+     vollstaendig, geschrieben wird ausschliesslich ueber set_player_status(). */
   function renderKader() {
     const kaderSort = [...DEMO.players].sort((a, b) => nachname(a.name).localeCompare(nachname(b.name), "de"));
-    // Lazarett: alle nicht-fitten, Verletzte zuerst, dann alphabetisch.
+    // Lazarett: alle nicht Fitten - Urlaub eingeschlossen. Sortiert nach
+    // Rueckkehrdatum; wer keines hat, steht hinten.
     const lazarett = DEMO.players
-      .filter((p) => p.status && p.status !== "fit")
-      .sort((a, b) =>
-        (a.status === "verletzt" ? 0 : 1) - (b.status === "verletzt" ? 0 : 1) ||
-        nachname(a.name).localeCompare(nachname(b.name), "de"));
-    const fit = DEMO.players.filter((p) => !p.status || p.status === "fit").length;
+      .filter((p) => !istFit(p))
+      .sort((a, b) => {
+        const x = a.statusUntil || "9999-12-31", y = b.statusUntil || "9999-12-31";
+        return x.localeCompare(y) || nachname(a.name).localeCompare(nachname(b.name), "de");
+      });
+    const fit = DEMO.players.filter(istFit).length;
 
     viewEl.innerHTML = `
       <div class="page-head">${navBackChevronHtml()}<h1>Kader</h1></div>
@@ -767,37 +831,41 @@
         <div class="kpi ${lazarett.length ? "is-warn" : ""}">
           <div class="kpi-label">Nicht fit</div>
           <div class="kpi-value">${lazarett.length}</div>
-          <div class="kpi-sub">angeschlagen oder verletzt</div>
+          <div class="kpi-sub">angeschlagen, verletzt oder im Urlaub</div>
         </div>
       </div>
 
       <div class="section-title"><h2>Kader-Status</h2></div>
-      <div class="card card-pad kader-status">
+      <div class="kad-list">
         ${kaderSort.map((p) => `
-          <div class="ks-row">
-            <span class="avatar">${initials(p.name)}</span>
-            <span class="ks-name">${esc(p.name)}${statusBadge(p)}</span>
-            <select class="ks-select" data-status-player="${p.id}" aria-label="Status von ${esc(p.name)}">
-              <option value="fit" ${p.status === "fit" ? "selected" : ""}>fit</option>
-              <option value="angeschlagen" ${p.status === "angeschlagen" ? "selected" : ""}>angeschlagen</option>
-              <option value="verletzt" ${p.status === "verletzt" ? "selected" : ""}>verletzt</option>
-            </select>
+          <div class="card kad-row${istFit(p) ? "" : " is-raus"}">
+            <div class="kad-kopf">
+              <span class="avatar">${initials(p.name)}</span>
+              <span class="kad-name">${esc(p.name)}${statusBadge(p)}</span>
+            </div>
+            ${statusWahlHtml(p)}
           </div>`).join("")}
       </div>
 
-      <div class="section-title" style="margin-top:22px"><h2>Lazarett</h2></div>
-      <div class="card card-pad">
-        ${lazarett.length ? lazarett.map((p) => `
-          <div class="laz-row">
+      <div class="section-title"><h2>Lazarett</h2></div>
+      ${lazarett.length ? `<div class="laz-list">
+        ${lazarett.map((p) => {
+          const i = statusInfo(p.status);
+          const zeilen = [
+            p.statusSince ? "seit " + fmtDay(p.statusSince) + ". " + fmtMon(p.statusSince) : "",
+            p.statusUntil ? "zurück " + fmtDay(p.statusUntil) + ". " + fmtMon(p.statusUntil) : "offenes Ende",
+          ].filter(Boolean).join(" · ");
+          return `<div class="card laz-row">
             <span class="avatar">${initials(p.name)}</span>
-            <div style="flex:1;min-width:0">
-              <div style="font-weight:600">${esc(p.name)}${statusBadge(p)}</div>
-              <div style="font-size:.8rem;color:var(--muted)">
-                ${p.statusSince ? "seit " + fmtDay(p.statusSince) + ". " + fmtMon(p.statusSince) : ""}${p.statusUntil ? " · vor. zurück " + fmtDay(p.statusUntil) + ". " + fmtMon(p.statusUntil) : ""}${p.statusNote ? " · " + esc(p.statusNote) : ""}
-              </div>
+            <div class="laz-main">
+              <div class="laz-name">${esc(p.name)}</div>
+              <div class="rs">${zeilen}</div>
+              ${p.statusNote ? `<div class="laz-note">${esc(p.statusNote)}</div>` : ""}
             </div>
-          </div>`).join("") : `<div class="empty" style="padding:14px 0">Alle fit – kein Eintrag</div>`}
-      </div>
+            ${i ? `<span class="st-badge ${i.cls}">${i.label}</span>` : ""}
+          </div>`;
+        }).join("")}
+      </div>` : `<div class="card card-pad"><div class="empty">Alle fit – kein Eintrag</div></div>`}
     `;
   }
 
@@ -1085,8 +1153,6 @@
     const name = player ? player.name : (u.email || "—");
     const roleText = Roles.list.length ? Roles.list.map((r) => ROLE_LABEL[r] || r).join(" · ") : "Spieler";
     const nr = player && player.nr != null ? " · Nr. " + player.nr : "";
-    const st = player ? (player.status || "fit") : null;
-    const opt = (val, label) => `<button class="chip st-choice ${st === val ? "is-on st-" + val : ""}" data-my-status="${val}">${label}</button>`;
 
     // Eigene Rueckmeldungen zu den naechsten Terminen. Zugesagt gruen,
     // abgesagt rot, ohne Antwort gold - dieselben Toene wie ueberall sonst.
@@ -1128,9 +1194,7 @@
       <div class="section-title"><h2>Mein Fitnessstatus</h2></div>
       <div class="card card-pad">
         <p class="rs">Sag dem Trainerteam, wie es dir geht.</p>
-        <div class="status-choose">
-          ${opt("fit", "fit")}${opt("angeschlagen", "angeschlagen")}${opt("verletzt", "verletzt")}
-        </div>
+        ${statusWahlHtml(player)}
       </div>
       ${rueck}` : `<div class="empty" style="padding:24px 0">Dein Konto ist noch keinem Spieler zugeordnet. Melde dich beim Trainerteam.</div>`}
     `;
@@ -2119,7 +2183,7 @@
       const pid = (tpl.slots || {})[s.key];
       if (!pid) return;
       const pl = playerById[pid];
-      if (pl && pl.status !== "verletzt" && zuSet.has(pid)) lb.assign[s.key] = pid;
+      if (pl && istFit(pl) && zuSet.has(pid)) lb.assign[s.key] = pid;
       else { lb.gaps.push(s.key); dropped++; }
     });
     lb.msg = dropped ? (dropped + " Slot(s) leer – Spieler ohne Zusage/verletzt weggelassen.") : "Vorlage angewendet.";
@@ -2276,6 +2340,7 @@
   function tvRsvp(pid) { return (state.rsvp[tv.eventId + "|" + pid] || {}).status; }
   function tvAvail(p) {
     if (p.status === "verletzt") return { cls: "verl", label: "verletzt", rank: 4 };
+    if (p.status === "urlaub")   return { cls: "url", label: "Urlaub", rank: 4 };
     const r = tvRsvp(p.id);
     if (r === "ab") return { cls: "abw", label: "abgesagt", rank: 3 };
     if (r !== "zu") return { cls: "none", label: "o. Rückm.", rank: 2 };
@@ -2315,12 +2380,12 @@
     tv.view = "games"; tv.dirty = false; tv.readonly = false; tvClosePanels();
     const up = DEMO.events.filter(e => e.typ === "spiel" && isFuture(e.datum)).sort((a, b) => a.datum.localeCompare(b.datum));
     viewEl.innerHTML =
-      // A6/K3: „Kader ansehen" steht als kleiner Link rechts neben dem Titel,
-      // nicht als frei stehende Zeile darunter. Ein reiner Trainer kommt ueber
-      // den 5. Tab direkt hierher und haette sonst keinen Weg zum Kader.
-      '<div class="page-head tv-head"><div class="tv-headrow"><h1>Trainer</h1>' +
-      '<button class="link-btn" data-goto="kader">Kader ansehen</button></div>' +
+      '<div class="page-head"><h1>Trainer</h1>' +
       '<p>Spiel wählen, danach baust du die Elf auf dem Platz.</p></div>' +
+      // K3: Der Kader steht als eigene Karte ueber der Spielauswahl. Ein reiner
+      // Trainer kommt ueber den 5. Tab direkt hierher und haette sonst keinen
+      // Weg dorthin.
+      tvKaderKarteHtml() +
       (up.length ? '<div class="tv-glist">' + (tv.alleSpiele ? up : up.slice(0, 3)).map(tvGameCard).join("") +
         (up.length > 3
           ? '<button class="link-btn tv-mehr" data-tvallgames>' +
@@ -2330,6 +2395,18 @@
         '</div>'
                  : '<div class="empty">Kein anstehendes Spiel. Sobald im Kalender ein Spiel angelegt ist, kannst du hier die Aufstellung bauen.</div>') +
       tvTemplatesHtml();
+  }
+  /* Kaderkarte ueber der Spielauswahl: drei Kennzahlen und ein Chevron. */
+  function tvKaderKarteHtml() {
+    const gesamt = DEMO.players.length;
+    const fit = DEMO.players.filter(istFit).length;
+    const raus = gesamt - fit;
+    return '<button class="card tv-kader" data-goto="kader">' +
+      '<span class="tv-kader-main"><span class="tv-kader-t">Kader</span>' +
+      '<span class="tv-kader-z"><b class="num">' + gesamt + '</b> Spieler' +
+      '<span class="tv-kader-p">·</span><b class="num">' + fit + '</b> fit' +
+      '<span class="tv-kader-p">·</span><b class="num' + (raus ? ' is-warn' : '') + '">' + raus + '</b> nicht fit' +
+      '</span></span><span class="tv-garrow">›</span></button>';
   }
   function tvGameCard(e) {
     const active = (DEMO.lineups || []).some(l => l.eventId === e.id && l.isActive && !l.isTemplate);
@@ -2401,7 +2478,7 @@
       const pid = (tpl.slots || {})[s.key];
       if (!pid) return;
       const p = playerById[pid];
-      if (p && p.status !== "verletzt" && zu.has(pid)) a[s.key] = pid; else weg++;
+      if (p && istFit(p) && zu.has(pid)) a[s.key] = pid; else weg++;
     });
     tv.formation = tpl.formation; tv.assign = a; tv.bank = []; tv.sel = null;
     tv.dirty = true; tv.hideCta = true;
@@ -3664,15 +3741,13 @@
       if (unpay) { if (!window.confirm("Buchung rückgängig machen? Die Strafe steht wieder als offen.")) return; try { await DB.setFinePaid(unpay.dataset.kasseUnpay, false); await reloadData(); tvToast("Zurückgesetzt"); } catch (e) { window.alert("Rückgängig fehlgeschlagen: " + ((e && e.message) || e)); } return; }
     }
 
-    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-koord-save],[data-my-status],[data-logout]");
+    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-koord-save],[data-status-set],[data-logout]");
     if (!t) return;
 
-    // Spieler: eigenen Fitnessstatus setzen (RLS/RPC erlauben nur die eigene Zeile)
-    if (t.dataset.myStatus) {
-      const pid = currentProfile && currentProfile.player_id;
-      if (!pid) return;
-      try { await DB.setPlayerStatus(pid, t.dataset.myStatus, null, null); await reloadData(); }
-      catch (err) { window.alert("Status konnte nicht gesetzt werden: " + ((err && err.message) || err)); }
+    // Fitnessstatus setzen. Wer das darf, entscheidet die Datenbank:
+    // Spieler nur sich selbst, coach/admin alle (set_player_status).
+    if (t.dataset.statusSet) {
+      await statusSpeichern(t.dataset.statusSet, t.dataset.wert);
       return;
     }
 
@@ -4641,31 +4716,16 @@
   }
 
   // Status setzen (Trainer/Admin) per Auswahl im Kader-Status.
+  /* Datum und Notiz speichern beim Verlassen des Feldes - kein extra Knopf.
+     Der Status selbst kommt aus den Chips; hier wird er unveraendert
+     mitgeschickt, damit die Funktion nichts zurueckstellt. */
   viewEl.addEventListener("change", async (ev) => {
-    const sel = ev.target.closest("[data-status-player]");
-    if (!sel) return;
-    const playerId = sel.dataset.statusPlayer;
-    const status = sel.value;
-    const p = playerById[playerId] || {};
-    const prev = p.status || "fit";
-    let note = null, until = null;
-    if (status !== "fit") {
-      note = window.prompt("Notiz (optional, z. B. „Muskelfaserriss“):", p.statusNote || "");
-      if (note === null) { sel.value = prev; return; }        // Abbrechen
-      const u = window.prompt("Voraussichtliche Rückkehr (optional, JJJJ-MM-TT):", p.statusUntil || "");
-      if (u === null) { sel.value = prev; return; }
-      until = (u && /^\d{4}-\d{2}-\d{2}$/.test(u.trim())) ? u.trim() : null;
-    }
-    sel.disabled = true;
-    try {
-      await DB.setPlayerStatus(playerId, status, note, until);
-      await reloadData();
-    } catch (err) {
-      sel.value = prev;
-      window.alert("Status konnte nicht gesetzt werden: " + ((err && err.message) || err));
-    } finally {
-      sel.disabled = false;
-    }
+    const feld = ev.target.closest("[data-status-until],[data-status-note]");
+    if (!feld) return;
+    const playerId = feld.dataset.statusUntil || feld.dataset.statusNote;
+    const p = playerById[playerId];
+    if (!p || istFit(p)) return;          // bei "fit" gibt es keine Felder
+    await statusSpeichern(playerId, p.status);
   });
 
   // Rolle per Häkchen vergeben/entziehen.
