@@ -1000,15 +1000,14 @@ tbody tr:hover { background: #fbfdfc; }
 .chips {
   position: relative; z-index: 1;
   display: flex; gap: 7px; flex-wrap: nowrap;
-  overflow-x: auto; scrollbar-width: none;
-  overscroll-behavior-x: contain;        /* kein Gummiband */
-  scroll-snap-type: x proximity;
-  margin-left: -16px; margin-right: -16px; padding: 0 16px;   /* nur im Ueberlauf sichtbar */
+  overflow: visible;
 }
-.chips .chip { scroll-snap-align: start; }
+/* Notnagel: reicht die Breite doch einmal nicht (laengere Zahlen in der
+   Kasse), schrumpfen die Chips, statt die Reihe verschiebbar zu machen.
+   Kein overflow: hidden am Chip - das wuerde die 44px-Trefferflaeche
+   (::after) auf die sichtbaren 34px beschneiden. */
+.chips .chip { flex: 0 1 auto; min-width: 0; white-space: nowrap; }
 .kpi-grid + .chips { margin-top: 14px; }   /* Vorlage 3a */
-.chips::-webkit-scrollbar { display: none; }
-.chips .chip { flex: none; }
 .chip {
   border: 1px solid var(--line); background: var(--card); color: var(--muted);
   border-radius: 999px; padding: 0 16px; font: inherit; font-weight: 600; font-size: .85rem; cursor: pointer;
@@ -1393,7 +1392,10 @@ body.auth-mode .view { padding-left: 0; padding-right: 0; }
   display: flex; align-items: center; justify-content: center; gap: 6px;
   width: 100%; min-height: var(--tap); margin-top: 4px;
   font-size: 13px; font-weight: 600;
+  text-decoration: none;
 }
+.tv-mehr:hover, .tv-mehr:active, .tv-mehr:focus, .tv-mehr:focus-visible { text-decoration: none; }
+.tv-mehr .tv-pfeil { text-decoration: none; }
 .tv-pfeil { font-size: 10px; line-height: 1; }
 /* Vorlagenliste unter der Spielauswahl. */
 .tv-tpls { overflow: hidden; }
@@ -2173,7 +2175,7 @@ body {
   box-shadow: var(--shadow-hair);
   position: relative;
   font-size: 13px;
-  padding: 0 10px;
+  padding: 0 9px;
   min-height: 34px;             /* Vorlage; Trefferflaeche siehe ::after */
 }
 .chip.is-active {
