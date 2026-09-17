@@ -86,6 +86,8 @@
   --pp-blue:  #003087;     /* PayPal-Wortmarke, Vorlage Kontoblock */
   --pp-cyan:  #009cde;
   --track:   #eef2ef;     /* Spur des Fortschrittsbalkens */
+  --track-bar:   #cfd8d2; /* Spur im Kartenbalken, gemessen aus trainer-sheet-v2 */
+  --track-sheet: #dfe5e1; /* Spur im Blattbalken,  gemessen aus trainer-sheet-v2 */
   --dot-off: #c6d2cb;     /* Seitenpunkte, Rand leerer Kaestchen */
   --blau-700: #1d5a8a;    /* Urlaub: Marke und Rand */
   --blau-600: #2e7bb5;
@@ -146,6 +148,7 @@
   /* ---- Masse ------------------------------------------------------------- */
   --radius:        14px;   /* .card, .list, .kpi, .pitch */
   --radius-btn:    10px;   /* .btn, .in, Plakette */
+  --radius-md:     12px;   /* Knopf, Kachel, Namenszeile - trainer-sheet-v2 */
   --radius-sheet:  18px;   /* .panel, .auth-card */
   --radius-pill:  999px;
   --radius-box:     6px;   /* .box */
@@ -1352,58 +1355,123 @@ body.auth-mode .view { padding-left: 0; padding-right: 0; }
 
 @media (prefers-reduced-motion: reduce) { .lu-scrim, .lu-sheet { transition: none; } }
 
-/* ---------- Trainerseite v2 (Aufstellung – Neubau) ------------------------- */
-/* Zustand 1: Spielauswahl (normale View-Scrollfläche) */
-/* Spielauswahl (Vorlage 2b): Karte mit goldener Verlaufskante, Datumswuerfel,
-   Gegner, Zeit/Heim-Auswaerts, Plakette aktiv/offen. */
-.tv-headrow { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
-.tv-headrow .link-btn { flex: none; font-size: 13px; font-weight: 600; }
-.tv-glist { display: flex; flex-direction: column; gap: 8px; }
-.tv-gcard {
-  position: relative; overflow: hidden;
-  display: flex; align-items: center; gap: 12px;
-  width: 100%; text-align: left; padding: 12px 14px; min-height: var(--h-row);
-}
-.tv-gcard { border-left: 0; }
-.tv-gcard::before {
-  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
-  background: var(--grad-edge-gold);
-}
-.tv-gcard .event-date { display: block; }
-.tv-gmain { flex: 1 1 auto; min-width: 0; }
-.tv-gopp { display: block; font-size: 14px; font-weight: 700; line-height: normal; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tv-gmeta { display: block; font-size: 12px; font-weight: 500; color: var(--muted); }
-/* Plakette wie .bdg in der Vorlage: aktiv gruen, offen gold. */
-.tv-gchip {
-  flex: 0 0 auto; font-size: 10px; font-weight: 700; letter-spacing: .4px;
-  padding: 3px 8px; border-radius: var(--radius-pill);
-  background: var(--gold-badge-bg); color: var(--gold-ink); border: 1px solid var(--gold-badge-line);
-  box-shadow: 0 1px 1px rgba(16,40,30,.05);
-  line-height: normal;
-}
-.tv-gchip.on { background: var(--green-badge-bg); color: var(--green-700); border-color: var(--green-badge-line); }
-.tv-garrow { flex: 0 0 auto; color: var(--muted); font-size: 18px; font-weight: 700; }
+/* ---------- Trainerseite v2 (Aufstellung – Neubau) -------------------------
+   Alle Masse und Farben in diesem Abschnitt sind aus
+   .design-sync/reference/trainer-sheet-v2.png gemessen (Rahmen 351 Bildpunkte
+   entsprechen 390 CSS-px, Massstab 0,9). Kein Wert ist abgeleitet.           */
 
-/* Umschalter am Ende der Spielliste: drei Spiele oder alle. */
-.tv-mehr {
-  display: flex; align-items: center; justify-content: center; gap: 6px;
-  width: 100%; min-height: var(--tap); margin-top: 4px;
-  font-size: 13px; font-weight: 600;
-  text-decoration: none;
+/* Kopfzeile der Trainer-Ansicht: gemessen 25 px Titel, 14 px Unterzeile.
+   Nur hier - die uebrigen Ansichten zeigt diese Vorlage nicht. */
+/* ---- Karte „Nächstes Spiel" ------------------------------------------------
+   Gemessen: Karte 358x206 bei y 149, linke Kante 4 px, Innenrand 14 px.      */
+.tv-next { padding: 14px; margin-top: 15px; }
+.tv-next-kopf { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 21px; }
+.tv-next-lbl {
+  font-size: 11px; font-weight: 800; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--muted); line-height: normal;
 }
-.tv-mehr:hover, .tv-mehr:active, .tv-mehr:focus, .tv-mehr:focus-visible { text-decoration: none; }
-.tv-mehr .tv-pfeil { text-decoration: none; }
-.tv-pfeil { font-size: 10px; line-height: 1; }
-/* Vorlagenliste unter der Spielauswahl. */
+/* Plakette HEIM/AUSWÄRTS: gemessen 46x21, volle Rundung, Grund --green-700. */
+.tv-next-bdg {
+  flex: none; min-height: 21px; padding: 0 10px; border-radius: var(--radius-pill);
+  background: var(--green-700); color: #fff;
+  font-size: 10px; font-weight: 800; letter-spacing: .04em;
+  display: inline-flex; align-items: center; line-height: normal;
+}
+.tv-next-t {
+  margin-top: 8px; font-size: 21px; font-weight: 800; line-height: 1.1;
+  color: var(--ink); letter-spacing: -.012em;
+}
+.tv-next-m { margin-top: 3px; font-size: 14px; font-weight: 500; color: var(--muted); line-height: normal; }
+
+/* Balken: gemessen 6 px hoch, Spur #cfd8d2, zugesagt --green-600, ab --red-600. */
+.tv-bar { margin-top: 13px; display: flex; height: 6px; border-radius: var(--radius-pill); background: var(--track-bar); overflow: hidden; }
+.tv-bar i { display: block; height: 100%; }
+.tv-bar .is-zu { background: var(--green-600); }
+.tv-bar .is-ab { background: var(--red-600); }
+
+.tv-next-z { margin-top: 10px; display: flex; gap: 13px; font-size: 13px; font-weight: 700; line-height: normal; }
+.tv-next-z .is-zu { color: var(--green-700); }
+.tv-next-z .is-ab { color: var(--red-600); }
+.tv-next-z .is-of { color: var(--muted); }
+
+/* Knopf: gemessen 326x46, Radius 12, flaches --green-700, Beschriftung mittig,
+   Zusatz „11/11 gesetzt" 9 px daneben. */
+.tv-next-btn {
+  margin-top: 12px; width: 100%; min-height: var(--h-btn);
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  border: 0; border-radius: var(--radius-md);
+  background: var(--green-700); color: #fff;
+  font-size: 15px; font-weight: 800; letter-spacing: -.012em;
+}
+.tv-next-btn .tv-next-sub { font-size: 12px; font-weight: 600; letter-spacing: 0; color: rgba(255,255,255,.82); }
+
+/* ---- Kaderkarte -----------------------------------------------------------
+   Gemessen 358x62. Rechts acht Striche: Anteil fit gruen, Rest rot.
+   Strich 5 px breit, 2 px Abstand, zusammen 54 px.                           */
+.tv-kchart { flex: none; display: flex; align-items: center; gap: 2px; height: 16px; }
+.tv-kchart i { display: block; width: 5px; height: 100%; border-radius: 1px; background: var(--green-500); }
+.tv-kchart i.is-raus { background: var(--red-600); }
+
+/* ---- Abschnittszeile klein (WEITERE SPIELE · Alle ›) -----------------------
+   Gemessen: Grossbuchstaben 11 px, Sperrung, --muted; Verweis 13 px --green-700. */
+.section-title.sec-mini { margin: 20px 0 14px; align-items: center; }
+.section-title.sec-mini h2 {
+  font-size: 11px; font-weight: 800; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--muted);
+}
+.section-title.sec-mini .link-btn {
+  position: relative; flex: none; min-height: 0; padding: 0; font-size: 13px; font-weight: 700;
+  color: var(--green-700); text-decoration: none;
+}
+.section-title.sec-mini .link-btn::after {
+  content: ""; position: absolute; top: 50%; right: -6px;
+  width: 72px; height: var(--tap); transform: translateY(-50%);
+}
+
+/* ---- Weitere Spiele: eine Karte, Zeilen mit Haarlinie ----------------------
+   Gemessen: Zeile 60 px hoch, Datumsspalte ohne Farbfeld.                    */
+.tv-glist { overflow: hidden; }
+.tv-grow {
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; text-align: left; padding: 0 14px; min-height: 60px;
+  background: none; border: 0; color: var(--ink);
+}
+.tv-grow + .tv-grow { border-top: 1px solid var(--line); }
+.tv-gdate { flex: none; width: 34px; text-align: center; line-height: normal; }
+.tv-gdate .d-day { display: block; font-size: 19px; font-weight: 800; line-height: 1.1; color: var(--green-800); }
+.tv-gdate .d-mon { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--muted); }
+.tv-gmain { flex: 1 1 auto; min-width: 0; }
+.tv-gopp { display: block; font-size: 15px; font-weight: 700; line-height: normal; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tv-gmeta { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-top: 1px; }
+/* Plakette: „Elf steht" gruen hinterlegt, „offen" heller Grund mit Rand. */
+.tv-gchip {
+  flex: 0 0 auto; display: inline-flex; align-items: center;
+  min-height: 28px; padding: 0 10px; border-radius: var(--radius-pill);
+  font-size: 12px; font-weight: 700; line-height: normal;
+  background: var(--green-050); color: var(--green-700); border: 0;
+}
+.tv-gchip.is-offen { background: var(--bg); color: var(--muted); border: 1px solid var(--line); }
+.tv-garrow { flex: 0 0 auto; color: var(--dot-off); font-size: 18px; font-weight: 700; }
+
+/* ---- Vorlagen -------------------------------------------------------------
+   Gemessen: Zeile 61 px, Formationsplakette rechts, Grund --gold-100.
+   Abweichung von der Vorlage: der Papierkorb bleibt stehen, sonst waere eine
+   Vorlage nicht mehr loeschbar (Gate K1).                                     */
 .tv-tpls { overflow: hidden; }
 .tv-tpl {
-  display: flex; align-items: center; gap: 12px;
-  padding: 8px 14px; min-height: var(--h-row);
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 14px; min-height: 61px;
 }
 .tv-tpl + .tv-tpl { border-top: 1px solid var(--line); }
 .tv-tpl-main { flex: 1 1 auto; min-width: 0; }
-.tv-tpl-n { display: block; font-size: 14px; font-weight: 700; line-height: 1.3; }
+.tv-tpl-n { display: block; font-size: 15px; font-weight: 700; line-height: normal; }
 .tv-tpl .rs { display: block; margin-top: 1px; }
+.tv-tpl-chip {
+  flex: none; display: inline-flex; align-items: center;
+  min-height: 28px; padding: 0 10px; border-radius: var(--radius-pill);
+  font-size: 12px; font-weight: 700; line-height: normal;
+  background: var(--gold-100); color: var(--gold-ink);
+}
 
 /* Untergruppe im ⋯-Menue (Vorlage anwenden). */
 .tv-mgroup {
@@ -2108,13 +2176,14 @@ button.sg-stat:focus-visible { outline: 2px solid var(--green-700); outline-offs
 .laz-note { font-size: 12px; font-weight: 500; color: var(--muted); margin-top: 2px; }
 
 /* ---------- Kaderkarte in der Trainer-Ansicht ------------------------------- */
+/* Gemessen aus trainer-sheet-v2: 358x62, Innenrand 14, Abstand nach oben 15. */
 .tv-kader {
-  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
-  padding: 12px 14px; min-height: var(--h-row); margin-bottom: 8px;
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  padding: 14px; min-height: 62px; margin-top: 16px;
 }
 .tv-kader-main { flex: 1; min-width: 0; }
-.tv-kader-t { display: block; font-size: 14px; font-weight: 700; color: var(--ink); }
-.tv-kader-z { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-top: 2px; }
+.tv-kader-t { display: block; font-size: 15px; font-weight: 700; color: var(--ink); }
+.tv-kader-z { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-top: 0; }
 .tv-kader-z b { color: var(--ink); font-weight: 700; }
 .tv-kader-z b.is-warn { color: var(--red-600); }
 .tv-kader-p { margin: 0 5px; color: var(--line); }
@@ -2163,6 +2232,10 @@ body {
 
 /* --- Typografie: enger gesetzt, damit grosse Zahlen ruhig stehen ------------ */
 .page-head h1 { letter-spacing: -.025em; }
+/* Kopfzeile der Trainer-Ansicht: gemessen 25 px Titel, 14 px Unterzeile.
+   Nur hier - die uebrigen Ansichten zeigt diese Vorlage nicht. */
+.tv-head h1 { font-size: 25px; }
+.tv-head p  { font-size: 14px; }
 .section-title h2 { letter-spacing: -.012em; }
 .kpi-label { letter-spacing: .68px; }
 .amount, .kpi-value, .mb-value, .fine-amt, .kat-amount { letter-spacing: -.018em; }

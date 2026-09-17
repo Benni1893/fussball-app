@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-17-D";
+  var APP_BUILD = "2026-09-17-E";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -2375,79 +2375,148 @@
     if (tv.view === "lineup" && tv.eventId != null) tvViewLineup(); else tvViewGames();
   }
 
-  /* ---- Zustand 1: Spiel wählen (Vorlage 2b) ---- */
+  /* ---- Zustand 1: Spiel wählen (Vorlage trainer-sheet-v2.png) --------------
+     Aufbau gemessen aus dem Bild: Karte „Nächstes Spiel", Kaderkarte,
+     Abschnitt „Weitere Spiele" mit Verweis „Alle", Abschnitt „Vorlagen" mit
+     Verweis „Neu". Alle Masse stehen im Stylesheet, jeweils mit Messwert.   */
   function tvViewGames() {
     tv.view = "games"; tv.dirty = false; tv.readonly = false; tvClosePanels();
     const up = DEMO.events.filter(e => e.typ === "spiel" && isFuture(e.datum)).sort((a, b) => a.datum.localeCompare(b.datum));
+    const naechstes = up[0];
+    const weitere = up.slice(1);
     viewEl.innerHTML =
-      '<div class="page-head"><h1>Trainer</h1>' +
+      '<div class="page-head tv-head"><h1>Trainer</h1>' +
       '<p>Spiel wählen, danach baust du die Elf auf dem Platz.</p></div>' +
-      // K3: Der Kader steht als eigene Karte ueber der Spielauswahl. Ein reiner
-      // Trainer kommt ueber den 5. Tab direkt hierher und haette sonst keinen
-      // Weg dorthin.
+      (naechstes ? tvNextHtml(naechstes)
+                 : '<div class="card card-pad"><div class="empty">Kein anstehendes Spiel. Sobald im Kalender ein Spiel angelegt ist, kannst du hier die Aufstellung bauen.</div></div>') +
+      // K3: Der Kader steht als eigene Karte unter dem naechsten Spiel. Ein
+      // reiner Trainer kommt ueber den 5. Tab direkt hierher und haette sonst
+      // keinen Weg dorthin.
       tvKaderKarteHtml() +
-      (up.length ? '<div class="tv-glist">' + (tv.alleSpiele ? up : up.slice(0, 3)).map(tvGameCard).join("") +
-        (up.length > 3
-          ? '<button class="link-btn tv-mehr" data-tvallgames>' +
-            (tv.alleSpiele ? 'Weniger Spiele<span class="tv-pfeil">&#9652;</span>'
-                           : 'Mehr Spiele<span class="tv-pfeil">&#9662;</span>') +
-            '</button>' : "") +
-        '</div>'
-                 : '<div class="empty">Kein anstehendes Spiel. Sobald im Kalender ein Spiel angelegt ist, kannst du hier die Aufstellung bauen.</div>') +
+      (weitere.length
+        ? '<div class="section-title sec-mini"><h2>Weitere Spiele</h2>' +
+          (weitere.length > 2
+            ? '<button class="link-btn" data-tvallgames>' + (tv.alleSpiele ? "Weniger" : "Alle") + ' &rsaquo;</button>'
+            : "") +
+          '</div><div class="card tv-glist">' +
+          (tv.alleSpiele ? weitere : weitere.slice(0, 2)).map(tvGameRow).join("") + '</div>'
+        : "") +
       tvTemplatesHtml();
   }
-  /* Kaderkarte ueber der Spielauswahl: drei Kennzahlen und ein Chevron. */
+
+  // „in 3 Tagen" - die Vorlage nennt den Abstand, nicht nur das Datum.
+  function inTagenText(iso) {
+    const tage = Math.round((parseDate(iso) - parseDate(HEUTE)) / 86400000);
+    if (tage <= 0) return "heute";
+    if (tage === 1) return "morgen";
+    return "in " + tage + " Tagen";
+  }
+
+  /* Karte „Nächstes Spiel": Plakette Heim/Auswärts, Gegner, Zeitzeile,
+     Rückmeldebalken (zugesagt gruen, abgesagt rot, Rest Spur) und der Knopf
+     in die Platzansicht mit dem Stand der Aufstellung. */
+  function tvNextHtml(e) {
+    const gesamt = DEMO.players.length;
+    const zu = DEMO.players.filter((p) => (state.rsvp[e.id + "|" + p.id] || {}).status === "zu").length;
+    const ab = DEMO.players.filter((p) => (state.rsvp[e.id + "|" + p.id] || {}).status === "ab").length;
+    const offen = gesamt - zu - ab;
+    const pz = gesamt ? (zu / gesamt) * 100 : 0;
+    const pa = gesamt ? (ab / gesamt) * 100 : 0;
+
+    const lu = (DEMO.lineups || []).find((l) => l.eventId === e.id && l.isActive && !l.isTemplate);
+    const slots = lu ? (FORMATIONS[lu.formation] || []) : [];
+    const gesetzt = lu ? slots.map((s) => (lu.slots || {})[s.key]).filter(Boolean).length : 0;
+
+    const zeit = fmtWd(e.datum) + " " + fmtDay(e.datum) + ". " + fmtMon(e.datum)
+      + (e.zeit ? " · " + esc(e.zeit) + " Uhr" : "") + " · " + inTagenText(e.datum);
+
+    return '<div class="card edge-green tv-next">' +
+      '<div class="tv-next-kopf"><span class="tv-next-lbl">Nächstes Spiel</span>' +
+      (e.heim == null ? "" : '<span class="tv-next-bdg">' + (e.heim ? "Heim" : "Auswärts") + '</span>') +
+      '</div>' +
+      '<div class="tv-next-t">' + esc(e.gegner || e.titel) + '</div>' +
+      '<div class="tv-next-m num">' + zeit + '</div>' +
+      '<div class="tv-bar" role="img" aria-label="' + zu + ' zugesagt, ' + ab + ' abgesagt, ' + offen + ' offen">' +
+        '<i class="is-zu" style="width:' + pz.toFixed(2) + '%"></i>' +
+        '<i class="is-ab" style="width:' + pa.toFixed(2) + '%"></i></div>' +
+      '<div class="tv-next-z"><span class="is-zu num">' + zu + ' zugesagt</span>' +
+        '<span class="is-ab num">' + ab + ' ab</span>' +
+        '<span class="is-of num">' + offen + ' offen</span></div>' +
+      '<button class="tv-next-btn" data-tvgame="' + e.id + '">Elf aufstellen' +
+        '<span class="tv-next-sub num">' + gesetzt + '/' + (slots.length || 11) + ' gesetzt</span></button>' +
+      '</div>';
+  }
+
+  /* Kaderkarte: drei Zahlen, acht Striche als Anteil und ein Chevron. */
   function tvKaderKarteHtml() {
     const gesamt = DEMO.players.length;
     const fit = DEMO.players.filter(istFit).length;
     const raus = gesamt - fit;
+    const n = 8;
+    // Wer nicht fit ist, soll auch einen Strich bekommen - sonst verschwindet
+    // ein einzelner Ausfall in der Rundung.
+    const roh = gesamt ? Math.round((fit / gesamt) * n) : n;
+    const gruen = raus ? Math.min(n - 1, roh) : n;
+    let striche = '<span class="tv-kchart" aria-hidden="true">';
+    for (let i = 0; i < n; i++) striche += '<i' + (i < gruen ? "" : ' class="is-raus"') + '></i>';
+    striche += '</span>';
     return '<button class="card tv-kader" data-goto="kader">' +
       '<span class="tv-kader-main"><span class="tv-kader-t">Kader</span>' +
       '<span class="tv-kader-z"><b class="num">' + gesamt + '</b> Spieler' +
       '<span class="tv-kader-p">·</span><b class="num">' + fit + '</b> fit' +
       '<span class="tv-kader-p">·</span><b class="num' + (raus ? ' is-warn' : '') + '">' + raus + '</b> nicht fit' +
-      '</span></span><span class="tv-garrow">›</span></button>';
+      '</span></span>' + striche + '<span class="tv-garrow">›</span></button>';
   }
-  function tvGameCard(e) {
-    const active = (DEMO.lineups || []).some(l => l.eventId === e.id && l.isActive && !l.isTemplate);
-    return '<button class="card tv-gcard" data-tvgame="' + e.id + '">' +
-      '<span class="event-date"><span class="d-wd">' + fmtWd(e.datum) + '</span>' +
-        '<span class="d-day">' + fmtDay(e.datum) + '</span>' +
+
+  /* Zeile in „Weitere Spiele": Datum, Gegner, Zeit und Ort, Plakette, Chevron. */
+  function tvGameRow(e) {
+    const lu = (DEMO.lineups || []).find((l) => l.eventId === e.id && l.isActive && !l.isTemplate);
+    const slots = lu ? (FORMATIONS[lu.formation] || []) : [];
+    const gesetzt = lu ? slots.map((s) => (lu.slots || {})[s.key]).filter(Boolean).length : 0;
+    const steht = !!(lu && slots.length && gesetzt === slots.length);
+    return '<button class="tv-grow" data-tvgame="' + e.id + '">' +
+      '<span class="tv-gdate"><span class="d-day num">' + fmtDay(e.datum) + '</span>' +
         '<span class="d-mon">' + fmtMon(e.datum) + '</span></span>' +
-      '<span class="tv-gmain"><span class="tv-gopp">' + (e.heim ? "vs. " : "@ ") + esc(e.gegner || e.titel) + '</span>' +
-        '<span class="tv-gmeta num">' + (e.zeit ? e.zeit + " Uhr · " : "") + (e.heim ? "Heim" : "Auswärts") + '</span></span>' +
-      '<span class="tv-gchip' + (active ? " on" : "") + '">' + (active ? "aktiv" : "offen") + '</span><span class="tv-garrow">›</span></button>';
+      '<span class="tv-gmain"><span class="tv-gopp">' + esc(e.gegner || e.titel) + '</span>' +
+        '<span class="tv-gmeta num">' + (e.zeit ? esc(e.zeit) + " · " : "") + (e.heim ? "Heim" : "Auswärts") + '</span></span>' +
+      '<span class="tv-gchip' + (steht ? "" : " is-offen") + '">' + (steht ? "Elf steht" : "offen") + '</span>' +
+      '<span class="tv-garrow">›</span></button>';
   }
 
   /* Vorlagen (K1). Gespeichert werden sie in der Platzansicht ueber das
-     ⋯-Menue, angewendet ebenfalls dort (dort ist ein Spiel offen, auf das man
-     sie anwenden kann). Hier stehen sie zum Nachsehen und zum Loeschen -
-     damit ist der Kreis aus Speichern, Anwenden und Loeschen geschlossen.
-     Abweichung von der Vorlage: statt eines Chevrons traegt die Zeile einen
-     Papierkorb, weil ein Antippen ohne offenes Spiel kein Ziel haette. */
+     ⋯-Menue, angewendet ebenfalls dort. Hier stehen sie zum Nachsehen und zum
+     Loeschen - damit ist der Kreis aus Speichern, Anwenden und Loeschen
+     geschlossen. Zwei Abweichungen von der Vorlage, beide notiert:
+     der Papierkorb bleibt (sonst waere keine Vorlage mehr loeschbar), und
+     „Neu" fuehrt in die Platzansicht des naechsten Spiels, weil eine Vorlage
+     nur aus einer offenen Aufstellung entstehen kann. */
   function tvTemplatesHtml() {
     const tpl = (DEMO.lineups || []).filter(l => l.isTemplate);
+    const naechstes = DEMO.events.filter(e => e.typ === "spiel" && isFuture(e.datum))
+      .sort((a, b) => a.datum.localeCompare(b.datum))[0];
+    const kopf = '<div class="section-title sec-mini"><h2>Vorlagen</h2>' +
+      (naechstes ? '<button class="link-btn" data-tvtplnew="' + naechstes.id + '">Neu &rsaquo;</button>' : "") +
+      '</div>';
     // A6: Der Abschnitt steht immer da. Ohne Vorlage sagt er, wie man eine anlegt -
     // sonst sucht man den Weg vergeblich.
     if (!tpl.length) {
-      return '<div class="section-title"><h2>Vorlagen</h2></div>' +
-        '<div class="card card-pad tv-tpl-leer"><p class="rs">Noch keine Vorlage. ' +
+      return kopf + '<div class="card card-pad tv-tpl-leer"><p class="rs">Noch keine Vorlage. ' +
         'Speichere eine Aufstellung über das Menü ⋯ als Vorlage.</p></div>';
     }
-    return '<div class="section-title"><h2>Vorlagen</h2></div>' +
-      '<div class="card tv-tpls">' + tpl.map(l =>
-        '<div class="tv-tpl"><span class="tv-tpl-main"><span class="tv-tpl-n">' + esc(l.name) + '</span>' +
-        '<span class="rs">' + esc(l.formation) + tvTplStand(l) + '</span></span>' +
-        '<button class="icon-btn" data-tvtpldel="' + l.id + '" title="Vorlage löschen" aria-label="Vorlage ' + esc(l.name) + ' löschen">' + ICON_TRASH + '</button></div>'
-      ).join("") + '</div>';
+    return kopf + '<div class="card tv-tpls">' + tpl.map(l =>
+      '<div class="tv-tpl"><span class="tv-tpl-main"><span class="tv-tpl-n">' + esc(l.name) + '</span>' +
+      '<span class="rs">' + tvTplStand(l) + '</span></span>' +
+      '<span class="tv-tpl-chip num">' + esc(l.formation) + '</span>' +
+      '<button class="icon-btn" data-tvtpldel="' + l.id + '" title="Vorlage löschen" aria-label="Vorlage ' + esc(l.name) + ' löschen">' + ICON_TRASH + '</button></div>'
+    ).join("") + '</div>';
   }
   // Die Vorlage schreibt „zuletzt genutzt"; die Tabelle kennt nur updated_at,
-  // also steht hier ehrlich „zuletzt geändert".
+  // also steht hier ehrlich „geändert am".
   function tvTplStand(l) {
-    if (!l.updatedAt) return "";
+    if (!l.updatedAt) return "Vorlage";
     const d = new Date(l.updatedAt);
-    if (isNaN(d)) return "";
-    return " · zuletzt geändert am " + d.getDate() + ". " + MON[d.getMonth()];
+    if (isNaN(d)) return "Vorlage";
+    return "geändert am " + d.getDate() + ". " + MON[d.getMonth()];
   }
   async function tvSaveTemplate() {
     const nm = window.prompt("Name der Vorlage:", tv.formation + " Standard");
@@ -2961,6 +3030,10 @@
     const t = ev.target;
     if (t.closest("[data-tvallgames]")) { tv.alleSpiele = !tv.alleSpiele; tvViewGames(); return true; }
     const td = t.closest("[data-tvtpldel]"); if (td) { tvDeleteTemplate(td.dataset.tvtpldel); return true; }
+    // „Neu" bei den Vorlagen: eine Vorlage entsteht nur aus einer offenen
+    // Aufstellung, also geht es in die Platzansicht des naechsten Spiels.
+    const tn = t.closest("[data-tvtplnew]");
+    if (tn) { tvOpenGame(tn.dataset.tvtplnew); tvToast("Elf bauen, dann im Menü ⋯ als Vorlage speichern"); return true; }
     const g = t.closest("[data-tvgame]"); if (g) { tvOpenGame(g.dataset.tvgame); return true; }
     if (t.closest("[data-tvback]")) { tvBack(); return true; }
     if (tv.readonly) return true;   // vergangenes Spiel: nur ansehen, keine Bearbeitung

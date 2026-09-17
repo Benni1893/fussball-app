@@ -13,20 +13,12 @@ for (const s of (process.env.KLICKS || '').split(',').filter(Boolean)) {
   await p.evaluate((x) => { const e = document.querySelector(x); if (e) e.click(); }, s); await p.waitForTimeout(800);
 }
 console.log(await p.evaluate(() => {
-  const d = document.documentElement;
-  const zuBreit = [...document.querySelectorAll('#view *')].filter((e) => e.getBoundingClientRect().right > 390.5)
-    .map((e) => e.className + ' -> ' + e.getBoundingClientRect().right.toFixed(1)).slice(0, 6);
-  return 'scrollWidth ' + d.scrollWidth + ' / clientWidth ' + d.clientWidth
-    + (zuBreit.length ? '\nueber den Rand: ' + zuBreit.join(' | ') : '\nnichts ueber den Rand');
-}));
-// Trefferflaechen kleiner 44 in der Ansicht
-console.log(await p.evaluate(() => {
-  const klein = [];
-  document.querySelectorAll('#view button, #view a').forEach((e) => {
-    const r = e.getBoundingClientRect(); if (!r.height) return;
-    const a = e.querySelector('::after');
-    if (r.height < 43.5) klein.push(e.className + ' h=' + r.height.toFixed(1));
+  const out = [];
+  document.querySelectorAll('#view .sec-mini .link-btn').forEach((e) => {
+    const r = e.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    const treffer = (dy) => { const t = document.elementFromPoint(cx, cy + dy); return t && (t === e || e.contains(t) || t.closest('.link-btn') === e); };
+    out.push(e.textContent.trim() + ': oben ' + (treffer(-21) ? 'ja' : 'nein') + ', unten ' + (treffer(21) ? 'ja' : 'nein'));
   });
-  return klein.length ? 'unter 44 px (Pseudo-Flaeche pruefen): ' + klein.join(' | ') : 'alle Knoepfe mindestens 44 px hoch';
+  return out.join(' | ');
 }));
 await b.close(); server.close();
