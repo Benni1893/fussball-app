@@ -979,21 +979,23 @@
     });
   }
 
-  /* ---------- Rückmeldungen-Sheet (Trainer/Admin) ---------------------------
-     Zeigt je Termin, wer zugesagt, abgesagt und noch nicht geantwortet hat.
+  /* ---------- Rückmeldungen-Blatt (Trainer/Admin) ---------------------------
+     Aufbau nach .design-sync/reference/trainer-sheet-v2.png, alle Masse dort
+     gemessen. Die drei Kacheln sind zugleich der Filter: angetippt zeigt die
+     Liste genau diese Gruppe. Die Vorlage zeigt „Offen" ausgewaehlt, und das
+     ist auch der Zustand, mit dem das Blatt aufgeht - dort ist etwas zu tun.
      Daten liegen bereits im Speicher. Die eigentliche Schranke ist die RLS:
-     rsvps_sel (Migration 0024) gibt fremde Antworten nur an coach/admin heraus –
-     ein Spieler bekaeme hier gar keine fremden Zeilen. */
+     rsvps_sel (Migration 0024) gibt fremde Antworten nur an coach/admin
+     heraus - ein Spieler bekaeme hier gar keine fremden Zeilen. */
+  var rsFilter = "offen";
+
   function closeRsvpSheet() {
     const ex = document.getElementById("rsvpSheet");
     if (ex) { ex.remove(); unlockBodyScroll(); }
   }
-  function openRsvpSheet(eventId) {
-    if (!Roles.canManageEvents()) return;   // zweite Schranke; RLS ist die erste
-    const e = DEMO.events.find((x) => x.id === eventId);
-    if (!e) return;
-    closeRsvpSheet();
 
+  // Gruppen eines Termins, jeweils nach Nachnamen sortiert.
+  function rsGruppen(eventId) {
     const zu = [], ab = [], offen = [];
     DEMO.players.forEach((p) => {
       const r = state.rsvp[eventId + "|" + p.id] || {};
@@ -1003,37 +1005,98 @@
     });
     const byName = (a, b) => nachname(a.p.name).localeCompare(nachname(b.p.name), "de");
     [zu, ab, offen].forEach((l) => l.sort(byName));
+    return { zu: zu, ab: ab, offen: offen };
+  }
 
-    const row = (x) => `<li class="rs-row">
-        <span class="avatar">${initials(x.p.name)}</span>
-        <span class="rs-name">${esc(x.p.name)}${x.grund ? `<span class="rs-grund">Grund: ${esc(x.grund)}</span>` : ""}</span>
-      </li>`;
-    // Leere Gruppen bleiben sichtbar – so steht die Gliederung bei jedem Termin gleich.
-    const group = (titel, list) => `<div class="rs-group">
-        <div class="rs-head">${titel}<span class="rs-n">${list.length}</span></div>
-        ${list.length ? `<ul class="rs-list">${list.map(row).join("")}</ul>`
-                      : `<div class="rs-empty">niemand</div>`}
-      </div>`;
+  // Unterzeile: Datum, Art und - wenn die Automatik laeuft - die Frist.
+  function rsKopfzeile(e) {
+    const teile = [fmtWd(e.datum) + " " + fmtDay(e.datum) + ". " + fmtMon(e.datum),
+                   e.typ === "spiel" ? ((e.gegner || e.titel)) : (e.titel || "Training")];
+    const dl = meldeschlussMs(e);
+    if (dl != null && Date.now() < dl) {
+      const d = new Date(dl);
+      teile.push("Frist " + WT[d.getDay()] + " " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"));
+    }
+    return teile.join(" · ");
+  }
 
-    const kopf = (e.typ === "spiel" && e.gegner) ? (e.heim ? "vs. " : "@ ") + e.gegner : e.titel;
+  /* Vollstaendige Uebersicht zum Teilen - dieselbe Mechanik wie
+     „Kader-Info erstellen" und „N erinnern" (Gate S2, Weg b). */
+  function rueckmeldeText(e) {
+    const g = rsGruppen(e.id);
+    const kopf = (e.typ === "spiel" ? (e.heim ? "Heimspiel gegen " : "Auswärtsspiel bei ") + (e.gegner || e.titel) : e.titel)
+      + "\n" + fmtWd(e.datum) + " " + fmtDay(e.datum) + ". " + fmtMon(e.datum)
+      + (e.zeit ? " · " + e.zeit + " Uhr" : "");
+    const block = (titel, list) => "\n\n" + titel + " (" + list.length + ")"
+      + (list.length ? "\n" + list.map((x) => x.p.name + (x.grund ? " – " + x.grund : "")).join("\n") : "\n–");
+    return kopf + block("Zugesagt", g.zu) + block("Abgesagt", g.ab) + block("Offen", g.offen);
+  }
+
+  function rsvpSheetHtml(e) {
+    const g = rsGruppen(e.id);
+    const gesamt = DEMO.players.length;
+    const pz = gesamt ? (g.zu.length / gesamt) * 100 : 0;
+    const liste = rsFilter === "zu" ? g.zu : rsFilter === "ab" ? g.ab : g.offen;
+
+    const kachel = (schl, label, n) =>
+      '<button class="rs2-kachel' + (rsFilter === schl ? " is-on" : "") + '" data-rsfilter="' + schl + '"' +
+      ' aria-pressed="' + (rsFilter === schl ? "true" : "false") + '">' +
+      '<span class="rs2-k-l">' + label + '</span><span class="rs2-k-z num">' + n + '</span></button>';
+
+    const zeile = (x) => '<div class="rs2-zeile">' +
+      '<span class="rs2-av">' + initials(x.p.name) + '</span>' +
+      '<span class="rs2-n">' + esc(x.p.name) +
+      (x.grund ? '<span class="rs2-grund">' + esc(x.grund) + '</span>' : "") + '</span></div>';
+
+    return '<button class="more-backdrop" data-sheet-close aria-label="Schließen"></button>' +
+      '<div class="more-panel rs2-panel" role="dialog" aria-modal="true" aria-label="Rückmeldungen">' +
+      '<div class="rs2-griff" aria-hidden="true"></div>' +
+      '<div class="rs2-kopf"><div class="rs2-kopf-text">' +
+        '<div class="rs2-titel">Rückmeldungen</div>' +
+        '<div class="rs2-sub num">' + esc(rsKopfzeile(e)) + '</div></div>' +
+        '<button class="rs2-zu" data-sheet-close aria-label="Schließen">&#10005;</button></div>' +
+      '<div class="rs2-bar" role="img" aria-label="' + g.zu.length + ' von ' + gesamt + ' zugesagt">' +
+        '<i style="width:' + pz.toFixed(2) + '%"></i></div>' +
+      '<div class="rs2-kacheln">' +
+        kachel("zu", "Zugesagt", g.zu.length) +
+        kachel("ab", "Abgesagt", g.ab.length) +
+        kachel("offen", "Offen", g.offen.length) + '</div>' +
+      '<div class="rs2-liste">' +
+        (liste.length ? liste.map(zeile).join("")
+                      : '<div class="rs2-leer">niemand in dieser Gruppe</div>') + '</div>' +
+      '<div class="rs2-fuss">' +
+        (g.offen.length
+          ? '<button class="rs2-btn" data-rs-erinnern="' + e.id + '">Alle ' + g.offen.length + ' erinnern</button>'
+          : "") +
+        '<button class="rs2-btn2' + (g.offen.length ? "" : " is-weit") + '" data-rs-teilen="' + e.id + '">Teilen</button>' +
+      '</div></div>';
+  }
+
+  function openRsvpSheet(eventId) {
+    if (!Roles.canManageEvents()) return;   // zweite Schranke; RLS ist die erste
+    const e = DEMO.events.find((x) => x.id === eventId);
+    if (!e) return;
+    closeRsvpSheet();
+    rsFilter = "offen";
+
     const ov = document.createElement("div");
     ov.className = "more-sheet"; ov.id = "rsvpSheet";
-    ov.innerHTML = `
-      <button class="more-backdrop" data-sheet-close aria-label="Schließen"></button>
-      <div class="more-panel" role="dialog" aria-modal="true" aria-label="Rückmeldungen">
-        <div class="more-title">Rückmeldungen · ${fmtWd(e.datum)} ${fmtDay(e.datum)}. ${fmtMon(e.datum)} · ${esc(kopf)}</div>
-        <div class="rsvp-sheet">
-          ${group("Zugesagt", zu)}
-          ${group("Abgesagt", ab)}
-          ${group("Offen", offen)}
-        </div>
-      </div>`;
+    ov.innerHTML = rsvpSheetHtml(e);
     document.body.appendChild(ov);
     lockBodyScroll();
+
+    const neuZeichnen = () => {
+      ov.innerHTML = rsvpSheetHtml(e);
+      sheetSwipeToClose(ov.querySelector(".more-panel"), ov.querySelector(".rs2-liste"), closeRsvpSheet);
+    };
     ov.addEventListener("click", (ev) => {
+      const f = ev.target.closest("[data-rsfilter]");
+      if (f) { rsFilter = f.dataset.rsfilter; neuZeichnen(); return; }
+      if (ev.target.closest("[data-rs-erinnern]")) { openShareModal("Erinnerung", erinnernText(e)); return; }
+      if (ev.target.closest("[data-rs-teilen]")) { openShareModal("Rückmeldungen", rueckmeldeText(e)); return; }
       if (ev.target === ov || ev.target.closest("[data-sheet-close]")) closeRsvpSheet();
     });
-    sheetSwipeToClose(ov.querySelector(".more-panel"), ov.querySelector(".rsvp-sheet"), closeRsvpSheet);
+    sheetSwipeToClose(ov.querySelector(".more-panel"), ov.querySelector(".rs2-liste"), closeRsvpSheet);
   }
 
   function renderKalender() {

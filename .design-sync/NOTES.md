@@ -92,3 +92,47 @@ Beim nächsten Lauf mit Browser lohnt ein Blick auf:
   die Leisten am Rand der Vorschau.
 - **Terminkarte**: unter 640px klappt `.rsvp` in eine eigene Zeile um. In einer
   schmalen Vorschaukarte ist das der Normalfall, nicht der Fehlerfall.
+
+## Vorlage trainer-sheet-v2.png (17.09.2026)
+
+Zwei Screens aus `.design-sync/reference/trainer-sheet-v2.png`, Maßstab des
+Bildes 0,9 (Rahmen 351 Bildpunkte = 390 CSS-px). Gemessen wurde mit
+`.design-sync/shots/bild.mjs` (Farbabtastung und Bandanalyse im Bild),
+`rects.mjs` (Kastenmaße im laufenden Arbeitsstand) und `vergleich.mjs`
+(Bandlagen Vorlage gegen App, beide auf denselben Maßstab gerechnet, damit die
+Kantenglättung gleich breit ausfällt). Die Messauflösung liegt bei **1,1 CSS-px**
+= ein Bildpunkt der Vorlage; Abweichungen unter diesem Wert sind nicht belegbar.
+
+**Bewusste Abweichungen, Trainer-Ansicht**
+
+- Der **Papierkorb in der Vorlagenzeile bleibt**. Die Vorlage zeigt an dieser
+  Stelle nur die Formationsplakette; ohne Papierkorb wäre keine Vorlage mehr
+  löschbar (Gate K1 verlangt den Kreis aus Speichern, Anwenden, Löschen).
+- **„Neu ›" führt in die Platzansicht des nächsten Spiels.** Die Vorlage zeigt
+  den Verweis, sagt aber nicht, wohin er führt. Eine Vorlage entsteht nur aus
+  einer offenen Aufstellung, also ist das der einzige Ort, an dem der Verweis
+  etwas bewirken kann. Ohne anstehendes Spiel entfällt er.
+- **Titel 25 px und Unterzeile 14 px gelten nur in der Trainer-Ansicht**
+  (`.tv-head`). Die Vorlage zeigt die übrigen Ansichten nicht; deren Kopfzeile
+  bleibt bei 22 px / 13 px.
+- Titel „Trainer": Schriftbild 21,1 px gemessen gegen 20,0 px der Vorlage.
+  1,1 px = ein Bildpunkt, nicht weiter verfolgt.
+
+**Bewusste Abweichungen, Rückmeldungen-Blatt**
+
+- **Die drei Kacheln sind der Filter.** Die Vorlage hebt „Offen" hervor und
+  listet darunter genau die 15 offenen Spieler; der Fußknopf nennt dieselbe
+  Zahl. Das Blatt geht deshalb mit „Offen" auf. Alle drei Gruppen bleiben über
+  die Kacheln erreichbar.
+- **Bei einer Absage steht der Grund unter dem Namen**, die Zeile wächst dann
+  über 44 px hinaus. Die Vorlage zeigt einspaltige Namen ohne Zusatz; ohne
+  diesen Zusatz ginge die Angabe des alten Blattes verloren.
+- **„Teilen"** gibt die vollständige Übersicht als Text aus (zugesagt,
+  abgesagt, offen), **„Alle N erinnern"** den Erinnerungstext an die Offenen
+  (Gate S2, Weg b). Die Vorlage beschriftet beide Knöpfe, sagt aber nicht, was
+  sie tun.
+- **Abdunklung dahinter**: gemessen etwa `rgba(0,0,0,.41)`, im Stylesheet steht
+  `rgba(20,28,22,.4)`. Unverändert gelassen — der Ton gilt für alle Blätter.
+- Schließen-Kreuz: Kreis rechts bei x 338 statt gemessener 335,6 — 16 px
+  Innenrand ist das Raster der ganzen App; die 2,4 px liegen im Messrauschen
+  der Rahmenkante.

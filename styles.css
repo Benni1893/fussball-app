@@ -857,23 +857,78 @@ tbody tr:hover { background: #fbfdfc; }
 .sheet-desc { margin: 4px 0 12px; color: var(--muted); font-size: .9rem; }
 .sheet-links { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; margin-top: 14px; }
 
-/* Rückmeldungen-Sheet (Trainer/Admin): wer zugesagt, abgesagt, noch offen ist.
-   Eigener Scrollbereich, weil ein voller Kader sonst ueber den Rand laeuft. */
-.rsvp-sheet { max-height: 70vh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0 2px 2px; }
-.rs-group + .rs-group { margin-top: 14px; }
-.rs-head {
-  display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  padding: 6px 8px; border-bottom: 1px solid var(--line);
-  font-size: .74rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
-  color: var(--muted);
+/* Rückmeldungen-Blatt (Trainer/Admin) nach Vorlage trainer-sheet-v2.png.
+   Gemessen: Blattkante 208, Griff 34x4 bei 214, Titel 232, Unterzeile 258,
+   Balken 286 (7 hoch, Spur #dfe5e1), Kacheln 304 (46 hoch, Abstand 9,
+   Radius 12), Liste ab 367 in zwei Spalten (Zeile 44, Abstand 6 und 10,
+   Radius 12, Grund #f4f7f5, Zeichen 30x30), Trennlinie 769,
+   Knopfzeile 780 (48 hoch, Abstand 11, „Teilen" 79 breit),
+   Blattunterkante 844.                                                      */
+.rs2-panel {
+  display: flex; flex-direction: column;
+  max-height: calc(100vh - 64px);
+  padding: 0 0 calc(17px + env(safe-area-inset-bottom));
 }
-.rs-n { font-weight: 800; color: var(--green-800); font-variant-numeric: tabular-nums; }
-.rs-list { list-style: none; margin: 0; padding: 0; }
-.rs-row { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 4px 8px; }
-.rs-row + .rs-row { border-top: 1px solid var(--line); }
-.rs-name { min-width: 0; font-weight: 600; color: var(--ink); }
-.rs-grund { display: block; font-weight: 500; font-size: .8rem; color: var(--muted); }
-.rs-empty { padding: 10px 8px; color: var(--muted); font-size: .85rem; }
+.rs2-griff { flex: none; width: 34px; height: 4px; margin: 7px auto 0; border-radius: 2px; background: var(--line); }
+
+.rs2-kopf { flex: none; display: flex; align-items: flex-start; gap: 10px; padding: 10px 16px 0; }
+.rs2-kopf-text { flex: 1 1 auto; min-width: 0; }
+.rs2-titel { font-size: 19px; font-weight: 800; line-height: 1.15; color: var(--ink); letter-spacing: -.02em; }
+.rs2-sub { margin-top: 5px; font-size: 13px; font-weight: 500; color: var(--muted); line-height: normal; }
+.rs2-zu {
+  flex: none; position: relative; width: 36px; height: 36px; margin-top: 3px;
+  display: flex; align-items: center; justify-content: center;
+  border: 0; border-radius: var(--radius-pill); background: var(--bg);
+  color: var(--muted); font-size: 15px; font-weight: 600; line-height: 1;
+}
+.rs2-zu::after { content: ""; position: absolute; top: 50%; left: 50%; width: var(--tap); height: var(--tap); transform: translate(-50%,-50%); }
+
+.rs2-bar { flex: none; margin: 16px 16px 0; height: 7px; border-radius: var(--radius-pill); background: var(--track-sheet); overflow: hidden; }
+.rs2-bar i { display: block; height: 100%; background: var(--green-600); }
+
+.rs2-kacheln { flex: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; padding: 10px 16px 0; }
+.rs2-kachel {
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 3px;
+  min-height: 46px; padding: 10px 10px 0; text-align: left;
+  border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--card);
+}
+.rs2-k-l { font-size: 9px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); line-height: 1; }
+.rs2-k-z { font-size: 16px; font-weight: 800; line-height: 1; color: var(--green-700); }
+/* Die ausgewaehlte Kachel traegt den Bernsteinton der Vorlage. */
+.rs2-kachel.is-on { border-color: var(--amber-600); background: var(--amber-050); }
+.rs2-kachel.is-on .rs2-k-l, .rs2-kachel.is-on .rs2-k-z { color: var(--amber-600); }
+
+.rs2-liste {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; align-content: start;
+  padding: 16px 16px 10px;
+}
+.rs2-zeile {
+  display: flex; align-items: center; gap: 9px; min-height: 44px; padding: 5px;
+  border-radius: var(--radius-md); background: var(--bg);
+}
+.rs2-av {
+  flex: none; width: 30px; height: 30px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--green-050); color: var(--green-800); font-size: 11px; font-weight: 800;
+}
+.rs2-n { min-width: 0; font-size: 14px; font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Abweichung von der Vorlage: bei einer Absage steht der Grund darunter,
+   sonst ginge die Angabe des alten Blattes verloren. */
+.rs2-grund { display: block; font-size: 12px; font-weight: 500; color: var(--muted); white-space: normal; }
+.rs2-leer { grid-column: 1 / -1; padding: 10px 2px; font-size: 13px; color: var(--muted); }
+
+.rs2-fuss { flex: none; display: flex; gap: 11px; padding: 10px 16px 0; border-top: 1px solid var(--line); }
+.rs2-btn {
+  flex: 1 1 auto; min-height: var(--h-btn-lg); border: 0; border-radius: var(--radius-md);
+  background: var(--green-700); color: #fff; font-size: 15px; font-weight: 800; letter-spacing: -.012em;
+}
+.rs2-btn2 {
+  flex: none; min-height: var(--h-btn-lg); padding: 0 14px;
+  border: 1px solid var(--line); border-radius: var(--radius-md);
+  background: var(--card); color: var(--green-800); font-size: 15px; font-weight: 800; letter-spacing: -.012em;
+}
+.rs2-btn2.is-weit { flex: 1 1 auto; }
 
 /* Profil: eigener Fitnessstatus */
 .st-choice { min-height: 44px; }
