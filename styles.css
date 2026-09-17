@@ -1848,7 +1848,6 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
   color: #fff; font-size: 14px; font-weight: 800;
 }
 .task-num svg { width: 17px; height: 17px; }
-.task-num.task-ok { font-size: 0; }
 .task-main  { flex: 1; min-width: 0; }
 .task-title { font-size: 14px; font-weight: 700; }
 .task-sub   { font-size: 12px; font-weight: 500; }
@@ -1872,14 +1871,14 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 .task-row.is-lineup .task-sub   { color: var(--gold-ink-2); }
 .task-row.is-lineup .task-go    { color: var(--gold-chev); }
 
-.task-row.is-rsvp, .task-row.is-clear {
+.task-row.is-rsvp {
   background: var(--grad-task-green); border-color: var(--green-badge-line);
   box-shadow: 0 1px 1px rgba(27,94,63,.05);
 }
-.task-row.is-rsvp .task-num, .task-row.is-clear .task-num { background: var(--grad-edge-green); }
-.task-row.is-rsvp .task-title, .task-row.is-clear .task-title { color: var(--green-task-ink); }
-.task-row.is-rsvp .task-sub,   .task-row.is-clear .task-sub   { color: var(--green-task-ink-2); }
-.task-row.is-rsvp .task-go,    .task-row.is-clear .task-go    { color: var(--green-chev); }
+.task-row.is-rsvp .task-num { background: var(--grad-edge-green); }
+.task-row.is-rsvp .task-title { color: var(--green-task-ink); }
+.task-row.is-rsvp .task-sub { color: var(--green-task-ink-2); }
+.task-row.is-rsvp .task-go { color: var(--green-chev); }
 
 /* --- Geldkacheln (1a) ------------------------------------------------------ */
 .tile-rows { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }   /* Vorlage 1a */

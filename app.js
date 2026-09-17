@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-17-B";
+  var APP_BUILD = "2026-09-17-C";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -560,10 +560,8 @@
       }
     }
 
-    // --- Spieler: schuldenfrei. Ruhige Bestaetigung statt leerer Flaeche. -------
-    if (linked && summeOffenSpieler(me.id) === 0) {
-      zeilen.push({ art: "clear", zahl: "", titel: "Keine offenen Strafen", sub: "", attr: "" });
-    }
+    // Keine Zeile fuer Schuldenfreiheit: der Block zeigt nur, was zu tun ist.
+    // Trifft nichts zu, entfaellt er samt Ueberschrift.
     return zeilen;
   }
   // Kurzbezeichnung eines Termins fuer die Unterzeile der Aufgabenliste.
@@ -580,7 +578,7 @@
       <div class="task-list">
         ${zeilen.map((z) => `
           <div class="task-row is-${z.art}"${z.attr ? " " + z.attr + ' role="button" tabindex="0"' : ""}>
-            ${z.zahl !== "" ? `<span class="task-num">${z.zahl}</span>` : `<span class="task-num task-ok">${ICON_CHECK}</span>`}
+            <span class="task-num">${z.zahl}</span>
             <div class="task-main">
               <div class="task-title">${z.titel}</div>
               ${z.sub ? `<div class="task-sub">${z.sub}</div>` : ""}
@@ -721,7 +719,7 @@
 
       ${aufgabenBlockHtml(naechstes)}
 
-      ${!trainer && !Roles.canManageFines() && kontoVerknuepft
+      ${(!trainer && !Roles.canManageFines() && eigenerBlock)
         ? `<div class="section-title"><h2>Mein Konto</h2><button class="link-btn" data-goto="strafen">Alle Strafen</button></div>` : ""}
       ${geld}
 
