@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-13-S";
+  var APP_BUILD = "2026-09-17-A";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -2324,8 +2324,11 @@
       '<button class="link-btn" data-goto="kader">Kader ansehen</button></div>' +
       '<p>Spiel wählen, danach baust du die Elf auf dem Platz.</p></div>' +
       (up.length ? '<div class="tv-glist">' + (tv.alleSpiele ? up : up.slice(0, 3)).map(tvGameCard).join("") +
-        (!tv.alleSpiele && up.length > 3
-          ? '<button class="link-btn tv-mehr" data-tvallgames>Alle Spiele (' + up.length + ')</button>' : "") +
+        (up.length > 3
+          ? '<button class="link-btn tv-mehr" data-tvallgames>' +
+            (tv.alleSpiele ? 'Weniger Spiele<span class="tv-pfeil">&#9652;</span>'
+                           : 'Mehr Spiele<span class="tv-pfeil">&#9662;</span>') +
+            '</button>' : "") +
         '</div>'
                  : '<div class="empty">Kein anstehendes Spiel. Sobald im Kalender ein Spiel angelegt ist, kannst du hier die Aufstellung bauen.</div>') +
       tvTemplatesHtml();
@@ -2881,7 +2884,7 @@
   }
   function tvViewClick(ev) {
     const t = ev.target;
-    if (t.closest("[data-tvallgames]")) { tv.alleSpiele = true; tvViewGames(); return true; }
+    if (t.closest("[data-tvallgames]")) { tv.alleSpiele = !tv.alleSpiele; tvViewGames(); return true; }
     const td = t.closest("[data-tvtpldel]"); if (td) { tvDeleteTemplate(td.dataset.tvtpldel); return true; }
     const g = t.closest("[data-tvgame]"); if (g) { tvOpenGame(g.dataset.tvgame); return true; }
     if (t.closest("[data-tvback]")) { tvBack(); return true; }
@@ -2917,12 +2920,11 @@
     const amt = staffel
       ? `${euro(k.proEinheit || 0).replace(/\s/g, " ")} / ${k.schritt || 1} ${esc(k.einheit || "")}`
       : euro(k.betrag).replace(/\s/g, " ");
-    // C5 (K5 endgueltig): Kategorie als Unterzeile, bei Staffelstrafen
-    // gemeinsam mit dem Deckel - so zeichnet es die Vorlage.
-    const unten = [
-      (k.kategorie || "").trim() ? esc(k.kategorie.trim()) : "",
-      (staffel && k.maxBetrag != null) ? "max " + euro(k.maxBetrag).replace(/\s/g, " ") : "",
-    ].filter(Boolean).join(" · ");
+    // K5 endgueltig: keine Kategorie in der Anzeige. Die Spalte bleibt in der
+    // Datenbank, wird aber weder gelesen noch geschrieben. Als Unterzeile steht
+    // nur der Deckel einer Staffelstrafe.
+    const unten = (staffel && k.maxBetrag != null)
+      ? "max " + euro(k.maxBetrag).replace(/\s/g, " ") : "";
     return `<div class="kat-item">
       <span class="kat-name">${esc(k.vergehen)}${staffel ? ` <span class="badge badge-self">gestaffelt</span>` : ""}${unten ? `<span class="kat-sub">${unten}</span>` : ""}</span>
       <span class="kat-amount${staffel ? " is-staffel" : ""}">${amt}</span>
@@ -2938,7 +2940,6 @@
     const nm = (n) => (n == null ? "" : String(n).replace(".", ","));
     return `<div class="kat-item kat-edit${isStaffel ? " is-staffel" : ""}">
       <input class="kat-in kat-in-name" data-kat-input="name" type="text" placeholder="Bezeichnung" value="${esc(k ? k.vergehen : "")}">
-      <input class="kat-in" data-kat-input="kategorie" type="text" placeholder="Kategorie (z. B. Pünktlichkeit)" value="${esc(k ? (k.kategorie || "") : "")}">
       <select class="kat-in kat-type" data-kat-type>
         <option value="fixed"${!isStaffel ? " selected" : ""}>Festbetrag</option>
         <option value="staffel"${isStaffel ? " selected" : ""}>Gestaffelt</option>
@@ -3063,7 +3064,7 @@
       { k: "offen",    label: "Offen" },
       { k: "gemeldet", label: "Gemeldet" },
       { k: "bezahlt",  label: "Eingegangen" },
-      { k: "meine",    label: "Meine Strafen" },
+      { k: "meine",    label: "Meine" },   // kurz, damit die Reihe in eine Zeile passt
       { k: "alle",     label: "Alle" },
     ];
 
@@ -3786,7 +3787,6 @@
       const typ = typeEl && typeEl.value === "staffel" ? "staffel" : "fixed";
       const name = gv("name").trim();
       if (!name) { window.alert("Bitte eine Bezeichnung eingeben."); return; }
-      const kategorie = gv("kategorie").trim();   // C5: wird mitgeschrieben
       try {
         if (typ === "staffel") {
           const proE = num(gv("proEinheit"));
@@ -3797,14 +3797,14 @@
           if (!isFinite(proE) || proE < 0) { window.alert("Bitte einen gültigen Betrag je Schritt eingeben."); return; }
           if (!isFinite(schritt) || schritt < 1) { window.alert("Bitte eine gültige Schrittweite (mindestens 1) eingeben."); return; }
           if (!einheit) { window.alert("Bitte eine Einheit angeben (z. B. Minuten)."); return; }
-          const opts = { typ: "staffel", kategorie, einheit, proEinheit: proE, schritt, maxBetrag: (maxB != null && isFinite(maxB)) ? maxB : null };
+          const opts = { typ: "staffel", einheit, proEinheit: proE, schritt, maxBetrag: (maxB != null && isFinite(maxB)) ? maxB : null };
           if (t.dataset.katSave === "new") await DB.insertCatalog(DEMO.clubId, name, 0, opts);
           else await DB.updateCatalog(t.dataset.katSave, name, 0, opts);
         } else {
           const amount = num(gv("amount"));
           if (!isFinite(amount) || amount <= 0) { window.alert("Bitte einen gültigen Betrag größer 0 eingeben."); return; }
-          if (t.dataset.katSave === "new") await DB.insertCatalog(DEMO.clubId, name, amount, { typ: "fixed", kategorie });
-          else await DB.updateCatalog(t.dataset.katSave, name, amount, { typ: "fixed", kategorie });
+          if (t.dataset.katSave === "new") await DB.insertCatalog(DEMO.clubId, name, amount, { typ: "fixed" });
+          else await DB.updateCatalog(t.dataset.katSave, name, amount, { typ: "fixed" });
         }
         katEdit = null;
         await reloadData();
@@ -4079,7 +4079,7 @@
 
   function switchView(view) {
     currentView = view;
-    if (view === "lineup") { tv.view = "games"; tv.eventId = null; tv.sel = null; } // v2 startet immer bei der Spielauswahl
+    if (view === "lineup") { tv.view = "games"; tv.eventId = null; tv.sel = null; tv.mark = null; tv.alleSpiele = false; } // v2 startet immer bei der Spielauswahl
     // Kachel-Sprung-Zustand (Ursprung/Readonly/Hash) beim normalen Tab-Wechsel verwerfen.
     tv.origin = null; tv.readonly = false; tv.dirty = false; navReturn = null;
     // Kasse-Vollbild-Auswahl beim Tab-Wechsel schließen.

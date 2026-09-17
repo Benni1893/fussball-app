@@ -1001,8 +1001,11 @@ tbody tr:hover { background: #fbfdfc; }
   position: relative; z-index: 1;
   display: flex; gap: 7px; flex-wrap: nowrap;
   overflow-x: auto; scrollbar-width: none;
-  margin-left: -16px; margin-right: -16px; padding: 0 16px;   /* bis an den Rand scrollen */
+  overscroll-behavior-x: contain;        /* kein Gummiband */
+  scroll-snap-type: x proximity;
+  margin-left: -16px; margin-right: -16px; padding: 0 16px;   /* nur im Ueberlauf sichtbar */
 }
+.chips .chip { scroll-snap-align: start; }
 .kpi-grid + .chips { margin-top: 14px; }   /* Vorlage 3a */
 .chips::-webkit-scrollbar { display: none; }
 .chips .chip { flex: none; }
@@ -1385,6 +1388,13 @@ body.auth-mode .view { padding-left: 0; padding-right: 0; }
 .tv-gchip.on { background: var(--green-badge-bg); color: var(--green-700); border-color: var(--green-badge-line); }
 .tv-garrow { flex: 0 0 auto; color: var(--muted); font-size: 18px; font-weight: 700; }
 
+/* Umschalter am Ende der Spielliste: drei Spiele oder alle. */
+.tv-mehr {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%; min-height: var(--tap); margin-top: 4px;
+  font-size: 13px; font-weight: 600;
+}
+.tv-pfeil { font-size: 10px; line-height: 1; }
 /* Vorlagenliste unter der Spielauswahl. */
 .tv-tpls { overflow: hidden; }
 .tv-tpl {
@@ -2163,7 +2173,7 @@ body {
   box-shadow: var(--shadow-hair);
   position: relative;
   font-size: 13px;
-  padding: 0 13px;
+  padding: 0 10px;
   min-height: 34px;             /* Vorlage; Trefferflaeche siehe ::after */
 }
 .chip.is-active {

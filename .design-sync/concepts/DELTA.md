@@ -572,3 +572,27 @@ Zusätzlich für den nächsten design-sync-Lauf relevant (aus `NOTES.md`): beide
 # Empfehlung
 
 **2a als Basis, mit drei Anleihen aus 1b.** 2a ist technisch die günstigere Wahl, weil es den App-Rahmen unangetastet lässt: die fixe Kopfzeile mit Logo und Zahnrad, die Bottom-Nav und das Höhenmodell über `--header-h` bleiben, wodurch Paket 2 auf Feinschliff zusammenschrumpft und die iPhone-Fallstricke aus `mobile-ui` gar nicht erst aufgehen. 1b verlangt dagegen ein neues Layoutmodell — ein Kopfblock je Ansicht, der entweder mitscrollt oder selbst fix wird und dann je Ansicht neu vermessen werden muss — und verstößt zusätzlich in sechs Ansichten gegen den Zahnrad-Fixpunkt, was jeweils eine Einzelentscheidung erzwingt. Aus 1b übernehmenswert sind drei Dinge, die keinen Rahmenumbau brauchen: die Dreier-Kennzahlenreihe statt des Vier-Kachel-Rasters, „Kader anschreiben" als Aktion an der Aufstellung statt als Knopf an der Terminkarte, und die dunkelgrüne Zusammenfassung vor dem Speichern in der Kasse. Unabhängig von der Wahl sind Stift, BFV-Abweichungshinweis, Katalog-Bearbeitung und Kader-Status blockierende Rückschritte in beiden Entwürfen und müssen vor dem ersten Logik-Paket geklärt sein — sonst verliert die App Funktionen, die kein Styling zurückbringt.
+
+
+---
+
+# Nachtrag 17.09.2026 — K5 Katalog-Kategorien: **endgültig raus**
+
+Paket 8 („Katalog-Kategorien sichtbar und pflegbar", weiter oben) und die
+zugehörigen Zeilen in den Tabellen sind **umgesetzt und wieder zurückgenommen**.
+Die Entscheidung ist mehrfach gekippt und steht jetzt fest:
+
+| | |
+|---|---|
+| **Anzeige** | Keine Kategorie-Unterzeile in den Katalogkarten. Dort steht als Unterzeile nur noch der Deckel einer Staffelstrafe („max 20,00 €"). |
+| **Formular** | Kein Kategorie-Feld — weder beim Anlegen noch beim Bearbeiten, auch nicht für den Kassenwart. |
+| **Datenbank** | Die Spalte `fine_catalog.category` **bleibt bestehen**. Vorhandene Werte werden nicht gelöscht. |
+| **db.js** | Schreibt die Spalte nicht mehr und nullt sie auch nicht: `insertCatalog` und `updateCatalog` setzen `category` nur, wenn der Aufrufer `kategorie` übergibt (Prüfung über `hasOwnProperty`). `app.js` übergibt es nicht mehr. |
+
+Damit das nicht erneut kippt, der Grund für die Verwechslungsgefahr: Die
+Vorlage „App in 2a - High End" **zeichnet** Kategorien (`.kat-k` unter der
+Bezeichnung). Sie sind also kein Versehen im Entwurf, sondern ein bewusst
+gezeichnetes Element. Sie bleiben trotzdem draußen — das ist eine gewollte
+Abweichung von der Vorlage auf ausdrückliche Anweisung, kein übersehener
+Punkt. Wer die Vorlage das nächste Mal gegen die App prüft, wird sie dort
+finden und darf sie **nicht** wieder einbauen.
