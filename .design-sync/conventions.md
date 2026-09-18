@@ -56,42 +56,81 @@ Layout-Beiwerk kommt als `style="…"` mit Tokens oder als neue, sprechende Klas
 
 | Zweck | Klassen |
 |---|---|
-| Fläche, Seite | `.card` `.card-pad` · `.page-head` `.page-head-row` `.pg-back` · `.section-title` · `.grid-2` · `.empty` `.em-ico` |
-| Kennzahlen | `.kpi-grid` `.kpi` `.kpi-label` `.kpi-value` `.kpi-sub` · antippbar: `.kpi-tap` `.kpi-body` `.kpi-go` `.kpi-amt` · `.is-warn` |
-| Termine | `.event-list` `.event` · Art: `.typ-spiel` `.typ-training` `.typ-sonstiges` `.is-cancelled` · `.event-date` `.d-day` `.d-mon` `.d-wd` · `.event-main` `.e-title` `.e-time` `.e-meta` `.e-note` · `.team-own` `.team-opp` `.vs` · `.venue-link` `.venue-pin` · `.frist` `.frist-label` `.frist-warn` |
-| Zu-/Absage | `.rsvp` `.rsvp-buttons` `.rsvp-count` `.rsvp-reason` `.rsvp-cancelled` |
-| Aktionen | `.btn` + `.btn-primary` `.btn-soft` `.btn-danger` `.btn-ghost` `.btn-sm` `.btn-zu` `.btn-ab` (Zustand `.is-on`) · `.icon-btn` `.icon-ok` · `.link-btn` · `.toolbar` `.chip` (`.is-active`) |
-| Status | `.tag` + `.tag-spiel` `.tag-training` `.tag-heim` `.tag-ausw` `.tag-friendly` `.tag-cancelled` `.tag-manuell` · `.badge` + `.badge-open` `.badge-paid` `.badge-cancel` `.badge-auto` `.badge-self` · `.cd` + `.cd-neutral` `.cd-amber` `.cd-red` `.cd-due` `.cd-capped` |
-| Listen, Zahlen | `.table-wrap` + `<table>` · `.num` `.amount` `.amt-sub` · `.kat-list` `.kat-item` `.kat-name` `.kat-amount` `.kat-actions` |
+| Fläche, Seite | `.card` `.card-pad` · `.page-head` `.page-head-row` `.pg-back` `.h1row` `.role-pill` · `.section-title` (klein: `.sec-mini`) · `.empty` · Kanten: `.edge-green` `.edge-gold` `.edge-red` |
+| Textbausteine | `.lbl` (11px Großbuchstaben) · `.rs` (12px Nebentext) · `.num` (gleiche Ziffernbreite) |
+| Kennzahlen | `.kpi-grid` (`.kpi-3`) `.kpi` `.kpi-label` `.kpi-value` `.kpi-sub` `.kpi-amt` · `.is-warn` · `.tile-rows` `.tile` `.tile-t` `.amount` |
+| Termine | `.event-list` (`.is-past`) `.event` · Art: `.typ-spiel` `.typ-training` `.typ-sonstiges` `.is-cancelled` · `.ev-head` `.event-date` `.d-day` `.d-mon` `.d-wd` · `.event-main` `.e-title` `.e-time` `.e-meta` `.e-note` · `.team-own` `.team-opp` `.vs` · `.venue-link` `.venue-pin` · `.ev-rsvp` `.ev-foot` `.ev-dot` · `.e-trainer` `.e-tr-rechts` · `.frist` `.frist-label` `.frist-warn` `.kal-cta` `.kal-cta-btn` `.kal-cta-sec` `.kal-cta-txt` |
+| Termin-Hero | `.termin-hero` `.th-top` `.th-body` `.th-title` `.th-time` `.th-venue` `.th-count` `.th-count-v` `.th-rsvp` `.th-actions` · Spielertrainer: `.th-self` `.th-self-t` `.th-self-btns` `.th-mini` |
+| Zu-/Absage | `.btn-zu` `.btn-ab` (Zustand `.is-on`) · `.rsvp-reason` `.rsvp-cancelled` |
+| Aufgaben | `.task-list` `.task-row` (`.is-pay` `.is-lineup` `.is-rsvp`) `.task-num` `.task-main` `.task-title` `.task-sub` `.task-go` |
+| Spieltag | `.spieltag` `.sg-top` `.sg-body` `.sg-title` `.sg-venue` `.sg-av` `.sg-stats` `.sg-stat` `.sg-stat-v` `.sg-stat-go` `.sg-cta` `.sg-foot` |
+| Aktionen | `.btn` + `.btn-primary` `.btn-soft` `.btn-danger` `.btn-ghost` · `.icon-btn` `.icon-ok` · `.link-btn` · `.chips` `.chip` (`.is-active`) |
+| Status | `.st-badge` + `.st-amber` `.st-red` `.st-blue` · `.tag` + `.tag-friendly` `.tag-cancelled` `.tag-manuell` · `.badge` + `.badge-open` `.badge-paid` `.badge-cancel` `.badge-auto` `.badge-self` · `.cd` + `.cd-neutral` `.cd-amber` `.cd-red` `.cd-due` `.cd-capped` |
+| Fitnessstatus | `.st-wahl` `.st-chips` `.st-choice` + `.st-fit` `.st-angeschlagen` `.st-verletzt` `.st-urlaub` · `.st-felder` `.st-feld` |
+| Kader | `.kad-list` `.kad-row` (`.is-raus`) `.kad-kopf` `.kad-name` · `.laz-list` `.laz-row` `.laz-main` `.laz-name` `.laz-note` · `.avatar` |
+| Trainer-Ansicht | `.tv-head` · `.tv-next` `.tv-next-kopf` `.tv-next-lbl` `.tv-next-bdg` `.tv-next-t` `.tv-next-m` `.tv-next-z` `.tv-next-btn` `.tv-next-sub` · `.tv-bar` · `.tv-kader` `.tv-kader-main` `.tv-kader-t` `.tv-kader-z` `.tv-kader-p` `.tv-kchart` `.tv-garrow` · `.tv-glist` `.tv-grow` `.tv-gdate` `.tv-gmain` `.tv-gopp` `.tv-gmeta` `.tv-gchip` (`.is-offen`) · `.tv-tpls` `.tv-tpl` `.tv-tpl-main` `.tv-tpl-n` `.tv-tpl-chip` |
+| Platzansicht | `.tv-lu` (`.tv-ro`) `.tv-top` `.tv-ic` `.tv-hi` `.tv-game` `.tv-sub` · `.tv-formbar` `.tv-fpill` `.tv-fmore` · `.tv-field` `.tv-pitch` `.tv-pitch-bg` `.tv-slot` (`.filled` `.sel`) `.tv-disc` `.tv-role` `.tv-pn` · `.tv-bank` `.tv-bank-h` `.tv-bank-row` `.tv-bslot` `.tv-bnr` `.tv-bn` `.tv-bx` `.tv-bplus` `.tv-bfrei` · `.tv-actions` `.tv-primary` `.tv-ghost` `.tv-cta` `.tv-ro-note` |
+| Rückmeldungen-Blatt | `.rs2-panel` `.rs2-griff` `.rs2-kopf` `.rs2-kopf-text` `.rs2-titel` `.rs2-sub` `.rs2-zu` · `.rs2-bar` · `.rs2-kacheln` `.rs2-kachel` `.rs2-k-l` `.rs2-k-z` · `.rs2-liste` `.rs2-zeile` `.rs2-av` `.rs2-n` `.rs2-grund` `.rs2-leer` · `.rs2-fuss` `.rs2-btn` `.rs2-btn2` |
+| Konto | `.mine-banner` (`.is-clear`) `.mb-label` `.mb-value` `.mb-sub` `.mb-bar` `.mb-note` `.mb-pay` `.mb-pp` `.mb-foot` `.mb-cd` `.pp-word` · `.fine-list` `.fine-row` `.fine-main` `.fine-name` `.fine-desc` `.fine-reason` `.fine-right` `.fine-amt` |
+| Kasse | `.kpi-tapbar` `.kasse-toggle` `.kasse-add` `.kasse-lbl` `.kasse-count` `.kasse-players` `.kasse-chip` `.kasse-in` `.kasse-two` `.kasse-sum` `.kasse-sum-row` `.kasse-sum-total` `.kasse-save` · `.ks-tabs` `.ks-bulk` `.ks-deck` `.ks-ghost` `.ks-card` `.ks-av` `.ks-name` `.ks-amt` `.ks-actions` `.ks-dots` `.ks-cap` `.ks-leer` `.ks-leer-t` · `.ks-ichips` `.ks-ichip` · `.krow-list` `.krow` `.krow-head` `.krow-info` `.krow-title` `.krow-strafe` `.krow-right` `.krow-amt` `.krow-actions` `.krow-tun` `.krow-buchen` · `.zart-row` `.zart` |
+| Katalog | `.kat-list` `.kat-item` `.kat-name` `.kat-sub` `.kat-amount` (`.is-staffel`) `.kat-actions` `.kat-add` · Bearbeiten: `.kat-edit` `.kat-in` `.kat-fixed` `.kat-eur` `.kat-staffel` `.kat-edit-actions` |
 | Formulare | `.termin-form` `.tf-row` `.tf-2col` `.tf-wdh` `.tf-radio` `.tf-bis` `.tf-summary` |
+| Tabelle | `.table-wrap` + `.rollen-tbl` `.player-cell` `.rollen-av` `.rollen-name` `.rollen-mail` |
 | Anmeldung | `.auth-wrap` `.auth-card` `.auth-crest` `.auth-title` `.auth-sub` `.auth-field` `.auth-submit` `.auth-switch` `.auth-forgot` `.auth-error` `.auth-info` |
-| Sheets, Rollen | `.more-sheet` `.more-backdrop` `.more-panel` `.more-title` `.more-item` · `.sim-bar` `.sim-exit` |
+| Blätter, Dialoge | `.more-sheet` `.more-backdrop` `.more-panel` `.more-title` `.more-item` · `.modal-ov` `.modal` (`.modal-sm`) `.modal-head` `.modal-x` `.modal-sub` `.modal-text` `.modal-actions` (`.modal-actions-col`) `.modal-hint` · `.ptr-ind` `.ptr-coin` `.ptr-ring` `.ptr-disc` `.ptr-logo` `.ptr-shadow` |
+| Einstellungen, Profil | `.set-section` `.set-profile` `.set-row` `.set-label` `.set-val` `.set-verwaltung` `.set-sub` `.set-hint` `.set-greet-name` `.set-greet-role` · `.pr-head` `.pr-av` `.pr-name` `.pr-list` `.pr-row` `.pr-bar` `.pr-main` `.pr-t` · `.sim-bar` `.sim-exit` `.sim-switch-hint` |
 
 Zustände hängen sich als zweite Klasse an: `.btn.btn-zu.is-on`, `.kpi.is-warn`,
-`.event.typ-spiel`. Geschlossene Sheets tragen `hidden`, nicht `display:none`.
+`.event.typ-spiel`. Geschlossene Blätter tragen `hidden`, nicht `display:none`.
 
 ## Farben nur über Tokens
 
-Nie ein Hex ins Markup. Alles liegt in `tokens/tokens.css` (136 Tokens):
+Nie ein Hex ins Markup. Alles liegt in `tokens/tokens.css` (134 Tokens):
 
-- Vereinsgrün `--green-900 … --green-050` — Kopfzeile, Primäraktion, Erfolg
-- Gold `--gold-600 --gold-500 --gold-050` — Akzent, Spiele, KPI-Kante
-- Signal `--red-600 --red-050` (offen, abgesagt), `--amber-600 --amber-050` (Warnung)
-- Neutral `--ink --muted --line --bg --card`
-- Form `--radius` (14px), `--shadow`, `--shadow-sm`
-- Fachlich `--spiel-heim --spiel-ausw --typ-training --typ-sonstiges --fs-event-time`
+- Vereinsgrün `--green-990` bis `--green-050` — Kopfzeile, Primäraktion, Erfolg.
+  `--green-700` trägt jede Primäraktion, `--green-800` Zahlen und Verweise.
+- Gold `--gold-700` bis `--gold-050` plus `--gold-ink` — Akzent, Spiele, Datumswürfel.
+  Schrift auf Goldflächen immer `--gold-ink` oder `--gold-ink-2`, nie Weiß.
+- Signal: `--red-600` `--red-050` (offen, abgesagt, verletzt), `--amber-600`
+  `--amber-050` (wartet auf Bestätigung, gewählter Filter), `--blau-700`
+  `--blau-050` (ausschließlich Urlaub).
+- Neutral `--ink` `--muted` `--line` `--bg` `--card`. `--muted` erreicht auf Weiß
+  4,7:1 und ist die dunkelste erlaubte Nebenfarbe.
+- Verläufe `--grad-card` `--grad-btn` `--grad-chip` `--grad-edge-green`
+  `--grad-edge-gold` `--grad-edge-red` `--grad-urlaub` und weitere.
+- Form: `--radius` (14), `--radius-md` (12), `--radius-btn` (10),
+  `--radius-sheet` (18), `--radius-pill`, `--radius-box` (6), `--shadow`,
+  `--shadow-card`, `--shadow-sm`.
+- Maße: `--tap` (44), `--h-btn` (46), `--h-btn-lg` (48), `--h-btn-xl` (52),
+  `--h-in` (46), `--h-row` (52), `--h-nav` (52), `--h-bslot` (54),
+  `--fs-input` (16).
+- Balkenspuren: `--track` (Konto), `--track-bar` (Karte), `--track-sheet` (Blatt) —
+  drei gemessene Töne, kein Versehen.
 
-## Zwei harte Regeln
+## Drei harte Regeln
 
-1. **Alles Antippbare mindestens 44px hoch.** Gilt auch für Textlinks in Zeilen.
+1. **Alles Antippbare mindestens 44px hoch.** Ist ein Element sichtbar kleiner —
+   Zahnrad, Chip, Schließen-Kreuz, Textverweis in einer Zeile — liegt die
+   Trefferfläche als unsichtbares `::after` mit `--tap` darüber. Das Sichtbare
+   wird nicht aufgeblasen; solche Elemente bekommen deshalb auch kein
+   `overflow: hidden`, das die Fläche abschneiden würde.
 2. **Eingabefelder auf 16px Schriftgröße.** Darunter zoomt iOS beim Fokus hinein.
+3. **Waagerecht wird nie gescrollt.** Listen stapeln (`.kat-list` statt Tabelle),
+   Filterreihen passen in eine Zeile — notfalls kürzt man die Beschriftung, nicht
+   den Abstand. Die eine verbliebene Tabelle steht in `.table-wrap`.
 
-Waagerecht wird nie gescrollt: Listen stapeln (`.kat-list` statt Tabelle), breite
-Tabellen kommen in `.table-wrap`.
+## Maße kommen aus Messungen
+
+Die Vorlagen liegen als Bilder vor. Farben und Abstände werden daraus **gemessen**,
+nicht geschätzt: Bild und App auf denselben Maßstab rechnen, Bänder und Kanten
+vergleichen, Werte übernehmen. Die Messauflösung liegt bei rund 1 CSS-px;
+Abweichungen darunter sind nicht belegbar und werden nicht nachgezogen.
+Wo bewusst von der Vorlage abgewichen wird, steht der Grund in `NOTES.md`.
 
 ## Wo die Wahrheit steht
 
 `styles.css` und die drei Dateien, die es zieht — `tokens/tokens.css` (Tokens),
 `fonts/inter.css` (Schrift), `_ds_app.css` (alle Regeln, nach Bereichen kommentiert).
 Vor größeren Entwürfen dort nachsehen; die Karten unter `components/` zeigen jedes
-Muster fertig aufgebaut.
+Muster fertig aufgebaut — `Grundlagen` die Sprache, `App-Rahmen` das Gerüst,
+`Bausteine` die einzelnen Teile, `Ansichten` ganze Seiten bei 390px Breite.

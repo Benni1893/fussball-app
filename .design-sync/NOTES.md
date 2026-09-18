@@ -34,7 +34,7 @@ Dateien unter `.design-sync/`.
 ## Risiken beim nächsten Lauf
 
 - **Zeilennummern des Tokenblocks.** `build.sh` schneidet `:root` aus
-  `styles.css` heraus (aktuell Zeilen 5–168, in `config.json` als
+  `styles.css` heraus (aktuell Zeilen 5–165, in `config.json` als
   `tokenBlockLines`). Verschiebt sich der Block, **bricht der Bau mit klarer
   Meldung ab** statt falsch zu schneiden — dann nur die beiden Zahlen in
   `build.sh` und `config.json` nachziehen.
@@ -58,40 +58,54 @@ Dateien unter `.design-sync/`.
   16px seitlich, 12px Luecke, 24px-Symbole mit 44px-Trefferflaeche, Titel 15px
   mit 1,2 Zeilenhoehe, Unterzeile 11,5px.
 
-- **Tote Tokens nach der Vorlagen-Umstellung (fuer Paket 14).** Weder styles.css
-  noch app.js benutzen noch `--spiel-heim`, `--spiel-ausw`, `--fs-event-time`,
-  `--typ-training` oder `--typ-sonstiges`; sie haengen nur noch an Karten unter
-  `.design-sync/cards/`. Erst Karten neu zeichnen, dann die fuenf streichen und
-  die Tokenblock-Zeilen in build.sh/config.json/NOTES.md/conventions.md nachziehen.
+- **Erledigt in Paket 14 (18.09.2026): tote Tokens und Klassen sind raus.**
+  Gestrichen wurden die fuenf Tokens `--spiel-heim`, `--spiel-ausw`,
+  `--fs-event-time`, `--typ-training`, `--typ-sonstiges` sowie die Regeln
+  `.kpi-rows` / `.kpi-row`, `.grid-2`, `.kpi-tap` / `.kpi-body` / `.kpi-go`,
+  `.rsvp` / `.rsvp-buttons` / `.rsvp-count`, `.tag-spiel` / `.tag-training` /
+  `.tag-heim` / `.tag-ausw`, `.amt-sub`, `.em-ico`, `.toolbar`, `.btn-sm` und
+  der tote Selektor `.tv-gcard` in zwei Sammelregeln. Belegt ist die Streichung
+  ueber `class="…"`-Vorkommen in app.js und index.html; die dynamisch gesetzten
+  `.cd-*`-Klassen blieben deshalb stehen. Tokenblock jetzt Zeile 5-165,
+  134 Tokens; build.sh, config.json und conventions.md nachgezogen.
 
-- **Tote Klassen nach der Vorlagen-Umstellung (fuer Paket 14).** Die Uebersicht
-  nutzt seit Commit 2 weder `.kpi-rows`/`.kpi-row` noch `.grid-2` noch die
-  Kachelvariante `.kpi-tap`/`.kpi-go`/`.kpi-body`. Die letzten drei sind noch in
-  einer Karte unter `.design-sync/cards/` referenziert - `validate.sh` bricht ab,
-  wenn man sie vorher entfernt. Also erst die Karten in Paket 14 neu zeichnen,
-  dann alle sechs Familien streichen.
+- **Echte App-Klassen ohne CSS-Regel.** Neben `.sim-text` (index.html) betrifft
+  das `.mb-top`, `.mb-state`, `.ks-pane`, `.kat-in-name` und `.kat-type` aus
+  app.js — die ersten drei erben ihre Darstellung vom Elternelement, die
+  letzten beiden dienen nur als JS-Selektor. Alle sechs stehen in `validate.sh`
+  als `BEKANNT_UNGESTYLT`, damit die Karten das Markup der App zeigen duerfen.
 
-- **`.btn-danger` ist zweimal definiert** — Zeile ~459 (roter Text auf weiß,
-  `margin-left: 6px`) und Zeile ~500 (roter Text auf `--red-050`, randlos, 700).
-  Die zweite gewinnt; die erste ist toter Code bis auf das `margin-left`, das
-  jeden `.btn-danger` einrückt. Wer aufräumt: Karte „Buttons" zeigt den Ist-Zustand.
-- **`.sim-text`** steht in `index.html:251`, hat aber nirgends eine CSS-Regel; die
-  Darstellung erbt von `.sim-bar`. In den Karten bewusst so belassen, damit das
-  Markup dem der App entspricht — in `validate.sh` als `BEKANNT_UNGESTYLT` geführt.
 
-## Was in diesem Lauf NICHT geprüft wurde
+## Stand der Prüfung (Paket 14, 18.09.2026)
 
-Eine **visuelle Kontrolle der Karten im Browser** war nicht möglich — die
-Chrome-Erweiterung wurde für diese Sitzung abgelehnt. Geprüft ist mechanisch:
-jede verwendete Klasse und jedes Token existieren, die `@import`-Kette und alle
-relativen Verweise lösen auf. Nicht geprüft ist, wie die Karten *aussehen*.
-Beim nächsten Lauf mit Browser lohnt ein Blick auf:
+Alle drei Skripte laufen sauber durch, und die Karten sind diesmal auch
+**wirklich angesehen** worden: `.design-sync/shots/karten.mjs` lädt jede Karte
+in Chrome, misst die Höhe, achtet auf waagerechten Überlauf und sammelt
+Konsolenfehler; die Schnappschüsse liegen unter
+`.design-sync/reference/karten/`. Ergebnis: 24 von 24 Karten rendern sauber,
+Inter wird geladen, keine Karte läuft über die Breite hinaus, keine
+Konsolenfehler.
 
-- **Kopfzeile und Navigation**: beide sind `position: fixed`; die Karten halten
-  sie mit `transform: translateZ(0)` am Kartenrahmen fest. Sitzt das nicht, kleben
-  die Leisten am Rand der Vorschau.
-- **Terminkarte**: unter 640px klappt `.rsvp` in eine eigene Zeile um. In einer
-  schmalen Vorschaukarte ist das der Normalfall, nicht der Fehlerfall.
+Damit sind die beiden alten Vorbehalte erledigt: die feste Kopfzeile bleibt
+dank `transform: translateZ(0)` im Kartenrahmen, und die Terminkarte zeigt in
+der schmalen Vorschau dasselbe Bild wie die App.
+
+## Kartensatz (24)
+
+- **Grundlagen** (3): Farben, Typografie, Flächen und Maße
+- **App-Rahmen** (4): Kopfzeile, Navigation, Anmeldung, Blätter und Dialoge
+- **Bausteine** (7): Schaltflächen, Chips und Filter, Plaketten und Marken,
+  Kennzahl-Kacheln, Formular, Listen und Tabelle, Leerzustand
+- **Ansichten** (10): Übersicht, Kalender, Trainer-Spielauswahl, Platzansicht,
+  Rückmeldungen-Blatt, Konto, Kasse, Katalog, Kader und Status,
+  Einstellungen und Profil
+
+Die Gruppe **Ansichten** ist neu: sie zeigt ganze Seiten bei 390px Breite, weil
+die Vorlagen seit dem Umbau auf Bildschirmebene gemessen werden und ein
+Einzelbaustein die Abstände zwischen den Blöcken nicht mehr erklärt.
+`Bausteine/Terminkarte` und `Bausteine/Tabelle` sind entfallen — ihr Inhalt
+steht jetzt in `Ansichten/Kalender` bzw. `Bausteine/Listen-und-Tabelle`.
+
 
 ## Vorlage trainer-sheet-v2.png (17.09.2026)
 

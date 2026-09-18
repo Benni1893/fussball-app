@@ -1,0 +1,107 @@
+<!-- @dsCard group="Bausteine" -->
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chips und Filter</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
+  body { padding: 0; min-height: 0; }
+  .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+  .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
+  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; line-height: 1.6; }
+  /* Der Filterreihe die echte Breite geben, damit man sieht, dass sie passt. */
+  .frame { width: 390px; max-width: 100%; border: 1px dashed var(--line); border-radius: 12px; padding: 12px 0; background: var(--bg); overflow: hidden; }
+</style>
+</head>
+<body>
+<div class="sp">
+
+  <div>
+    <div class="sp-h">Filterreihe — eine Zeile, kein Scrollen</div>
+    <div class="frame">
+      <div class="chips" style="margin:0">
+        <button class="chip is-active" type="button">Offen</button>
+        <button class="chip" type="button">Gemeldet</button>
+        <button class="chip" type="button">Eingegangen</button>
+        <button class="chip" type="button">Meine</button>
+        <button class="chip" type="button">Alle</button>
+      </div>
+    </div>
+    <div class="meta">.chips &gt; .chip, der gewählte trägt .is-active. Die Reihe darf nie waagerecht scrollen: notfalls kürzt man die Beschriftung („Meine" statt „Meine Strafen"), nicht den Abstand.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Chip in Zahlen</div>
+    <div class="card card-pad">
+      <div class="chips" style="margin:0">
+        <button class="chip" type="button">Training</button>
+        <button class="chip is-active" type="button">Spiele</button>
+      </div>
+    </div>
+    <div class="meta">Sichtbar 34px hoch bei 9px Innenabstand; die 44px-Trefferfläche liegt als ::after darüber. Deshalb trägt .chip nie overflow: hidden — das würde die Fläche abschneiden.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Fitnessstatus — vier Chips, ein Baustein an drei Orten</div>
+    <div class="card card-pad">
+      <div class="st-wahl">
+        <div class="chips st-chips">
+          <button class="chip st-choice is-on st-fit" type="button">fit</button>
+          <button class="chip st-choice st-angeschlagen" type="button">angeschlagen</button>
+          <button class="chip st-choice st-verletzt" type="button">verletzt</button>
+          <button class="chip st-choice st-urlaub" type="button">Urlaub</button>
+        </div>
+      </div>
+    </div>
+    <div class="meta">.st-wahl &gt; .chips.st-chips &gt; .chip.st-choice. Der gewählte trägt .is-on plus seine Statusklasse — jede hat ihren eigenen Ton, Urlaub blau statt rot.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Bei allem außer „fit" kommen Datum und Notiz dazu</div>
+    <div class="card card-pad">
+      <div class="st-wahl">
+        <div class="chips st-chips">
+          <button class="chip st-choice" type="button">fit</button>
+          <button class="chip st-choice is-on st-verletzt" type="button">verletzt</button>
+        </div>
+        <div class="st-felder">
+          <label class="st-feld"><span class="lbl">voraussichtlich bis</span>
+            <input class="kasse-in" type="date" value="2026-10-04"></label>
+          <label class="st-feld"><span class="lbl">Notiz</span>
+            <input class="kasse-in" type="text" placeholder="optional"></label>
+        </div>
+      </div>
+    </div>
+    <div class="meta">.st-felder &gt; .st-feld — speichert beim Verlassen des Feldes, es gibt keinen Knopf.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Zahlart in der Kasse</div>
+    <div class="card card-pad">
+      <div class="zart-row">
+        <button class="zart is-on" type="button">bar</button>
+        <button class="zart" type="button">Überweisung</button>
+        <button class="zart" type="button">PayPal</button>
+      </div>
+    </div>
+    <div class="meta">.zart-row &gt; .zart — drei feste Möglichkeiten statt eines Auswahlfelds; gebucht wird mit dem Knopf daneben.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Formation auf dem Platz</div>
+    <div class="card card-pad" style="background:var(--green-900)">
+      <div class="tv-formbar">
+        <button class="tv-fpill on" type="button"><span>4-3-3</span></button>
+        <button class="tv-fpill" type="button"><span>4-4-2</span></button>
+        <button class="tv-fpill" type="button"><span>3-5-2</span></button>
+      </div>
+    </div>
+    <div class="meta">.tv-formbar &gt; .tv-fpill, gewählt mit .on — liegt auf dem dunklen Grund der Platzansicht, deshalb heller Rand statt Schatten.</div>
+  </div>
+
+</div>
+</body>
+</html>

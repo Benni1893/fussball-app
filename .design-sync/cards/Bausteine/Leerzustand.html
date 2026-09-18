@@ -4,48 +4,60 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Leerzustand und Hinweise</title>
+<title>Leerzustand</title>
 <link rel="stylesheet" href="../../../styles.css">
 <style>
   /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
   body { padding: 0; min-height: 0; }
   .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
   .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
-  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; }
+  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; line-height: 1.6; }
 </style>
 </head>
 <body>
 <div class="sp">
 
   <div>
-    <div class="sp-h">Nichts da — ruhig, mittig, ohne Schuldzuweisung</div>
-    <div class="card">
-      <div class="empty">
-        <div class="em-ico">⚽</div>
-        Keine Termine in den nächsten vier Wochen.
-      </div>
-    </div>
-    <div class="meta">.empty mit optionalem .em-ico</div>
+    <div class="sp-h">Nichts in dieser Auswahl</div>
+    <div class="empty">Keine Strafen in dieser Auswahl.</div>
+    <div class="meta">.empty — steht ohne Karte direkt in der Ansicht, wenn nur ein Filter nichts findet.</div>
   </div>
 
   <div>
-    <div class="sp-h">Hinweise</div>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <div class="auth-info">Wir haben dir eine E-Mail zum Zurücksetzen geschickt.</div>
-      <div class="auth-error">E-Mail oder Passwort stimmt nicht.</div>
+    <div class="sp-h">Nichts da, und das ist in Ordnung</div>
+    <div class="card card-pad">
+      <div class="empty">Alle fit – kein Eintrag</div>
     </div>
-    <div class="meta">.auth-info (grün) und .auth-error (rot) — außerhalb der Anmeldung genauso brauchbar</div>
+    <div class="meta">.card.card-pad &gt; .empty — in einer Karte, wenn der Abschnitt seinen Platz behält.</div>
   </div>
 
   <div>
-    <div class="sp-h">Rollen-Vorschau des Admins</div>
-    <div style="position:relative;height:56px;transform:translateZ(0);border-radius:10px;overflow:hidden">
-      <div class="sim-bar" style="position:absolute;bottom:0">
-        <span class="sim-text">Vorschau als <b>Spieler</b> · nur Anzeige</span>
-        <button class="sim-exit">Zur Admin-Ansicht</button>
+    <div class="sp-h">Leer mit Weg nach vorn</div>
+    <div class="card card-pad">
+      <p class="rs">Noch keine Vorlage. Speichere eine Aufstellung über das Menü ⋯ als Vorlage.</p>
+    </div>
+    <div class="meta">Der Leerzustand sagt, wie man ihn verlässt. Ohne diesen Satz sucht man den Weg vergeblich.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Leere Stapelkarte in der Kasse</div>
+    <div class="ks-deck">
+      <div class="card ks-card ks-leer">
+        <div class="lbl">Prüfen &amp; verbuchen</div>
+        <div class="ks-leer-t">Nichts zu prüfen</div>
+        <div class="rs">Sobald jemand eine Zahlung meldet, liegt sie hier.</div>
       </div>
     </div>
-    <div class="meta">.sim-bar — amber, sitzt über der Navigation, solange eine fremde Rolle angesehen wird</div>
+    <div class="meta">.ks-card.ks-leer mit .ks-leer-t — der Stapel bleibt sichtbar, damit die Ansicht nicht in sich zusammenfällt.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Was ein Leerzustand nicht tut</div>
+    <div class="card card-pad">
+      <p class="rs">Er meldet keinen Erfolg, den niemand erfragt hat. Die Übersicht zeigt nur,
+      was zu tun ist — trifft nichts zu, entfällt der ganze Block samt Überschrift,
+      statt „Du bist schuldenfrei" zu melden.</p>
+    </div>
   </div>
 
 </div>

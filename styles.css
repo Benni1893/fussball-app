@@ -162,12 +162,6 @@
   --h-bslot:       54px;   /* .bslot */
   --fs-input:      16px;   /* harte Regel: iOS zoomt sonst beim Fokus */
 
-  /* ---- Altbestand (wird mit den Ansichts-Commits abgeloest) --------------- */
-  --fs-event-time: 1.02rem;
-  --spiel-heim: #0f3d2e;
-  --spiel-ausw: #a3cbb8;
-  --typ-training:  #2e8b57;
-  --typ-sonstiges: #7c8a82;
 }
 
 * { box-sizing: border-box; }
@@ -200,7 +194,7 @@ body {
 .scroll-area { display: block; }  /* nur Container – gescrollt wird die Seite */
 
 /* Formular-Steuerelemente + Buttons: iOS färbt <select>-Text UND <button>-Text sonst
-   systemblau (z. B. die Spielauswahl-Karten .tv-gcard, deren Vereinsnamen <span> im
+   systemblau (z. B. die Spielzeilen der Trainer-Ansicht, deren Vereinsnamen <span> im
    <button> die Blaufarbe erben). Zentral auf die normale Textfarbe zwingen – Blau
    bleibt echten Links vorbehalten. Buttons mit eigener color (btn-primary etc.)
    überschreiben das per Klassen-Spezifität. */
@@ -387,19 +381,12 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
   content: "";
   position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
 }
-.kpi .kpi-label, .kpi-row .kpi-label { font-size: 11px; line-height: 1; text-transform: uppercase; letter-spacing: .68px; color: var(--muted); font-weight: 700; }
+.kpi .kpi-label { font-size: 11px; line-height: 1; text-transform: uppercase; letter-spacing: .68px; color: var(--muted); font-weight: 700; }
 .kpi .kpi-value { font-size: 19px; line-height: 1.15; font-weight: 800; margin-top: 4px; color: var(--green-800); }
-.kpi .kpi-sub, .kpi-row .kpi-sub { font-size: 11px; line-height: 1.3; font-weight: 500; color: var(--muted); margin-top: 2px; }
+.kpi .kpi-sub { font-size: 11px; line-height: 1.3; font-weight: 500; color: var(--muted); margin-top: 2px; }
 .kpi.is-warn .kpi-value { color: var(--red-600); }
-/* Antippbare KPI-Kacheln: Inhalt und Pfeil je in EIGENER Spalte (Flex) -> Betrag/Text laufen nie
-   in den Pfeil, auch nicht bei vierstelligen Beträgen. Sichtbares Feedback beim Antippen. */
-.kpi-tap { cursor: pointer; display: flex; align-items: center; gap: 8px; -webkit-tap-highlight-color: transparent;
-  transition: transform .08s ease, background-color .12s ease; }
-.kpi-tap .kpi-body { flex: 1 1 auto; min-width: 0; }        /* schrumpft/umbricht im eigenen Bereich */
-.kpi-go { flex: 0 0 auto; color: var(--muted); font-size: 1.5rem; line-height: 1; }
-.kpi-value.kpi-amt { font-size: 19px; font-variant-numeric: tabular-nums; }   /* gleiche Ziffernbreite; schlaegt .kpi .kpi-value */
-.kpi-tap:active { transform: scale(.985); background: var(--green-050); }
-.kpi-tap:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; }
+/* Betragskacheln: gleiche Ziffernbreite, damit vierstellige Summen nicht springen. */
+.kpi-value.kpi-amt { font-size: 19px; font-variant-numeric: tabular-nums; }
 /* Zurück-Chevron in der Ziel-Kopfzeile (nur nach Kachel-Sprung sichtbar). */
 .page-head:has(.pg-back) { display: flex; align-items: center; gap: 4px; }
 .pg-back { appearance: none; -webkit-appearance: none; border: 0; background: none; color: var(--green-800);
@@ -410,13 +397,6 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 @keyframes ev-hl { 0%,55% { box-shadow: 0 0 0 2px var(--gold-500); } 100% { box-shadow: 0 0 0 0 rgba(212,175,55,0); } }
 .event.ev-highlight { animation: ev-hl 2.5s ease-out forwards; }
 
-.grid-2 {
-  display: grid;
-  grid-template-columns: 1.4fr 1fr;
-  gap: 14px;
-  align-items: start;
-}
-@media (max-width: 820px) { .grid-2 { grid-template-columns: 1fr; } }
 
 .section-title {
   display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
@@ -488,24 +468,6 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .termin-hero .frist { margin-top: 10px; }
 .termin-hero .empty { padding: 10px 0; }
 
-/* ---------- Kennzahl-Zeilen (Übersicht) -----------------------------------
-   Ersetzen die uebrigen drei Kacheln. Gleiche Sprungziele wie zuvor. */
-.kpi-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-.kpi-row {
-  display: flex; align-items: center; gap: 10px;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
-  padding: 10px 14px;
-  min-height: 52px;
-}
-.kpi-row .kpi-body { flex: 1 1 auto; min-width: 0; }
-.kpi-row .kpi-value { font-size: 1.15rem; font-weight: 800; color: var(--green-800); flex: 0 0 auto; }
-.kpi-row .kpi-value.kpi-amt { font-variant-numeric: tabular-nums; }
-.kpi-row.is-warn { border-left: 4px solid var(--red-600); }
-.kpi-row.is-warn .kpi-value { color: var(--red-600); }
-
 /* ---------- Termin-Karten -------------------------------------------------- */
 .event-list { display: flex; flex-direction: column; gap: 8px; }
 /* Gestapelte Karte (Paket 7a): Kopfzeile aus Datumsplakette und Inhalt, darunter
@@ -524,8 +486,7 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .kal-past-title { margin-top: 28px; }
 /* Vorlage kennt genau zwei Toene: Spiel gold, alles andere gruen. Abgesagt rot.
    Die frueheren Heim-/Auswaertstoene entfallen - das Heimteam steht links in
-   der Paarung. Die Tokens --spiel-heim/--spiel-ausw haengen noch an .tv-gcard
-   und gehen mit Commit 4 (Trainer) raus. */
+   der Paarung. */
 .event.typ-spiel::before     { background: var(--grad-edge-gold); }
 .event.typ-training::before  { background: var(--grad-edge-green); }
 .event.typ-sonstiges::before { background: var(--grad-edge-green); }
@@ -568,10 +529,6 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
   padding: 2px 8px;
   border-radius: 999px;
 }
-.tag-spiel    { background: var(--gold-050); color: var(--gold-600); }
-.tag-training { background: var(--green-050); color: var(--green-600); }
-.tag-heim     { background: var(--green-700); color:#fff; }
-.tag-ausw     { background: #eef2ef; color: var(--muted); }
 .tag-friendly { background: var(--amber-050); color: var(--amber-600); }
 .tag-cancelled{ background: var(--red-050);   color: var(--red-600); }
 .tag-manuell  { background: var(--amber-050); color: var(--amber-600); }
@@ -620,13 +577,6 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .ev-foot.is-tap:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; border-radius: 8px; }
 .event > .frist-warn { margin-top: 8px; }
 
-/* Von der App nicht mehr benutzt, aber NICHT entfernbar: die Design-System-Karte
-   cards/Bausteine/Terminkarte.html zeigt noch das alte dreispaltige Layout und
-   verweist auf diese Klassen. validate.sh bricht ab, wenn eine Karte eine Klasse
-   nutzt, die es hier nicht gibt. Aufloesung: Paket 14 in DELTA.md – Karten auf
-   den Stand seit Paket 7a nachziehen, danach koennen diese Regeln weg. */
-.rsvp { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; min-width: 150px; }
-.rsvp-buttons { display: flex; gap: 6px; }
 .btn {
   border: 1px solid var(--line);
   background: var(--card);
@@ -644,8 +594,6 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .btn:hover { border-color: var(--muted); }
 .btn-zu.is-on  { background: var(--green-600); border-color: var(--green-600); color:#fff; }
 .btn-ab.is-on  { background: var(--red-600);  border-color: var(--red-600);  color:#fff; }
-.rsvp-count { font-size: .8rem; color: var(--muted); }
-.rsvp-count b { color: var(--green-700); }
 .rsvp-reason { font-size: .8rem; color: var(--red-600); }
 
 /* ---------- Tabellen ------------------------------------------------------- */
@@ -676,7 +624,6 @@ tbody td { padding: 12px 16px; border-bottom: 1px solid var(--line); }
 tbody tr:last-child td { border-bottom: none; }
 tbody tr:hover { background: #fbfdfc; }
 .amount { font-weight: 700; color: var(--green-800); font-variant-numeric: tabular-nums; }
-.amount .amt-sub  { font-size: .7rem; font-weight: 600; color: var(--muted); margin-top: 2px; }
 .amount .cd-wrap  { margin-top: 3px; }
 
 /* Live-Countdown bis zur nächsten Mahn-Erhöhung */
@@ -1067,7 +1014,6 @@ tbody tr:hover { background: #fbfdfc; }
 }
 
 /* ---------- Filterleiste / Toolbar ---------------------------------------- */
-.toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
 .sim-switch-btns { flex-wrap: wrap; }   /* Rollen-Vorschau darf umbrechen, sie steht in einer Karte */
 .chips {
   position: relative; z-index: 1;
@@ -1194,7 +1140,6 @@ tbody tr:hover { background: #fbfdfc; }
 
 /* ---------- Leerzustand ---------------------------------------------------- */
 .empty { text-align: center; color: var(--muted); padding: 40px 20px; }
-.empty .em-ico { font-size: 2.2rem; }
 
 /* ---------- Fußzeile ------------------------------------------------------- */
 .app-footer {
@@ -1765,14 +1710,8 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 .fine-right { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; text-align: right; }
 .fine-amt { font-size: 15px; font-weight: 800; color: var(--green-800); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .fine-amt.is-warn { color: var(--red-600); }
-.btn-sm { padding: 6px 12px; min-height: 44px; font-size: .82rem; white-space: nowrap; }
 
 /* ===================== Kasse ===================== */
-.kasse-glance { display: flex; gap: 10px; margin-bottom: 14px; }
-.kasse-glance > div { flex: 1; min-width: 0; background: var(--card); border: 1px solid var(--line);
-  border-radius: var(--radius); padding: 12px 14px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 2px; }
-.kg-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); font-weight: 700; }
-.kg-value { font-size: 1.35rem; font-weight: 800; color: var(--green-800); font-variant-numeric: tabular-nums; }
 .kasse-add { display: flex; flex-direction: column; gap: 10px; }
 .kasse-lbl { font-size: .8rem; font-weight: 700; color: var(--muted); }
 .kasse-count { background: var(--green-700); color: #fff; border-radius: 999px; padding: 1px 7px; font-size: .72rem; margin-left: 4px; }
@@ -2314,7 +2253,7 @@ body {
 .amount, .kpi-value, .mb-value, .fine-amt, .kat-amount { letter-spacing: -.018em; }
 
 /* --- Flaechen: weicher Rand, zweistufiger Schatten, leiser Verlauf ---------- */
-.card, .kpi, .kpi-row, .event, .termin-hero, .mine-banner, .tv-gcard, .task-row {
+.card, .kpi, .event, .termin-hero, .mine-banner, .task-row {
   border-color: var(--line-soft);
   box-shadow: var(--shadow-card);
 }
@@ -2389,8 +2328,7 @@ body {
 
 /* --- Datumswuerfel: in der Vorlage durchgehend creme ----------------------- */
 .event-date,
-.event.typ-spiel .event-date,
-.tv-gcard .event-date {
+.event.typ-spiel .event-date {
   background: var(--grad-gold);
   box-shadow: var(--shadow-dbg);
 }

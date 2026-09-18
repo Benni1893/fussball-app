@@ -4,63 +4,88 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>KPI-Kacheln</title>
+<title>Kennzahl-Kacheln</title>
 <link rel="stylesheet" href="../../../styles.css">
 <style>
   /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
   body { padding: 0; min-height: 0; }
   .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
   .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
-  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; }
+  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; line-height: 1.6; }
 </style>
 </head>
 <body>
 <div class="sp">
 
   <div>
-    <div class="sp-h">Kennzahlen der Übersicht</div>
+    <div class="sp-h">Zwei Kacheln — Konto</div>
     <div class="kpi-grid" style="margin:0">
-      <div class="kpi">
-        <div class="kpi-label">Nächster Termin</div>
-        <div class="kpi-value">Sa</div>
-        <div class="kpi-sub">14.09. · 15:00 Uhr</div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-label">Zusagen</div>
-        <div class="kpi-value">14</div>
-        <div class="kpi-sub">von 22 im Kader</div>
-      </div>
       <div class="kpi is-warn">
-        <div class="kpi-label">Offener Betrag</div>
-        <div class="kpi-value">128,50 €</div>
+        <div class="kpi-label">Summe offen</div>
+        <div class="kpi-value kpi-amt">128,50 €</div>
         <div class="kpi-sub">3 offene Strafen</div>
       </div>
+      <div class="kpi">
+        <div class="kpi-label">Kontostand</div>
+        <div class="kpi-value kpi-amt">642,00 €</div>
+        <div class="kpi-sub">Gesamtvolumen Saison</div>
+      </div>
     </div>
-    <div class="meta">.kpi-grid &gt; .kpi — goldener 4px-Streifen links; .is-warn färbt Streifen und Wert rot</div>
+    <div class="meta">.kpi-grid &gt; .kpi mit .kpi-label / .kpi-value / .kpi-sub. Goldener 4px-Streifen links; .is-warn färbt Streifen und Wert rot. .kpi-amt hält die Ziffernbreite gleich.</div>
   </div>
 
   <div>
-    <div class="sp-h">Antippbar — führt in die Detailansicht</div>
-    <div class="kpi-grid" style="margin:0">
-      <button class="kpi kpi-tap" type="button">
-        <span class="kpi-body">
-          <span class="kpi-label" style="display:block">Dein Konto</span>
-          <span class="kpi-value kpi-amt" style="display:block">128,50 €</span>
-          <span class="kpi-sub" style="display:block">3 offene Strafen</span>
-        </span>
-        <span class="kpi-go">›</span>
-      </button>
+    <div class="sp-h">Drei Kacheln — Kader</div>
+    <div class="kpi-grid kpi-3" style="margin:0">
+      <div class="kpi">
+        <div class="kpi-label">Spieler</div>
+        <div class="kpi-value">16</div>
+        <div class="kpi-sub">im Kader</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Fit</div>
+        <div class="kpi-value">12</div>
+        <div class="kpi-sub">einsatzbereit</div>
+      </div>
+      <div class="kpi is-warn">
+        <div class="kpi-label">Nicht fit</div>
+        <div class="kpi-value">4</div>
+        <div class="kpi-sub">angeschlagen, verletzt oder im Urlaub</div>
+      </div>
     </div>
-    <div class="meta">.kpi.kpi-tap — Inhalt in .kpi-body, Pfeil in .kpi-go; .kpi-amt hält vierstellige Beträge schmal</div>
+    <div class="meta">.kpi-grid.kpi-3 — dieselbe Kachel, nur enger gesetzt; die Zahl wird kleiner, damit drei nebeneinander passen.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Kennzahlen im Rückmeldungen-Blatt — zugleich der Filter</div>
+    <div class="card card-pad">
+      <div class="rs2-kacheln" style="padding:0">
+        <button class="rs2-kachel" type="button"><span class="rs2-k-l">Zugesagt</span><span class="rs2-k-z num">1</span></button>
+        <button class="rs2-kachel" type="button"><span class="rs2-k-l">Abgesagt</span><span class="rs2-k-z num">0</span></button>
+        <button class="rs2-kachel is-on" type="button"><span class="rs2-k-l">Offen</span><span class="rs2-k-z num">15</span></button>
+      </div>
+    </div>
+    <div class="meta">.rs2-kacheln &gt; .rs2-kachel mit .rs2-k-l / .rs2-k-z. Die gewählte trägt .is-on und den Bernsteinton; die Liste darunter zeigt genau diese Gruppe.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Geldzeilen statt Kacheln</div>
+    <div class="tile-rows" style="margin:0">
+      <button class="card tile" type="button"><span class="tile-t">Dein Konto</span><span class="amount is-warn num">128,50 €</span></button>
+      <button class="card tile" type="button"><span class="tile-t">Mannschaftskasse</span><span class="amount num">642,00 €</span></button>
+    </div>
+    <div class="meta">.tile-rows &gt; .card.tile mit .tile-t und .amount — für zwei Beträge nebeneinander wäre eine Kachelreihe zu laut; die Zeile trägt sie ruhiger.</div>
   </div>
 
   <div>
     <div class="sp-h">Rücksprung aus der Zielansicht</div>
-    <div class="page-head">
-      <button class="pg-back" type="button" aria-label="Zurück">‹</button>
-      <h1>Dein Konto</h1>
+    <div class="card card-pad">
+      <div class="page-head">
+        <button class="pg-back" type="button" aria-label="Zurück">&lsaquo;</button>
+        <h1>Strafen-Konto</h1>
+      </div>
     </div>
-    <div class="meta">.page-head mit .pg-back — nur nach einem Kachel-Sprung sichtbar</div>
+    <div class="meta">.page-head mit .pg-back — nur sichtbar, wenn man aus einer Kachel oder Zeile hierher gesprungen ist.</div>
   </div>
 
 </div>

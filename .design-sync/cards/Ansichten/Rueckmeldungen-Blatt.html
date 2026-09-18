@@ -1,0 +1,113 @@
+<!-- @dsCard group="Ansichten" -->
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rückmeldungen-Blatt</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System.
+     Das Blatt ist in der App fixiert; hier steht es in einem Rahmen. */
+  body { padding: 0; min-height: 0; }
+  .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+  .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
+  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; line-height: 1.6; }
+  .frame { position: relative; transform: translateZ(0); width: 390px; max-width: 100%;
+           border-radius: 12px; overflow: hidden; border: 1px solid var(--line); background: var(--bg); }
+  .frame .more-sheet { position: absolute; }
+  .frame .rs2-panel { max-height: none; }
+  .frame .rs2-liste { overflow: visible; }
+</style>
+</head>
+<body>
+<div class="sp">
+
+  <div>
+    <div class="sp-h">Das ganze Blatt bei 390px — Maße aus trainer-sheet-v2.png gemessen</div>
+    <div class="frame" style="height:640px">
+      <div class="more-sheet">
+        <div class="more-backdrop"></div>
+        <div class="more-panel rs2-panel" role="dialog" aria-modal="true" aria-label="Rückmeldungen">
+          <div class="rs2-griff" aria-hidden="true"></div>
+          <div class="rs2-kopf">
+            <div class="rs2-kopf-text">
+              <div class="rs2-titel">Rückmeldungen</div>
+              <div class="rs2-sub num">Do 17. Sep · Training · Frist Mi 20:00</div>
+            </div>
+            <button class="rs2-zu" type="button" aria-label="Schließen">&#10005;</button>
+          </div>
+          <div class="rs2-bar" role="img" aria-label="1 von 16 zugesagt"><i style="width:6.25%"></i></div>
+          <div class="rs2-kacheln">
+            <button class="rs2-kachel" type="button"><span class="rs2-k-l">Zugesagt</span><span class="rs2-k-z num">1</span></button>
+            <button class="rs2-kachel" type="button"><span class="rs2-k-l">Abgesagt</span><span class="rs2-k-z num">0</span></button>
+            <button class="rs2-kachel is-on" type="button"><span class="rs2-k-l">Offen</span><span class="rs2-k-z num">15</span></button>
+          </div>
+          <div class="rs2-liste">
+            <div class="rs2-zeile"><span class="rs2-av">MB</span><span class="rs2-n">Max Bauer</span></div>
+            <div class="rs2-zeile"><span class="rs2-av">JB</span><span class="rs2-n">Jonas Becker</span></div>
+            <div class="rs2-zeile"><span class="rs2-av">NF</span><span class="rs2-n">Niklas Fischer</span></div>
+            <div class="rs2-zeile"><span class="rs2-av">FH</span><span class="rs2-n">Felix Hofmann</span></div>
+            <div class="rs2-zeile"><span class="rs2-av">FH</span><span class="rs2-n">Florian Huber</span></div>
+            <div class="rs2-zeile"><span class="rs2-av">DK</span><span class="rs2-n">Daniel Koch</span></div>
+            <div class="rs2-zeile"><span class="rs2-av">JK</span><span class="rs2-n">Jan Krüger</span></div>
+            <div class="rs2-zeile"><span class="rs2-av">SL</span><span class="rs2-n">Simon Lang</span></div>
+          </div>
+          <div class="rs2-fuss">
+            <button class="rs2-btn" type="button">Alle 15 erinnern</button>
+            <button class="rs2-btn2" type="button">Teilen</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">.more-sheet &gt; .more-backdrop + .more-panel.rs2-panel &gt; .rs2-griff · .rs2-kopf (.rs2-kopf-text mit .rs2-titel/.rs2-sub, .rs2-zu) · .rs2-bar · .rs2-kacheln · .rs2-liste · .rs2-fuss</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Gemessene Maße</div>
+    <div class="card card-pad">
+      <p class="rs">Blattkante bei y 208, Radius 18 nur oben. Griff 34×4, 6,6 darunter.
+      Titel 19px/800, Unterzeile 13px/500. Schließen-Kreuz als Kreis 36×36 rechts,
+      Trefferfläche 44 als ::after. Balken 7px hoch über die volle Breite.
+      Kacheln 113×46 mit 9px Abstand, Radius 12. Namenszeilen 44×174, Abstand 6 und 10,
+      Zeichen 30×30. Trennlinie bei 769, Knöpfe 48 hoch mit 11px Abstand,
+      „Teilen" 79 breit. Unten 17 bis zur Blattkante.</p>
+    </div>
+  </div>
+
+  <div>
+    <div class="sp-h">Die Kacheln sind der Filter</div>
+    <div class="card card-pad">
+      <p class="rs">Die Vorlage hebt „Offen" hervor und listet darunter genau die 15 offenen
+      Spieler; der Fußknopf nennt dieselbe Zahl. Das Blatt geht deshalb mit „Offen" auf —
+      dort ist etwas zu tun. Alle drei Gruppen bleiben über die Kacheln erreichbar.</p>
+    </div>
+  </div>
+
+  <div>
+    <div class="sp-h">Absage mit Grund und leere Gruppe</div>
+    <div class="card card-pad">
+      <div class="rs2-liste" style="padding:0;overflow:visible">
+        <div class="rs2-zeile"><span class="rs2-av">TR</span><span class="rs2-n">Tim Richter<span class="rs2-grund">Spätschicht</span></span></div>
+        <div class="rs2-zeile"><span class="rs2-av">LS</span><span class="rs2-n">Leon Schmidt</span></div>
+      </div>
+      <div style="height:10px"></div>
+      <div class="rs2-leer">niemand in dieser Gruppe</div>
+    </div>
+    <div class="meta">.rs2-grund steht unter dem Namen und lässt die Zeile über 44px wachsen — bewusste Abweichung, sonst ginge der Grund der Absage verloren. .rs2-leer füllt beide Spalten.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Was die beiden Knöpfe tun</div>
+    <div class="card card-pad">
+      <p class="rs"><b>Alle N erinnern</b> öffnet den Teilen-Dialog mit einem fertigen
+      Erinnerungstext an die Offenen. <b>Teilen</b> gibt die vollständige Übersicht aus —
+      zugesagt, abgesagt, offen mit Gründen. Beides ohne Versand-Backend: der Text geht
+      über das Teilen-Blatt des Geräts oder in die Zwischenablage. Ist niemand offen,
+      entfällt der primäre Knopf und „Teilen" trägt die Zeile allein.</p>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

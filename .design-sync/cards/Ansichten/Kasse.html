@@ -1,0 +1,161 @@
+<!-- @dsCard group="Ansichten" -->
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kasse</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
+  body { padding: 0; min-height: 0; }
+  .sp { padding: 20px; display: flex; flex-direction: column; gap: 22px; }
+  .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
+  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; line-height: 1.6; }
+  .frame { width: 390px; max-width: 100%; padding: 0 16px 16px; background: var(--bg); border: 1px dashed var(--line); border-radius: 12px; }
+</style>
+</head>
+<body>
+<div class="sp">
+
+  <div>
+    <div class="sp-h">Zwei Kennzahlen und das eingeklappte Formular</div>
+    <div class="frame">
+      <div class="page-head" style="padding-top:14px"><h1>Kasse</h1></div>
+      <div class="kpi-grid kpi-3">
+        <button type="button" class="kpi is-warn kpi-tapbar">
+          <div class="kpi-label">Offen</div>
+          <div class="kpi-value kpi-amt">128,50 €</div>
+          <div class="kpi-sub">7 Strafen</div>
+        </button>
+        <button type="button" class="kpi kpi-tapbar">
+          <div class="kpi-label">Gemeldet</div>
+          <div class="kpi-value kpi-amt">36,00 €</div>
+          <div class="kpi-sub">3 zu prüfen</div>
+        </button>
+        <button type="button" class="kpi kpi-tapbar">
+          <div class="kpi-label">Eingegangen</div>
+          <div class="kpi-value kpi-amt">513,50 €</div>
+          <div class="kpi-sub">Saison</div>
+        </button>
+      </div>
+      <button class="kasse-toggle" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        Strafe verhängen
+      </button>
+    </div>
+    <div class="meta">.kpi-grid.kpi-3 mit drei .kpi.kpi-tapbar — jede Kachel springt in den passenden Reiter · .kasse-toggle öffnet das Formular, das sonst eingeklappt bleibt — die Kasse beginnt mit dem, was zu prüfen ist.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Strafe verhängen — Mehrfachauswahl</div>
+    <div class="card card-pad kasse-add">
+      <div>
+        <div class="kasse-lbl">Spieler<span class="kasse-count">3</span></div>
+        <div class="kasse-players">
+          <button class="kasse-chip is-on" type="button">Max Bauer</button>
+          <button class="kasse-chip is-on" type="button">Jonas Becker</button>
+          <button class="kasse-chip" type="button">Niklas Fischer</button>
+          <button class="kasse-chip is-on" type="button">Felix Hofmann</button>
+        </div>
+      </div>
+      <div>
+        <div class="kasse-lbl">Strafen</div>
+        <div class="ks-ichips">
+          <span class="ks-ichip">Zu spät zum Training ×2<button class="chip-x" type="button" aria-label="Entfernen">×</button></span>
+          <span class="ks-ichip">Gelbe Karte<button class="chip-x" type="button" aria-label="Entfernen">×</button></span>
+        </div>
+      </div>
+      <div class="kasse-two">
+        <input class="kasse-in" type="date" value="2026-09-18" aria-label="Datum">
+        <input class="kasse-in" type="text" placeholder="Betrag €" aria-label="Freier Betrag">
+      </div>
+      <textarea class="kasse-in kasse-comment" rows="2" placeholder="Kommentar (optional)" aria-label="Kommentar"></textarea>
+      <div class="kasse-sum">
+        <div class="kasse-sum-row"><span>Vorgang</span><b>3 Spieler × 2 Strafen = 6 Einträge</b></div>
+        <div class="kasse-sum-row"><span>Betrag je Spieler</span><b>15,00 €</b></div>
+        <div class="kasse-sum-row"><span>Datum</span><b>18. September 2026</b></div>
+        <div class="kasse-sum-row kasse-sum-total"><span>Summe gesamt</span><b>45,00 €</b></div>
+      </div>
+      <button class="tv-primary kasse-save" type="button">Strafen speichern</button>
+    </div>
+    <div class="meta">.kasse-add &gt; .kasse-lbl (+ .kasse-count) · .kasse-players &gt; .kasse-chip · .ks-ichips &gt; .ks-ichip mit .chip-x · .kasse-two · .kasse-sum &gt; .kasse-sum-row (+ .kasse-sum-total) · .kasse-save</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Prüfen und verbuchen — Kartenstapel</div>
+    <div class="frame">
+      <div class="section-title kasse-verbuchen"><h2>Prüfen &amp; verbuchen</h2></div>
+      <div class="ks-pane">
+        <div class="chips ks-tabs">
+          <button class="chip is-active" type="button">Zu prüfen (3)</button>
+          <button class="chip" type="button">Offen (7)</button>
+          <button class="chip" type="button">Eingegangen (24)</button>
+        </div>
+        <div class="ks-bulk"><button class="link-btn" type="button">Alle 3 bestätigen</button></div>
+        <div class="ks-deck">
+          <div class="ks-ghost ks-ghost-2" aria-hidden="true"></div>
+          <div class="ks-ghost ks-ghost-1" aria-hidden="true"></div>
+          <div class="card ks-card">
+            <div class="lbl">Meldung 1 von 3</div>
+            <span class="avatar ks-av">MB</span>
+            <div class="ks-name">Max Bauer</div>
+            <div class="rs">Zu spät zum Training · Strafe vom 12. Sep</div>
+            <div class="ks-amt num">12,00 €</div>
+            <div class="rs">per Überweisung gemeldet</div>
+            <div class="ks-actions">
+              <button class="btn" type="button">Ablehnen</button>
+              <button class="btn btn-primary" type="button">Eingang bestätigen</button>
+            </div>
+          </div>
+        </div>
+        <div class="ks-dots"><span class="is-on"></span><span></span><span></span></div>
+        <div class="ks-cap">Nach jeder Entscheidung rückt die nächste Meldung nach</div>
+      </div>
+    </div>
+    <div class="meta">.ks-deck &gt; zwei .ks-ghost + .card.ks-card (.ks-av, .ks-name, .ks-amt, .ks-actions). Ein Wisch blättert im Stapel — die Reiter wechselt man per Tipp auf die Chips. Ab neun Meldungen entfallen die .ks-dots zugunsten des Zählers in der Karte.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Reiter „Offen" — Zeile statt Formular</div>
+    <div class="krow-list">
+      <div class="krow">
+        <div class="krow-head">
+          <span class="avatar">JB</span>
+          <div class="krow-info">
+            <div class="krow-title">Jonas Becker</div>
+            <div class="krow-strafe">Gelbe Karte · 8. Sep</div>
+          </div>
+          <div class="krow-right">
+            <div class="krow-amt">5,00 €</div>
+            <span class="badge badge-open">offen</span>
+          </div>
+        </div>
+        <div class="krow-actions">
+          <div class="zart-row">
+            <button class="zart is-on" type="button">bar</button>
+            <button class="zart" type="button">Überweisung</button>
+            <button class="zart" type="button">PayPal</button>
+          </div>
+          <div class="krow-tun">
+            <button class="btn btn-primary krow-buchen" type="button">Buchen</button>
+            <button class="link-btn" type="button">Stornieren</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">.krow-list &gt; .krow &gt; .krow-head (.avatar, .krow-info, .krow-right) + .krow-actions mit .zart-row und .krow-tun.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Wer hier etwas darf, entscheidet die Datenbank</div>
+    <div class="card card-pad">
+      <p class="rs">Die Ansicht selbst ist nur Bequemlichkeit. Schreiben auf Strafen und
+      Katalog erlaubt die Datenbank ausschließlich Kassenwart und Admin — wer die Ansicht
+      ohne Recht öffnet, bekommt keine Zeile zurück.</p>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

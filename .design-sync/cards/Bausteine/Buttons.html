@@ -4,86 +4,107 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Buttons</title>
+<title>Schaltflächen</title>
 <link rel="stylesheet" href="../../../styles.css">
 <style>
   /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
   body { padding: 0; min-height: 0; }
   .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
   .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
-  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; }
+  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; line-height: 1.6; }
+  .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 </style>
 </head>
 <body>
 <div class="sp">
 
   <div>
-    <div class="sp-h">Grundformen</div>
-    <div class="bar">
-      <button class="btn btn-primary">Speichern</button>
-      <button class="btn">Abbrechen</button>
-      <button class="btn btn-soft">Zur Aufstellung</button>
-      <button class="btn btn-danger">Löschen</button>
-      <button class="btn btn-ghost">Verwerfen</button>
+    <div class="sp-h">Die Grundformen</div>
+    <div class="card card-pad">
+      <div class="bar">
+        <button class="btn btn-primary" type="button">Speichern</button>
+        <button class="btn" type="button">Abbrechen</button>
+        <button class="btn btn-soft" type="button">Weiter</button>
+        <button class="btn btn-ghost" type="button">Später</button>
+        <button class="btn btn-danger" type="button">Löschen</button>
+      </div>
     </div>
-    <div class="meta">.btn ist die Basis — jede Variante wird dazugestellt: .btn.btn-primary</div>
+    <div class="meta">.btn ist die Grundform, mindestens 44px hoch. Die Zusatzklasse entscheidet über Gewicht: .btn-primary trägt die eine Handlung der Ansicht, .btn-danger nur das Unwiderrufliche.</div>
   </div>
 
   <div>
-    <div class="sp-h">Größe</div>
-    <div class="bar">
-      <button class="btn btn-primary">Standard</button>
-      <button class="btn btn-sm">.btn-sm</button>
+    <div class="sp-h">Zu- und Absage</div>
+    <div class="card card-pad">
+      <div class="bar">
+        <button class="btn btn-zu is-on" type="button">Zusage</button>
+        <button class="btn btn-ab" type="button">Absage</button>
+      </div>
+      <div class="bar" style="margin-top:10px">
+        <button class="btn btn-zu" type="button">Zusage</button>
+        <button class="btn btn-ab is-on" type="button">Absage</button>
+      </div>
     </div>
-    <div class="meta">.btn-sm ist schmaler, behält aber min-height:44px — Touch-Ziel bleibt</div>
+    <div class="meta">.btn-zu / .btn-ab — der gewählte trägt .is-on und füllt sich. Erneutes Antippen nimmt die Rückmeldung zurück.</div>
   </div>
 
   <div>
-    <div class="sp-h">Zu-/Absage — zweiwertig, Zustand über .is-on</div>
-    <div class="bar">
-      <button class="btn btn-zu is-on">Zusagen</button>
-      <button class="btn btn-ab">Absagen</button>
-      <span style="width:14px"></span>
-      <button class="btn btn-zu">Zusagen</button>
-      <button class="btn btn-ab is-on">Absagen</button>
+    <div class="sp-h">Kompakte Rückmeldung im Termin-Hero</div>
+    <div class="card card-pad">
+      <div class="th-self">
+        <span class="th-self-t">Deine Rückmeldung fehlt</span>
+        <span class="th-self-btns">
+          <button class="th-mini is-zu" type="button">Zusage</button>
+          <button class="th-mini is-ab" type="button">Absage</button>
+        </span>
+      </div>
     </div>
-    <div class="meta">ohne .is-on neutral; .btn-zu.is-on grün, .btn-ab.is-on rot</div>
+    <div class="meta">.th-self mit .th-mini.is-zu / .is-ab — 36px sichtbar, Trefferfläche liegt als ::after mit 44px darüber. Nur für Spielertrainer, und nur solange die eigene Antwort fehlt.</div>
   </div>
 
   <div>
-    <div class="sp-h">Filter-Chips</div>
-    <div class="toolbar" style="margin:0">
-      <button class="chip is-active">Alle</button>
-      <button class="chip">Spiele</button>
-      <button class="chip">Training</button>
-      <button class="chip">Sonstiges</button>
+    <div class="sp-h">Knopf über die volle Breite</div>
+    <div class="card card-pad">
+      <button class="tv-next-btn" type="button">Elf aufstellen<span class="tv-next-sub num">11/11 gesetzt</span></button>
+      <div style="height:10px"></div>
+      <button class="btn btn-primary sg-cta" type="button">Aufstellung bearbeiten</button>
     </div>
-    <div class="meta">.toolbar &gt; .chip — aktiver Zustand über .is-active</div>
+    <div class="meta">.tv-next-btn — 46px, Radius 12, flaches --green-700, Zusatzangabe als .tv-next-sub daneben. .sg-cta ist die 48px-Variante auf der Spieltag-Karte.</div>
   </div>
 
   <div>
-    <div class="sp-h">Icon-Buttons — 44×44 Tap-Fläche</div>
-    <div class="bar">
-      <button class="icon-btn" aria-label="Bearbeiten">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
-      </button>
-      <button class="icon-btn icon-ok" aria-label="Speichern">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-      </button>
-      <button class="icon-btn" aria-label="Löschen">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg>
-      </button>
+    <div class="sp-h">Symbol und Textverweis</div>
+    <div class="card card-pad">
+      <div class="bar">
+        <button class="icon-btn" type="button" aria-label="Bearbeiten">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+        </button>
+        <button class="icon-btn icon-ok" type="button" aria-label="Übernehmen">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        </button>
+        <button class="link-btn" type="button">Zahlung melden</button>
+      </div>
     </div>
-    <div class="meta">.icon-btn — nur Symbol, .icon-ok färbt bestätigende Aktionen grün</div>
+    <div class="meta">.icon-btn — 44px Trefferfläche um ein 20px-Symbol, .icon-ok färbt es grün. .link-btn ist unterstrichener Text, ebenfalls 44px hoch.</div>
   </div>
 
   <div>
-    <div class="sp-h">Textlink</div>
-    <div class="bar">
-      <button class="link-btn">Neu laden</button>
+    <div class="sp-h">Zwei Knöpfe in einer Fußzeile</div>
+    <div class="card card-pad">
+      <div class="rs2-fuss" style="border-top:0;padding:0">
+        <button class="rs2-btn" type="button">Alle 15 erinnern</button>
+        <button class="rs2-btn2" type="button">Teilen</button>
+      </div>
     </div>
-    <div class="meta">.link-btn — unterstrichen, --green-700; für Nebenwege ohne Gewicht</div>
+    <div class="meta">.rs2-btn wächst, .rs2-btn2 bleibt so schmal wie sein Wort — gemessen 268 zu 79 bei 11px Abstand. Fällt der primäre weg, trägt .rs2-btn2.is-weit die Zeile allein.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Was nicht erfunden wird</div>
+    <div class="card card-pad">
+      <p class="rs">Keine Größenvarianten, keine Utility-Klassen. Braucht ein Knopf eine andere
+      Höhe, kommt sie aus einem Maß-Token (--h-btn, --h-btn-lg, --h-btn-xl) oder als
+      eigene, sprechende Klasse — nie als <code>btn-xs</code> oder <code>py-2</code>.</p>
+    </div>
   </div>
 
 </div>

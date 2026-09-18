@@ -1,0 +1,116 @@
+<!-- @dsCard group="App-Rahmen" -->
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blätter und Dialoge</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System.
+     Blaetter und Dialoge sind in der App fixiert; hier stehen sie im Rahmen. */
+  body { padding: 0; min-height: 0; }
+  .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+  .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
+  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; line-height: 1.6; }
+  .frame { position: relative; transform: translateZ(0); width: 390px; max-width: 100%;
+           border-radius: 12px; overflow: hidden; border: 1px solid var(--line); background: var(--bg); }
+  .frame .more-sheet, .frame .modal-ov, .frame .ptr-ind { position: absolute; }
+</style>
+</head>
+<body>
+<div class="sp">
+
+  <div>
+    <div class="sp-h">Blatt von unten</div>
+    <div class="frame" style="height:260px">
+      <div class="more-sheet">
+        <div class="more-backdrop"></div>
+        <div class="more-panel" role="dialog" aria-modal="true" aria-label="Mehr">
+          <div class="more-title">Mehr</div>
+          <button class="more-item" type="button">Trainer</button>
+          <button class="more-item" type="button">Kader</button>
+          <button class="more-item" type="button">Kasse</button>
+        </div>
+      </div>
+    </div>
+    <div class="meta">.more-sheet &gt; .more-backdrop + .more-panel. Radius 18 nur oben, Schatten nach oben. Geschlossen trägt das Blatt <code>hidden</code>, nie display:none im Markup.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Was jedes Blatt kann</div>
+    <div class="card card-pad">
+      <p class="rs">Ein Wisch nach unten schließt. Dahinter ist der Seitenscroll gesperrt, und
+      Pull-to-Refresh löst nicht aus. Ein Wechsel der Ansicht über die untere Leiste schließt
+      alle offenen Blätter — man soll nie ein Blatt über einer anderen Ansicht wiederfinden.</p>
+    </div>
+  </div>
+
+  <div>
+    <div class="sp-h">Teilen-Dialog — der einzige Versandweg</div>
+    <div class="frame" style="height:330px">
+      <div class="modal-ov">
+        <div class="modal" role="dialog" aria-modal="true">
+          <div class="modal-head"><strong>Erinnerung</strong>
+            <button class="modal-x" type="button" aria-label="Schließen">×</button></div>
+          <p class="modal-sub">Text frei anpassen, dann teilen oder kopieren.</p>
+          <textarea class="modal-text" rows="6" spellcheck="false">Training
+Do 17. Sep · 19:30 Uhr
+
+Bitte noch zurückmelden:
+Max Bauer
+Jonas Becker</textarea>
+          <div class="modal-actions">
+            <button class="btn btn-primary" type="button">Teilen</button>
+            <button class="btn" type="button">Kopieren</button>
+          </div>
+          <div class="modal-hint" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">.modal-ov &gt; .modal &gt; .modal-head / .modal-sub / .modal-text / .modal-actions / .modal-hint. Es gibt kein Versand-Backend: „Kader-Info", „N erinnern" und „Teilen" erzeugen alle einen fertigen Text, den das Gerät weitergibt.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Rückfrage — schmaler Dialog, Knöpfe untereinander</div>
+    <div class="frame" style="height:240px">
+      <div class="modal-ov">
+        <div class="modal modal-sm" role="dialog" aria-modal="true">
+          <div class="modal-head"><strong>Serientermin löschen</strong></div>
+          <p class="modal-sub">Dieser Termin gehört zu einer Serie.</p>
+          <div class="modal-actions modal-actions-col">
+            <button class="btn btn-danger" type="button">Nur diesen Termin</button>
+            <button class="btn btn-danger" type="button">Diesen und alle folgenden</button>
+            <button class="btn" type="button">Abbrechen</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">.modal.modal-sm mit .modal-actions.modal-actions-col — bei drei Möglichkeiten stehen die Knöpfe untereinander, damit keiner am Rand abgeschnitten wird.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Pull-to-Refresh</div>
+    <div class="frame" style="height:120px">
+      <div class="ptr-ind is-spinning" style="top:24px;left:50%;transform:translateX(-50%)">
+        <div class="ptr-coin">
+          <div class="ptr-ring"></div>
+          <div class="ptr-disc"><img class="ptr-logo" src="../../../assets/icon-192.png" alt=""></div>
+        </div>
+        <div class="ptr-shadow"></div>
+      </div>
+    </div>
+    <div class="meta">.ptr-ind &gt; .ptr-coin (.ptr-ring, .ptr-disc &gt; .ptr-logo) + .ptr-shadow; beim Laden trägt der Anzeiger .is-spinning. Das Wappen dreht sich wie eine Münze — kein fremdes Ladesymbol.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Die Fußzeile der Ansicht</div>
+    <div class="card card-pad">
+      <footer class="app-footer"><button class="link-btn" type="button">Neu laden</button></footer>
+    </div>
+    <div class="meta">.app-footer steht am Ende jeder Ansicht und bietet denselben Weg wie der Wisch von oben — für alle, die ihn nicht kennen.</div>
+  </div>
+
+</div>
+</body>
+</html>

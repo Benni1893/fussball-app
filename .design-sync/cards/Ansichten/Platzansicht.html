@@ -1,0 +1,142 @@
+<!-- @dsCard group="Ansichten" -->
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Platzansicht</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
+  body { padding: 0; min-height: 0; }
+  .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+  .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
+  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; line-height: 1.6; }
+  .frame { width: 390px; max-width: 100%; background: var(--green-900); border-radius: 12px; overflow: hidden; }
+</style>
+</head>
+<body>
+<div class="sp">
+
+  <div>
+    <div class="sp-h">Die ganze Ansicht — Variante B, formatfüllendes Feld</div>
+    <div class="frame">
+      <div class="tv-lu">
+        <div class="tv-top">
+          <button class="tv-ic" type="button" aria-label="Zurück">&lsaquo;</button>
+          <div class="tv-hi">
+            <div class="tv-game">vs. VfB Sparta München</div>
+            <div class="tv-sub">20. Sep · 12:30 · 4-3-3 · 9/11</div>
+          </div>
+          <button class="tv-ic" type="button" aria-label="Mehr">⋯</button>
+        </div>
+
+        <div class="tv-formbar">
+          <button class="tv-fpill on" type="button"><span>4-3-3</span></button>
+          <button class="tv-fpill" type="button"><span>4-4-2</span></button>
+          <button class="tv-fpill" type="button"><span>3-5-2</span></button>
+          <button class="tv-fmore" type="button">Weitere ›</button>
+        </div>
+
+        <div class="tv-field">
+          <div class="tv-pitch">
+            <svg class="tv-pitch-bg" viewBox="0 0 68 105" preserveAspectRatio="none" aria-hidden="true">
+              <rect width="68" height="105" fill="#2e7d46"/>
+              <g fill="none" stroke="rgba(255,255,255,.3)" stroke-width="0.3">
+                <rect x="2" y="2" width="64" height="101"/><line x1="2" y1="52.5" x2="66" y2="52.5"/>
+                <circle cx="34" cy="52.5" r="9"/><rect x="14" y="2" width="40" height="16"/>
+                <rect x="24" y="2" width="20" height="6"/><rect x="14" y="87" width="40" height="16"/>
+                <rect x="24" y="97" width="20" height="6"/>
+              </g>
+              <circle cx="34" cy="52.5" r="0.7" fill="rgba(255,255,255,.35)"/>
+            </svg>
+            <div class="tv-slot filled" style="left:50%;top:88%"><div class="tv-disc"><span>1</span></div><span class="tv-pn">Zimmer</span></div>
+            <div class="tv-slot filled" style="left:18%;top:70%"><div class="tv-disc"><span>2</span></div><span class="tv-pn">Koch</span></div>
+            <div class="tv-slot filled sel" style="left:40%;top:72%"><div class="tv-disc"><span>4</span></div><span class="tv-pn">Huber</span></div>
+            <div class="tv-slot filled" style="left:60%;top:72%"><div class="tv-disc"><span>5</span></div><span class="tv-pn">Fischer</span></div>
+            <div class="tv-slot" style="left:82%;top:70%"><div class="tv-disc"><span class="tv-role">RV</span></div></div>
+            <div class="tv-slot filled" style="left:30%;top:50%"><div class="tv-disc"><span>6</span></div><span class="tv-pn">Krüger</span></div>
+            <div class="tv-slot filled" style="left:50%;top:46%"><div class="tv-disc"><span>8</span></div><span class="tv-pn">Lang</span></div>
+            <div class="tv-slot filled" style="left:70%;top:50%"><div class="tv-disc"><span>10</span></div><span class="tv-pn">Mayer</span></div>
+            <div class="tv-slot filled" style="left:22%;top:24%"><div class="tv-disc"><span>7</span></div><span class="tv-pn">Müller</span></div>
+            <div class="tv-slot filled" style="left:50%;top:18%"><div class="tv-disc"><span>9</span></div><span class="tv-pn">Schmid</span></div>
+            <div class="tv-slot" style="left:78%;top:24%"><div class="tv-disc"><span class="tv-role">LA</span></div></div>
+          </div>
+        </div>
+
+        <div class="tv-bank">
+          <div class="tv-bank-h">Bank<span>2/7</span></div>
+          <div class="tv-bank-row">
+            <button class="tv-bslot filled" type="button">
+              <span class="tv-bnr">12</span><span class="tv-bn">Wagner</span>
+              <span class="tv-bx" role="button" aria-label="Wagner von der Bank nehmen">×</span>
+            </button>
+            <button class="tv-bslot filled sel" type="button">
+              <span class="tv-bnr">14</span><span class="tv-bn">Wolf</span>
+              <span class="tv-bx" role="button" aria-label="Wolf von der Bank nehmen">×</span>
+            </button>
+            <button class="tv-bslot" type="button" aria-label="Bankspieler hinzufügen">
+              <span class="tv-bplus">+</span><span class="tv-bfrei">frei</span>
+            </button>
+            <button class="tv-bslot" type="button" aria-label="Bankspieler hinzufügen">
+              <span class="tv-bplus">+</span><span class="tv-bfrei">frei</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="tv-actions">
+          <button class="tv-primary" type="button"><span>Aufstellung speichern</span><small>9/11 gesetzt</small></button>
+        </div>
+      </div>
+    </div>
+    <div class="meta">.tv-lu &gt; .tv-top (.tv-ic, .tv-hi mit .tv-game/.tv-sub) · .tv-formbar · .tv-field &gt; .tv-pitch · .tv-bank · .tv-actions &gt; .tv-primary</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Die Spielzeile bleibt hell — bewusste Abweichung</div>
+    <div class="card card-pad">
+      <p class="rs">Die Vorlage zeichnet die Zeile mit Gegner, Datum und Formation im dunkelgrünen
+      Verlauf. Dort gibt es keine App-Kopfzeile; in der App ist die feste Kopfzeile mit Wappen
+      und Zahnrad ein Fixpunkt. Zwei grüne Leisten übereinander wären eine Doppelung, also
+      bleibt .tv-top hell mit grauer Trennlinie. Die Maße der Vorlage gelten weiter.</p>
+    </div>
+  </div>
+
+  <div>
+    <div class="sp-h">Platz und Bank</div>
+    <div class="card card-pad">
+      <p class="rs">Das Feld füllt die volle Breite mit dem Seitenverhältnis 68:95 — nie an die
+      Fensterhöhe gebunden, sonst schrumpft es auf kleinen Geräten. Jeder Platz ist sichtbar
+      34px, die Trefferfläche liegt als ::before mit 44px darüber.</p>
+      <p class="rs" style="margin-top:8px">Antippen markiert, ein zweites Antippen tauscht —
+      Feld gegen Feld, Feld gegen Bank, Bank gegen Bank. Das Kreuz in .tv-bx nimmt einen
+      Spieler von der Bank und wird deshalb vor dem Tausch geprüft.</p>
+    </div>
+    <div class="meta">.tv-slot (+ .filled, + .sel) &gt; .tv-disc mit Nummer oder .tv-role, darunter .tv-pn · .tv-bslot (+ .filled, + .sel) &gt; .tv-bnr/.tv-bn/.tv-bx oder .tv-bplus/.tv-bfrei</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Leerer Platz — Angebot statt leerer Fläche</div>
+    <div class="frame" style="padding:16px">
+      <div class="tv-cta">
+        <p>Vom letzten Spiel übernehmen<br><b>vs. FT München-Gern 2</b> – fehlende Spieler werden automatisch durch verfügbare ersetzt.</p>
+        <button class="tv-primary" type="button"><span>Übernehmen &amp; anpassen</span></button>
+        <button class="tv-ghost" type="button">Leer starten</button>
+      </div>
+    </div>
+    <div class="meta">.tv-cta liegt als .tv-cta-ov über dem leeren Feld, solange keine Elf steht und ein letztes Spiel existiert.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Vergangenes Spiel — nur ansehen</div>
+    <div class="frame" style="padding:14px 16px 16px">
+      <div class="tv-actions" style="padding:0">
+        <div class="tv-ro-note">Vergangenes Spiel – nur ansehen, nicht bearbeiten</div>
+      </div>
+    </div>
+    <div class="meta">.tv-lu.tv-ro schaltet die ganze Ansicht schreibgeschützt: keine Leer-Slots auf der Bank, kein Menü, kein Speichern.</div>
+  </div>
+
+</div>
+</body>
+</html>

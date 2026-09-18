@@ -1,0 +1,130 @@
+<!-- @dsCard group="Bausteine" -->
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Listen und Tabelle</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
+  body { padding: 0; min-height: 0; }
+  .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+  .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
+  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="sp">
+
+  <div>
+    <div class="sp-h">Waagerecht wird nie gescrollt</div>
+    <div class="card card-pad">
+      <p class="rs">Am Spielfeldrand hält man das iPhone in einer Hand. Alles, was eine
+      Tabelle wäre, wird zur gestapelten Zeile: Zeichen links, Text in der Mitte,
+      Zahl rechts. Eine echte Tabelle gibt es nur noch an einer Stelle — der
+      Rollenverwaltung — und dort steht sie in <code>.table-wrap</code>.</p>
+    </div>
+  </div>
+
+  <div>
+    <div class="sp-h">Strafenzeile — Konto</div>
+    <div class="fine-list" style="margin:0">
+      <div class="fine-row">
+        <span class="avatar">MB</span>
+        <div class="fine-main">
+          <div class="fine-name">Max Bauer</div>
+          <div class="fine-desc">Zu spät zum Training · 12. Sep · automatisch</div>
+        </div>
+        <div class="fine-right">
+          <div class="fine-amt is-warn num">12,00 €</div>
+          <span class="badge badge-open">offen</span>
+        </div>
+      </div>
+      <div class="fine-row">
+        <span class="avatar">JB</span>
+        <div class="fine-main">
+          <div class="fine-name">Jonas Becker</div>
+          <div class="fine-desc">Gelbe Karte · 8. Sep</div>
+          <div class="fine-reason">Abgelehnt: Betrag stimmt nicht</div>
+        </div>
+        <div class="fine-right">
+          <div class="fine-amt num">5,00 €</div>
+          <span class="badge badge-paid">eingegangen</span>
+        </div>
+      </div>
+    </div>
+    <div class="meta">.fine-list &gt; .fine-row mit .avatar · .fine-main (.fine-name, .fine-desc, optional .fine-reason) · .fine-right (.fine-amt, .badge).</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Katalogzeile</div>
+    <div class="card kat-list">
+      <div class="kat-item">
+        <span class="kat-name">Zu spät zum Training</span>
+        <span class="kat-amount num">5,00 €</span>
+      </div>
+      <div class="kat-item">
+        <span class="kat-name">Rauchen im Trikot <span class="badge badge-self">gestaffelt</span><span class="kat-sub">2,00 € je angefangene 5 Minuten, höchstens 20,00 €</span></span>
+        <span class="kat-amount is-staffel num">ab 2,00 €</span>
+      </div>
+    </div>
+    <div class="meta">.kat-list &gt; .kat-item mit .kat-name (optional .kat-sub) und .kat-amount; gestaffelte Beträge tragen zusätzlich .is-staffel.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Lazarett — Zeile mit Zustand rechts</div>
+    <div class="laz-list">
+      <div class="card laz-row">
+        <span class="avatar">FH</span>
+        <div class="laz-main">
+          <div class="laz-name">Felix Hofmann</div>
+          <div class="rs">seit 8. Sep · zurück 4. Okt</div>
+          <div class="laz-note">Muskelfaserriss</div>
+        </div>
+        <span class="st-badge st-red">verletzt</span>
+      </div>
+      <div class="card laz-row">
+        <span class="avatar">SL</span>
+        <div class="laz-main">
+          <div class="laz-name">Simon Lang</div>
+          <div class="rs">seit 15. Sep · offenes Ende</div>
+        </div>
+        <span class="st-badge st-blue">Urlaub</span>
+      </div>
+    </div>
+    <div class="meta">.laz-list &gt; .card.laz-row mit .laz-main (.laz-name, .rs, optional .laz-note) und .st-badge. Sortiert nach Rückkehrdatum; wer keines hat, steht hinten.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Die eine echte Tabelle — Rollen verwalten</div>
+    <div class="card table-wrap">
+      <table class="rollen-tbl">
+        <thead><tr><th>Mitglied</th>
+          <th style="text-align:center"><abbr title="Trainer">Tr</abbr></th>
+          <th style="text-align:center"><abbr title="Kassenwart">Ka</abbr></th>
+          <th style="text-align:center"><abbr title="Admin">Ad</abbr></th></tr></thead>
+        <tbody>
+          <tr>
+            <td><div class="player-cell"><span class="avatar rollen-av">TW</span>
+              <div><div class="rollen-name">Tobias Wagner</div><div class="rollen-mail">tobias@example.org</div></div></div></td>
+            <td style="text-align:center"><input type="checkbox" checked></td>
+            <td style="text-align:center"><input type="checkbox"></td>
+            <td style="text-align:center"><input type="checkbox" checked></td>
+          </tr>
+          <tr>
+            <td><div class="player-cell"><span class="avatar rollen-av">JK</span>
+              <div><div class="rollen-name">Jan Krüger</div><div class="rollen-mail">jan@example.org</div></div></div></td>
+            <td style="text-align:center"><input type="checkbox"></td>
+            <td style="text-align:center"><input type="checkbox" checked></td>
+            <td style="text-align:center"><input type="checkbox"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="meta">.card.table-wrap &gt; table.rollen-tbl. Die Spaltenköpfe sind auf Tr/Ka/Ad abgekürzt, damit die Tabelle ohne Mindestbreite in 390px passt.</div>
+  </div>
+
+</div>
+</body>
+</html>

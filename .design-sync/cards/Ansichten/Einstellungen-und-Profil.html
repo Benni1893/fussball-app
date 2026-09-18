@@ -1,0 +1,107 @@
+<!-- @dsCard group="Ansichten" -->
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Einstellungen und Profil</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
+  body { padding: 0; min-height: 0; }
+  .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+  .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
+  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; line-height: 1.6; }
+  .frame { width: 390px; max-width: 100%; padding: 0 16px 16px; background: var(--bg); border: 1px dashed var(--line); border-radius: 12px; }
+</style>
+</head>
+<body>
+<div class="sp">
+
+  <div>
+    <div class="sp-h">Einstellungen — hinter dem Zahnrad</div>
+    <div class="frame">
+      <div class="page-head" style="padding-top:14px"><h1>Einstellungen</h1></div>
+      <div class="set-section">
+        <div class="card card-pad set-profile">
+          <div class="set-greet-name">Angemeldet als Tobias Wagner</div>
+          <div class="set-greet-role">Trainer · Admin</div>
+          <div class="set-row"><span class="set-label">E-Mail</span><span class="set-val">tobias@example.org</span></div>
+          <div class="set-row"><span class="set-label">Spieler</span><span class="set-val">Tobias Wagner · #14</span></div>
+        </div>
+      </div>
+      <div class="set-verwaltung">
+        <div class="section-title"><h2>Verwaltung</h2></div>
+        <div class="section-title set-sub"><h3>Strafenkatalog</h3></div>
+        <div class="card card-pad">
+          <p class="set-hint">Vergehen und Beträge werden im Katalog gepflegt.</p>
+          <button class="btn" type="button">Strafenkatalog öffnen</button>
+        </div>
+      </div>
+      <p class="set-hint" style="text-align:center;margin-top:22px;opacity:.6">Build 2026-09-18-A · Diagnose</p>
+    </div>
+    <div class="meta">.set-section &gt; .card.card-pad.set-profile mit .set-greet-name/.set-greet-role und .set-row (.set-label, .set-val) · .set-verwaltung &gt; .section-title.set-sub / .set-hint. Der Block erscheint nur fuer Trainer, Kassenwart und Admin.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Profil</div>
+    <div class="card pr-head">
+      <span class="avatar pr-av">TW</span>
+      <div><div class="pr-name">Tobias Wagner</div><div class="rs">Trainer · Admin · #14</div></div>
+    </div>
+    <div class="pr-list" style="margin-top:12px">
+      <div class="pr-row">
+        <span class="pr-bar is-zu" aria-hidden="true"></span>
+        <div class="pr-main"><div class="pr-t">Zusagen</div><div class="rs">14 von 18 Terminen</div></div>
+      </div>
+      <div class="pr-row">
+        <span class="pr-bar is-ab" aria-hidden="true"></span>
+        <div class="pr-main"><div class="pr-t">Absagen</div><div class="rs">3 Termine</div></div>
+      </div>
+      <div class="pr-row">
+        <span class="pr-bar is-offen" aria-hidden="true"></span>
+        <div class="pr-main"><div class="pr-t">Ohne Rückmeldung</div><div class="rs">1 Termin</div></div>
+      </div>
+    </div>
+    <div class="meta">.card.pr-head (.avatar.pr-av, .pr-name) · .pr-list &gt; .pr-row mit .pr-bar.is-&lt;art&gt; und .pr-main (.pr-t, .rs)</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Rollen verwalten — Vorschau einer fremden Rolle</div>
+    <div class="card card-pad">
+      <div class="chips">
+        <button class="chip is-active" type="button">Meine Sicht</button>
+        <button class="chip" type="button">Spieler</button>
+        <button class="chip" type="button">Trainer</button>
+        <button class="chip" type="button">Kassenwart</button>
+        <button class="chip" type="button">Admin</button>
+      </div>
+      <div class="sim-switch-hint">Reine Anzeige-Vorschau – ändert nichts an deinen Rechten oder Daten. Alle Zugriffe bleiben serverseitig abgesichert.</div>
+    </div>
+    <div class="meta">.sim-switch-hint sagt ausdrücklich, dass die Vorschau nichts ändert — sonst hielte man sie für einen Rollenwechsel.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Laufende Vorschau</div>
+    <div class="sim-bar">
+      <span class="sim-text">Vorschau als Spieler</span>
+      <button class="sim-exit" type="button">Beenden</button>
+    </div>
+    <div class="meta">.sim-bar liegt über der ganzen App, solange eine Rollen-Vorschau läuft. .sim-text hat bewusst keine eigene Regel und erbt von .sim-bar.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Mehr-Menü im fünften Tab</div>
+    <div class="card" style="overflow:hidden">
+      <div class="more-title">Mehr</div>
+      <button class="more-item" type="button">Trainer</button>
+      <button class="more-item" type="button">Kader</button>
+      <button class="more-item" type="button">Kasse</button>
+      <button class="more-item" type="button">Rollen verwalten</button>
+    </div>
+    <div class="meta">.more-title + .more-item — welche Zeilen erscheinen, hängt an der Rolle. Der fünfte Tab entfällt ganz, wenn keine übrig bleibt.</div>
+  </div>
+
+</div>
+</body>
+</html>

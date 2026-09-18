@@ -9,67 +9,77 @@
 <style>
   /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
   body { padding: 0; min-height: 0; }
-  .sp { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
-  .row { display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: baseline;
-         padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+  .sp { padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+  .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
+  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; line-height: 1.6; }
+  .row { display: flex; align-items: baseline; gap: 14px; padding: 7px 0; border-bottom: 1px solid var(--line); }
   .row:last-child { border-bottom: 0; }
-  .meta { font-size: .68rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; text-align: right; white-space: nowrap; }
-  .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
+  .row > b { flex: none; width: 150px; font-family: ui-monospace, Menlo, monospace; font-size: .64rem; font-weight: 600; color: var(--muted); }
 </style>
 </head>
 <body>
 <div class="sp">
 
-  <div class="sp-h">Inter · 400 – 800 · Grundgröße 15px / 1,5</div>
-
-  <div class="row">
-    <div class="page-head" style="margin:0"><h1>Übersicht</h1></div>
-    <div class="meta">.page-head h1<br>1.4rem · 800</div>
+  <div>
+    <div class="sp-h">Schrift</div>
+    <div class="card card-pad">
+      <p class="rs">Inter, Schnitte 400 bis 800. Fällt das CDN aus, greift der System-Stack
+      aus der <code>body</code>-Regel: system-ui, -apple-system, Segoe UI, Roboto, sans-serif.
+      Grundgröße 15px, Zeilenhöhe <code>normal</code> — jede Regel, die davon abweicht,
+      sagt es selbst.</p>
+    </div>
   </div>
 
-  <div class="row">
-    <div class="section-title" style="margin:0"><h2>Nächste Termine</h2></div>
-    <div class="meta">.section-title h2<br>1.1rem · 700</div>
+  <div>
+    <div class="sp-h">Seitenkopf</div>
+    <div class="card card-pad">
+      <div class="page-head"><h1>Übersicht</h1><p>Kurzer Begleitsatz unter dem Titel.</p></div>
+    </div>
+    <div class="meta">.page-head h1 — 22px/800. .page-head p — 13px/400 in --muted.</div>
   </div>
 
-  <div class="row">
-    <div>Fließtext der App. Alles, was nicht ausgezeichnet ist, sitzt auf dieser Größe — ruhig, gut lesbar auf dem Platz.</div>
-    <div class="meta">body<br>15px · 1,5</div>
+  <div>
+    <div class="sp-h">Anrede mit Rollen-Plakette</div>
+    <div class="card card-pad">
+      <div class="page-head"><h1 class="h1row">Servus, Tobias <span class="role-pill">TRAINER</span></h1></div>
+    </div>
+    <div class="meta">.h1row + .role-pill — die höchste Rolle gewinnt; Spieler tragen keine.</div>
   </div>
 
-  <div class="row">
-    <div class="page-head" style="margin:0"><p>Begleittext unter einer Überschrift.</p></div>
-    <div class="meta">.page-head p<br>--muted</div>
+  <div>
+    <div class="sp-h">Abschnitte</div>
+    <div class="card card-pad">
+      <div class="section-title"><h2>Was heute liegt</h2></div>
+      <div class="section-title sec-mini"><h2>Weitere Spiele</h2><button class="link-btn" type="button">Alle &rsaquo;</button></div>
+    </div>
+    <div class="meta">.section-title — 15px/700 gemischt. .section-title.sec-mini — 11px/800 in Großbuchstaben, gesperrt, mit Verweis rechts; gemessen aus der Trainer-Vorlage.</div>
   </div>
 
-  <div class="row">
-    <div class="kpi-label">Offener Betrag</div>
-    <div class="meta">.kpi-label · thead th<br>.74rem · 700 · Versalien</div>
+  <div>
+    <div class="sp-h">Die drei Textbausteine</div>
+    <div class="card card-pad">
+      <div class="row"><b>.lbl</b><span class="lbl">Nächstes Spiel</span></div>
+      <div class="row"><b>.rs</b><span class="rs">12:30 Uhr · Heim · in 3 Tagen</span></div>
+      <div class="row"><b>.num</b><span class="num">11/16 · 128,50 € · 20.09.</span></div>
+    </div>
+    <div class="meta">.lbl 11px/700 Großbuchstaben gesperrt · .rs 12px/500 in --muted · .num setzt gleiche Ziffernbreite, damit Zahlen beim Aktualisieren nicht springen.</div>
   </div>
 
-  <div class="row">
-    <div class="kpi-value">128,50 €</div>
-    <div class="meta">.kpi-value<br>1.6rem · 800 · --green-800</div>
-  </div>
-
-  <div class="row">
-    <div class="kpi-sub">3 offene Strafen</div>
-    <div class="meta">.kpi-sub<br>.82rem · --muted</div>
-  </div>
-
-  <div class="row">
-    <div class="event-main"><div class="e-title"><span class="team-own">FC Fasanerie-Nord</span> <span class="vs">–</span> <span class="team-opp">SV Lohhof</span></div><div class="e-time">15:00 Uhr</div></div>
-    <div class="meta">.e-title / .e-time<br>700 · --fs-event-time</div>
-  </div>
-
-  <div class="row">
-    <div><span class="tag tag-spiel">Spiel</span> <span class="badge badge-paid">bezahlt</span></div>
-    <div class="meta">.tag .68rem · .badge .72rem<br>beide 700</div>
-  </div>
-
-  <div class="row">
-    <div class="amount">24,00 €</div>
-    <div class="meta">.amount / .num<br>tabular-nums · 700</div>
+  <div>
+    <div class="sp-h">Größen, die tatsächlich vorkommen</div>
+    <div class="card card-pad">
+      <div class="row"><b>25px / 800</b><span style="font-size:25px;font-weight:800;letter-spacing:-.025em">Trainer</span></div>
+      <div class="row"><b>22px / 800</b><span style="font-size:22px;font-weight:800;letter-spacing:-.025em">Übersicht</span></div>
+      <div class="row"><b>21px / 800</b><span style="font-size:21px;font-weight:800;letter-spacing:-.012em">VfB Sparta München</span></div>
+      <div class="row"><b>19px / 800</b><span style="font-size:19px;font-weight:800">Rückmeldungen</span></div>
+      <div class="row"><b>16px</b><span style="font-size:16px">Eingabefelder — darunter zoomt iOS</span></div>
+      <div class="row"><b>15px / 700</b><span style="font-size:15px;font-weight:700">Zeilentitel in Listen</span></div>
+      <div class="row"><b>15px / 400</b><span style="font-size:15px">Fließtext, Grundgröße</span></div>
+      <div class="row"><b>13px / 500</b><span style="font-size:13px;font-weight:500;color:var(--muted)">Unterzeile einer Zeile</span></div>
+      <div class="row"><b>11px / 800</b><span style="font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">Nächstes Spiel</span></div>
+      <div class="row"><b>9px / 800</b><span style="font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Zugesagt</span></div>
+    </div>
+    <div class="meta">Alle Werte aus den Vorlagen gemessen, nicht gerundet geraten. Negative Sperrung nur bei den großen Graden.</div>
   </div>
 
 </div>

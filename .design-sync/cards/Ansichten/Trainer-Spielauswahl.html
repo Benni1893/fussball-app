@@ -1,0 +1,121 @@
+<!-- @dsCard group="Ansichten" -->
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trainer — Spielauswahl</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
+  body { padding: 0; min-height: 0; }
+  .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+  .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
+  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; line-height: 1.6; }
+  /* Echte Gerätebreite, damit die gemessenen Maße auch gemessen aussehen. */
+  .frame { width: 390px; max-width: 100%; padding: 0 16px; background: var(--bg); border: 1px dashed var(--line); border-radius: 12px; }
+</style>
+</head>
+<body>
+<div class="sp">
+
+  <div>
+    <div class="sp-h">Ganze Ansicht bei 390px — alle Maße aus trainer-sheet-v2.png gemessen</div>
+    <div class="frame">
+      <div class="page-head tv-head" style="padding-top:14px"><h1>Trainer</h1>
+        <p>Spiel wählen, danach baust du die Elf auf dem Platz.</p></div>
+
+      <div class="card edge-green tv-next">
+        <div class="tv-next-kopf">
+          <span class="tv-next-lbl">Nächstes Spiel</span>
+          <span class="tv-next-bdg">Heim</span>
+        </div>
+        <div class="tv-next-t">VfB Sparta München</div>
+        <div class="tv-next-m num">So 20. Sep · 12:30 Uhr · in 3 Tagen</div>
+        <div class="tv-bar" role="img" aria-label="11 zugesagt, 1 abgesagt, 4 offen">
+          <i class="is-zu" style="width:68.75%"></i><i class="is-ab" style="width:6.25%"></i>
+        </div>
+        <div class="tv-next-z">
+          <span class="is-zu num">11 zugesagt</span>
+          <span class="is-ab num">1 ab</span>
+          <span class="is-of num">4 offen</span>
+        </div>
+        <button class="tv-next-btn" type="button">Elf aufstellen<span class="tv-next-sub num">11/11 gesetzt</span></button>
+      </div>
+
+      <button class="card tv-kader" type="button">
+        <span class="tv-kader-main">
+          <span class="tv-kader-t">Kader</span>
+          <span class="tv-kader-z"><b class="num">16</b> Spieler<span class="tv-kader-p">·</span><b class="num">12</b> fit<span class="tv-kader-p">·</span><b class="num is-warn">4</b> nicht fit</span>
+        </span>
+        <span class="tv-kchart" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i class="is-raus"></i><i class="is-raus"></i></span>
+        <span class="tv-garrow">›</span>
+      </button>
+
+      <div class="section-title sec-mini"><h2>Weitere Spiele</h2><button class="link-btn" type="button">Alle &rsaquo;</button></div>
+      <div class="card tv-glist">
+        <button class="tv-grow" type="button">
+          <span class="tv-gdate"><span class="d-day num">27</span><span class="d-mon">Sep</span></span>
+          <span class="tv-gmain"><span class="tv-gopp">FT München-Gern 2</span>
+            <span class="tv-gmeta num">10:00 · Auswärts</span></span>
+          <span class="tv-gchip">Elf steht</span>
+          <span class="tv-garrow">›</span>
+        </button>
+        <button class="tv-grow" type="button">
+          <span class="tv-gdate"><span class="d-day num">4</span><span class="d-mon">Okt</span></span>
+          <span class="tv-gmain"><span class="tv-gopp">SV Olympiadorf München</span>
+            <span class="tv-gmeta num">12:30 · Heim</span></span>
+          <span class="tv-gchip is-offen">offen</span>
+          <span class="tv-garrow">›</span>
+        </button>
+      </div>
+
+      <div class="section-title sec-mini"><h2>Vorlagen</h2><button class="link-btn" type="button">Neu &rsaquo;</button></div>
+      <div class="card tv-tpls" style="margin-bottom:16px">
+        <div class="tv-tpl">
+          <span class="tv-tpl-main"><span class="tv-tpl-n">4-3-3 Standard</span>
+            <span class="rs">geändert am 17. Sep</span></span>
+          <span class="tv-tpl-chip num">4-3-3</span>
+          <button class="icon-btn" type="button" aria-label="Vorlage löschen">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="sp-h">Die Karte „Nächstes Spiel" im Einzelnen</div>
+    <div class="card card-pad">
+      <p class="rs">Karte 358×206 bei y 149, Innenrand 14, Kante links 4px.
+      Plakette 46×21. Titel 21px/800, Zeitzeile 14px/500 mit dem Abstand in Tagen.
+      Balken 6px: grün = zugesagt, rot = abgesagt, Spur --track-bar = offen.
+      Knopf 326×46, Radius 12, flaches --green-700 mit dem Stand daneben.</p>
+    </div>
+    <div class="meta">.card.edge-green.tv-next &gt; .tv-next-kopf (.tv-next-lbl, .tv-next-bdg) · .tv-next-t · .tv-next-m · .tv-bar &gt; i.is-zu/i.is-ab · .tv-next-z · .tv-next-btn &gt; .tv-next-sub</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Kaderkarte — acht Striche als Anteil</div>
+    <div class="card card-pad">
+      <p class="rs">Die acht Striche zeigen das Verhältnis fit zu nicht fit, nicht die
+      Spielerzahl. Wer nicht fit ist, bekommt immer mindestens einen Strich — sonst
+      verschwände ein einzelner Ausfall in der Rundung.</p>
+    </div>
+    <div class="meta">.card.tv-kader &gt; .tv-kader-main (.tv-kader-t, .tv-kader-z mit .tv-kader-p als Trenner) · .tv-kchart &gt; i, nicht fit als i.is-raus · .tv-garrow</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Zwei bewusste Abweichungen von der Vorlage</div>
+    <div class="card card-pad">
+      <p class="rs">Der <b>Papierkorb</b> in der Vorlagenzeile bleibt stehen, obwohl die
+      Vorlage dort nur die Formationsplakette zeigt — sonst wäre keine Vorlage mehr
+      löschbar. <b>„Neu ›"</b> führt in die Platzansicht des nächsten Spiels, weil eine
+      Vorlage nur aus einer offenen Aufstellung entstehen kann; ohne anstehendes Spiel
+      entfällt der Verweis.</p>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

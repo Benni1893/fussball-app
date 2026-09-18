@@ -11,65 +11,155 @@
   body { padding: 0; min-height: 0; }
   .sp { padding: 20px; display: flex; flex-direction: column; gap: 20px; }
   .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
-  .sw-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 10px; }
+  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; line-height: 1.6; }
+  .sw-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 8px; }
   .sw { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--card); }
   .sw i { display: block; height: 46px; }
-  .sw b { display: block; padding: 7px 9px 2px; font-size: .74rem; font-weight: 700; font-family: ui-monospace, Menlo, monospace; }
-  .sw span { display: block; padding: 0 9px 8px; font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; }
+  .sw b { display: block; padding: 6px 8px 7px; font-family: ui-monospace, Menlo, monospace; font-size: .64rem; font-weight: 600; color: var(--ink); word-break: break-all; }
 </style>
 </head>
 <body>
 <div class="sp">
 
   <div>
-    <div class="sp-h">Vereinsgrün — Flächen, Kopfzeile, Primäraktion</div>
+    <div class="sp-h">Vereinsgrün — Kopfzeile, Primäraktion, Erfolg</div>
     <div class="sw-grid">
-      <div class="sw"><i style="background:var(--green-900)"></i><b>--green-900</b><span>#0f3d2e</span></div>
-      <div class="sw"><i style="background:var(--green-800)"></i><b>--green-800</b><span>#144a37</span></div>
-      <div class="sw"><i style="background:var(--green-700)"></i><b>--green-700</b><span>#1b5e3f</span></div>
-      <div class="sw"><i style="background:var(--green-600)"></i><b>--green-600</b><span>#237a52</span></div>
-      <div class="sw"><i style="background:var(--green-500)"></i><b>--green-500</b><span>#2e8b57</span></div>
-      <div class="sw"><i style="background:var(--green-050)"></i><b>--green-050</b><span>#e9f3ee</span></div>
+      <div class="sw"><i style="background:var(--green-990)"></i><b>--green-990</b></div>
+      <div class="sw"><i style="background:var(--green-950)"></i><b>--green-950</b></div>
+      <div class="sw"><i style="background:var(--green-900)"></i><b>--green-900</b></div>
+      <div class="sw"><i style="background:var(--green-800)"></i><b>--green-800</b></div>
+      <div class="sw"><i style="background:var(--green-750)"></i><b>--green-750</b></div>
+      <div class="sw"><i style="background:var(--green-700)"></i><b>--green-700</b></div>
+      <div class="sw"><i style="background:var(--green-650)"></i><b>--green-650</b></div>
+      <div class="sw"><i style="background:var(--green-600)"></i><b>--green-600</b></div>
+      <div class="sw"><i style="background:var(--green-550)"></i><b>--green-550</b></div>
+      <div class="sw"><i style="background:var(--green-500)"></i><b>--green-500</b></div>
+      <div class="sw"><i style="background:var(--green-450)"></i><b>--green-450</b></div>
+      <div class="sw"><i style="background:var(--green-050)"></i><b>--green-050</b></div>
+      <div class="sw"><i style="background:var(--pitch-green)"></i><b>--pitch-green</b></div>
     </div>
+    <div class="meta">--green-700 trägt jede Primäraktion. --green-800 ist die Schriftfarbe für Zahlen und Verweise auf hellem Grund.</div>
   </div>
 
   <div>
-    <div class="sp-h">Gold — Akzent, Spiel-Kennzeichnung, KPI-Kante</div>
+    <div class="sp-h">Gold — Akzent, Spiele, Datumswürfel, Vorlagen</div>
     <div class="sw-grid">
-      <div class="sw"><i style="background:var(--gold-600)"></i><b>--gold-600</b><span>#b8902f</span></div>
-      <div class="sw"><i style="background:var(--gold-500)"></i><b>--gold-500</b><span>#d4af37</span></div>
-      <div class="sw"><i style="background:var(--gold-050)"></i><b>--gold-050</b><span>#faf3df</span></div>
+      <div class="sw"><i style="background:var(--gold-700)"></i><b>--gold-700</b></div>
+      <div class="sw"><i style="background:var(--gold-600)"></i><b>--gold-600</b></div>
+      <div class="sw"><i style="background:var(--gold-500)"></i><b>--gold-500</b></div>
+      <div class="sw"><i style="background:var(--gold-400)"></i><b>--gold-400</b></div>
+      <div class="sw"><i style="background:var(--gold-250)"></i><b>--gold-250</b></div>
+      <div class="sw"><i style="background:var(--gold-200)"></i><b>--gold-200</b></div>
+      <div class="sw"><i style="background:var(--gold-100)"></i><b>--gold-100</b></div>
+      <div class="sw"><i style="background:var(--gold-050)"></i><b>--gold-050</b></div>
+      <div class="sw"><i style="background:var(--gold-ink)"></i><b>--gold-ink</b></div>
+      <div class="sw"><i style="background:var(--gold-ink-2)"></i><b>--gold-ink-2</b></div>
+      <div class="sw"><i style="background:var(--gold-line)"></i><b>--gold-line</b></div>
+      <div class="sw"><i style="background:var(--gold-line-2)"></i><b>--gold-line-2</b></div>
+      <div class="sw"><i style="background:var(--gold-badge-bg)"></i><b>--gold-badge-bg</b></div>
+      <div class="sw"><i style="background:var(--gold-badge-line)"></i><b>--gold-badge-line</b></div>
+      <div class="sw"><i style="background:var(--gold-chev)"></i><b>--gold-chev</b></div>
     </div>
+    <div class="meta">Schrift auf Goldflächen immer --gold-ink oder --gold-ink-2 — die hellen Gelbtöne tragen keinen weißen Text.</div>
   </div>
 
   <div>
-    <div class="sp-h">Signal — offen, gewarnt, abgesagt</div>
+    <div class="sp-h">Signal — Rot, Bernstein, Blau</div>
     <div class="sw-grid">
-      <div class="sw"><i style="background:var(--red-600)"></i><b>--red-600</b><span>#c0392b</span></div>
-      <div class="sw"><i style="background:var(--red-050)"></i><b>--red-050</b><span>#fbeae8</span></div>
-      <div class="sw"><i style="background:var(--amber-600)"></i><b>--amber-600</b><span>#b9770e</span></div>
-      <div class="sw"><i style="background:var(--amber-050)"></i><b>--amber-050</b><span>#fdf3e3</span></div>
+      <div class="sw"><i style="background:var(--red-700)"></i><b>--red-700</b></div>
+      <div class="sw"><i style="background:var(--red-600)"></i><b>--red-600</b></div>
+      <div class="sw"><i style="background:var(--red-500)"></i><b>--red-500</b></div>
+      <div class="sw"><i style="background:var(--red-200)"></i><b>--red-200</b></div>
+      <div class="sw"><i style="background:var(--red-100)"></i><b>--red-100</b></div>
+      <div class="sw"><i style="background:var(--red-050)"></i><b>--red-050</b></div>
+      <div class="sw"><i style="background:var(--red-line)"></i><b>--red-line</b></div>
+      <div class="sw"><i style="background:var(--red-badge-bg)"></i><b>--red-badge-bg</b></div>
+      <div class="sw"><i style="background:var(--red-ink)"></i><b>--red-ink</b></div>
+      <div class="sw"><i style="background:var(--red-ink-2)"></i><b>--red-ink-2</b></div>
+      <div class="sw"><i style="background:var(--red-chev)"></i><b>--red-chev</b></div>
+      <div class="sw"><i style="background:var(--amber-600)"></i><b>--amber-600</b></div>
+      <div class="sw"><i style="background:var(--amber-050)"></i><b>--amber-050</b></div>
+      <div class="sw"><i style="background:var(--blau-700)"></i><b>--blau-700</b></div>
+      <div class="sw"><i style="background:var(--blau-600)"></i><b>--blau-600</b></div>
+      <div class="sw"><i style="background:var(--blau-050)"></i><b>--blau-050</b></div>
+      <div class="sw"><i style="background:var(--blau-line)"></i><b>--blau-line</b></div>
     </div>
+    <div class="meta">Rot = offen, abgesagt, verletzt. Bernstein = wartet auf Bestätigung, gewählter Filter. Blau = ausschließlich „Urlaub", damit Urlaub nicht wie eine Verletzung aussieht.</div>
   </div>
 
   <div>
-    <div class="sp-h">Neutral — Text, Linien, Grundflächen</div>
+    <div class="sp-h">Neutral und Flächen</div>
     <div class="sw-grid">
-      <div class="sw"><i style="background:var(--ink)"></i><b>--ink</b><span>#1c2620</span></div>
-      <div class="sw"><i style="background:var(--muted)"></i><b>--muted</b><span>#66756d</span></div>
-      <div class="sw"><i style="background:var(--line)"></i><b>--line</b><span>#e2e8e4</span></div>
-      <div class="sw"><i style="background:var(--bg)"></i><b>--bg</b><span>#f4f7f5</span></div>
-      <div class="sw"><i style="background:var(--card);box-shadow:inset 0 0 0 1px var(--line)"></i><b>--card</b><span>#ffffff</span></div>
+      <div class="sw"><i style="background:var(--ink)"></i><b>--ink</b></div>
+      <div class="sw"><i style="background:var(--muted)"></i><b>--muted</b></div>
+      <div class="sw"><i style="background:var(--line)"></i><b>--line</b></div>
+      <div class="sw"><i style="background:var(--bg)"></i><b>--bg</b></div>
+      <div class="sw"><i style="background:var(--card)"></i><b>--card</b></div>
+      <div class="sw"><i style="background:var(--bg-1)"></i><b>--bg-1</b></div>
+      <div class="sw"><i style="background:var(--bg-2)"></i><b>--bg-2</b></div>
+      <div class="sw"><i style="background:var(--card-2)"></i><b>--card-2</b></div>
+      <div class="sw"><i style="background:var(--kpi-2)"></i><b>--kpi-2</b></div>
+      <div class="sw"><i style="background:var(--surface-2)"></i><b>--surface-2</b></div>
+      <div class="sw"><i style="background:var(--surface-3)"></i><b>--surface-3</b></div>
+      <div class="sw"><i style="background:var(--surface-4)"></i><b>--surface-4</b></div>
+      <div class="sw"><i style="background:var(--surface-5)"></i><b>--surface-5</b></div>
+      <div class="sw"><i style="background:var(--surface-6)"></i><b>--surface-6</b></div>
+      <div class="sw"><i style="background:var(--av-1)"></i><b>--av-1</b></div>
+      <div class="sw"><i style="background:var(--av-2)"></i><b>--av-2</b></div>
+      <div class="sw"><i style="background:var(--track)"></i><b>--track</b></div>
+      <div class="sw"><i style="background:var(--track-bar)"></i><b>--track-bar</b></div>
+      <div class="sw"><i style="background:var(--track-sheet)"></i><b>--track-sheet</b></div>
+      <div class="sw"><i style="background:var(--dot-off)"></i><b>--dot-off</b></div>
+      <div class="sw"><i style="background:var(--green-badge-bg)"></i><b>--green-badge-bg</b></div>
+      <div class="sw"><i style="background:var(--green-badge-line)"></i><b>--green-badge-line</b></div>
+      <div class="sw"><i style="background:var(--green-task-1)"></i><b>--green-task-1</b></div>
+      <div class="sw"><i style="background:var(--green-task-2)"></i><b>--green-task-2</b></div>
+      <div class="sw"><i style="background:var(--green-task-ink)"></i><b>--green-task-ink</b></div>
+      <div class="sw"><i style="background:var(--green-task-ink-2)"></i><b>--green-task-ink-2</b></div>
+      <div class="sw"><i style="background:var(--green-chev)"></i><b>--green-chev</b></div>
+      <div class="sw"><i style="background:var(--pp-blue)"></i><b>--pp-blue</b></div>
+      <div class="sw"><i style="background:var(--pp-cyan)"></i><b>--pp-cyan</b></div>
     </div>
+    <div class="meta">--muted erreicht auf Weiß 4,7:1 und ist damit die dunkelste erlaubte Nebenfarbe. --track-bar liegt unter dem Rückmeldebalken der Spielkarte, --track-sheet unter dem im Blatt — zwei gemessene Töne, kein Versehen.</div>
   </div>
 
   <div>
-    <div class="sp-h">Termin-Randbalken — links an der Karte</div>
+    <div class="sp-h">Verläufe</div>
     <div class="sw-grid">
-      <div class="sw"><i style="background:var(--spiel-heim)"></i><b>--spiel-heim</b><span>#0f3d2e</span></div>
-      <div class="sw"><i style="background:var(--spiel-ausw)"></i><b>--spiel-ausw</b><span>#a3cbb8</span></div>
-      <div class="sw"><i style="background:var(--typ-training)"></i><b>--typ-training</b><span>#2e8b57</span></div>
-      <div class="sw"><i style="background:var(--typ-sonstiges)"></i><b>--typ-sonstiges</b><span>#7c8a82</span></div>
+      <div class="sw"><i style="background:var(--grad-hd)"></i><b>--grad-hd</b></div>
+      <div class="sw"><i style="background:var(--grad-auth)"></i><b>--grad-auth</b></div>
+      <div class="sw"><i style="background:var(--grad-app)"></i><b>--grad-app</b></div>
+      <div class="sw"><i style="background:var(--grad-card)"></i><b>--grad-card</b></div>
+      <div class="sw"><i style="background:var(--grad-kpi)"></i><b>--grad-kpi</b></div>
+      <div class="sw"><i style="background:var(--grad-btn)"></i><b>--grad-btn</b></div>
+      <div class="sw"><i style="background:var(--grad-btn-sec)"></i><b>--grad-btn-sec</b></div>
+      <div class="sw"><i style="background:var(--grad-chip)"></i><b>--grad-chip</b></div>
+      <div class="sw"><i style="background:var(--grad-chip-on)"></i><b>--grad-chip-on</b></div>
+      <div class="sw"><i style="background:var(--grad-gold)"></i><b>--grad-gold</b></div>
+      <div class="sw"><i style="background:var(--grad-in)"></i><b>--grad-in</b></div>
+      <div class="sw"><i style="background:var(--grad-av)"></i><b>--grad-av</b></div>
+      <div class="sw"><i style="background:var(--grad-bar)"></i><b>--grad-bar</b></div>
+      <div class="sw"><i style="background:var(--grad-navbar)"></i><b>--grad-navbar</b></div>
+      <div class="sw"><i style="background:var(--grad-disc)"></i><b>--grad-disc</b></div>
+      <div class="sw"><i style="background:var(--grad-bslot)"></i><b>--grad-bslot</b></div>
+      <div class="sw"><i style="background:var(--grad-edge-green)"></i><b>--grad-edge-green</b></div>
+      <div class="sw"><i style="background:var(--grad-edge-gold)"></i><b>--grad-edge-gold</b></div>
+      <div class="sw"><i style="background:var(--grad-edge-red)"></i><b>--grad-edge-red</b></div>
+      <div class="sw"><i style="background:var(--grad-urlaub)"></i><b>--grad-urlaub</b></div>
+      <div class="sw"><i style="background:var(--grad-task-green)"></i><b>--grad-task-green</b></div>
+      <div class="sw"><i style="background:var(--grad-task-gold)"></i><b>--grad-task-gold</b></div>
+      <div class="sw"><i style="background:var(--grad-task-red)"></i><b>--grad-task-red</b></div>
+      <div class="sw"><i style="background:var(--grad-hd-light)"></i><b>--grad-hd-light</b></div>
+    </div>
+    <div class="meta">Die vier --grad-edge-* sind die 4px-Kanten links an Karten: grün normal, gold Spiel, rot abgesagt; --grad-urlaub trägt denselben Zweck beim Status.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Nie ein Hex ins Markup</div>
+    <div class="card card-pad">
+      <p class="rs">Jede Farbe kommt als <code>var(--&hellip;)</code>. Fehlt ein Ton, wird er im
+      <code>:root</code>-Block angelegt und benannt — nicht im Markup erfunden.
+      Das ist die einzige Stelle, an der Farbwerte stehen.</p>
     </div>
   </div>
 

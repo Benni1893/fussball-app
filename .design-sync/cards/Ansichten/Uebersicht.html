@@ -1,0 +1,182 @@
+<!-- @dsCard group="Ansichten" -->
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Übersicht</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
+  body { padding: 0; min-height: 0; }
+  .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+  .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
+  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="sp">
+
+  <div>
+    <div class="sp-h">Die Übersicht zeigt nur, was zu tun ist</div>
+    <div class="card card-pad">
+      <p class="rs">Kein Block meldet Erfolg. Steht nichts an, entfällt er samt Überschrift —
+      im Zweifel ist die Seite kurz. Der Termin-Hero steht immer oben, alles Weitere
+      hängt an Rolle und Datenlage.</p>
+    </div>
+  </div>
+
+  <div>
+    <div class="sp-h">Termin-Hero — Spielersicht</div>
+    <div class="card termin-hero edge-green">
+      <div class="lbl">Sonntag</div>
+      <div class="th-top">
+        <div class="th-body" role="button" tabindex="0">
+          <div class="th-title">VfB Sparta München</div>
+          <div class="th-time num">So 20. Sep · 12:30 Uhr</div>
+        </div>
+      </div>
+      <div class="th-venue"><a class="venue-link" href="#">
+        <svg class="venue-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        Sportanlage Fasanerie</a></div>
+      <div class="th-rsvp">
+        <button class="btn btn-zu is-on" type="button">Zusage</button>
+        <button class="btn btn-ab" type="button">Absage</button>
+      </div>
+      <div class="frist"><span class="frist-label">Meldeschluss:</span> <span class="cd cd-amber">18 Std</span></div>
+    </div>
+    <div class="meta">.card.termin-hero.edge-green &gt; .lbl · .th-top (.th-body mit .th-title/.th-time) · .th-venue · .th-rsvp · .frist</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Termin-Hero — Trainersicht, hier als Spielertrainer</div>
+    <div class="card termin-hero edge-green">
+      <div class="lbl">Sonntag</div>
+      <div class="th-top">
+        <div class="th-body" role="button" tabindex="0">
+          <div class="th-title">VfB Sparta München</div>
+          <div class="th-time num">So 20. Sep · 12:30 Uhr</div>
+        </div>
+        <div class="th-count">
+          <div class="th-count-v num">11/16</div>
+          <div class="rs">zugesagt</div>
+        </div>
+      </div>
+      <div class="th-actions">
+        <button class="btn" type="button">Zusagen ansehen</button>
+        <button class="btn btn-primary" type="button">4 erinnern</button>
+      </div>
+      <div class="th-self">
+        <span class="th-self-t">Deine Rückmeldung fehlt</span>
+        <span class="th-self-btns">
+          <button class="th-mini is-zu" type="button">Zusage</button>
+          <button class="th-mini is-ab" type="button">Absage</button>
+        </span>
+      </div>
+    </div>
+    <div class="meta">.th-count rechts oben, .th-actions darunter. .th-self erscheint nur, wenn das Konto mit einem Spieler verknüpft ist und die eigene Antwort fehlt — ein reiner Trainer sieht sie nie.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Abgesagter Termin</div>
+    <div class="card termin-hero edge-green is-cancelled">
+      <div class="lbl">Donnerstag</div>
+      <div class="th-top"><div class="th-body"><div class="th-title">Training</div><div class="th-time num">Do 17. Sep · 19:30 Uhr</div></div></div>
+      <div class="th-rsvp"><span class="rsvp-cancelled">Abgesagt</span></div>
+    </div>
+    <div class="meta">.termin-hero.is-cancelled — die Kante wird rot, die Zu-/Absage weicht der Meldung.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Was heute liegt</div>
+    <div class="section-title"><h2>Was heute liegt</h2></div>
+    <div class="task-list">
+      <div class="task-row is-rsvp" role="button" tabindex="0">
+        <span class="task-num">!</span>
+        <div class="task-main">
+          <div class="task-title">Rückmeldung fehlt</div>
+          <div class="task-sub">So 20. Sep · vs. VfB Sparta München</div>
+        </div>
+        <span class="task-go" aria-hidden="true">›</span>
+      </div>
+      <div class="task-row is-lineup" role="button" tabindex="0">
+        <span class="task-num">7</span>
+        <div class="task-main">
+          <div class="task-title">Aufstellung So 20. Sep</div>
+          <div class="task-sub">7 von 11 gesetzt</div>
+        </div>
+        <span class="task-go" aria-hidden="true">›</span>
+      </div>
+      <div class="task-row is-pay" role="button" tabindex="0">
+        <span class="task-num">3</span>
+        <div class="task-main">
+          <div class="task-title">Offene Strafen</div>
+          <div class="task-sub">128,50 € · jetzt bezahlen</div>
+        </div>
+        <span class="task-go" aria-hidden="true">›</span>
+      </div>
+    </div>
+    <div class="meta">.task-list &gt; .task-row.is-&lt;art&gt; mit .task-num · .task-main (.task-title, .task-sub) · .task-go. Jede Zeile erscheint nur, wenn die Rolle zuständig ist UND die Datenlage sie erfordert.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Geldzeilen (Trainer- und Kassensicht)</div>
+    <div class="tile-rows" style="margin:0">
+      <button class="card tile" type="button"><span class="tile-t">Offene Strafen</span><span class="amount is-warn num">128,50 €</span></button>
+      <button class="card tile" type="button"><span class="tile-t">Mannschaftskasse</span><span class="amount num">642,00 €</span></button>
+    </div>
+    <div class="meta">.tile-rows &gt; .card.tile — führt in Konto bzw. Kasse.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Spieltag-Karte</div>
+    <div class="card spieltag">
+      <div class="sg-top">
+        <div class="sg-body">
+          <div class="lbl">Sonntag · 12:30</div>
+          <div class="sg-title">VfB Sparta München</div>
+          <div class="rs">Heim</div>
+          <div class="sg-venue"><a class="venue-link" href="#">
+            <svg class="venue-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            Sportanlage Fasanerie</a></div>
+        </div>
+        <span class="avatar sg-av">VS</span>
+      </div>
+      <div class="sg-stats">
+        <button class="sg-stat" type="button">
+          <span class="sg-stat-v num">11/16</span>
+          <span class="rs">zugesagt</span>
+          <span class="sg-stat-go" aria-hidden="true">›</span>
+        </button>
+        <div class="sg-stat is-gold">
+          <span class="sg-stat-v num">7/11</span>
+          <span class="rs">aufgestellt</span>
+        </div>
+      </div>
+      <button class="btn btn-primary sg-cta" type="button">Aufstellung bearbeiten</button>
+      <div class="sg-foot"><button class="link-btn" type="button">Kader-Info erstellen</button></div>
+    </div>
+    <div class="meta">.card.spieltag &gt; .sg-top (.sg-body, .avatar.sg-av) · .sg-stats &gt; .sg-stat (antippbar mit .sg-stat-go, ohne Sprungziel .is-gold) · .sg-cta · .sg-foot</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Kontoblock für Spieler</div>
+    <div class="mine-banner">
+      <div class="mb-label">Dein Konto · Max Bauer</div>
+      <div class="mb-value num">128,50 €</div>
+      <div class="mb-sub">offen von 462,00 € · 9 Strafen</div>
+      <div class="mb-bar" role="img" aria-label="72 % erledigt"><i style="width:72%"></i></div>
+      <div class="mb-note">inkl. 6,00 € Mahnzuschlag</div>
+      <a class="btn btn-primary mb-pay" href="#">128,50 € jetzt bezahlen</a>
+      <div class="mb-pp"><span class="rs">über</span><span class="pp-word"><span class="pp1">Pay</span><span class="pp2">Pal</span></span><span class="rs">· Freunde &amp; Familie</span></div>
+      <div class="mb-foot">
+        <button class="link-btn" type="button">Zahlung melden</button>
+        <span class="mb-cd">Erhöhung in <span class="cd cd-red">2 Tage</span></span>
+      </div>
+    </div>
+    <div class="meta">.mine-banner &gt; .mb-label / .mb-value / .mb-sub / .mb-bar / .mb-note / .mb-pay / .mb-pp / .mb-foot. Ohne Schulden trägt der Block .is-clear und zeigt nur die Meldung.</div>
+  </div>
+
+</div>
+</body>
+</html>

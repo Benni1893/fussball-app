@@ -1,0 +1,139 @@
+<!-- @dsCard group="Ansichten" -->
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kader und Status</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
+  body { padding: 0; min-height: 0; }
+  .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+  .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
+  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; line-height: 1.6; }
+  .frame { width: 390px; max-width: 100%; padding: 0 16px 16px; background: var(--bg); border: 1px dashed var(--line); border-radius: 12px; }
+</style>
+</head>
+<body>
+<div class="sp">
+
+  <div>
+    <div class="sp-h">Ein Baustein an drei Orten</div>
+    <div class="card card-pad">
+      <p class="rs">Dieselben vier Chips stehen auf der Übersicht („Mein Status"), im Profil
+      und im Kader. Geschrieben wird ausschließlich über eine Datenbankfunktion; die Datenbank
+      entscheidet, wer darf — Spieler nur über sich selbst, Trainer und Admin über alle.</p>
+    </div>
+  </div>
+
+  <div>
+    <div class="sp-h">Kader — Kennzahlen, Statuszeilen, Lazarett</div>
+    <div class="frame">
+      <div class="page-head" style="padding-top:14px">
+        <button class="pg-back" type="button" aria-label="Zurück">&lsaquo;</button>
+        <h1>Kader</h1>
+      </div>
+
+      <div class="kpi-grid kpi-3">
+        <div class="kpi"><div class="kpi-label">Spieler</div><div class="kpi-value">16</div><div class="kpi-sub">im Kader</div></div>
+        <div class="kpi"><div class="kpi-label">Fit</div><div class="kpi-value">12</div><div class="kpi-sub">einsatzbereit</div></div>
+        <div class="kpi is-warn"><div class="kpi-label">Nicht fit</div><div class="kpi-value">4</div><div class="kpi-sub">angeschlagen, verletzt oder im Urlaub</div></div>
+      </div>
+
+      <div class="section-title"><h2>Kader-Status</h2></div>
+      <div class="kad-list">
+        <div class="card kad-row">
+          <div class="kad-kopf">
+            <span class="avatar">MB</span>
+            <span class="kad-name">Max Bauer</span>
+          </div>
+          <div class="st-wahl">
+            <div class="chips st-chips">
+              <button class="chip st-choice is-on st-fit" type="button">fit</button>
+              <button class="chip st-choice" type="button">angeschlagen</button>
+              <button class="chip st-choice" type="button">verletzt</button>
+              <button class="chip st-choice" type="button">Urlaub</button>
+            </div>
+          </div>
+        </div>
+        <div class="card kad-row is-raus">
+          <div class="kad-kopf">
+            <span class="avatar">FH</span>
+            <span class="kad-name">Felix Hofmann <span class="st-badge st-red">verletzt</span></span>
+          </div>
+          <div class="st-wahl">
+            <div class="chips st-chips">
+              <button class="chip st-choice" type="button">fit</button>
+              <button class="chip st-choice" type="button">angeschlagen</button>
+              <button class="chip st-choice is-on st-verletzt" type="button">verletzt</button>
+              <button class="chip st-choice" type="button">Urlaub</button>
+            </div>
+            <div class="st-felder">
+              <label class="st-feld"><span class="lbl">voraussichtlich bis</span>
+                <input class="kasse-in" type="date" value="2026-10-04"></label>
+              <label class="st-feld"><span class="lbl">Notiz</span>
+                <input class="kasse-in" type="text" value="Muskelfaserriss"></label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title"><h2>Lazarett</h2></div>
+      <div class="laz-list">
+        <div class="card laz-row">
+          <span class="avatar">FH</span>
+          <div class="laz-main">
+            <div class="laz-name">Felix Hofmann</div>
+            <div class="rs">seit 8. Sep · zurück 4. Okt</div>
+            <div class="laz-note">Muskelfaserriss</div>
+          </div>
+          <span class="st-badge st-red">verletzt</span>
+        </div>
+        <div class="card laz-row">
+          <span class="avatar">SL</span>
+          <div class="laz-main">
+            <div class="laz-name">Simon Lang</div>
+            <div class="rs">seit 15. Sep · offenes Ende</div>
+          </div>
+          <span class="st-badge st-blue">Urlaub</span>
+        </div>
+      </div>
+    </div>
+    <div class="meta">.kad-list &gt; .card.kad-row (+ .is-raus) mit .kad-kopf (.avatar, .kad-name) und .st-wahl · .laz-list &gt; .card.laz-row. Das Lazarett ist nach Rückkehrdatum sortiert; wer keines hat, steht hinten.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Mein Status auf der Übersicht</div>
+    <div class="card card-pad">
+      <div class="section-title"><h2>Mein Status</h2></div>
+      <div class="st-wahl">
+        <div class="chips st-chips">
+          <button class="chip st-choice" type="button">fit</button>
+          <button class="chip st-choice is-on st-angeschlagen" type="button">angeschlagen</button>
+          <button class="chip st-choice" type="button">verletzt</button>
+          <button class="chip st-choice" type="button">Urlaub</button>
+        </div>
+        <div class="st-felder">
+          <label class="st-feld"><span class="lbl">voraussichtlich bis</span>
+            <input class="kasse-in" type="date"></label>
+          <label class="st-feld"><span class="lbl">Notiz</span>
+            <input class="kasse-in" type="text" placeholder="optional"></label>
+        </div>
+      </div>
+    </div>
+    <div class="meta">Derselbe .st-wahl-Block. Bei „fit" entfallen Datum und Notiz; die Felder speichern beim Verlassen, es gibt keinen Knopf.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">„Urlaub" ist kein Rot</div>
+    <div class="card card-pad">
+      <p class="rs">Urlaub zählt wie verletzt: nicht einsatzbereit. Farblich bekommt er
+      aber einen eigenen Ton (--blau-700 mit --blau-050), damit eine geplante Abwesenheit
+      im Lazarett nicht wie eine Verletzung aussieht.</p>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

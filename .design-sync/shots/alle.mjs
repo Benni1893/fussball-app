@@ -14,6 +14,7 @@ const REIHE = [
   ['kalender', 'Kalender'],
   ['trainer-spielauswahl', 'Trainer · Spielauswahl'],
   ['trainer-platz', 'Trainer · Platz'],
+  ['rueckmeldungen-sheet', 'Rückmeldungen · Blatt'],
   ['kader', 'Kader'],
   ['konto', 'Konto'],
   ['katalog', 'Katalog'],

@@ -4,71 +4,93 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Flächen und Schatten</title>
+<title>Flächen und Maße</title>
 <link rel="stylesheet" href="../../../styles.css">
 <style>
   /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
   body { padding: 0; min-height: 0; }
-  .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+  .sp { padding: 20px; display: flex; flex-direction: column; gap: 20px; }
   .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
-  .duo { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
-  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 6px; }
+  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; line-height: 1.6; }
+  .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .row { display: flex; align-items: center; gap: 14px; padding: 6px 0; }
+  .row > b { flex: none; width: 128px; font-family: ui-monospace, Menlo, monospace; font-size: .64rem; font-weight: 600; color: var(--muted); }
+  .bar { background: var(--green-700); height: 12px; border-radius: 3px; }
 </style>
 </head>
 <body>
 <div class="sp">
 
   <div>
-    <div class="sp-h">Karte — der Grundbaustein jeder Fläche</div>
-    <div class="duo">
-      <div>
-        <div class="card card-pad">
-          <b>.card .card-pad</b>
-          <div class="kpi-sub">Weiß auf --bg, 1px --line, --radius 14px, --shadow.</div>
-        </div>
-        <div class="meta">--shadow · Listen, Panels, Formulare</div>
-      </div>
-      <div>
-        <div class="kpi">
-          <div class="kpi-label">Mit Kantenstreifen</div>
-          <div class="kpi-value">7</div>
-          <div class="kpi-sub">.kpi trägt links 4px Gold</div>
-        </div>
-        <div class="meta">--shadow-sm · flacher, für Kacheln und Zeilen</div>
-      </div>
+    <div class="sp-h">Die Karte ist die Grundfläche</div>
+    <div class="card card-pad">
+      <div class="lbl">Karte</div>
+      <p class="rs" style="margin:6px 0 0">Weiß mit leisem Verlauf, 1px Rand in --line-soft,
+      Radius 14, zweistufiger Schatten. Alles Inhaltliche sitzt in einer Karte.</p>
     </div>
+    <div class="meta">.card — Innenabstand kommt als .card-pad (16px) oder aus der Bausteinregel.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Kanten links: der Ton sagt, worum es geht</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="card card-pad edge-green"><div class="lbl">Training</div><div class="rs">--grad-edge-green</div></div>
+      <div class="card card-pad edge-gold"><div class="lbl">Spiel</div><div class="rs">--grad-edge-gold</div></div>
+      <div class="card card-pad edge-red"><div class="lbl">Abgesagt</div><div class="rs">--grad-edge-red</div></div>
+    </div>
+    <div class="meta">.edge-green / .edge-gold / .edge-red — 4px breit, folgt der Rundung der Karte (overflow: hidden statt border-left).</div>
   </div>
 
   <div>
     <div class="sp-h">Radien</div>
-    <div class="duo">
-      <div>
-        <div class="card" style="height:56px"></div>
-        <div class="meta">--radius 14px — Karten, Kacheln, Tabellenrahmen</div>
-      </div>
-      <div>
-        <div class="card" style="height:56px;border-radius:10px"></div>
-        <div class="meta">10px — Eingabefelder, Datumsblock, Hinweise</div>
-      </div>
-      <div>
-        <div class="card" style="height:56px;border-radius:999px"></div>
-        <div class="meta">999px — .tag, .badge, .cd, .chip</div>
-      </div>
+    <div class="card card-pad">
+      <div class="row"><b>--radius 14</b><span class="bar" style="width:120px;border-radius:14px;height:34px"></span></div>
+      <div class="row"><b>--radius-md 12</b><span class="bar" style="width:120px;border-radius:12px;height:34px"></span></div>
+      <div class="row"><b>--radius-btn 10</b><span class="bar" style="width:120px;border-radius:10px;height:34px"></span></div>
+      <div class="row"><b>--radius-sheet 18</b><span class="bar" style="width:120px;border-radius:18px 18px 0 0;height:34px"></span></div>
+      <div class="row"><b>--radius-box 6</b><span class="bar" style="width:120px;border-radius:6px;height:34px"></span></div>
+      <div class="row"><b>--radius-pill</b><span class="bar" style="width:120px;border-radius:999px;height:34px"></span></div>
     </div>
+    <div class="meta">14 für Karten, 12 für Knöpfe und Kacheln der neueren Vorlagen, 10 für Felder, 18 nur oben am Blatt.</div>
   </div>
 
   <div>
-    <div class="sp-h">Grundflächen</div>
-    <div class="duo">
-      <div>
-        <div style="height:56px;border-radius:var(--radius);background:var(--bg);border:1px solid var(--line)"></div>
-        <div class="meta">--bg — Inhaltsfläche hinter allem</div>
-      </div>
-      <div>
-        <div style="height:56px;border-radius:var(--radius);background:linear-gradient(120deg, var(--green-900), var(--green-700))"></div>
-        <div class="meta">Kopfzeile — Verlauf green-900 → green-700</div>
-      </div>
+    <div class="sp-h">Höhen — jede Antippfläche mindestens 44</div>
+    <div class="card card-pad">
+      <div class="row"><b>--tap 44</b><span class="bar" style="width:60%;height:44px;border-radius:10px"></span></div>
+      <div class="row"><b>--h-btn 46</b><span class="bar" style="width:60%;height:46px;border-radius:12px"></span></div>
+      <div class="row"><b>--h-btn-lg 48</b><span class="bar" style="width:60%;height:48px;border-radius:12px"></span></div>
+      <div class="row"><b>--h-btn-xl 52</b><span class="bar" style="width:60%;height:52px;border-radius:12px"></span></div>
+      <div class="row"><b>--h-in 46</b><span class="bar" style="width:60%;height:46px;border-radius:10px"></span></div>
+      <div class="row"><b>--h-row 52</b><span class="bar" style="width:60%;height:52px;border-radius:10px"></span></div>
+      <div class="row"><b>--h-nav 52</b><span class="bar" style="width:60%;height:52px;border-radius:10px"></span></div>
+      <div class="row"><b>--h-bslot 54</b><span class="bar" style="width:60%;height:54px;border-radius:10px"></span></div>
     </div>
+    <div class="meta">Ist ein Element sichtbar kleiner als 44 (Zahnrad, Chip, Kreuz im Blatt), liegt die Trefferfläche als ::after mit 44px darüber — nie das Sichtbare aufblasen.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Schatten</div>
+    <div class="duo">
+      <div class="card card-pad" style="box-shadow:var(--shadow-card)"><div class="lbl">--shadow-card</div></div>
+      <div class="card card-pad" style="box-shadow:var(--shadow-sm)"><div class="lbl">--shadow-sm</div></div>
+      <div class="card card-pad" style="box-shadow:var(--shadow-hair)"><div class="lbl">--shadow-hair</div></div>
+      <div class="card card-pad" style="box-shadow:var(--shadow-btn-sec)"><div class="lbl">--shadow-btn-sec</div></div>
+    </div>
+    <div class="meta">Dazu die Sonderfälle --shadow-hd (Kopfzeile), --shadow-nav, --shadow-sheet, --shadow-auth, --shadow-pitch, --shadow-btn, --shadow-chip-on, --shadow-disc, --shadow-av, --shadow-dbg, --shadow-in.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Fortschrittsbalken</div>
+    <div class="card card-pad">
+      <div class="lbl" style="margin-bottom:8px">Karte — Spur --track-bar, 6px</div>
+      <div class="tv-bar"><i class="is-zu" style="width:68.75%"></i><i class="is-ab" style="width:6.25%"></i></div>
+      <div class="lbl" style="margin:14px 0 8px">Blatt — Spur --track-sheet, 7px</div>
+      <div class="rs2-bar"><i style="width:6.25%"></i></div>
+      <div class="lbl" style="margin:14px 0 8px">Konto — Spur --track</div>
+      <div class="mb-bar"><i style="width:72%"></i></div>
+    </div>
+    <div class="meta">.tv-bar mit i.is-zu / i.is-ab · .rs2-bar mit einem i · .mb-bar mit einem i — drei Orte, drei gemessene Spuren.</div>
   </div>
 
 </div>
