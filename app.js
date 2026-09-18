@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-18-G";
+  var APP_BUILD = "2026-09-18-H";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -489,77 +489,6 @@
     return kopf + "\n\nBitte noch zurückmelden:\n" + offen.map((p) => p.name).join("\n");
   }
 
-  function terminHeroHtml(e) {
-    if (!e) {
-      return `<div class="card termin-hero is-empty">
-        <div class="lbl">Nächster Termin</div>
-        <div class="empty">Keine kommenden Termine.</div>
-      </div>`;
-    }
-    const cancelled = e.status === "abgesagt";
-    const future    = isFuture(e.datum);
-    const trainer   = Roles.canManageEvents();
-    const r         = state.rsvp[e.id + "|" + state.currentPlayerId] || {};
-    const zeit = `${fmtWd(e.datum)} ${fmtDay(e.datum)}. ${fmtMon(e.datum)}`
-      + (e.zeit ? ` · ${esc(e.zeit)}${e.ende ? "&#8211;" + esc(e.ende) : ""}` : "");
-    const venue = venueHtml(e);
-
-    const zusagen = DEMO.players.filter((p) => (state.rsvp[e.id + "|" + p.id] || {}).status === "zu").length;
-    const offenN  = ohneRueckmeldung(e).length;
-
-    const rsvpZeile = (klasse) => `
-      <div class="${klasse}">
-        <button class="btn btn-zu ${r.status === "zu" ? "is-on" : ""}" data-rsvp="zu" data-event="${e.id}">Zusage</button>
-        <button class="btn btn-ab ${r.status === "ab" ? "is-on" : ""}" data-rsvp="ab" data-event="${e.id}">Absage</button>
-      </div>`;
-
-    // Spielertrainer: wer als coach/admin zugleich im Kader steht, hat hier zwei
-    // Rollen. Die Knopfzeile darueber gilt der Mannschaft, diese Zeile ihm
-    // selbst - und nur, solange die eigene Antwort fehlt. Ein reiner Trainer
-    // ohne Spielerverknuepfung sieht sie nie. Geschrieben wird ueber dieselbe
-    // Mechanik wie beim Spieler (data-rsvp), es gibt keinen zweiten Weg.
-    const selbstOffen = !!(currentProfile && currentProfile.player_id
-      && playerById[state.currentPlayerId] && !r.status);
-    const selbstZeile = (!cancelled && future && selbstOffen) ? `
-      <div class="th-self">
-        <span class="th-self-t">Deine Rückmeldung fehlt</span>
-        <span class="th-self-btns">
-          <button class="th-mini is-zu" data-rsvp="zu" data-event="${e.id}">Zusage</button>
-          <button class="th-mini is-ab" data-rsvp="ab" data-event="${e.id}">Absage</button>
-        </span>
-      </div>` : "";
-
-    // Trainer (1a): Zahl rechts oben, darunter „Zusagen ansehen" + „N erinnern".
-    // K7 gilt weiter fuer den reinen Trainer: keine eigene Zu-/Absage im Hero.
-    const trainerTeil = `
-      <div class="th-actions">
-        <button class="btn" data-rsvp-sheet="${e.id}">Zusagen ansehen</button>
-        ${offenN > 0 ? `<button class="btn btn-primary" data-remind="${e.id}">${offenN} erinnern</button>` : ""}
-      </div>${selbstZeile}`;
-
-    // Spieler (1b): Ort, Zu-/Absage, Meldeschluss.
-    const spielerTeil = `
-      ${venue ? `<div class="th-venue">${venue}</div>` : ""}
-      ${!cancelled && future ? rsvpZeile("th-rsvp") : ""}
-      ${fristBlockHtml(e)}`;
-
-    return `
-      <div class="card termin-hero edge-green${cancelled ? " is-cancelled" : ""}">
-        <div class="lbl">${wannLabel(e)}</div>
-        <div class="th-top">
-          <div class="th-body" data-nav="termin" role="button" tabindex="0">
-            <div class="th-title">${terminName(e)}</div>
-            <div class="th-time num">${zeit}${e.zeit ? " Uhr" : ""}</div>
-          </div>
-          ${trainer && !cancelled ? `<div class="th-count">
-            <div class="th-count-v num">${zusagen}/${DEMO.players.length}</div>
-            <div class="rs">zugesagt</div>
-          </div>` : ""}
-        </div>
-        ${cancelled ? `<div class="th-rsvp"><span class="rsvp-cancelled">Abgesagt</span></div>`
-          : trainer ? trainerTeil : spielerTeil}
-      </div>`;
-  }
 
   /* Aufgabenblock „Was heute liegt".
      Datengetrieben: jede Zeile erscheint nur, wenn die Rolle zustaendig ist UND
@@ -666,73 +595,7 @@
   /* Spieltag-Karte: das naechste Spiel mit Gegner, Ort, Kennzahlen und den
      Handlungen der jeweiligen Rolle. Trainer bekommt Aufstellung und Kader-Info,
      Spieler seine Zu-/Absage samt Meldeschluss. */
-  function spieltagKarteHtml(spiel) {
-    if (!spiel) return "";
-    const trainer = Roles.canManageEvents();
-    const heim = heimLabel(spiel);
-    const zusagen = DEMO.players.filter((p) => (state.rsvp[spiel.id + "|" + p.id] || {}).status === "zu").length;
-    const r = state.rsvp[spiel.id + "|" + state.currentPlayerId] || {};
-    const future = isFuture(spiel.datum);
-    const cancelled = spiel.status === "abgesagt";
 
-    const lu = (DEMO.lineups || []).find((l) => l.eventId === spiel.id && l.isActive && !l.isTemplate);
-    const slots = lu ? (FORMATIONS[lu.formation] || []) : [];
-    const gesetzt = lu ? slots.map((s) => (lu.slots || {})[s.key]).filter(Boolean).length : 0;
-
-    const kopf = `
-      <div class="sg-top">
-        <div class="sg-body">
-          <div class="lbl">${WT_LANG[parseDate(spiel.datum).getDay()]}${spiel.zeit ? " · " + esc(spiel.zeit) : ""}</div>
-          <div class="sg-title">${terminName(spiel)}</div>
-          ${heim ? `<div class="rs">${heim}</div>` : ""}
-          ${venueHtml(spiel) ? `<div class="sg-venue">${venueHtml(spiel)}</div>` : ""}
-        </div>
-        <span class="avatar sg-av">${initials(spiel.gegner || spiel.titel)}</span>
-      </div>`;
-
-    const unten = trainer
-      ? `<div class="sg-stats">
-           <button class="sg-stat" data-rsvp-sheet="${spiel.id}">
-             <span class="sg-stat-v num">${zusagen}/${DEMO.players.length}</span>
-             <span class="rs">zugesagt</span>
-             <span class="sg-stat-go" aria-hidden="true">›</span>
-           </button>
-           <div class="sg-stat is-gold">
-             <span class="sg-stat-v num">${gesetzt}/${slots.length || 11}</span>
-             <span class="rs">aufgestellt</span>
-           </div>
-         </div>
-         <button class="btn btn-primary sg-cta" data-lineup-edit="${spiel.id}">Aufstellung bearbeiten</button>
-         <div class="sg-foot"><button class="link-btn" data-kader-info="${spiel.id}">Kader-Info erstellen</button></div>`
-      : cancelled
-        ? `<div class="th-rsvp"><span class="rsvp-cancelled">Abgesagt</span></div>`
-        : future
-          ? `<div class="sg-rsvp">
-               <button class="btn btn-zu ${r.status === "zu" ? "is-on" : ""}" data-rsvp="zu" data-event="${spiel.id}">Zusage</button>
-               <button class="btn btn-ab ${r.status === "ab" ? "is-on" : ""}" data-rsvp="ab" data-event="${spiel.id}">Absage</button>
-             </div>
-             ${fristBlockHtml(spiel)}`
-          : "";
-
-    return `<div class="card spieltag${cancelled ? " is-cancelled" : ""}">${kopf}${unten}</div>`;
-  }
-
-  // Kompakte Terminzeile unter „Danach" - Datumswuerfel, Typ, Zeit und Ort.
-  function miniEventHtml(e) {
-    const ort = (e.spielstaette || e.ort || "").trim();
-    const zweite = [e.zeit ? esc(e.zeit) : "", ort ? esc(ort) : ""].filter(Boolean).join(" · ");
-    return `<div class="card mini-ev edge-green" data-nav-event="${e.id}" role="button" tabindex="0">
-      <div class="event-date">
-        <span class="d-wd">${fmtWd(e.datum)}</span>
-        <span class="d-day">${fmtDay(e.datum)}</span>
-        <span class="d-mon">${fmtMon(e.datum).toUpperCase()}</span>
-      </div>
-      <div class="mini-body">
-        <div class="mini-typ">${e.typ === "spiel" ? "Spiel" : esc(e.titel)}</div>
-        ${zweite ? `<div class="mini-sub num">${zweite}</div>` : ""}
-      </div>
-    </div>`;
-  }
 
   function renderDashboard() {
     const me = playerById[state.currentPlayerId];
@@ -771,15 +634,17 @@
     // Aufgabenblock - eine Null-Zeile daneben waere leeres Gewicht.
     const eigenerBlock = (kontoVerknuepft && meinOffen > 0) ? kontoBlockHtml() : "";
     const teamZeile = (trainer || Roles.canManageFines())
-      ? `<div class="tile-rows">
-          ${!kontoVerknuepft ? `<div class="card tile" data-nav="meine-strafen" role="button" tabindex="0">
-            <span class="tile-t">Meine Strafen</span>
-            <span class="amount num">${euro(meinOffen)} ›</span>
-          </div>` : ""}
-          <div class="card tile" data-nav="kasse" role="button" tabindex="0">
-            <span class="tile-t">Mannschaftskasse</span>
-            <span class="amount num${teamOffen > 0 ? " is-warn" : ""}">${euro(teamOffen)} ›</span>
-          </div>
+      ? `<div class="geld-rows">
+          ${!kontoVerknuepft ? `<button class="card geld" data-nav="meine-strafen">
+            <span class="geld-main"><span class="geld-lbl">Meine Strafen</span>
+            <span class="geld-wert num">${euro(meinOffen)}</span></span>
+            <span class="geld-chev" aria-hidden="true">›</span>
+          </button>` : ""}
+          <button class="card geld" data-nav="kasse">
+            <span class="geld-main"><span class="geld-lbl">Mannschaftskasse</span>
+            <span class="geld-wert num${teamOffen > 0 ? " is-warn" : ""}">${euro(teamOffen)}</span></span>
+            <span class="geld-chev" aria-hidden="true">›</span>
+          </button>
         </div>`
       : "";
     const geld = eigenerBlock + teamZeile;
@@ -790,7 +655,8 @@
         ${rollenPillHtml()}
       </div>
 
-      ${terminHeroHtml(naechstes)}
+      ${naechstes ? terminKarteHtml(naechstes, { hero: true })
+        : `<div class="card card-pad"><div class="lbl">Nächster Termin</div><div class="empty">Keine kommenden Termine.</div></div>`}
 
       ${aufgabenBlockHtml(naechstes)}
 
@@ -798,14 +664,14 @@
         ? `<div class="section-title"><h2>Mein Konto</h2><button class="link-btn" data-goto="strafen">Alle Strafen</button></div>` : ""}
       ${geld}
 
-      ${spieltag ? `<div class="section-title"><h2>Nächstes Spiel</h2><button class="link-btn" data-goto="kalender">Kalender</button></div>
-      ${spieltagKarteHtml(spieltag)}` : ""}
+      ${spieltag ? `<div class="section-title sec-mini"><h2>Nächstes Spiel</h2><button class="link-btn" data-goto="kalender">Kalender &rsaquo;</button></div>
+      ${terminKarteHtml(spieltag, { hero: true })}` : ""}
 
-      ${danach.length ? `<div class="section-title"><h2>Danach</h2>${spieltag ? "" : `<button class="link-btn" data-goto="kalender">Kalender</button>`}</div>
-      <div class="mini-list">${danach.map(miniEventHtml).join("")}</div>` : ""}
+      ${danach.length ? `<div class="section-title sec-mini"><h2>Danach</h2>${spieltag ? "" : `<button class="link-btn" data-goto="kalender">Kalender &rsaquo;</button>`}</div>
+      <div class="card dn-liste">${danach.map(danachZeileHtml).join("")}</div>` : ""}
 
-      ${kontoVerknuepft ? `<div class="section-title"><h2>Mein Status</h2></div>
-      <div class="card card-pad">${statusWahlHtml(me)}</div>` : ""}
+      ${kontoVerknuepft ? `<div class="section-title sec-mini"><h2>Mein Status</h2></div>
+      ${statusWahlHtml(me, { kompakt: true })}` : ""}
     `;
 
     startCountdowns(); // Meldeschluss-Countdown im Hero und in der Spieltag-Karte
@@ -1350,6 +1216,26 @@
       url: query ? "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(query) : "",
     };
   }
+  /* Zeile unter „Danach" (Vorlage termin-und-kalender-v2): cremefarbene
+     Datumskachel, Titel, Zeit und rechts der eigene Zustand. Alle Zeilen
+     liegen in EINER Karte mit Haarlinien dazwischen. */
+  function danachZeileHtml(e) {
+    const r = state.rsvp[e.id + "|" + state.currentPlayerId] || {};
+    const zustand = r.status === "zu" ? ["Zugesagt", "is-zu"]
+                  : r.status === "ab" ? ["Abgesagt", "is-ab"] : ["Offen", "is-offen"];
+    const zeit = e.zeit ? esc(e.zeit) + (e.ende ? " &#8211; " + esc(e.ende) : "") + " Uhr" : "";
+    const titel = e.typ === "spiel" ? esc(e.gegner || e.titel) : esc(e.titel);
+    const heim = (e.typ === "spiel" && e.heim != null) ? (e.heim ? "Heim" : "Auswärts") : "";
+    return `<button class="dn-zeile" data-nav-event="${e.id}">
+      <span class="tk-datum"><span class="d-wd">${fmtWd(e.datum)}</span>
+        <span class="d-day num">${fmtDay(e.datum)}</span>
+        <span class="d-mon">${fmtMon(e.datum)}</span></span>
+      <span class="dn-main"><span class="dn-t">${titel}</span>
+        <span class="dn-s num">${heim ? `<b>${heim}</b> · ` : ""}${zeit}</span></span>
+      <span class="dn-zust ${zustand[1]}">${zustand[0]}</span>
+    </button>`;
+  }
+
 
   /* ---------- Terminkarte (Vorlage termin-und-kalender-v2.png) ---------------
      EINE Komponente fuer Kalender und Uebersicht. Was sie zeigt, haengt an der
@@ -1467,7 +1353,7 @@
     }
     if (e.note) teile.push('<div class="tk-notiz">' + esc(e.note) + '</div>');
 
-    return '<div class="card tk typ-' + e.typ + (cancelled ? " is-cancelled" : "") + '" id="ev-' + e.id + '">' +
+    return '<div class="card tk' + (cancelled ? " is-cancelled" : "") + '" id="ev-' + e.id + '">' +
       kopf + (teile.length ? '<div class="tk-body">' + teile.join("") + '</div>' : "") + '</div>';
   }
 
@@ -4141,7 +4027,7 @@
 
     // Aufgabenblock: eigene Rückmeldung -> zum Hero scrollen und Zusage fokussieren.
     if (t.dataset.taskFocus) {
-      const hero = viewEl.querySelector(".termin-hero");
+      const hero = viewEl.querySelector(".tk");
       const zu = hero && hero.querySelector('[data-rsvp="zu"]');
       if (hero) {
         try { hero.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) { hero.scrollIntoView(); }

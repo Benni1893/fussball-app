@@ -56,14 +56,13 @@ Layout-Beiwerk kommt als `style="…"` mit Tokens oder als neue, sprechende Klas
 
 | Zweck | Klassen |
 |---|---|
-| Fläche, Seite | `.card` `.card-pad` · `.page-head` `.page-head-row` `.pg-back` `.h1row` `.role-pill` · `.section-title` (klein: `.sec-mini`) · `.empty` · Kanten: `.edge-green` `.edge-gold` `.edge-red` |
+| Fläche, Seite | `.card` `.card-pad` · `.page-head` `.page-head-row` `.pg-back` `.h1row` `.role-pill` · `.section-title` (klein: `.sec-mini`) · `.empty` |
 | Textbausteine | `.lbl` (11px Großbuchstaben) · `.rs` (12px Nebentext) · `.num` (gleiche Ziffernbreite) |
-| Kennzahlen | `.kpi-grid` (`.kpi-3`) `.kpi` `.kpi-label` `.kpi-value` `.kpi-sub` `.kpi-amt` · `.is-warn` · `.tile-rows` `.tile` `.tile-t` `.amount` |
-| Termine | `.event-list` (`.is-past`) · **Terminkarte** `.tk` (`.typ-spiel` `.typ-training` `.typ-sonstiges` `.is-cancelled`): `.tk-kopf` `.tk-datum` `.d-wd` `.d-day` `.d-mon` · `.tk-kopf-main` `.tk-oben` `.tk-bdg` `.tk-zeit` `.tk-titel` `.tk-tags` · `.tk-menue` · `.tk-body` `.tk-feld` · `.tk-ort` `.tk-ort-ic` `.tk-ort-main` `.tk-ort-n` `.tk-ort-a` `.tk-route` · `.tk-rsvp` `.tk-btn` `.tk-abgesagt` `.tk-grund` · `.tk-frist` `.tk-warn` `.tk-bfv` `.tk-notiz` · `.tk-zusagen` `.tk-z-kopf` `.tk-z-lbl` `.tk-z-offen` `.tk-bar` `.tk-z-zahlen` · `.tk-kacheln` `.tk-kachel` `.tk-k-lbl` `.tk-k-wert` `.tk-chev` · Kalenderkopf: `.seg` `.seg-b` `.kal-neu` `.kal-abo` `.kal-abo-ic` `.kal-abo-main` `.kal-abo-t` `.kal-abo-s` `.kal-abo-chev` · `.frist` `.frist-label` `.frist-warn` |
-| Termin-Hero | `.termin-hero` `.th-top` `.th-body` `.th-title` `.th-time` `.th-venue` `.th-count` `.th-count-v` `.th-rsvp` `.th-actions` · Spielertrainer: `.th-self` `.th-self-t` `.th-self-btns` `.th-mini` |
-| Zu-/Absage | `.btn-zu` `.btn-ab` (Zustand `.is-on`) · `.rsvp-reason` `.rsvp-cancelled` |
+| Kennzahlen | `.kpi-grid` (`.kpi-3`) `.kpi` `.kpi-label` `.kpi-value` `.kpi-sub` `.kpi-amt` `.kpi-tapbar` · `.is-warn` · Geldzeilen: `.geld-rows` `.geld` `.geld-main` `.geld-lbl` `.geld-wert` `.geld-chev` |
+| Termine | `.event-list` (`.is-past`) · **Terminkarte** `.tk` (`.is-cancelled`): `.tk-kopf` `.tk-datum` `.d-wd` `.d-day` `.d-mon` · `.tk-kopf-main` `.tk-oben` `.tk-bdg` `.tk-zeit` `.tk-titel` `.tk-tags` · `.tk-menue` · `.tk-body` `.tk-feld` · `.tk-ort` `.tk-ort-ic` `.tk-ort-main` `.tk-ort-n` `.tk-ort-a` `.tk-route` · `.tk-rsvp` `.tk-btn` `.tk-abgesagt` `.tk-grund` · `.tk-frist` `.tk-warn` `.tk-bfv` `.tk-notiz` · `.tk-zusagen` `.tk-z-kopf` `.tk-z-lbl` `.tk-z-offen` `.tk-bar` `.tk-z-zahlen` · `.tk-kacheln` `.tk-kachel` `.tk-k-lbl` `.tk-k-wert` `.tk-chev` · Kalenderkopf: `.seg` `.seg-b` `.kal-neu` `.kal-abo` `.kal-abo-ic` `.kal-abo-main` `.kal-abo-t` `.kal-abo-s` `.kal-abo-chev` · `.frist` `.frist-label` `.frist-warn` |
+| Übersicht | Hero ist dieselbe `.tk` wie im Kalender · Danach-Liste: `.dn-liste` `.dn-zeile` `.dn-main` `.dn-t` `.dn-s` `.dn-zust` (`.is-zu` `.is-ab` `.is-offen`) · `.st-wahl[data-kompakt]` legt die Statuschips ins 2×2-Raster |
+| Zu-/Absage | `.btn-zu` `.btn-ab` (Zustand `.is-on`) · `.tk-grund` |
 | Aufgaben | `.task-list` `.task-row` (`.is-pay` `.is-lineup` `.is-rsvp`) `.task-num` `.task-main` `.task-title` `.task-sub` `.task-go` |
-| Spieltag | `.spieltag` `.sg-top` `.sg-body` `.sg-title` `.sg-venue` `.sg-av` `.sg-stats` `.sg-stat` `.sg-stat-v` `.sg-stat-go` `.sg-cta` `.sg-foot` |
 | Aktionen | `.btn` + `.btn-primary` `.btn-soft` `.btn-danger` `.btn-ghost` · `.icon-btn` `.icon-ok` · `.link-btn` · `.chips` `.chip` (`.is-active`) |
 | Status | `.st-badge` + `.st-amber` `.st-red` `.st-grau` · `.tag` + `.tag-friendly` `.tag-cancelled` `.tag-manuell` · `.badge` + `.badge-open` `.badge-paid` `.badge-cancel` `.badge-auto` `.badge-self` · `.cd` + `.cd-neutral` `.cd-amber` `.cd-red` `.cd-due` `.cd-capped` |
 | Fitnessstatus | `.st-wahl` `.st-chips` `.st-choice` + `.st-fit` `.st-angeschlagen` `.st-verletzt` `.st-urlaub` · `.st-felder` `.st-feld` |
@@ -81,7 +80,7 @@ Layout-Beiwerk kommt als `style="…"` mit Tokens oder als neue, sprechende Klas
 | Einstellungen, Profil | `.set-section` `.set-profile` `.set-row` `.set-label` `.set-val` `.set-verwaltung` `.set-sub` `.set-hint` `.set-greet-name` `.set-greet-role` · `.pr-head` `.pr-av` `.pr-name` `.pr-list` `.pr-row` `.pr-bar` `.pr-main` `.pr-t` · `.sim-bar` `.sim-exit` `.sim-switch-hint` |
 
 Zustände hängen sich als zweite Klasse an: `.btn.btn-zu.is-on`, `.kpi.is-warn`,
-`.event.typ-spiel`. Geschlossene Blätter tragen `hidden`, nicht `display:none`.
+`.tk.is-cancelled`. Geschlossene Blätter tragen `hidden`, nicht `display:none`.
 
 ## Farben nur über Tokens
 

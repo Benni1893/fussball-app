@@ -32,13 +32,16 @@
   </div>
 
   <div>
-    <div class="sp-h">Kanten links: der Ton sagt, worum es geht</div>
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <div class="card card-pad edge-green"><div class="lbl">Training</div><div class="rs">--grad-edge-green</div></div>
-      <div class="card card-pad edge-gold"><div class="lbl">Spiel</div><div class="rs">--grad-edge-gold</div></div>
-      <div class="card card-pad edge-red"><div class="lbl">Abgesagt</div><div class="rs">--grad-edge-red</div></div>
+    <div class="sp-h">Kopfband statt Farbkante</div>
+    <div class="card tk">
+      <div class="tk-kopf">
+        <span class="tk-datum"><span class="d-wd">So</span><span class="d-day num">20</span><span class="d-mon">Sep</span></span>
+        <span class="tk-kopf-main"><span class="tk-oben"><span class="tk-bdg">Heim</span><span class="tk-zeit num">12:30 Uhr</span></span>
+        <span class="tk-titel">VfB Sparta München</span></span>
+      </div>
+      <div class="tk-body"><div class="tk-frist">Der Körper bleibt weiß.</div></div>
     </div>
-    <div class="meta">.edge-green / .edge-gold / .edge-red — 4px breit, folgt der Rundung der Karte (overflow: hidden statt border-left).</div>
+    <div class="meta">Seit der Vorlage termin-und-kalender-v2 trägt die Terminkarte ein dunkelgrünes Kopfband (--grad-tk-kopf) statt der früheren 4px-Kante links. Die Kantenverläufe --grad-edge-green / -gold / -red leben weiter, aber nur noch als Farbe in Kennzahlkacheln und Profilbalken.</div>
   </div>
 
   <div>

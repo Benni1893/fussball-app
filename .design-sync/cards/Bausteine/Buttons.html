@@ -48,17 +48,14 @@
   </div>
 
   <div>
-    <div class="sp-h">Kompakte Rückmeldung im Termin-Hero</div>
+    <div class="sp-h">Zu- und Absage in der Terminkarte</div>
     <div class="card card-pad">
-      <div class="th-self">
-        <span class="th-self-t">Deine Rückmeldung fehlt</span>
-        <span class="th-self-btns">
-          <button class="th-mini is-zu" type="button">Zusage</button>
-          <button class="th-mini is-ab" type="button">Absage</button>
-        </span>
+      <div class="tk-rsvp">
+        <button class="tk-btn is-on" type="button">Zusage</button>
+        <button class="tk-btn is-ab" type="button">Absage</button>
       </div>
     </div>
-    <div class="meta">.th-self mit .th-mini.is-zu / .is-ab — 36px sichtbar, Trefferfläche liegt als ::after mit 44px darüber. Nur für Spielertrainer, und nur solange die eigene Antwort fehlt.</div>
+    <div class="meta">.tk-rsvp &gt; .tk-btn — gemessen 158×47 bei 14 Abstand, Radius 14. Der gewählte trägt .is-on; die Absage zusätzlich .is-ab, damit sie sich rot füllt.</div>
   </div>
 
   <div>
@@ -66,9 +63,9 @@
     <div class="card card-pad">
       <button class="tv-next-btn" type="button">Elf aufstellen</button>
       <div style="height:10px"></div>
-      <button class="btn btn-primary sg-cta" type="button">Aufstellung bearbeiten</button>
+      <button class="btn btn-primary kal-neu" type="button">Termin hinzufügen</button>
     </div>
-    <div class="meta">.tv-next-btn — 48px, Radius 14, flaches --green-700 ueber die volle Innenbreite. .sg-cta ist die Variante auf der Spieltag-Karte.</div>
+    <div class="meta">.tv-next-btn — 48px, Radius 14, flaches --green-700 ueber die volle Innenbreite. .kal-neu ist die Variante im Kalender-Kopf.</div>
   </div>
 
   <div>

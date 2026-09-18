@@ -414,67 +414,43 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .section-title h2 { font-size: 15px; font-weight: 700; margin: 0; }
 .section-title .link-btn { font-size: 13px; font-weight: 600; }
 
-/* ---------- Uebersicht: Termin-Hero (Vorlage 1a/1b) ------------------------
-   Karte mit gruener Verlaufskante links. Trainer sehen rechts oben die
-   Zusagen-Zahl und darunter „Zusagen ansehen" + „N erinnern"; die eigene
-   Zu-/Absage steht als eigene Zeile darunter (K7). Spieler sehen Ort,
-   Zu-/Absage und den Meldeschluss. */
-.termin-hero { padding: 16px; margin-top: 16px; }
-.termin-hero.is-cancelled .th-title { text-decoration: line-through; color: var(--muted); }
-
-/* Verlaufskante links - als ::before, weil border-left keinen Verlauf kann. */
-/* C4: Kante rechteckig, die Karte schneidet sie an ihrer Rundung ab.
-   Ein Streifen mit eigenem Radius wuerde bei 4px Breite zur Sichel. */
-.edge-green, .edge-gold, .edge-red { position: relative; overflow: hidden; border-left: 0; }
-.edge-green::before, .edge-gold::before, .edge-red::before {
-  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+/* ---------- Uebersicht: Geld, „Danach", „Mein Status" -----------------------
+   Alle drei aus termin-und-kalender-v2.png, Kontextteil rechts oben.        */
+.geld-rows { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.geld {
+  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+  padding: 12px 14px; min-height: 64px;
 }
-.edge-green::before { background: var(--grad-edge-green); }
-.edge-gold::before  { background: var(--grad-edge-gold); }
-.edge-red::before   { background: var(--grad-edge-red); }
-.termin-hero.is-cancelled::before { background: var(--grad-edge-red); }
+.geld-main { flex: 1 1 auto; min-width: 0; }
+.geld-lbl { display: block; font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--green-800); }
+.geld-wert { display: block; margin-top: 5px; font-size: 21px; font-weight: 800; letter-spacing: -.02em; color: var(--ink); }
+.geld-wert.is-warn { color: var(--red-600); }
+.geld-chev { flex: none; font-size: 18px; font-weight: 700; color: var(--dot-off); }
 
-.th-top { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-top: 8px; }
-.th-body {
-  flex: 1 1 auto; min-width: 0;
-  cursor: pointer; -webkit-tap-highlight-color: transparent;
-  transition: transform .08s ease;
+/* „Danach": eine Karte, Zeilen mit Haarlinie. */
+.dn-liste { overflow: hidden; }
+.dn-zeile {
+  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+  padding: 10px 14px; min-height: 68px; background: none; border: 0; color: var(--ink);
 }
-.th-body:active { background: var(--bg); }
-.th-body:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; border-radius: 8px; }
-/* B4: 21px statt 26px - so bleibt auch ein langer Gegnername einzeilig.
-   Die Vorlage setzt 26px nur beim kurzen Wort "Training". */
-.th-title { font-size: 21px; font-weight: 800; line-height: 1.2; letter-spacing: -.025em; color: var(--green-800); }
-.th-time  { font-size: 15px; font-weight: 600; line-height: 1.3; color: var(--ink); }
-.th-count { flex: none; text-align: right; }
-.th-count-v { font-size: 22px; font-weight: 800; line-height: 1; color: var(--green-800); }
-.th-venue { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 12px; color: var(--muted); }
-.th-venue .venue-pin { width: 16px; height: 16px; flex: none; }
+.dn-zeile + .dn-zeile { border-top: 1px solid var(--line); }
+.dn-main { flex: 1 1 auto; min-width: 0; }
+.dn-t { display: block; font-size: 15px; font-weight: 700; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dn-s { display: block; margin-top: 2px; font-size: 13px; font-weight: 500; color: var(--muted); line-height: 1.3; }
+.dn-s b { font-size: 12px; font-weight: 700; color: var(--green-800); text-transform: uppercase; letter-spacing: .04em; }
+.dn-zust {
+  flex: none; display: inline-flex; align-items: center; min-height: 24px; padding: 0 10px;
+  border-radius: var(--radius-pill); font-size: 11px; font-weight: 800;
+  letter-spacing: .06em; text-transform: uppercase; line-height: normal;
+}
+.dn-zust.is-zu    { background: var(--green-badge-bg); color: var(--green-700); }
+.dn-zust.is-ab    { background: var(--red-badge-bg);   color: var(--red-700); }
+.dn-zust.is-offen { background: var(--gold-badge-bg);  color: var(--gold-ink); }
 
-.th-actions { display: flex; gap: 8px; margin-top: 12px; }
-.th-actions .btn { flex: 1 1 0; min-height: var(--h-btn); font-size: 14px; }
-.th-rsvp { display: flex; gap: 8px; margin-top: 12px; }
-.th-rsvp .btn { flex: 1 1 0; min-height: var(--h-btn); font-size: 15px; }
-/* Spielertrainer: eigene Rueckmeldung im Hero. Knoepfe 36 px sichtbar, die
-   Trefferflaeche liegt als ::after bei 44 px darueber. */
-.th-self {
-  display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line);
-}
-.th-self-t { min-width: 0; font-size: 13px; font-weight: 600; color: var(--muted); }
-.th-self-btns { flex: none; display: flex; gap: 8px; }
-.th-mini {
-  position: relative; min-height: 36px; padding: 0 12px;
-  border: 1px solid var(--line); border-radius: var(--radius-btn);
-  background: var(--grad-chip); color: var(--ink);
-  font-size: 13px; font-weight: 700; line-height: normal;
-}
-.th-mini::after { content: ""; position: absolute; top: 50%; left: 50%; width: 100%; height: var(--tap); transform: translate(-50%,-50%); }
-.th-mini.is-zu { color: var(--green-700); border-color: var(--green-badge-line); }
-.th-mini.is-ab { color: var(--red-700);   border-color: var(--red-line); }
-
-.termin-hero .frist { margin-top: 10px; }
-.termin-hero .empty { padding: 10px 0; }
+/* „Mein Status" auf der Uebersicht: 2x2 statt einer Reihe. */
+.st-wahl[data-kompakt] .st-chips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; flex-wrap: nowrap; }
+.st-wahl[data-kompakt] .st-choice { width: 100%; min-height: 52px; justify-content: center; font-size: 15px; border-radius: 14px; }
+.st-wahl[data-kompakt] .st-felder { margin-top: 12px; }
 
 /* ---------- Kalender-Kopf (Vorlage termin-und-kalender-v2.png) --------------
    Die vier Filter sitzen in einem weissen Behaelter, der gewaehlte als
@@ -641,58 +617,7 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .tk.is-cancelled .tk-kopf { background: var(--grad-chip-red); }
 .tk.is-cancelled .tk-titel { text-decoration: line-through; }
 
-/* ---------- Termin-Karten -------------------------------------------------- */
-.event-list { display: flex; flex-direction: column; gap: 10px; }
-/* Gestapelte Karte (Paket 7a): Kopfzeile aus Datumsplakette und Inhalt, darunter
-   Zu-/Absage, Statuszeile, BFV-Hinweis und Trainer-Aktionen. iPhone-first – am
-   Desktop wird die Karte breit statt dreispaltig, das ist so gewollt. */
-.event { position: relative; overflow: hidden; border-left: 0; padding: 13px 14px; }
-/* Verlaufskante links. Sie haengt an der Typklasse, die ohnehin im Markup steht,
-   damit es keine zweite Klasse fuer dieselbe Aussage braucht. */
-.event::before {
-  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
-  background: var(--grad-edge-green);
-}
-.ev-head { display: flex; align-items: flex-start; gap: 12px; }
-.ev-head .event-main { flex: 1 1 auto; min-width: 0; }
-.event-list.is-past { opacity: .72; }
-.kal-past-title { margin-top: 28px; }
-/* Vorlage kennt genau zwei Toene: Spiel gold, alles andere gruen. Abgesagt rot.
-   Die frueheren Heim-/Auswaertstoene entfallen - das Heimteam steht links in
-   der Paarung. */
-.event.typ-spiel::before     { background: var(--grad-edge-gold); }
-.event.typ-training::before  { background: var(--grad-edge-green); }
-.event.typ-sonstiges::before { background: var(--grad-edge-green); }
-.event.is-cancelled::before  { background: var(--grad-edge-red); }
-
-/* Datumswuerfel - Vorlage .dbg: 46px breit, creme, Tag gross und dunkelgruen. */
-.event-date {
-  flex: none;
-  width: 46px;
-  text-align: center;
-  border-radius: var(--radius-btn);
-  padding: 6px 0;
-  line-height: normal;
-}
-.event-date .d-wd   { display: block; font-size: 10px; font-weight: 700; color: var(--muted); }
-.event-date .d-day  { display: block; font-size: 19px; font-weight: 800; line-height: 1; color: var(--green-800); }
-.event-date .d-mon  { display: block; font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--muted); }
-
-.event-main { min-width: 0; }
-/* Anstoßzeit: kleine, fette Zeile direkt unter dem Vereinsnamen */
-.event-main .e-time { font-size: 12px; font-weight: 500; color: var(--muted); line-height: normal; }
-.event-main .e-title { font-size: 14px; font-weight: 700; line-height: normal; }
-.event-main .e-title .tag { margin-left: 6px; vertical-align: middle; }
-.e-title .team-own, .th-title .team-own { font-weight: 800; }
-.e-title .team-opp, .th-title .team-opp { font-weight: 500; }
-.e-title .vs, .th-title .vs { color: var(--muted); font-weight: 500; }
-.event-main .e-meta  { color: var(--muted); font-size: 12px; margin-top: 3px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-/* Spielstätte als Karten-Link */
-.venue-link { display: inline-flex; align-items: center; gap: 5px; min-height: 44px; color: var(--green-700); text-decoration: underline; text-underline-offset: 2px; font-weight: 600; }
-.venue-link .venue-pin { width: 15px; height: 15px; flex: none; }
-.venue-link:hover, .venue-link:active { color: var(--green-900); }
-.event-main .e-note  { color: var(--amber-600); font-size: .82rem; margin-top: 5px; }
-
+/* Marken am Termin: Freundschaft, Abgesagt, manuell geaendert. */
 .tag {
   display: inline-block;
   font-size: .68rem;
@@ -706,19 +631,20 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .tag-cancelled{ background: var(--red-050);   color: var(--red-600); }
 .tag-manuell  { background: var(--amber-050); color: var(--amber-600); }
 
-/* Abgesagtes Spiel: sichtbar, aber grau/durchgestrichen (nicht ausgeblendet) */
-.event.is-cancelled { opacity: .7; }
-.event.is-cancelled .e-title { color: var(--muted); text-decoration: line-through; text-decoration-color: rgba(0,0,0,.35); }
-.event.is-cancelled .e-title .tag { text-decoration: none; }
-.rsvp-cancelled { font-weight: 700; color: var(--red-600); font-size: .9rem; }
+.venue-link { display: inline-flex; align-items: center; gap: 5px; min-height: 44px; color: var(--green-700); text-decoration: underline; text-underline-offset: 2px; font-weight: 600; }
+.venue-link .venue-pin { width: 15px; height: 15px; flex: none; }
+.venue-link:hover, .venue-link:active { color: var(--green-900); }
 
-/* Spielplan-(BFV)-Karte in der Übersicht */
-.bfv-card { display: flex; flex-direction: column; gap: 10px; }
-.bfv-label { font-size: .74rem; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); font-weight: 700; }
-.bfv-url { width: 100%; font: inherit; font-size: 16px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; box-sizing: border-box; background: #fff; }
-.bfv-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-.bfv-msg { font-size: .85rem; font-weight: 600; color: var(--green-800); }
-.bfv-hint { font-size: .78rem; color: var(--muted); }
+.tk-titel .team-own { font-weight: 800; }
+.tk-titel .team-opp { font-weight: 500; }
+.tk-titel .vs { color: rgba(255,255,255,.7); font-weight: 500; }
+
+/* ---------- Terminliste im Kalender ----------------------------------------
+   Die Karte selbst ist .tk (oben). Hier bleibt nur die Klammer um die Liste. */
+.event-list { display: flex; flex-direction: column; gap: 10px; }
+.event-list.is-past { opacity: .72; }
+.event-list.is-past .tk-kopf { filter: none; }
+.kal-past-title { margin-top: 28px; }
 
 /* ---------- RSVP ----------------------------------------------------------- */
 /* Zu-/Absage in der Terminkarte: volle Breite, zwei gleich grosse Flaechen (2a). */
@@ -2184,76 +2110,6 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 .task-row.is-rsvp .task-sub { color: var(--green-task-ink-2); }
 .task-row.is-rsvp .task-go { color: var(--green-chev); }
 
-/* --- Geldkacheln (1a) ------------------------------------------------------ */
-.tile-rows { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }   /* Vorlage 1a */
-.tile {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 12px 14px; min-height: var(--tap);
-  cursor: pointer; -webkit-tap-highlight-color: transparent;
-  transition: transform .08s ease;
-}
-.tile:active { background: var(--bg); }
-.tile:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; }
-.tile-t { font-size: 14px; font-weight: 600; color: var(--ink); }
-.tile .amount { font-size: 16px; font-weight: 800; text-align: start; }
-.amount.is-warn { color: var(--red-600); }
-
-/* --- Spieltag-Karte -------------------------------------------------------- */
-.spieltag { padding: 15px 16px 14px; margin-bottom: 16px; }
-.spieltag.is-cancelled .sg-title { text-decoration: line-through; color: var(--muted); }
-.sg-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-.sg-body { min-width: 0; }
-.sg-title {
-  margin-top: 6px; font-size: 21px; font-weight: 800; line-height: 1.2;
-  color: var(--ink); letter-spacing: -.025em;
-}
-.sg-body .rs { display: block; margin-top: 3px; }
-.sg-venue { display: flex; align-items: center; gap: 5px; margin-top: 5px; font-size: 12px; color: var(--muted); }
-.sg-venue .venue-pin { width: 15px; height: 15px; flex: none; }
-.sg-av { flex: none; width: 40px; height: 40px; font-size: 12px; }
-
-.sg-stats { display: flex; gap: 8px; margin-top: 13px; }
-.sg-stat {
-  flex: 1 1 0; display: flex; align-items: center; gap: 8px;
-  border: 1px solid var(--line); border-radius: 12px; padding: 9px 11px;
-  min-height: var(--tap); background: var(--card);
-  font: inherit; text-align: left; color: inherit;
-}
-button.sg-stat { cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .08s ease; }
-button.sg-stat:active { background: var(--bg); }
-button.sg-stat:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; }
-.sg-stat-v  { display: block; font-size: 17px; font-weight: 800; line-height: 1; color: var(--green-800); }
-.sg-stat .rs { display: block; margin-top: 3px; }
-.sg-stat > .sg-stat-v, .sg-stat > .rs { flex: 0 0 auto; }
-.sg-stat-go { margin-left: auto; flex: none; font-size: 16px; font-weight: 700; color: var(--muted); }
-.sg-stat.is-gold { background: var(--grad-task-gold); border-color: var(--gold-line-2); }
-.sg-stat.is-gold .sg-stat-v { color: var(--gold-ink); }
-.sg-stat.is-gold .rs { color: var(--gold-ink-2); }
-
-.sg-cta { width: 100%; margin-top: 12px; min-height: var(--h-btn-lg); }
-.sg-foot {
-  margin-top: 11px; padding-top: 11px; border-top: 1px solid var(--line);
-  text-align: center;
-}
-.sg-foot .link-btn { font-size: 13px; font-weight: 700; }
-.sg-rsvp { display: flex; gap: 8px; margin-top: 14px; }
-.sg-rsvp .btn { flex: 1 1 0; min-height: 50px; font-size: 16px; }
-.spieltag .frist { margin-top: 10px; justify-content: center; }
-
-/* --- Kompakte Terminzeile unter „Danach" ---------------------------------- */
-.mini-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-.mini-ev {
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px 14px; min-height: var(--tap);
-  cursor: pointer; -webkit-tap-highlight-color: transparent;
-  transition: transform .08s ease;
-}
-.mini-ev:active { background: var(--bg); }
-.mini-ev:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; }
-.mini-body { min-width: 0; }
-.mini-typ  { font-size: 13px; font-weight: 500; line-height: 1.3; color: var(--muted); }
-.mini-sub  { font-size: 14px; font-weight: 700; line-height: 1.3; color: var(--ink); }
-
 /* ---------- Kasse: Prüfen & verbuchen als Kartenstapel (Vorlage 3c) --------
    Genau eine Meldung im Blick, dahinter zwei Geisterkarten als Stapeltiefe.
    Die drei Reiter sind horizontal wischbare Seiten (K4). */
@@ -2466,7 +2322,7 @@ body {
 .amount, .kpi-value, .mb-value, .fine-amt, .kat-amount { letter-spacing: -.018em; }
 
 /* --- Flaechen: weicher Rand, zweistufiger Schatten, leiser Verlauf ---------- */
-.card, .kpi, .event, .termin-hero, .mine-banner, .task-row {
+.card, .kpi, .event, .mine-banner, .task-row {
   border-color: var(--line-soft);
   box-shadow: var(--shadow-card);
 }
@@ -2596,9 +2452,9 @@ body {
 /* Anmeldung: Flaeche, Karte und Felder stehen geschlossen weiter oben. */
 
 /* --- Hero kurz hervorheben, wenn der Aufgabenblock dorthin fuehrt ---------- */
-.termin-hero.is-flash { animation: hero-flash 1.6s ease-out; }
+.tk.is-flash { animation: hero-flash 1.6s ease-out; }
 @keyframes hero-flash {
   0%   { box-shadow: 0 0 0 0 rgba(45,146,101,.55); }
   100% { box-shadow: 0 0 0 14px rgba(45,146,101,0); }
 }
-@media (prefers-reduced-motion: reduce) { .termin-hero.is-flash { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .tk.is-flash { animation: none; } }

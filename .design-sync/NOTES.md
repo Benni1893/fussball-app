@@ -269,6 +269,39 @@ Zusagen-Balken 6 hoch.
 - **K7 ist überholt**: die Karte trägt die eigene Rückmeldung auch für
   Trainer, die Zeile `.th-self` im Hero entfällt (Commit 2).
 
+**Commit 2 (Übersicht), 18.09.2026**
+
+Hero und „Nächstes Spiel" sind jetzt dieselbe `.tk` wie im Kalender, mit
+`{hero:true}`: ohne ⋯-Knopf und ohne BFV-Hinweis — Bearbeiten, Löschen und
+die BFV-Pflege gehören in den Kalender, nicht auf die Übersicht.
+
+Kein Termin steht zweimal: der nächste offene Termin ist der Hero; ist das
+bereits das nächste Spiel, entfällt der Abschnitt „Nächstes Spiel"; „Danach"
+lässt beide aus. Die Logik stand schon so da und blieb unverändert.
+
+`.th-self` ist ersatzlos entfernt — die Karte trägt die eigene Rückmeldung
+auch für Trainer. Damit ist K7 endgültig erledigt.
+
+Fünf Kontextpunkte aus der Vorlage übernommen: Geldzeile mit Marke über dem
+Betrag und Chevron (`.geld`), „DANACH" als kleine Marke mit „Kalender ›",
+die Danach-Zeilen mit Datumskachel, Zeit und Zustandsplakette in einer Karte
+(`.dn-liste`), „MEIN STATUS" im 2×2-Raster
+(`.st-wahl[data-kompakt]`). Punkt 8 (Vorschau-Leiste) wie besprochen nicht —
+sie bleibt fix über der Navigation, sonst vergisst man die laufende Vorschau.
+
+**Aufgeräumt**: die Abschnitte Termin-Hero, Geldkacheln, Spieltag-Karte und
+kompakte Terminzeile sind aus `styles.css` raus, ebenso der tote Rest des
+Blocks Termin-Karten (`.event`, `.ev-*`, `.e-*`, `.kal-cta*`). Geblieben sind
+`.event-list` als Klammer, die `.tag`-Familie, `.venue-link` und die
+Paarungsauszeichnung, jetzt unter `.tk-titel`. Die Klassen `.edge-green`,
+`.edge-gold` und `.edge-red` gibt es nicht mehr — die Terminkarte trägt ein
+Kopfband statt einer Kante; die Tokens `--grad-edge-*` leben weiter in
+Kennzahlkacheln und Profilbalken.
+
+Kontraste aller neuen Textstellen gerechnet, niedrigster Wert 4,61:1
+(`.tk-ort-a` auf `--surface-2`). Trefferflächen: `.tk-menue` 38 sichtbar mit
+44er `::after`, `.tk-route` 23 mit 44er `::after`, alles andere mindestens 44.
+
 ## Vorlage trainer-sheet-v2.png (17.09.2026)
 
 Zwei Screens aus `.design-sync/reference/trainer-sheet-v2.png`, Maßstab des
