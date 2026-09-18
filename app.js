@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-17-E";
+  var APP_BUILD = "2026-09-18-A";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -513,14 +513,29 @@
         <button class="btn btn-ab ${r.status === "ab" ? "is-on" : ""}" data-rsvp="ab" data-event="${e.id}">Absage</button>
       </div>`;
 
+    // Spielertrainer: wer als coach/admin zugleich im Kader steht, hat hier zwei
+    // Rollen. Die Knopfzeile darueber gilt der Mannschaft, diese Zeile ihm
+    // selbst - und nur, solange die eigene Antwort fehlt. Ein reiner Trainer
+    // ohne Spielerverknuepfung sieht sie nie. Geschrieben wird ueber dieselbe
+    // Mechanik wie beim Spieler (data-rsvp), es gibt keinen zweiten Weg.
+    const selbstOffen = !!(currentProfile && currentProfile.player_id
+      && playerById[state.currentPlayerId] && !r.status);
+    const selbstZeile = (!cancelled && future && selbstOffen) ? `
+      <div class="th-self">
+        <span class="th-self-t">Deine Rückmeldung fehlt</span>
+        <span class="th-self-btns">
+          <button class="th-mini is-zu" data-rsvp="zu" data-event="${e.id}">Zusage</button>
+          <button class="th-mini is-ab" data-rsvp="ab" data-event="${e.id}">Absage</button>
+        </span>
+      </div>` : "";
+
     // Trainer (1a): Zahl rechts oben, darunter „Zusagen ansehen" + „N erinnern".
-    // K7: keine eigene Zu-/Absage im Hero - der Screenshot zeigt sie nicht.
-    // Der Trainer sagt fuer sich selbst auf der Terminkarte im Kalender zu.
+    // K7 gilt weiter fuer den reinen Trainer: keine eigene Zu-/Absage im Hero.
     const trainerTeil = `
       <div class="th-actions">
         <button class="btn" data-rsvp-sheet="${e.id}">Zusagen ansehen</button>
         ${offenN > 0 ? `<button class="btn btn-primary" data-remind="${e.id}">${offenN} erinnern</button>` : ""}
-      </div>`;
+      </div>${selbstZeile}`;
 
     // Spieler (1b): Ort, Zu-/Absage, Meldeschluss.
     const spielerTeil = `

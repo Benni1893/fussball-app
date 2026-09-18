@@ -467,6 +467,24 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .th-actions .btn { flex: 1 1 0; min-height: var(--h-btn); font-size: 14px; }
 .th-rsvp { display: flex; gap: 8px; margin-top: 12px; }
 .th-rsvp .btn { flex: 1 1 0; min-height: var(--h-btn); font-size: 15px; }
+/* Spielertrainer: eigene Rueckmeldung im Hero. Knoepfe 36 px sichtbar, die
+   Trefferflaeche liegt als ::after bei 44 px darueber. */
+.th-self {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line);
+}
+.th-self-t { min-width: 0; font-size: 13px; font-weight: 600; color: var(--muted); }
+.th-self-btns { flex: none; display: flex; gap: 8px; }
+.th-mini {
+  position: relative; min-height: 36px; padding: 0 12px;
+  border: 1px solid var(--line); border-radius: var(--radius-btn);
+  background: var(--grad-chip); color: var(--ink);
+  font-size: 13px; font-weight: 700; line-height: normal;
+}
+.th-mini::after { content: ""; position: absolute; top: 50%; left: 50%; width: 100%; height: var(--tap); transform: translate(-50%,-50%); }
+.th-mini.is-zu { color: var(--green-700); border-color: var(--green-badge-line); }
+.th-mini.is-ab { color: var(--red-700);   border-color: var(--red-line); }
+
 .termin-hero .frist { margin-top: 10px; }
 .termin-hero .empty { padding: 10px 0; }
 
