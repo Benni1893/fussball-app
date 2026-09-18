@@ -68,7 +68,7 @@ Layout-Beiwerk kommt als `style="…"` mit Tokens oder als neue, sprechende Klas
 | Status | `.st-badge` + `.st-amber` `.st-red` `.st-blue` · `.tag` + `.tag-friendly` `.tag-cancelled` `.tag-manuell` · `.badge` + `.badge-open` `.badge-paid` `.badge-cancel` `.badge-auto` `.badge-self` · `.cd` + `.cd-neutral` `.cd-amber` `.cd-red` `.cd-due` `.cd-capped` |
 | Fitnessstatus | `.st-wahl` `.st-chips` `.st-choice` + `.st-fit` `.st-angeschlagen` `.st-verletzt` `.st-urlaub` · `.st-felder` `.st-feld` |
 | Kader | `.kad-list` `.kad-row` (`.is-raus`) `.kad-kopf` `.kad-name` · `.laz-list` `.laz-row` `.laz-main` `.laz-name` `.laz-note` · `.avatar` |
-| Trainer-Ansicht | `.tv-head` · `.tv-next` `.tv-next-kopf` `.tv-next-lbl` `.tv-next-bdg` `.tv-next-t` `.tv-next-m` `.tv-next-z` `.tv-next-btn` `.tv-next-sub` · `.tv-bar` · `.tv-kader` `.tv-kader-main` `.tv-kader-t` `.tv-kader-z` `.tv-kader-p` `.tv-kchart` `.tv-garrow` · `.tv-glist` `.tv-grow` `.tv-gdate` `.tv-gmain` `.tv-gopp` `.tv-gmeta` `.tv-gchip` (`.is-offen`) · `.tv-tpls` `.tv-tpl` `.tv-tpl-main` `.tv-tpl-n` `.tv-tpl-chip` |
+| Trainer-Ansicht | `.tv-head` · `.tv-next` `.tv-next-kopf` `.tv-next-lbl` `.tv-next-bdg` `.tv-next-zeile` `.tv-next-datum` `.tv-next-main` `.tv-next-t` `.tv-next-m` `.tv-next-zahlen` `.tv-nz` `.tv-next-fuss` `.tv-next-btn` · `.tv-kader` `.tv-kader-kopf` `.tv-kader-t` `.tv-kader-n` `.tv-kbar` `.tv-kleg` `.tv-kstat` `.tv-garrow` · `.tv-glist` `.tv-grow` `.tv-gdate` `.tv-gmain` `.tv-gopp` `.tv-gmeta` `.tv-gchip` (`.is-offen`) · `.tv-tpls` `.tv-tpl` `.tv-tpl-main` `.tv-tpl-n` `.tv-tpl-chip` |
 | Platzansicht | `.tv-lu` (`.tv-ro`) `.tv-top` `.tv-ic` `.tv-hi` `.tv-game` `.tv-sub` · `.tv-formbar` `.tv-fpill` `.tv-fmore` · `.tv-field` `.tv-pitch` `.tv-pitch-bg` `.tv-slot` (`.filled` `.sel`) `.tv-disc` `.tv-role` `.tv-pn` · `.tv-bank` `.tv-bank-h` `.tv-bank-row` `.tv-bslot` `.tv-bnr` `.tv-bn` `.tv-bx` `.tv-bplus` `.tv-bfrei` · `.tv-actions` `.tv-primary` `.tv-ghost` `.tv-cta` `.tv-ro-note` |
 | Rückmeldungen-Blatt | `.rs2-panel` `.rs2-griff` `.rs2-kopf` `.rs2-kopf-text` `.rs2-titel` `.rs2-sub` `.rs2-zu` · `.rs2-bar` · `.rs2-kacheln` `.rs2-kachel` `.rs2-k-l` `.rs2-k-z` · `.rs2-liste` `.rs2-zeile` `.rs2-av` `.rs2-n` `.rs2-grund` `.rs2-leer` · `.rs2-fuss` `.rs2-btn` `.rs2-btn2` |
 | Konto | `.mine-banner` (`.is-clear`) `.mb-label` `.mb-value` `.mb-sub` `.mb-bar` `.mb-note` `.mb-pay` `.mb-pp` `.mb-foot` `.mb-cd` `.pp-word` · `.fine-list` `.fine-row` `.fine-main` `.fine-name` `.fine-desc` `.fine-reason` `.fine-right` `.fine-amt` |
@@ -85,14 +85,15 @@ Zustände hängen sich als zweite Klasse an: `.btn.btn-zu.is-on`, `.kpi.is-warn`
 
 ## Farben nur über Tokens
 
-Nie ein Hex ins Markup. Alles liegt in `tokens/tokens.css` (134 Tokens):
+Nie ein Hex ins Markup. Alles liegt in `tokens/tokens.css` (135 Tokens):
 
 - Vereinsgrün `--green-990` bis `--green-050` — Kopfzeile, Primäraktion, Erfolg.
   `--green-700` trägt jede Primäraktion, `--green-800` Zahlen und Verweise.
 - Gold `--gold-700` bis `--gold-050` plus `--gold-ink` — Akzent, Spiele, Datumswürfel.
   Schrift auf Goldflächen immer `--gold-ink` oder `--gold-ink-2`, nie Weiß.
 - Signal: `--red-600` `--red-050` (offen, abgesagt, verletzt), `--amber-600`
-  `--amber-050` (wartet auf Bestätigung, gewählter Filter), `--blau-700`
+  `--amber-700` `--amber-050` (wartet auf Bestätigung, gewählter Filter; `--amber-700`
+  überall dort, wo der Ton als Text auf Weiß steht und 4,5:1 halten muss), `--blau-700`
   `--blau-050` (ausschließlich Urlaub).
 - Neutral `--ink` `--muted` `--line` `--bg` `--card`. `--muted` erreicht auf Weiß
   4,7:1 und ist die dunkelste erlaubte Nebenfarbe.

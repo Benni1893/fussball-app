@@ -34,7 +34,7 @@ Dateien unter `.design-sync/`.
 ## Risiken beim nächsten Lauf
 
 - **Zeilennummern des Tokenblocks.** `build.sh` schneidet `:root` aus
-  `styles.css` heraus (aktuell Zeilen 5–165, in `config.json` als
+  `styles.css` heraus (aktuell Zeilen 5–166, in `config.json` als
   `tokenBlockLines`). Verschiebt sich der Block, **bricht der Bau mit klarer
   Meldung ab** statt falsch zu schneiden — dann nur die beiden Zahlen in
   `build.sh` und `config.json` nachziehen.
@@ -106,6 +106,45 @@ Einzelbaustein die Abstände zwischen den Blöcken nicht mehr erklärt.
 `Bausteine/Terminkarte` und `Bausteine/Tabelle` sind entfallen — ihr Inhalt
 steht jetzt in `Ansichten/Kalender` bzw. `Bausteine/Listen-und-Tabelle`.
 
+
+## Vorlage trainer-kacheln-v2.png (18.09.2026)
+
+Nur die beiden obersten Kacheln der Trainer-Ansicht. Bild 364×387, Karte 322
+Bildpunkte = 358 CSS-px (Maßstab 0,898). Gemessen mit
+`.design-sync/shots/bild.mjs`; gegengemessen mit
+`.design-sync/shots/kachelpruef.mjs`, das beide Kacheln in einem Gerüst mit dem
+echten `styles.css` rendert und die Kastenmaße ausliest — **ohne Anmeldung**,
+weil kein Testkonto zur Verfügung stand. Die laufende App ist damit in diesem
+Durchgang nicht gemessen worden.
+
+Ergebnis: Karte „Nächstes Spiel" 358×260 (Vorlage 260,6), Haarlinien bei 112
+und 183 (112,5 / 181,5), Knopf bei 197 (197,1). Kaderkarte 358×130 (129,2),
+Balken bei 52 (51,2). Alle Bausteine innerhalb von 1,5 CSS-px.
+
+**Bewusste Abweichungen**
+
+- **Die Zahl „4 OFFEN" trägt `--amber-700` (#a3680c), nicht den gemessenen
+  `--amber-600` (#b9770e).** Der hellere Ton erreicht auf Weiß nur 3,7:1 und
+  reißt damit die 4,5:1-Regel; der dunklere kommt auf 4,6:1. Im Balken und in
+  den Legendenpunkten bleibt `--amber-600` — dort gilt die Textregel nicht.
+  Das Token ist mit dieser Änderung neu dazugekommen (jetzt 135 Tokens,
+  Tokenblock Zeile 5-166).
+- **Urlaub ist in Balken und Legende grau (`--dot-off`), nicht blau.** So zeigt
+  es die Vorlage. Die Statuschips und die Marke am Namen bleiben blau
+  (`--blau-700`) — innerhalb der Kacheln ist der Ton damit ein anderer als im
+  Kader. Bewusst so gelassen, weil gemessen.
+- **Rückmeldebalken und „N/11 gesetzt" entfallen.** Die drei Kennzahlspalten
+  ersetzen den Balken; der Aufstellungsstand steht weiter als Plakette
+  „Elf steht" / „offen" in der Spielliste darunter (Entscheidung des Nutzers
+  vom 18.09.2026).
+- **Die ganze Kaderkarte bleibt antippbar**, nicht nur der Chevron. Die Vorlage
+  sagt dazu nichts; eine 358×130 große Fläche als Ziel ist verlässlicher als
+  ein 6px breites Zeichen, und die 44px-Regel ist damit ohne Trickserei erfüllt.
+
+**Namenskollision beim Bauen:** `.tv-kl` gab es schon für die Spielerliste im
+Kader-Blatt (`app.js`, `tvKaderPanel`). Die Legendenzeile heißt deshalb
+`.tv-kstat`. Aufgefallen ist es nur, weil die Zeile im Gerüst dreizeilig
+umbrach — ohne Sichtprüfung wäre es durchgerutscht.
 
 ## Vorlage trainer-sheet-v2.png (17.09.2026)
 

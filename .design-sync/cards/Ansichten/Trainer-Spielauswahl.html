@@ -20,36 +20,42 @@
 <div class="sp">
 
   <div>
-    <div class="sp-h">Ganze Ansicht bei 390px — alle Maße aus trainer-sheet-v2.png gemessen</div>
+    <div class="sp-h">Ganze Ansicht bei 390px — Kacheln aus trainer-kacheln-v2.png, Rest aus trainer-sheet-v2.png</div>
     <div class="frame">
       <div class="page-head tv-head" style="padding-top:14px"><h1>Trainer</h1>
         <p>Spiel wählen, danach baust du die Elf auf dem Platz.</p></div>
 
-      <div class="card edge-green tv-next">
+      <div class="card tv-next">
         <div class="tv-next-kopf">
           <span class="tv-next-lbl">Nächstes Spiel</span>
           <span class="tv-next-bdg">Heim</span>
         </div>
-        <div class="tv-next-t">VfB Sparta München</div>
-        <div class="tv-next-m num">So 20. Sep · 12:30 Uhr · in 3 Tagen</div>
-        <div class="tv-bar" role="img" aria-label="11 zugesagt, 1 abgesagt, 4 offen">
-          <i class="is-zu" style="width:68.75%"></i><i class="is-ab" style="width:6.25%"></i>
+        <div class="tv-next-zeile">
+          <span class="tv-next-datum"><b class="num">20</b><i>Sep</i></span>
+          <span class="tv-next-main"><span class="tv-next-t">VfB Sparta München</span>
+            <span class="tv-next-m num">12:30 Uhr · Anpfiff in 3 Tagen</span></span>
         </div>
-        <div class="tv-next-z">
-          <span class="is-zu num">11 zugesagt</span>
-          <span class="is-ab num">1 ab</span>
-          <span class="is-of num">4 offen</span>
+        <div class="tv-next-zahlen">
+          <div class="tv-nz"><b class="num is-zu">11</b><span>Zugesagt</span></div>
+          <div class="tv-nz"><b class="num is-ab">1</b><span>Abgesagt</span></div>
+          <div class="tv-nz"><b class="num is-of">4</b><span>Offen</span></div>
         </div>
-        <button class="tv-next-btn" type="button">Elf aufstellen<span class="tv-next-sub num">11/11 gesetzt</span></button>
+        <div class="tv-next-fuss"><button class="tv-next-btn" type="button">Elf aufstellen</button></div>
       </div>
 
       <button class="card tv-kader" type="button">
-        <span class="tv-kader-main">
-          <span class="tv-kader-t">Kader</span>
-          <span class="tv-kader-z"><b class="num">16</b> Spieler<span class="tv-kader-p">·</span><b class="num">12</b> fit<span class="tv-kader-p">·</span><b class="num is-warn">4</b> nicht fit</span>
+        <span class="tv-kader-kopf"><span class="tv-kader-t">Kader</span>
+          <span class="tv-kader-n num">16 Spieler</span>
+          <span class="tv-garrow">›</span></span>
+        <span class="tv-kbar" role="img" aria-label="12 fit, 2 angeschlagen, 1 verletzt, 1 Urlaub">
+          <i class="is-fit" style="width:75.00%"></i><i class="is-ang" style="width:12.50%"></i><i class="is-verl" style="width:6.25%"></i><i class="is-url" style="width:6.25%"></i>
         </span>
-        <span class="tv-kchart" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i class="is-raus"></i><i class="is-raus"></i></span>
-        <span class="tv-garrow">›</span>
+        <span class="tv-kleg">
+          <span class="tv-kstat"><i class="is-fit"></i><b class="num">12</b><span>fit</span></span>
+          <span class="tv-kstat"><i class="is-ang"></i><b class="num">2</b><span>angeschlagen</span></span>
+          <span class="tv-kstat"><i class="is-verl"></i><b class="num">1</b><span>verletzt</span></span>
+          <span class="tv-kstat"><i class="is-url"></i><b class="num">1</b><span>Urlaub</span></span>
+        </span>
       </button>
 
       <div class="section-title sec-mini"><h2>Weitere Spiele</h2><button class="link-btn" type="button">Alle &rsaquo;</button></div>
@@ -85,26 +91,27 @@
   </div>
 
   <div>
-    <div class="sp-h">Die Karte „Nächstes Spiel" im Einzelnen</div>
+    <div class="sp-h">Die Karte „Nächstes Spiel“ im Einzelnen</div>
     <div class="card card-pad">
-      <p class="rs">Karte 358×206 bei y 149, Innenrand 14, Kante links 4px.
-      Plakette 46×21. Titel 21px/800, Zeitzeile 14px/500 mit dem Abstand in Tagen.
-      Balken 6px: grün = zugesagt, rot = abgesagt, Spur --track-bar = offen.
-      Knopf 326×46, Radius 12, flaches --green-700 mit dem Stand daneben.</p>
+      <p class="rs">Gemessen aus trainer-kacheln-v2.png: Karte 358×260 ohne Farbstreifen,
+      innen zwei Haarlinien. Kopfband 112 hoch mit Plakette 46×23 (heller Grund,
+      dunkelgrüne Schrift), Datumsblock 50 breit — Tag 22px, Monat 9px — und dem Gegner
+      in 20px/800. Kennzahlband 69 hoch über die volle Kartenbreite, drei Spalten zu 119,3,
+      getrennt durch senkrechte Haarlinien. Knopf 324×48, Radius 14.</p>
     </div>
-    <div class="meta">.card.edge-green.tv-next &gt; .tv-next-kopf (.tv-next-lbl, .tv-next-bdg) · .tv-next-t · .tv-next-m · .tv-bar &gt; i.is-zu/i.is-ab · .tv-next-z · .tv-next-btn &gt; .tv-next-sub</div>
+    <div class="meta">.card.tv-next &gt; .tv-next-kopf (.tv-next-lbl, .tv-next-bdg) · .tv-next-zeile (.tv-next-datum, .tv-next-main mit .tv-next-t/.tv-next-m) · .tv-next-zahlen &gt; .tv-nz (b.is-zu/.is-ab/.is-of, span) · .tv-next-fuss &gt; .tv-next-btn</div>
   </div>
 
   <div>
-    <div class="sp-h">Kaderkarte — acht Striche als Anteil</div>
+    <div class="sp-h">Kaderkarte — ein Balken statt Striche</div>
     <div class="card card-pad">
-      <p class="rs">Die acht Striche zeigen das Verhältnis fit zu nicht fit, nicht die
-      Spielerzahl. Wer nicht fit ist, bekommt immer mindestens einen Strich — sonst
-      verschwände ein einzelner Ausfall in der Rundung.</p>
+      <p class="rs">Gemessen 358×129, Innenrand 16. Der Balken ist 7 hoch und teilt sich
+      im Verhältnis der vier Statuszahlen; die Legende darunter steht zweispaltig mit
+      8px-Punkten. Die Zahl „4 OFFEN“ in der Spielkarte trägt --amber-700 statt des
+      gemessenen --amber-600: der hellere Ton erreicht auf Weiß nur 3,7:1.</p>
     </div>
-    <div class="meta">.card.tv-kader &gt; .tv-kader-main (.tv-kader-t, .tv-kader-z mit .tv-kader-p als Trenner) · .tv-kchart &gt; i, nicht fit als i.is-raus · .tv-garrow</div>
+    <div class="meta">.card.tv-kader &gt; .tv-kader-kopf (.tv-kader-t, .tv-kader-n, .tv-garrow) · .tv-kbar &gt; i.is-fit/.is-ang/.is-verl/.is-url · .tv-kleg &gt; .tv-kstat (i, b, span)</div>
   </div>
-
   <div>
     <div class="sp-h">Zwei bewusste Abweichungen von der Vorlage</div>
     <div class="card card-pad">

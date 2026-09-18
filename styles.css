@@ -57,6 +57,7 @@
   --red-ink-2: #8a3a2e;   /* Aufgabenzeile rot Untertitel */
   --red-chev:  #a5544a;
   --amber-600: #b9770e;
+  --amber-700: #a3680c;    /* Zahl auf Weiss: --amber-600 erreicht nur 3,7:1 */
   --amber-050: #fdf3e3;
 
   /* ---- Neutral / Flaechen ------------------------------------------------ */
@@ -1381,54 +1382,106 @@ body.auth-mode .view { padding-left: 0; padding-right: 0; }
 /* Kopfzeile der Trainer-Ansicht: gemessen 25 px Titel, 14 px Unterzeile.
    Nur hier - die uebrigen Ansichten zeigt diese Vorlage nicht. */
 /* ---- Karte „Nächstes Spiel" ------------------------------------------------
-   Gemessen: Karte 358x206 bei y 149, linke Kante 4 px, Innenrand 14 px.      */
-.tv-next { padding: 14px; margin-top: 15px; }
-.tv-next-kopf { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 21px; }
+   Gemessen aus .design-sync/reference/trainer-kacheln-v2.png (Karte 322
+   Bildpunkte = 358 CSS-px, Massstab 0,898). Karte 358x261, kein Farbstreifen
+   links, innen zwei Haarlinien: Kopf 112, Kennzahlen 69, Knopfband 79.       */
+.tv-next { padding: 0; margin-top: 15px; overflow: hidden; }
+
+/* Band 1: Marke und Plakette, darunter Datumsblock und Gegner. */
+.tv-next-kopf {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 16px 16px 0; min-height: 23px;
+}
 .tv-next-lbl {
   font-size: 11px; font-weight: 800; letter-spacing: .08em;
   text-transform: uppercase; color: var(--muted); line-height: normal;
 }
-/* Plakette HEIM/AUSWÄRTS: gemessen 46x21, volle Rundung, Grund --green-700. */
+/* Plakette: gemessen 46x23, voll gerundet, heller Grund mit dunkelgruener
+   Schrift - nicht mehr der gefuellte Chip der vorigen Vorlage. */
 .tv-next-bdg {
-  flex: none; min-height: 21px; padding: 0 10px; border-radius: var(--radius-pill);
-  background: var(--green-700); color: #fff;
+  flex: none; min-height: 23px; padding: 0 9px; border-radius: var(--radius-pill);
+  background: var(--green-050); color: var(--green-700);
   font-size: 10px; font-weight: 800; letter-spacing: .04em;
   display: inline-flex; align-items: center; line-height: normal;
 }
-.tv-next-t {
-  margin-top: 8px; font-size: 21px; font-weight: 800; line-height: 1.1;
-  color: var(--ink); letter-spacing: -.012em;
+.tv-next-zeile { display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px 15px; }
+/* Datumsblock ohne Farbkachel: Tag gross in --green-800, Monat klein grau. */
+.tv-next-datum { flex: none; width: 50px; margin-top: -2px; text-align: center; line-height: 1; }
+.tv-next-datum b { display: block; font-size: 22px; font-weight: 800; color: var(--green-800); letter-spacing: -.02em; }
+.tv-next-datum i {
+  display: block; margin-top: 10px; font-size: 9px; font-weight: 700; font-style: normal;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--muted);
 }
-.tv-next-m { margin-top: 3px; font-size: 14px; font-weight: 500; color: var(--muted); line-height: normal; }
+.tv-next-main { flex: 1 1 auto; min-width: 0; }
+.tv-next-t {
+  display: block; font-size: 20px; font-weight: 800; line-height: 1.15;
+  color: var(--ink); letter-spacing: -.012em;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.tv-next-m { display: block; margin-top: 3px; font-size: 13px; font-weight: 500; color: var(--muted); line-height: normal; }
 
-/* Balken: gemessen 6 px hoch, Spur #cfd8d2, zugesagt --green-600, ab --red-600. */
-.tv-bar { margin-top: 13px; display: flex; height: 6px; border-radius: var(--radius-pill); background: var(--track-bar); overflow: hidden; }
-.tv-bar i { display: block; height: 100%; }
-.tv-bar .is-zu { background: var(--green-600); }
-.tv-bar .is-ab { background: var(--red-600); }
+/* Band 2: drei Kennzahlen ueber die volle Kartenbreite, durch Haarlinien
+   getrennt. Gemessen 69 hoch, Spalten je 119,3. */
+.tv-next-zahlen {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+}
+.tv-nz {
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 11px;
+  min-height: 69px; padding: 13px 6px 0; text-align: center;
+}
+.tv-nz + .tv-nz { border-left: 1px solid var(--line); }
+.tv-nz b { font-size: 18px; font-weight: 800; line-height: 1; letter-spacing: -.02em; }
+.tv-nz span {
+  font-size: 9px; font-weight: 800; line-height: 1; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--muted);
+}
+.tv-nz b.is-zu { color: var(--green-700); }
+.tv-nz b.is-ab { color: var(--red-600); }
+.tv-nz b.is-of { color: var(--amber-700); }   /* dunkler als die Vorlage, sonst 3,7:1 */
 
-.tv-next-z { margin-top: 10px; display: flex; gap: 13px; font-size: 13px; font-weight: 700; line-height: normal; }
-.tv-next-z .is-zu { color: var(--green-700); }
-.tv-next-z .is-ab { color: var(--red-600); }
-.tv-next-z .is-of { color: var(--muted); }
-
-/* Knopf: gemessen 326x46, Radius 12, flaches --green-700, Beschriftung mittig,
-   Zusatz „11/11 gesetzt" 9 px daneben. */
+/* Band 3: der Knopf, gemessen 326x48, Radius 14, flaches --green-700.
+   Der Aufstellungsstand steht nicht mehr hier, sondern als Plakette
+   „Elf steht" / „offen" in der Liste darunter. */
+.tv-next-fuss { padding: 14px 16px; }
 .tv-next-btn {
-  margin-top: 12px; width: 100%; min-height: var(--h-btn);
-  display: flex; align-items: center; justify-content: center; gap: 9px;
-  border: 0; border-radius: var(--radius-md);
+  width: 100%; min-height: var(--h-btn-lg);
+  display: flex; align-items: center; justify-content: center;
+  border: 0; border-radius: var(--radius);
   background: var(--green-700); color: #fff;
   font-size: 15px; font-weight: 800; letter-spacing: -.012em;
 }
-.tv-next-btn .tv-next-sub { font-size: 12px; font-weight: 600; letter-spacing: 0; color: rgba(255,255,255,.82); }
 
 /* ---- Kaderkarte -----------------------------------------------------------
-   Gemessen 358x62. Rechts acht Striche: Anteil fit gruen, Rest rot.
-   Strich 5 px breit, 2 px Abstand, zusammen 54 px.                           */
-.tv-kchart { flex: none; display: flex; align-items: center; gap: 2px; height: 16px; }
-.tv-kchart i { display: block; width: 5px; height: 100%; border-radius: 1px; background: var(--green-500); }
-.tv-kchart i.is-raus { background: var(--red-600); }
+   Gemessen 358x129, Innenrand 16. Kopfzeile, Balken mit vier Abschnitten
+   im Verhaeltnis der Statuszahlen, darunter die Legende zweispaltig.        */
+.tv-kader {
+  display: block; width: 100%; text-align: left;
+  padding: 16px; min-height: 129px; margin-top: 16px;
+}
+.tv-kader-kopf { display: flex; align-items: center; gap: 11px; }
+.tv-kader-t { flex: 1 1 auto; min-width: 0; font-size: 15px; font-weight: 800; line-height: 1.2; color: var(--ink); }
+.tv-kader-n { flex: none; font-size: 13px; font-weight: 500; color: var(--muted); line-height: 1.2; }
+
+/* Balken: gemessen 7 hoch, volle Innenbreite, vier Abschnitte ohne Luecke.
+   Urlaub traegt hier den grauen Ton der Vorlage, nicht das Blau der
+   Statuschips - Abweichung, siehe NOTES.md. */
+.tv-kbar { display: flex; height: 7px; margin-top: 14px; border-radius: var(--radius-pill); overflow: hidden; background: var(--dot-off); }
+.tv-kbar i { display: block; height: 100%; }
+.tv-kbar i.is-fit  { background: var(--green-600); }
+.tv-kbar i.is-ang  { background: var(--amber-600); }
+.tv-kbar i.is-verl { background: var(--red-600); }
+.tv-kbar i.is-url  { background: var(--dot-off); }
+
+.tv-kleg { display: grid; grid-template-columns: 1fr 1fr; gap: 11px 14px; margin-top: 12px; }
+.tv-kstat { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 500; color: var(--muted); line-height: 1.2; min-width: 0; }
+.tv-kstat i { flex: none; width: 8px; height: 8px; border-radius: 50%; }
+.tv-kstat b { flex: none; font-weight: 700; color: var(--ink); }
+.tv-kstat span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tv-kstat i.is-fit  { background: var(--green-600); }
+.tv-kstat i.is-ang  { background: var(--amber-600); }
+.tv-kstat i.is-verl { background: var(--red-600); }
+.tv-kstat i.is-url  { background: var(--dot-off); }
 
 /* ---- Abschnittszeile klein (WEITERE SPIELE · Alle ›) -----------------------
    Gemessen: Grossbuchstaben 11 px, Sperrung, --muted; Verweis 13 px --green-700. */
@@ -2186,19 +2239,6 @@ button.sg-stat:focus-visible { outline: 2px solid var(--green-700); outline-offs
 .laz-main { flex: 1; min-width: 0; }
 .laz-name { font-size: 14px; font-weight: 700; line-height: normal; }
 .laz-note { font-size: 12px; font-weight: 500; color: var(--muted); margin-top: 2px; }
-
-/* ---------- Kaderkarte in der Trainer-Ansicht ------------------------------- */
-/* Gemessen aus trainer-sheet-v2: 358x62, Innenrand 14, Abstand nach oben 15. */
-.tv-kader {
-  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
-  padding: 14px; min-height: 62px; margin-top: 16px;
-}
-.tv-kader-main { flex: 1; min-width: 0; }
-.tv-kader-t { display: block; font-size: 15px; font-weight: 700; color: var(--ink); }
-.tv-kader-z { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-top: 0; }
-.tv-kader-z b { color: var(--ink); font-weight: 700; }
-.tv-kader-z b.is-warn { color: var(--red-600); }
-.tv-kader-p { margin: 0 5px; color: var(--line); }
 
 /* ===========================================================================
    Globale Materialebene - Vorlage "App in 2a - High End"

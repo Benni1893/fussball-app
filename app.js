@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-18-B";
+  var APP_BUILD = "2026-09-18-C";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -2482,69 +2482,79 @@
       tvTemplatesHtml();
   }
 
-  // „in 3 Tagen" - die Vorlage nennt den Abstand, nicht nur das Datum.
-  function inTagenText(iso) {
+  // „Anpfiff in 3 Tagen" - die Vorlage nennt den Abstand, nicht das Datum;
+  // das steht im Datumsblock links daneben.
+  function anpfiffText(iso) {
     const tage = Math.round((parseDate(iso) - parseDate(HEUTE)) / 86400000);
-    if (tage <= 0) return "heute";
-    if (tage === 1) return "morgen";
-    return "in " + tage + " Tagen";
+    if (tage <= 0) return "Anpfiff heute";
+    if (tage === 1) return "Anpfiff morgen";
+    return "Anpfiff in " + tage + " Tagen";
   }
-
-  /* Karte „Nächstes Spiel": Plakette Heim/Auswärts, Gegner, Zeitzeile,
-     Rückmeldebalken (zugesagt gruen, abgesagt rot, Rest Spur) und der Knopf
-     in die Platzansicht mit dem Stand der Aufstellung. */
+  /* Karte „Nächstes Spiel" (Vorlage trainer-kacheln-v2.png): Marke und
+     Plakette, Datumsblock mit Gegner, drei Kennzahlen aus den Rückmeldungen
+     und der Knopf in die Platzansicht. Der Aufstellungsstand steht nicht mehr
+     hier - er bleibt als Plakette „Elf steht" / „offen" in der Spielliste. */
   function tvNextHtml(e) {
     const gesamt = DEMO.players.length;
     const zu = DEMO.players.filter((p) => (state.rsvp[e.id + "|" + p.id] || {}).status === "zu").length;
     const ab = DEMO.players.filter((p) => (state.rsvp[e.id + "|" + p.id] || {}).status === "ab").length;
     const offen = gesamt - zu - ab;
-    const pz = gesamt ? (zu / gesamt) * 100 : 0;
-    const pa = gesamt ? (ab / gesamt) * 100 : 0;
+    const meta = (e.zeit ? esc(e.zeit) + " Uhr · " : "") + anpfiffText(e.datum);
 
-    const lu = (DEMO.lineups || []).find((l) => l.eventId === e.id && l.isActive && !l.isTemplate);
-    const slots = lu ? (FORMATIONS[lu.formation] || []) : [];
-    const gesetzt = lu ? slots.map((s) => (lu.slots || {})[s.key]).filter(Boolean).length : 0;
-
-    const zeit = fmtWd(e.datum) + " " + fmtDay(e.datum) + ". " + fmtMon(e.datum)
-      + (e.zeit ? " · " + esc(e.zeit) + " Uhr" : "") + " · " + inTagenText(e.datum);
-
-    return '<div class="card edge-green tv-next">' +
+    return '<div class="card tv-next">' +
       '<div class="tv-next-kopf"><span class="tv-next-lbl">Nächstes Spiel</span>' +
       (e.heim == null ? "" : '<span class="tv-next-bdg">' + (e.heim ? "Heim" : "Auswärts") + '</span>') +
       '</div>' +
-      '<div class="tv-next-t">' + esc(e.gegner || e.titel) + '</div>' +
-      '<div class="tv-next-m num">' + zeit + '</div>' +
-      '<div class="tv-bar" role="img" aria-label="' + zu + ' zugesagt, ' + ab + ' abgesagt, ' + offen + ' offen">' +
-        '<i class="is-zu" style="width:' + pz.toFixed(2) + '%"></i>' +
-        '<i class="is-ab" style="width:' + pa.toFixed(2) + '%"></i></div>' +
-      '<div class="tv-next-z"><span class="is-zu num">' + zu + ' zugesagt</span>' +
-        '<span class="is-ab num">' + ab + ' ab</span>' +
-        '<span class="is-of num">' + offen + ' offen</span></div>' +
-      '<button class="tv-next-btn" data-tvgame="' + e.id + '">Elf aufstellen' +
-        '<span class="tv-next-sub num">' + gesetzt + '/' + (slots.length || 11) + ' gesetzt</span></button>' +
+      '<div class="tv-next-zeile">' +
+        '<span class="tv-next-datum"><b class="num">' + fmtDay(e.datum) + '</b><i>' + fmtMon(e.datum) + '</i></span>' +
+        '<span class="tv-next-main"><span class="tv-next-t">' + esc(e.gegner || e.titel) + '</span>' +
+        '<span class="tv-next-m num">' + meta + '</span></span>' +
+      '</div>' +
+      '<div class="tv-next-zahlen">' +
+        '<div class="tv-nz"><b class="num is-zu">' + zu + '</b><span>Zugesagt</span></div>' +
+        '<div class="tv-nz"><b class="num is-ab">' + ab + '</b><span>Abgesagt</span></div>' +
+        '<div class="tv-nz"><b class="num is-of">' + offen + '</b><span>Offen</span></div>' +
+      '</div>' +
+      '<div class="tv-next-fuss"><button class="tv-next-btn" data-tvgame="' + e.id + '">Elf aufstellen</button></div>' +
       '</div>';
   }
 
-  /* Kaderkarte: drei Zahlen, acht Striche als Anteil und ein Chevron. */
+  /* Kaderkarte: Kopfzeile mit Spielerzahl, darunter ein Balken im Verhältnis
+     der vier Statuswerte und die Legende dazu. Die Zahlen kommen aus
+     player_status, das die App ohnehin geladen hat. */
+  const KADER_STATUS = [
+    ["fit",          "is-fit",  "fit"],
+    ["angeschlagen", "is-ang",  "angeschlagen"],
+    ["verletzt",     "is-verl", "verletzt"],
+    ["urlaub",       "is-url",  "Urlaub"],
+  ];
   function tvKaderKarteHtml() {
     const gesamt = DEMO.players.length;
-    const fit = DEMO.players.filter(istFit).length;
-    const raus = gesamt - fit;
-    const n = 8;
-    // Wer nicht fit ist, soll auch einen Strich bekommen - sonst verschwindet
-    // ein einzelner Ausfall in der Rundung.
-    const roh = gesamt ? Math.round((fit / gesamt) * n) : n;
-    const gruen = raus ? Math.min(n - 1, roh) : n;
-    let striche = '<span class="tv-kchart" aria-hidden="true">';
-    for (let i = 0; i < n; i++) striche += '<i' + (i < gruen ? "" : ' class="is-raus"') + '></i>';
-    striche += '</span>';
+    const zahl = {};
+    KADER_STATUS.forEach(([wert]) => { zahl[wert] = 0; });
+    DEMO.players.forEach((p) => {
+      const s = (p.status && zahl[p.status] !== undefined) ? p.status : "fit";
+      zahl[s]++;
+    });
+    const anteil = (n) => gesamt ? (n / gesamt) * 100 : 0;
+
+    const balken = KADER_STATUS.map(([wert, cls]) =>
+      zahl[wert] ? '<i class="' + cls + '" style="width:' + anteil(zahl[wert]).toFixed(2) + '%"></i>' : ""
+    ).join("");
+    const legende = KADER_STATUS.map(([wert, cls, label]) =>
+      '<span class="tv-kstat"><i class="' + cls + '"></i><b class="num">' + zahl[wert] + '</b><span>' + label + '</span></span>'
+    ).join("");
+    const gelesen = KADER_STATUS.map(([wert, , label]) => zahl[wert] + " " + label).join(", ");
+
     return '<button class="card tv-kader" data-goto="kader">' +
-      '<span class="tv-kader-main"><span class="tv-kader-t">Kader</span>' +
-      '<span class="tv-kader-z"><b class="num">' + gesamt + '</b> Spieler' +
-      '<span class="tv-kader-p">·</span><b class="num">' + fit + '</b> fit' +
-      '<span class="tv-kader-p">·</span><b class="num' + (raus ? ' is-warn' : '') + '">' + raus + '</b> nicht fit' +
-      '</span></span>' + striche + '<span class="tv-garrow">›</span></button>';
+      '<span class="tv-kader-kopf"><span class="tv-kader-t">Kader</span>' +
+      '<span class="tv-kader-n num">' + gesamt + ' Spieler</span>' +
+      '<span class="tv-garrow">›</span></span>' +
+      '<span class="tv-kbar" role="img" aria-label="' + esc(gelesen) + '">' + balken + '</span>' +
+      '<span class="tv-kleg">' + legende + '</span>' +
+      '</button>';
   }
+
 
   /* Zeile in „Weitere Spiele": Datum, Gegner, Zeit und Ort, Plakette, Chevron. */
   function tvGameRow(e) {
