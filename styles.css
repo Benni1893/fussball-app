@@ -101,6 +101,11 @@
   --grad-btn-sec:  linear-gradient(180deg, var(--card) 0%, var(--surface-2) 100%);
   --grad-chip:     linear-gradient(180deg, var(--card) 0%, var(--surface-3) 100%);
   --grad-chip-on:  linear-gradient(180deg, var(--green-750), var(--green-900));
+  /* Gefuellte Statuschips: eigene Verlaeufe, weil die --grad-edge-* an neun
+     weiteren, rein dekorativen Stellen haengen und dort hell bleiben sollen.
+     Beide tragen weisse Schrift und halten 4,5:1 ueber die ganze Flaeche. */
+  --grad-chip-gold: linear-gradient(180deg, var(--amber-700), var(--gold-ink));   /* 4,6:1 bis 6,4:1 */
+  --grad-chip-red:  linear-gradient(180deg, var(--red-600),   var(--red-700));    /* 5,4:1 bis 7,2:1 */
   --grad-gold:     linear-gradient(180deg, var(--gold-100), var(--gold-200));
   --grad-in:       linear-gradient(180deg, var(--surface-5), var(--card));
   --grad-av:       linear-gradient(180deg, var(--av-1), var(--av-2));
@@ -2210,8 +2215,8 @@ button.sg-stat:focus-visible { outline: 2px solid var(--green-700); outline-offs
 .st-wahl { display: block; }
 .st-chips { margin: 0; }
 .st-choice.is-on.st-fit          { background: var(--grad-chip-on); border-color: var(--green-900); color: #fff; }
-.st-choice.is-on.st-angeschlagen { background: var(--grad-edge-gold); border-color: var(--gold-700); color: #fff; }
-.st-choice.is-on.st-verletzt     { background: var(--grad-edge-red);  border-color: var(--red-700);  color: #fff; }
+.st-choice.is-on.st-angeschlagen { background: var(--grad-chip-gold); border-color: var(--gold-ink); color: #fff; }
+.st-choice.is-on.st-verletzt     { background: var(--grad-chip-red);  border-color: var(--red-700);  color: #fff; }
 .st-choice.is-on.st-urlaub       { background: var(--grad-urlaub);    border-color: var(--muted);    color: #fff; }
 
 /* Datum und Notiz erscheinen nur, wenn der Status sie braucht. */

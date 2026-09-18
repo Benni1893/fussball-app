@@ -15,7 +15,7 @@ SRC_CSS="styles.css"
 OUT="ds-bundle"
 CARDS=".design-sync/cards"
 TOKEN_FIRST=5      # Zeile ":root {"
-TOKEN_LAST=162   # zugehoerige "}"
+TOKEN_LAST=167   # zugehoerige "}"
 
 [ -f "$SRC_CSS" ] || { echo "FEHLER: $SRC_CSS nicht gefunden - bitte aus dem Repo-Wurzelverzeichnis starten." >&2; exit 1; }
 

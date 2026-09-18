@@ -34,7 +34,7 @@ Dateien unter `.design-sync/`.
 ## Risiken beim nächsten Lauf
 
 - **Zeilennummern des Tokenblocks.** `build.sh` schneidet `:root` aus
-  `styles.css` heraus (aktuell Zeilen 5–162, in `config.json` als
+  `styles.css` heraus (aktuell Zeilen 5–167, in `config.json` als
   `tokenBlockLines`). Verschiebt sich der Block, **bricht der Bau mit klarer
   Meldung ab** statt falsch zu schneiden — dann nur die beiden Zahlen in
   `build.sh` und `config.json` nachziehen.
@@ -168,6 +168,34 @@ Weiß (die Zahl „OFFEN" in der Spielkarte, 4,6:1).
 (weiß auf `--grad-edge-gold`, 1,7:1 bis 2,6:1) und `.st-verletzt` (weiß auf
 `--grad-edge-red`, 4,0:1 am oberen Ende) reißen die 4,5:1-Regel. Beide stammen
 aus der 2a-Vorlage und waren nicht Teil dieses Auftrags.
+
+**Nachtrag 18.09.2026 — gefüllte Statuschips halten 4,5:1**
+
+„angeschlagen" und „verletzt" trugen weiße Schrift auf den hellen
+Kantenverläufen: 1,7:1 bzw. 4,0:1 am oberen Ende. Beide haben jetzt einen
+eigenen, dunkleren Verlauf; die Farbfamilie bleibt.
+
+- `--grad-chip-gold: --amber-700 → --gold-ink` (4,6:1 bis 6,4:1)
+- `--grad-chip-red:  --red-600 → --red-700` (5,4:1 bis 7,2:1)
+
+Warum eigene Tokens und nicht `--grad-edge-gold` / `--grad-edge-red`
+abdunkeln: an diesen beiden hängen neun weitere Stellen — Kartenkanten,
+Terminkarten, Kennzahlkacheln, Profilbalken —, die rein dekorativ sind und
+hell bleiben sollen. Damit haben jetzt alle vier gefüllten Chips ihren
+eigenen Verlauf: `--grad-chip-on` (grün), `--grad-chip-gold`,
+`--grad-chip-red`, `--grad-urlaub` (grau). 133 Tokens, Tokenblock
+Zeile 5-167.
+
+Bei „angeschlagen" wäre auch dunkle Schrift auf hellem Gold denkbar gewesen.
+Das scheitert am Verlauf selbst: `--gold-ink-2` kommt auf `--gold-400` auf
+4,46:1 und auf `--gold-700` nur auf 2,93:1 — über die ganze Fläche hält
+keine einzige Textfarbe. Der dunkle Verlauf mit weißer Schrift ist außerdem
+das Muster der drei anderen Chips.
+
+**Noch offen:** `.task-row.is-lineup .task-num` und `.task-row.is-pay
+.task-num` im Aufgabenblock haben denselben Fehler (weiße Zahl auf
+`--grad-edge-gold` 1,7:1 bzw. `--grad-edge-red` 4,0:1). Ein Wechsel auf die
+beiden neuen Chip-Verläufe würde reichen; war nicht Teil des Auftrags.
 
 ## Vorlage trainer-sheet-v2.png (17.09.2026)
 

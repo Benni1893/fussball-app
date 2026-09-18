@@ -85,7 +85,7 @@ Zustände hängen sich als zweite Klasse an: `.btn.btn-zu.is-on`, `.kpi.is-warn`
 
 ## Farben nur über Tokens
 
-Nie ein Hex ins Markup. Alles liegt in `tokens/tokens.css` (131 Tokens):
+Nie ein Hex ins Markup. Alles liegt in `tokens/tokens.css` (133 Tokens):
 
 - Vereinsgrün `--green-990` bis `--green-050` — Kopfzeile, Primäraktion, Erfolg.
   `--green-700` trägt jede Primäraktion, `--green-800` Zahlen und Verweise.
@@ -99,7 +99,10 @@ Nie ein Hex ins Markup. Alles liegt in `tokens/tokens.css` (131 Tokens):
 - Neutral `--ink` `--muted` `--line` `--bg` `--card`. `--muted` erreicht auf Weiß
   4,7:1 und ist die dunkelste erlaubte Nebenfarbe.
 - Verläufe `--grad-card` `--grad-btn` `--grad-chip` `--grad-edge-green`
-  `--grad-edge-gold` `--grad-edge-red` `--grad-urlaub` und weitere.
+  `--grad-edge-gold` `--grad-edge-red` und weitere. Die gefüllten Statuschips
+  tragen eigene, dunklere Verläufe — `--grad-chip-on` `--grad-chip-gold`
+  `--grad-chip-red` `--grad-urlaub` —, weil weiße Schrift auf den hellen
+  Kantenverläufen keine 4,5:1 erreicht.
 - Form: `--radius` (14), `--radius-md` (12), `--radius-btn` (10),
   `--radius-sheet` (18), `--radius-pill`, `--radius-box` (6), `--shadow`,
   `--shadow-card`, `--shadow-sm`.
