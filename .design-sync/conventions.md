@@ -65,7 +65,7 @@ Layout-Beiwerk kommt als `style="…"` mit Tokens oder als neue, sprechende Klas
 | Aufgaben | `.task-list` `.task-row` (`.is-pay` `.is-lineup` `.is-rsvp`) `.task-num` `.task-main` `.task-title` `.task-sub` `.task-go` |
 | Spieltag | `.spieltag` `.sg-top` `.sg-body` `.sg-title` `.sg-venue` `.sg-av` `.sg-stats` `.sg-stat` `.sg-stat-v` `.sg-stat-go` `.sg-cta` `.sg-foot` |
 | Aktionen | `.btn` + `.btn-primary` `.btn-soft` `.btn-danger` `.btn-ghost` · `.icon-btn` `.icon-ok` · `.link-btn` · `.chips` `.chip` (`.is-active`) |
-| Status | `.st-badge` + `.st-amber` `.st-red` `.st-blue` · `.tag` + `.tag-friendly` `.tag-cancelled` `.tag-manuell` · `.badge` + `.badge-open` `.badge-paid` `.badge-cancel` `.badge-auto` `.badge-self` · `.cd` + `.cd-neutral` `.cd-amber` `.cd-red` `.cd-due` `.cd-capped` |
+| Status | `.st-badge` + `.st-amber` `.st-red` `.st-grau` · `.tag` + `.tag-friendly` `.tag-cancelled` `.tag-manuell` · `.badge` + `.badge-open` `.badge-paid` `.badge-cancel` `.badge-auto` `.badge-self` · `.cd` + `.cd-neutral` `.cd-amber` `.cd-red` `.cd-due` `.cd-capped` |
 | Fitnessstatus | `.st-wahl` `.st-chips` `.st-choice` + `.st-fit` `.st-angeschlagen` `.st-verletzt` `.st-urlaub` · `.st-felder` `.st-feld` |
 | Kader | `.kad-list` `.kad-row` (`.is-raus`) `.kad-kopf` `.kad-name` · `.laz-list` `.laz-row` `.laz-main` `.laz-name` `.laz-note` · `.avatar` |
 | Trainer-Ansicht | `.tv-head` · `.tv-next` `.tv-next-kopf` `.tv-next-lbl` `.tv-next-bdg` `.tv-next-zeile` `.tv-next-datum` `.tv-next-main` `.tv-next-t` `.tv-next-m` `.tv-next-zahlen` `.tv-nz` `.tv-next-fuss` `.tv-next-btn` · `.tv-kader` `.tv-kader-kopf` `.tv-kader-t` `.tv-kader-n` `.tv-kbar` `.tv-kleg` `.tv-kstat` `.tv-garrow` · `.tv-glist` `.tv-grow` `.tv-gdate` `.tv-gmain` `.tv-gopp` `.tv-gmeta` `.tv-gchip` (`.is-offen`) · `.tv-tpls` `.tv-tpl` `.tv-tpl-main` `.tv-tpl-n` `.tv-tpl-chip` |
@@ -85,16 +85,17 @@ Zustände hängen sich als zweite Klasse an: `.btn.btn-zu.is-on`, `.kpi.is-warn`
 
 ## Farben nur über Tokens
 
-Nie ein Hex ins Markup. Alles liegt in `tokens/tokens.css` (135 Tokens):
+Nie ein Hex ins Markup. Alles liegt in `tokens/tokens.css` (131 Tokens):
 
 - Vereinsgrün `--green-990` bis `--green-050` — Kopfzeile, Primäraktion, Erfolg.
   `--green-700` trägt jede Primäraktion, `--green-800` Zahlen und Verweise.
 - Gold `--gold-700` bis `--gold-050` plus `--gold-ink` — Akzent, Spiele, Datumswürfel.
   Schrift auf Goldflächen immer `--gold-ink` oder `--gold-ink-2`, nie Weiß.
-- Signal: `--red-600` `--red-050` (offen, abgesagt, verletzt), `--amber-600`
-  `--amber-700` `--amber-050` (wartet auf Bestätigung, gewählter Filter; `--amber-700`
-  überall dort, wo der Ton als Text auf Weiß steht und 4,5:1 halten muss), `--blau-700`
-  `--blau-050` (ausschließlich Urlaub).
+- Signal: `--red-600` `--red-050` (offen, abgesagt, verletzt) · `--amber-600`
+  `--amber-050` (wartet auf Bestätigung, gewählter Filter), dazu `--amber-700`
+  überall dort, wo der Ton als Text auf hellem Grund steht und 4,5:1 halten muss ·
+  `--dot-off` (Urlaub — kein eigenes Bunt, sondern dasselbe Grau wie im Balken
+  der Kaderkachel).
 - Neutral `--ink` `--muted` `--line` `--bg` `--card`. `--muted` erreicht auf Weiß
   4,7:1 und ist die dunkelste erlaubte Nebenfarbe.
 - Verläufe `--grad-card` `--grad-btn` `--grad-chip` `--grad-edge-green`

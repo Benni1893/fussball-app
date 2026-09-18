@@ -6,7 +6,7 @@
   "note": "Kein Komponenten-Repo: reine Vanilla-JS/CSS-PWA ohne package.json, Build oder React. Der design-sync-Konverter ist hier nicht anwendbar; das Bundle wird deterministisch aus styles.css erzeugt (siehe .design-sync/build.sh und NOTES.md).",
   "source": {
     "stylesheet": "styles.css",
-    "tokenBlockLines": "5-166",
+    "tokenBlockLines": "5-162",
     "shellMarkup": "index.html",
     "outDir": "ds-bundle"
   }

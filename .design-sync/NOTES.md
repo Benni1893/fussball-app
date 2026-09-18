@@ -34,7 +34,7 @@ Dateien unter `.design-sync/`.
 ## Risiken beim nächsten Lauf
 
 - **Zeilennummern des Tokenblocks.** `build.sh` schneidet `:root` aus
-  `styles.css` heraus (aktuell Zeilen 5–166, in `config.json` als
+  `styles.css` heraus (aktuell Zeilen 5–162, in `config.json` als
   `tokenBlockLines`). Verschiebt sich der Block, **bricht der Bau mit klarer
   Meldung ab** statt falsch zu schneiden — dann nur die beiden Zahlen in
   `build.sh` und `config.json` nachziehen.
@@ -145,6 +145,29 @@ Balken bei 52 (51,2). Alle Bausteine innerhalb von 1,5 CSS-px.
 Kader-Blatt (`app.js`, `tvKaderPanel`). Die Legendenzeile heißt deshalb
 `.tv-kstat`. Aufgefallen ist es nur, weil die Zeile im Gerüst dreizeilig
 umbrach — ohne Sichtprüfung wäre es durchgerutscht.
+
+**Nachtrag 18.09.2026 — Urlaub ist überall grau, Bernstein als Text dunkler**
+
+Der graue Ton aus der Kaderkachel gilt jetzt für Urlaub in der ganzen App
+(Entscheidung des Nutzers). Geändert wurden `.st-choice.is-on.st-urlaub`
+(Verlauf `--grad-urlaub`, jetzt `--muted` → `#55635c` mit weißer Schrift,
+4,9:1 bis 6,3:1), die Marke am Namen (`.st-blue` heißt jetzt **`.st-grau`**,
+`--dot-off` mit `--ink`, 10,7:1) sowie `.lu-ptag.url`, `.tv-tag.url` und
+`.tv-pchip.s-url`. Die vier Tokens `--blau-700`, `--blau-600`, `--blau-050`
+und `--blau-line` sind damit tot und entfernt — 131 Tokens, Tokenblock
+Zeile 5-162.
+
+Die Zahl in der gewählten Kachel des Rückmeldungen-Blatts trägt jetzt
+`--gold-ink` statt `--amber-600`: auf `--amber-050` kommt `--amber-600` nur
+auf 3,4:1 und selbst `--amber-700` nur auf 4,2:1, `--gold-ink` dagegen auf
+5,8:1. Damit gilt die alte Regel wieder ausnahmslos — Schrift auf Goldflächen
+immer `--gold-ink` oder `--gold-ink-2`. `--amber-700` bleibt für Text auf
+Weiß (die Zahl „OFFEN" in der Spielkarte, 4,6:1).
+
+**Noch offen, nicht angefasst:** die gefüllten Statuschips `.st-angeschlagen`
+(weiß auf `--grad-edge-gold`, 1,7:1 bis 2,6:1) und `.st-verletzt` (weiß auf
+`--grad-edge-red`, 4,0:1 am oberen Ende) reißen die 4,5:1-Regel. Beide stammen
+aus der 2a-Vorlage und waren nicht Teil dieses Auftrags.
 
 ## Vorlage trainer-sheet-v2.png (17.09.2026)
 

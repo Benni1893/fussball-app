@@ -90,10 +90,6 @@
   --track-bar:   #cfd8d2; /* Spur im Kartenbalken, gemessen aus trainer-sheet-v2 */
   --track-sheet: #dfe5e1; /* Spur im Blattbalken,  gemessen aus trainer-sheet-v2 */
   --dot-off: #c6d2cb;     /* Seitenpunkte, Rand leerer Kaestchen */
-  --blau-700: #1d5a8a;    /* Urlaub: Marke und Rand */
-  --blau-600: #2e7bb5;
-  --blau-050: #e7f0f7;
-  --blau-line: #c3dbea;
 
   /* ---- Verlaeufe --------------------------------------------------------- */
   --grad-app:      linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
@@ -116,7 +112,7 @@
   --grad-edge-green: linear-gradient(180deg, var(--green-450), var(--green-650));
   --grad-edge-gold:  linear-gradient(180deg, var(--gold-400),  var(--gold-700));
   --grad-edge-red:   linear-gradient(180deg, var(--red-500),   var(--red-700));
-  --grad-urlaub:     linear-gradient(180deg, var(--blau-600),  var(--blau-700));
+  --grad-urlaub:     linear-gradient(180deg, var(--muted),     #55635c);   /* Urlaub: grau wie in der Kaderkachel */
   --grad-task-red:   linear-gradient(180deg, var(--red-100),      var(--red-200));
   --grad-task-gold:  linear-gradient(180deg, var(--gold-100),     var(--gold-250));
   --grad-task-green: linear-gradient(180deg, var(--green-task-1), var(--green-task-2));
@@ -862,7 +858,7 @@ tbody tr:hover { background: #fbfdfc; }
 .rs2-k-z { font-size: 16px; font-weight: 800; line-height: 1; color: var(--green-700); }
 /* Die ausgewaehlte Kachel traegt den Bernsteinton der Vorlage. */
 .rs2-kachel.is-on { border-color: var(--amber-600); background: var(--amber-050); }
-.rs2-kachel.is-on .rs2-k-l, .rs2-kachel.is-on .rs2-k-z { color: var(--amber-600); }
+.rs2-kachel.is-on .rs2-k-l, .rs2-kachel.is-on .rs2-k-z { color: var(--gold-ink); }   /* auf --amber-050 kaeme --amber-600 auf 3,4:1, --amber-700 auf 4,2:1 */
 
 .rs2-liste {
   flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch;
@@ -1362,7 +1358,7 @@ body.auth-mode .view { padding-left: 0; padding-right: 0; }
 .lu-ptag.none { background: var(--bg); color: var(--muted); border: 1px solid var(--line); }
 .lu-ptag.abw { background: var(--line); color: var(--muted); }
 .lu-ptag.verl { background: var(--red-050); color: var(--red-600); }
-.lu-ptag.url  { background: var(--blau-050); color: var(--blau-700); }
+.lu-ptag.url  { background: var(--dot-off); color: var(--ink); }
 .lu-ptag.placed { background: var(--green-800); color: #fff; }
 .lu-empty-btn { width: 100%; min-height: 44px; border: 1px solid var(--line); background: var(--bg); border-radius: 12px; font-weight: 700; color: var(--red-600); margin-bottom: 8px; }
 
@@ -1676,7 +1672,7 @@ body.auth-mode .view { padding-left: 0; padding-right: 0; }
 .tv-tag.none { background: var(--bg); color: var(--muted); border: 1px solid var(--line); }
 .tv-tag.abw { background: var(--line); color: var(--muted); }
 .tv-tag.verl { background: var(--red-050); color: var(--red-600); }
-.tv-tag.url  { background: var(--blau-050); color: var(--blau-700); }
+.tv-tag.url  { background: var(--dot-off); color: var(--ink); }
 .tv-tag.placed { background: var(--green-800); color: #fff; }
 
 /* Dezente Status-Zeilenfarbe (nur bestehende Tint-Variablen). Name bleibt gut lesbar. */
@@ -1685,7 +1681,7 @@ body.auth-mode .view { padding-left: 0; padding-right: 0; }
 .tv-pchip.s-none { background: var(--bg); }
 .tv-pchip.s-abw  { background: var(--red-050); }
 .tv-pchip.s-verl { background: var(--red-050); }
-.tv-pchip.s-url  { background: var(--blau-050); }
+.tv-pchip.s-url  { background: var(--line); }
 
 /* Auswechselbank: 7 kompakte Slots, passt auf 390px ohne H-Scroll. */
 .tv-bank { padding: 0 16px; }
@@ -2216,7 +2212,7 @@ button.sg-stat:focus-visible { outline: 2px solid var(--green-700); outline-offs
 .st-choice.is-on.st-fit          { background: var(--grad-chip-on); border-color: var(--green-900); color: #fff; }
 .st-choice.is-on.st-angeschlagen { background: var(--grad-edge-gold); border-color: var(--gold-700); color: #fff; }
 .st-choice.is-on.st-verletzt     { background: var(--grad-edge-red);  border-color: var(--red-700);  color: #fff; }
-.st-choice.is-on.st-urlaub       { background: var(--grad-urlaub);    border-color: var(--blau-700); color: #fff; }
+.st-choice.is-on.st-urlaub       { background: var(--grad-urlaub);    border-color: var(--muted);    color: #fff; }
 
 /* Datum und Notiz erscheinen nur, wenn der Status sie braucht. */
 .st-felder { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
@@ -2224,8 +2220,9 @@ button.sg-stat:focus-visible { outline: 2px solid var(--green-700); outline-offs
 .st-feld .lbl { display: block; margin-bottom: 5px; }
 .st-feld .kasse-in { width: 100%; }
 
-/* Urlaub bekommt eine eigene Marke - nicht den Ton des Verletzten. */
-.st-blue { background: var(--blau-050); color: var(--blau-700); border: 1px solid var(--blau-line); }
+/* Urlaub traegt das Grau der Kaderkachel - nicht den Ton des Verletzten und
+   seit dem 18.09.2026 auch kein Blau mehr. */
+.st-grau { background: var(--dot-off); color: var(--ink); }
 
 /* ---------- Kader-Ansicht --------------------------------------------------- */
 .kad-list { display: flex; flex-direction: column; gap: 8px; }

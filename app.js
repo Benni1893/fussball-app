@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-18-C";
+  var APP_BUILD = "2026-09-18-D";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -149,7 +149,7 @@
   function statusInfo(status) {
     if (status === "verletzt")     return { label: "verletzt", cls: "st-red" };
     if (status === "angeschlagen") return { label: "angeschlagen", cls: "st-amber" };
-    if (status === "urlaub")       return { label: "Urlaub", cls: "st-blue" };
+    if (status === "urlaub")       return { label: "Urlaub", cls: "st-grau" };
     return null; // fit -> keine Marke
   }
   // Kleines Status-Badge neben einem Spielernamen (leer, wenn fit).
