@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-18-H";
+  var APP_BUILD = "2026-09-18-I";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -998,7 +998,7 @@
       <div class="seg" role="tablist">
         ${filters.map((f) => `<button class="seg-b ${kalFilter === f.k ? "is-on" : ""}" role="tab" aria-selected="${kalFilter === f.k}" data-filter="${f.k}">${f.label}</button>`).join("")}
       </div>
-      ${Roles.canManageSchedule() ? `<button class="btn btn-primary kal-neu" data-termin-new>${ICON_PLUS}<span>Termin hinzufügen</span></button>` : ""}
+      ${Roles.canManageSchedule() ? `<button class="kal-neu" data-termin-new type="button">${ICON_PLUS}<span>Termin hinzufügen</span></button>` : ""}
       <button class="card kal-abo" data-cal-sheet type="button">
         <span class="kal-abo-ic" aria-hidden="true">${ICON_CAL_ADD}</span>
         <span class="kal-abo-main"><span class="kal-abo-t">In meinen Kalender</span>
@@ -1214,6 +1214,8 @@
       name: name || query,
       adresse: staette ? (adr || fallback) : "",
       url: query ? "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(query) : "",
+      // Vollstaendig fuer title und Vorlesehilfe - in der Zeile steht beides gekuerzt.
+      voll: [name || query, staette ? (adr || fallback) : ""].filter(Boolean).join(", "),
     };
   }
   /* Zeile unter „Danach" (Vorlage termin-und-kalender-v2): cremefarbene
@@ -1283,12 +1285,16 @@
 
     const ort = ortTeile(e);
     if (ort) {
-      teile.push('<div class="tk-feld tk-ort">' +
-        '<span class="tk-ort-ic" aria-hidden="true">' + VENUE_PIN + '</span>' +
+      // Die ganze Zeile fuehrt zur Karten-App, nicht nur die Pille. 60 px hoch,
+      // damit weit ueber der 44-px-Regel.
+      const inhalt = '<span class="tk-ort-ic" aria-hidden="true">' + VENUE_PIN + '</span>' +
         '<span class="tk-ort-main"><span class="tk-ort-n">' + esc(ort.name) + '</span>' +
         (ort.adresse ? '<span class="tk-ort-a">' + esc(ort.adresse) + '</span>' : "") + '</span>' +
-        (ort.url ? '<a class="tk-route" href="' + ort.url + '" target="_blank" rel="noopener noreferrer">Route</a>' : "") +
-        '</div>');
+        (ort.url ? '<span class="tk-route" aria-hidden="true">Route</span>' : "");
+      teile.push(ort.url
+        ? '<a class="tk-feld tk-ort" href="' + ort.url + '" target="_blank" rel="noopener noreferrer"' +
+          ' title="' + esc(ort.voll) + '" aria-label="Route zu ' + esc(ort.voll) + '">' + inhalt + '</a>'
+        : '<div class="tk-feld tk-ort">' + inhalt + '</div>');
     }
 
     if (cancelled) {

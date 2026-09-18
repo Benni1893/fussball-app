@@ -302,6 +302,45 @@ Kontraste aller neuen Textstellen gerechnet, niedrigster Wert 4,61:1
 (`.tk-ort-a` auf `--surface-2`). Trefferflächen: `.tk-menue` 38 sichtbar mit
 44er `::after`, `.tk-route` 23 mit 44er `::after`, alles andere mindestens 44.
 
+**Feinschliff nach dem iPhone-Test, 18.09.2026**
+
+Sechs Punkte, alle Werte aus `termin-und-kalender-v2.png` gemessen.
+
+1. **Plakette HEIM/AUSWÄRTS deckend.** Sie trug `--grad-gold`
+   (#fdf6e4 → #f6ebcd) — ein heller Verlauf auf dunklem Grund liest sich wie
+   Transparenz. Gemessen ist der Grund **#eac66b**; gebaut mit `--gold-400`
+   (#e3c25c) plus `--gold-700` als eigener Rand, Schrift `--green-900`:
+   **7,03:1**. Kein rgba im Spiel.
+2. **Abstände oben.** Gemessen: Titel-Unterkante zur Filterleiste **17,4**,
+   Filterleiste zum Knopf **12,0**. Gebaut `.seg { margin: 14px 0 12px }` —
+   14 statt 17,4, weil die Titel-Box rund 3 px unter der Schriftunterkante
+   endet. Auf der Übersicht bekommt die erste Kachel dieselben 14 px
+   (`.page-head + .tk`); das Bild zeigt die Anrede nicht, deshalb derselbe
+   Rhythmus wie im Kalender.
+3. **Gleiche Höhen.** Die beiden Spielerkarten im Bild sind exakt gleich hoch
+   (252,4 CSS). Daraus: Kopfband **86**, Innenrand **14**, Abstand **14**,
+   Ortzeile **60**, Knopfzeile **46**. Gebaut und nachgemessen: Kopfband 87,
+   Ortzeile 60, Knopfzeile 46 — über alle Varianten identisch. Zusätzliche
+   Höhe bringen nur der Zusagen-Block (80) und die beiden Kacheln (74).
+   Ausnahme: trägt eine Karte Marken („Abgesagt", „manuell geändert"),
+   wächst das Kopfband auf 95 — das ist ein Sonderzustand, kein Unterschied
+   zwischen Training und Spiel.
+   **Preis dafür:** Ortsname und Adresse stehen jetzt einzeilig mit
+   Auslassungspunkten. Die volle Adresse steckt im `title` des Ziels, und ein
+   Tipp auf die Zeile öffnet die Karten-App.
+4. **„Termin hinzufügen"** trug `.btn.btn-primary`, und dessen `--grad-btn`
+   (green-550 → green-650) überschrieb die Klasse weiter unten im
+   Stylesheet. Die Klassen `btn btn-primary` sind aus dem Markup raus;
+   `.kal-neu` ist eigenständig und trägt `--grad-chip-on` — dasselbe
+   Dunkelgrün wie Kopfband, gefüllte Chips und Zusage-Knopf.
+5. **Ganze Ortzeile antippbar.** Die Zeile ist jetzt selbst das `<a>` zur
+   Karten-App, 60 px hoch. Die Pille „ROUTE" ist nur noch Hinweis
+   (`aria-hidden`), kein eigenes Ziel mehr — zwei verschachtelte Links wären
+   für VoiceOver doppelt.
+6. **Balken zur Zählzeile.** Gemessen **14,2** von der Balkenunterkante zur
+   Schriftoberkante. `margin-top` von 10 auf **12** — mit der halben
+   Zeilenhöhe von 2,5 ergibt das 14,5.
+
 ## Vorlage trainer-sheet-v2.png (17.09.2026)
 
 Zwei Screens aus `.design-sync/reference/trainer-sheet-v2.png`, Maßstab des

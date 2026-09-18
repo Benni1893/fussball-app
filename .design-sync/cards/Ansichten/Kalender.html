@@ -28,7 +28,7 @@
         <button class="seg-b" role="tab" aria-selected="false" type="button">Training</button>
         <button class="seg-b" role="tab" aria-selected="false" type="button">Sonstiges</button>
       </div>
-      <button class="btn btn-primary kal-neu" type="button">
+      <button class="kal-neu" type="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
         <span>Termin hinzufügen</span>
       </button>
@@ -57,12 +57,12 @@
           <button class="tk-menue" type="button" aria-label="Mehr zu diesem Termin">⋯</button>
         </div>
         <div class="tk-body">
-          <div class="tk-feld tk-ort">
+          <a class="tk-feld tk-ort" href="#">
             <span class="tk-ort-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg></span>
             <span class="tk-ort-main"><span class="tk-ort-n">BSA Lerchenauer Straße</span>
             <span class="tk-ort-a">Lerchenauer Str. 220 · Kunstrasen 2</span></span>
-            <a class="tk-route" href="#">Route</a>
-          </div>
+            <span class="tk-route" aria-hidden="true">Route</span>
+          </a>
           <div class="tk-rsvp">
             <button class="tk-btn is-on" type="button">Zusage</button>
             <button class="tk-btn is-ab" type="button">Absage</button>
@@ -101,12 +101,12 @@
           </span>
         </div>
         <div class="tk-body">
-          <div class="tk-feld tk-ort">
+          <a class="tk-feld tk-ort" href="#">
             <span class="tk-ort-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg></span>
             <span class="tk-ort-main"><span class="tk-ort-n">BSA Lerchenauer Straße</span>
             <span class="tk-ort-a">Lerchenauer Str. 220 · Platz 2</span></span>
-            <a class="tk-route" href="#">Route</a>
-          </div>
+            <span class="tk-route" aria-hidden="true">Route</span>
+          </a>
           <div class="tk-rsvp">
             <button class="tk-btn" type="button">Zusage</button>
             <button class="tk-btn is-ab is-on" type="button">Absage</button>

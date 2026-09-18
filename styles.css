@@ -360,6 +360,8 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 }
 .page-head { margin-bottom: 0; }
 .page-head + .chips { margin-top: 12px; }
+/* Anrede zur ersten Kachel - dieselbe Luft wie im Kalender vom Titel zur Leiste. */
+.page-head + .tk, .page-head + .card { margin-top: 14px; }
 .page-head h1 { font-size: 1.4rem; font-weight: 800; margin: 0; }
 .page-head p { margin: 6px 0 0; font-size: 13px; font-weight: 400; line-height: 1.45; color: var(--muted); }
 
@@ -456,23 +458,27 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
    Die vier Filter sitzen in einem weissen Behaelter, der gewaehlte als
    gefuellte Pille darin. Darunter der Primaerknopf und die Abo-Zeile als
    Karte mit Symbolkachel und Chevron.                                       */
+/* Gemessen: Titel-Unterkante zur Leiste 17,4; Leiste zum Knopf 12,0. */
 .seg {
   display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px;
-  padding: 4px; margin-bottom: 10px;
+  padding: 4px; margin: 14px 0 12px;
   background: var(--card); border: 1px solid var(--line);
   border-radius: 14px; box-shadow: var(--shadow-sm);
 }
 .seg-b {
-  min-height: 40px; border: 0; border-radius: 10px; background: none;
+  min-height: 42px; border: 0; border-radius: 10px; background: none;
   color: var(--muted); font-size: 14px; font-weight: 700; letter-spacing: -.01em;
   position: relative; -webkit-tap-highlight-color: transparent;
 }
 .seg-b::after { content: ""; position: absolute; top: 50%; left: 0; right: 0; height: var(--tap); transform: translateY(-50%); }
 .seg-b.is-on { background: var(--grad-chip-on); color: #fff; box-shadow: var(--shadow-chip-on); }
 
+/* Dasselbe Dunkelgruen wie Kopfband, gefuellte Chips und Zusage-Knopf -
+   .btn-primary faerbt sonst mit dem helleren --grad-btn darueber. */
 .kal-neu {
-  width: 100%; min-height: var(--h-btn-lg); margin-bottom: 10px;
-  border: 0; border-radius: 14px; gap: 9px;
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  width: 100%; min-height: var(--h-btn-lg); margin-bottom: 16px;
+  border: 0; border-radius: 14px;
   background: var(--grad-chip-on); color: #fff;
   font-size: 16px; font-weight: 800; letter-spacing: -.012em;
 }
@@ -519,9 +525,13 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .tk-oben { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
 .tk-zeit { font-size: 13px; font-weight: 600; color: rgba(255,255,255,.88); line-height: normal; }
 /* Heim/Auswaerts als goldene Plakette auf dem Kopfband */
+/* Deckend, nicht durchscheinend: auf dem dunklen Kopfband liest sich ein
+   heller Verlauf wie Transparenz. Gemessen #eac66b, gebaut --gold-400 mit
+   --gold-700 als Rand; Schrift --green-900 haelt 7,0:1. */
 .tk-bdg {
-  flex: none; display: inline-flex; align-items: center; min-height: 20px; padding: 0 8px;
-  border-radius: var(--radius-pill); background: var(--grad-gold); color: var(--green-800);
+  flex: none; display: inline-flex; align-items: center; min-height: 21px; padding: 0 8px;
+  border-radius: var(--radius-pill);
+  background: var(--gold-400); border: 1px solid var(--gold-700); color: var(--green-900);
   font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; line-height: normal;
 }
 .tk-titel {
@@ -539,7 +549,9 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .tk-menue::after { content: ""; position: absolute; top: 50%; left: 50%; width: var(--tap); height: var(--tap); transform: translate(-50%,-50%); }
 
 /* ---- Koerper ---- */
-.tk-body { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+/* Gemessen an den beiden Spielerkarten, die im Bild exakt gleich hoch sind:
+   Innenrand 14, Abstand 14, Ortzeile 60, Knopfzeile 46. */
+.tk-body { padding: 14px; display: flex; flex-direction: column; gap: 14px; }
 /* Eingelassene Flaeche: heller Verlauf, feine Kante, kein zweiter Schatten. */
 .tk-feld {
   background: var(--grad-btn-sec); border: 1px solid var(--line);
@@ -547,7 +559,7 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 }
 
 /* Ort mit Route */
-.tk-ort { display: flex; align-items: center; gap: 12px; }
+.tk-ort { display: flex; align-items: center; gap: 10px; height: 60px; padding: 0 11px; width: 100%; text-align: left; }
 .tk-ort-ic {
   flex: none; width: 37px; height: 37px; border-radius: 10px;
   background: var(--grad-gold); color: var(--green-800);
@@ -555,21 +567,26 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 }
 .tk-ort-ic svg { width: 18px; height: 18px; }
 .tk-ort-main { flex: 1 1 auto; min-width: 0; }
-.tk-ort-n { display: block; font-size: 15px; font-weight: 700; line-height: 1.25; color: var(--ink); }   /* darf umbrechen - ein gekuerzter Ortsname hilft niemandem */
-.tk-ort-a { display: block; margin-top: 1px; font-size: 13px; font-weight: 500; line-height: 1.3; color: var(--muted); }
+/* Beide Zeilen einzeilig - nur so bleibt die Ortzeile ueber alle Varianten
+   gleich hoch (Punkt 3 des Feinschliffs). */
+.tk-ort-n { display: block; font-size: 14px; font-weight: 700; line-height: 1.25; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tk-ort-a { display: block; margin-top: 1px; font-size: 13px; font-weight: 500; line-height: 1.3; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Die ganze Zeile ist das Ziel (60 hoch, also weit ueber 44); die Pille ist
+   nur noch der Hinweis darauf, was passiert. */
 .tk-route {
-  flex: none; position: relative; display: inline-flex; align-items: center;
-  min-height: 23px; padding: 0 11px; border: 0; border-radius: var(--radius-pill);
+  flex: none; display: inline-flex; align-items: center;
+  min-height: 23px; padding: 0 9px; border-radius: var(--radius-pill);
   background: var(--green-050); color: var(--green-700);
   font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
-  text-decoration: none; line-height: normal;
+  line-height: normal;
 }
-.tk-route::after { content: ""; position: absolute; top: 50%; left: 50%; width: 100%; height: var(--tap); transform: translate(-50%,-50%); }
+a.tk-ort { text-decoration: none; }
+a.tk-ort:active { background: var(--green-050); }
 
 /* Zusage und Absage, gemessen 158x47 mit 14 Abstand */
 .tk-rsvp { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .tk-btn {
-  min-height: 47px; border: 1px solid var(--line); border-radius: 14px;
+  min-height: 46px; border: 1px solid var(--line); border-radius: 14px;
   background: var(--grad-btn-sec); color: var(--green-800);
   font-size: 16px; font-weight: 800; letter-spacing: -.012em;
 }
@@ -587,7 +604,7 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .tk-bar i { display: block; height: 100%; }
 .tk-bar i.is-zu { background: var(--green-600); }
 .tk-bar i.is-ab { background: var(--red-600); }
-.tk-z-zahlen { margin-top: 10px; font-size: 13px; font-weight: 500; color: var(--muted); line-height: normal; }
+.tk-z-zahlen { margin-top: 12px; font-size: 13px;   /* gemessen 14,2 von Balkenunterkante zur Schriftoberkante */ font-weight: 500; color: var(--muted); line-height: normal; }
 .tk-z-zahlen b { font-weight: 700; color: var(--ink); }
 
 /* Aufstellung und Kader-Info nebeneinander (nur Trainer und nur beim Spiel) */
