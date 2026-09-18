@@ -1990,7 +1990,7 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
   background: var(--grad-task-red); border-color: var(--red-line);
   box-shadow: 0 1px 1px rgba(165,40,27,.05);
 }
-.task-row.is-pay .task-num  { background: var(--grad-edge-red); }
+.task-row.is-pay .task-num  { background: var(--grad-chip-red); }   /* weisse Zahl: --grad-edge-red kaeme oben auf 4,0:1 */
 .task-row.is-pay .task-title{ color: var(--red-ink); }
 .task-row.is-pay .task-sub  { color: var(--red-ink-2); }
 .task-row.is-pay .task-go   { color: var(--red-chev); }
@@ -1999,7 +1999,7 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
   background: var(--grad-task-gold); border-color: var(--gold-line-2);
   box-shadow: 0 1px 1px rgba(122,90,12,.05);
 }
-.task-row.is-lineup .task-num   { background: var(--grad-edge-gold); font-size: 12px; }
+.task-row.is-lineup .task-num   { background: var(--grad-chip-gold); font-size: 12px; }   /* weisse Zahl: --grad-edge-gold kaeme oben auf 1,7:1 */
 .task-row.is-lineup .task-title,
 .task-row.is-lineup .task-sub   { color: var(--gold-ink-2); }
 .task-row.is-lineup .task-go    { color: var(--gold-chev); }
@@ -2008,7 +2008,7 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
   background: var(--grad-task-green); border-color: var(--green-badge-line);
   box-shadow: 0 1px 1px rgba(27,94,63,.05);
 }
-.task-row.is-rsvp .task-num { background: var(--grad-edge-green); }
+.task-row.is-rsvp .task-num { background: var(--grad-chip-on); }   /* weisse Zahl: --grad-edge-green kaeme oben auf 3,2:1 */
 .task-row.is-rsvp .task-title { color: var(--green-task-ink); }
 .task-row.is-rsvp .task-sub { color: var(--green-task-ink-2); }
 .task-row.is-rsvp .task-go { color: var(--green-chev); }

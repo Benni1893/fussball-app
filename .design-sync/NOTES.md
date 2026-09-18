@@ -197,6 +197,32 @@ das Muster der drei anderen Chips.
 `--grad-edge-gold` 1,7:1 bzw. `--grad-edge-red` 4,0:1). Ein Wechsel auf die
 beiden neuen Chip-Verläufe würde reichen; war nicht Teil des Auftrags.
 
+**Nachtrag 18.09.2026 — Plaketten im Aufgabenblock und ALLE.png**
+
+Die drei `.task-num` trugen weiße Zahlen auf den hellen Kantenverläufen und
+reißen damit dieselbe Regel wie die Statuschips: `--grad-edge-gold` 1,7:1,
+`--grad-edge-red` 4,0:1, `--grad-edge-green` 3,2:1 (jeweils am oberen Ende).
+Alle drei laufen jetzt über die Chip-Verläufe — `--grad-chip-gold`,
+`--grad-chip-red`, `--grad-chip-on` — und liegen zwischen 4,6:1 und 12,2:1.
+Der Auftrag nannte nur die ersten beiden; die grüne kam beim Nachrechnen
+dazu und ist dieselbe Ursache in derselben Regelgruppe.
+
+`ALLE.png` ist neu gebaut, weiter aus den vorhandenen Aufnahmen. Zwei
+Änderungen am Bauskript:
+
+- Die Trainer-Kachel kommt aus `.design-sync/shots/geruest.mjs` — der
+  Ansicht mit dem echten Stylesheet, echter Kopfzeile und Navigation, aber
+  fest eingesetzten Beispieldaten. Sie trägt im Raster die Marke **GERÜST**,
+  und unter dem Raster steht, was das heißt.
+- Jede Kachel nennt jetzt neben den Maßen ihre **Aufnahmezeit**. Damit ist im
+  Bild selbst sichtbar, welche Kacheln alt sind: die zwölf App-Aufnahmen
+  stammen vom 17.09., zeigen also weder die neuen Trainer-Kacheln noch die
+  seither korrigierten Kontraste im Aufgabenblock.
+
+Sobald wieder ein Testkonto da ist: `node .design-sync/shots/app.mjs` neu
+laufen lassen, den Geruest-Eintrag in `alle.mjs` auf
+`trainer-spielauswahl` zurückstellen und `alle.mjs` erneut bauen.
+
 ## Vorlage trainer-sheet-v2.png (17.09.2026)
 
 Zwei Screens aus `.design-sync/reference/trainer-sheet-v2.png`, Maßstab des
