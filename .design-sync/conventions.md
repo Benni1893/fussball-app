@@ -59,7 +59,7 @@ Layout-Beiwerk kommt als `style="…"` mit Tokens oder als neue, sprechende Klas
 | Fläche, Seite | `.card` `.card-pad` · `.page-head` `.page-head-row` `.pg-back` `.h1row` `.role-pill` · `.section-title` (klein: `.sec-mini`) · `.empty` · Kanten: `.edge-green` `.edge-gold` `.edge-red` |
 | Textbausteine | `.lbl` (11px Großbuchstaben) · `.rs` (12px Nebentext) · `.num` (gleiche Ziffernbreite) |
 | Kennzahlen | `.kpi-grid` (`.kpi-3`) `.kpi` `.kpi-label` `.kpi-value` `.kpi-sub` `.kpi-amt` · `.is-warn` · `.tile-rows` `.tile` `.tile-t` `.amount` |
-| Termine | `.event-list` (`.is-past`) `.event` · Art: `.typ-spiel` `.typ-training` `.typ-sonstiges` `.is-cancelled` · `.ev-head` `.event-date` `.d-day` `.d-mon` `.d-wd` · `.event-main` `.e-title` `.e-time` `.e-meta` `.e-note` · `.team-own` `.team-opp` `.vs` · `.venue-link` `.venue-pin` · `.ev-rsvp` `.ev-foot` `.ev-dot` · `.e-trainer` `.e-tr-rechts` · `.frist` `.frist-label` `.frist-warn` `.kal-cta` `.kal-cta-btn` `.kal-cta-sec` `.kal-cta-txt` |
+| Termine | `.event-list` (`.is-past`) · **Terminkarte** `.tk` (`.typ-spiel` `.typ-training` `.typ-sonstiges` `.is-cancelled`): `.tk-kopf` `.tk-datum` `.d-wd` `.d-day` `.d-mon` · `.tk-kopf-main` `.tk-oben` `.tk-bdg` `.tk-zeit` `.tk-titel` `.tk-tags` · `.tk-menue` · `.tk-body` `.tk-feld` · `.tk-ort` `.tk-ort-ic` `.tk-ort-main` `.tk-ort-n` `.tk-ort-a` `.tk-route` · `.tk-rsvp` `.tk-btn` `.tk-abgesagt` `.tk-grund` · `.tk-frist` `.tk-warn` `.tk-bfv` `.tk-notiz` · `.tk-zusagen` `.tk-z-kopf` `.tk-z-lbl` `.tk-z-offen` `.tk-bar` `.tk-z-zahlen` · `.tk-kacheln` `.tk-kachel` `.tk-k-lbl` `.tk-k-wert` `.tk-chev` · Kalenderkopf: `.seg` `.seg-b` `.kal-neu` `.kal-abo` `.kal-abo-ic` `.kal-abo-main` `.kal-abo-t` `.kal-abo-s` `.kal-abo-chev` · `.frist` `.frist-label` `.frist-warn` |
 | Termin-Hero | `.termin-hero` `.th-top` `.th-body` `.th-title` `.th-time` `.th-venue` `.th-count` `.th-count-v` `.th-rsvp` `.th-actions` · Spielertrainer: `.th-self` `.th-self-t` `.th-self-btns` `.th-mini` |
 | Zu-/Absage | `.btn-zu` `.btn-ab` (Zustand `.is-on`) · `.rsvp-reason` `.rsvp-cancelled` |
 | Aufgaben | `.task-list` `.task-row` (`.is-pay` `.is-lineup` `.is-rsvp`) `.task-num` `.task-main` `.task-title` `.task-sub` `.task-go` |
@@ -85,7 +85,7 @@ Zustände hängen sich als zweite Klasse an: `.btn.btn-zu.is-on`, `.kpi.is-warn`
 
 ## Farben nur über Tokens
 
-Nie ein Hex ins Markup. Alles liegt in `tokens/tokens.css` (133 Tokens):
+Nie ein Hex ins Markup. Alles liegt in `tokens/tokens.css` (135 Tokens):
 
 - Vereinsgrün `--green-990` bis `--green-050` — Kopfzeile, Primäraktion, Erfolg.
   `--green-700` trägt jede Primäraktion, `--green-800` Zahlen und Verweise.
@@ -102,7 +102,8 @@ Nie ein Hex ins Markup. Alles liegt in `tokens/tokens.css` (133 Tokens):
   `--grad-edge-gold` `--grad-edge-red` und weitere. Die gefüllten Statuschips
   tragen eigene, dunklere Verläufe — `--grad-chip-on` `--grad-chip-gold`
   `--grad-chip-red` `--grad-urlaub` —, weil weiße Schrift auf den hellen
-  Kantenverläufen keine 4,5:1 erreicht.
+  Kantenverläufen keine 4,5:1 erreicht. Das Kopfband der Terminkarte trägt
+  `--grad-tk-kopf`, der ⋯-Kreis darauf `--tk-menue`.
 - Form: `--radius` (14), `--radius-md` (12), `--radius-btn` (10),
   `--radius-sheet` (18), `--radius-pill`, `--radius-box` (6), `--shadow`,
   `--shadow-card`, `--shadow-sm`.

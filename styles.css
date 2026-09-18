@@ -66,8 +66,9 @@
   --line:  #e2e8e4;
   --bg:    #f4f7f5;
   --card:  #ffffff;
-  --bg-1: #eef0ef;        /* App-Grund 0%   (.ph) */
-  --bg-2: #e7eae9;        /* App-Grund 100% (.ph) */
+  --bg-1: #e9ecea;        /* App-Grund 0%   - eine Stufe dunkler als die Vorlage,
+                             damit die weisse Karte eine sichtbare Kante hat */
+  --bg-2: #e0e4e2;        /* App-Grund 100% */
   --card-2:    #fcfefd;   /* .card 100% */
   --kpi-2:     #fafdfb;   /* .kpi 100% - eigener Ton, heller als .card */
   --surface-2: #f6faf8;   /* .btn.sec2 100% */
@@ -118,12 +119,16 @@
   --grad-edge-gold:  linear-gradient(180deg, var(--gold-400),  var(--gold-700));
   --grad-edge-red:   linear-gradient(180deg, var(--red-500),   var(--red-700));
   --grad-urlaub:     linear-gradient(180deg, var(--muted),     #55635c);   /* Urlaub: grau wie in der Kaderkachel */
+  --grad-tk-kopf:    linear-gradient(180deg, var(--green-800),  var(--green-900));   /* Kopfband der Terminkarte */
+  --tk-menue:        rgba(255,255,255,.14);   /* ⋯-Kreis auf dem Kopfband */
   --grad-task-red:   linear-gradient(180deg, var(--red-100),      var(--red-200));
   --grad-task-gold:  linear-gradient(180deg, var(--gold-100),     var(--gold-250));
   --grad-task-green: linear-gradient(180deg, var(--green-task-1), var(--green-task-2));
 
   /* ---- Schatten ---------------------------------------------------------- */
-  --shadow-card:    0 1px 1px rgba(16,40,30,.04), 0 8px 20px -14px rgba(16,40,30,.45);
+  /* Schaerfe: 1px-Kante mit niedriger Deckkraft plus ein kurzer weicher
+     Schatten - hoechstens 12px Blur, 2-4px Versatz. Kein 20px-Nebel. */
+  --shadow-card:    0 0 0 1px rgba(16,40,30,.06), 0 3px 8px -3px rgba(16,40,30,.20);
   --shadow-hair:    0 1px 1px rgba(16,40,30,.04);
   --shadow-btn:     inset 0 1px 0 rgba(255,255,255,.24), 0 1px 2px rgba(16,40,30,.14), 0 10px 20px -12px rgba(31,112,73,.85);
   --shadow-btn-sec: 0 1px 1px rgba(16,40,30,.05), 0 6px 14px -12px rgba(16,40,30,.6);
@@ -138,8 +143,8 @@
   --shadow-av:      inset 0 1px 0 #fff, 0 1px 2px rgba(16,40,30,.1);
   --shadow-dbg:     inset 0 1px 0 rgba(255,255,255,.7), 0 1px 2px rgba(122,90,12,.1);
   --shadow-in:      inset 0 1px 2px rgba(16,40,30,.05);
-  --shadow-sm:      0 1px 2px rgba(15,61,46,.08);
-  --shadow:         0 1px 1px rgba(16,40,30,.04), 0 8px 20px -14px rgba(16,40,30,.45);
+  --shadow-sm:      0 1px 2px rgba(15,61,46,.10);
+  --shadow:         0 0 0 1px rgba(16,40,30,.06), 0 3px 8px -3px rgba(16,40,30,.20);
   --ov-sheet: rgba(10,28,21,.5);   /* .sheet Abdunklung */
 
   /* ---- Randfarben mit Alpha (Vorlage: rgba(16,40,30,a)) ------------------- */
@@ -320,6 +325,7 @@ body.auth-mode .hdr-gear { display: none; }   /* ausgeloggt: kein Zahnrad */
   font: inherit; font-size: 15px; font-weight: 600; color: var(--ink); cursor: pointer;
 }
 .more-item:active { color: var(--green-800); }
+.more-item.is-danger { color: var(--red-600); }
 
 /* Simulations-Leiste (Admin-Vorschau als andere Rolle) */
 .sim-bar {
@@ -434,7 +440,7 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
   cursor: pointer; -webkit-tap-highlight-color: transparent;
   transition: transform .08s ease;
 }
-.th-body:active { transform: scale(.99); }
+.th-body:active { background: var(--bg); }
 .th-body:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; border-radius: 8px; }
 /* B4: 21px statt 26px - so bleibt auch ein langer Gegnername einzeilig.
    Die Vorlage setzt 26px nur beim kurzen Wort "Training". */
@@ -470,8 +476,173 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .termin-hero .frist { margin-top: 10px; }
 .termin-hero .empty { padding: 10px 0; }
 
+/* ---------- Kalender-Kopf (Vorlage termin-und-kalender-v2.png) --------------
+   Die vier Filter sitzen in einem weissen Behaelter, der gewaehlte als
+   gefuellte Pille darin. Darunter der Primaerknopf und die Abo-Zeile als
+   Karte mit Symbolkachel und Chevron.                                       */
+.seg {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px;
+  padding: 4px; margin-bottom: 10px;
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 14px; box-shadow: var(--shadow-sm);
+}
+.seg-b {
+  min-height: 40px; border: 0; border-radius: 10px; background: none;
+  color: var(--muted); font-size: 14px; font-weight: 700; letter-spacing: -.01em;
+  position: relative; -webkit-tap-highlight-color: transparent;
+}
+.seg-b::after { content: ""; position: absolute; top: 50%; left: 0; right: 0; height: var(--tap); transform: translateY(-50%); }
+.seg-b.is-on { background: var(--grad-chip-on); color: #fff; box-shadow: var(--shadow-chip-on); }
+
+.kal-neu {
+  width: 100%; min-height: var(--h-btn-lg); margin-bottom: 10px;
+  border: 0; border-radius: 14px; gap: 9px;
+  background: var(--grad-chip-on); color: #fff;
+  font-size: 16px; font-weight: 800; letter-spacing: -.012em;
+}
+.kal-neu svg { width: 19px; height: 19px; }
+
+.kal-abo {
+  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+  padding: 12px 14px; min-height: 64px; margin-bottom: 16px;
+}
+.kal-abo-ic {
+  flex: none; width: 37px; height: 37px; border-radius: 10px;
+  background: var(--grad-gold); color: var(--green-800);
+  display: flex; align-items: center; justify-content: center;
+}
+.kal-abo-ic svg { width: 19px; height: 19px; }
+.kal-abo-main { flex: 1 1 auto; min-width: 0; }
+.kal-abo-t { display: block; font-size: 15px; font-weight: 700; color: var(--ink); line-height: 1.25; }
+.kal-abo-s { display: block; margin-top: 1px; font-size: 13px; font-weight: 500; color: var(--muted); line-height: 1.3; }
+.kal-abo-chev { flex: none; font-size: 18px; font-weight: 700; color: var(--dot-off); }
+
+/* ---------- Terminkarte (Vorlage termin-und-kalender-v2.png) ----------------
+   Eine Komponente fuer Kalender und Uebersicht, rollenabhaengig gefuellt.
+   Gemessen: Karte 358 breit, Kopfband 86 hoch, Innenrand 14, Bausteine im
+   Koerper 10 auseinander. Massstab der Vorlage 0,919 (329 Bildpunkte = 358). */
+.tk { overflow: hidden; }
+
+/* ---- Kopfband ---- */
+.tk-kopf {
+  display: flex; align-items: center; gap: 12px;
+  min-height: 86px; padding: 12px 14px;
+  background: var(--grad-tk-kopf); color: #fff;
+}
+/* Datumskachel, gemessen 48x61 */
+.tk-datum {
+  flex: none; width: 48px; padding: 7px 0; border-radius: 12px;
+  background: var(--grad-gold); color: var(--green-900);
+  text-align: center; line-height: 1;
+}
+.tk-datum .d-wd  { display: block; font-size: 10px; font-weight: 700; color: var(--gold-ink-2); }
+.tk-datum .d-day { display: block; margin-top: 4px; font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
+.tk-datum .d-mon { display: block; margin-top: 4px; font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--gold-ink-2); }
+
+.tk-kopf-main { flex: 1 1 auto; min-width: 0; }
+.tk-oben { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+.tk-zeit { font-size: 13px; font-weight: 600; color: rgba(255,255,255,.88); line-height: normal; }
+/* Heim/Auswaerts als goldene Plakette auf dem Kopfband */
+.tk-bdg {
+  flex: none; display: inline-flex; align-items: center; min-height: 20px; padding: 0 8px;
+  border-radius: var(--radius-pill); background: var(--grad-gold); color: var(--green-800);
+  font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; line-height: normal;
+}
+.tk-titel {
+  display: block; margin-top: 4px; font-size: 19px; font-weight: 800; line-height: 1.15;
+  letter-spacing: -.012em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.tk-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+/* ⋯ oeffnet Bearbeiten, Loeschen und die BFV-Aktionen. Sichtbar 38 px,
+   Trefferflaeche 44 als ::after. */
+.tk-menue {
+  position: relative; flex: none; width: 38px; height: 38px; border: 0; border-radius: 50%;
+  background: var(--tk-menue); color: #fff; font-size: 17px; font-weight: 700; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+}
+.tk-menue::after { content: ""; position: absolute; top: 50%; left: 50%; width: var(--tap); height: var(--tap); transform: translate(-50%,-50%); }
+
+/* ---- Koerper ---- */
+.tk-body { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+/* Eingelassene Flaeche: heller Verlauf, feine Kante, kein zweiter Schatten. */
+.tk-feld {
+  background: var(--grad-btn-sec); border: 1px solid var(--line);
+  border-radius: 12px; padding: 12px;
+}
+
+/* Ort mit Route */
+.tk-ort { display: flex; align-items: center; gap: 12px; }
+.tk-ort-ic {
+  flex: none; width: 37px; height: 37px; border-radius: 10px;
+  background: var(--grad-gold); color: var(--green-800);
+  display: flex; align-items: center; justify-content: center;
+}
+.tk-ort-ic svg { width: 18px; height: 18px; }
+.tk-ort-main { flex: 1 1 auto; min-width: 0; }
+.tk-ort-n { display: block; font-size: 15px; font-weight: 700; line-height: 1.25; color: var(--ink); }   /* darf umbrechen - ein gekuerzter Ortsname hilft niemandem */
+.tk-ort-a { display: block; margin-top: 1px; font-size: 13px; font-weight: 500; line-height: 1.3; color: var(--muted); }
+.tk-route {
+  flex: none; position: relative; display: inline-flex; align-items: center;
+  min-height: 23px; padding: 0 11px; border: 0; border-radius: var(--radius-pill);
+  background: var(--green-050); color: var(--green-700);
+  font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+  text-decoration: none; line-height: normal;
+}
+.tk-route::after { content: ""; position: absolute; top: 50%; left: 50%; width: 100%; height: var(--tap); transform: translate(-50%,-50%); }
+
+/* Zusage und Absage, gemessen 158x47 mit 14 Abstand */
+.tk-rsvp { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.tk-btn {
+  min-height: 47px; border: 1px solid var(--line); border-radius: 14px;
+  background: var(--grad-btn-sec); color: var(--green-800);
+  font-size: 16px; font-weight: 800; letter-spacing: -.012em;
+}
+.tk-btn.is-on { background: var(--grad-chip-on); border-color: var(--green-900); color: #fff; }
+.tk-btn.is-ab.is-on { background: var(--grad-chip-red); border-color: var(--red-700); }
+.tk-abgesagt { font-size: 15px; font-weight: 800; color: var(--red-600); text-align: center; padding: 6px 0; }
+
+/* Zusagen-Block (nur Trainer): Marke, Zahl mit Chevron, Balken, Zaehlzeile */
+.tk-zusagen { display: block; width: 100%; text-align: left; }
+.tk-z-kopf { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.tk-z-lbl { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--green-800); }
+.tk-z-offen { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 800; color: var(--gold-ink); }
+.tk-z-offen .tk-chev { color: var(--gold-chev); font-size: 15px; font-weight: 700; }
+.tk-bar { display: flex; height: 6px; margin-top: 11px; border-radius: var(--radius-pill); background: var(--line); overflow: hidden; }
+.tk-bar i { display: block; height: 100%; }
+.tk-bar i.is-zu { background: var(--green-600); }
+.tk-bar i.is-ab { background: var(--red-600); }
+.tk-z-zahlen { margin-top: 10px; font-size: 13px; font-weight: 500; color: var(--muted); line-height: normal; }
+.tk-z-zahlen b { font-weight: 700; color: var(--ink); }
+
+/* Aufstellung und Kader-Info nebeneinander (nur Trainer und nur beim Spiel) */
+.tk-kacheln { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.tk-kachel { display: block; width: 100%; text-align: left; }
+.tk-k-lbl { display: block; font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--green-800); }
+.tk-k-wert { display: flex; align-items: baseline; gap: 6px; margin-top: 6px; font-size: 19px; font-weight: 800; color: var(--ink); letter-spacing: -.02em; }
+.tk-k-wert small { font-size: 13px; font-weight: 500; color: var(--muted); letter-spacing: 0; }
+.tk-k-wert .tk-chev { font-size: 15px; font-weight: 700; color: var(--dot-off); }
+
+/* Meldeschluss und die Acht-Euro-Warnung stehen unter der Knopfzeile - die
+   Vorlage zeichnet sie nicht, ohne sie faehrt man aber in die Strafe. */
+.tk-frist { font-size: 13px; font-weight: 500; color: var(--muted); line-height: normal; }
+.tk-frist .frist-label { font-weight: 700; color: var(--green-800); }
+.tk-warn {
+  font-size: 13px; font-weight: 600; line-height: 1.35; color: var(--red-ink);
+  background: var(--grad-task-red); border: 1px solid var(--red-line);
+  border-radius: 10px; padding: 9px 11px;
+}
+/* Grund der eigenen Absage, BFV-Abweichung und die Marke bleiben sichtbar. */
+.tk-grund { font-size: 13px; font-weight: 500; color: var(--red-600); }
+.tk-bfv { font-size: 13px; font-weight: 500; color: var(--gold-ink-2); line-height: 1.4; }
+.tk-bfv .link-btn { font-size: 13px; }
+.tk-notiz { font-size: 13px; font-weight: 500; color: var(--amber-600); line-height: 1.35; }
+
+/* Abgesagter Termin: Kopfband rot statt gruen, Karte bleibt lesbar. */
+.tk.is-cancelled .tk-kopf { background: var(--grad-chip-red); }
+.tk.is-cancelled .tk-titel { text-decoration: line-through; }
+
 /* ---------- Termin-Karten -------------------------------------------------- */
-.event-list { display: flex; flex-direction: column; gap: 8px; }
+.event-list { display: flex; flex-direction: column; gap: 10px; }
 /* Gestapelte Karte (Paket 7a): Kopfzeile aus Datumsplakette und Inhalt, darunter
    Zu-/Absage, Statuszeile, BFV-Hinweis und Trainer-Aktionen. iPhone-first – am
    Desktop wird die Karte breit statt dreispaltig, das ist so gewollt. */
@@ -575,7 +746,7 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
   content: ""; position: absolute; left: 0; right: 0; top: 50%;
   height: var(--tap); transform: translateY(-50%);
 }
-.ev-foot.is-tap:active { transform: scale(.99); }
+.ev-foot.is-tap:active { background: var(--bg); }
 .ev-foot.is-tap:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; border-radius: 8px; }
 .event > .frist-warn { margin-top: 8px; }
 
@@ -1861,7 +2032,7 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
   cursor: pointer; -webkit-tap-highlight-color: transparent;
   transition: transform .08s ease;
 }
-.kpi-tapbar:active { transform: scale(.985); }
+.kpi-tapbar:active { background: var(--green-050); }
 .kpi-tapbar:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; }
 
 /* Unter-Überschriften im Anlage-Block */
@@ -1973,7 +2144,7 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
   border: 1px solid var(--line); border-radius: var(--radius);
 }
 .task-row[role="button"] { cursor: pointer; transition: transform .08s ease; }
-.task-row[role="button"]:active { transform: scale(.99); }
+.task-row[role="button"]:active { filter: none; opacity: .88; }
 .task-row[role="button"]:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; }
 .task-num {
   flex: none; width: 34px; height: 34px; border-radius: var(--radius-btn);
@@ -2021,7 +2192,7 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
   cursor: pointer; -webkit-tap-highlight-color: transparent;
   transition: transform .08s ease;
 }
-.tile:active { transform: scale(.99); }
+.tile:active { background: var(--bg); }
 .tile:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; }
 .tile-t { font-size: 14px; font-weight: 600; color: var(--ink); }
 .tile .amount { font-size: 16px; font-weight: 800; text-align: start; }
@@ -2049,7 +2220,7 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
   font: inherit; text-align: left; color: inherit;
 }
 button.sg-stat { cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .08s ease; }
-button.sg-stat:active { transform: scale(.985); }
+button.sg-stat:active { background: var(--bg); }
 button.sg-stat:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; }
 .sg-stat-v  { display: block; font-size: 17px; font-weight: 800; line-height: 1; color: var(--green-800); }
 .sg-stat .rs { display: block; margin-top: 3px; }
@@ -2077,7 +2248,7 @@ button.sg-stat:focus-visible { outline: 2px solid var(--green-700); outline-offs
   cursor: pointer; -webkit-tap-highlight-color: transparent;
   transition: transform .08s ease;
 }
-.mini-ev:active { transform: scale(.99); }
+.mini-ev:active { background: var(--bg); }
 .mini-ev:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; }
 .mini-body { min-width: 0; }
 .mini-typ  { font-size: 13px; font-weight: 500; line-height: 1.3; color: var(--muted); }

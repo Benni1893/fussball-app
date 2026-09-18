@@ -8,131 +8,148 @@
 <link rel="stylesheet" href="../../../styles.css">
 <style>
   /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
-  body { padding: 0; min-height: 0; }
+  body { padding: 0; min-height: 0; background: var(--bg-1); }
   .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
   .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
   .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; line-height: 1.6; }
+  .frame { width: 390px; max-width: 100%; padding: 12px 16px; background: var(--grad-app); border-radius: 12px; }
 </style>
 </head>
 <body>
 <div class="sp">
 
   <div>
-    <div class="sp-h">Filter und die beiden Einstiege</div>
-    <div class="chips">
-      <button class="chip is-active" type="button">Alle</button>
-      <button class="chip" type="button">Spiele</button>
-      <button class="chip" type="button">Training</button>
-      <button class="chip" type="button">Sonstiges</button>
-    </div>
-    <div class="kal-cta">
-      <button class="btn btn-primary kal-cta-btn" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-        <span class="kal-cta-txt">Termin hinzufügen</span>
-      </button>
-      <button class="btn kal-cta-btn kal-cta-sec" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>
-        <span class="kal-cta-txt">In meinen Kalender<small>Alle Termine im iPhone-Kalender abonnieren</small></span>
-      </button>
-    </div>
-    <div class="meta">.chips oben, darunter .kal-cta mit .kal-cta-btn; die zweite trägt .kal-cta-sec und eine Erläuterung im small.</div>
-  </div>
-
-  <div>
-    <div class="sp-h">Terminkarte — Spiel</div>
-    <div class="card event typ-spiel">
-      <div class="ev-head">
-        <div class="event-date">
-          <span class="d-wd">So</span>
-          <span class="d-day">20</span>
-          <span class="d-mon">Sep</span>
-        </div>
-        <div class="event-main">
-          <div class="e-title"><span class="team-own">FC Fasanerie-Nord</span> <span class="vs">–</span> <span class="team-opp">VfB Sparta München</span><span class="tag tag-friendly">Freundschaft</span></div>
-          <div class="e-time num">12:30&#8211;14:30 Uhr</div>
-          <div class="e-meta"><a class="venue-link" href="#">
-            <svg class="venue-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
-            Sportanlage Fasanerie</a></div>
-          <div class="e-note">Treffpunkt 11:45 an der Kabine</div>
-        </div>
+    <div class="sp-h">Kopfbereich bei 390px</div>
+    <div class="frame">
+      <div class="page-head"><h1>Kalender</h1></div>
+      <div class="seg" role="tablist">
+        <button class="seg-b is-on" role="tab" aria-selected="true" type="button">Alle</button>
+        <button class="seg-b" role="tab" aria-selected="false" type="button">Spiele</button>
+        <button class="seg-b" role="tab" aria-selected="false" type="button">Training</button>
+        <button class="seg-b" role="tab" aria-selected="false" type="button">Sonstiges</button>
       </div>
-      <div class="ev-rsvp">
-        <button class="btn btn-zu is-on" type="button">Zusage</button>
-        <button class="btn btn-ab" type="button">Absage</button>
-      </div>
-      <button class="ev-foot is-tap" type="button">
-        <div class="frist"><span class="frist-label">Meldeschluss:</span> <span class="cd cd-neutral">3 Tage</span></div>
-        <span class="ev-dot" aria-hidden="true">·</span><span><b>11</b> / 16 zugesagt</span>
-        <span class="ev-dot" aria-hidden="true">·</span><span>Aufstellung 7/11</span>
+      <button class="btn btn-primary kal-neu" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        <span>Termin hinzufügen</span>
       </button>
-      <div class="e-trainer">
-          <button class="link-btn lu-jump" type="button">Aufstellung</button>
-          <button class="link-btn" type="button">Kader-Info</button>
-        <span class="e-tr-rechts">
-          <button class="icon-btn" type="button" aria-label="Termin bearbeiten">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
-          </button>
+      <button class="card kal-abo" type="button">
+        <span class="kal-abo-ic" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>
         </span>
-      </div>
+        <span class="kal-abo-main"><span class="kal-abo-t">In meinen Kalender</span>
+        <span class="kal-abo-s">Alle Termine im iPhone-Kalender abonnieren</span></span>
+        <span class="kal-abo-chev" aria-hidden="true">›</span>
+      </button>
     </div>
-    <div class="meta">.card.event.typ-spiel — goldene Kante. .ev-head (.event-date, .event-main) · .ev-rsvp · .ev-foot (für Trainer antippbar mit .is-tap) · .e-trainer mit .e-tr-rechts</div>
+    <div class="meta">.seg &gt; .seg-b (gewählt .is-on) · .kal-neu · .card.kal-abo mit .kal-abo-ic / .kal-abo-main / .kal-abo-chev</div>
   </div>
 
   <div>
-    <div class="sp-h">Terminkarte — Training und abgesagt</div>
-    <div class="event-list">
-      <div class="card event typ-training">
-        <div class="ev-head">
-          <div class="event-date"><span class="d-wd">Do</span><span class="d-day">17</span><span class="d-mon">Sep</span></div>
-          <div class="event-main">
-            <div class="e-title">Training</div>
-            <div class="e-time num">19:30 Uhr</div>
+    <div class="sp-h">Terminkarte — Trainer, Spiel</div>
+    <div class="frame">
+      <div class="card tk typ-spiel">
+        <div class="tk-kopf">
+          <span class="tk-datum"><span class="d-wd">So</span><span class="d-day num">20</span><span class="d-mon">Sep</span></span>
+          <span class="tk-kopf-main">
+            <span class="tk-oben"><span class="tk-bdg">Heim</span><span class="tk-zeit num">12:30 Uhr</span></span>
+            <span class="tk-titel">VfB Sparta München</span>
+          </span>
+          <button class="tk-menue" type="button" aria-label="Mehr zu diesem Termin">⋯</button>
+        </div>
+        <div class="tk-body">
+          <div class="tk-feld tk-ort">
+            <span class="tk-ort-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg></span>
+            <span class="tk-ort-main"><span class="tk-ort-n">BSA Lerchenauer Straße</span>
+            <span class="tk-ort-a">Lerchenauer Str. 220 · Kunstrasen 2</span></span>
+            <a class="tk-route" href="#">Route</a>
+          </div>
+          <div class="tk-rsvp">
+            <button class="tk-btn is-on" type="button">Zusage</button>
+            <button class="tk-btn is-ab" type="button">Absage</button>
+          </div>
+          <div class="tk-frist"><span class="frist-label">Meldeschluss:</span> <span class="cd cd-amber">18 Std</span></div>
+          <button class="tk-feld tk-zusagen" type="button">
+            <span class="tk-z-kopf"><span class="tk-z-lbl">Zusagen</span>
+            <span class="tk-z-offen num">4 offen<span class="tk-chev">›</span></span></span>
+            <span class="tk-bar" role="img" aria-label="11 zugesagt, 1 abgesagt, 4 offen">
+              <i class="is-zu" style="width:68.75%"></i><i class="is-ab" style="width:6.25%"></i></span>
+            <span class="tk-z-zahlen num"><b>11</b> zugesagt · <b>1</b> abgesagt · <b>4</b> offen</span>
+          </button>
+          <div class="tk-kacheln">
+            <button class="tk-feld tk-kachel" type="button">
+              <span class="tk-k-lbl">Aufstellung</span>
+              <span class="tk-k-wert num">11/11<span class="tk-chev">›</span></span></button>
+            <button class="tk-feld tk-kachel" type="button">
+              <span class="tk-k-lbl">Kader-Info</span>
+              <span class="tk-k-wert num">16 <small>Spieler</small><span class="tk-chev">›</span></span></button>
           </div>
         </div>
-        <div class="ev-rsvp">
-          <button class="btn btn-zu" type="button">Zusage</button>
-          <button class="btn btn-ab is-on" type="button">Absage</button>
-        </div>
-        <div class="rsvp-reason">Grund: Spätschicht</div>
       </div>
-      <div class="card event typ-spiel is-cancelled">
-        <div class="ev-head">
-          <div class="event-date"><span class="d-wd">Sa</span><span class="d-day">13</span><span class="d-mon">Sep</span></div>
-          <div class="event-main">
-            <div class="e-title">SV Olympiadorf München<span class="tag tag-cancelled">Abgesagt</span></div>
-            <div class="e-time num">15:00 Uhr</div>
+    </div>
+    <div class="meta">.card.tk &gt; .tk-kopf (.tk-datum, .tk-kopf-main mit .tk-oben/.tk-bdg/.tk-zeit/.tk-titel, .tk-menue) · .tk-body mit .tk-feld-Bausteinen</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Terminkarte — Spieler, Training</div>
+    <div class="frame">
+      <div class="card tk typ-training">
+        <div class="tk-kopf">
+          <span class="tk-datum"><span class="d-wd">Di</span><span class="d-day num">22</span><span class="d-mon">Sep</span></span>
+          <span class="tk-kopf-main">
+            <span class="tk-oben"><span class="tk-zeit num">19:30 – 21:00 Uhr</span></span>
+            <span class="tk-titel">Training</span>
+          </span>
+        </div>
+        <div class="tk-body">
+          <div class="tk-feld tk-ort">
+            <span class="tk-ort-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg></span>
+            <span class="tk-ort-main"><span class="tk-ort-n">BSA Lerchenauer Straße</span>
+            <span class="tk-ort-a">Lerchenauer Str. 220 · Platz 2</span></span>
+            <a class="tk-route" href="#">Route</a>
           </div>
-        </div>
-        <div class="ev-rsvp"><span class="rsvp-cancelled">Abgesagt</span></div>
-      </div>
-    </div>
-    <div class="meta">.typ-training und .typ-sonstiges tragen die grüne Kante, .is-cancelled die rote. Die Marken für Spiel/Training/Heim/Auswärts gibt es nicht mehr — die Kante und die Zeile sagen es.</div>
-  </div>
-
-  <div>
-    <div class="sp-h">Nach dem Meldeschluss</div>
-    <div class="card event typ-training">
-      <div class="ev-head">
-        <div class="event-date"><span class="d-wd">Di</span><span class="d-day">22</span><span class="d-mon">Sep</span></div>
-        <div class="event-main"><div class="e-title">Training</div><div class="e-time num">19:30 Uhr</div></div>
-      </div>
-      <div class="frist frist-warn">Meldeschluss vorbei – Rückmeldung jetzt kostet 8 €, keine Rückmeldung 15 €.</div>
-    </div>
-    <div class="meta">.frist.frist-warn steht bewusst außerhalb der antippbaren Fußzeile: sie ist ein Hinweis, kein Sprungziel.</div>
-  </div>
-
-  <div>
-    <div class="sp-h">Vergangene Termine</div>
-    <div class="kal-past-title"><div class="section-title"><h2>Vergangen</h2></div></div>
-    <div class="event-list is-past">
-      <div class="card event typ-spiel">
-        <div class="ev-head">
-          <div class="event-date"><span class="d-wd">So</span><span class="d-day">7</span><span class="d-mon">Sep</span></div>
-          <div class="event-main"><div class="e-title">FT München-Gern 2</div><div class="e-time num">10:00 Uhr</div></div>
+          <div class="tk-rsvp">
+            <button class="tk-btn" type="button">Zusage</button>
+            <button class="tk-btn is-ab is-on" type="button">Absage</button>
+          </div>
+          <div class="tk-grund">Grund: Spätschicht</div>
+          <div class="tk-warn">Meldeschluss vorbei – Rückmeldung jetzt kostet 8 €, keine Rückmeldung 15 €.</div>
         </div>
       </div>
     </div>
-    <div class="meta">.event-list.is-past — dieselbe Karte, nur leiser. Zu- und Absage entfallen.</div>
+    <div class="meta">Ohne Trainerrechte entfallen ⋯, Zusagen-Block und die beiden Kacheln. .tk-grund und .tk-warn erscheinen nur, wenn es sie gibt.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Abgesagt und BFV-Abweichung</div>
+    <div class="frame">
+      <div class="card tk typ-spiel is-cancelled">
+        <div class="tk-kopf">
+          <span class="tk-datum"><span class="d-wd">Sa</span><span class="d-day num">13</span><span class="d-mon">Sep</span></span>
+          <span class="tk-kopf-main">
+            <span class="tk-oben"><span class="tk-bdg">Auswärts</span><span class="tk-zeit num">15:00 Uhr</span></span>
+            <span class="tk-titel">SV Olympiadorf München</span>
+            <span class="tk-tags"><span class="tag tag-cancelled">Abgesagt</span><span class="tag tag-manuell">manuell geändert</span></span>
+          </span>
+          <button class="tk-menue" type="button" aria-label="Mehr zu diesem Termin">⋯</button>
+        </div>
+        <div class="tk-body">
+          <div class="tk-abgesagt">Abgesagt</div>
+          <div class="tk-bfv">BFV meldet abweichende Zeit: 13.09. 16:00 <button class="link-btn" type="button">übernehmen</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">.tk.is-cancelled färbt das Kopfband rot und streicht den Titel. Der BFV-Hinweis steht sichtbar in der Karte, „übernehmen" direkt daneben; Zurücksetzen und Löschen liegen im ⋯-Menü.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Was hinter dem ⋯ liegt</div>
+    <div class="card" style="overflow:hidden">
+      <div class="more-title">VfB Sparta München · 20. Sep</div>
+      <button class="more-item" type="button">Termin bearbeiten</button>
+      <button class="more-item" type="button">Zurücksetzen auf BFV-Daten</button>
+      <button class="more-item is-danger" type="button">Termin löschen</button>
+    </div>
+    <div class="meta">Stift, Löschen und das Zurücksetzen auf die BFV-Daten. Die Vorlage zeichnet nur den ⋯-Knopf; ohne dieses Blatt wäre der Kalender nicht pflegbar.</div>
   </div>
 
 </div>

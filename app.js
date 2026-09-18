@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-18-F";
+  var APP_BUILD = "2026-09-18-G";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -1129,18 +1129,21 @@
 
     viewEl.innerHTML = `
       <div class="page-head">${navBackChevronHtml()}<h1>Kalender</h1></div>
-      <div class="chips">
-        ${filters.map((f) => `<button class="chip ${kalFilter === f.k ? "is-active" : ""}" data-filter="${f.k}">${f.label}</button>`).join("")}
+      <div class="seg" role="tablist">
+        ${filters.map((f) => `<button class="seg-b ${kalFilter === f.k ? "is-on" : ""}" role="tab" aria-selected="${kalFilter === f.k}" data-filter="${f.k}">${f.label}</button>`).join("")}
       </div>
-      <div class="kal-cta">
-        ${Roles.canManageSchedule() ? `<button class="btn btn-primary kal-cta-btn" data-termin-new>${ICON_PLUS}<span class="kal-cta-txt">Termin hinzufügen</span></button>` : ""}
-        <button class="btn kal-cta-btn kal-cta-sec" data-cal-sheet type="button">${ICON_CAL_ADD}<span class="kal-cta-txt">In meinen Kalender<small>Alle Termine im iPhone-Kalender abonnieren</small></span></button>
-      </div>
-      ${kommend.length ? `<div class="event-list">${kommend.map((e) => eventCard(e, true)).join("")}</div>`
+      ${Roles.canManageSchedule() ? `<button class="btn btn-primary kal-neu" data-termin-new>${ICON_PLUS}<span>Termin hinzufügen</span></button>` : ""}
+      <button class="card kal-abo" data-cal-sheet type="button">
+        <span class="kal-abo-ic" aria-hidden="true">${ICON_CAL_ADD}</span>
+        <span class="kal-abo-main"><span class="kal-abo-t">In meinen Kalender</span>
+        <span class="kal-abo-s">Alle Termine im iPhone-Kalender abonnieren</span></span>
+        <span class="kal-abo-chev" aria-hidden="true">›</span>
+      </button>
+      ${kommend.length ? `<div class="event-list">${kommend.map((e) => terminKarteHtml(e)).join("")}</div>`
                        : `<div class="empty">Keine kommenden Termine in dieser Auswahl.</div>`}
       ${vergangen.length ? `
         <div class="section-title kal-past-title"><h2>Vergangene Termine</h2></div>
-        <div class="event-list is-past">${vergangen.map((e) => eventCard(e, false)).join("")}</div>` : ""}
+        <div class="event-list is-past">${vergangen.map((e) => terminKarteHtml(e)).join("")}</div>` : ""}
     `;
 
     startCountdowns(); // Meldeschluss-Countdowns dieser Ansicht live halten
@@ -1331,122 +1334,177 @@
     }
     return "";
   }
+  /* Ort fuer die Terminkarte: Name, Adresse und der Weg zur Karten-App.
+     Gibt die Teile einzeln zurueck, weil die Vorlage sie in drei Spalten legt. */
+  function ortTeile(e) {
+    const staette  = (e.spielstaette || "").trim();
+    const adr      = (e.adresse || "").trim();
+    const fallback = (e.ort || "").trim();
+    const raw      = (e.locationRaw || "").trim();
+    const query = raw || (staette && adr ? staette + ", " + adr : "");
+    const name  = staette || fallback || adr;
+    if (!name && !query) return null;
+    return {
+      name: name || query,
+      adresse: staette ? (adr || fallback) : "",
+      url: query ? "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(query) : "",
+    };
+  }
 
-  function eventCard(e, withRsvp = true) {
-    // Die Kantenfarbe haengt im CSS an der Typklasse: Spiel gold, sonst gruen,
-    // abgesagt rot. Die frueheren Heim-/Auswaertstoene entfallen.
-    const cancelled = e.status === "abgesagt";
-    const titel = (e.typ === "spiel" && e.gegner)
-      ? (() => { const p = paarung(e); return `${p.home} <span class="vs">–</span> ${p.away}`; })()
-      : esc(e.titel);
+  /* ---------- Terminkarte (Vorlage termin-und-kalender-v2.png) ---------------
+     EINE Komponente fuer Kalender und Uebersicht. Was sie zeigt, haengt an der
+     Rolle: Trainer bekommt Zaehler, Zusagen-Balken, Aufstellung und Kader-Info,
+     der Spieler seine Zu-/Absage samt Meldeschluss. Zu-/Absage steht in beiden
+     Faellen da - wer Trainer UND Spieler ist, meldet sich hier zurueck (K7 ist
+     damit ueberholt, die eigene Zeile im Hero entfaellt).
+     opts.hero = true laesst den Kalender-Werkzeugkram weg; er gehoert in den
+     Kalender, nicht auf die Uebersicht.                                       */
+  function terminKarteHtml(e, opts) {
+    opts = opts || {};
+    const cancelled = e.typ !== "spiel" ? e.status === "abgesagt" : e.status === "abgesagt";
+    const future    = isFuture(e.datum);
+    const trainer   = Roles.canManageEvents();
+    const spiel     = e.typ === "spiel";
+    const r         = state.rsvp[e.id + "|" + state.currentPlayerId] || {};
+    const verknuepft = !!(currentProfile && currentProfile.player_id && playerById[state.currentPlayerId]);
 
-    const zusagen = DEMO.players.filter((p) => (state.rsvp[e.id + "|" + p.id] || {}).status === "zu").length;
-    const r = state.rsvp[e.id + "|" + state.currentPlayerId] || {};
-    const future = isFuture(e.datum);
-    const friendlyTag = (e.typ === "spiel" && e.wettbewerb && /freundschaft/i.test(e.wettbewerb))
-      ? `<span class="tag tag-friendly">Freundschaft</span>` : "";
-    const cancelledTag = cancelled ? `<span class="tag tag-cancelled">Abgesagt</span>` : "";
+    // --- Kopfband ---------------------------------------------------------
+    const zeit = e.zeit ? esc(e.zeit) + (e.ende ? " &#8211; " + esc(e.ende) : "") + " Uhr" : "";
+    const titel = spiel ? esc(e.gegner || e.titel) : esc(e.titel);
+    const bdg = (spiel && e.heim != null) ? '<span class="tk-bdg">' + (e.heim ? "Heim" : "Auswärts") + '</span>' : "";
 
-    // BFV: manuell geaendert + Drift-Hinweis (Gate 3)
     const istBfv = e.quelle === "bfv";
     const mb = e.manuellBearbeitet || {}, bn = e.bfvNeu || {};
-    const manuellTag = (istBfv && (mb.start || mb.ort)) ? `<span class="tag tag-manuell">manuell geändert</span>` : "";
-    const bfvBlock = (istBfv && Roles.canManageSchedule()) ? (() => {
-      const parts = [];
+    const tags = [];
+    if (spiel && e.wettbewerb && /freundschaft/i.test(e.wettbewerb)) tags.push('<span class="tag tag-friendly">Freundschaft</span>');
+    if (cancelled) tags.push('<span class="tag tag-cancelled">Abgesagt</span>');
+    if (istBfv && (mb.start || mb.ort)) tags.push('<span class="tag tag-manuell">manuell geändert</span>');
+
+    const kopf = '<div class="tk-kopf">' +
+      '<span class="tk-datum"><span class="d-wd">' + fmtWd(e.datum) + '</span>' +
+      '<span class="d-day num">' + fmtDay(e.datum) + '</span>' +
+      '<span class="d-mon">' + fmtMon(e.datum) + '</span></span>' +
+      '<span class="tk-kopf-main">' +
+        (bdg || zeit ? '<span class="tk-oben">' + bdg + (zeit ? '<span class="tk-zeit num">' + zeit + '</span>' : "") + '</span>' : "") +
+        '<span class="tk-titel">' + titel + '</span>' +
+        (tags.length ? '<span class="tk-tags">' + tags.join("") + '</span>' : "") +
+      '</span>' +
+      ((trainer && !opts.hero) ? '<button class="tk-menue" data-tkmenu="' + e.id + '" aria-label="Mehr zu diesem Termin">⋯</button>' : "") +
+      '</div>';
+
+    // --- Koerper ----------------------------------------------------------
+    const teile = [];
+
+    const ort = ortTeile(e);
+    if (ort) {
+      teile.push('<div class="tk-feld tk-ort">' +
+        '<span class="tk-ort-ic" aria-hidden="true">' + VENUE_PIN + '</span>' +
+        '<span class="tk-ort-main"><span class="tk-ort-n">' + esc(ort.name) + '</span>' +
+        (ort.adresse ? '<span class="tk-ort-a">' + esc(ort.adresse) + '</span>' : "") + '</span>' +
+        (ort.url ? '<a class="tk-route" href="' + ort.url + '" target="_blank" rel="noopener noreferrer">Route</a>' : "") +
+        '</div>');
+    }
+
+    if (cancelled) {
+      teile.push('<div class="tk-abgesagt">Abgesagt</div>');
+    } else if (future && verknuepft) {
+      teile.push('<div class="tk-rsvp">' +
+        '<button class="tk-btn' + (r.status === "zu" ? " is-on" : "") + '" data-rsvp="zu" data-event="' + e.id + '">Zusage</button>' +
+        '<button class="tk-btn is-ab' + (r.status === "ab" ? " is-on" : "") + '" data-rsvp="ab" data-event="' + e.id + '">Absage</button>' +
+        '</div>');
+      if (r.status === "ab" && r.grund) teile.push('<div class="tk-grund">Grund: ' + esc(r.grund) + '</div>');
+      // Meldeschluss und die Acht-Euro-Warnung direkt unter der Knopfzeile.
+      const frist = fristBlockHtml(e);
+      if (frist) teile.push(frist.indexOf("frist-warn") >= 0
+        ? '<div class="tk-warn">' + frist.replace(/<\/?div[^>]*>/g, "") + '</div>'
+        : '<div class="tk-frist">' + frist.replace(/<\/?div[^>]*>/g, "") + '</div>');
+    }
+
+    if (trainer && !cancelled) {
+      const gesamt = DEMO.players.length;
+      const zu = DEMO.players.filter((p) => (state.rsvp[e.id + "|" + p.id] || {}).status === "zu").length;
+      const ab = DEMO.players.filter((p) => (state.rsvp[e.id + "|" + p.id] || {}).status === "ab").length;
+      const offen = gesamt - zu - ab;
+      const pz = gesamt ? (zu / gesamt) * 100 : 0;
+      const pa = gesamt ? (ab / gesamt) * 100 : 0;
+      teile.push('<button class="tk-feld tk-zusagen" data-rsvp-sheet="' + e.id + '">' +
+        '<span class="tk-z-kopf"><span class="tk-z-lbl">Zusagen</span>' +
+        '<span class="tk-z-offen num">' + offen + ' offen<span class="tk-chev">›</span></span></span>' +
+        '<span class="tk-bar" role="img" aria-label="' + zu + ' zugesagt, ' + ab + ' abgesagt, ' + offen + ' offen">' +
+          '<i class="is-zu" style="width:' + pz.toFixed(2) + '%"></i>' +
+          '<i class="is-ab" style="width:' + pa.toFixed(2) + '%"></i></span>' +
+        '<span class="tk-z-zahlen num"><b>' + zu + '</b> zugesagt · <b>' + ab + '</b> abgesagt · <b>' + offen + '</b> offen</span>' +
+        '</button>');
+
+      if (spiel) {
+        const lu = (DEMO.lineups || []).find((l) => l.eventId === e.id && l.isActive && !l.isTemplate);
+        const slots = lu ? (FORMATIONS[lu.formation] || []) : [];
+        const gesetzt = lu ? slots.map((s) => (lu.slots || {})[s.key]).filter(Boolean).length : 0;
+        teile.push('<div class="tk-kacheln">' +
+          '<button class="tk-feld tk-kachel" data-lineup-edit="' + e.id + '">' +
+            '<span class="tk-k-lbl">Aufstellung</span>' +
+            '<span class="tk-k-wert num">' + gesetzt + '/' + (slots.length || 11) + '<span class="tk-chev">›</span></span></button>' +
+          '<button class="tk-feld tk-kachel" data-kader-info="' + e.id + '">' +
+            '<span class="tk-k-lbl">Kader-Info</span>' +
+            '<span class="tk-k-wert num">' + DEMO.players.length + ' <small>Spieler</small><span class="tk-chev">›</span></span></button>' +
+          '</div>');
+      }
+    }
+
+    // BFV meldet eine Abweichung: der Hinweis steht sichtbar in der Karte, das
+    // Uebernehmen als Textlink direkt daneben - nicht erst im ⋯-Menue.
+    if (istBfv && trainer && !opts.hero) {
       if (bn.date || bn.time) {
         const t = bn.time || e.zeit || "";
         const dd = bn.date ? ddmm(bn.date) + " " : "";
-        parts.push(`<div class="bfv-drift">BFV meldet abweichende Zeit: ${esc(dd + t)} <button class="link-btn" data-bfv-take="${e.id}" data-take-group="start">BFV-Wert übernehmen</button></div>`);
+        teile.push('<div class="tk-bfv">BFV meldet abweichende Zeit: ' + esc(dd + t) +
+          ' <button class="link-btn" data-bfv-take="' + e.id + '" data-take-group="start">übernehmen</button></div>');
       }
       if (bn.location_raw) {
-        parts.push(`<div class="bfv-drift">BFV meldet abweichende Adresse. <button class="link-btn" data-bfv-take="${e.id}" data-take-group="ort">BFV-Wert übernehmen</button></div>`);
+        teile.push('<div class="tk-bfv">BFV meldet eine abweichende Adresse. ' +
+          '<button class="link-btn" data-bfv-take="' + e.id + '" data-take-group="ort">übernehmen</button></div>');
       }
-      if (mb.start || mb.ort) {
-        parts.push(`<button class="link-btn bfv-reset" data-bfv-reset="${e.id}">Zurücksetzen auf BFV-Daten</button>`);
-      }
-      return parts.length ? `<div class="e-bfv">${parts.join("")}</div>` : "";
-    })() : "";
-
-    // Zusagen-Zahlen nur fuer Trainer/Admin. Spieler sehen nur ihren eigenen Status.
-    const showCount = Roles.canManageEvents();
-    // Aufstellungsstand einmal berechnen - die Fusszeile zeigt ihn, der Knopf auch.
-    const alu = (e.typ === "spiel" && showCount)
-      ? (DEMO.lineups || []).find((l) => l.eventId === e.id && l.isActive && !l.isTemplate) : null;
-    const luSlots = alu ? (FORMATIONS[alu.formation] || []).length : 11;
-    const luCnt = alu ? Object.values(alu.slots || {}).filter(Boolean).length : 0;
-
-    let rsvpHtml = "";
-    if (cancelled) {
-      rsvpHtml = `<div class="ev-rsvp"><span class="rsvp-cancelled">Abgesagt</span></div>`;
-    } else if (withRsvp && future) {
-      rsvpHtml = `
-        <div class="ev-rsvp">
-          <button class="btn btn-zu ${r.status === "zu" ? "is-on" : ""}" data-rsvp="zu" data-event="${e.id}">Zusage</button>
-          <button class="btn btn-ab ${r.status === "ab" ? "is-on" : ""}" data-rsvp="ab" data-event="${e.id}">Absage</button>
-        </div>`;
     }
+    if (e.note) teile.push('<div class="tk-notiz">' + esc(e.note) + '</div>');
 
-    // Fusszeile nach Vorlage: Meldeschluss, Zusagezaehler und Aufstellungsstand
-    // in EINER Zeile. Fuer Trainer/Admin ist sie antippbar und oeffnet die
-    // Rueckmeldungen (Gate 5) - damit existiert der Zaehler genau einmal je Karte.
-    // Die 8-Euro-Warnung (Gate 7) bleibt bewusst ausserhalb: sie ist ein Hinweis,
-    // kein Sprungziel.
-    const fristTxt = fristBlockHtml(e);
-    const istWarn  = fristTxt.indexOf("frist-warn") >= 0;
-    const teile = [];
-    if (fristTxt && !istWarn) teile.push(fristTxt);
-    if (showCount && !cancelled) teile.push(`<span><b>${zusagen}</b> / ${DEMO.players.length} zugesagt</span>`);
-    if (showCount && e.typ === "spiel") teile.push(`<span>Aufstellung ${luCnt}/${luSlots}</span>`);
-    const footInner = teile.join('<span class="ev-dot" aria-hidden="true">·</span>');
-    const footHtml = !teile.length ? ""
-      : showCount && !cancelled
-        ? `<button class="ev-foot is-tap" data-rsvp-sheet="${e.id}">${footInner}</button>`
-        : `<div class="ev-foot">${footInner}</div>`;
-
-    const reasonHtml = (!cancelled && withRsvp && future && r.status === "ab" && r.grund)
-      ? `<div class="rsvp-reason">Grund: ${esc(r.grund)}</div>` : "";
-
-    const venue = venueHtml(e);
-    return `
-      <div class="card event typ-${e.typ}${cancelled ? " is-cancelled" : ""}" id="ev-${e.id}">
-        <div class="ev-head">
-          <div class="event-date">
-            <span class="d-wd">${fmtWd(e.datum)}</span>
-            <span class="d-day">${fmtDay(e.datum)}</span>
-            <span class="d-mon">${fmtMon(e.datum)}</span>
-          </div>
-          <div class="event-main">
-            <div class="e-title">${titel}${friendlyTag}${cancelledTag}${manuellTag}</div>
-            ${e.zeit ? `<div class="e-time num">${e.zeit}${e.ende ? "&#8211;" + esc(e.ende) : ""} Uhr</div>` : ""}
-            ${venue ? `<div class="e-meta">${venue}</div>` : ""}
-            ${e.note ? `<div class="e-note">${esc(e.note)}</div>` : ""}
-          </div>
-        </div>
-        ${rsvpHtml}
-        ${footHtml}
-        ${istWarn ? fristTxt : ""}
-        ${reasonHtml}
-        ${bfvBlock}
-        ${(() => {
-            // Gate 1/2/4: Trainer- und Pflegefunktionen, die die Vorlage nicht
-            // zeichnet, aber ohne die der Kalender nicht pflegbar waere.
-            // B3: eine Zeile - links Textlinks, rechts Stift und Papierkorb.
-            const links = [];
-            if (e.typ === "spiel" && showCount) {
-              links.push(`<button class="link-btn lu-jump" data-lineup-edit="${e.id}">${!future ? "Aufstellung ansehen" : "Aufstellung"}</button>`);
-              links.push(`<button class="link-btn" data-kader-info="${e.id}">Kader-Info</button>`);
-            }
-            const rechts = [];
-            if (Roles.canManageSchedule()) {
-              rechts.push(`<button class="icon-btn" title="Termin bearbeiten" aria-label="Termin bearbeiten" data-termin-edit="${e.id}">${ICON_PENCIL}</button>`);
-              rechts.push(`<button class="icon-btn" title="Termin löschen" aria-label="Termin löschen" data-termin-del="${e.id}">${ICON_TRASH}</button>`);
-            }
-            if (!links.length && !rechts.length) return "";
-            return `<div class="e-trainer">${links.join("")}` +
-              (rechts.length ? `<span class="e-tr-rechts">${rechts.join("")}</span>` : "") + `</div>`;
-          })()}
-      </div>`;
+    return '<div class="card tk typ-' + e.typ + (cancelled ? " is-cancelled" : "") + '" id="ev-' + e.id + '">' +
+      kopf + (teile.length ? '<div class="tk-body">' + teile.join("") + '</div>' : "") + '</div>';
   }
+
+  /* ⋯-Menue der Terminkarte: die Pflegefunktionen, die die Vorlage nicht
+     zeichnet, aber ohne die der Kalender nicht pflegbar waere. */
+  function closeTkMenu() {
+    const ex = document.getElementById("tkMenu");
+    if (ex) { ex.remove(); unlockBodyScroll(); }
+  }
+  function openTkMenu(eventId) {
+    const e = DEMO.events.find((x) => x.id === eventId);
+    if (!e || !Roles.canManageEvents()) return;
+    closeTkMenu();
+    const darfPflegen = Roles.canManageSchedule();
+    const mb = e.manuellBearbeitet || {};
+    const zeilen = [];
+    if (darfPflegen) {
+      zeilen.push('<button class="more-item" data-termin-edit="' + e.id + '">Termin bearbeiten</button>');
+      if (e.quelle === "bfv" && (mb.start || mb.ort))
+        zeilen.push('<button class="more-item" data-bfv-reset="' + e.id + '">Zurücksetzen auf BFV-Daten</button>');
+      zeilen.push('<button class="more-item is-danger" data-termin-del="' + e.id + '">Termin löschen</button>');
+    }
+    if (!zeilen.length) return;
+    const ov = document.createElement("div");
+    ov.className = "more-sheet"; ov.id = "tkMenu";
+    ov.innerHTML = '<button class="more-backdrop" data-sheet-close aria-label="Schließen"></button>' +
+      '<div class="more-panel" role="dialog" aria-modal="true" aria-label="Termin">' +
+      '<div class="more-title">' + (e.typ === "spiel" ? esc(e.gegner || e.titel) : esc(e.titel)) +
+      ' · ' + fmtDay(e.datum) + '. ' + fmtMon(e.datum) + '</div>' + zeilen.join("") + '</div>';
+    document.body.appendChild(ov);
+    lockBodyScroll();
+    ov.addEventListener("click", (ev) => {
+      if (ev.target === ov || ev.target.closest("[data-sheet-close]")) { closeTkMenu(); return; }
+      if (ev.target.closest(".more-item")) closeTkMenu();   // Aktion laeuft ueber den globalen Klickpfad weiter
+    });
+  }
+
 
   /* ---------- Termine anlegen / bearbeiten (Trainer/Kassenwart) ------------- */
   const SAISON_ENDE = "2026-06-30"; // Vorschlag "Ende der laufenden Saison"
@@ -3902,7 +3960,7 @@
       if (unpay) { if (!window.confirm("Buchung rückgängig machen? Die Strafe steht wieder als offen.")) return; try { await DB.setFinePaid(unpay.dataset.kasseUnpay, false); await reloadData(); tvToast("Zurückgesetzt"); } catch (e) { window.alert("Rückgängig fehlgeschlagen: " + ((e && e.message) || e)); } return; }
     }
 
-    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-koord-save],[data-status-set],[data-logout]");
+    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-koord-save],[data-status-set],[data-logout]");
     if (!t) return;
 
     // Fitnessstatus setzen. Wer das darf, entscheidet die Datenbank:
@@ -4079,6 +4137,7 @@
 
     // Rückmeldungen ansehen (Trainer/Admin) -> Bottom-Sheet
     if (t.dataset.rsvpSheet) { openRsvpSheet(t.dataset.rsvpSheet); return; }
+    if (t.dataset.tkmenu) { openTkMenu(t.dataset.tkmenu); return; }
 
     // Aufgabenblock: eigene Rückmeldung -> zum Hero scrollen und Zusage fokussieren.
     if (t.dataset.taskFocus) {
@@ -4384,6 +4443,7 @@
     closeMoreSheet();
     closeCalSheet();
     closeRsvpSheet();
+    closeTkMenu();
   }
 
   document.getElementById("appNav").addEventListener("click", (ev) => {

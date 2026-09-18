@@ -34,7 +34,7 @@ Dateien unter `.design-sync/`.
 ## Risiken beim nächsten Lauf
 
 - **Zeilennummern des Tokenblocks.** `build.sh` schneidet `:root` aus
-  `styles.css` heraus (aktuell Zeilen 5–167, in `config.json` als
+  `styles.css` heraus (aktuell Zeilen 5–172, in `config.json` als
   `tokenBlockLines`). Verschiebt sich der Block, **bricht der Bau mit klarer
   Meldung ab** statt falsch zu schneiden — dann nur die beiden Zahlen in
   `build.sh` und `config.json` nachziehen.
@@ -222,6 +222,52 @@ dazu und ist dieselbe Ursache in derselben Regelgruppe.
 Sobald wieder ein Testkonto da ist: `node .design-sync/shots/app.mjs` neu
 laufen lassen, den Geruest-Eintrag in `alle.mjs` auf
 `trainer-spielauswahl` zurückstellen und `alle.mjs` erneut bauen.
+
+## Vorlage termin-und-kalender-v2.png (18.09.2026)
+
+Bild 1426×865, Karten 329 Bildpunkte breit = 358 CSS-px, Maßstab 0,919.
+Gemessen mit `.design-sync/shots/bild.mjs`. **Kein Playwright gegen die App** —
+es gibt weiterhin kein Testkonto; geprüft wurde über die Vorschaukarten.
+
+Gemessen und gebaut: Kopfband 86 hoch, Datumskachel 48×61, ⋯-Kreis 38,
+Innenrand 14, Bausteine im Körper 10 auseinander, Ortzeile mit 37er
+Symbolkachel und ROUTE-Pille 57×23, Knöpfe 158×47 mit 14 Abstand,
+Zusagen-Balken 6 hoch.
+
+**Abweichungen aus dem Schärfe-Check**
+
+- `--shadow-card` und `--shadow` waren `0 8px 20px -14px` — ein 20px-Nebel.
+  Jetzt zweistufig: `0 0 0 1px rgba(16,40,30,.06)` als Kante plus
+  `0 3px 8px -3px rgba(16,40,30,.20)`. Blur 8 statt 20, Versatz 3.
+- `--bg-1`/`--bg-2` eine Stufe dunkler (`#e9ecea`/`#e0e4e2` statt
+  `#eef0ef`/`#e7eae9`). Kartenweiß gegen Seitengrund steigt damit von
+  1,145:1 auf 1,19:1 oben und von 1,211:1 auf 1,283:1 unten. `--bg` selbst
+  bleibt, sonst würden alle Tint-Flächen mitwandern.
+- `transform: scale(…)` auf `:active` ist von allen Karten und Kartenkindern
+  entfernt (`.th-body`, `.ev-foot`, `.task-row`, `.tile`, `.sg-stat`,
+  `.mini-ev`, `.kpi-tapbar`) und durch einen Farbwechsel ersetzt. Ein
+  `transform` im Druckzustand hebt die Karte auf eine eigene Ebene und
+  rastert sie neu — genau der weiche Eindruck. Geblieben sind drei
+  `transform` außerhalb von Karten: Pull-to-Refresh-Animation,
+  Platzmarkierung und Bankplatz.
+- `backdrop-filter` steht weiterhin nur auf der Navigation.
+- Alle Maße der Terminkarte sind ganzzahlig.
+
+**Abweichungen vom Bild**
+
+- **Meldeschluss und die Acht-Euro-Warnung** stehen unter der Knopfzeile; die
+  Vorlage zeichnet sie nicht. Ohne sie fährt man in die Strafe.
+- **Absage-Grund, BFV-Abweichung und die Marke „manuell geändert"** bleiben
+  sichtbar im Kartenkörper, „übernehmen" als Textlink direkt in der Zeile.
+- **Stift, Löschen und „Zurücksetzen auf BFV-Daten"** liegen hinter dem
+  ⋯-Knopf, den die Vorlage zeigt, ohne sein Ziel zu nennen.
+- **Zusage/Absage erscheint nur bei verknüpftem Konto.** Ein reiner Trainer
+  ohne Spielerzuordnung sieht die Knöpfe nicht — er hätte nichts zu melden.
+- **Der Ortsname darf umbrechen** statt gekürzt zu werden. Bei 390px passt
+  „BSA Lerchenauer Straße" neben die ROUTE-Pille nicht in eine Zeile; ein
+  abgeschnittener Ortsname hilft niemandem.
+- **K7 ist überholt**: die Karte trägt die eigene Rückmeldung auch für
+  Trainer, die Zeile `.th-self` im Hero entfällt (Commit 2).
 
 ## Vorlage trainer-sheet-v2.png (17.09.2026)
 
