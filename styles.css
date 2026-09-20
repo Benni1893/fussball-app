@@ -646,6 +646,11 @@ a.tk-ort:active { background: var(--green-050); }
 .tk-bfv { font-size: 13px; font-weight: 500; color: var(--gold-ink-2); line-height: 1.4; }
 .tk-bfv .link-btn { font-size: 13px; }
 .tk-notiz { font-size: 13px; font-weight: 500; color: var(--amber-600); line-height: 1.35; }
+/* "In Kalender speichern" - letzte Zeile im Kartenkoerper. Nicht ins
+   Kopfband: dort haelt --green-700 auf --green-800 nur 1,32:1, und der
+   ⋯-Knopf daneben gibt es nur fuer Trainer und nie im Hero. */
+.tk-ics { display: flex; }
+.tk-ics .link-btn { font-size: 14px; }
 
 /* Abgesagter Termin: Kopfband rot statt gruen, Karte bleibt lesbar. */
 .tk.is-cancelled .tk-kopf { background: var(--grad-chip-red); }

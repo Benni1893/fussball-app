@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-20-F";
+  var APP_BUILD = "2026-09-20-G";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -815,6 +815,18 @@
   // Kalender-Icon (mit +) für den Abo-Button. (Plus-Icon: siehe ICON_PLUS weiter unten.)
   const ICON_CAL_ADD = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4M12 13v4M10 15h4"/></svg>`;
 
+  /* Einzelner Termin als Datei. Der Endpunkt antwortet mit
+     Content-Disposition: attachment, das System uebergibt die Datei der
+     Kalender-App. Kein webcal, kein Abo - der Termin wird einmal
+     gespeichert. Gleiche UID wie im Abo-Feed, damit ein spaeter
+     eingerichtetes Abo denselben Eintrag trifft statt einen zweiten. */
+  async function termindateiLaden(eventId) {
+    const t = await ensureCalendarToken();
+    if (!t) { window.alert("Der Kalender-Link steht noch nicht bereit. Bitte gleich noch einmal versuchen."); return; }
+    window.location.assign(window.location.origin + "/api/event/" + encodeURIComponent(t) +
+      "/" + encodeURIComponent(eventId) + ".ics");
+  }
+
   function closeCalSheet() { const ex = document.getElementById("calSheet"); if (ex) { ex.remove(); unlockBodyScroll(); } }
 
   // Apple nimmt webcal: systemweit an. Android nicht - und der Umweg ueber
@@ -1403,6 +1415,15 @@
       }
     }
     if (e.note) teile.push('<div class="tk-notiz">' + esc(e.note) + '</div>');
+
+    // Einzelner Termin als .ics - fuer alle Rollen, im Kalender wie im Hero.
+    // Ergaenzt das Abo: auf Android laesst sich das Abo nur ueber die
+    // Web-Oberflaeche anlegen, eine einzelne Datei dagegen sofort speichern.
+    // Die Adresse braucht den Kalender-Token, der asynchron kommt - deshalb
+    // ein Knopf mit Kennung statt eines fertigen href, damit
+    // terminKarteHtml synchron bleibt.
+    teile.push('<div class="tk-ics"><button class="link-btn" data-ics-event="' + e.id +
+      '">In Kalender speichern</button></div>');
 
     return '<div class="card tk' + (cancelled ? " is-cancelled" : "") + '" id="ev-' + e.id + '">' +
       kopf + (teile.length ? '<div class="tk-body">' + teile.join("") + '</div>' : "") + '</div>';
@@ -3897,7 +3918,7 @@
       if (unpay) { if (!window.confirm("Buchung rückgängig machen? Die Strafe steht wieder als offen.")) return; try { await DB.setFinePaid(unpay.dataset.kasseUnpay, false); await reloadData(); tvToast("Zurückgesetzt"); } catch (e) { window.alert("Rückgängig fehlgeschlagen: " + ((e && e.message) || e)); } return; }
     }
 
-    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-koord-save],[data-status-set],[data-logout]");
+    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-ics-event],[data-koord-save],[data-status-set],[data-logout]");
     if (!t) return;
 
     // Fitnessstatus setzen. Wer das darf, entscheidet die Datenbank:
@@ -3932,6 +3953,7 @@
 
     // Kalender-Abo-Sheet öffnen (Icon in der Kalender-Kopfzeile)
     if (t.hasAttribute("data-cal-sheet")) { openCalSheet(); return; }
+    if (t.hasAttribute("data-ics-event")) { termindateiLaden(t.getAttribute("data-ics-event")); return; }
 
     // Termin anlegen / bearbeiten (Trainer/Kassenwart – zusätzlich per RLS erzwungen)
     if (t.hasAttribute("data-termin-new")) { if (Roles.canManageSchedule()) openTerminModal(null); return; }

@@ -501,3 +501,32 @@ Titel, ein Termin über Mitternacht) und rendert die Function mit gefälschtem
 Datei. Vor und nach der Auslagerung erzeugt: 2259 Bytes, MD5
 `54a007d3a56bef5629674005ad888450`, `cmp` ohne Ausgabe. Die Vorher-Aufnahme
 bleibt als `ical-vorher.ics` liegen — künftige Umbauten messen sich daran.
+
+**„In Kalender speichern" je Termin (20.09.2026)**
+
+`api/event.js` liefert einen einzelnen Termin als Datei. Er ersetzt das Abo
+nicht, er ergänzt es: auf Android führt zum Abo nur der Umweg über die
+Web-Oberfläche, eine einzelne Datei dagegen übergibt das System direkt der
+Kalender-App.
+
+Zwei bewusste Unterschiede zum Feed, beide wegen des Zielverhaltens:
+- **Kein `X-WR-CALNAME`.** Mit Kalendernamen legen Android und iOS einen neuen
+  Kalender an; ohne ihn importieren sie in den bestehenden.
+- **`Content-Disposition: attachment`** statt `inline`, Dateiname aus Datum und
+  Titel, streng ASCII (Umlaute ausgeschrieben). Der Feed bleibt `inline`.
+
+Der Textlink steht als **letzte Zeile im Kartenkörper** (`.tk-ics`), nicht im
+Kopfband. Drei Gründe: `--green-700` hält auf `--green-800` nur **1,32:1**; der
+⋯-Knopf daneben gibt es nur für Trainer und nie im Hero; der Link soll aber für
+alle Rollen an beiden Orten stehen. Auf Kartenweiß sind es **7,72:1**.
+
+Die Adresse braucht den Kalender-Token, der asynchron kommt. Deshalb ein
+`<button data-ics-event>` statt eines fertigen `href` — `terminKarteHtml()`
+bleibt synchron, der Klickpfad lädt den Token nach und navigiert dann.
+
+**Eine bekannte Kante:** die Navigation geht in denselben Tab. Bei einer
+Antwort mit `Content-Disposition: attachment` startet der Browser nur den
+Download und verlässt die Seite nicht — bei einer 404 dagegen schon. Das trifft
+nur Termine, die nicht zum Verein des Nutzers gehören; die kann die Karte gar
+nicht anzeigen. Ein Blob-Umweg würde die Kante schließen, nähme iOS aber die
+Übergabe an die Kalender-App — der Grund für die ganze Funktion.

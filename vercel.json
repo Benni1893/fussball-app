@@ -3,7 +3,8 @@
     { "path": "/api/sync-bfv", "schedule": "0 4 * * *" }
   ],
   "rewrites": [
-    { "source": "/api/calendar/:token.ics", "destination": "/api/calendar?token=:token" }
+    { "source": "/api/calendar/:token.ics", "destination": "/api/calendar?token=:token" },
+    { "source": "/api/event/:token/:id.ics", "destination": "/api/event?token=:token&id=:id" }
   ],
   "headers": [
     {
