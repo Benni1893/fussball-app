@@ -398,3 +398,12 @@ Kantenglättung gleich breit ausfällt). Die Messauflösung liegt bei **1,1 CSS-
   längste Beschriftung „Sonstiges" misst 65,7 — 18,3 Luft. Gekürzt wird erst,
   wenn sie umbricht; `white-space: nowrap` hält das auch bei größerer
   Systemschrift fest.
+- **Gewählte Rückmeldung ist ein Tint, kein Vollton.** `--grad-chip-on` trägt im
+  Kalender bereits den Primärknopf und den aktiven Filterchip; die gewählte
+  Zusage daneben las sich als dieselbe Fläche. Zusage jetzt `--green-badge-bg`
+  mit `--green-700` (6,71:1), Absage `--red-badge-bg` mit `--red-700` (6,29:1),
+  Rand je 1px in der Schriftfarbe. Kein neuer Token.
+- **`.btn-zu` / `.btn-ab` ersatzlos entfernt.** Sie stammten aus der alten
+  Terminliste, waren seit der neuen Terminkarte unbenutzt und standen nur noch
+  in `Bausteine/Buttons.html` — eine Karte, die eine Komponente zeigte, die es
+  in der App nicht mehr gibt.

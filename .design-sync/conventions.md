@@ -61,7 +61,7 @@ Layout-Beiwerk kommt als `style="…"` mit Tokens oder als neue, sprechende Klas
 | Kennzahlen | `.kpi-grid` (`.kpi-3`) `.kpi` `.kpi-label` `.kpi-value` `.kpi-sub` `.kpi-amt` `.kpi-tapbar` · `.is-warn` · Geldzeilen: `.geld-rows` `.geld` `.geld-main` `.geld-lbl` `.geld-wert` `.geld-chev` |
 | Termine | `.event-list` (`.is-past`) · **Terminkarte** `.tk` (`.is-cancelled`): `.tk-kopf` `.tk-datum` `.d-wd` `.d-day` `.d-mon` · `.tk-kopf-main` `.tk-oben` `.tk-bdg` `.tk-zeit` `.tk-titel` `.tk-tags` · `.tk-menue` · `.tk-body` `.tk-feld` · `.tk-ort` `.tk-ort-ic` `.tk-ort-main` `.tk-ort-n` `.tk-ort-a` `.tk-route` · `.tk-rsvp` `.tk-btn` `.tk-abgesagt` `.tk-grund` · `.tk-frist` `.tk-warn` `.tk-bfv` `.tk-notiz` · `.tk-zusagen` `.tk-z-kopf` `.tk-z-lbl` `.tk-z-offen` `.tk-bar` `.tk-z-zahlen` · `.tk-kacheln` `.tk-kachel` `.tk-k-lbl` `.tk-k-wert` `.tk-chev` · Kalenderkopf: `.kal-seg` `.kal-seg-b` `.kal-neu` `.kal-abo` `.kal-abo-ic` `.kal-abo-main` `.kal-abo-t` `.kal-abo-s` `.kal-abo-chev` · `.frist` `.frist-label` `.frist-warn` |
 | Übersicht | Hero ist dieselbe `.tk` wie im Kalender · Danach-Liste: `.dn-liste` `.dn-zeile` `.dn-main` `.dn-t` `.dn-s` `.dn-zust` (`.is-zu` `.is-ab` `.is-offen`) · `.st-wahl[data-kompakt]` legt die Statuschips ins 2×2-Raster |
-| Zu-/Absage | `.btn-zu` `.btn-ab` (Zustand `.is-on`) · `.tk-grund` |
+| Zu-/Absage | `.tk-rsvp` `.tk-btn` (Absage zusätzlich `.is-ab`, gewählt `.is-on`) · `.tk-grund`. Gewählt heißt Tint: heller Grund, Schrift und 1px-Rand in der dunklen Variante derselben Farbe. Das Dunkelgrün bleibt der Handlung vorbehalten. |
 | Aufgaben | `.task-list` `.task-row` (`.is-pay` `.is-lineup` `.is-rsvp`) `.task-num` `.task-main` `.task-title` `.task-sub` `.task-go` |
 | Aktionen | `.btn` + `.btn-primary` `.btn-soft` `.btn-danger` `.btn-ghost` · `.icon-btn` `.icon-ok` · `.link-btn` · `.chips` `.chip` (`.is-active`) |
 | Status | `.st-badge` + `.st-amber` `.st-red` `.st-grau` · `.tag` + `.tag-friendly` `.tag-cancelled` `.tag-manuell` · `.badge` + `.badge-open` `.badge-paid` `.badge-cancel` `.badge-auto` `.badge-self` · `.cd` + `.cd-neutral` `.cd-amber` `.cd-red` `.cd-due` `.cd-capped` |
@@ -79,7 +79,7 @@ Layout-Beiwerk kommt als `style="…"` mit Tokens oder als neue, sprechende Klas
 | Blätter, Dialoge | `.more-sheet` `.more-backdrop` `.more-panel` `.more-title` `.more-item` · `.modal-ov` `.modal` (`.modal-sm`) `.modal-head` `.modal-x` `.modal-sub` `.modal-text` `.modal-actions` (`.modal-actions-col`) `.modal-hint` · `.ptr-ind` `.ptr-coin` `.ptr-ring` `.ptr-disc` `.ptr-logo` `.ptr-shadow` |
 | Einstellungen, Profil | `.set-section` `.set-profile` `.set-row` `.set-label` `.set-val` `.set-verwaltung` `.set-sub` `.set-hint` `.set-greet-name` `.set-greet-role` · `.pr-head` `.pr-av` `.pr-name` `.pr-list` `.pr-row` `.pr-bar` `.pr-main` `.pr-t` · `.sim-bar` `.sim-exit` `.sim-switch-hint` |
 
-Zustände hängen sich als zweite Klasse an: `.btn.btn-zu.is-on`, `.kpi.is-warn`,
+Zustände hängen sich als zweite Klasse an: `.tk-btn.is-ab.is-on`, `.kpi.is-warn`,
 `.tk.is-cancelled`. Geschlossene Blätter tragen `hidden`, nicht `display:none`.
 
 ## Farben nur über Tokens
