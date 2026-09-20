@@ -431,7 +431,7 @@ Kantenglättung gleich breit ausfällt). Die Messauflösung liegt bei **1,1 CSS-
   Befund gilt für `.btn-primary` überall (z. B. `.mb-pay`) und ist damit
   **nicht erledigt** — eigener Auftrag.
 
-**Karten, die neu aufgenommen werden müssen**
+**Karten, die neu aufgenommen wurden** (karten.mjs, alle 24 rendern sauber)
 
 - `Ansichten/Kalender` — Filterleiste (jetzt vier gleiche Viertel), Plakette,
   Zusage-/Absagezustand, umbenannte Abo-Zeile, neuer Abschnitt „Was hinter der
@@ -440,4 +440,4 @@ Kantenglättung gleich breit ausfällt). Die Messauflösung liegt bei **1,1 CSS-
 - `Bausteine/Buttons` — Abschnitt „Zu- und Absage" entfällt, die Terminkarten-
   Knöpfe zeigen jetzt beide Zustände.
 - `Grundlagen/Flaechen` — enthält ein Kopfband mit Plakette.
-- `ALLE.png` ist damit zwei Generationen alt und muss danach neu gebaut werden.
+- `ALLE.png` ist damit zwei Generationen alt und **steht noch aus** — es braucht Aufnahmen aus der laufenden App, und dafür fehlt seit dem 18.09. ein Testkonto.
