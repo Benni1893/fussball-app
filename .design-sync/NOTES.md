@@ -419,3 +419,25 @@ Kantenglättung gleich breit ausfällt). Die Messauflösung liegt bei **1,1 CSS-
   (Gold über dem Kopfband) — das Kopfband ist ein Verlauf und gibt keinen
   festen Mischgrund her. Eine unverständliche Mischung wäre schlechter lesbar
   als ein benannter Wert, deshalb `--bdg-away-bg` / `-line` / `-fg`.
+- **Kalender-Abo: zwei Wege statt einem.** Android hat keinen systemweiten
+  Handler für `webcal:`; die Google-Kalender-App legt Abos per URL nicht an,
+  nur die Web-Oberfläche. Das Blatt zeigt deshalb zwei Karten, die des
+  erkannten Systems oben, verborgen wird keine (Leihgeräte, Tablets, Desktop).
+  Der ICS-Endpunkt bleibt unberührt, beide Wege zeigen auf dieselbe Adresse.
+- **ICSx⁵ bewusst nicht erwähnt.** Die App wäre ein schlechter Ort, um zu
+  einer Fremdinstallation zu raten; der Google-Weg kommt ohne aus.
+- **`--grad-btn` hält mit weißer Schrift nur 3,88:1** an der hellen Kante. Die
+  beiden Abo-Knöpfe tragen deshalb `--grad-chip-on` wie `.kal-neu`. Der
+  Befund gilt für `.btn-primary` überall (z. B. `.mb-pay`) und ist damit
+  **nicht erledigt** — eigener Auftrag.
+
+**Karten, die neu aufgenommen werden müssen**
+
+- `Ansichten/Kalender` — Filterleiste (jetzt vier gleiche Viertel), Plakette,
+  Zusage-/Absagezustand, umbenannte Abo-Zeile, neuer Abschnitt „Was hinter der
+  Abo-Zeile liegt".
+- `Ansichten/Uebersicht` — Hero: Plakette und gewählter Zusagezustand.
+- `Bausteine/Buttons` — Abschnitt „Zu- und Absage" entfällt, die Terminkarten-
+  Knöpfe zeigen jetzt beide Zustände.
+- `Grundlagen/Flaechen` — enthält ein Kopfband mit Plakette.
+- `ALLE.png` ist damit zwei Generationen alt und muss danach neu gebaut werden.

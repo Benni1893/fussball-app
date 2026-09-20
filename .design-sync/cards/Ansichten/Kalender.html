@@ -36,8 +36,8 @@
         <span class="kal-abo-ic" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>
         </span>
-        <span class="kal-abo-main"><span class="kal-abo-t">In meinen Kalender</span>
-        <span class="kal-abo-s">Alle Termine im iPhone-Kalender abonnieren</span></span>
+        <span class="kal-abo-main"><span class="kal-abo-t">Termine im Kalender abonnieren</span>
+        <span class="kal-abo-s">Alle Termine automatisch im Handy-Kalender</span></span>
         <span class="kal-abo-chev" aria-hidden="true">›</span>
       </button>
     </div>
@@ -140,6 +140,33 @@
       </div>
     </div>
     <div class="meta">.tk.is-cancelled färbt das Kopfband rot und streicht den Titel. Der BFV-Hinweis steht sichtbar in der Karte, „übernehmen" direkt daneben; Zurücksetzen und Löschen liegen im ⋯-Menü.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">Was hinter der Abo-Zeile liegt</div>
+    <div class="card" style="overflow:hidden;padding:12px 16px 18px">
+      <div class="more-title">Termine abonnieren</div>
+      <p class="sheet-desc">Alle Termine automatisch in deinem Handy-Kalender.</p>
+      <div class="abo-karten">
+        <section class="abo-karte">
+          <div class="abo-k-t">iPhone und iPad</div>
+          <a class="btn btn-primary abo-btn" href="#">Zum Kalender hinzufügen</a>
+        </section>
+        <section class="abo-karte">
+          <div class="abo-k-t">Android · Google Kalender</div>
+          <a class="btn btn-primary abo-btn" href="#">Im Google Kalender öffnen</a>
+          <button class="btn btn-soft abo-btn" type="button">Link kopieren</button>
+          <p class="abo-hinweis">In der Google-Kalender-App lässt sich ein Abo nicht anlegen.
+          Öffne dafür einmal calendar.google.com im Browser, dort „Weitere Kalender › Per URL“, und füge den Link ein —
+          danach erscheint der Kalender von selbst in der Android-App.</p>
+        </section>
+      </div>
+      <div class="cal-copied">Link kopiert</div>
+      <div class="sheet-links"><button class="link-btn cal-reset" type="button">Link zurücksetzen</button></div>
+    </div>
+    <div class="meta">.abo-karten &gt; .abo-karte mit .abo-k-t, .abo-btn und .abo-hinweis.
+    Zwei Wege, weil iOS ein webcal-Abo systemweit annimmt und Android nicht — dort legt nur die Web-Oberfläche von Google Kalender ein Abo per URL an.
+    Die Karte des erkannten Systems steht oben; verborgen wird keine. „Link kopieren“ meldet über .cal-copied zurück, .cal-reset erneuert den persönlichen Link für beide Wege.</div>
   </div>
 
   <div>

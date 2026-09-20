@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-20-D";
+  var APP_BUILD = "2026-09-20-E";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -816,34 +816,67 @@
   const ICON_CAL_ADD = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4M12 13v4M10 15h4"/></svg>`;
 
   function closeCalSheet() { const ex = document.getElementById("calSheet"); if (ex) { ex.remove(); unlockBodyScroll(); } }
-  // Bottom-Sheet „In meinen Kalender" (aus der Kalender-Kopfzeile geöffnet).
+
+  // Apple nimmt webcal: systemweit an, Android nicht: dort legt nur die
+  // Web-Oberflaeche von Google Kalender ein Abo per URL an.
+  function istAppleGeraet() {
+    const ua = navigator.userAgent || "";
+    return /iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && (navigator.maxTouchPoints || 0) > 1);
+  }
+  function googleAboUrl(https) {
+    return https ? "https://calendar.google.com/calendar/r?cid=" + encodeURIComponent(https) : "";
+  }
+
+  /* Bottom-Sheet „Termine abonnieren“ (aus der Kalender-Kopfzeile geöffnet).
+     Zwei Karten, weil die beiden Systeme verschiedene Wege brauchen. Die Karte
+     des erkannten Systems steht oben; ausgeblendet wird keine - es gibt
+     Leihgeräte, Tablets und den Desktop-Browser. Der ICS-Endpunkt bleibt
+     unberührt, beide Wege zeigen auf dieselbe Adresse. */
   async function openCalSheet() {
     closeCalSheet();
     await ensureCalendarToken();
-    const https = calendarSubscribeUrl();
+    const https  = calendarSubscribeUrl();
     const webcal = https ? https.replace(/^https?:/i, "webcal:") : "#";
+    const google = googleAboUrl(https) || "#";
+    const aus    = https ? "" : ' aria-disabled="true"';
+
+    const karteApple = `
+      <section class="abo-karte">
+        <div class="abo-k-t">iPhone und iPad</div>
+        <a class="btn btn-primary abo-btn" data-cal-open href="${esc(webcal)}"${aus}>Zum Kalender hinzufügen</a>
+      </section>`;
+    const karteAndroid = `
+      <section class="abo-karte">
+        <div class="abo-k-t">Android · Google Kalender</div>
+        <a class="btn btn-primary abo-btn" data-cal-google href="${esc(google)}" target="_blank" rel="noopener noreferrer"${aus}>Im Google Kalender öffnen</a>
+        <button class="btn btn-soft abo-btn" data-cal-copy type="button"${aus}>Link kopieren</button>
+        <p class="abo-hinweis">In der Google-Kalender-App lässt sich ein Abo nicht anlegen.
+        Öffne dafür einmal calendar.google.com im Browser, dort „Weitere Kalender › Per URL“, und füge den Link ein —
+        danach erscheint der Kalender von selbst in der Android-App.</p>
+      </section>`;
+    const zuerstAndroid = /Android/i.test(navigator.userAgent || "") && !istAppleGeraet();
+
     const ov = document.createElement("div");
     ov.className = "more-sheet"; ov.id = "calSheet";
     ov.innerHTML = `
       <button class="more-backdrop" data-sheet-close aria-label="Schließen"></button>
-      <div class="more-panel" role="dialog" aria-modal="true">
-        <div class="more-title">In meinen Kalender</div>
+      <div class="more-panel" role="dialog" aria-modal="true" aria-label="Termine abonnieren">
+        <div class="more-title">Termine abonnieren</div>
         <p class="sheet-desc">Alle Termine automatisch in deinem Handy-Kalender.</p>
-        <a class="btn btn-primary cal-add" data-cal-open href="${esc(webcal)}"${https ? "" : ' aria-disabled="true"'}>Zum Kalender hinzufügen</a>
+        <div class="abo-karten">${zuerstAndroid ? karteAndroid + karteApple : karteApple + karteAndroid}</div>
         <div class="cal-copied" data-cal-copied hidden></div>
-        <div class="sheet-links">
-          <button class="link-btn" data-cal-copy>Link kopieren</button>
-          <button class="link-btn cal-reset" data-cal-regen>Link zurücksetzen</button>
-        </div>
+        <div class="sheet-links"><button class="link-btn cal-reset" data-cal-regen>Link zurücksetzen</button></div>
       </div>`;
     document.body.appendChild(ov);
     lockBodyScroll();
-    const q = (s) => ov.querySelector(s);
+    const q = (sel) => ov.querySelector(sel);
     const feedback = (txt) => { const fb = q("[data-cal-copied]"); if (fb) { fb.textContent = txt; fb.hidden = false; setTimeout(() => { fb.hidden = true; }, 1800); } };
 
     ov.addEventListener("click", (e) => { if (e.target === ov || e.target.closest("[data-sheet-close]")) closeCalSheet(); });
     sheetSwipeToClose(ov.querySelector(".more-panel"), null, closeCalSheet);
     q("[data-cal-open]").addEventListener("click", () => setTimeout(closeCalSheet, 150)); // nach dem Abo-Sprung schließen
+    // Der Google-Weg öffnet einen neuen Tab; das Blatt bleibt offen, damit
+    // „Link kopieren“ danach noch erreichbar ist.
     q("[data-cal-copy]").addEventListener("click", async () => {
       const url = calendarSubscribeUrl(); if (!url) return;
       feedback((await copyText(url)) ? "Link kopiert" : "Kopieren nicht möglich");
@@ -853,8 +886,12 @@
       try {
         calendarToken = await DB.regenerateCalendarToken();
         const nu = calendarSubscribeUrl();
-        const open = q("[data-cal-open]");
-        if (open && nu) { open.setAttribute("href", nu.replace(/^https?:/i, "webcal:")); open.removeAttribute("aria-disabled"); }
+        if (nu) {
+          const auf = q("[data-cal-open]"), go = q("[data-cal-google]"), kop = q("[data-cal-copy]");
+          if (auf) { auf.setAttribute("href", nu.replace(/^https?:/i, "webcal:")); auf.removeAttribute("aria-disabled"); }
+          if (go)  { go.setAttribute("href", googleAboUrl(nu)); go.removeAttribute("aria-disabled"); }
+          if (kop) kop.removeAttribute("aria-disabled");
+        }
         feedback("Neuer Link erstellt");
       } catch (err) { window.alert("Fehlgeschlagen: " + ((err && err.message) || err)); }
     });
@@ -1001,8 +1038,8 @@
       ${Roles.canManageSchedule() ? `<button class="kal-neu" data-termin-new type="button">${ICON_PLUS}<span>Termin hinzufügen</span></button>` : ""}
       <button class="card kal-abo" data-cal-sheet type="button">
         <span class="kal-abo-ic" aria-hidden="true">${ICON_CAL_ADD}</span>
-        <span class="kal-abo-main"><span class="kal-abo-t">In meinen Kalender</span>
-        <span class="kal-abo-s">Alle Termine im iPhone-Kalender abonnieren</span></span>
+        <span class="kal-abo-main"><span class="kal-abo-t">Termine im Kalender abonnieren</span>
+        <span class="kal-abo-s">Alle Termine automatisch im Handy-Kalender</span></span>
         <span class="kal-abo-chev" aria-hidden="true">›</span>
       </button>
       ${kommend.length ? `<div class="event-list">${kommend.map((e) => terminKarteHtml(e)).join("")}</div>`

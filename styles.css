@@ -926,8 +926,23 @@ tbody tr:hover { background: #fbfdfc; }
    und roter Rand - deutlich, aber nicht so laut wie eine rote Flaeche. */
 
 /* Mein Kalender – reduziert */
-.cal-add { width: 100%; min-height: 48px; display: inline-flex; align-items: center; justify-content: center; text-align: center; text-decoration: none; margin-top: 4px; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
-.cal-add[aria-disabled="true"] { opacity: .55; pointer-events: none; }
+/* Blatt „Termine abonnieren“: zwei Karten, weil iOS ein webcal-Abo systemweit
+   annimmt und Android nicht. Die Karte des erkannten Systems steht oben,
+   verborgen wird keine - Leihgeräte und Desktop-Browser gibt es auch. */
+.abo-karten { display: flex; flex-direction: column; gap: 10px; }
+.abo-karte {
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 12px; border: 1px solid var(--line); border-radius: var(--radius-md);
+  background: var(--grad-btn-sec);
+}
+.abo-k-t { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--green-800); }
+.abo-btn { width: 100%; min-height: 46px; display: inline-flex; align-items: center; justify-content: center; text-align: center; text-decoration: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+.abo-btn[aria-disabled="true"] { opacity: .55; pointer-events: none; }
+/* --grad-btn kommt oben auf 3,88:1 mit weisser Schrift. Die beiden Abo-
+   Knoepfe tragen deshalb dasselbe Dunkelgruen wie .kal-neu - 8,50 bis
+   12,16:1 - und stehen damit auch farblich in der Reihe der Handlungen. */
+.abo-btn.btn-primary { background: var(--grad-chip-on); box-shadow: var(--shadow-chip-on); }
+.abo-hinweis { margin: 2px 0 0; font-size: 13px; font-weight: 500; line-height: 1.4; color: var(--muted); }
 .cal-copied { font-size: .82rem; color: var(--green-700); font-weight: 600; margin-top: 8px; }
 .cal-copied[hidden] { display: none; }
 .cal-reset { display: inline-block; margin-top: 14px; font-size: .8rem; color: var(--muted); font-weight: 500; }
