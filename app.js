@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-18-I";
+  var APP_BUILD = "2026-09-20-A";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -995,8 +995,8 @@
 
     viewEl.innerHTML = `
       <div class="page-head">${navBackChevronHtml()}<h1>Kalender</h1></div>
-      <div class="seg" role="tablist">
-        ${filters.map((f) => `<button class="seg-b ${kalFilter === f.k ? "is-on" : ""}" role="tab" aria-selected="${kalFilter === f.k}" data-filter="${f.k}">${f.label}</button>`).join("")}
+      <div class="kal-seg" role="tablist">
+        ${filters.map((f) => `<button class="kal-seg-b ${kalFilter === f.k ? "is-on" : ""}" role="tab" aria-selected="${kalFilter === f.k}" data-filter="${f.k}">${f.label}</button>`).join("")}
       </div>
       ${Roles.canManageSchedule() ? `<button class="kal-neu" data-termin-new type="button">${ICON_PLUS}<span>Termin hinzufügen</span></button>` : ""}
       <button class="card kal-abo" data-cal-sheet type="button">

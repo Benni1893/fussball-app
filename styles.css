@@ -459,19 +459,19 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
    gefuellte Pille darin. Darunter der Primaerknopf und die Abo-Zeile als
    Karte mit Symbolkachel und Chevron.                                       */
 /* Gemessen: Titel-Unterkante zur Leiste 17,4; Leiste zum Knopf 12,0. */
-.seg {
+.kal-seg {
   display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px;
   padding: 4px; margin: 14px 0 12px;
   background: var(--card); border: 1px solid var(--line);
   border-radius: 14px; box-shadow: var(--shadow-sm);
 }
-.seg-b {
+.kal-seg-b {
   min-height: 42px; border: 0; border-radius: 10px; background: none;
   color: var(--muted); font-size: 14px; font-weight: 700; letter-spacing: -.01em;
   position: relative; -webkit-tap-highlight-color: transparent;
 }
-.seg-b::after { content: ""; position: absolute; top: 50%; left: 0; right: 0; height: var(--tap); transform: translateY(-50%); }
-.seg-b.is-on { background: var(--grad-chip-on); color: #fff; box-shadow: var(--shadow-chip-on); }
+.kal-seg-b::after { content: ""; position: absolute; top: 50%; left: 0; right: 0; height: var(--tap); transform: translateY(-50%); }
+.kal-seg-b.is-on { background: var(--grad-chip-on); color: #fff; box-shadow: var(--shadow-chip-on); }
 
 /* Dasselbe Dunkelgruen wie Kopfband, gefuellte Chips und Zusage-Knopf -
    .btn-primary faerbt sonst mit dem helleren --grad-btn darueber. */
