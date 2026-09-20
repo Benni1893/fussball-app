@@ -469,6 +469,10 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
   min-height: 42px; border: 0; border-radius: 10px; background: none;
   color: var(--muted); font-size: 14px; font-weight: 700; letter-spacing: -.01em;
   position: relative; -webkit-tap-highlight-color: transparent;
+  /* Vier gleiche Viertel: minmax(0,1fr) oben haelt die Spalten gleich breit,
+     nowrap verhindert, dass eine laengere Beschriftung zweizeilig wird.
+     Gemessen bei 390: Kasten 84, laengste Beschriftung "Sonstiges" 65,7. */
+  white-space: nowrap;
 }
 .kal-seg-b::after { content: ""; position: absolute; top: 50%; left: 0; right: 0; height: var(--tap); transform: translateY(-50%); }
 .kal-seg-b.is-on { background: var(--grad-chip-on); color: #fff; box-shadow: var(--shadow-chip-on); }

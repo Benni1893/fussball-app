@@ -384,3 +384,17 @@ Kantenglättung gleich breit ausfällt). Die Messauflösung liegt bei **1,1 CSS-
 - Schließen-Kreuz: Kreis rechts bei x 338 statt gemessener 335,6 — 16 px
   Innenrand ist das Raster der ganzen App; die 2,4 px liegen im Messrauschen
   der Rahmenkante.
+
+**Feinkorrekturen nach dem iPhone-Test, 20.09.**
+
+- **Kalender-Filterleiste, Ursache statt Symptom.** Die Chips wirkten
+  unterschiedlich breit, weil `.seg { display: block; height: 100% }` aus dem
+  Diagramm-Abschnitt den gleichnamigen Behälter der Filterleiste überschrieb
+  (spätere Zeile gewinnt). Das Raster war die ganze Zeit vierspaltig, kam nur
+  nie zum Tragen. Umbenannt auf `.kal-seg` / `.kal-seg-b`.
+- **Chiphöhe bleibt 42 px**, nicht die am 13.09. notierten 34 px: aus
+  `termin-und-kalender-v2.png` gemessen 42,4. Trefferfläche 44 über `::after`.
+- **Beschriftungen unverändert.** Bei 390 ist jedes Segment 84 breit, die
+  längste Beschriftung „Sonstiges" misst 65,7 — 18,3 Luft. Gekürzt wird erst,
+  wenn sie umbricht; `white-space: nowrap` hält das auch bei größerer
+  Systemschrift fest.
