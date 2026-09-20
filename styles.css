@@ -943,6 +943,13 @@ tbody tr:hover { background: #fbfdfc; }
    12,16:1 - und stehen damit auch farblich in der Reihe der Handlungen. */
 .abo-btn.btn-primary { background: var(--grad-chip-on); box-shadow: var(--shadow-chip-on); }
 .abo-hinweis { margin: 2px 0 0; font-size: 13px; font-weight: 500; line-height: 1.4; color: var(--muted); }
+/* Die drei Schritte tragen die eigentliche Anleitung. Ziffern bleiben die
+   native Zaehlung der Liste - eine eigene ::before-Zaehlung braeuchte hier
+   nur mehr Regeln fuer dasselbe Bild. */
+.abo-schritte { margin: 0; padding-left: 19px; font-size: 13px; font-weight: 500; line-height: 1.45; color: var(--muted); }
+.abo-schritte li::marker { font-weight: 700; color: var(--green-800); }
+.abo-schritte li + li { margin-top: 5px; }
+.abo-fuss { margin: 2px 0 0; font-size: 12px; font-weight: 500; line-height: 1.4; color: var(--muted); }
 .cal-copied { font-size: .82rem; color: var(--green-700); font-weight: 600; margin-top: 8px; }
 .cal-copied[hidden] { display: none; }
 .cal-reset { display: inline-block; margin-top: 14px; font-size: .8rem; color: var(--muted); font-weight: 500; }

@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-20-E";
+  var APP_BUILD = "2026-09-20-F";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -817,15 +817,17 @@
 
   function closeCalSheet() { const ex = document.getElementById("calSheet"); if (ex) { ex.remove(); unlockBodyScroll(); } }
 
-  // Apple nimmt webcal: systemweit an, Android nicht: dort legt nur die
-  // Web-Oberflaeche von Google Kalender ein Abo per URL an.
+  // Apple nimmt webcal: systemweit an. Android nicht - und der Umweg ueber
+  // calendar.google.com/r?cid= hilft dort auch nicht: Android faengt den Link
+  // ab und uebergibt ihn der Google-Kalender-App, die kein Abo per URL anlegt.
+  // Bleibt der ehrliche Weg: Link kopieren, einmal in die Web-Oberflaeche.
   function istAppleGeraet() {
     const ua = navigator.userAgent || "";
     return /iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && (navigator.maxTouchPoints || 0) > 1);
   }
-  function googleAboUrl(https) {
-    return https ? "https://calendar.google.com/calendar/r?cid=" + encodeURIComponent(https) : "";
-  }
+  // Direktseite fuer "Per URL" in der Web-Oberflaeche. Fester Pfad, kein
+  // Parameter: der Link selbst wird dort eingefuegt.
+  const GOOGLE_ADD_URL = "https://calendar.google.com/calendar/u/0/r/settings/addbyurl";
 
   /* Bottom-Sheet „Termine abonnieren“ (aus der Kalender-Kopfzeile geöffnet).
      Zwei Karten, weil die beiden Systeme verschiedene Wege brauchen. Die Karte
@@ -837,7 +839,6 @@
     await ensureCalendarToken();
     const https  = calendarSubscribeUrl();
     const webcal = https ? https.replace(/^https?:/i, "webcal:") : "#";
-    const google = googleAboUrl(https) || "#";
     const aus    = https ? "" : ' aria-disabled="true"';
 
     const karteApple = `
@@ -847,12 +848,18 @@
       </section>`;
     const karteAndroid = `
       <section class="abo-karte">
-        <div class="abo-k-t">Android · Google Kalender</div>
-        <a class="btn btn-primary abo-btn" data-cal-google href="${esc(google)}" target="_blank" rel="noopener noreferrer"${aus}>Im Google Kalender öffnen</a>
-        <button class="btn btn-soft abo-btn" data-cal-copy type="button"${aus}>Link kopieren</button>
-        <p class="abo-hinweis">In der Google-Kalender-App lässt sich ein Abo nicht anlegen.
-        Öffne dafür einmal calendar.google.com im Browser, dort „Weitere Kalender › Per URL“, und füge den Link ein —
-        danach erscheint der Kalender von selbst in der Android-App.</p>
+        <div class="abo-k-t">Android / Google Kalender</div>
+        <p class="abo-hinweis">Das Abo lässt sich nur einmalig über die Web-Oberfläche anlegen,
+        danach erscheint der Kalender automatisch in deiner Kalender-App.</p>
+        <ol class="abo-schritte">
+          <li>Link kopieren.</li>
+          <li>calendar.google.com im Browser öffnen, ggf. auf „Desktop-Version“ umschalten,
+          links bei „Weitere Kalender“ auf das Plus, dann „Per URL“.</li>
+          <li>Link einfügen, „Kalender hinzufügen“.</li>
+        </ol>
+        <button class="btn btn-primary abo-btn" data-cal-copy type="button"${aus}>Link kopieren</button>
+        <a class="btn btn-soft abo-btn" href="${GOOGLE_ADD_URL}" target="_blank" rel="noopener noreferrer">calendar.google.com öffnen</a>
+        <p class="abo-fuss">Änderungen erscheinen bei Google mit bis zu 24 Stunden Verzögerung.</p>
       </section>`;
     const zuerstAndroid = /Android/i.test(navigator.userAgent || "") && !istAppleGeraet();
 
@@ -887,9 +894,10 @@
         calendarToken = await DB.regenerateCalendarToken();
         const nu = calendarSubscribeUrl();
         if (nu) {
-          const auf = q("[data-cal-open]"), go = q("[data-cal-google]"), kop = q("[data-cal-copy]");
+          // Nur der webcal-Knopf traegt die Adresse. Der Google-Knopf zeigt auf
+          // eine feste Seite und haengt nicht am Token.
+          const auf = q("[data-cal-open]"), kop = q("[data-cal-copy]");
           if (auf) { auf.setAttribute("href", nu.replace(/^https?:/i, "webcal:")); auf.removeAttribute("aria-disabled"); }
-          if (go)  { go.setAttribute("href", googleAboUrl(nu)); go.removeAttribute("aria-disabled"); }
           if (kop) kop.removeAttribute("aria-disabled");
         }
         feedback("Neuer Link erstellt");

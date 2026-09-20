@@ -458,3 +458,25 @@ Zusage/Absage, Kader und Aufstellung, und der Lauf misst eine halbe App.
 Nach dem Durchgang wird beides wieder gelöscht. Dauerhaft stehen bleibt kein
 Testkonto; die Messungen dazwischen laufen über die Vorschaukarten und die
 Gerüstskripte, die das echte `styles.css` ohne Anmeldung rendern.
+
+**Android-Abo: der cid-Knopf war eine Sackgasse (20.09.2026)**
+
+Am Gerät gescheitert: `calendar.google.com/calendar/r?cid=<url>` öffnet auf
+Android nicht die Web-Oberfläche, sondern wird vom System abgefangen und an
+die Google-Kalender-App übergeben — und die kann kein Abo per URL anlegen. Der
+Knopf „Im Google Kalender öffnen" führte damit ins Leere und ist ersatzlos
+entfallen, samt `googleAboUrl()`.
+
+Stattdessen benennt die Karte den Weg, den es wirklich gibt: ein Satz, worum
+es geht, drei nummerierte Schritte, „Link kopieren" als Haupthandlung und die
+Direktseite `calendar.google.com/calendar/u/0/r/settings/addbyurl` daneben.
+Auf Mobilgeräten braucht es dort die Desktop-Version — das steht in Schritt 2,
+weil ein Knopf, der auf dem Handy in eine unbrauchbare Ansicht führt, derselbe
+Fehler noch einmal wäre. Die Zusatzzeile nennt Googles Abrufverzögerung von
+bis zu 24 Stunden; das Abo ist damit ehrlich beschrieben, statt eine
+Aktualität zu versprechen, die Google nicht liefert.
+
+Ein Server-Kalender wäre der bequeme Weg, lohnt den Betrieb aber nicht: der
+Android-Anteil im Kader ist klein.
+
+Die iPhone-Karte ist unverändert.

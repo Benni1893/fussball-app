@@ -153,19 +153,26 @@
           <a class="btn btn-primary abo-btn" href="#">Zum Kalender hinzufügen</a>
         </section>
         <section class="abo-karte">
-          <div class="abo-k-t">Android · Google Kalender</div>
-          <a class="btn btn-primary abo-btn" href="#">Im Google Kalender öffnen</a>
-          <button class="btn btn-soft abo-btn" type="button">Link kopieren</button>
-          <p class="abo-hinweis">In der Google-Kalender-App lässt sich ein Abo nicht anlegen.
-          Öffne dafür einmal calendar.google.com im Browser, dort „Weitere Kalender › Per URL“, und füge den Link ein —
-          danach erscheint der Kalender von selbst in der Android-App.</p>
+          <div class="abo-k-t">Android / Google Kalender</div>
+          <p class="abo-hinweis">Das Abo lässt sich nur einmalig über die Web-Oberfläche anlegen,
+          danach erscheint der Kalender automatisch in deiner Kalender-App.</p>
+          <ol class="abo-schritte">
+            <li>Link kopieren.</li>
+            <li>calendar.google.com im Browser öffnen, ggf. auf „Desktop-Version“ umschalten,
+            links bei „Weitere Kalender“ auf das Plus, dann „Per URL“.</li>
+            <li>Link einfügen, „Kalender hinzufügen“.</li>
+          </ol>
+          <button class="btn btn-primary abo-btn" type="button">Link kopieren</button>
+          <a class="btn btn-soft abo-btn" href="#">calendar.google.com öffnen</a>
+          <p class="abo-fuss">Änderungen erscheinen bei Google mit bis zu 24 Stunden Verzögerung.</p>
         </section>
       </div>
       <div class="cal-copied">Link kopiert</div>
       <div class="sheet-links"><button class="link-btn cal-reset" type="button">Link zurücksetzen</button></div>
     </div>
-    <div class="meta">.abo-karten &gt; .abo-karte mit .abo-k-t, .abo-btn und .abo-hinweis.
-    Zwei Wege, weil iOS ein webcal-Abo systemweit annimmt und Android nicht — dort legt nur die Web-Oberfläche von Google Kalender ein Abo per URL an.
+    <div class="meta">.abo-karten &gt; .abo-karte mit .abo-k-t, .abo-hinweis, .abo-schritte, .abo-btn und .abo-fuss.
+    Zwei Wege, weil iOS ein webcal-Abo systemweit annimmt und Android nicht. Der Umweg über calendar.google.com/r?cid= hilft dort ebenfalls nicht: Android fängt den Link ab und übergibt ihn der Google-Kalender-App, die kein Abo per URL anlegt.
+    Deshalb nennt die Android-Karte den Weg, statt einen Knopf anzubieten, der nicht täuscht: drei Schritte, „Link kopieren“ als Haupthandlung, die Direktseite für „Per URL“ daneben.
     Die Karte des erkannten Systems steht oben; verborgen wird keine. „Link kopieren“ meldet über .cal-copied zurück, .cal-reset erneuert den persönlichen Link für beide Wege.</div>
   </div>
 
