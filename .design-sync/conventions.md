@@ -103,8 +103,8 @@ Nie ein Hex ins Markup. Alles liegt in `tokens/tokens.css` (138 Tokens):
   `--grad-chip-red` `--grad-urlaub` —, weil weiße Schrift auf den hellen
   Kantenverläufen keine 4,5:1 erreicht. Das Kopfband der Terminkarte trägt
   `--grad-tk-kopf`, der ⋯-Kreis darauf `--tk-menue`.
-- Die Plakette HEIM/AUSWÄRTS auf dem Kopfband trägt `--bdg-away-bg`
-  `--bdg-away-line` `--bdg-away-fg` — Gold als Tint, nicht als Vollton, damit
+- Die Plakette HEIM/AUSWÄRTS auf dem Kopfband trägt `--bdg-venue-bg`
+  `--bdg-venue-line` `--bdg-venue-fg` — Gold als Tint, nicht als Vollton, damit
   sie hinter Datum, Gegner und Uhrzeit zurücktritt (Schrift 5,60:1). Die drei
   Werte sind aus der Vorlage gelesen und nicht als `color-mix` bestehender
   Tokens ausdrückbar, weil das Kopfband ein Verlauf ist.

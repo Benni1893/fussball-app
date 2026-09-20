@@ -126,9 +126,9 @@
      (Flaeche) und 50 % (Rand) ueber dem Kopfband. Als color-mix nicht
      ausdrueckbar, weil das Kopfband ein Verlauf ist und keinen festen
      Mischgrund hergibt - deshalb drei Werte, deckend. Schrift 5,60:1. */
-  --bdg-away-bg:     #3c643b;
-  --bdg-away-line:   #75803a;
-  --bdg-away-fg:     #f6e8c2;
+  --bdg-venue-bg:     #3c643b;
+  --bdg-venue-line:   #75803a;
+  --bdg-venue-fg:     #f6e8c2;
   --grad-task-red:   linear-gradient(180deg, var(--red-100),      var(--red-200));
   --grad-task-gold:  linear-gradient(180deg, var(--gold-100),     var(--gold-250));
   --grad-task-green: linear-gradient(180deg, var(--green-task-1), var(--green-task-2));
@@ -543,7 +543,7 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .tk-bdg {
   flex: none; display: inline-flex; align-items: center; min-height: 18px; padding: 0 8px;
   border-radius: var(--radius-pill);
-  background: var(--bdg-away-bg); border: 1px solid var(--bdg-away-line); color: var(--bdg-away-fg);
+  background: var(--bdg-venue-bg); border: 1px solid var(--bdg-venue-line); color: var(--bdg-venue-fg);
   font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; line-height: normal;
 }
 .tk-titel {

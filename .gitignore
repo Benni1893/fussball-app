@@ -34,3 +34,6 @@ preview/
 ds-bundle/
 node_modules/
 migrations/
+
+# design-sync: Messartefakte der Bildvergleiche, bleiben lokal
+.design-sync/reference/compare/

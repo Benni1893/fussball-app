@@ -418,7 +418,7 @@ Kantenglättung gleich breit ausfällt). Die Messauflösung liegt bei **1,1 CSS-
   genau. Der Treffer ist ein Rechenzufall und nicht die Beziehung im Bild
   (Gold über dem Kopfband) — das Kopfband ist ein Verlauf und gibt keinen
   festen Mischgrund her. Eine unverständliche Mischung wäre schlechter lesbar
-  als ein benannter Wert, deshalb `--bdg-away-bg` / `-line` / `-fg`.
+  als ein benannter Wert, deshalb `--bdg-venue-bg` / `-line` / `-fg`.
 - **Kalender-Abo: zwei Wege statt einem.** Android hat keinen systemweiten
   Handler für `webcal:`; die Google-Kalender-App legt Abos per URL nicht an,
   nur die Web-Oberfläche. Das Blatt zeigt deshalb zwei Karten, die des
@@ -440,4 +440,21 @@ Kantenglättung gleich breit ausfällt). Die Messauflösung liegt bei **1,1 CSS-
 - `Bausteine/Buttons` — Abschnitt „Zu- und Absage" entfällt, die Terminkarten-
   Knöpfe zeigen jetzt beide Zustände.
 - `Grundlagen/Flaechen` — enthält ein Kopfband mit Plakette.
-- `ALLE.png` ist damit zwei Generationen alt und **steht noch aus** — es braucht Aufnahmen aus der laufenden App, und dafür fehlt seit dem 18.09. ein Testkonto.
+- `ALLE.png` ist damit zwei Generationen alt und steht noch aus — es braucht
+  Aufnahmen aus der laufenden App und wird erst nach dem Gerätetest neu
+  gebaut, mit einem frisch angelegten Testkonto.
+
+## Testkonto für Messläufe (Regel, 20.09.2026)
+
+Das Konto `test-admin@fasanerie.local` ist **am 18.09. gelöscht worden**, wie
+beim Anlegen vereinbart. Der Anmeldefehler in den Durchgängen danach war die
+Folge davon und kein offener Punkt — die Notizen weiter oben, die „kein
+Testkonto vorhanden“ vermerken, halten den Zustand des jeweiligen Tages fest.
+
+**Regel:** Ein Playwright-Lauf gegen die laufende App (`shots/app.mjs`,
+`shots/appbild.mjs`, `shots/alle.mjs`) braucht vorher ein **neu angelegtes**
+Testkonto samt verknüpftem Testspieler — ohne Spielerverknüpfung fehlen
+Zusage/Absage, Kader und Aufstellung, und der Lauf misst eine halbe App.
+Nach dem Durchgang wird beides wieder gelöscht. Dauerhaft stehen bleibt kein
+Testkonto; die Messungen dazwischen laufen über die Vorschaukarten und die
+Gerüstskripte, die das echte `styles.css` ohne Anmeldung rendern.
