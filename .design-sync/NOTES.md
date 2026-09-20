@@ -480,3 +480,24 @@ Ein Server-Kalender wäre der bequeme Weg, lohnt den Betrieb aber nicht: der
 Android-Anteil im Kader ist klein.
 
 Die iPhone-Karte ist unverändert.
+
+**iCal-Bausteine geteilt (20.09.2026)**
+
+`api/_ical.js` trägt jetzt Konstanten, Formatierer und vor allem
+`veventLines()` — den Block für EINEN Termin. `api/calendar.js` und
+`api/event.js` rufen dieselbe Funktion auf. Der Grund ist nicht Sparsamkeit:
+wären UID oder Zeitumrechnung auch nur um ein Zeichen verschieden, legte der
+Kalender beim Speichern einer Einzeldatei einen zweiten Eintrag an, statt den
+abonnierten zu treffen. Eine Kopie hätte genau diese Abweichung früher oder
+später erzeugt.
+
+Der Unterstrich im Dateinamen hält die Datei aus Vercels Routing heraus.
+
+Belegt statt behauptet: `.design-sync/shots/icsstub.mjs` hält fünf Termine
+fest (Spiel heim mit Koordinaten, Spiel auswärts ohne Koordinaten mit Notiz,
+Training mit Zeit, ganztägiger abgesagter Termin mit Semikolon und Komma im
+Titel, ein Termin über Mitternacht) und rendert die Function mit gefälschtem
+`fetch` und eingefrorener Uhr. `icsdump.mjs` schreibt das Ergebnis in eine
+Datei. Vor und nach der Auslagerung erzeugt: 2259 Bytes, MD5
+`54a007d3a56bef5629674005ad888450`, `cmp` ohne Ausgabe. Die Vorher-Aufnahme
+bleibt als `ical-vorher.ics` liegen — künftige Umbauten messen sich daran.

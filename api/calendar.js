@@ -6,85 +6,20 @@
 // Liefert alle Team-Termine (vergangene 30 Tage + alle zukuenftigen) als
 // RFC-5545-Kalender. KEINE personenbezogenen Daten (keine Namen anderer
 // Spieler, keine RSVPs, keine Strafen).
+// Die iCal-Bausteine liegen in api/_ical.js, geteilt mit api/event.js.
 // Keine externen Abhaengigkeiten (globales fetch, Node 18+).
+
+const {
+  PRODID, EVENT_SELECT, pad, fmtUtc, normAddr, esc, fold, macheSb, veventLines,
+} = require("./_ical.js");
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SERVICE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-const PRODID   = "-//FC Fasanerie-Nord//Mannschafts-App//DE";
-const UID_HOST = "fasanerie-nord.app";
-
-function pad(n) { return String(n).padStart(2, "0"); }
-function fmtUtc(d) {
-  return d.getUTCFullYear() + pad(d.getUTCMonth() + 1) + pad(d.getUTCDate()) +
-    "T" + pad(d.getUTCHours()) + pad(d.getUTCMinutes()) + pad(d.getUTCSeconds()) + "Z";
-}
-function dateCompact(iso) { return String(iso).slice(0, 10).replace(/-/g, ""); }
-function nextDayCompact(iso) {
-  const d = new Date(String(iso).slice(0, 10) + "T00:00:00Z");
-  d.setUTCDate(d.getUTCDate() + 1);
-  return fmtUtc(d).slice(0, 8);
-}
-function toMin(t) { const m = /^(\d{1,2}):(\d{2})/.exec(t || ""); return m ? (+m[1]) * 60 + (+m[2]) : null; }
-
-// Aufgeraeumte Adresse fuer den Feed: Platz-Bezeichnungen als EXAKTE Abschnitte
-// zwischen Kommas entfernen (nicht Teile von Strassennamen). location_raw in der
-// DB bleibt unveraendert.
-const PLATZ_DROP = new Set([
-  "rasenplatz", "kunstrasenplatz", "kunstrasen", "nebenplatz", "hauptplatz", "halle", "stadion",
-  "platz 1", "platz 2", "platz 3", "platz 4", "platz 5", "platz 6", "platz 7", "platz 8", "platz 9",
-]);
-function cleanAddr(raw) {
-  return String(raw || "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0 && !PLATZ_DROP.has(s.toLowerCase()))
-    .join(", ")
-    .replace(/\s{2,}/g, " ")
-    .trim();
-}
-// Abgleichschluessel: klein, ohne Diakritika/Sonderzeichen (identisch in der UI).
-function normAddr(s) {
-  return String(s || "").toLowerCase().replace(/ä/g,"a").replace(/ö/g,"o").replace(/ü/g,"u").replace(/ß/g,"ss").replace(/[^a-z0-9]+/g, "");
-}
-function venueName(spielstaette, cleaned) {
-  if (spielstaette && String(spielstaette).trim()) return String(spielstaette).trim();
-  const first = String(cleaned || "").split(",")[0];
-  return first ? first.trim() : "";
-}
-
-// RFC 5545 Text-Escaping: Backslash zuerst, dann ; , und Zeilenumbrueche.
-function esc(s) {
-  return String(s == null ? "" : s)
-    .replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,")
-    .replace(/\r\n|\r|\n/g, "\\n");
-}
-// Zeilen auf 75 Oktette falten; Folgezeilen beginnen mit einem Leerzeichen
-// (dieses zaehlt mit -> Folgezeilen auf 74 Oktette Inhalt begrenzt).
-function fold(line) {
-  if (Buffer.byteLength(line, "utf8") <= 75) return line;
-  const pieces = [];
-  let cur = "", curBytes = 0, limit = 75;
-  for (const ch of line) {
-    const b = Buffer.byteLength(ch, "utf8");
-    if (curBytes + b > limit) { pieces.push(cur); cur = ch; curBytes = b; limit = 74; }
-    else { cur += ch; curBytes += b; }
-  }
-  pieces.push(cur);
-  return pieces.join("\r\n ");
-}
-
-async function sb(path) {
-  const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-    headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` },
-  });
-  if (!r.ok) throw new Error("DB HTTP " + r.status);
-  return r.json();
-}
-
 module.exports = async function handler(req, res) {
   try {
     if (!SUPABASE_URL || !SERVICE_KEY) return res.status(500).end();
+    const sb = macheSb(SUPABASE_URL, SERVICE_KEY);
 
     // Token aus der Query (Rewrite), ".ics" sicherheitshalber abschneiden, streng validieren.
     const token = String((req.query && req.query.token) || "").replace(/\.ics$/i, "").trim();
@@ -113,7 +48,7 @@ module.exports = async function handler(req, res) {
     const cutoff = `${cut.getUTCFullYear()}-${pad(cut.getUTCMonth() + 1)}-${pad(cut.getUTCDate())}`;
     const events = await sb(
       `events?club_id=eq.${clubId}&date=gte.${cutoff}` +
-      `&select=id,type,title,opponent,home,date,time,ende,starts_at,location_raw,spielstaette,note,status,ical_seq,updated_at` +
+      `&select=${EVENT_SELECT}` +
       `&order=date.asc`
     );
 
@@ -140,54 +75,7 @@ module.exports = async function handler(req, res) {
     ];
 
     for (const e of (events || [])) {
-      lines.push("BEGIN:VEVENT");
-      lines.push("UID:evt-" + e.id + "@" + UID_HOST);
-      lines.push("DTSTAMP:" + now);
-      lines.push("LAST-MODIFIED:" + (e.updated_at ? fmtUtc(new Date(e.updated_at)) : now));
-
-      const hasTime = e.time && String(e.time).trim() !== "";
-      if (hasTime && e.starts_at) {
-        const start = new Date(e.starts_at);
-        const sMin = toMin(e.time), eMin = toMin(e.ende);
-        let dur = (eMin != null && sMin != null) ? (eMin - sMin) : 120; // Default 2 h
-        if (dur <= 0) dur += 1440; // ueber Mitternacht
-        const end = new Date(start.getTime() + dur * 60000);
-        lines.push("DTSTART:" + fmtUtc(start));
-        lines.push("DTEND:" + fmtUtc(end));
-      } else {
-        // Ganztaegig (keine Startzeit)
-        lines.push("DTSTART;VALUE=DATE:" + dateCompact(e.date));
-        lines.push("DTEND;VALUE=DATE:" + nextDayCompact(e.date));
-      }
-
-      let summary;
-      if (e.type === "spiel") {
-        const opp = e.opponent || "";
-        if (e.home === true) summary = `${teamName} - ${opp}`;
-        else if (e.home === false) summary = `${opp} - ${teamName}`;
-        else summary = e.title || `${teamName} - ${opp}`;
-      } else {
-        summary = e.title || "Termin";
-      }
-      lines.push("SUMMARY:" + esc(summary));
-
-      if (e.location_raw && String(e.location_raw).trim()) {
-        const cleaned = cleanAddr(e.location_raw);           // aufgeraeumte Feed-Adresse
-        lines.push("LOCATION:" + esc(cleaned));
-        // Falls Koordinaten vorliegen: GEO + Apple-Struktur -> antippbarer Ort.
-        const geo = coord[normAddr(e.location_raw)];
-        if (geo) {
-          const lat = String(geo.lat), lng = String(geo.lng);
-          const addr = cleaned.replace(/"/g, "");            // keine DQUOTE im Parameterwert
-          const title = (venueName(e.spielstaette, cleaned) || cleaned).replace(/"/g, "");
-          lines.push("GEO:" + lat + ";" + lng);
-          lines.push(`X-APPLE-STRUCTURED-LOCATION;VALUE=URI;X-ADDRESS="${addr}";X-APPLE-RADIUS=100;X-TITLE="${title}":geo:${lat},${lng}`);
-        }
-      }
-      if (e.note && String(e.note).trim()) lines.push("DESCRIPTION:" + esc(e.note));
-      if (e.status === "abgesagt") lines.push("STATUS:CANCELLED");
-      lines.push("SEQUENCE:" + (Number(e.ical_seq) || 0));
-      lines.push("END:VEVENT");
+      for (const l of veventLines(e, { teamName, coord, now })) lines.push(l);
     }
 
     lines.push("END:VCALENDAR");
