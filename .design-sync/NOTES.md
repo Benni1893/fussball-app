@@ -407,3 +407,15 @@ Kantenglättung gleich breit ausfällt). Die Messauflösung liegt bei **1,1 CSS-
   Terminliste, waren seit der neuen Terminkarte unbenutzt und standen nur noch
   in `Bausteine/Buttons.html` — eine Karte, die eine Komponente zeigte, die es
   in der App nicht mehr gibt.
+- **Plakette HEIM/AUSWÄRTS: Gold als Tint, nicht als Vollton.** Der goldene
+  Vollton stammte aus der Feinschliff-Runde und war eine Fehllesung von mir —
+  in `termin-und-kalender-v2.png` ist die Plakette `--gold-500` zu 20 %
+  (Fläche `#3c643b`) und 50 % (Rand `#75803a`) über dem Kopfband, Schrift
+  `#f6e8c2`, Höhe 17 Bildpunkte = 18 CSS. Genau diese Werte stehen jetzt drin.
+- **Warum drei Tokens und kein `color-mix`.** Geprüft gegen alle Paare des
+  Token-Satzes: die Fläche wäre als `color-mix(in srgb, --gold-600 23%,
+  --green-750)` exakt darstellbar, Rand und Schrift nur auf 2 bzw. 1 Stufe
+  genau. Der Treffer ist ein Rechenzufall und nicht die Beziehung im Bild
+  (Gold über dem Kopfband) — das Kopfband ist ein Verlauf und gibt keinen
+  festen Mischgrund her. Eine unverständliche Mischung wäre schlechter lesbar
+  als ein benannter Wert, deshalb `--bdg-away-bg` / `-line` / `-fg`.

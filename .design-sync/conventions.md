@@ -84,7 +84,7 @@ Zustände hängen sich als zweite Klasse an: `.tk-btn.is-ab.is-on`, `.kpi.is-war
 
 ## Farben nur über Tokens
 
-Nie ein Hex ins Markup. Alles liegt in `tokens/tokens.css` (135 Tokens):
+Nie ein Hex ins Markup. Alles liegt in `tokens/tokens.css` (138 Tokens):
 
 - Vereinsgrün `--green-990` bis `--green-050` — Kopfzeile, Primäraktion, Erfolg.
   `--green-700` trägt jede Primäraktion, `--green-800` Zahlen und Verweise.
@@ -103,6 +103,11 @@ Nie ein Hex ins Markup. Alles liegt in `tokens/tokens.css` (135 Tokens):
   `--grad-chip-red` `--grad-urlaub` —, weil weiße Schrift auf den hellen
   Kantenverläufen keine 4,5:1 erreicht. Das Kopfband der Terminkarte trägt
   `--grad-tk-kopf`, der ⋯-Kreis darauf `--tk-menue`.
+- Die Plakette HEIM/AUSWÄRTS auf dem Kopfband trägt `--bdg-away-bg`
+  `--bdg-away-line` `--bdg-away-fg` — Gold als Tint, nicht als Vollton, damit
+  sie hinter Datum, Gegner und Uhrzeit zurücktritt (Schrift 5,60:1). Die drei
+  Werte sind aus der Vorlage gelesen und nicht als `color-mix` bestehender
+  Tokens ausdrückbar, weil das Kopfband ein Verlauf ist.
 - Form: `--radius` (14), `--radius-md` (12), `--radius-btn` (10),
   `--radius-sheet` (18), `--radius-pill`, `--radius-box` (6), `--shadow`,
   `--shadow-card`, `--shadow-sm`.

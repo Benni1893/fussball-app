@@ -121,6 +121,14 @@
   --grad-urlaub:     linear-gradient(180deg, var(--muted),     #55635c);   /* Urlaub: grau wie in der Kaderkachel */
   --grad-tk-kopf:    linear-gradient(180deg, var(--green-800),  var(--green-900));   /* Kopfband der Terminkarte */
   --tk-menue:        rgba(255,255,255,.14);   /* ⋯-Kreis auf dem Kopfband */
+  /* Plakette HEIM/AUSWAERTS auf dem Kopfband. Pixelgenau aus
+     termin-und-kalender-v2.png gelesen; dort ist sie --gold-500 zu 20 %
+     (Flaeche) und 50 % (Rand) ueber dem Kopfband. Als color-mix nicht
+     ausdrueckbar, weil das Kopfband ein Verlauf ist und keinen festen
+     Mischgrund hergibt - deshalb drei Werte, deckend. Schrift 5,60:1. */
+  --bdg-away-bg:     #3c643b;
+  --bdg-away-line:   #75803a;
+  --bdg-away-fg:     #f6e8c2;
   --grad-task-red:   linear-gradient(180deg, var(--red-100),      var(--red-200));
   --grad-task-gold:  linear-gradient(180deg, var(--gold-100),     var(--gold-250));
   --grad-task-green: linear-gradient(180deg, var(--green-task-1), var(--green-task-2));
@@ -528,14 +536,14 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .tk-kopf-main { flex: 1 1 auto; min-width: 0; }
 .tk-oben { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
 .tk-zeit { font-size: 13px; font-weight: 600; color: rgba(255,255,255,.88); line-height: normal; }
-/* Heim/Auswaerts als goldene Plakette auf dem Kopfband */
-/* Deckend, nicht durchscheinend: auf dem dunklen Kopfband liest sich ein
-   heller Verlauf wie Transparenz. Gemessen #eac66b, gebaut --gold-400 mit
-   --gold-700 als Rand; Schrift --green-900 haelt 7,0:1. */
+/* Heim/Auswaerts auf dem Kopfband. Sie steht hinter Datum, Gegner und
+   Uhrzeit, also traegt sie den Goldton als Tint, nicht als Vollton - so
+   auch in der Vorlage, dort Gold zu 20 %. Hoehe 18 gemessen (17 Bildpunkte
+   bei Massstab 0,919), Schriftgroesse und -gewicht unveraendert. */
 .tk-bdg {
-  flex: none; display: inline-flex; align-items: center; min-height: 21px; padding: 0 8px;
+  flex: none; display: inline-flex; align-items: center; min-height: 18px; padding: 0 8px;
   border-radius: var(--radius-pill);
-  background: var(--gold-400); border: 1px solid var(--gold-700); color: var(--green-900);
+  background: var(--bdg-away-bg); border: 1px solid var(--bdg-away-line); color: var(--bdg-away-fg);
   font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; line-height: normal;
 }
 .tk-titel {
