@@ -93,6 +93,13 @@ console.log('--- Längen ---');
 /* ===== 6. Was nur die Datenbank zusichert ============================== */
 console.log('--- Zusicherungen im Migrationstext 0036 ---');
 const sql = fs.readFileSync('supabase/migrations/0036_push_katalog.sql', 'utf8');
+// 0037 ersetzt send_preview_notification. Geprueft wird die WIRKSAME Fassung.
+const sql37 = fs.readFileSync('supabase/migrations/0037_vorschau_tag.sql', 'utf8');
+const rumpfIn = (quelle, name) => {
+  const von = quelle.indexOf('create or replace function public.' + name);
+  if (von < 0) return '';
+  return quelle.slice(von, quelle.indexOf('\n$$;', von));
+};
 const rumpf = (name) => {
   const von = sql.indexOf('create or replace function public.' + name);
   if (von < 0) return '';
@@ -110,8 +117,18 @@ const rumpf = (name) => {
   pruefe(/p_vorschau\s*=>\s*true/.test(f), 'markiert die Zeile als Vorschau');
   pruefe(/vorschau:/.test(f) && /clock_timestamp/.test(f),
     'dedup_key mit Präfix vorschau: und Zeitstempel - mehrfaches Testen geht');
-  pruefe(/p_tag\s*=>\s*'vorschau-'/.test(f),
-    'eigener tag je Kategorie - sonst ersetzt die nächste Vorschau die vorige');
+  // Der tag muss BEIDES leisten: je Kategorie verschieden, damit "Alle an
+  // mich senden" nicht zu einer Mitteilung zusammenfaellt, UND je Druck
+  // verschieden, damit zweimal dieselbe Kategorie nebeneinander liegt.
+  // Die erste Fassung in 0036 konnte nur das Erste - der Test hier hat das
+  // durchgehen lassen, weil er nur auf das Praefix sah.
+  const wirksam = rumpfIn(sql37, 'send_preview_notification');
+  pruefe(wirksam.length > 0, 'send_preview_notification wird in 0037 ersetzt');
+  pruefe(/p_tag\s*=>\s*'vorschau-' \|\| p_kategorie \|\| '-' \|\| v_zeit/.test(wirksam),
+    'tag traegt Kategorie UND Zeitstempel');
+  pruefe(/v_zeit text := extract\(epoch from clock_timestamp/.test(wirksam),
+    'ein Zeitstempel fuer tag und dedup_key - beide aus derselben Quelle');
+  pruefe(/p_dedup\s*=>[^;]*v_zeit/.test(wirksam), 'dedup_key nutzt denselben Zeitstempel');
 }
 {
   const f = rumpf('set_notification_template');

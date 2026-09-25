@@ -736,3 +736,20 @@ und jede Nachricht lässt sich vorher einmal echt aufs eigene Handy schicken.
 `is_admin()`-Prüfungen zur Laufzeit greifen. Statisch geprüft ist, dass sie im
 Migrationstext stehen; der Nachweis gehört in den Gerätetest mit einem
 Nicht-Admin-Konto.
+- **Nachtrag 0037: Vorschauen stapeln statt ersetzen.** Der tag
+  `vorschau-<kategorie>` aus 0036 war halb richtig — er verhindert, dass die
+  elf Kategorien bei „Alle an mich senden" zu einer Mitteilung zusammenfallen,
+  ließ aber die zweite Vorschau derselben Kategorie die erste **ersetzen**.
+  Beim Ausprobieren will man nebeneinander. Jetzt trägt der tag Kategorie
+  **und** Zeitstempel, beides aus derselben Quelle wie der `dedup_key`.
+  Im Echtbetrieb bleibt es beim sprechenden tag ohne Zeitstempel — dort ist
+  das Ersetzen gewollt („2 Absagen" wird zu „3 Absagen", eine Mitteilung).
+- **Der Test hatte die Lücke durchgelassen**, weil er nur auf das Präfix
+  `vorschau-` sah. Er prüft jetzt die wirksame Fassung aus 0037 und verlangt
+  den Zeitstempel. Eine zweite Schwäche darin ist gleich mit aufgefallen: der
+  Ausschnitt-Helfer suchte nach `\n$;` statt `\n$$;` — beim Erzeugen der Datei
+  war ein Dollarzeichen verlorengegangen, `indexOf` lieferte −1 und `slice`
+  gab fast die ganze Datei zurück. Der Test hätte damit auch Text aus anderen
+  Funktionen als Treffer gewertet. (Ursache beim Reparieren obendrein:
+  `String.replace` deutet `$$` im Ersatz als maskiertes `$` — mit
+  `split`/`join` gelöst.)
