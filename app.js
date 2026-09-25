@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-25-H";
+  var APP_BUILD = "2026-09-25-I";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -1563,6 +1563,182 @@
       '</div>';
   }
 
+  /* ---------- Schalter je Kategorie ------------------------------------------
+     Die Namen stehen hier, die BESCHREIBUNG kommt aus dem Katalog
+     (notification_infos) - sonst stuende sie zweimal und liefe auseinander.
+
+     Die Gliederung folgt den Rollen. Was jemand nicht ist, sieht er nicht -
+     und bekommt es auch dann nicht, wenn ein alter Schalter noch an steht:
+     kategorie_erlaubt() in der Datenbank prueft die Rolle unabhaengig davon
+     (Migration 0039). Die Einstellung bleibt gespeichert und greift wieder,
+     sobald die Rolle zurueckkommt.                                          */
+  const PN_GRUPPEN = [
+    { rolle: "spieler", titel: "Spieler", kategorien: [
+      ["strafe_neu",              "\u{1F4B8}", "Neue Strafe"],
+      ["zahlung_bestaetigt",      "✅",    "Zahlung bestätigt"],
+      ["zahlung_abgelehnt",       "⚠️", "Zahlung abgelehnt"],
+      ["rueckmeldung_erinnerung", "⏳",    "Erinnerung an Zu- oder Absage"],
+      ["termin_abgesagt",         "❌",    "Termin fällt aus"],
+      ["termin_geaendert",        "\u{1F4C5}", "Termin geändert"],
+      ["termin_neu",              "\u{1F4C5}", "Neue Termine"],
+      ["strafen_offen",           "\u{1F4B8}", "Monatliche Erinnerung an offene Strafen"],
+    ] },
+    { rolle: "coach", titel: "Trainer", kategorien: [
+      ["absage_kurzfristig",      "\u{1F6A8}", "Kurzfristige Absagen"],
+      ["unterbesetzung",          "\u{1F6A8}", "Zu wenig Zusagen"],
+      ["meldeschluss_uebersicht", "\u{1F4CB}", "Übersicht nach Meldeschluss"],
+    ] },
+    { rolle: "treasurer", titel: "Kasse", kategorien: [
+      ["zahlung_gemeldet",        "\u{1F4B0}", "Zahlung gemeldet"],
+    ] },
+  ];
+
+  /* Welche Gruppen sieht dieser Nutzer? Rein rechnend, damit pruefbar.
+       rollen      Liste aus my_roles()
+       hatSpieler  mit einem Spieler verknuepft (profiles.player_id)         */
+  function pnGruppenFuer(rollen, hatSpieler) {
+    const r = rollen || [];
+    return PN_GRUPPEN.filter((g) =>
+      g.rolle === "spieler" ? !!hatSpieler : r.indexOf(g.rolle) >= 0);
+  }
+
+  /* Zustand des Sammelschalters einer Gruppe: "true", "false" oder "mixed". */
+  function pnSammelZustand(gruppe, prefs) {
+    if (!prefs) return "false";
+    const werte = gruppe.kategorien.map((k) => !!prefs[k[0]]);
+    if (werte.every(Boolean)) return "true";
+    if (werte.every((v) => !v)) return "false";
+    return "mixed";
+  }
+
+  let pnInfos = null;     // Zeilen aus notification_infos()
+
+  function pnInfo(kategorie) {
+    const i = (pnInfos || []).find((x) => x.kategorie === kategorie);
+    return i ? i.ausloeser_beschreibung : "";
+  }
+
+  /* Einen Wert setzen. Optimistisch: erst lokal, dann speichern. Scheitert es
+     endgueltig, geht der Schalter zurueck und sagt es - alles andere waere
+     eine Luege auf dem Bildschirm. */
+  function pnSetzen(felder, beiFehler) {
+    if (!pushPrefs) return;
+    const alt = {};
+    for (const k of Object.keys(felder)) { alt[k] = pushPrefs[k]; pushPrefs[k] = felder[k]; }
+    render();
+    const versuch = (n) => {
+      DB.setNotificationPrefs(felder).catch(() => {
+        if (n < 3) { setTimeout(() => versuch(n + 1), 1500 * n); return; }
+        for (const k of Object.keys(alt)) pushPrefs[k] = alt[k];
+        render();
+        pushMeldung(beiFehler || "Konnte nicht gespeichert werden");
+      });
+    };
+    versuch(1);
+  }
+
+  function pnSchalterHtml(attrs, zustand, aus) {
+    return '<button class="sw" role="switch" aria-checked="' + zustand + '"' +
+      (aus ? " disabled" : "") + " " + attrs + ' type="button"></button>';
+  }
+
+  function pnZeileHtml(k, aus, prefs) {
+    const [kat, ic, name] = k;
+    const wann = pnInfo(kat);
+    return '<div class="pn-zeile">' +
+      '<span class="pn-ic" aria-hidden="true">' + ic + '</span>' +
+      '<span class="pn-main"><span class="pn-t">' + esc(name) + '</span>' +
+      (wann ? '<span class="pn-s">' + esc(wann) + '</span>' : "") + '</span>' +
+      pnSchalterHtml('data-pn-kat="' + esc(kat) + '" aria-label="' + esc(name) + '"',
+        prefs && prefs[kat] ? "true" : "false", aus) +
+      '</div>';
+  }
+
+  function pnGruppenHtml(aus) {
+    const rollen = (Roles.list || []);
+    const hatSpieler = !!(currentProfile && currentProfile.player_id);
+    return pnGruppenFuer(rollen, hatSpieler).map((g) => {
+      const z = pnSammelZustand(g, pushPrefs);
+      return '<div class="pn-gruppe">' +
+        '<div class="pn-kopf"><span class="pn-kopf-t">' + esc(g.titel) + '</span>' +
+          '<span class="pn-kopf-alle"><span>Alle</span>' +
+          pnSchalterHtml('data-pn-alle="' + esc(g.rolle) + '" aria-label="Alle ' + esc(g.titel) + '"', z, aus) +
+          '</span></div>' +
+        '<div class="pn-liste' + (aus ? " is-aus" : "") + '">' +
+          g.kategorien.map((k) => pnZeileHtml(k, aus, pushPrefs)).join("") +
+        '</div></div>';
+    }).join("");
+  }
+
+  /* Ruhezeiten. Es gibt keine eigene Ja/Nein-Spalte: gleiche Von- und
+     Bis-Zeit bedeutet "keine Ruhezeit" - so rechnet es in_quiet_hours()
+     ohnehin. Ausschalten setzt beide auf 00:00, Einschalten auf 22:00/08:00.
+     Nebenwirkung, die ich nicht verstecke: eigene Zeiten gehen beim
+     Ausschalten verloren. */
+  function pnRuhezeitHtml(aus) {
+    const p = pushPrefs || {};
+    const von = (p.quiet_from || "22:00").slice(0, 5);
+    const bis = (p.quiet_to   || "08:00").slice(0, 5);
+    const an  = von !== bis;
+    return '<div class="pn-gruppe">' +
+      '<div class="pn-kopf"><span class="pn-kopf-t">Ruhezeiten</span>' +
+        '<span class="pn-kopf-alle">' +
+        pnSchalterHtml('data-pn-ruhe aria-label="Nachts nicht stören"', an ? "true" : "false", aus) +
+        '</span></div>' +
+      '<div class="pn-liste' + (aus ? " is-aus" : "") + '">' +
+        '<div class="pn-zeile"><span class="pn-main">' +
+          '<span class="pn-t">Nachts nicht stören</span>' +
+          '<span class="pn-s">In diesem Zeitraum kommt nichts an. Was liegen bleibt, wird danach zugestellt.</span>' +
+        '</span></div>' +
+      '</div>' +
+      (an ? '<div class="pn-zeiten">' +
+        '<label>Von <input class="pn-zeit" type="time" data-pn-von value="' + esc(von) + '"' + (aus ? " disabled" : "") + '></label>' +
+        '<label>Bis <input class="pn-zeit" type="time" data-pn-bis value="' + esc(bis) + '"' + (aus ? " disabled" : "") + '></label>' +
+        '</div>' +
+        '<div class="pn-liste' + (aus ? " is-aus" : "") + '" style="margin-top:8px">' +
+          '<div class="pn-zeile">' +
+            '<span class="pn-main"><span class="pn-t">Dringendes trotzdem zustellen</span>' +
+            '<span class="pn-s">Kurzfristige Absagen, zu wenig Zusagen, Terminausfall, Terminänderung und die Erinnerung an die Rückmeldung.</span></span>' +
+            pnSchalterHtml('data-pn-dringend aria-label="Dringendes trotzdem zustellen"',
+              (pushPrefs && pushPrefs.quiet_override_urgent) ? "true" : "false", aus) +
+          '</div>' +
+        '</div>' : "") +
+      '</div>';
+  }
+
+  function pnAdminHtml() {
+    if (!Roles.isAdmin()) return "";
+    return '<div class="pn-gruppe">' +
+      '<div class="pn-kopf"><span class="pn-kopf-t">Admin</span></div>' +
+      '<p class="pn-hinweis">Keine eigenen Kategorien – als Admin bekommst du, was deine übrigen Rollen vorsehen.</p>' +
+      '<button class="btn" data-goto="pushkatalog" type="button">Push-Nachrichten verwalten</button>' +
+      '</div>';
+  }
+
+  /* Der ganze Block. Erscheint in "bereit" und "aktiv": ohne eingeschalteten
+     Hauptschalter stehen die Kategorien ausgegraut da, damit man sieht, was
+     einen erwartet. Die Kategorien gelten fuer ALLE Geraete des Nutzers, der
+     Hauptschalter nur fuer dieses - deshalb sind es zwei Ebenen. */
+  function pnAbschnittHtml(zustand) {
+    if (zustand !== "bereit" && zustand !== "aktiv") return "";
+    if (!pushPrefs) return "";
+    const aus = zustand !== "aktiv";
+    return '<div class="pn-block">' +
+      '<div class="pn-gruppe"><div class="pn-liste">' +
+        '<div class="pn-zeile">' +
+          '<span class="pn-main"><span class="pn-t">Push auf diesem Gerät</span>' +
+          '<span class="pn-s">Gilt nur hier. Die Auswahl darunter gilt für alle deine Geräte' +
+          (aus ? ' und wird erst wirksam, wenn du hier einschaltest.' : '.') + '</span></span>' +
+          pnSchalterHtml('data-pn-haupt aria-label="Push auf diesem Gerät"', aus ? "false" : "true", false) +
+        '</div>' +
+      '</div></div>' +
+      pnGruppenHtml(aus) +
+      pnRuhezeitHtml(aus) +
+      pnAdminHtml() +
+      '<p class="pn-hinweis">Die Liste in der App zeigt alles, was du hier eingeschaltet hast – ' +
+      'auch ohne Push auf diesem Gerät.</p>';
+  }
+
   /* ---- Die Anzeige je Zustand ---- */
   function pushAbschnittHtml() {
     const u = pushUmgebung();
@@ -1598,14 +1774,13 @@
             '<li>„Benachrichtigungen" auf „Zulassen" stellen.</li></ol>') +
         '<p class="set-hint">Danach hier wieder herkommen.</p>';
     } else if (z === "aktiv") {
-      inhalt = '<p class="set-hint">Benachrichtigungen sind auf diesem Gerät eingeschaltet.</p>' +
+      inhalt = pnAbschnittHtml("aktiv") +
         '<button class="btn btn-primary" data-push-test type="button">Testnachricht senden</button>' +
-        '<button class="btn btn-soft" data-push-aus type="button">Auf diesem Gerät ausschalten</button>' +
         '<div class="cal-copied" data-push-meldung hidden></div>';
     } else {   // "bereit"
       inhalt = '<p class="set-hint">Kurzfristige Absagen, Terminänderungen und ' +
         'Rückmelde-Erinnerungen direkt aufs Handy.</p>' +
-        '<button class="btn btn-primary" data-push-an type="button">Benachrichtigungen aktivieren</button>' +
+        pnAbschnittHtml("bereit") +
         (installPrompt && !u.standalone
           ? '<button class="btn btn-soft" data-push-install type="button">App installieren</button>' : "") +
         '<div class="cal-copied" data-push-meldung hidden></div>';
@@ -4337,6 +4512,14 @@
   /* Tippen im Push-Katalog: Entwurf merken und NUR die betroffene Karte
      auffrischen. Ein voller render() bei jedem Zeichen nimmt dem Feld den
      Fokus und setzt den Cursor an den Anfang. */
+  // Ruhezeiten: auf change, nicht auf input - sonst speichert jede Ziffer.
+  viewEl.addEventListener("change", (ev) => {
+    const el = ev.target;
+    if (!el || !el.dataset) return;
+    if (el.hasAttribute("data-pn-von")) pnSetzen({ quiet_from: el.value || "22:00" });
+    else if (el.hasAttribute("data-pn-bis")) pnSetzen({ quiet_to: el.value || "08:00" });
+  });
+
   viewEl.addEventListener("input", (ev) => {
     const el = ev.target;
     if (!el || !el.dataset) return;
@@ -4521,7 +4704,7 @@
       if (unpay) { if (!window.confirm("Buchung rückgängig machen? Die Strafe steht wieder als offen.")) return; try { await DB.setFinePaid(unpay.dataset.kasseUnpay, false); await reloadData(); tvToast("Zurückgesetzt"); } catch (e) { window.alert("Rückgängig fehlgeschlagen: " + ((e && e.message) || e)); } return; }
     }
 
-    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-cal-hide],[data-cal-copy-profil],[data-push-an],[data-push-aus],[data-push-test],[data-push-install],[data-push-hinweis-weg],[data-pkat-save],[data-pkat-reset],[data-pkat-send],[data-pkat-alle],[data-pkat-clear],[data-ics-event],[data-koord-save],[data-status-set],[data-logout]");
+    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-cal-hide],[data-cal-copy-profil],[data-push-an],[data-push-aus],[data-push-test],[data-push-install],[data-push-hinweis-weg],[data-pn-haupt],[data-pn-kat],[data-pn-alle],[data-pn-ruhe],[data-pn-dringend],[data-pkat-save],[data-pkat-reset],[data-pkat-send],[data-pkat-alle],[data-pkat-clear],[data-ics-event],[data-koord-save],[data-status-set],[data-logout]");
     if (!t) return;
 
     // Fitnessstatus setzen. Wer das darf, entscheidet die Datenbank:
@@ -4616,6 +4799,46 @@
         try { const n = await DB.deletePreviewNotifications(); katSag(n + " Vorschauen gelöscht"); }
         catch (err) { katSag("Fehlgeschlagen: " + ((err && err.message) || err)); }
       })();
+      return;
+    }
+
+    // Schalter der Benachrichtigungen.
+    if (t.hasAttribute("data-pn-haupt")) {
+      // Der Hauptschalter ist geraetebezogen: an heisst anmelden, aus heisst abmelden.
+      (async () => {
+        if (t.getAttribute("aria-checked") === "true") { await pushAbmelden(); render(); return; }
+        try {
+          const r = await pushAnmelden();
+          render();
+          if (r !== "granted" && r !== "denied") pushMeldung("Nicht bestätigt – nichts geändert");
+        } catch (err) { pushMeldung("Einrichten fehlgeschlagen: " + ((err && err.message) || err)); }
+      })();
+      return;
+    }
+    if (t.dataset.pnKat) {
+      const k = t.dataset.pnKat;
+      const f = {}; f[k] = !(pushPrefs && pushPrefs[k]);
+      pnSetzen(f);
+      return;
+    }
+    if (t.dataset.pnAlle) {
+      const g = PN_GRUPPEN.find((x) => x.rolle === t.dataset.pnAlle);
+      if (g) {
+        // Gemischt zaehlt als aus: der naechste Druck schaltet alles an.
+        const neu = pnSammelZustand(g, pushPrefs) !== "true";
+        const f = {}; g.kategorien.forEach((k) => { f[k[0]] = neu; });
+        pnSetzen(f);
+      }
+      return;
+    }
+    if (t.hasAttribute("data-pn-ruhe")) {
+      const an = t.getAttribute("aria-checked") === "true";
+      pnSetzen(an ? { quiet_from: "00:00", quiet_to: "00:00" }
+                  : { quiet_from: "22:00", quiet_to: "08:00" });
+      return;
+    }
+    if (t.hasAttribute("data-pn-dringend")) {
+      pnSetzen({ quiet_override_urgent: !(pushPrefs && pushPrefs.quiet_override_urgent) });
       return;
     }
 
@@ -5841,6 +6064,7 @@
       // Push: Zustand dieses Geraets abgleichen und Einstellungen holen.
       // Beides ohne Nutzergeste und deshalb ohne subscribe().
       try { pushPrefs = await DB.loadNotificationPrefs(); } catch (e) { pushPrefs = null; }
+      try { pnInfos = await DB.loadNotificationInfos(); } catch (e) { pnInfos = []; }
       pushAbo = await pushAboLesen();
       pushAbgleich();
     } catch (err) {

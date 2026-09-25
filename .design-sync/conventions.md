@@ -174,3 +174,38 @@ Die Grenzen sind **40 Zeichen im Titel** und **110 im Text**; darüber kürzen d
 Sperrbildschirme. Der Zähler im Push-Katalog benutzt `Intl.Segmenter`, die
 Gegenprobe in der Migration rechnet ersatzweise ohne Variantenselektor und
 Zero-Width-Joiner.
+
+## Schalter: `.sw`
+
+Der **Standard für An/Aus-Einstellungen**. Ein `<button class="sw" role="switch"
+aria-checked="…">` ohne Beschriftung im Knopf; der Name steht in der Zeile
+daneben und noch einmal als `aria-label`.
+
+`aria-checked` kennt drei Werte: `true`, `false` und **`mixed`** — letzteres
+für den Sammelschalter einer Gruppe, in der manches an und manches aus ist.
+Ein Druck auf „gemischt" schaltet alles **an**.
+
+Sichtbar 46×28, Trefferfläche **44** über das `::after` — so bleibt die Zeile
+schmal, ohne die Regel zu brechen. `disabled` graut ihn aus; die Zeile daneben
+bekommt dann `.pn-liste.is-aus`, das **nur den Titel** auf `--muted` setzt. Die
+Unterzeile bleibt, wie sie ist — sonst fiele sie unter 4,5:1.
+
+Nur vorhandene Tokens: `--grad-chip-on` an, `--grad-chip` gemischt,
+`--surface-3` aus, `--line` und `--green-900` als Rahmen.
+
+**Für neue An/Aus-Einstellungen wird `.sw` benutzt**, kein Chip und kein
+Knopfpaar.
+
+### Bestehende Chips, geprüft — kein Umbau nötig
+
+Alle heutigen Chip-Zustände sind **Einfachauswahl oder Filter**, nicht An/Aus:
+
+| | Art |
+|---|---|
+| `data-filter`, `data-sfilter`, `data-rsfilter`, `data-kstab` | Filter/Reiter — genau einer aktiv |
+| `data-status-set` (fit/angeschlagen/verletzt/Urlaub) | Einfachauswahl |
+| `data-wert` (Zahlart), `data-tvform` (Formation), `data-sim` (Rollen-Vorschau) | Einfachauswahl |
+| `.role-box` (Rollenvergabe im Admin) | echte `<input type="checkbox">` — bereits richtig |
+
+Keiner davon ist semantisch ein Schalter. Es gibt also **nichts umzustellen**;
+`.sw` gilt ab hier für Neues.

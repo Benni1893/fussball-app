@@ -779,3 +779,34 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
 - **`termin_geaendert` deckt ab jetzt nur Zeit- und Ortsänderungen ab.** Der
   Ausfall hat eine eigene Kategorie, einen eigenen Schalter (Standard an,
   Gruppe Terminänderungen) und ein eigenes Zeichen.
+
+**Schalter je Kategorie in den Einstellungen (25.09.2026)**
+
+- **Zwei Ebenen, nicht eine.** Der Hauptschalter gilt nur für **dieses Gerät**
+  (die Subscription), die Kategorien für **alle Geräte** des Nutzers. Deshalb
+  stehen sie untereinander. Die In-App-Liste folgt den Kategorien, nicht dem
+  Hauptschalter.
+- **Der Block erscheint in `bereit` und `aktiv`.** Deine Vorgabe sagte „nur im
+  Zustand aktiv" und zugleich „ausgegraut, wenn der Hauptschalter aus ist" —
+  das schließt sich aus, denn Hauptschalter aus *ist* der Zustand `bereit`.
+  Auflösung abgestimmt: sichtbar in beiden, in `bereit` ausgegraut.
+- **Migration 0039 war nötig**, nicht wegen fehlender Spalten (alle zwölf
+  waren da), sondern weil „fremde Rolle → keine Zustellung trotz Schalter an"
+  serverseitig nicht umgesetzt war. `notification_due` prüft jetzt zusätzlich
+  `kategorie_erlaubt()`.
+- **Die Unterzeile kommt aus dem Katalog**, nicht aus dem Code. Dafür brauchte
+  es `notification_infos()`: `notification_templates` ist Admin-only lesbar,
+  und die Tabelle zu öffnen hätte auch Rohvorlagen und Beispieldaten
+  freigegeben.
+- **Ruhezeiten haben keine eigene Ja/Nein-Spalte.** Gleiche Von- und Bis-Zeit
+  bedeutet „keine Ruhezeit" — so rechnet `in_quiet_hours()` ohnehin.
+  Ausschalten setzt beide auf 00:00, Einschalten auf 22:00/08:00.
+  **Nebenwirkung: eigene Zeiten gehen beim Ausschalten verloren.** Eine Spalte
+  `quiet_enabled` würde das lösen; bewusst nicht gebaut, um die Phase nicht
+  um eine Migration zu verlängern.
+- **`.sw` ist neu** und steht als Standard in conventions.md. Die bestehenden
+  Chips wurden geprüft: alle sind Einfachauswahl oder Filter, keiner ist
+  semantisch ein Schalter — es gibt nichts umzustellen.
+- **Speichern ohne Knopf**: optimistisch, drei stille Wiederholversuche, bei
+  endgültigem Fehler springt der Schalter zurück und sagt es. Alles andere
+  wäre eine Lüge auf dem Bildschirm.

@@ -346,6 +346,13 @@ window.DB = (function () {
     if (error) throw error;
     return data;
   }
+  // Beschreibende Felder des Katalogs (ohne Vorlagen) - fuer die Zeile,
+  // die sagt, wann eine Nachricht kommt.
+  async function loadNotificationInfos() {
+    const { data, error } = await client.rpc("notification_infos");
+    if (error) throw error;
+    return data || [];
+  }
   async function setNotificationPrefs(werte) {
     const { error } = await client.rpc("set_notification_prefs", { p_werte: werte });
     if (error) throw error;
@@ -583,7 +590,7 @@ window.DB = (function () {
   return {
     client, loadAll, setRsvp, deleteRsvp, setFinePaid, deleteFine, addFines, setCalendarHint,
     upsertPushSubscription, deletePushSubscription, pushSubscriptionBekannt,
-    loadNotificationPrefs, setNotificationPrefs, sendTestNotification,
+    loadNotificationPrefs, setNotificationPrefs, sendTestNotification, loadNotificationInfos,
     loadNotificationTemplates, setNotificationTemplate, sendPreviewNotification,
     deletePreviewNotifications, loadPreviewOutbox,
     insertCatalog, updateCatalog, deleteCatalog,
