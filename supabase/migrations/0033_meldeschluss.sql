@@ -119,7 +119,9 @@ $$;
 -- gerade erst gesetzt hat - deshalb der Name mit z. Wer einen der beiden
 -- Trigger umbenennt, muss diese Ordnung wiederherstellen.
 create or replace function public.events_set_deadline_at()
-returns trigger language plpgsql security definer set search_path = public as $$
+returns trigger
+language plpgsql security definer set search_path = public
+as $$
 begin
   new.deadline_at := public.compute_deadline(
     new.club_id, new.type, new.starts_at, new.deadline_override_hours);
@@ -145,7 +147,9 @@ comment on trigger trg_events_starts_at on public.events is
 -- auto_fined_at, und eine nachtraeglich verschobene Frist koennte dort
 -- rueckwirkend anders strafen als zum Zeitpunkt des Termins gegolten hat.
 create or replace function public.team_settings_refresh_events()
-returns trigger language plpgsql security definer set search_path = public as $$
+returns trigger
+language plpgsql security definer set search_path = public
+as $$
 begin
   update public.events e
      set deadline_at = public.compute_deadline(e.club_id, e.type, e.starts_at, e.deadline_override_hours)
