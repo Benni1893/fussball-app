@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-20-G";
+  var APP_BUILD = "2026-09-25-A";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -827,6 +827,76 @@
       "/" + encodeURIComponent(eventId) + ".ics");
   }
 
+  /* ---------- Abo-Hinweis: wann und wo ------------------------------------
+     Die Abo-Kachel stand frueher dauerhaft im Kalender und nahm Platz weg,
+     auch fuer Spieler, die laengst abonniert haben. Jetzt erscheint sie erst,
+     wenn der Nutzer sich das erste Mal zu einem Termin zurueckgemeldet hat -
+     dann ist der Kalender fuer ihn ein Thema. Weg ist sie, sobald er sie
+     wegtippt oder den Abo-Weg beschreitet; beides merkt sich der Server am
+     Profil, damit der Hinweis nicht auf jedem Geraet neu auftaucht.
+     Dauerhaft erreichbar bleibt das Abo ueber die Einstellungen.          */
+
+  // In dieser Sitzung festgelegter Platz. null = noch nicht ausgeloest,
+  // false = in dieser Sitzung erledigt (weggetippt oder Abo begonnen).
+  let aboSitzung = null;
+
+  // Hat der Nutzer ueberhaupt schon einmal zugesagt ODER abgesagt? Nur die
+  // eigenen Zeilen zaehlen - coach/admin sehen ueber die RLS auch fremde.
+  function hatEigeneRueckmeldung() {
+    const pid = state.currentPlayerId;
+    if (!pid) return false;
+    return Object.keys(state.rsvp).some((k) => {
+      const r = state.rsvp[k];
+      return k.slice(k.indexOf("|") + 1) === pid && r && (r.status === "zu" || r.status === "ab");
+    });
+  }
+
+  /* Wo steht der Hinweis? Rein rechnend, damit pruefbar.
+       profil    { calendar_hint_dismissed_at, calendar_subscribe_started_at }
+       rueckm    hat der Nutzer irgendeine eigene Rueckmeldung
+       sitzung   was in dieser Sitzung schon festgelegt wurde (null | false | Platz)
+     Rueckgabe: null oder { ort: "karte"|"liste", eventId }
+     Einmal festgelegt bleibt der Platz - ein zweites Ja soll den Hinweis
+     nicht an eine andere Karte springen lassen.                          */
+  function aboHinweisPlatz(profil, rueckm, sitzung) {
+    if (!profil) return null;
+    if (profil.calendar_hint_dismissed_at || profil.calendar_subscribe_started_at) return null;
+    if (sitzung === false) return null;
+    if (sitzung) return sitzung;
+    if (!rueckm) return null;
+    return { ort: "liste", eventId: null };
+  }
+
+  // Serverseitig merken. Fehlschlaege bleiben still und werden im Hintergrund
+  // wiederholt - der Nutzer hat die Kachel weggetippt, das ist seine Antwort,
+  // eine Fehlermeldung waere hier nur im Weg.
+  function hinweisMerken(dismissed, subscribed) {
+    if (currentProfile) {
+      if (dismissed  && !currentProfile.calendar_hint_dismissed_at)    currentProfile.calendar_hint_dismissed_at = new Date().toISOString();
+      if (subscribed && !currentProfile.calendar_subscribe_started_at) currentProfile.calendar_subscribe_started_at = new Date().toISOString();
+    }
+    aboSitzung = false;
+    const versuch = (n) => {
+      DB.setCalendarHint(dismissed, subscribed).catch(() => {
+        if (n < 3) setTimeout(() => versuch(n + 1), 2000 * n);
+      });
+    };
+    versuch(1);
+  }
+
+  // Die Kachel selbst. hinweis = true gibt ihr das X und den kuerzeren Titel.
+  function aboKachelHtml(hinweis) {
+    const titel = hinweis ? "Alle Termine automatisch im Handy-Kalender?"
+                          : "Termine im Kalender abonnieren";
+    return '<div class="kal-abo-wrap">' +
+      '<button class="card kal-abo' + (hinweis ? " hat-x" : "") + '" data-cal-sheet type="button">' +
+        '<span class="kal-abo-ic" aria-hidden="true">' + ICON_CAL_ADD + '</span>' +
+        '<span class="kal-abo-main"><span class="kal-abo-t">' + titel + '</span></span>' +
+        '<span class="kal-abo-chev" aria-hidden="true">›</span>' +
+      '</button>' +
+      (hinweis ? '<button class="kal-abo-x" data-cal-hide type="button" aria-label="Hinweis ausblenden">✕</button>' : "") +
+      '</div>';
+  }
   function closeCalSheet() { const ex = document.getElementById("calSheet"); if (ex) { ex.remove(); unlockBodyScroll(); } }
 
   // Apple nimmt webcal: systemweit an. Android nicht - und der Umweg ueber
@@ -870,7 +940,7 @@
           <li>Link einfügen, „Kalender hinzufügen“.</li>
         </ol>
         <button class="btn btn-primary abo-btn" data-cal-copy type="button"${aus}>Link kopieren</button>
-        <a class="btn btn-soft abo-btn" href="${GOOGLE_ADD_URL}" target="_blank" rel="noopener noreferrer">calendar.google.com öffnen</a>
+        <a class="btn btn-soft abo-btn" data-cal-google href="${GOOGLE_ADD_URL}" target="_blank" rel="noopener noreferrer">calendar.google.com öffnen</a>
         <p class="abo-fuss">Änderungen erscheinen bei Google mit bis zu 24 Stunden Verzögerung.</p>
       </section>`;
     const zuerstAndroid = /Android/i.test(navigator.userAgent || "") && !istAppleGeraet();
@@ -893,11 +963,18 @@
 
     ov.addEventListener("click", (e) => { if (e.target === ov || e.target.closest("[data-sheet-close]")) closeCalSheet(); });
     sheetSwipeToClose(ov.querySelector(".more-panel"), null, closeCalSheet);
-    q("[data-cal-open]").addEventListener("click", () => setTimeout(closeCalSheet, 150)); // nach dem Abo-Sprung schließen
+    // Erst eine dieser drei Handlungen gilt als "Abo begonnen" - das blosse
+    // Oeffnen des Blattes nicht. Auf Android besteht das Abonnieren aus
+    // Kopieren plus Handarbeit in der Weboberflaeche; ein beobachtbares
+    // "fertig" gibt es dort nicht. Wer nur hineinschaut, soll den Hinweis
+    // wiedersehen.
+    q("[data-cal-open]").addEventListener("click", () => { hinweisMerken(false, true); setTimeout(closeCalSheet, 150); }); // nach dem Abo-Sprung schließen
+    const go = q("[data-cal-google]"); if (go) go.addEventListener("click", () => hinweisMerken(false, true));
     // Der Google-Weg öffnet einen neuen Tab; das Blatt bleibt offen, damit
     // „Link kopieren“ danach noch erreichbar ist.
     q("[data-cal-copy]").addEventListener("click", async () => {
       const url = calendarSubscribeUrl(); if (!url) return;
+      hinweisMerken(false, true);
       feedback((await copyText(url)) ? "Link kopiert" : "Kopieren nicht möglich");
     });
     q("[data-cal-regen]").addEventListener("click", async () => {
@@ -1050,19 +1127,23 @@
     const kommend = liste.filter((e) => isFuture(e.datum));
     const vergangen = liste.filter((e) => !isFuture(e.datum));
 
+    // Abo-Hinweis: unter der gerade beantworteten Karte, wenn die Rueckmeldung
+    // in dieser Sitzung fiel und die Karte im aktuellen Filter auch sichtbar
+    // ist - sonst ueber der Liste.
+    let platz = aboHinweisPlatz(currentProfile, hatEigeneRueckmeldung(), aboSitzung);
+    if (platz && platz.ort === "karte" && !kommend.some((e) => e.id === platz.eventId)) {
+      platz = { ort: "liste", eventId: null };
+    }
+
     viewEl.innerHTML = `
       <div class="page-head">${navBackChevronHtml()}<h1>Kalender</h1></div>
       <div class="kal-seg" role="tablist">
         ${filters.map((f) => `<button class="kal-seg-b ${kalFilter === f.k ? "is-on" : ""}" role="tab" aria-selected="${kalFilter === f.k}" data-filter="${f.k}">${f.label}</button>`).join("")}
       </div>
       ${Roles.canManageSchedule() ? `<button class="kal-neu" data-termin-new type="button">${ICON_PLUS}<span>Termin hinzufügen</span></button>` : ""}
-      <button class="card kal-abo" data-cal-sheet type="button">
-        <span class="kal-abo-ic" aria-hidden="true">${ICON_CAL_ADD}</span>
-        <span class="kal-abo-main"><span class="kal-abo-t">Termine im Kalender abonnieren</span>
-        <span class="kal-abo-s">Alle Termine automatisch im Handy-Kalender</span></span>
-        <span class="kal-abo-chev" aria-hidden="true">›</span>
-      </button>
-      ${kommend.length ? `<div class="event-list">${kommend.map((e) => terminKarteHtml(e)).join("")}</div>`
+      ${platz && platz.ort === "liste" ? aboKachelHtml(true) : ""}
+      ${kommend.length ? `<div class="event-list">${kommend.map((e) => terminKarteHtml(e) +
+          ((platz && platz.ort === "karte" && platz.eventId === e.id) ? aboKachelHtml(true) : "")).join("")}</div>`
                        : `<div class="empty">Keine kommenden Termine in dieser Auswahl.</div>`}
       ${vergangen.length ? `
         <div class="section-title kal-past-title"><h2>Vergangene Termine</h2></div>
@@ -1125,6 +1206,17 @@
           <div class="set-row"><span class="set-label">E-Mail</span><span class="set-val">${esc(email)}</span></div>
           ${u.player_id ? `<button class="btn" data-view-jump="profil" style="width:100%;margin-top:12px">Profil öffnen</button>` : ""}
           <button class="btn set-logout" data-logout>Abmelden</button>
+        </div>
+      </div>
+
+      <div class="set-section">
+        <div class="section-title"><h2>Kalender-Abo</h2></div>
+        <div class="card card-pad">
+          <p class="set-hint">Alle Termine der Mannschaft landen automatisch in deinem Handy-Kalender
+          und ändern sich dort mit, wenn ein Termin verschoben oder abgesagt wird.</p>
+          <button class="btn btn-primary" data-cal-sheet type="button">Termine abonnieren</button>
+          <button class="btn btn-soft" data-cal-copy-profil type="button">Link kopieren</button>
+          <div class="cal-copied" data-cal-copied-profil hidden></div>
         </div>
       </div>
 
@@ -3918,7 +4010,7 @@
       if (unpay) { if (!window.confirm("Buchung rückgängig machen? Die Strafe steht wieder als offen.")) return; try { await DB.setFinePaid(unpay.dataset.kasseUnpay, false); await reloadData(); tvToast("Zurückgesetzt"); } catch (e) { window.alert("Rückgängig fehlgeschlagen: " + ((e && e.message) || e)); } return; }
     }
 
-    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-ics-event],[data-koord-save],[data-status-set],[data-logout]");
+    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-cal-hide],[data-cal-copy-profil],[data-ics-event],[data-koord-save],[data-status-set],[data-logout]");
     if (!t) return;
 
     // Fitnessstatus setzen. Wer das darf, entscheidet die Datenbank:
@@ -3953,6 +4045,33 @@
 
     // Kalender-Abo-Sheet öffnen (Icon in der Kalender-Kopfzeile)
     if (t.hasAttribute("data-cal-sheet")) { openCalSheet(); return; }
+
+    // X an der Abo-Kachel: erst einklappen, dann aus dem Baum nehmen.
+    if (t.hasAttribute("data-cal-hide")) {
+      const wrap = t.closest(".kal-abo-wrap");
+      hinweisMerken(true, false);
+      if (wrap) {
+        wrap.classList.add("is-weg");
+        const weg = () => { if (wrap.parentNode) wrap.remove(); };
+        wrap.addEventListener("transitionend", weg, { once: true });
+        setTimeout(weg, 400);   // falls die Animation ausgeschaltet ist
+      }
+      return;
+    }
+
+    // "Link kopieren" im Einstellungs-Abschnitt (im Blatt haengt es am Blatt).
+    if (t.hasAttribute("data-cal-copy-profil")) {
+      (async () => {
+        const fb = document.querySelector("[data-cal-copied-profil]");
+        const sag = (txt) => { if (fb) { fb.textContent = txt; fb.hidden = false; setTimeout(() => { fb.hidden = true; }, 1800); } };
+        await ensureCalendarToken();
+        const url = calendarSubscribeUrl();
+        if (!url) { sag("Link steht noch nicht bereit"); return; }
+        hinweisMerken(false, true);
+        sag((await copyText(url)) ? "Link kopiert" : "Kopieren nicht möglich");
+      })();
+      return;
+    }
     if (t.hasAttribute("data-ics-event")) { termindateiLaden(t.getAttribute("data-ics-event")); return; }
 
     // Termin anlegen / bearbeiten (Trainer/Kassenwart – zusätzlich per RLS erzwungen)
@@ -4207,6 +4326,11 @@
       } catch (err) {
         window.alert("Speichern fehlgeschlagen: " + ((err && err.message) || err));
         return;
+      }
+      // Erste eigene Rueckmeldung dieser Sitzung: der Hinweis bekommt seinen
+      // Platz direkt unter dieser Karte. Zuruecknehmen zaehlt nicht.
+      if (aboSitzung === null && state.rsvp[key] && aboHinweisPlatz(currentProfile, true, null)) {
+        aboSitzung = { ort: "karte", eventId: eventId };
       }
       await reloadData();   // Konto/Strafen sofort frisch (z. B. neue Auto-Absagestrafe)
       return;

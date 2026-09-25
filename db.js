@@ -295,6 +295,16 @@ window.DB = (function () {
     if (error) throw error;
     return data;
   }
+  // Abo-Hinweis merken: X angetippt und/oder Abo-Weg beschritten.
+  // Per RPC, weil die RLS von profiles UPDATE nur Admins erlaubt. Die
+  // Funktion setzt nur die eigene Zeile und nur von null auf now().
+  async function setCalendarHint(dismissed, subscribed) {
+    const { error } = await client.rpc("set_calendar_hint", {
+      p_dismissed: !!dismissed, p_subscribed: !!subscribed,
+    });
+    if (error) throw error;
+  }
+
   // Neuen Token erzeugen (alter Link wird ungueltig).
   async function regenerateCalendarToken() {
     const { data, error } = await client.rpc("regenerate_calendar_token");
@@ -494,7 +504,7 @@ window.DB = (function () {
   }
 
   return {
-    client, loadAll, setRsvp, deleteRsvp, setFinePaid, deleteFine, addFines,
+    client, loadAll, setRsvp, deleteRsvp, setFinePaid, deleteFine, addFines, setCalendarHint,
     insertCatalog, updateCatalog, deleteCatalog,
     insertEvents, updateEvent, updateSeriesFrom, deleteEvent, deleteSeriesFrom,
     upsertSportstaette,

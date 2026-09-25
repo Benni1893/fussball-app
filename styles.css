@@ -496,20 +496,51 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 }
 .kal-neu svg { width: 19px; height: 19px; }
 
+/* Abo-Hinweis im Kalender. Er steht nicht mehr dauerhaft da, sondern erst
+   nach der ersten eigenen Rueckmeldung, und verschwindet endgueltig, sobald
+   er weggetippt oder das Abo begonnen wird. Dauerhaft erreichbar bleibt das
+   Abo im Abschnitt "Kalender-Abo" der Einstellungen.
+
+   Der Umschlag traegt den Abstand nach unten und die Ausblend-Animation -
+   so klappt beim Wegtippen auch die Luecke mit ein und es bleibt kein
+   Leerraum stehen. Das X liegt als Geschwister darin, nicht in der Karte:
+   ein Knopf im Knopf ist kein gueltiges Markup.                          */
+.kal-abo-wrap {
+  position: relative; margin-bottom: 16px; max-height: 200px;
+  transition: opacity .18s ease, max-height .22s ease, margin-bottom .22s ease;
+}
+.kal-abo-wrap.is-weg { opacity: 0; max-height: 0; margin-bottom: 0; overflow: hidden; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .kal-abo-wrap { transition: none; } }
+
 .kal-abo {
   display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
-  padding: 12px 14px; min-height: 64px; margin-bottom: 16px;
+  padding: 10px 14px; min-height: 0;
 }
+/* Mit X rechts mehr Innenrand, damit der Chevron nicht unter dessen
+   44-px-Trefferflaeche geraet - sonst oeffnet der Griff nach dem Chevron
+   das Blatt nicht, sondern blendet aus. */
+.kal-abo.hat-x { padding-right: 50px; }
 .kal-abo-ic {
-  flex: none; width: 37px; height: 37px; border-radius: 10px;
+  flex: none; width: 34px; height: 34px; border-radius: 10px;
   background: var(--grad-gold); color: var(--green-800);
   display: flex; align-items: center; justify-content: center;
 }
 .kal-abo-ic svg { width: 19px; height: 19px; }
 .kal-abo-main { flex: 1 1 auto; min-width: 0; }
 .kal-abo-t { display: block; font-size: 15px; font-weight: 700; color: var(--ink); line-height: 1.25; }
-.kal-abo-s { display: block; margin-top: 1px; font-size: 13px; font-weight: 500; color: var(--muted); line-height: 1.3; }
 .kal-abo-chev { flex: none; font-size: 18px; font-weight: 700; color: var(--dot-off); }
+/* Dezent grau, sichtbar 26, Trefferflaeche 44 ueber das ::after. */
+.kal-abo-x {
+  position: absolute; top: 5px; right: 7px; z-index: 1;
+  width: 26px; height: 26px; border: 0; border-radius: 50%;
+  background: none; color: var(--muted);   /* --dot-off kaeme auf 1,56:1 - als einziger
+                                              Inhalt eines Knopfes zu wenig */
+  font-size: 13px; font-weight: 700; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.kal-abo-x::after { content: ""; position: absolute; top: 50%; left: 50%; width: var(--tap); height: var(--tap); transform: translate(-50%,-50%); }
+.kal-abo-x:active { color: var(--ink); }
 
 /* ---------- Terminkarte (Vorlage termin-und-kalender-v2.png) ----------------
    Eine Komponente fuer Kalender und Uebersicht, rollenabhaengig gefuellt.

@@ -32,16 +32,19 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
         <span>Termin hinzufügen</span>
       </button>
-      <button class="card kal-abo" type="button">
-        <span class="kal-abo-ic" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>
-        </span>
-        <span class="kal-abo-main"><span class="kal-abo-t">Termine im Kalender abonnieren</span>
-        <span class="kal-abo-s">Alle Termine automatisch im Handy-Kalender</span></span>
-        <span class="kal-abo-chev" aria-hidden="true">›</span>
-      </button>
+      <div class="kal-abo-wrap">
+        <button class="card kal-abo hat-x" type="button">
+          <span class="kal-abo-ic" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>
+          </span>
+          <span class="kal-abo-main"><span class="kal-abo-t">Alle Termine automatisch im Handy-Kalender?</span></span>
+          <span class="kal-abo-chev" aria-hidden="true">›</span>
+        </button>
+        <button class="kal-abo-x" type="button" aria-label="Hinweis ausblenden">✕</button>
+      </div>
     </div>
-    <div class="meta">.kal-seg &gt; .kal-seg-b (gewählt .is-on) · .kal-neu · .card.kal-abo mit .kal-abo-ic / .kal-abo-main / .kal-abo-chev<br>
+    <div class="meta">.kal-seg &gt; .kal-seg-b (gewählt .is-on) · .kal-neu · .kal-abo-wrap &gt; .card.kal-abo.hat-x (mit .kal-abo-ic / .kal-abo-main / .kal-abo-chev) und .kal-abo-x<br>
+    Die Abo-Kachel steht nicht dauerhaft da: sie erscheint erst nach der ersten eigenen Rückmeldung und ist danach wegtippbar — das X merkt sich der Server am Profil, nicht der Browser. Dauerhaft erreichbar bleibt das Abo im Abschnitt „Kalender-Abo“ der Einstellungen.<br>
     Die Leiste ist ein Raster aus vier gleichen Vierteln (repeat(4, minmax(0,1fr))), nicht eine Reihe textbreiter Pillen: bei 390 ist jedes Segment 84 breit, 42 hoch, Trefferfläche 44, Beschriftung einzeilig (white-space: nowrap).</div>
   </div>
 

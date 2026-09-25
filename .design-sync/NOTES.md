@@ -530,3 +530,48 @@ Download und verlässt die Seite nicht — bei einer 404 dagegen schon. Das trif
 nur Termine, die nicht zum Verein des Nutzers gehören; die kann die Karte gar
 nicht anzeigen. Ein Blob-Umweg würde die Kante schließen, nähme iOS aber die
 Übergabe an die Kalender-App — der Grund für die ganze Funktion.
+
+**Abo-Kachel: kontextuell statt dauerhaft (25.09.2026)**
+
+Die Kachel stand fest zwischen „Termin hinzufügen" und der Terminliste — auch
+für Spieler, die längst abonniert haben oder keinen privaten Kalender pflegen.
+Jetzt erscheint sie erst nach der **ersten eigenen Rückmeldung** (Zusage *oder*
+Absage, gefiltert auf `state.currentPlayerId`, weil coach/admin über die RLS
+auch fremde Zeilen sehen) und verschwindet endgültig durch X oder Abo-Start.
+
+**Serverseitig, nicht im localStorage** (`profiles.calendar_hint_dismissed_at`
+/ `calendar_subscribe_started_at`, Migration 0032) — sonst taucht der Hinweis
+auf jedem neuen Gerät wieder auf. Geschrieben über `set_calendar_hint`, weil
+die RLS von `profiles` UPDATE nur Admins erlaubt.
+
+- **Platz:** unter der gerade beantworteten Karte, wenn die Rückmeldung in
+  dieser Sitzung fiel, sonst über der Liste. Einmal festgelegt bleibt er —
+  ein zweites Ja soll den Hinweis nicht an eine andere Karte springen lassen.
+  Ist die Karte im gewählten Filter nicht sichtbar, fällt er auf „über der
+  Liste" zurück.
+- **Das X liegt neben der Karte, nicht darin** (`.kal-abo-wrap` > `.kal-abo` +
+  `.kal-abo-x`): ein Knopf im Knopf ist kein gültiges Markup. Der Umschlag
+  trägt auch den Abstand nach unten, damit beim Ausblenden die Lücke
+  mit einklappt und kein Leerraum stehen bleibt.
+- **`.kal-abo.hat-x` bekommt 50 px Innenrand rechts.** Sonst läge der Chevron
+  unter der 44-px-Trefferfläche des X, und der Griff nach dem Chevron würde
+  ausblenden statt öffnen. Gemessen: X-Trefferfläche ab x 332, Chevron endet
+  bei x 323; `elementFromPoint` auf der Chevron-Mitte liefert `.kal-abo-chev`.
+- **Das X trägt `--muted`, nicht `--dot-off`.** Grau wie gewünscht, aber
+  `--dot-off` kommt auf **1,56:1** — als einziger Inhalt eines Knopfes zu
+  wenig. `--muted` hält 4,85:1 und bleibt dezent.
+- **Der Titel bricht bei 390 px auf zwei Zeilen.** „Alle Termine automatisch im
+  Handy-Kalender?" misst bei 15 px/700 rund 300 px, zwischen Symbol, Chevron
+  und X stehen 230 zur Verfügung. Die Kachel ist trotzdem niedriger als vorher
+  (59,5 statt 64), weil der Untertitel entfällt. Einzeilig würde erst ein
+  kürzerer Text, etwa „Termine im Handy-Kalender?".
+- `.kal-abo-s` (Untertitel) ersatzlos entfernt — ohne Untertitel tot.
+
+**Bekannte Kante:** der Knopf „Termine abonnieren" im Einstellungs-Abschnitt
+ist `.btn-primary` und erbt damit dessen bekannte **3,88:1** an der hellen
+Kante von `--grad-btn`. Bewusst keine neue lokale Ausnahme wie bei `.abo-btn`
+— das vorgemerkte Paket hebt `--grad-btn` global an und räumt die bestehende
+Ausnahme gleich mit ab.
+
+Der Hinweis erscheint nur im Kalender. Wer im Übersichts-Hero zusagt, bekommt
+ihn beim nächsten Öffnen des Kalenders unter der betroffenen Karte.
