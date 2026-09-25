@@ -8,152 +8,363 @@
 <link rel="stylesheet" href="../../../styles.css">
 <style>
   /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
-  body { padding: 0; min-height: 0; }
+  body { padding: 0; min-height: 0; background: var(--bg-1); }
   .sp { padding: 20px; display: flex; flex-direction: column; gap: 22px; }
   .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
   .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; line-height: 1.6; }
-  .frame { width: 390px; max-width: 100%; padding: 0 16px 16px; background: var(--bg); border: 1px dashed var(--line); border-radius: 12px; }
+  .frame { width: 390px; max-width: 100%; padding: 12px 16px 16px; background: var(--grad-app); border-radius: 12px; }
+  /* Die Blaetter liegen in der App fest am unteren Rand. Fuer die Karte
+     werden sie an Ort und Stelle gezeigt, sonst sieht man sie nicht. */
+  .blatt-demo { background: var(--card); border-radius: 18px 18px 0 0; box-shadow: var(--shadow-sm); padding-bottom: 16px; }
+  .blatt-demo .tv-sh { position: relative; }
+  .blatt-demo .tv-shbody { padding: 0 16px; }
+  .wahl-demo { background: var(--card); border-radius: 12px; height: 520px; display: flex; flex-direction: column; overflow: hidden; }
+  .wahl-demo .tv-shbody { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; gap: 14px; padding: 16px; }
+  .wahl-demo .ks-wahl-b { flex: 1 1 0; max-height: 300px; }
 </style>
 </head>
 <body>
 <div class="sp">
 
   <div>
-    <div class="sp-h">Zwei Kennzahlen und das eingeklappte Formular</div>
+    <div class="sp-h">Was diese Ansicht trägt</div>
+    <div class="card card-pad">
+      <p class="rs">Die Kasse folgt <b>_neukasse.png</b>. Drei Kennzahlen, ein gefüllter grüner
+      Knopf, die Überschrift „Prüfen und verbuchen", darunter eine Segmentleiste mit drei Reitern.
+      Jeder Reiter hat einen eigenen Aufbau — Karte im Stapel, Karte je Strafe, Zeilen in einer Karte.</p>
+      <p class="rs">Gebucht wird im <b>Blatt</b>, nicht in der Zeile: dort ist Platz für Zahlart mit
+      Symbol und den Hinweis, was der Spieler angegeben hat. <b>Verlauf</b> und
+      <b>Buchung rückgängig</b> stehen im Detail-Blatt, das ein Tipp auf die Karte öffnet —
+      dadurch bleibt die Liste so ruhig wie in der Vorlage.</p>
+    </div>
+  </div>
+
+  <div>
+    <div class="sp-h">1 · Zu prüfen — genau eine Meldung im Blick</div>
     <div class="frame">
-      <div class="page-head" style="padding-top:14px"><h1>Kasse</h1></div>
+      <div class="page-head"><h1>Kasse</h1></div>
+
       <div class="kpi-grid kpi-3">
-        <button type="button" class="kpi is-warn kpi-tapbar">
+        <button type="button" class="kpi kpi-tapbar" data-kstab="offen">
           <div class="kpi-label">Offen</div>
-          <div class="kpi-value kpi-amt">128,50 €</div>
-          <div class="kpi-sub">7 Strafen</div>
+          <div class="kpi-value kpi-amt is-rot">65,00 €</div>
+          <div class="kpi-sub">4 Strafen</div>
         </button>
-        <button type="button" class="kpi kpi-tapbar">
+        <button type="button" class="kpi kpi-tapbar" data-kstab="pruefen">
           <div class="kpi-label">Gemeldet</div>
-          <div class="kpi-value kpi-amt">36,00 €</div>
+          <div class="kpi-value kpi-amt is-gold">36,00 €</div>
           <div class="kpi-sub">3 zu prüfen</div>
         </button>
-        <button type="button" class="kpi kpi-tapbar">
+        <button type="button" class="kpi kpi-tapbar" data-kstab="bezahlt">
           <div class="kpi-label">Eingegangen</div>
-          <div class="kpi-value kpi-amt">513,50 €</div>
-          <div class="kpi-sub">Saison</div>
+          <div class="kpi-value kpi-amt">74,00 €</div>
+          <div class="kpi-sub">6 Zahlungen</div>
         </button>
       </div>
-      <button class="kasse-toggle" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-        Strafe verhängen
+
+      
+      <button type="button" class="ks-neu" data-ks-wahl>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg><span>Strafe verhängen</span>
       </button>
-    </div>
-    <div class="meta">.kpi-grid.kpi-3 mit drei .kpi.kpi-tapbar — jede Kachel springt in den passenden Reiter · .kasse-toggle öffnet das Formular, das sonst eingeklappt bleibt — die Kasse beginnt mit dem, was zu prüfen ist.</div>
-  </div>
 
-  <div>
-    <div class="sp-h">Strafe verhängen — Mehrfachauswahl</div>
-    <div class="card card-pad kasse-add">
-      <div>
-        <div class="kasse-lbl">Spieler<span class="kasse-count">3</span></div>
-        <div class="kasse-players">
-          <button class="kasse-chip is-on" type="button">Max Bauer</button>
-          <button class="kasse-chip is-on" type="button">Jonas Becker</button>
-          <button class="kasse-chip" type="button">Niklas Fischer</button>
-          <button class="kasse-chip is-on" type="button">Felix Hofmann</button>
-        </div>
-      </div>
-      <div>
-        <div class="kasse-lbl">Strafen</div>
-        <div class="ks-ichips">
-          <span class="ks-ichip">Zu spät zum Training ×2<button class="chip-x" type="button" aria-label="Entfernen">×</button></span>
-          <span class="ks-ichip">Gelbe Karte<button class="chip-x" type="button" aria-label="Entfernen">×</button></span>
-        </div>
-      </div>
-      <div class="kasse-two">
-        <input class="kasse-in" type="date" value="2026-09-18" aria-label="Datum">
-        <input class="kasse-in" type="text" placeholder="Betrag €" aria-label="Freier Betrag">
-      </div>
-      <textarea class="kasse-in kasse-comment" rows="2" placeholder="Kommentar (optional)" aria-label="Kommentar"></textarea>
-      <div class="kasse-sum">
-        <div class="kasse-sum-row"><span>Vorgang</span><b>3 Spieler × 2 Strafen = 6 Einträge</b></div>
-        <div class="kasse-sum-row"><span>Betrag je Spieler</span><b>15,00 €</b></div>
-        <div class="kasse-sum-row"><span>Datum</span><b>18. September 2026</b></div>
-        <div class="kasse-sum-row kasse-sum-total"><span>Summe gesamt</span><b>45,00 €</b></div>
-      </div>
-      <button class="tv-primary kasse-save" type="button">Strafen speichern</button>
-    </div>
-    <div class="meta">.kasse-add &gt; .kasse-lbl (+ .kasse-count) · .kasse-players &gt; .kasse-chip · .ks-ichips &gt; .ks-ichip mit .chip-x · .kasse-two · .kasse-sum &gt; .kasse-sum-row (+ .kasse-sum-total) · .kasse-save</div>
-  </div>
-
-  <div>
-    <div class="sp-h">Prüfen und verbuchen — Kartenstapel</div>
-    <div class="frame">
-      <div class="section-title kasse-verbuchen"><h2>Prüfen &amp; verbuchen</h2></div>
+      <div class="section-title kasse-verbuchen"><h2>Prüfen und verbuchen</h2></div>
       <div class="ks-pane">
-        <div class="chips ks-tabs">
-          <button class="chip is-active" type="button">Zu prüfen (3)</button>
-          <button class="chip" type="button">Offen (7)</button>
-          <button class="chip" type="button">Eingegangen (24)</button>
+        <div class="ks-seg" role="tablist">
+          <button class="ks-seg-b is-on" role="tab"
+            aria-selected="true" data-kstab="pruefen">Zu prüfen <span class="ks-seg-n">3</span></button><button class="ks-seg-b" role="tab"
+            aria-selected="false" data-kstab="offen">Offen <span class="ks-seg-n">4</span></button><button class="ks-seg-b" role="tab"
+            aria-selected="false" data-kstab="bezahlt">Eingegangen <span class="ks-seg-n">6</span></button>
         </div>
-        <div class="ks-bulk"><button class="link-btn" type="button">Alle 3 bestätigen</button></div>
-        <div class="ks-deck">
-          <div class="ks-ghost ks-ghost-2" aria-hidden="true"></div>
-          <div class="ks-ghost ks-ghost-1" aria-hidden="true"></div>
-          <div class="card ks-card">
-            <div class="lbl">Meldung 1 von 3</div>
-            <span class="avatar ks-av">MB</span>
-            <div class="ks-name">Max Bauer</div>
-            <div class="rs">Zu spät zum Training · Strafe vom 12. Sep</div>
-            <div class="ks-amt num">12,00 €</div>
-            <div class="rs">per Überweisung gemeldet</div>
-            <div class="ks-actions">
-              <button class="btn" type="button">Ablehnen</button>
-              <button class="btn btn-primary" type="button">Eingang bestätigen</button>
-            </div>
+        
+        
+        
+      <div class="ks-deck">
+        <div class="card ks-card" data-ks-det="g1" role="button" tabindex="0" aria-label="Meldung von Lukas Weber im Detail">
+          <div class="ks-kopf">
+            <span class="lbl">1 von 3</span>
+            <button class="link-btn" data-kasse-confirm-all>Alle bestätigen</button>
           </div>
-        </div>
-        <div class="ks-dots"><span class="is-on"></span><span></span><span></span></div>
-        <div class="ks-cap">Nach jeder Entscheidung rückt die nächste Meldung nach</div>
-      </div>
-    </div>
-    <div class="meta">.ks-deck &gt; zwei .ks-ghost + .card.ks-card (.ks-av, .ks-name, .ks-amt, .ks-actions). Ein Wisch blättert im Stapel — die Reiter wechselt man per Tipp auf die Chips. Ab neun Meldungen entfallen die .ks-dots zugunsten des Zählers in der Karte.</div>
-  </div>
-
-  <div>
-    <div class="sp-h">Reiter „Offen" — Zeile statt Formular</div>
-    <div class="krow-list">
-      <div class="krow">
-        <div class="krow-head">
-          <span class="avatar">JB</span>
-          <div class="krow-info">
-            <div class="krow-title">Jonas Becker</div>
-            <div class="krow-strafe">Gelbe Karte · 8. Sep</div>
-          </div>
-          <div class="krow-right">
-            <div class="krow-amt">5,00 €</div>
-            <span class="badge badge-open">offen</span>
-          </div>
-        </div>
-        <div class="krow-actions">
-          <div class="zart-row">
-            <button class="zart is-on" type="button">bar</button>
-            <button class="zart" type="button">Überweisung</button>
-            <button class="zart" type="button">PayPal</button>
-          </div>
-          <div class="krow-tun">
-            <button class="btn btn-primary krow-buchen" type="button">Buchen</button>
-            <button class="link-btn" type="button">Stornieren</button>
+          <span class="avatar ks-av">LW</span>
+          <div class="ks-name">Lukas Weber</div>
+          <div class="rs">Zu spät zum Spiel / Treffpunkt</div>
+          <div class="ks-amt num">10,00 €</div>
+          <div class="ks-meta"><span class="ks-zi is-pp" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.6 3h6.1c2.9 0 4.6 1.5 4.2 4.1-.4 2.8-2.4 4.3-5.4 4.3h-2.2l-.8 5.1H7.2L8.6 3Zm2.6 2.3-.6 3.8h1.7c1.5 0 2.4-.7 2.6-2 .2-1.2-.4-1.8-1.8-1.8h-1.9Z"/><path d="M6.3 7.6h5.5c2.6 0 4.1 1.4 3.7 3.7-.4 2.5-2.2 3.9-4.9 3.9H8.5L7.8 20H5.1l1.2-8.1.8-4.3Z" opacity=".55"/></svg></span><span>PayPal · gemeldet heute, 18:42</span></div>
+          <div class="ks-zitat">„Per PayPal an die Kasse geschickt."</div>
+          <div class="ks-actions">
+            <button class="btn" data-kasse-reject="g1">Ablehnen</button>
+            <button class="btn btn-primary" data-kasse-confirm="g1">Bestätigen</button>
           </div>
         </div>
       </div>
+        
+        
+      </div>
     </div>
-    <div class="meta">.krow-list &gt; .krow &gt; .krow-head (.avatar, .krow-info, .krow-right) + .krow-actions mit .zart-row und .krow-tun.</div>
+    <div class="meta">Die Stapeltiefe trägt „1 von 3", nicht mehr Geisterkarten und Punkte. „Alle bestätigen" sitzt in der Karte, nicht darüber. Gewischt wird weiterhin.</div>
   </div>
 
   <div>
-    <div class="sp-h">Wer hier etwas darf, entscheidet die Datenbank</div>
-    <div class="card card-pad">
-      <p class="rs">Die Ansicht selbst ist nur Bequemlichkeit. Schreiben auf Strafen und
-      Katalog erlaubt die Datenbank ausschließlich Kassenwart und Admin — wer die Ansicht
-      ohne Recht öffnet, bekommt keine Zeile zurück.</p>
+    <div class="sp-h">2 · Offen — eine Karte je Strafe</div>
+    <div class="frame">
+      <div class="page-head"><h1>Kasse</h1></div>
+
+      <div class="kpi-grid kpi-3">
+        <button type="button" class="kpi kpi-tapbar" data-kstab="offen">
+          <div class="kpi-label">Offen</div>
+          <div class="kpi-value kpi-amt is-rot">65,00 €</div>
+          <div class="kpi-sub">4 Strafen</div>
+        </button>
+        <button type="button" class="kpi kpi-tapbar" data-kstab="pruefen">
+          <div class="kpi-label">Gemeldet</div>
+          <div class="kpi-value kpi-amt is-gold">36,00 €</div>
+          <div class="kpi-sub">3 zu prüfen</div>
+        </button>
+        <button type="button" class="kpi kpi-tapbar" data-kstab="bezahlt">
+          <div class="kpi-label">Eingegangen</div>
+          <div class="kpi-value kpi-amt">74,00 €</div>
+          <div class="kpi-sub">6 Zahlungen</div>
+        </button>
+      </div>
+
+      
+      <button type="button" class="ks-neu" data-ks-wahl>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg><span>Strafe verhängen</span>
+      </button>
+
+      <div class="section-title kasse-verbuchen"><h2>Prüfen und verbuchen</h2></div>
+      <div class="ks-pane">
+        <div class="ks-seg" role="tablist">
+          <button class="ks-seg-b" role="tab"
+            aria-selected="false" data-kstab="pruefen">Zu prüfen <span class="ks-seg-n">3</span></button><button class="ks-seg-b is-on" role="tab"
+            aria-selected="true" data-kstab="offen">Offen <span class="ks-seg-n">4</span></button><button class="ks-seg-b" role="tab"
+            aria-selected="false" data-kstab="bezahlt">Eingegangen <span class="ks-seg-n">6</span></button>
+        </div>
+        <label class="ks-fil"><span class="lbl">Spieler</span>
+      <select class="ks-fil-in" data-ks-filter aria-label="Nach Spieler filtern">
+        <option value="">Alle</option>
+        <option value="p2">Daniel Koch</option><option value="p1">Lukas Weber</option><option value="p3">Max Brandl</option>
+      </select></label>
+        
+        
+        <div class="krow-list"><div class="krow" data-ks-det="o1" role="button" tabindex="0" aria-label="Daniel Koch im Detail">
+      <div class="krow-top">
+        <span class="krow-title">Daniel Koch</span>
+        <span class="krow-amt num">10,00 €</span>
+      </div>
+      <div class="krow-strafe">Zu spät zum Training</div>
+      <div class="krow-verh">verhängt 16.09.2026</div>
+      <div class="ks-sag"><span class="ks-zi" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.4"/></svg></span><span>Spieler: „zahle bar am Donnerstag"</span></div>
+      
+      <div class="krow-actions">
+        <button class="btn ks-storno" data-kasse-cancel="o1">Storno</button>
+        <button class="btn btn-primary ks-buchen" data-ks-buchen="o1">Als bezahlt buchen</button>
+      </div>
+    </div><div class="krow" data-ks-det="o4" role="button" tabindex="0" aria-label="Daniel Koch im Detail">
+      <div class="krow-top">
+        <span class="krow-title">Daniel Koch</span>
+        <span class="krow-amt num">20,00 €</span>
+      </div>
+      <div class="krow-strafe">Zu spät zum Spiel / Treffpunkt</div>
+      <div class="krow-verh">verhängt 02.09.2026</div>
+      
+      
+      <div class="krow-actions">
+        <button class="btn ks-storno" data-kasse-cancel="o4">Storno</button>
+        <button class="btn btn-primary ks-buchen" data-ks-buchen="o4">Als bezahlt buchen</button>
+      </div>
+    </div><div class="krow" data-ks-det="o3" role="button" tabindex="0" aria-label="Lukas Weber im Detail">
+      <div class="krow-top">
+        <span class="krow-title">Lukas Weber</span>
+        <span class="krow-amt num">25,00 €</span>
+      </div>
+      <div class="krow-strafe">Zu spät zum Training · automatisch</div>
+      <div class="krow-verh">verhängt 01.08.2026</div>
+      
+      
+      <div class="krow-actions">
+        <button class="btn ks-storno" data-kasse-del="o3">Entfernen</button>
+        <button class="btn btn-primary ks-buchen" data-ks-buchen="o3">Als bezahlt buchen</button>
+      </div>
+    </div><div class="krow" data-ks-det="o2" role="button" tabindex="0" aria-label="Max Brandl im Detail">
+      <div class="krow-top">
+        <span class="krow-title">Max Brandl</span>
+        <span class="krow-amt num">10,00 €</span>
+      </div>
+      <div class="krow-strafe">Gelbe Karte wegen Meckern</div>
+      <div class="krow-verh">verhängt 14.09.2026</div>
+      
+      
+      <div class="krow-actions">
+        <button class="btn ks-storno" data-kasse-cancel="o2">Storno</button>
+        <button class="btn btn-primary ks-buchen" data-ks-buchen="o2">Als bezahlt buchen</button>
+      </div>
+    </div></div>
+        
+      </div>
     </div>
+    <div class="meta">Kein Avatar, keine Zustandsmarke: in diesem Reiter ist der Zustand immer derselbe. Der bernsteinfarbene Balken ist die Angabe des Spielers aus Migration 0040; er überlebt eine Ablehnung.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">3 · Eingegangen — eine Karte mit Zeilen</div>
+    <div class="frame">
+      <div class="page-head"><h1>Kasse</h1></div>
+
+      <div class="kpi-grid kpi-3">
+        <button type="button" class="kpi kpi-tapbar" data-kstab="offen">
+          <div class="kpi-label">Offen</div>
+          <div class="kpi-value kpi-amt is-rot">65,00 €</div>
+          <div class="kpi-sub">4 Strafen</div>
+        </button>
+        <button type="button" class="kpi kpi-tapbar" data-kstab="pruefen">
+          <div class="kpi-label">Gemeldet</div>
+          <div class="kpi-value kpi-amt is-gold">36,00 €</div>
+          <div class="kpi-sub">3 zu prüfen</div>
+        </button>
+        <button type="button" class="kpi kpi-tapbar" data-kstab="bezahlt">
+          <div class="kpi-label">Eingegangen</div>
+          <div class="kpi-value kpi-amt">74,00 €</div>
+          <div class="kpi-sub">6 Zahlungen</div>
+        </button>
+      </div>
+
+      
+      <button type="button" class="ks-neu" data-ks-wahl>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg><span>Strafe verhängen</span>
+      </button>
+
+      <div class="section-title kasse-verbuchen"><h2>Prüfen und verbuchen</h2></div>
+      <div class="ks-pane">
+        <div class="ks-seg" role="tablist">
+          <button class="ks-seg-b" role="tab"
+            aria-selected="false" data-kstab="pruefen">Zu prüfen <span class="ks-seg-n">3</span></button><button class="ks-seg-b" role="tab"
+            aria-selected="false" data-kstab="offen">Offen <span class="ks-seg-n">4</span></button><button class="ks-seg-b is-on" role="tab"
+            aria-selected="true" data-kstab="bezahlt">Eingegangen <span class="ks-seg-n">6</span></button>
+        </div>
+        
+        <label class="ks-fil"><span class="lbl">Spieler</span>
+      <select class="ks-fil-in" data-ks-filter aria-label="Nach Spieler filtern">
+        <option value="">Alle</option>
+        <option value="p7">Felix Huber</option><option value="p4">Jonas Berger</option><option value="p5">Leon Schmidt</option><option value="p1">Lukas Weber</option><option value="p6">Niklas Fuchs</option>
+      </select></label>
+        
+        
+        <div class="card ks-ein"><button type="button" class="ks-ein-row" data-ks-det="b0">
+        <span class="ks-ok" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+        <span class="ks-ein-main">
+          <span class="ks-ein-n">Lukas Weber</span>
+          <span class="ks-ein-m"><span class="ks-zi" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.4"/></svg></span><span>bar · 22.09.</span></span>
+        </span>
+        <span class="ks-ein-b num">15,00 €</span>
+      </button><button type="button" class="ks-ein-row" data-ks-det="b1">
+        <span class="ks-ok" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+        <span class="ks-ein-main">
+          <span class="ks-ein-n">Lukas Weber</span>
+          <span class="ks-ein-m"><span class="ks-zi" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 4l9 5.5"/><path d="M4.5 9.5v9M9.5 9.5v9M14.5 9.5v9M19.5 9.5v9"/><path d="M2.5 21h19"/></svg></span><span>Überweisung · 22.09.</span></span>
+        </span>
+        <span class="ks-ein-b num">10,00 €</span>
+      </button><button type="button" class="ks-ein-row" data-ks-det="b2">
+        <span class="ks-ok" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+        <span class="ks-ein-main">
+          <span class="ks-ein-n">Jonas Berger</span>
+          <span class="ks-ein-m"><span class="ks-zi is-pp" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.6 3h6.1c2.9 0 4.6 1.5 4.2 4.1-.4 2.8-2.4 4.3-5.4 4.3h-2.2l-.8 5.1H7.2L8.6 3Zm2.6 2.3-.6 3.8h1.7c1.5 0 2.4-.7 2.6-2 .2-1.2-.4-1.8-1.8-1.8h-1.9Z"/><path d="M6.3 7.6h5.5c2.6 0 4.1 1.4 3.7 3.7-.4 2.5-2.2 3.9-4.9 3.9H8.5L7.8 20H5.1l1.2-8.1.8-4.3Z" opacity=".55"/></svg></span><span>PayPal · 20.09.</span></span>
+        </span>
+        <span class="ks-ein-b num">17,00 €</span>
+      </button><button type="button" class="ks-ein-row" data-ks-det="b3">
+        <span class="ks-ok" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+        <span class="ks-ein-main">
+          <span class="ks-ein-n">Leon Schmidt</span>
+          <span class="ks-ein-m"><span class="ks-zi" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.4"/></svg></span><span>bar · 20.09.</span></span>
+        </span>
+        <span class="ks-ein-b num">5,00 €</span>
+      </button><button type="button" class="ks-ein-row" data-ks-det="b4">
+        <span class="ks-ok" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+        <span class="ks-ein-main">
+          <span class="ks-ein-n">Niklas Fuchs</span>
+          <span class="ks-ein-m"><span class="ks-zi" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.4"/></svg></span><span>bar · 18.09.</span></span>
+        </span>
+        <span class="ks-ein-b num">12,00 €</span>
+      </button><button type="button" class="ks-ein-row" data-ks-det="b5">
+        <span class="ks-ok" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+        <span class="ks-ein-main">
+          <span class="ks-ein-n">Felix Huber</span>
+          <span class="ks-ein-m"><span class="ks-zi" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 4l9 5.5"/><path d="M4.5 9.5v9M9.5 9.5v9M14.5 9.5v9M19.5 9.5v9"/><path d="M2.5 21h19"/></svg></span><span>Überweisung · 29.08.</span></span>
+        </span>
+        <span class="ks-ein-b num">15,00 €</span>
+      </button></div>
+      </div>
+    </div>
+    <div class="meta">Zeilen statt Karten. Die Zahlart steht mit eigenem Symbol; PayPal trägt als einzige ihre Hausfarbe, weil es eine Marke ist.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">4 · Leer — je Reiter ein eigener Satz</div>
+    <div class="frame">
+      <div class="page-head"><h1>Kasse</h1></div>
+
+      <div class="kpi-grid kpi-3">
+        <button type="button" class="kpi kpi-tapbar" data-kstab="offen">
+          <div class="kpi-label">Offen</div>
+          <div class="kpi-value kpi-amt is-rot">0,00 €</div>
+          <div class="kpi-sub">0 Strafen</div>
+        </button>
+        <button type="button" class="kpi kpi-tapbar" data-kstab="pruefen">
+          <div class="kpi-label">Gemeldet</div>
+          <div class="kpi-value kpi-amt is-gold">0,00 €</div>
+          <div class="kpi-sub">0 zu prüfen</div>
+        </button>
+        <button type="button" class="kpi kpi-tapbar" data-kstab="bezahlt">
+          <div class="kpi-label">Eingegangen</div>
+          <div class="kpi-value kpi-amt">0,00 €</div>
+          <div class="kpi-sub">0 Zahlungen</div>
+        </button>
+      </div>
+
+      
+      <button type="button" class="ks-neu" data-ks-wahl>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg><span>Strafe verhängen</span>
+      </button>
+
+      <div class="section-title kasse-verbuchen"><h2>Prüfen und verbuchen</h2></div>
+      <div class="ks-pane">
+        <div class="ks-seg" role="tablist">
+          <button class="ks-seg-b" role="tab"
+            aria-selected="false" data-kstab="pruefen">Zu prüfen <span class="ks-seg-n">0</span></button><button class="ks-seg-b is-on" role="tab"
+            aria-selected="true" data-kstab="offen">Offen <span class="ks-seg-n">0</span></button><button class="ks-seg-b" role="tab"
+            aria-selected="false" data-kstab="bezahlt">Eingegangen <span class="ks-seg-n">0</span></button>
+        </div>
+        
+        
+        
+        <div class="card card-pad ks-leer"><div class="ks-leer-t">Keine offenen Posten</div><div class="rs">Alles verbucht.</div></div>
+        
+      </div>
+    </div>
+    <div class="meta">Leer und „keine Treffer" sind zwei verschiedene Meldungen: die erste heißt, es gibt nichts, die zweite, der Spielerfilter greift.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">5 · Blatt „Als bezahlt buchen"</div>
+    <div class="frame"><div class="blatt-demo"><div class="tv-sh"><span class="tv-grip"></span><strong>Als bezahlt buchen</strong><button class="tv-shx" aria-label="Schließen">&times;</button></div><div class="tv-shbody"><div class="ks-bl-sum"><div class="ks-bl-top"><span class="ks-bl-n">Daniel Koch</span><span class="ks-bl-b num">10,00 €</span></div><div class="ks-bl-s">Zu spät zum Training · 16.09.</div></div><div class="lbl ks-bl-lbl">Zahlart</div><div class="zart-row"><button type="button" class="zart is-on"><span class="ks-zi" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.4"/></svg></span><span>bar</span></button><button type="button" class="zart"><span class="ks-zi" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 4l9 5.5"/><path d="M4.5 9.5v9M9.5 9.5v9M14.5 9.5v9M19.5 9.5v9"/><path d="M2.5 21h19"/></svg></span><span>Überweisung</span></button><button type="button" class="zart"><span class="ks-zi is-pp" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.6 3h6.1c2.9 0 4.6 1.5 4.2 4.1-.4 2.8-2.4 4.3-5.4 4.3h-2.2l-.8 5.1H7.2L8.6 3Zm2.6 2.3-.6 3.8h1.7c1.5 0 2.4-.7 2.6-2 .2-1.2-.4-1.8-1.8-1.8h-1.9Z"/><path d="M6.3 7.6h5.5c2.6 0 4.1 1.4 3.7 3.7-.4 2.5-2.2 3.9-4.9 3.9H8.5L7.8 20H5.1l1.2-8.1.8-4.3Z" opacity=".55"/></svg></span><span>PayPal</span></button></div><div class="ks-bl-h">Vorausgewählt nach Angabe des Spielers.</div><button class="btn btn-primary ks-bl-cta">10,00 € bar buchen</button></div></div></div>
+    <div class="meta">Die Zahlart ist nach der Angabe des Spielers vorbelegt; der Hinweis darunter sagt, warum. Der Knopf trägt Betrag und Zahlart, damit vor dem Tippen klar ist, was gebucht wird.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">6 · Detail-Blatt mit Verlauf</div>
+    <div class="frame"><div class="blatt-demo"><div class="tv-sh"><span class="tv-grip"></span><strong>Strafe</strong><button class="tv-shx" aria-label="Schließen">&times;</button></div><div class="tv-shbody"><div class="ks-bl-sum"><div class="ks-bl-top"><span class="ks-bl-n">Daniel Koch</span><span class="ks-bl-b num">10,00 €</span></div><div class="ks-bl-s">Zu spät zum Training · 16.09.</div></div><div class="ks-sag"><span class="ks-zi" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.4"/></svg></span><span>Spieler: „zahle bar am Donnerstag"</span></div><div class="lbl ks-bl-lbl">Verlauf</div><div class="fine-hist-body"><div class="hist-line">16.09.2026, 09:12 · angelegt → offen</div><div class="hist-line">22.09.2026, 18:42 · offen → gemeldet · bar</div></div></div></div></div>
+    <div class="meta">Öffnet sich beim Tippen auf eine Karte. Bei einer bestätigten Zahlung steht hier zusätzlich „Buchung rückgängig".</div>
+  </div>
+
+  <div>
+    <div class="sp-h">7 · Vollbild-Wähler „Strafe verhängen"</div>
+    <div class="frame"><div class="wahl-demo ks-wahl"><div class="tv-sh"><strong>Strafe verhängen</strong><button class="tv-shx" aria-label="Schließen">&times;</button></div><div class="tv-shbody"><button type="button" class="ks-wahl-b"><span class="ks-wahl-t">Strafe aus Katalog hinzufügen</span><span class="ks-wahl-s">Aus dem Strafenkatalog wählen, mit Menge oder Bezugsgröße.</span></button><button type="button" class="ks-wahl-b"><span class="ks-wahl-t">Individuelle Strafe</span><span class="ks-wahl-s">Freier Grund und freier Betrag.</span></button></div><div class="ks-wahl-f"><button type="button" class="btn">Schließen</button></div></div></div>
+    <div class="meta">Genau zwei Wege, gleich groß. Beide führen in dasselbe Formular, nur mit unterschiedlich vorbelegten Blöcken; ein Link dort holt den anderen dazu, damit gemischte Vorgänge möglich bleiben.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">8 · Spieleransicht „Zahlung melden"</div>
+    <div class="frame"><div class="blatt-demo"><div class="tv-sh"><span class="tv-grip"></span><strong>Zahlung melden</strong><button class="tv-shx" aria-label="Schließen">&times;</button></div><div class="tv-shbody"><div class="ks-bl-sum"><div class="ks-bl-top"><span class="ks-bl-n">Offener Betrag</span><span class="ks-bl-b num">128,50 €</span></div><div class="ks-bl-s">7 Strafen werden als gemeldet markiert.</div></div><div class="lbl ks-bl-lbl">Zahlart</div><div class="zart-row"><button type="button" class="zart is-on"><span class="ks-zi" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.4"/></svg></span><span>bar</span></button><button type="button" class="zart"><span class="ks-zi" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 4l9 5.5"/><path d="M4.5 9.5v9M9.5 9.5v9M14.5 9.5v9M19.5 9.5v9"/><path d="M2.5 21h19"/></svg></span><span>Überweisung</span></button><button type="button" class="zart"><span class="ks-zi is-pp" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.6 3h6.1c2.9 0 4.6 1.5 4.2 4.1-.4 2.8-2.4 4.3-5.4 4.3h-2.2l-.8 5.1H7.2L8.6 3Zm2.6 2.3-.6 3.8h1.7c1.5 0 2.4-.7 2.6-2 .2-1.2-.4-1.8-1.8-1.8h-1.9Z"/><path d="M6.3 7.6h5.5c2.6 0 4.1 1.4 3.7 3.7-.4 2.5-2.2 3.9-4.9 3.9H8.5L7.8 20H5.1l1.2-8.1.8-4.3Z" opacity=".55"/></svg></span><span>PayPal</span></button></div><div class="lbl ks-bl-lbl zm-lbl">Notiz <span class="zm-opt">freiwillig</span><span class="zm-zahl">23/140</span></div><textarea class="kasse-in zm-note" rows="2">zahle bar am Donnerstag</textarea><button class="btn btn-primary ks-bl-cta">Zahlung melden</button></div></div></div>
+    <div class="meta">Die Gegenseite zum Buchen-Blatt: der Spieler sagt, wie er gezahlt hat, und darf einen Satz dazuschreiben. Beides landet in reported_method und reported_note und steht dem Kassenwart vor Augen.</div>
   </div>
 
 </div>

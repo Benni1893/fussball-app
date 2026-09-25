@@ -71,7 +71,7 @@ Layout-Beiwerk kommt als `style="…"` mit Tokens oder als neue, sprechende Klas
 | Platzansicht | `.tv-lu` (`.tv-ro`) `.tv-top` `.tv-ic` `.tv-hi` `.tv-game` `.tv-sub` · `.tv-formbar` `.tv-fpill` `.tv-fmore` · `.tv-field` `.tv-pitch` `.tv-pitch-bg` `.tv-slot` (`.filled` `.sel`) `.tv-disc` `.tv-role` `.tv-pn` · `.tv-bank` `.tv-bank-h` `.tv-bank-row` `.tv-bslot` `.tv-bnr` `.tv-bn` `.tv-bx` `.tv-bplus` `.tv-bfrei` · `.tv-actions` `.tv-primary` `.tv-ghost` `.tv-cta` `.tv-ro-note` |
 | Rückmeldungen-Blatt | `.rs2-panel` `.rs2-griff` `.rs2-kopf` `.rs2-kopf-text` `.rs2-titel` `.rs2-sub` `.rs2-zu` · `.rs2-bar` · `.rs2-kacheln` `.rs2-kachel` `.rs2-k-l` `.rs2-k-z` · `.rs2-liste` `.rs2-zeile` `.rs2-av` `.rs2-n` `.rs2-grund` `.rs2-leer` · `.rs2-fuss` `.rs2-btn` `.rs2-btn2` |
 | Konto | `.mine-banner` (`.is-clear`) `.mb-label` `.mb-value` `.mb-sub` `.mb-bar` `.mb-note` `.mb-pay` `.mb-pp` `.mb-foot` `.mb-cd` `.pp-word` · `.fine-list` `.fine-row` `.fine-main` `.fine-name` `.fine-desc` `.fine-reason` `.fine-right` `.fine-amt` |
-| Kasse | `.kpi-tapbar` `.kasse-toggle` `.kasse-add` `.kasse-lbl` `.kasse-count` `.kasse-players` `.kasse-chip` `.kasse-in` `.kasse-two` `.kasse-sum` `.kasse-sum-row` `.kasse-sum-total` `.kasse-save` · `.ks-tabs` `.ks-bulk` `.ks-deck` `.ks-ghost` `.ks-card` `.ks-av` `.ks-name` `.ks-amt` `.ks-actions` `.ks-dots` `.ks-cap` `.ks-leer` `.ks-leer-t` · `.ks-ichips` `.ks-ichip` · `.krow-list` `.krow` `.krow-head` `.krow-info` `.krow-title` `.krow-strafe` `.krow-right` `.krow-amt` `.krow-actions` `.krow-tun` `.krow-buchen` · `.zart-row` `.zart` |
+| Kasse | `.kpi-tapbar` `.ks-neu` `.kasse-add` `.kasse-lbl` `.kasse-count` `.kasse-players` `.kasse-chip` `.kasse-in` `.kasse-two` `.kasse-sum` `.kasse-sum-row` `.kasse-sum-total` `.kasse-save` `.ks-auch` · Reiter: `.ks-seg` `.ks-seg-b` (`.is-on`) `.ks-seg-n` · Spielerfilter: `.ks-fil` `.ks-fil-in` · Prüfkarte: `.ks-deck` `.ks-card` `.ks-kopf` `.ks-av` `.ks-name` `.ks-amt` `.ks-meta` `.ks-zitat` `.ks-actions` · Offen: `.krow-list` `.krow` `.krow-top` `.krow-title` `.krow-amt` `.krow-strafe` `.krow-verh` `.krow-actions` `.ks-storno` `.ks-buchen` · Eingegangen: `.ks-ein` `.ks-ein-row` `.ks-ok` `.ks-ein-main` `.ks-ein-n` `.ks-ein-m` `.ks-ein-b` · Angabe des Spielers: `.ks-sag` `.ks-zi` (`.is-pp`) · Blatt: `.ks-bl` `.ks-bl-sum` `.ks-bl-top` `.ks-bl-n` `.ks-bl-b` `.ks-bl-s` `.ks-bl-lbl` `.ks-bl-h` `.ks-bl-cta` · Wähler: `.ks-wahl` `.ks-wahl-b` `.ks-wahl-t` `.ks-wahl-s` `.ks-wahl-f` · Zahlung melden: `.zm-lbl` `.zm-opt` `.zm-zahl` (`.is-lang`) `.zm-note` · `.ks-leer` `.ks-leer-t` · `.ks-ichips` `.ks-ichip` · `.zart-row` `.zart` (`.is-on`) |
 | Katalog | `.kat-list` `.kat-item` `.kat-name` `.kat-sub` `.kat-amount` (`.is-staffel`) `.kat-actions` `.kat-add` · Bearbeiten: `.kat-edit` `.kat-in` `.kat-fixed` `.kat-eur` `.kat-staffel` `.kat-edit-actions` |
 | Formulare | `.termin-form` `.tf-row` `.tf-2col` `.tf-wdh` `.tf-radio` `.tf-bis` `.tf-summary` |
 | Tabelle | `.table-wrap` + `.rollen-tbl` `.player-cell` `.rollen-av` `.rollen-name` `.rollen-mail` |
@@ -84,7 +84,7 @@ Zustände hängen sich als zweite Klasse an: `.tk-btn.is-ab.is-on`, `.kpi.is-war
 
 ## Farben nur über Tokens
 
-Nie ein Hex ins Markup. Alles liegt in `tokens/tokens.css` (138 Tokens):
+Nie ein Hex ins Markup. Alles liegt in `tokens/tokens.css` (140 Tokens):
 
 - Vereinsgrün `--green-990` bis `--green-050` — Kopfzeile, Primäraktion, Erfolg.
   `--green-700` trägt jede Primäraktion, `--green-800` Zahlen und Verweise.
@@ -96,7 +96,11 @@ Nie ein Hex ins Markup. Alles liegt in `tokens/tokens.css` (138 Tokens):
   `--dot-off` (Urlaub — kein eigenes Bunt, sondern dasselbe Grau wie im Balken
   der Kaderkachel).
 - Neutral `--ink` `--muted` `--line` `--bg` `--card`. `--muted` erreicht auf Weiß
-  4,7:1 und ist die dunkelste erlaubte Nebenfarbe.
+  4,7:1 und ist die hellste erlaubte Nebenfarbe. Auf getönten Flächen reicht sie
+  nicht: auf `--seg-bg` kommt sie nur auf 3,9:1. Dort steht `--muted-2` (4,65:1
+  auf `--seg-bg`, 5,8:1 auf Weiß) — derselbe Ton, eine Stufe dunkler.
+- `--seg-bg` ist der Kasten der Segmentleiste (`.ks-seg`, `.zart-row`): eine
+  Fläche, kein Rand, auch wenn der Wert mit `--line` zusammenfällt.
 - Verläufe `--grad-card` `--grad-btn` `--grad-chip` `--grad-edge-green`
   `--grad-edge-gold` `--grad-edge-red` und weitere. Die gefüllten Statuschips
   tragen eigene, dunklere Verläufe — `--grad-chip-on` `--grad-chip-gold`
@@ -204,8 +208,37 @@ Alle heutigen Chip-Zustände sind **Einfachauswahl oder Filter**, nicht An/Aus:
 |---|---|
 | `data-filter`, `data-sfilter`, `data-rsfilter`, `data-kstab` | Filter/Reiter — genau einer aktiv |
 | `data-status-set` (fit/angeschlagen/verletzt/Urlaub) | Einfachauswahl |
-| `data-wert` (Zahlart), `data-tvform` (Formation), `data-sim` (Rollen-Vorschau) | Einfachauswahl |
+| `data-ks-zart` / `data-zm-zart` (Zahlart), `data-tvform` (Formation), `data-sim` (Rollen-Vorschau) | Einfachauswahl |
 | `.role-box` (Rollenvergabe im Admin) | echte `<input type="checkbox">` — bereits richtig |
 
 Keiner davon ist semantisch ein Schalter. Es gibt also **nichts umzustellen**;
 `.sw` gilt ab hier für Neues.
+
+## Zahlart-Symbole
+
+Drei eigene Zeichnungen, weil `_neukasse.png` sie an drei Stellen verlangt: im
+Buchen-Blatt, in der Zeile „Eingegangen" und vor der Angabe des Spielers.
+
+| Zahlart | Zeichnung | Farbe |
+|---|---|---|
+| `bar` | Geldschein (Rechteck mit Kreis) | erbt von der Zeile |
+| `ueberweisung` | Bankgebäude (Giebel auf Säulen) | erbt von der Zeile |
+| `paypal` | PayPal-`P`, zweistufig | `--pp-blue`, auf gefülltem Chip weiß |
+
+Getragen werden sie von `.ks-zi` — 16×16, `flex: none`, `currentColor`. PayPal
+ist die einzige Ausnahme (`.ks-zi.is-pp`), weil es eine Marke ist; bar und
+Überweisung sind Sachbegriffe und nehmen die Farbe ihrer Zeile an. Auf dem
+gefüllten Chip (`.zart.is-on`) wird auch PayPal weiß, sonst wäre Blau auf
+Dunkelgrün nicht lesbar.
+
+## Angabe des Spielers
+
+Der bernsteinfarbene Balken `.ks-sag` zeigt, was der Spieler beim Melden gesagt
+hat (`reported_method`, `reported_note`, Migration 0040) — eine **Behauptung**,
+keine Buchung. Gebucht steht in `payment_method`. Der Balken teilt die Geometrie
+mit `.tk-warn` und tauscht nur die Farbfamilie: `--grad-task-gold`,
+`--gold-line-2`, `--gold-ink-2`.
+
+Er überlebt eine Ablehnung: abgelehnt heißt, der Kassenwart widerspricht der
+Behauptung, nicht dass sie nie gemacht wurde. Deshalb kann eine wieder offene
+Strafe den Balken und den Ablehnungsgrund gleichzeitig tragen.

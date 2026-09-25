@@ -810,3 +810,53 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
 - **Speichern ohne Knopf**: optimistisch, drei stille Wiederholversuche, bei
   endgültigem Fehler springt der Schalter zurück und sagt es. Alles andere
   wäre eine Lüge auf dem Bildschirm.
+
+**Kasse nach _neukasse.png (25.09.2026)**
+
+- **Migration 0040 war nötig.** Die Vorlage zeigt an drei Stellen, *was der
+  Spieler gesagt hat* — Zahlart und ein Satz dazu. Das gab es nicht:
+  `report_my_payment()` nahm keine Argumente, `payment_method` gehört dem
+  Kassenwart (er schreibt sie beim Buchen), `note` gehört der Anlage. Neu sind
+  `fines.reported_method` und `fines.reported_note` plus die Signatur
+  `report_my_payment(p_method, p_note)`. Die argumentlose Signatur bleibt in
+  der Datenbank bestehen, **wird aber von der App nicht mehr aufgerufen** —
+  `kassepruef.mjs` prüft das. Sie kann später per Migration fallen.
+- **`reject_fine` räumt die Angabe bewusst nicht weg.** Abgelehnt heißt: der
+  Kassenwart widerspricht der Behauptung, nicht dass sie nie gemacht wurde.
+  Deshalb trägt eine wieder offene Strafe den bernsteinfarbenen Balken *und*
+  den Ablehnungsgrund — und genau so ist der Balken in Vorlage 5B zu erklären,
+  der auf einer offenen Strafe steht.
+- **Fehler gefunden und behoben: jede Bestätigung wurde als PayPal gebucht.**
+  `DB.confirmFines([id], "paypal")` stand fest verdrahtet im Klickpfad. Wer bar
+  zahlte, stand danach im Verlauf und in „Eingegangen" als PayPal. Jetzt wird
+  die Angabe des Spielers gebucht, sonst `bar`; „Alle bestätigen" gruppiert
+  nach Zahlart, damit nicht alle die des ersten bekommen.
+  **Bestehende Falscheinträge sind nicht angefasst worden.** Wer die Zahlart
+  in den Büchern vor dem 25.09.2026 braucht, muss sie als unzuverlässig
+  ansehen; eine Korrektur wäre Rätselraten, weil die echte Zahlart nirgends
+  gespeichert wurde.
+- **Zwei Beanstandungen beim Kontrast bleiben offen**, beide derselbe alte
+  Fall: `--grad-btn` erreicht mit weißer Schrift **3,88:1**. Das trifft jeden
+  `.btn-primary` der App, nicht nur „Strafe verhängen" und „Als bezahlt
+  buchen". Gehört in das vorgemerkte Paket `.btn-primary`-Kontrast und ist in
+  `kassebild.mjs` als BEKANNT geführt, damit das Skript nicht dauerhaft rot
+  steht. Alles andere in der Kasse hält AA.
+- **Gold der Vorlage ist nicht benutzbar.** Die Kennzahl GEMELDET zeigt im
+  Entwurf `#b8902f` — auf Weiß **2,97:1**, damit auch für große Schrift zu
+  wenig. Genommen ist `--amber-700` (4,51:1 auf der Kachel).
+- **`--muted` reicht auf getönten Flächen nicht.** Auf `--seg-bg` kommt sie auf
+  3,9:1. Dafür gibt es `--muted-2`. Der Spielerfilter steht auf dem App-Grund
+  und trägt deshalb `--green-800`.
+- **Der Spielerfilter ist eine Ergänzung, keine Ableitung.** Die Vorlage hat
+  ihn nirgends. Abgestimmt: in „Offen" und „Eingegangen", nicht in „Zu prüfen";
+  er erscheint erst ab zwei Spielern und filtert die Liste, nie die Kennzahlen.
+- **Verlauf und „Buchung rückgängig" sind ins Detail-Blatt gewandert**, das ein
+  Tipp auf die Karte öffnet. Die Vorlage zeigt unter den Zeilen nichts; als
+  Zusatzzeile unter jeder Karte machten sie die Liste unruhig.
+- **Geisterkarten und Seitenpunkte sind entfallen** (Vorlage zeigt nur
+  „1 von 3"). **Gewischt wird weiter** — `ksAttachSwipe()` hängt unverändert
+  am `.ks-deck`.
+- **`blattpruef.mjs` und `heropruef.mjs` laufen nicht durch**: sie melden sich
+  an der laufenden App an und brauchen `APP_USER`/`APP_PASS`. Ohne Testkonto
+  brechen sie mit `page.fill: got undefined` ab — das ist der bekannte Zustand
+  seit dem 18.09., kein Befund dieses Umbaus.
