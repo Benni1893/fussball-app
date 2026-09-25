@@ -560,11 +560,11 @@ die RLS von `profiles` UPDATE nur Admins erlaubt.
 - **Das X trägt `--muted`, nicht `--dot-off`.** Grau wie gewünscht, aber
   `--dot-off` kommt auf **1,56:1** — als einziger Inhalt eines Knopfes zu
   wenig. `--muted` hält 4,85:1 und bleibt dezent.
-- **Der Titel bricht bei 390 px auf zwei Zeilen.** „Alle Termine automatisch im
-  Handy-Kalender?" misst bei 15 px/700 rund 300 px, zwischen Symbol, Chevron
-  und X stehen 230 zur Verfügung. Die Kachel ist trotzdem niedriger als vorher
-  (59,5 statt 64), weil der Untertitel entfällt. Einzeilig würde erst ein
-  kürzerer Text, etwa „Termine im Handy-Kalender?".
+- **Der Titel heißt „Termine im Handy-Kalender?“.** Die erste Fassung „Alle
+  Termine automatisch im Handy-Kalender?“ brach bei 390 px auf zwei Zeilen:
+  rund 300 px Text auf 228 px Platz zwischen Symbol, Chevron und X. Der
+  kürzere Titel misst **207,3** und passt einzeilig; die Kachel steht damit
+  bei **56** statt vorher 64.
 - `.kal-abo-s` (Untertitel) ersatzlos entfernt — ohne Untertitel tot.
 
 **Bekannte Kante:** der Knopf „Termine abonnieren" im Einstellungs-Abschnitt

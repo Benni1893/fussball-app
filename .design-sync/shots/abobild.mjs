@@ -13,7 +13,7 @@ const CAL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-w
 const kachel = (hinweis) => `<div class="kal-abo-wrap"${hinweis ? '' : ' id="alt"'}>
   <button class="card kal-abo${hinweis ? ' hat-x' : ''}" type="button">
     <span class="kal-abo-ic" aria-hidden="true">${CAL}</span>
-    <span class="kal-abo-main"><span class="kal-abo-t">${hinweis ? 'Alle Termine automatisch im Handy-Kalender?' : 'Termine im Kalender abonnieren'}</span></span>
+    <span class="kal-abo-main"><span class="kal-abo-t">${hinweis ? 'Termine im Handy-Kalender?' : 'Termine im Kalender abonnieren'}</span></span>
     <span class="kal-abo-chev" aria-hidden="true">&rsaquo;</span>
   </button>
   ${hinweis ? '<button class="kal-abo-x" type="button" aria-label="Hinweis ausblenden">&#10005;</button>' : ''}
@@ -80,6 +80,8 @@ console.log(JSON.stringify(await p.evaluate(() => {
     trefferKachelMitte: wer([r(hinweis).x + 60, r(hinweis).y + r(hinweis).h / 2]),
     einstellungen: [...document.querySelectorAll('.set-section .btn')].map((e) => ({ text: e.textContent.trim(), h: r(e).h, b: r(e).b })),
     setHint: { kontrast: K(zahl(getComputedStyle(document.querySelector('.set-hint')).color), [255, 255, 255]) },
+    titelBreite: (() => { const e = document.querySelector(".kal-abo-t"); const rg = document.createRange(); rg.selectNodeContents(e);
+      return { text: +rg.getBoundingClientRect().width.toFixed(1), platz: +e.parentElement.getBoundingClientRect().width.toFixed(1) }; })(),
     titel: { kontrast: K(zahl(getComputedStyle(document.querySelector('.kal-abo-t')).color), [255, 255, 255]), zeilen: Math.round(r(document.querySelector('.kal-abo-t')).h / parseFloat(getComputedStyle(document.querySelector('.kal-abo-t')).lineHeight)) },
     seiteScrollt: document.documentElement.scrollWidth > document.documentElement.clientWidth,
   };

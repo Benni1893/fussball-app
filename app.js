@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-25-A";
+  var APP_BUILD = "2026-09-25-B";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -886,7 +886,7 @@
 
   // Die Kachel selbst. hinweis = true gibt ihr das X und den kuerzeren Titel.
   function aboKachelHtml(hinweis) {
-    const titel = hinweis ? "Alle Termine automatisch im Handy-Kalender?"
+    const titel = hinweis ? "Termine im Handy-Kalender?"
                           : "Termine im Kalender abonnieren";
     return '<div class="kal-abo-wrap">' +
       '<button class="card kal-abo' + (hinweis ? " hat-x" : "") + '" data-cal-sheet type="button">' +
