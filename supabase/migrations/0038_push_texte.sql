@@ -406,10 +406,13 @@ begin
   end loop;
 
   -- Der optionale Grund muss auch OHNE Wert sauber rendern.
-  select public.render_vorlage(t.text_vorlage, t.beispiel_daten - 'grund',
-                               t.platzhalter, t.platzhalter_optional)
+  -- Alias bewusst NICHT t: die Schleifenvariable oben heisst schon so, und
+  -- plpgsql kann dann nicht entscheiden, ob t.text_vorlage die Variable oder
+  -- die Tabellenspalte meint (42702).
+  select public.render_vorlage(tpl.text_vorlage, tpl.beispiel_daten - 'grund',
+                               tpl.platzhalter, tpl.platzhalter_optional)
     into v_ohne
-    from public.notification_templates t where t.kategorie = 'termin_abgesagt';
+    from public.notification_templates tpl where tpl.kategorie = 'termin_abgesagt';
 
   if v_ohne is null or v_ohne <> '20.09.2026 12:30 Uhr.' then
     raise exception 'termin_abgesagt ohne Grund ergibt "%" statt "20.09.2026 12:30 Uhr." - Migration abgebrochen.', v_ohne;
