@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-25-C";
+  var APP_BUILD = "2026-09-25-D";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -281,11 +281,18 @@
   // Termin laeuft noch oder steht bevor.
   function istOffen(e) { return terminEndeMs(e) > Date.now(); }
 
+  /* Meldeschluss. Gerechnet wird er NICHT mehr hier, sondern einmal in der
+     Datenbank (Migration 0033: compute_deadline -> events.deadline_at).
+     Vorher stand die Regel "Spiel 24 h, Training 3 h" an fuenf Stellen -
+     viermal in SQL, einmal hier. An dieser Frist haengt Geld; liefen die
+     Kopien auseinander, erinnerte die App nach der einen Regel und
+     bestrafte nach der anderen.
+     Das Feld kann null sein: bei Terminen ohne Uhrzeit und bei allen Typen
+     ausser Spiel und Training. Genau dann gibt es auch keine Frist.       */
   function meldeschlussMs(e) {
-    if (e.typ !== "spiel" && e.typ !== "training") return null;
-    const start = eventStartMs(e);
-    if (start == null) return null;
-    return start - (e.typ === "spiel" ? 24 : 3) * 60 * 60 * 1000;
+    if (!e || !e.deadlineAt) return null;
+    const t = new Date(e.deadlineAt).getTime();
+    return isFinite(t) ? t : null;
   }
 
   function dringlichkeitClass(ms) {

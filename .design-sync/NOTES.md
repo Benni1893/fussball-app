@@ -614,3 +614,41 @@ Fundstelle ging in die Gegenrichtung.
 eingebettetes CSS (bei fehlendem Netz ist `styles.css` nicht erreichbar) und
 gehört deshalb **nicht** ins Design-System — die Werte sind aus den Tokens
 abgeschrieben und müssen bei einer Token-Änderung von Hand nachgezogen werden.
+
+**Meldeschluss: eine Quelle der Wahrheit (25.09.2026)**
+
+Die Regel „Spiel 24 h, Training 3 h vor Anpfiff" stand an **fünf** Stellen
+ausgeschrieben — `0008` Zeile 80, `0009` Zeile 40, `0010` Zeile 34 und 92,
+dazu `app.js` `meldeschlussMs`. An dieser Frist hängt Geld: 8 € verspätete
+Rückmeldung, 15/25 € keine Rückmeldung. Liefen die Kopien auseinander, würde
+die App nach der einen Regel erinnern und nach der anderen bestrafen.
+
+Migration 0033 macht daraus eine Quelle: `team_settings` (Standard je Verein),
+`events.deadline_override_hours` (Ausnahme je Termin), `compute_deadline()`
+(die einzige Rechnung), `events.deadline_at` (das Ergebnis, per Trigger
+gepflegt). **Kein Verhalten geändert** — 24 und 3 bleiben.
+
+- **`meldeschlussMs()` rechnet nicht mehr**, es reicht `deadlineAt` durch. Der
+  Test belegt das, indem er widersprüchliche Begleitdaten mitgibt: ein
+  Spiel mit `startsAt` im Jahr 2030 und gesetztem `deadlineAt` liefert
+  trotzdem `deadlineAt`.
+- **`sonstiges` bekommt keine Frist**, und das ist keine Änderung: in allen
+  vier SQL-Kopien stand der Typfilter **vor** der Rechnung, der `else`-Zweig
+  mit den 3 Stunden war für alles außer `training` toter Code. Das Frontend
+  gab für diese Typen ohnehin seit jeher `null` zurück.
+- **`compute_deadline` rechnet in `interval '1 hour'`, nicht in Tagen.** Bei
+  `timestamptz` ist das der Unterschied zwischen absoluter und kalendarischer
+  Arithmetik: mit `interval '1 day'` läge die Frist über die Zeitumstellung
+  hinweg eine Stunde daneben. Der Test hält drei Termine rund um beide
+  Umstellungen 2027 dagegen und zählt echte Stunden, nicht Ortszeit.
+- **Der Trigger auf `team_settings` rechnet nur Termine mit
+  `starts_at > now()` neu.** Vergangene behalten ihre Frist, sonst könnte
+  `apply_event_fines` rückwirkend anders strafen, als zum Zeitpunkt des
+  Termins galt.
+- **Die Trigger-Reihenfolge hängt am Namen.** `trg_events_zdeadline` muss nach
+  `trg_events_starts_at` feuern, weil es dessen `starts_at` braucht; Postgres
+  sortiert gleichzeitige Trigger alphabetisch. Steht als `comment on trigger`
+  an **beiden** Objekten in der Datenbank.
+- **`0008` und `0009` sind nicht angefasst.** Sie enthalten weiterhin die alte
+  Rechnung, sind aber seit `0010` überschrieben und damit wirkungslos — beim
+  nächsten Lesen kann das trotzdem in die Irre führen.

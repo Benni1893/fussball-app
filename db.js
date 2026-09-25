@@ -70,6 +70,9 @@ window.DB = (function () {
         id: e.id, typ: e.type, titel: e.title, gegner: e.opponent, heim: e.home,
         datum: e.date, zeit: e.time, ort: e.location, note: e.note,
         startsAt: e.starts_at, auto: e.auto_fine,
+        // Meldeschluss kommt fertig aus der Datenbank (Migration 0033,
+        // events.deadline_at). Das Frontend rechnet ihn nicht mehr selbst.
+        deadlineAt: e.deadline_at, deadlineOverrideHours: e.deadline_override_hours,
         status: e.status || "geplant", quelle: e.quelle || "manuell",
         wettbewerb: e.wettbewerb, liga: e.liga,
         spielstaette: e.spielstaette, adresse: e.adresse, locationRaw: e.location_raw,
