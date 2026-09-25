@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-25-I";
+  var APP_BUILD = "2026-09-25-J";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -74,6 +74,31 @@
   function fmtTs(iso) {
     try { return new Date(iso).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }); }
     catch (e) { return ""; }
+  }
+  // 16.09.2026 - die Kasse schreibt das Jahr aus, weil offene Strafen aelter
+  // als eine Saison werden koennen und "16. Sep." dann mehrdeutig ist.
+  function fmtPunkt(iso) {
+    const dt = parseDate(iso);
+    return String(dt.getDate()).padStart(2, "0") + "." + String(dt.getMonth() + 1).padStart(2, "0") + "." + dt.getFullYear();
+  }
+  // 22.09. - die kurze Form fuer Zeilen, in denen das Jahr aus dem Zusammenhang folgt.
+  function fmtKurz(iso) {
+    const dt = parseDate(iso);
+    return String(dt.getDate()).padStart(2, "0") + "." + String(dt.getMonth() + 1).padStart(2, "0") + ".";
+  }
+  /* „heute, 18:42" / „gestern, 18:42" / „20.09., 18:42" - fuer den Zeitpunkt
+     der Meldung. Arbeitet auf einem Zeitstempel, nicht auf einem Datum. */
+  function fmtGemeldet(ts) {
+    let dt;
+    try { dt = new Date(ts); } catch (e) { return ""; }
+    if (!dt || isNaN(dt.getTime())) return "";
+    const uhr = dt.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+    const tag = (d) => d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+    const heute = new Date();
+    const gestern = new Date(heute.getTime() - 86400000);
+    if (tag(dt) === tag(heute))   return "heute, " + uhr;
+    if (tag(dt) === tag(gestern)) return "gestern, " + uhr;
+    return String(dt.getDate()).padStart(2, "0") + "." + String(dt.getMonth() + 1).padStart(2, "0") + "., " + uhr;
   }
 
   let playerById = {};  // wird in init() nach dem Laden befüllt
@@ -4017,6 +4042,100 @@
       </div>`;
   }
 
+  /* ---------- „Zahlung melden" (Spieleransicht) ------------------------------
+     Blatt im Stil des Buchen-Blatts der Kasse: drei Zahlart-Chips (Pflicht) und
+     eine freiwillige Notiz. Beides landet in reported_method / reported_note
+     (Migration 0040) und steht dem Kassenwart in der Kasse vor Augen, bevor er
+     bestaetigt oder ablehnt. */
+  const ZM_MAX = 140;
+  const zm = { zahlart: "", note: "" };
+
+  function zmEnsure() {
+    if (document.getElementById("zmBl")) return;
+    const scrim = document.createElement("div");
+    scrim.className = "tv-scrim"; scrim.id = "zmScrim";
+    const sheet = document.createElement("div");
+    sheet.className = "tv-sheet ks-bl"; sheet.id = "zmBl";
+    sheet.setAttribute("role", "dialog"); sheet.setAttribute("aria-modal", "true");
+    sheet.setAttribute("aria-label", "Zahlung melden");
+    document.body.appendChild(scrim); document.body.appendChild(sheet);
+    scrim.addEventListener("click", zmClose);
+    sheet.addEventListener("click", async (ev) => {
+      if (ev.target.closest("[data-zm-close]")) { zmClose(); return; }
+      const z = ev.target.closest("[data-zm-zart]");
+      if (z) { zm.zahlart = z.dataset.zmZart; zmRender(); return; }
+      if (ev.target.closest("[data-zm-send]")) { await zmSenden(); return; }
+    });
+    // Der Zaehler laeuft mit, ohne das Feld neu zu zeichnen - sonst springt
+    // der Cursor bei jedem Zeichen an den Anfang.
+    sheet.addEventListener("input", (ev) => {
+      if (!ev.target.matches("[data-zm-note]")) return;
+      zm.note = ev.target.value;
+      const z = sheet.querySelector(".zm-zahl");
+      if (z) z.outerHTML = zmZaehlerHtml();
+      // Der Knopf muss mitlaufen: sonst laesst sich ein zu langer Text
+      // abschicken und die Datenbank kuerzt ihn stillschweigend.
+      const btn = sheet.querySelector("[data-zm-send]");
+      if (btn) btn.disabled = !zm.zahlart || katLaenge(zm.note) > ZM_MAX;
+    });
+  }
+
+  function zmZaehlerHtml() {
+    const n = katLaenge(zm.note);
+    return '<span class="zm-zahl' + (n > ZM_MAX ? " is-lang" : "") + '">' + n + "/" + ZM_MAX + "</span>";
+  }
+
+  function zmRender() {
+    const sheet = document.getElementById("zmBl");
+    if (!sheet) return;
+    const me = playerById[state.currentPlayerId];
+    const offen = me ? summeOffenSpieler(me.id) : 0;
+    const anzahl = me ? aktiveStrafen().filter((s) => s.playerId === me.id && fineStatus(s) === "offen").length : 0;
+    const chips = KASSE_ZAHLARTEN.map(([k, label]) =>
+      `<button type="button" class="zart${zm.zahlart === k ? " is-on" : ""}" data-zm-zart="${k}">${zartIconHtml(k)}<span>${label}</span></button>`).join("");
+    const zuviel = katLaenge(zm.note) > ZM_MAX;
+    sheet.innerHTML =
+      '<div class="tv-sh"><span class="tv-grip"></span><strong>Zahlung melden</strong>' +
+      '<button class="tv-shx" data-zm-close aria-label="Schließen">&times;</button></div>' +
+      '<div class="tv-shbody">' +
+        '<div class="ks-bl-sum"><div class="ks-bl-top"><span class="ks-bl-n">Offener Betrag</span>' +
+        '<span class="ks-bl-b num">' + euro(offen).replace(/\s/g, " ") + '</span></div>' +
+        '<div class="ks-bl-s">' + anzahl + (anzahl === 1 ? " Strafe" : " Strafen") + ' werden als gemeldet markiert.</div></div>' +
+        '<div class="lbl ks-bl-lbl">Zahlart</div>' +
+        '<div class="zart-row">' + chips + '</div>' +
+        '<div class="lbl ks-bl-lbl zm-lbl">Notiz <span class="zm-opt">freiwillig</span>' + zmZaehlerHtml() + '</div>' +
+        '<textarea class="kasse-in zm-note" data-zm-note rows="2" maxlength="' + (ZM_MAX + 40) + '" ' +
+        'placeholder="zahle bar am Donnerstag" aria-label="Notiz zur Zahlung">' + esc(zm.note) + '</textarea>' +
+        '<button class="btn btn-primary ks-bl-cta" data-zm-send' + (zm.zahlart && !zuviel ? "" : " disabled") + '>Zahlung melden</button>' +
+      '</div>';
+  }
+
+  function zmOpen() {
+    zmEnsure();
+    zm.zahlart = ""; zm.note = "";
+    zmRender();
+    const s = document.getElementById("zmScrim"), p = document.getElementById("zmBl");
+    if (s) s.classList.add("open"); if (p) p.classList.add("open");
+  }
+  function zmClose() {
+    const s = document.getElementById("zmScrim"), p = document.getElementById("zmBl");
+    if (s) s.classList.remove("open"); if (p) p.classList.remove("open");
+  }
+
+  async function zmSenden() {
+    if (!zm.zahlart || katLaenge(zm.note) > ZM_MAX) return;
+    const btn = document.querySelector("[data-zm-send]"); if (btn) btn.disabled = true;
+    try {
+      const n = await DB.reportMyPayment(zm.zahlart, zm.note.trim() || null);
+      zmClose();
+      await reloadData();
+      tvToast((n || 0) + ((n === 1) ? " Strafe gemeldet" : " Strafen gemeldet"));
+    } catch (err) {
+      if (btn) btn.disabled = false;
+      window.alert("Konnte die Zahlung nicht melden: " + ((err && err.message) || err));
+    }
+  }
+
   function renderStrafen() {
     const me = playerById[state.currentPlayerId];
     // Ist das eingeloggte Konto wirklich mit einem Spieler verknüpft?
@@ -4113,11 +4232,31 @@
     players: [], items: {}, bezug: {}, indiv: [],
     indivBetrag: "", indivGrund: "",
     date: new Date().toISOString().slice(0, 10), comment: "",
-    tab: "pruefen", bezFilter: "",
+    tab: "pruefen", spFilter: "",
     pruefIdx: 0,       // welche Meldung im Kartenstapel gerade vorn liegt
-    zahlart: {},       // gewaehlte Zahlart je Strafe (B3), Vorgabe "bar"
+    zahlart: {},       // gewaehlte Zahlart je Strafe, Vorgabe: Angabe des Spielers
     formOpen: false,   // „Strafe verhaengen" ist eingeklappt, bis jemand es oeffnet
+    // Welche Bloecke das Formular zeigt. Der Vollbild-Waehler setzt einen,
+    // der Link „Auch ..." holt den zweiten dazu - gemischte Vorgaenge bleiben
+    // moeglich, weil beide Bloecke in denselben kasseBuild() laufen.
+    bloecke: { katalog: false, indiv: false },
   };
+
+  /* Zahlart-Symbole. Die Vorlage zeigt sie im Buchen-Blatt, in der Zeile
+     „Eingegangen" und vor der Angabe des Spielers. Bewusst drei eigene
+     Zeichnungen statt eines Sammelsymbols: der Geldschein, das Bankgebaeude
+     und das PayPal-P sind auf 16 px noch auseinanderzuhalten. */
+  const ICON_BAR = `<svg ${SVG}><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.4"/></svg>`;
+  const ICON_UEBERWEISUNG = `<svg ${SVG}><path d="M3 9.5 12 4l9 5.5"/><path d="M4.5 9.5v9M9.5 9.5v9M14.5 9.5v9M19.5 9.5v9"/><path d="M2.5 21h19"/></svg>`;
+  const ICON_PAYPAL = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.6 3h6.1c2.9 0 4.6 1.5 4.2 4.1-.4 2.8-2.4 4.3-5.4 4.3h-2.2l-.8 5.1H7.2L8.6 3Zm2.6 2.3-.6 3.8h1.7c1.5 0 2.4-.7 2.6-2 .2-1.2-.4-1.8-1.8-1.8h-1.9Z"/><path d="M6.3 7.6h5.5c2.6 0 4.1 1.4 3.7 3.7-.4 2.5-2.2 3.9-4.9 3.9H8.5L7.8 20H5.1l1.2-8.1.8-4.3Z" opacity=".55"/></svg>`;
+  const ZAHLART_ICON = { bar: ICON_BAR, ueberweisung: ICON_UEBERWEISUNG, paypal: ICON_PAYPAL };
+  function zartIconHtml(art) {
+    const ic = ZAHLART_ICON[art];
+    if (!ic) return "";
+    // PayPal traegt seine Hausfarbe, wie in der Vorlage. Bar und Ueberweisung
+    // nehmen die Farbe der Zeile an - es sind keine Marken.
+    return `<span class="ks-zi${art === "paypal" ? " is-pp" : ""}" aria-hidden="true">${ic}</span>`;
+  }
 
   // Baut die Strafzeilen (je Zeile = eine Strafe pro gewähltem Spieler).
   function kasseBuild() {
@@ -4166,11 +4305,9 @@
       </div>`;
   }
 
-  // Audit-Verlauf einer Strafe: aufklappbar, wird beim Öffnen einmalig geladen.
-  function kasseHistHtml(id) {
-    return `<div class="fine-hist"><button type="button" class="linklike" data-kasse-hist="${id}">Verlauf ▾</button>
-      <div class="fine-hist-body" id="hist-${id}" hidden></div></div>`;
-  }
+  /* Eine Zeile des Audit-Verlaufs. Der Verlauf selbst steht seit dem neuen
+     Kassendesign im Detail-Blatt (ksBlattVerlauf), nicht mehr unter jeder
+     Zeile - die Vorlage zeigt die Liste ohne Zusatzzeilen. */
   function histLineHtml(h) {
     const lab = (st) => (STATUS_META[st] && STATUS_META[st].label) || st || "neu";
     const arrow = (h.from ? lab(h.from) : "angelegt") + " → " + lab(h.to);
@@ -4178,29 +4315,37 @@
     return `<div class="hist-line">${fmtTs(h.at)} · ${esc(arrow)}${extra ? " · " + esc(extra) : ""}</div>`;
   }
 
-  // Eine Karte im Prüf-/Verbuch-Bereich – in allen drei Tabs identisch aufgebaut:
-  //   oben: Spieler + Strafe · rechts: Betrag rechtsbündig
-  //   darunter: Datum + Status(-Badge)
-  //   unten: Aktionsbuttons in einer Reihe · optional Audit-Verlauf
-  // strafeText/metaText/actions sind bereits fertiges HTML.
-  function krowHtml(s, strafeText, metaText, actions) {
-    // Aufbau wie die Strafenzeile im Konto: Avatar, Name, Vergehen mit Datum,
-    // rechts Betrag ueber Zustandsmarke. Aktionen darunter.
-    return `<div class="krow">
-      <div class="krow-head">
-        <span class="avatar">${initials(s.player.name)}</span>
-        <div class="krow-info">
-          <div class="krow-title">${esc(s.player.name)}</div>
-          <div class="krow-strafe">${strafeText}${metaText ? " · " + metaText : ""}</div>
-          ${s.ablehnGrund && s.st === "offen" ? `<div class="fine-reason">Abgelehnt: ${esc(s.ablehnGrund)}</div>` : ""}
-        </div>
-        <div class="krow-right">
-          <div class="krow-amt">${euro(s.betrag).replace(/\s/g, " ")}</div>
-          ${statusBadgeHtml(s)}
-        </div>
+  /* Die Angabe des Spielers (Migration 0040): Zahlart und freier Text. Sie
+     ueberlebt eine Ablehnung bewusst - abgelehnt heisst, der Kassenwart
+     widerspricht der Behauptung, nicht dass sie nie gemacht wurde. */
+  function ksSagtHtml(s) {
+    if (!s.sagtNote && !s.sagtZahlart) return "";
+    const text = s.sagtNote
+      ? `Spieler: „${esc(s.sagtNote)}"`
+      : `Spieler: gezahlt per ${esc(ZAHLART_LABEL[s.sagtZahlart] || s.sagtZahlart)}`;
+    return `<div class="ks-sag">${zartIconHtml(s.sagtZahlart)}<span>${text}</span></div>`;
+  }
+
+  /* Eine Zeile im Reiter „Offen" (Vorlage 5B). Kein Avatar, keine Zustands-
+     marke: in diesem Reiter ist der Zustand immer derselbe, eine Marke daneben
+     traegt nichts bei. Die Karte selbst ist antippbar und oeffnet das Blatt
+     mit Verlauf; die beiden Knoepfe darin fangen den Tipp vorher ab. */
+  function krowHtml(s) {
+    return `<div class="krow" data-ks-det="${s.id}" role="button" tabindex="0" aria-label="${esc(s.player.name)} im Detail">
+      <div class="krow-top">
+        <span class="krow-title">${esc(s.player.name)}</span>
+        <span class="krow-amt num">${euro(s.betrag).replace(/\s/g, " ")}</span>
       </div>
-      ${actions ? `<div class="krow-actions">${actions}</div>` : ""}
-      ${kasseHistHtml(s.id)}
+      <div class="krow-strafe">${esc(vergehenName(s))}${s.auto ? " · automatisch" : ""}</div>
+      <div class="krow-verh">verhängt ${fmtPunkt(s.datum)}</div>
+      ${ksSagtHtml(s)}
+      ${s.ablehnGrund ? `<div class="fine-reason">Abgelehnt: ${esc(s.ablehnGrund)}</div>` : ""}
+      <div class="krow-actions">
+        ${s.auto
+          ? `<button class="btn ks-storno" data-kasse-del="${s.id}">Entfernen</button>`
+          : `<button class="btn ks-storno" data-kasse-cancel="${s.id}">Storno</button>`}
+        <button class="btn btn-primary ks-buchen" data-ks-buchen="${s.id}">Als bezahlt buchen</button>
+      </div>
     </div>`;
   }
 
@@ -4209,83 +4354,84 @@
      Entscheidung wird die Liste kuerzer, der Index bleibt stehen - dadurch
      rueckt die naechste Meldung von selbst nach. */
   function renderKassePruefen(list) {
-    if (!list.length) return `<div class="ks-deck"><div class="card ks-card ks-leer"><div class="lbl">Prüfen &amp; verbuchen</div><div class="ks-leer-t">Nichts zu prüfen</div><div class="rs">Sobald jemand eine Zahlung meldet, liegt sie hier.</div></div></div>`;
+    if (!list.length) return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Nichts zu prüfen</div><div class="rs">Sobald jemand eine Zahlung meldet, liegt sie hier.</div></div>`;
     const sorted = list.slice().sort((a, b) => a.player.name.localeCompare(b.player.name));
     if (kasse.pruefIdx >= sorted.length || kasse.pruefIdx < 0) kasse.pruefIdx = 0;
-    const i = kasse.pruefIdx, s = sorted[i], rest = sorted.length - 1;
-    const zahlart = s.zahlart ? (ZAHLART_LABEL[s.zahlart] || s.zahlart) : "";
-    // Die Vorlage zeigt fuenf Punkte. Ab neun Meldungen traegt der Zaehler
-    // die Aussage besser als eine Punktreihe, die nicht mehr in die Zeile passt.
-    const dots = sorted.length > 1 && sorted.length <= 8
-      ? `<div class="ks-dots">${sorted.map((_, n) => `<span class="${n === i ? "is-on" : ""}"></span>`).join("")}</div>` : "";
+    const i = kasse.pruefIdx, s = sorted[i];
+    // Zahlart und Zeitpunkt der Meldung in einer Zeile. Die Zahlart ist die
+    // Angabe des Spielers (0040), der Zeitpunkt kommt aus fine_status_log.
+    const art = s.sagtZahlart ? (ZAHLART_LABEL[s.sagtZahlart] || s.sagtZahlart) : "";
+    const wann = s.gemeldetAm ? fmtGemeldet(s.gemeldetAm) : "";
+    const meta = [art, wann ? "gemeldet " + wann : ""].filter(Boolean).join(" · ");
     return `
-      ${sorted.length > 1 ? `<div class="ks-bulk"><button class="link-btn" data-kasse-confirm-all>Alle ${sorted.length} bestätigen</button></div>` : ""}
       <div class="ks-deck">
-        ${rest >= 2 ? `<div class="ks-ghost ks-ghost-2" aria-hidden="true"></div>` : ""}
-        ${rest >= 1 ? `<div class="ks-ghost ks-ghost-1" aria-hidden="true"></div>` : ""}
-        <div class="card ks-card">
-          <div class="lbl">Meldung ${i + 1} von ${sorted.length}</div>
+        <div class="card ks-card" data-ks-det="${s.id}" role="button" tabindex="0" aria-label="Meldung von ${esc(s.player.name)} im Detail">
+          <div class="ks-kopf">
+            <span class="lbl">${i + 1} von ${sorted.length}</span>
+            ${sorted.length > 1 ? `<button class="link-btn" data-kasse-confirm-all>Alle bestätigen</button>` : ""}
+          </div>
           <span class="avatar ks-av">${initials(s.player.name)}</span>
           <div class="ks-name">${esc(s.player.name)}</div>
-          <div class="rs">${esc(vergehenName(s))} · Strafe vom ${fmtDay(s.datum)}. ${fmtMon(s.datum)}</div>
+          <div class="rs">${esc(vergehenName(s))}</div>
           <div class="ks-amt num">${euro(s.betrag).replace(/\s/g, " ")}</div>
-          <div class="rs">${zahlart ? "per " + esc(zahlart) + " gemeldet" : "Zahlung gemeldet"}</div>
+          ${meta ? `<div class="ks-meta">${zartIconHtml(s.sagtZahlart)}<span>${esc(meta)}</span></div>` : ""}
+          ${s.sagtNote ? `<div class="ks-zitat">„${esc(s.sagtNote)}"</div>` : ""}
           <div class="ks-actions">
             <button class="btn" data-kasse-reject="${s.id}">Ablehnen</button>
-            <button class="btn btn-primary" data-kasse-confirm="${s.id}">Eingang bestätigen</button>
+            <button class="btn btn-primary" data-kasse-confirm="${s.id}">Bestätigen</button>
           </div>
-          ${kasseHistHtml(s.id)}
         </div>
-      </div>
-      ${dots}
-      <div class="ks-cap">Nach jeder Entscheidung rückt die nächste Meldung nach</div>`;
+      </div>`;
   }
 
-  /* B3: Reiter „Offen" - Zeilen im Stil der Stapelkarte statt eines Formulars.
-     Die Zahlart steht als drei kleine Chips (ausgewaehlter gefuellt), nicht
-     mehr als Auswahlfeld; gebucht wird mit dem Primaerknopf daneben. */
   const KASSE_ZAHLARTEN = [["bar", "bar"], ["ueberweisung", "Überweisung"], ["paypal", "PayPal"]];
-  function renderKasseOffen(list) {
-    if (!list.length) return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Keine offenen Posten</div></div>`;
+
+  /* Reiter „Offen" (Vorlage 5B): eine Karte je Strafe, gebucht wird ueber das
+     Blatt - die drei Zahlart-Chips sind aus der Zeile dorthin gewandert. */
+  function renderKasseOffen(list, all) {
+    if (!all.length) return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Keine offenen Posten</div><div class="rs">Alles verbucht.</div></div>`;
+    if (!list.length) return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Keine Treffer</div><div class="rs">Für diesen Spieler steht nichts offen.</div></div>`;
     const sorted = list.slice().sort((a, b) => a.player.name.localeCompare(b.player.name));
-    return `<div class="krow-list">${sorted.map((s) => {
-      const gewaehlt = kasse.zahlart[s.id] || "bar";
-      const arten = KASSE_ZAHLARTEN.map(([k, label]) =>
-        `<button class="zart${gewaehlt === k ? " is-on" : ""}" data-kasse-zart="${s.id}" data-wert="${k}">${label}</button>`).join("");
-      return krowHtml(
-        s,
-        `${esc(vergehenName(s))}${s.auto ? " · automatisch" : ""}`,
-        `${fmtDay(s.datum)}. ${fmtMon(s.datum)}`,
-        `<div class="zart-row">${arten}</div>
-         <div class="krow-tun">
-           <button class="btn btn-primary krow-buchen" data-kasse-pay="${s.id}">Buchen</button>
-           ${s.auto
-             ? `<button class="link-btn is-danger" data-kasse-del="${s.id}">Entfernen</button>`
-             : `<button class="link-btn is-danger" data-kasse-cancel="${s.id}">Storno</button>`}
-         </div>`
-      );
+    return `<div class="krow-list">${sorted.map(krowHtml).join("")}</div>`;
+  }
+
+  /* Reiter „Eingegangen" (Vorlage 4A): EINE Karte mit Zeilen, nicht je Eintrag
+     eine eigene Karte. Antippen oeffnet das Blatt mit Verlauf und Rueckgaengig. */
+  function renderKasseEing(list, all) {
+    if (!all.length) return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Noch keine Zahlungen</div><div class="rs">Bestätigte Eingänge stehen hier.</div></div>`;
+    if (!list.length) return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Keine Treffer</div><div class="rs">Für diesen Spieler ist nichts eingegangen.</div></div>`;
+    return `<div class="card ks-ein">${list.map((s) => {
+      const art = s.zahlart ? (ZAHLART_LABEL[s.zahlart] || s.zahlart) : "";
+      const wann = s.paidAt ? fmtKurz(String(s.paidAt).slice(0, 10)) : fmtKurz(s.datum);
+      return `<button type="button" class="ks-ein-row" data-ks-det="${s.id}">
+        <span class="ks-ok" aria-hidden="true">${ICON_CHECK}</span>
+        <span class="ks-ein-main">
+          <span class="ks-ein-n">${esc(s.player.name)}</span>
+          <span class="ks-ein-m">${zartIconHtml(s.zahlart)}<span>${[esc(art), wann].filter(Boolean).join(" · ")}</span></span>
+        </span>
+        <span class="ks-ein-b num">${euro(s.betrag).replace(/\s/g, " ")}</span>
+      </button>`;
     }).join("")}</div>`;
   }
 
-  function renderKasseBezahlt(list, all) {
-    if (!all.length) return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Noch keine bestätigten Zahlungen</div></div>`;
-    const players = [...new Set(all.map((s) => s.playerId))].map((id) => playerById[id]).filter(Boolean).sort((a, b) => a.name.localeCompare(b.name));
-    const filter = `<label class="kasse-filter"><span class="lbl">Spieler</span>
-      <select class="kasse-in kasse-bezfilter" data-kasse-bezfilter>
-        <option value="">Alle Spieler</option>
-        ${players.map((p) => `<option value="${p.id}"${kasse.bezFilter === p.id ? " selected" : ""}>${esc(p.name)}</option>`).join("")}
+  /* Schmale Spielerzeile unter der Reiterleiste. Nur in „Offen" und
+     „Eingegangen": im Prüfstapel liegt ohnehin immer genau eine Meldung vorn. */
+  function ksFilterHtml(all) {
+    const players = [...new Set(all.map((s) => s.playerId))].map((id) => playerById[id])
+      .filter(Boolean).sort((a, b) => a.name.localeCompare(b.name));
+    if (players.length < 2) return "";
+    return `<label class="ks-fil"><span class="lbl">Spieler</span>
+      <select class="ks-fil-in" data-ks-filter aria-label="Nach Spieler filtern">
+        <option value="">Alle</option>
+        ${players.map((p) => `<option value="${p.id}"${kasse.spFilter === p.id ? " selected" : ""}>${esc(p.name)}</option>`).join("")}
       </select></label>`;
-    const body = list.length ? `<div class="krow-list">${list.map((s) => krowHtml(
-      s,
-      esc(vergehenName(s)),
-      `${s.paidAt ? fmtTs(s.paidAt) : (fmtDay(s.datum) + ". " + fmtMon(s.datum))}${s.zahlart ? " · " + (ZAHLART_LABEL[s.zahlart] || esc(s.zahlart)) : ""}`,
-      `<div class="krow-tun"><button class="link-btn" data-kasse-unpay="${s.id}">Rückgängig</button></div>`
-    )).join("")}</div>` : `<div class="card card-pad ks-leer"><div class="ks-leer-t">Keine Treffer</div></div>`;
-    return filter + body;
   }
 
-  function renderKasse() {
-    const alle = aktiveStrafen().map((s) => ({ ...s, betrag: strafeBetrag(s), st: fineStatus(s), player: playerById[s.playerId] })).filter((s) => s.player);
+  /* Das Markup der Kasse als reine Funktion. Sie liest nur aus `kasse`,
+     `playerById` und der uebergebenen Strafenliste - dadurch laesst sie sich
+     ohne Browser und ohne Datenbank mit Beispieldaten rendern, so wie es die
+     Gegenprobe gegen _neukasse.png tut. renderKasse() haengt sie nur ein. */
+  function kasseHtml(alle) {
     const offen    = alle.filter((s) => s.st === "offen");
     const gemeldet = alle.filter((s) => s.st === "gemeldet");
     const bezahlt  = alle.filter((s) => s.st === "bestätigt").sort((a, b) => (b.paidAt || "").localeCompare(a.paidAt || ""));
@@ -4294,31 +4440,35 @@
     const bezahltGesamt  = bezahlt.reduce((a, s) => a + s.betrag, 0);
     const chosen = kasse.players.map((id) => playerById[id] && playerById[id].name).filter(Boolean);
     const build = kasseBuild();
-    const bezahltGef = kasse.bezFilter ? bezahlt.filter((s) => s.playerId === kasse.bezFilter) : bezahlt;
+    const sp = kasse.spFilter;
+    const offenGef   = sp ? offen.filter((s) => s.playerId === sp) : offen;
+    const bezahltGef = sp ? bezahlt.filter((s) => s.playerId === sp) : bezahlt;
+    const zaehler = { pruefen: gemeldet.length, offen: offen.length, bezahlt: bezahlt.length };
+    const REITER = [["pruefen", "Zu prüfen"], ["offen", "Offen"], ["bezahlt", "Eingegangen"]];
 
-    viewEl.innerHTML = `
+    return `
       <div class="page-head">${navBackChevronHtml()}<h1>Kasse</h1></div>
 
       <div class="kpi-grid kpi-3">
-        <button type="button" class="kpi is-warn kpi-tapbar" data-kstab="offen">
+        <button type="button" class="kpi kpi-tapbar" data-kstab="offen">
           <div class="kpi-label">Offen</div>
-          <div class="kpi-value kpi-amt">${euro(offenGesamt).replace(/\s/g, " ")}</div>
-          <div class="kpi-sub">${offen.length} Strafen</div>
+          <div class="kpi-value kpi-amt is-rot">${euro(offenGesamt).replace(/\s/g, " ")}</div>
+          <div class="kpi-sub">${offen.length} ${offen.length === 1 ? "Strafe" : "Strafen"}</div>
         </button>
         <button type="button" class="kpi kpi-tapbar" data-kstab="pruefen">
           <div class="kpi-label">Gemeldet</div>
-          <div class="kpi-value kpi-amt">${euro(gemeldetGesamt).replace(/\s/g, " ")}</div>
+          <div class="kpi-value kpi-amt is-gold">${euro(gemeldetGesamt).replace(/\s/g, " ")}</div>
           <div class="kpi-sub">${gemeldet.length} zu prüfen</div>
         </button>
         <button type="button" class="kpi kpi-tapbar" data-kstab="bezahlt">
           <div class="kpi-label">Eingegangen</div>
           <div class="kpi-value kpi-amt">${euro(bezahltGesamt).replace(/\s/g, " ")}</div>
-          <div class="kpi-sub">Saison</div>
+          <div class="kpi-sub">${bezahlt.length} ${bezahlt.length === 1 ? "Zahlung" : "Zahlungen"}</div>
         </button>
       </div>
 
       ${!kasse.formOpen ? `
-      <button type="button" class="kasse-toggle" data-kasse-toggle>
+      <button type="button" class="ks-neu" data-ks-wahl>
         ${ICON_PLUS}<span>Strafe verhängen</span>
       </button>` : `
       <div class="section-title"><h2>Strafe verhängen</h2>
@@ -4330,6 +4480,7 @@
         </button>
         ${chosen.length ? `<div class="kasse-chosen">${chosen.map(esc).join(", ")}</div>` : ""}
 
+        ${!kasse.bloecke.katalog ? "" : `
         <div class="kasse-sub">Aus dem Katalog <span class="kasse-sub-hint">antippen zum Auswählen</span></div>
         <div class="kat-list kasse-catlist">
           ${DEMO.katalog.map((k) => {
@@ -4356,7 +4507,9 @@
             </div>`;
           }).join("")}
         </div>
+        ${kasse.bloecke.indiv ? "" : `<button type="button" class="link-btn ks-auch" data-ks-auch="indiv">Auch individuelle Strafe</button>`}`}
 
+        ${!kasse.bloecke.indiv ? "" : `
         <div class="kasse-sub">Individuelle Strafe</div>
         <input class="kasse-in" data-kasse-input="betrag" inputmode="decimal" placeholder="Betrag €" value="${esc(kasse.indivBetrag)}">
         <input class="kasse-in" data-kasse-input="grund" type="text" placeholder="Grund" value="${esc(kasse.indivGrund)}">
@@ -4364,6 +4517,7 @@
         ${kasse.indiv.length ? `<div class="ks-ichips">${kasse.indiv.map((e, i) => `
           <span class="ks-ichip">${esc(e.grund)} · ${euro(parseFloat(String(e.betrag).replace(",", ".")) || 0).replace(/\s/g, " ")}
             <button type="button" class="chip-x" data-kasse-indiv-del="${i}" aria-label="entfernen">×</button></span>`).join("")}</div>` : ""}
+        ${kasse.bloecke.katalog ? "" : `<button type="button" class="link-btn ks-auch" data-ks-auch="katalog">Auch aus dem Katalog</button>`}`}
 
         <div class="kasse-sub">Datum &amp; Kommentar</div>
         <input class="kasse-in" type="date" data-kasse-date value="${kasse.date}" aria-label="Datum">
@@ -4373,18 +4527,26 @@
         <button class="tv-primary kasse-save" data-kasse-add${build.valid ? "" : " disabled"}>Strafen speichern</button>
       </div>`}
 
-      <div class="section-title kasse-verbuchen"><h2>Prüfen &amp; verbuchen</h2></div>
+      <div class="section-title kasse-verbuchen"><h2>Prüfen und verbuchen</h2></div>
       <div class="ks-pane">
-        <div class="chips ks-tabs">
-          <button class="chip ${kasse.tab === "pruefen" ? "is-active" : ""}" data-kstab="pruefen">Zu prüfen (${gemeldet.length})</button>
-          <button class="chip ${kasse.tab === "offen" ? "is-active" : ""}" data-kstab="offen">Offen (${offen.length})</button>
-          <button class="chip ${kasse.tab === "bezahlt" ? "is-active" : ""}" data-kstab="bezahlt">Eingegangen (${bezahlt.length})</button>
+        <div class="ks-seg" role="tablist">
+          ${REITER.map(([k, label]) => `<button class="ks-seg-b${kasse.tab === k ? " is-on" : ""}" role="tab"
+            aria-selected="${kasse.tab === k}" data-kstab="${k}">${label} <span class="ks-seg-n">${zaehler[k]}</span></button>`).join("")}
         </div>
+        ${kasse.tab === "offen"   ? ksFilterHtml(offen) : ""}
+        ${kasse.tab === "bezahlt" ? ksFilterHtml(bezahlt) : ""}
         ${kasse.tab === "pruefen" ? renderKassePruefen(gemeldet) : ""}
-        ${kasse.tab === "offen"   ? renderKasseOffen(offen) : ""}
-        ${kasse.tab === "bezahlt" ? renderKasseBezahlt(bezahltGef, bezahlt) : ""}
+        ${kasse.tab === "offen"   ? renderKasseOffen(offenGef, offen) : ""}
+        ${kasse.tab === "bezahlt" ? renderKasseEing(bezahltGef, bezahlt) : ""}
       </div>
     `;
+  }
+
+  function renderKasse() {
+    const alle = aktiveStrafen()
+      .map((s) => ({ ...s, betrag: strafeBetrag(s), st: fineStatus(s), player: playerById[s.playerId] }))
+      .filter((s) => s.player);
+    viewEl.innerHTML = kasseHtml(alle);
     ksAttachSwipe();
     startCountdowns();
   }
@@ -4459,7 +4621,10 @@
       await DB.createFinesBatch(rows, kasse.comment.trim() || null);
       kasse.players = []; kasse.items = {}; kasse.bezug = {}; kasse.indiv = [];
       kasse.formOpen = false;                      // nach dem Speichern wieder einklappen
+      kasse.bloecke = { katalog: false, indiv: false };
       kasse.indivBetrag = ""; kasse.indivGrund = ""; kasse.comment = "";
+      // Zurueck zur Uebersicht und gleich dorthin, wo die neue Strafe liegt.
+      kasse.tab = "offen"; kasse.spFilter = "";
       await reloadData();                          // rendert Kasse neu (aktualisierte Listen)
       tvToast(rows.length + (rows.length > 1 ? " Einträge" : " Eintrag") + " gespeichert");
     } catch (e) {
@@ -4504,6 +4669,179 @@
   }
   function ksOpenPlayers() { ksEnsureSheet(); ksRenderPlayers(); const s = document.getElementById("ksScrim"), p = document.getElementById("ksSheet"); if (s) s.classList.add("open"); if (p) p.classList.add("open"); }
   function ksClosePlayers() { const s = document.getElementById("ksScrim"), p = document.getElementById("ksSheet"); if (s) s.classList.remove("open"); if (p) p.classList.remove("open"); if (currentView === "kasse") renderKasse(); }
+
+  /* ---- Vollbild-Waehler „Strafe verhaengen" --------------------------------
+     Genau zwei Wege, gleich gross, beide fuehren in dasselbe Formular - nur
+     mit unterschiedlich vorbelegten Bloecken. Der jeweils andere Block laesst
+     sich dort per Link dazuholen, damit gemischte Vorgaenge moeglich bleiben. */
+  function ksWahlEnsure() {
+    if (document.getElementById("ksWahl")) return;
+    const scrim = document.createElement("div");
+    scrim.className = "tv-scrim"; scrim.id = "ksWahlScrim";
+    const sheet = document.createElement("div");
+    sheet.className = "tv-sheet tv-kfull ks-wahl"; sheet.id = "ksWahl";
+    sheet.setAttribute("role", "dialog"); sheet.setAttribute("aria-modal", "true");
+    sheet.setAttribute("aria-label", "Strafe verhängen");
+    sheet.innerHTML =
+      '<div class="tv-sh"><strong>Strafe verhängen</strong>' +
+      '<button class="tv-shx" data-ks-wahl-close aria-label="Schließen">&times;</button></div>' +
+      '<div class="tv-shbody">' +
+        '<button type="button" class="ks-wahl-b" data-ks-modus="katalog">' +
+          '<span class="ks-wahl-t">Strafe aus Katalog hinzufügen</span>' +
+          '<span class="ks-wahl-s">Aus dem Strafenkatalog wählen, mit Menge oder Bezugsgröße.</span></button>' +
+        '<button type="button" class="ks-wahl-b" data-ks-modus="indiv">' +
+          '<span class="ks-wahl-t">Individuelle Strafe</span>' +
+          '<span class="ks-wahl-s">Freier Grund und freier Betrag.</span></button>' +
+      '</div>' +
+      '<div class="ks-wahl-f"><button type="button" class="btn" data-ks-wahl-close>Schließen</button></div>';
+    document.body.appendChild(scrim); document.body.appendChild(sheet);
+    scrim.addEventListener("click", ksWahlClose);
+    sheet.addEventListener("click", (ev) => {
+      if (ev.target.closest("[data-ks-wahl-close]")) { ksWahlClose(); return; }
+      const m = ev.target.closest("[data-ks-modus]");
+      if (!m) return;
+      const modus = m.dataset.ksModus;
+      kasse.bloecke = { katalog: modus === "katalog", indiv: modus === "indiv" };
+      kasse.formOpen = true;
+      ksWahlClose();
+      if (currentView === "kasse") {
+        renderKasse();
+        const f = viewEl.querySelector(".kasse-add");
+        if (f && f.scrollIntoView) f.scrollIntoView({ block: "start", behavior: "smooth" });
+      }
+    });
+  }
+  function ksWahlOpen() {
+    ksWahlEnsure();
+    const s = document.getElementById("ksWahlScrim"), p = document.getElementById("ksWahl");
+    if (s) s.classList.add("open"); if (p) p.classList.add("open");
+  }
+  function ksWahlClose() {
+    const s = document.getElementById("ksWahlScrim"), p = document.getElementById("ksWahl");
+    if (s) s.classList.remove("open"); if (p) p.classList.remove("open");
+  }
+
+  /* ---- Blatt: buchen und Detail -------------------------------------------
+     Ein Blatt, zwei Inhalte. „buchen" ist die Vorlage 3 (Zahlart waehlen und
+     buchen), „detail" traegt Verlauf und Rueckgaengig - beides hing frueher
+     als Zusatzzeile unter jeder Karte und macht die Liste unruhig. */
+  const ksBlatt = { art: null, id: null };
+
+  function ksBlattEnsure() {
+    if (document.getElementById("ksBl")) return;
+    const scrim = document.createElement("div");
+    scrim.className = "tv-scrim"; scrim.id = "ksBlScrim";
+    const sheet = document.createElement("div");
+    sheet.className = "tv-sheet ks-bl"; sheet.id = "ksBl";
+    sheet.setAttribute("role", "dialog"); sheet.setAttribute("aria-modal", "true");
+    document.body.appendChild(scrim); document.body.appendChild(sheet);
+    scrim.addEventListener("click", ksBlattClose);
+    sheet.addEventListener("click", async (ev) => {
+      if (ev.target.closest("[data-ks-bl-close]")) { ksBlattClose(); return; }
+      const z = ev.target.closest("[data-ks-zart]");
+      if (z) { kasse.zahlart[ksBlatt.id] = z.dataset.ksZart; ksBlattRender(); return; }
+      if (ev.target.closest("[data-ks-bl-buchen]")) { await ksBlattBuchen(); return; }
+      if (ev.target.closest("[data-ks-bl-unpay]")) { await ksBlattUnpay(); return; }
+    });
+  }
+
+  function ksStrafeById(id) {
+    const s = (DEMO.strafen || []).find((x) => x.id === id);
+    if (!s) return null;
+    const player = playerById[s.playerId];
+    if (!player) return null;
+    return { ...s, betrag: strafeBetrag(s), st: fineStatus(s), player: player };
+  }
+
+  function ksBlattRender() {
+    const sheet = document.getElementById("ksBl");
+    const s = ksStrafeById(ksBlatt.id);
+    if (!sheet || !s) return;
+    const kopf = ksBlatt.art === "buchen" ? "Als bezahlt buchen" : "Strafe";
+    const summe = `<div class="ks-bl-sum">
+        <div class="ks-bl-top"><span class="ks-bl-n">${esc(s.player.name)}</span><span class="ks-bl-b num">${euro(s.betrag).replace(/\s/g, " ")}</span></div>
+        <div class="ks-bl-s">${esc(vergehenName(s))} · ${fmtKurz(s.datum)}</div>
+      </div>`;
+    let body;
+    if (ksBlatt.art === "buchen") {
+      // Vorbelegung: was der Spieler angegeben hat, sonst bar.
+      const gewaehlt = kasse.zahlart[s.id] || s.sagtZahlart || "bar";
+      const chips = KASSE_ZAHLARTEN.map(([k, label]) =>
+        `<button type="button" class="zart${gewaehlt === k ? " is-on" : ""}" data-ks-zart="${k}">${zartIconHtml(k)}<span>${label}</span></button>`).join("");
+      body = summe +
+        `<div class="lbl ks-bl-lbl">Zahlart</div>
+         <div class="zart-row">${chips}</div>
+         ${s.sagtZahlart ? `<div class="ks-bl-h">Vorausgewählt nach Angabe des Spielers.</div>` : ""}
+         <button class="btn btn-primary ks-bl-cta" data-ks-bl-buchen>${euro(s.betrag).replace(/\s/g, " ")} ${esc(ZAHLART_LABEL[gewaehlt] || gewaehlt)} buchen</button>`;
+    } else {
+      body = summe +
+        ksSagtHtml(s) +
+        (s.ablehnGrund ? `<div class="fine-reason">Abgelehnt: ${esc(s.ablehnGrund)}</div>` : "") +
+        `<div class="lbl ks-bl-lbl">Verlauf</div>
+         <div class="fine-hist-body" id="ksBlHist"><div class="hist-line">lädt…</div></div>` +
+        (s.st === "bestätigt" ? `<button class="btn ks-bl-cta" data-ks-bl-unpay>Buchung rückgängig</button>` : "");
+    }
+    sheet.innerHTML =
+      '<div class="tv-sh"><span class="tv-grip"></span><strong>' + esc(kopf) + '</strong>' +
+      '<button class="tv-shx" data-ks-bl-close aria-label="Schließen">&times;</button></div>' +
+      '<div class="tv-shbody">' + body + '</div>';
+    sheet.setAttribute("aria-label", kopf);
+    if (ksBlatt.art === "detail") ksBlattVerlauf(s.id);
+  }
+
+  async function ksBlattVerlauf(id) {
+    const box = document.getElementById("ksBlHist");
+    if (!box) return;
+    try {
+      const rows = await DB.fineHistory(id);
+      if (!document.getElementById("ksBlHist")) return;
+      document.getElementById("ksBlHist").innerHTML =
+        rows.length ? rows.map(histLineHtml).join("") : `<div class="hist-line">Kein Verlauf.</div>`;
+    } catch (e) {
+      const b = document.getElementById("ksBlHist");
+      if (b) b.innerHTML = `<div class="hist-line">Verlauf nicht ladbar.</div>`;
+    }
+  }
+
+  function ksBlattOpen(art, id) {
+    ksBlattEnsure();
+    ksBlatt.art = art; ksBlatt.id = id;
+    ksBlattRender();
+    const s = document.getElementById("ksBlScrim"), p = document.getElementById("ksBl");
+    if (s) s.classList.add("open"); if (p) p.classList.add("open");
+  }
+  function ksBlattClose() {
+    const s = document.getElementById("ksBlScrim"), p = document.getElementById("ksBl");
+    if (s) s.classList.remove("open"); if (p) p.classList.remove("open");
+    ksBlatt.art = null; ksBlatt.id = null;
+  }
+
+  async function ksBlattBuchen() {
+    const s = ksStrafeById(ksBlatt.id);
+    if (!s) return;
+    const method = kasse.zahlart[s.id] || s.sagtZahlart || "bar";
+    const btn = document.querySelector("[data-ks-bl-buchen]"); if (btn) btn.disabled = true;
+    try {
+      await DB.markFinesPaid([s.id], method);
+      ksBlattClose();
+      await reloadData();
+      tvToast("Als bezahlt gebucht");
+    } catch (e) {
+      if (btn) btn.disabled = false;
+      window.alert("Buchen fehlgeschlagen: " + ((e && e.message) || e));
+    }
+  }
+
+  async function ksBlattUnpay() {
+    const id = ksBlatt.id;
+    if (!window.confirm("Buchung rückgängig machen? Die Strafe steht wieder als offen.")) return;
+    try {
+      await DB.setFinePaid(id, false);
+      ksBlattClose();
+      await reloadData();
+      tvToast("Zurückgesetzt");
+    } catch (e) { window.alert("Rückgängig fehlgeschlagen: " + ((e && e.message) || e)); }
+  }
 
   /* ---------------------------------------------------------------------------
      Interaktion (Event-Delegation)
@@ -4581,15 +4919,28 @@
     const sum = document.getElementById("kasseSummary"); if (sum) sum.innerHTML = kasseSummaryHtml();
     const btn = viewEl.querySelector("[data-kasse-add]"); if (btn) btn.disabled = !kasseBuild().valid;
   });
-  // Datum (change) + Spielerfilter im „Eingegangen"-Tab.
+  // Datum (change) + Spielerfilter in „Offen" und „Eingegangen".
   viewEl.addEventListener("change", (ev) => {
     if (currentView !== "kasse") return;
     if (ev.target.matches("[data-kasse-date]")) {
       kasse.date = ev.target.value || new Date().toISOString().slice(0, 10);
       const sum = document.getElementById("kasseSummary"); if (sum) sum.innerHTML = kasseSummaryHtml();
-    } else if (ev.target.matches("[data-kasse-bezfilter]")) {
-      kasse.bezFilter = ev.target.value; renderKasse();
+    } else if (ev.target.matches("[data-ks-filter]")) {
+      kasse.spFilter = ev.target.value; renderKasse();
     }
+  });
+
+  /* Die Karten in „Zu prüfen" und „Offen" sind antippbar, aber keine echten
+     Knöpfe - sie enthalten selbst welche, und ein Knopf im Knopf ist kein
+     gültiges HTML. Deshalb tragen sie role="button" und bekommen die Tastatur
+     von Hand. */
+  viewEl.addEventListener("keydown", (ev) => {
+    if (currentView !== "kasse") return;
+    if (ev.key !== "Enter" && ev.key !== " ") return;
+    const karte = ev.target.closest && ev.target.closest("[data-ks-det][role='button']");
+    if (!karte || karte !== ev.target) return;
+    ev.preventDefault();
+    ksBlattOpen("detail", karte.dataset.ksDet);
   });
   viewEl.addEventListener("click", async (ev) => {
     // Aufstellungs-Builder zuerst (eigene Tap-/Button-Logik)
@@ -4609,6 +4960,11 @@
     // Kasse-Interaktionen (Statuswechsel laufen über RPCs -> serverseitig erzwungen).
     if (currentView === "kasse") {
       if (ev.target.closest("[data-ks-open-players]")) { ksOpenPlayers(); return; }
+
+      // --- „Strafe verhängen": Vollbild-Wähler, dann das Formular ---
+      if (ev.target.closest("[data-ks-wahl]")) { ksWahlOpen(); return; }
+      const auch = ev.target.closest("[data-ks-auch]");
+      if (auch) { kasse.bloecke[auch.dataset.ksAuch] = true; renderKasse(); return; }
 
       // --- Anlage: Katalog auswählen / Menge / Individuell ---
       const crow = ev.target.closest("[data-kasse-catrow]");
@@ -4634,37 +4990,49 @@
       if (idel) { kasse.indiv.splice(parseInt(idel.dataset.kasseIndivDel, 10), 1); renderKasse(); return; }
       if (ev.target.closest("[data-kasse-add]")) { await kasseSave(); return; }
 
-      // --- „Strafe verhängen" auf-/zuklappen (Zustand gilt, solange die Ansicht offen ist) ---
-      if (ev.target.closest("[data-kasse-toggle]")) { kasse.formOpen = !kasse.formOpen; renderKasse(); return; }
+      // --- Formular schließen. Die Blockwahl faellt mit zurueck, damit der
+      //     naechste Vorgang wieder ueber den Waehler geht. ---
+      if (ev.target.closest("[data-kasse-toggle]")) {
+        kasse.formOpen = false;
+        kasse.bloecke = { katalog: false, indiv: false };
+        renderKasse(); return;
+      }
 
-      // --- Tabs ---
+      // --- Reiter ---
       const tab = ev.target.closest("[data-kstab]");
       if (tab) { kasse.tab = tab.dataset.kstab; renderKasse(); return; }
 
-      // --- Audit-Verlauf aufklappen (einmalig laden) ---
-      const hist = ev.target.closest("[data-kasse-hist]");
-      if (hist) {
-        const id = hist.dataset.kasseHist, box = document.getElementById("hist-" + id);
-        if (!box) return;
-        if (!box.hidden) { box.hidden = true; hist.textContent = "Verlauf ▾"; return; }
-        box.hidden = false; hist.textContent = "Verlauf ▴";
-        if (!box.dataset.loaded) {
-          box.innerHTML = `<div class="hist-line">lädt…</div>`;
-          try { const rows = await DB.fineHistory(id); box.dataset.loaded = "1";
-            box.innerHTML = rows.length ? rows.map(histLineHtml).join("") : `<div class="hist-line">Kein Verlauf.</div>`;
-          } catch (e) { box.innerHTML = `<div class="hist-line">Verlauf nicht ladbar.</div>`; }
-        }
-        return;
-      }
+      // --- Blatt: buchen (aus der Zeile) bzw. Detail mit Verlauf (Tipp auf die Karte) ---
+      const buch = ev.target.closest("[data-ks-buchen]");
+      if (buch) { ksBlattOpen("buchen", buch.dataset.ksBuchen); return; }
+      const det = ev.target.closest("[data-ks-det]");
+      if (det && !ev.target.closest("button:not([data-ks-det])")) { ksBlattOpen("detail", det.dataset.ksDet); return; }
 
       // --- Prüfen: bestätigen / ablehnen / alle bestätigen ---
+      // Gebucht wird, was der Spieler angegeben hat - frueher stand hier fest
+      // "paypal", wodurch jede Barzahlung als PayPal in den Buechern landete.
       const conf = ev.target.closest("[data-kasse-confirm]");
-      if (conf) { try { await DB.confirmFines([conf.dataset.kasseConfirm], "paypal"); await reloadData(); tvToast("Bestätigt"); } catch (e) { window.alert("Bestätigen fehlgeschlagen: " + ((e && e.message) || e)); } return; }
+      if (conf) {
+        const s = ksStrafeById(conf.dataset.kasseConfirm);
+        try { await DB.confirmFines([conf.dataset.kasseConfirm], (s && s.sagtZahlart) || "bar"); await reloadData(); tvToast("Bestätigt"); }
+        catch (e) { window.alert("Bestätigen fehlgeschlagen: " + ((e && e.message) || e)); }
+        return;
+      }
       if (ev.target.closest("[data-kasse-confirm-all]")) {
-        const ids = aktiveStrafen().filter((s) => fineStatus(s) === "gemeldet").map((s) => s.id);
-        if (!ids.length) return;
-        if (!window.confirm(ids.length + " gemeldete Strafen bestätigen?")) return;
-        try { await DB.confirmFines(ids, "paypal"); await reloadData(); tvToast(ids.length + " bestätigt"); } catch (e) { window.alert("Bestätigen fehlgeschlagen: " + ((e && e.message) || e)); }
+        const liste = aktiveStrafen().filter((s) => fineStatus(s) === "gemeldet");
+        if (!liste.length) return;
+        if (!window.confirm(liste.length + " gemeldete Strafen bestätigen?")) return;
+        try {
+          // Je Zahlart ein Aufruf, damit jede Strafe mit ihrer eigenen Angabe
+          // gebucht wird und nicht alle mit der des ersten Spielers.
+          const nachArt = {};
+          liste.forEach((s) => {
+            const a = s.sagtZahlart || "bar";
+            (nachArt[a] = nachArt[a] || []).push(s.id);
+          });
+          for (const a of Object.keys(nachArt)) await DB.confirmFines(nachArt[a], a);
+          await reloadData(); tvToast(liste.length + " bestätigt");
+        } catch (e) { window.alert("Bestätigen fehlgeschlagen: " + ((e && e.message) || e)); }
         return;
       }
       const rej = ev.target.closest("[data-kasse-reject]");
@@ -4675,21 +5043,7 @@
         return;
       }
 
-      // --- Offen: als bezahlt buchen (mit Zahlart) / stornieren / Auto entfernen ---
-      // B3: Zahlart als Chips - ein Tap merkt sie, der naechste bucht.
-      const zart = ev.target.closest("[data-kasse-zart]");
-      if (zart) {
-        kasse.zahlart[zart.dataset.kasseZart] = zart.dataset.wert;
-        renderKasse();
-        return;
-      }
-      const pay = ev.target.closest("[data-kasse-pay]");
-      if (pay) {
-        const id = pay.dataset.kassePay;
-        const method = kasse.zahlart[id] || "bar";
-        try { await DB.markFinesPaid([id], method); await reloadData(); tvToast("Als bezahlt gebucht"); } catch (e) { window.alert("Buchen fehlgeschlagen: " + ((e && e.message) || e)); }
-        return;
-      }
+      // --- Offen: stornieren / automatische Strafe entfernen ---
       const canc = ev.target.closest("[data-kasse-cancel]");
       if (canc) {
         if (!window.confirm("Diese Strafe stornieren? Sie zählt dann nicht mehr.")) return;
@@ -4698,10 +5052,7 @@
       }
       const del = ev.target.closest("[data-kasse-del]");
       if (del) { if (window.confirm("Diese automatische Strafe wirklich entfernen?")) { try { await DB.deleteFine(del.dataset.kasseDel); await reloadData(); tvToast("Entfernt"); } catch (e) { window.alert("Löschen fehlgeschlagen: " + ((e && e.message) || e)); } } return; }
-
-      // --- Eingegangen: Buchung rückgängig (zurück auf offen) ---
-      const unpay = ev.target.closest("[data-kasse-unpay]");
-      if (unpay) { if (!window.confirm("Buchung rückgängig machen? Die Strafe steht wieder als offen.")) return; try { await DB.setFinePaid(unpay.dataset.kasseUnpay, false); await reloadData(); tvToast("Zurückgesetzt"); } catch (e) { window.alert("Rückgängig fehlgeschlagen: " + ((e && e.message) || e)); } return; }
+      // „Buchung rückgängig" steht jetzt im Detail-Blatt (ksBlattUnpay).
     }
 
     const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-cal-hide],[data-cal-copy-profil],[data-push-an],[data-push-aus],[data-push-test],[data-push-install],[data-push-hinweis-weg],[data-pn-haupt],[data-pn-kat],[data-pn-alle],[data-pn-ruhe],[data-pn-dringend],[data-pkat-save],[data-pkat-reset],[data-pkat-send],[data-pkat-alle],[data-pkat-clear],[data-ics-event],[data-koord-save],[data-status-set],[data-logout]");
@@ -5174,20 +5525,8 @@
       return;
     }
 
-    // Selbstmeldung „Ich habe bezahlt" -> eigene offene Strafen melden
-    if (t.hasAttribute("data-paid-self")) {
-      if (!window.confirm("Bestätige, dass du den offenen Betrag gesendet hast.\n\nDeine offenen Strafen werden als gemeldet markiert. Der Kassenwart bestätigt den Eingang.")) return;
-      t.disabled = true;
-      try {
-        const n = await DB.reportMyPayment();
-        await reloadData();
-        tvToast((n || 0) + ((n === 1) ? " Strafe gemeldet" : " Strafen gemeldet"));
-      } catch (err) {
-        window.alert("Konnte die Zahlung nicht melden: " + ((err && err.message) || err));
-        t.disabled = false;
-      }
-      return;
-    }
+    // Selbstmeldung „Ich habe bezahlt" -> Blatt mit Zahlart und Notiz
+    if (t.hasAttribute("data-paid-self")) { zmOpen(); return; }
   });
 
   // Aufstellungs-Builder: Auswahlfelder (Spiel/Formation/Variante)

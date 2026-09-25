@@ -99,6 +99,10 @@ window.DB = (function () {
         // Statusmodell (Migration 0030): offen | gemeldet | bestätigt | storniert.
         status: s.status || (s.paid ? (s.self_reported ? "gemeldet" : "bestätigt") : "offen"),
         batchId: s.batch_id, zahlart: s.payment_method, ablehnGrund: s.reject_reason,
+        // Angabe des Spielers (0040) - Behauptung, nicht Buchung. Bleibt auch
+        // nach einer Ablehnung stehen, damit der Kassenwart sieht, worauf sie
+        // sich bezog.
+        sagtZahlart: s.reported_method, sagtNote: s.reported_note,
         gemeldetAm: meldeAm[s.id] || null,   // aus fine_status_log (A4)
         grundbetrag: s.base_amount != null ? Number(s.base_amount) : null,
         zuschlag: Number(s.surcharge) || 0,
@@ -413,9 +417,13 @@ window.DB = (function () {
   }
 
   // Spieler meldet seine eigene Zahlung: setzt eigene OFFENE Strafen auf
-  // 'gemeldet' (Migration 0030). Der Kassenwart bestätigt anschließend.
-  async function reportMyPayment() {
-    const { data, error } = await client.rpc("report_my_payment");
+  // 'gemeldet' (Migration 0030) und hält fest, wie gezahlt wurde und was der
+  // Spieler dazu sagt (Migration 0040). Der Kassenwart bestätigt anschließend.
+  // method ist Pflicht: bar | ueberweisung | paypal.
+  async function reportMyPayment(method, note) {
+    const { data, error } = await client.rpc("report_my_payment", {
+      p_method: method, p_note: note || null,
+    });
     if (error) throw error;
     return data; // Anzahl betroffener Strafen
   }
