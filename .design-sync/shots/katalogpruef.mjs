@@ -19,10 +19,15 @@ const gleich = (ist, soll, text) => pruefe(
   JSON.stringify(ist) === JSON.stringify(soll) ? undefined : 'erwartet ' + JSON.stringify(soll) + ', bekommen ' + JSON.stringify(ist));
 
 const app = fs.readFileSync('app.js', 'utf8');
-const a = app.indexOf('  function katRender(vorlage, daten, erlaubt) {');
+const a = app.indexOf('  function katRender(vorlage, daten, erlaubt, optional) {');
 const b = app.indexOf('\n  }', app.indexOf('return { text: out };', a)) + 4;
 if (a < 0) { console.error('katRender nicht gefunden.'); process.exit(1); }
 const katRender = new Function(app.slice(a, b) + '\n return katRender;')();
+// katLaenge steht direkt hinter katRender im selben Block.
+const la = app.indexOf('  function katLaenge(t) {');
+const lb = app.indexOf('\n  }', la) + 4;
+const katSegQuelle = app.slice(app.indexOf('  const katSeg ='), lb);
+const katLaenge = new Function(katSegQuelle + '\n return katLaenge;')();
 
 const ERL = ['betrag', 'grund', 'datum', 'namen', 'anzahl'];
 
@@ -90,11 +95,52 @@ console.log('--- Längen ---');
   pruefe(/is-lang/.test(app), 'der Zähler markiert Überlänge');
 }
 
+/* ===== 5b. Emojis und Graphemzaehlung ================================== */
+console.log('--- Emojis ---');
+gleich(katLaenge('abc'), 3, 'einfacher Text');
+gleich(katLaenge(''), 0, 'leer');
+gleich(katLaenge(null), 0, 'null');
+gleich(katLaenge('Übermäßig'), 9, 'Umlaute und Eszett');
+// Die Zeichen aus dem System, einzeln.
+for (const [e, name] of [['\u{1F6A8}','dringend'], ['\u23F3','Frist'], ['\u{1F4B8}','schuldet'],
+     ['\u{1F4B0}','zu pruefen'], ['\u2705','erledigt'], ['\u26A0\uFE0F','Problem'],
+     ['\u{1F4C5}','Termin'], ['\u274C','Ausfall'], ['\u{1F4CB}','Uebersicht'], ['\u{1F514}','Test']]) {
+  gleich(katLaenge(e), 1, 'Emoji ' + name + ' zaehlt als 1');
+}
+// Der eigentliche Punkt: UTF-16 zaehlt anders.
+pruefe('\u26A0\uFE0F'.length === 2 && katLaenge('\u26A0\uFE0F') === 1,
+  'Warnzeichen: length 2, aber ein Graphem');
+gleich(katLaenge('\u26A0\uFE0F Zahlung nicht bestätigt'), 25, 'Titel mit Variantenselektor');
+gleich(katLaenge('\u2705 {zusagen} \u00b7 \u274C {absagen} \u00b7 \u2753 {offen}'), 37, 'Text mit drei Emojis');   // nachgezaehlt: 3 Emojis + 2 Trenner + 3 Platzhalter
+
+/* ===== 5c. Optionale Platzhalter ======================================= */
+console.log('--- Optionale Platzhalter ---');
+{
+  const ERL2 = ['termin_titel', 'datum', 'uhrzeit', 'grund'];
+  const OPT  = ['grund'];
+  const V    = '{datum} {uhrzeit}. {grund}';
+  gleich(katRender(V, { datum: '20.09.2026', uhrzeit: '12:30 Uhr', grund: 'Platz gesperrt.' }, ERL2, OPT),
+    { text: '20.09.2026 12:30 Uhr. Platz gesperrt.' }, 'mit Grund');
+  gleich(katRender(V, { datum: '20.09.2026', uhrzeit: '12:30 Uhr' }, ERL2, OPT),
+    { text: '20.09.2026 12:30 Uhr.' }, 'ohne Grund - kein leerer Punkt, kein Abstand am Ende');
+  gleich(katRender(V, { datum: '20.09.2026', uhrzeit: '12:30 Uhr', grund: '' }, ERL2, OPT),
+    { text: '20.09.2026 12:30 Uhr.' }, 'Grund leer');
+  gleich(katRender(V, { datum: '20.09.2026', uhrzeit: '12:30 Uhr', grund: '   ' }, ERL2, OPT),
+    { text: '20.09.2026 12:30 Uhr.' }, 'Grund nur Leerzeichen');
+  // Ohne Optionsliste bleibt es ein Fehler - die Strenge gilt weiter.
+  pruefe(!!katRender(V, { datum: '20.09.', uhrzeit: '12:30' }, ERL2, []).fehler,
+    'nicht als optional erklaert: weiterhin Fehler');
+  pruefe(!!katRender(V, { datum: '20.09.' }, ERL2, OPT).fehler,
+    'ein PFLICHT-Platzhalter fehlt: weiterhin Fehler, auch wenn ein anderer optional ist');
+  gleich(katRender('{grund} danach', {}, ERL2, OPT), { text: 'danach' }, 'am Anfang weggefallen');
+}
+
 /* ===== 6. Was nur die Datenbank zusichert ============================== */
 console.log('--- Zusicherungen im Migrationstext 0036 ---');
 const sql = fs.readFileSync('supabase/migrations/0036_push_katalog.sql', 'utf8');
 // 0037 ersetzt send_preview_notification. Geprueft wird die WIRKSAME Fassung.
 const sql37 = fs.readFileSync('supabase/migrations/0037_vorschau_tag.sql', 'utf8');
+const sql38 = fs.readFileSync('supabase/migrations/0038_push_texte.sql', 'utf8');
 const rumpfIn = (quelle, name) => {
   const von = quelle.indexOf('create or replace function public.' + name);
   if (von < 0) return '';
@@ -148,6 +194,36 @@ pruefe(!/for (insert|update|delete)[\s\S]{0,80}notification_templates/.test(sql)
 }
 pruefe(/o\.ist_vorschau or o\.kategorie = 'test'/.test(sql),
   'Vorschau umgeht Ruhezeiten und Kategorie-Schalter');
+
+console.log('--- 0038: termin_abgesagt und Emoji-System ---');
+for (const stelle of ['notification_outbox_kat_chk', 'notification_templates_kat_chk']) {
+  const i = sql38.indexOf(stelle);
+  pruefe(i > 0 && sql38.slice(i, i + 400).indexOf("'termin_abgesagt'") > 0,
+    stelle + ' kennt termin_abgesagt');
+}
+pruefe(/add column if not exists termin_abgesagt boolean not null default true/.test(sql38),
+  'eigener Schalter in notification_prefs, Standard an');
+pruefe(/when 'termin_abgesagt'\s+then p\.termin_abgesagt/.test(sql38),
+  'die faellige Sicht kennt den Schalter');
+pruefe(/termin_abgesagt\s*=\s*coalesce\(\(p_werte->>'termin_abgesagt'\)/.test(sql38),
+  'set_notification_prefs kann ihn setzen');
+pruefe(/array\['grund'\]/.test(sql38), 'grund ist als optional erklaert');
+pruefe(/drop function if exists public\.render_vorlage\(text, jsonb, text\[\]\);/.test(sql38),
+  'die dreiargumentige render_vorlage wird geloescht, nicht ueberladen');
+pruefe(/p_optional text\[\] default/.test(sql38), 'render_vorlage nimmt die Optionsliste');
+pruefe(/if v_geleert then/.test(sql38), 'aufgeraeumt wird nur, wenn etwas weggefallen ist');
+pruefe(/beispiel_daten - 'grund'/.test(sql38),
+  'die Gegenprobe rendert termin_abgesagt auch OHNE Grund');
+// Jede Vorlage in 0038 beginnt mit genau einem Zeichen aus dem System.
+{
+  const ZEICHEN = ['\u{1F6A8}','\u23F3','\u{1F4B8}','\u{1F4B0}','\u2705','\u26A0\uFE0F','\u{1F4C5}','\u274C','\u{1F4CB}','\u{1F514}'];
+  const titel = [...sql38.matchAll(/titel_vorlage = '([^']+)'/g)].map((m) => m[1])
+    .concat([...sql38.matchAll(/^\s+'(\u274C[^']+)',$/gm)].map((m) => m[1]));
+  pruefe(titel.length >= 12, 'alle Titel gefunden', String(titel.length));
+  const ohne = titel.filter((t) => !ZEICHEN.some((z) => t.indexOf(z) === 0));
+  pruefe(ohne.length === 0, 'jeder Titel beginnt mit einem Zeichen aus dem System',
+    ohne.length ? ohne.join(' | ') : undefined);
+}
 
 console.log('');
 console.log('NICHT hiermit bewiesen, weil keine Datenbank laeuft: dass die Policy und');

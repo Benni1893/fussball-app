@@ -144,3 +144,33 @@ Wo bewusst von der Vorlage abgewichen wird, steht der Grund in `NOTES.md`.
 Vor größeren Entwürfen dort nachsehen; die Karten unter `components/` zeigen jedes
 Muster fertig aufgebaut — `Grundlagen` die Sprache, `App-Rahmen` das Gerüst,
 `Bausteine` die einzelnen Teile, `Ansichten` ganze Seiten bei 390px Breite.
+
+## Emoji-System der Push-Nachrichten
+
+Jeder Push-Titel beginnt mit **genau einem** Zeichen. Immer dasselbe für
+dieselbe Art von Nachricht — wer häufig Push bekommt, erkennt die Art vor dem
+Lesen. Neue Kategorien folgen diesem System, statt sich ein eigenes Zeichen zu
+suchen.
+
+| | Bedeutung | Kategorien |
+|---|---|---|
+| 🚨 | dringend, Trainer muss reagieren | `absage_kurzfristig`, `unterbesetzung` |
+| ⏳ | Frist läuft | `rueckmeldung_erinnerung` |
+| 💸 | Spieler schuldet Geld | `strafe_neu`, `strafen_offen` |
+| 💰 | Geld zu prüfen | `zahlung_gemeldet` |
+| ✅ | erledigt | `zahlung_bestaetigt` |
+| ⚠️ | Problem | `zahlung_abgelehnt` |
+| 📅 | Termin-Info | `termin_geaendert`, `termin_neu` |
+| ❌ | Ausfall | `termin_abgesagt` |
+| 📋 | Übersicht | `meldeschluss_uebersicht` |
+| 🔔 | Test | `test` |
+
+Im **Text** sind Emojis sparsam erlaubt, wo sie Zahlen gliedern — etwa
+`✅ 12 · ❌ 3 · ❓ 4` in der Meldeschluss-Übersicht. Nicht zur Dekoration.
+
+**Gezählt wird in Graphemen, nicht in UTF-16-Einheiten.** `⚠️` besteht aus zwei
+Codepunkten (Zeichen + Variantenselektor), ist auf dem Bildschirm aber eines.
+Die Grenzen sind **40 Zeichen im Titel** und **110 im Text**; darüber kürzen die
+Sperrbildschirme. Der Zähler im Push-Katalog benutzt `Intl.Segmenter`, die
+Gegenprobe in der Migration rechnet ersatzweise ohne Variantenselektor und
+Zero-Width-Joiner.

@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-25-G";
+  var APP_BUILD = "2026-09-25-H";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -1213,24 +1213,50 @@
 
   /* Dieselbe Regel wie render_vorlage() in der Datenbank. Rein rechnend.
      Rueckgabe: { text } oder { fehler } - nie ein halb ersetzter Text.     */
-  function katRender(vorlage, daten, erlaubt) {
+  function katRender(vorlage, daten, erlaubt, optional) {
     const roh = String(vorlage == null ? "" : vorlage);
     const namen = [];
     const re = /\{([a-zA-Z0-9_]+)\}/g;
     let m;
     while ((m = re.exec(roh)) !== null) if (namen.indexOf(m[1]) < 0) namen.push(m[1]);
     let out = roh;
+    let geleert = false;
     for (const n of namen) {
       if (erlaubt && erlaubt.length && erlaubt.indexOf(n) < 0) {
         return { fehler: "Unbekannter Platzhalter {" + n + "}" };
       }
       const w = daten ? daten[n] : null;
       if (w == null || String(w).trim() === "") {
+        // Optional: raus damit und den Satz danach aufraeumen.
+        if (optional && optional.indexOf(n) >= 0) {
+          out = out.split("{" + n + "}").join("");
+          geleert = true;
+          continue;
+        }
         return { fehler: "Kein Wert für {" + n + "}" };
       }
       out = out.split("{" + n + "}").join(String(w));
     }
+    if (geleert) {
+      out = out.replace(/\s+([.,;:!?])/g, "$1")
+               .replace(/\s{2,}/g, " ")
+               .replace(/([.!?])\s*\1+/g, "$1")
+               .trim();
+    }
     return { text: out };
+  }
+
+  /* Zeichen zaehlen, wie der Nutzer sie sieht: ein Emoji ist EIN Zeichen,
+     auch wenn es aus mehreren UTF-16-Einheiten besteht. "⚠️" hat length 2,
+     ist aber ein Graphem. Intl.Segmenter gibt es ab Safari 16.4 - also
+     ueberall, wo Push ueberhaupt laeuft; der Notnagel deckt aeltere
+     Browser ab, in denen der Admin die Seite oeffnet. */
+  const katSeg = (typeof Intl !== "undefined" && Intl.Segmenter)
+    ? new Intl.Segmenter("de", { granularity: "grapheme" }) : null;
+  function katLaenge(t) {
+    const x = String(t == null ? "" : t);
+    if (katSeg) { let n = 0; for (const _ of katSeg.segment(x)) n++; return n; }
+    return Array.from(x.replace(/[\uFE0F\u200D]/g, "")).length;
   }
 
   // Aktueller Stand einer Kategorie: ungespeicherter Entwurf schlaegt die
@@ -1270,8 +1296,8 @@
 
   function katZeileHtml(v) {
     const st = katStand(v);
-    const rt = katRender(st.titel, v.beispiel_daten, v.platzhalter);
-    const rx = katRender(st.text,  v.beispiel_daten, v.platzhalter);
+    const rt = katRender(st.titel, v.beispiel_daten, v.platzhalter, v.platzhalter_optional);
+    const rx = katRender(st.text,  v.beispiel_daten, v.platzhalter, v.platzhalter_optional);
     const fehler = rt.fehler || rx.fehler;
     const titel = rt.text || st.titel;
     const text  = rx.text || st.text;
@@ -1295,14 +1321,18 @@
       '</div>' +
 
       '<label class="pkat-feld"><span class="pkat-lbl">Titel ' +
-        katZaehler(titel.length, KAT_TITEL_MAX) + '</span>' +
+        katZaehler(katLaenge(titel), KAT_TITEL_MAX) + '</span>' +
         '<input class="pkat-in" data-pkat-titel="' + esc(v.kategorie) + '" value="' + esc(st.titel) + '"></label>' +
       '<label class="pkat-feld"><span class="pkat-lbl">Text ' +
-        katZaehler(text.length, KAT_TEXT_MAX) + '</span>' +
+        katZaehler(katLaenge(text), KAT_TEXT_MAX) + '</span>' +
         '<textarea class="pkat-in" rows="2" data-pkat-text="' + esc(v.kategorie) + '">' + esc(st.text) + '</textarea></label>' +
       '<p class="set-hint pkat-platz">Platzhalter: ' +
         (v.platzhalter && v.platzhalter.length
-          ? v.platzhalter.map((p) => "<code>{" + esc(p) + "}</code>").join(" ")
+          ? v.platzhalter.map((p) => {
+              const opt = (v.platzhalter_optional || []).indexOf(p) >= 0;
+              return "<code" + (opt ? ' class="is-opt" title="darf fehlen"' : "") +
+                ">{" + esc(p) + "}" + (opt ? "?" : "") + "</code>";
+            }).join(" ")
           : "keine") + '</p>' +
 
       '<div class="pkat-knoepfe">' +
@@ -4321,8 +4351,8 @@
     const karte = el.closest(".pkat-karte");
     if (!karte) return;
     const st = katStand(v);
-    const rt = katRender(st.titel, v.beispiel_daten, v.platzhalter);
-    const rx = katRender(st.text,  v.beispiel_daten, v.platzhalter);
+    const rt = katRender(st.titel, v.beispiel_daten, v.platzhalter, v.platzhalter_optional);
+    const rx = katRender(st.text,  v.beispiel_daten, v.platzhalter, v.platzhalter_optional);
     const fehler = rt.fehler || rx.fehler;
     const titel = rt.text || st.titel;
     const text  = rx.text || st.text;
@@ -4331,8 +4361,8 @@
     if (vs) vs.innerHTML = katMitteilungHtml("ios", titel, text) + katMitteilungHtml("android", titel, text);
 
     const zahlen = karte.querySelectorAll(".pkat-lbl");
-    if (zahlen[0]) zahlen[0].innerHTML = "Titel " + katZaehler(titel.length, KAT_TITEL_MAX);
-    if (zahlen[1]) zahlen[1].innerHTML = "Text " + katZaehler(text.length, KAT_TEXT_MAX);
+    if (zahlen[0]) zahlen[0].innerHTML = "Titel " + katZaehler(katLaenge(titel), KAT_TITEL_MAX);
+    if (zahlen[1]) zahlen[1].innerHTML = "Text " + katZaehler(katLaenge(text), KAT_TEXT_MAX);
 
     let warn = karte.querySelector(".tk-warn");
     if (fehler && !warn && vs) {

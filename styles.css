@@ -1043,6 +1043,8 @@ textarea.pkat-in { resize: vertical; min-height: 76px; line-height: 1.45; }
 .pkat-zahl { font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--muted); }
 .pkat-zahl.is-lang { color: var(--red-700); }   /* 6,2:1 auf Weiss */
 .pkat-platz { margin: 0; line-height: 1.7; }
+/* Optional: blasser und mit Fragezeichen, damit der Unterschied auffaellt. */
+.pkat-platz code.is-opt { background: var(--surface-3); color: var(--muted); }
 .pkat-platz code {
   font-family: ui-monospace, Menlo, monospace; font-size: 12px;
   background: var(--green-050); color: var(--green-700);

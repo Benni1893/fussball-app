@@ -753,3 +753,29 @@ Nicht-Admin-Konto.
   Funktionen als Treffer gewertet. (Ursache beim Reparieren obendrein:
   `String.replace` deutet `$$` im Ersatz als maskiertes `$` — mit
   `split`/`join` gelöst.)
+
+**Push-Texte, Emoji-System, termin_abgesagt (25.09.2026, Migration 0038)**
+
+Das Emoji-System steht in conventions.md — je ein Zeichen am Titelanfang,
+immer dasselbe für dieselbe Art. Im Text sind Emojis nur erlaubt, wo sie
+Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
+
+- **Gezählt wird in Graphemen.** `⚠️` besteht aus zwei Codepunkten
+  (Zeichen + Variantenselektor), ist auf dem Bildschirm aber eines. Der Zähler
+  benutzt `Intl.Segmenter`; die Gegenprobe in der Migration rechnet
+  ersatzweise ohne `U+FE0F` und `U+200D`, weil Postgres `length()` Codepunkte
+  zählt. Ein Notnagel deckt Browser ohne `Intl.Segmenter` ab.
+- **Optionale Platzhalter waren neu nötig.** `render_vorlage` warf bisher bei
+  **jedem** fehlenden Wert — mit `{grund}` in `termin_abgesagt` ging das nicht,
+  ein Termin fällt manchmal einfach aus. Neue Spalte `platzhalter_optional`;
+  fehlt so einer, wird er entfernt und der Satz aufgeräumt (kein doppelter
+  Abstand, kein Leerzeichen vor dem Punkt, kein doppelter Punkt). Aufgeräumt
+  wird **nur**, wenn wirklich etwas weggefallen ist — sonst könnte die
+  Säuberung einen gewollten Abstand verändern. Die Signatur ändert sich,
+  deshalb wird die dreiargumentige Fassung gelöscht statt überladen: bei drei
+  Argumenten wäre der Aufruf sonst mehrdeutig.
+- **Drei Texte weichen vom Entwurf ab**, alle im Kommentar der Migration
+  begründet und im Bericht genannt.
+- **`termin_geaendert` deckt ab jetzt nur Zeit- und Ortsänderungen ab.** Der
+  Ausfall hat eine eigene Kategorie, einen eigenen Schalter (Standard an,
+  Gruppe Terminänderungen) und ein eigenes Zeichen.
