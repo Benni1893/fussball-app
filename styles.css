@@ -986,6 +986,8 @@ tbody tr:hover { background: #fbfdfc; }
 .abo-schritte li::marker { font-weight: 700; color: var(--green-800); }
 .abo-schritte li + li { margin-top: 5px; }
 .abo-fuss { margin: 2px 0 0; font-size: 12px; font-weight: 500; line-height: 1.4; color: var(--muted); }
+/* Anleitung, dann Schlusssatz: sonst klebt der Satz an der Liste. */
+.abo-schritte + .set-hint { margin-top: 10px; }
 .cal-copied { font-size: .82rem; color: var(--green-700); font-weight: 600; margin-top: 8px; }
 .cal-copied[hidden] { display: none; }
 .cal-reset { display: inline-block; margin-top: 14px; font-size: .8rem; color: var(--muted); font-weight: 500; }

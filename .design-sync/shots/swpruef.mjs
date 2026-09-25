@@ -27,8 +27,8 @@ pruefe((m.icons || []).some((i) => (i.purpose || '').includes('maskable')), 'mas
 const html = fs.readFileSync('index.html', 'utf8');
 pruefe(/rel="apple-touch-icon"/.test(html), 'apple-touch-icon im HTML');
 pruefe(/rel="manifest"/.test(html), 'Manifest verlinkt');
-// Das badge-Icon kommt erst mit Phase 1b (Auswahl steht aus).
-pruefe(!fs.existsSync('assets/badge-96.png'), 'badge-96 noch nicht vorhanden (Phase 1b)', 'erwartet');
+// Seit Phase 1b: das monochrome Badge fuer die Android-Statusleiste.
+pruefe(fs.existsSync('assets/badge-96.png'), 'badge-96 vorhanden');
 
 /* ---- 2. Diagnose-Knopf -------------------------------------------------- */
 console.log('--- Diagnose-Knopf ---');

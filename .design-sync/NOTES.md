@@ -652,3 +652,47 @@ gepflegt). **Kein Verhalten geändert** — 24 und 3 bleiben.
 - **`0008` und `0009` sind nicht angefasst.** Sie enthalten weiterhin die alte
   Rechnung, sind aber seit `0010` überschrieben und damit wirkungslos — beim
   nächsten Lesen kann das trotzdem in die Irre führen.
+
+**Phase 1b: Push-Infrastruktur (25.09.2026)**
+
+Standard Web Push, ein Weg für beide Systeme — die Endpunkte unterscheidet nur
+der Server. Kein Firebase-SDK, keine native App.
+
+- **Der Dispatcher läuft auf Vercel** (`api/dispatch-push.js`, `web-push` als
+  echte Abhängigkeit), nicht als Edge Function. Grund: das Projekt hat dort
+  bereits serverseitige Funktionen mit Service-Role-Key; eine Edge Function
+  wäre ein neues Werkzeug, ein neuer Login und eine Deno-Laufzeit, in der
+  `web-push` nur über Umwege läuft.
+- **Angestoßen wird per pg_cron + pg_net, nicht per Vercel-Cron.** Nicht als
+  Notlösung: `push_dispatch_tick()` schaut erst in die Outbox und ruft den
+  Endpunkt nur, wenn etwas fällig ist. Ein Vercel-Cron feuerte stur jede
+  Minute. Der Weg ist außerdem planunabhängig — minütliche Crons gibt es auf
+  Vercel Hobby gar nicht.
+- **Der Endpunkt ist nicht öffentlich**: `x-push-secret`, laufzeitgleich
+  verglichen, falscher Wert ergibt 404 ohne Hinweis. Geheimnis im Vault und in
+  der Vercel-Umgebung, nirgends im Repo.
+- **Der Service Worker zeigt zu JEDER Push eine Notification**, notfalls mit
+  Ersatztext. iOS entzieht sonst die Berechtigung — still und ohne Weg zurück
+  außer Neuinstallation. `userVisibleOnly: true`, keine `actions` (iOS
+  ignoriert sie, also hängt kein Weg daran), `renotify: true` mit `tag`.
+- **`requestPermission()` und `subscribe()` stehen ausschließlich in
+  `pushAnmelden()`**, das nur aus einem Klick-Handler läuft. Der Test prüft,
+  dass beide im ganzen `app.js` genau einmal vorkommen — beim Laden
+  aufgerufen lehnt iOS wortlos ab.
+- **Beim Start wird abgeglichen, nicht angemeldet.** `pushAbgleich()` läuft nur
+  bei bereits erteilter Berechtigung und meldet das Gerät nach, wenn der Server
+  es nicht kennt — der Fall nach Löschen und Neuinstallation vom
+  Home-Bildschirm.
+- **Sieben Zustände statt eines toten Schalters.** Die Reihenfolge der
+  Prüfungen ist Absicht: In-App-Browser schlägt alles, danach iPhone im
+  Safari-Tab („zum Home-Bildschirm", nicht „nicht unterstützt").
+- **`claimed_at` und `notify_enqueue`** sind Zusätze gegenüber dem Entwurf,
+  siehe Commit zu 0034.
+- **Migration 0035 ist ein Nachtrag**: die Spalte für den einmaligen Hinweis
+  hatte in 0034 gefehlt. Sie sitzt in `notification_prefs`, nicht in
+  `profiles` — dort gibt es mit `set_notification_prefs` schon einen
+  Schreibweg mit `auth.uid()`-Prüfung.
+
+**Nicht geprüft, weil ohne Gerät nicht prüfbar:** ob die Zustellung auf iPhone
+und Android tatsächlich ankommt. Alles bis zur Systemgrenze ist statisch und
+in `pushpruef.mjs` belegt; der Rest ist der Gerätetest.

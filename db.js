@@ -315,6 +315,47 @@ window.DB = (function () {
     return data;
   }
 
+  /* ---- Push-Benachrichtigungen ------------------------------------------ */
+  // Geraet anmelden. Der Endpoint ist der Schluessel; dasselbe Geraet kann
+  // nicht doppelt in der Tabelle landen.
+  async function upsertPushSubscription(sub, platform) {
+    const j = sub.toJSON ? sub.toJSON() : sub;
+    const { error } = await client.rpc("upsert_push_subscription", {
+      p_endpoint: j.endpoint,
+      p_p256dh: j.keys && j.keys.p256dh,
+      p_auth: j.keys && j.keys.auth,
+      p_platform: platform || null,
+      p_user_agent: (navigator.userAgent || "").slice(0, 400),
+    });
+    if (error) throw error;
+  }
+  async function deletePushSubscription(endpoint) {
+    const { error } = await client.rpc("delete_push_subscription", { p_endpoint: endpoint });
+    if (error) throw error;
+  }
+  // Ist GENAU dieses Geraet serverseitig bekannt? Nach einer Neuinstallation
+  // vom Home-Bildschirm stimmt die alte Zeile nicht mehr.
+  async function pushSubscriptionBekannt(endpoint) {
+    const { data, error } = await client.from("push_subscriptions")
+      .select("endpoint").eq("endpoint", endpoint).maybeSingle();
+    if (error) throw error;
+    return !!data;
+  }
+  async function loadNotificationPrefs() {
+    const { data, error } = await client.from("notification_prefs").select("*").maybeSingle();
+    if (error) throw error;
+    return data;
+  }
+  async function setNotificationPrefs(werte) {
+    const { error } = await client.rpc("set_notification_prefs", { p_werte: werte });
+    if (error) throw error;
+  }
+  async function sendTestNotification() {
+    const { data, error } = await client.rpc("send_test_notification");
+    if (error) throw error;
+    return data;
+  }
+
   // Strafe löschen (treasurer/admin generell; coach für Auto-Strafen). RLS erzwingt.
   async function deleteFine(fineId) {
     const { error } = await client.from("fines").delete().eq("id", fineId);
@@ -508,6 +549,8 @@ window.DB = (function () {
 
   return {
     client, loadAll, setRsvp, deleteRsvp, setFinePaid, deleteFine, addFines, setCalendarHint,
+    upsertPushSubscription, deletePushSubscription, pushSubscriptionBekannt,
+    loadNotificationPrefs, setNotificationPrefs, sendTestNotification,
     insertCatalog, updateCatalog, deleteCatalog,
     insertEvents, updateEvent, updateSeriesFrom, deleteEvent, deleteSeriesFrom,
     upsertSportstaette,

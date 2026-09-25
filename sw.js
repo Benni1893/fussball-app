@@ -20,7 +20,7 @@
    verliert das Push-Abo also nicht.
    =========================================================================== */
 
-const VERSION = "fn-sw-1";     // Cache-Name; aendert sich der Wert, wird alles Alte verworfen
+const VERSION = "fn-sw-2";     // Cache-Name; aendert sich der Wert, wird alles Alte verworfen
 const OFFLINE = "offline.html";
 
 self.addEventListener("install", (e) => {
@@ -59,5 +59,60 @@ self.addEventListener("fetch", (e) => {
         headers: { "Content-Type": "text/plain; charset=utf-8" },
       });
     }
+  })());
+});
+
+/* ---------------------------------------------------------------------------
+   Push. Ab Phase 1b.
+
+   EISERNE REGEL: jede eingehende Push MUSS eine sichtbare Notification
+   erzeugen. iOS entzieht die Berechtigung, wenn das ausbleibt - stillschweigend
+   und ohne Weg zurueck ausser Neuinstallation. Deshalb gibt es unten einen
+   Ersatztext fuer den Fall, dass die Nutzlast fehlt oder unlesbar ist.
+   --------------------------------------------------------------------------- */
+
+const ICON  = "assets/icon-192.png";
+const BADGE = "assets/badge-96.png";   // monochrom, transparent - Android faerbt es weiss
+
+self.addEventListener("push", (e) => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (err) { d = {}; }
+
+  const titel = d.titel || "FC Fasanerie-Nord";
+  const text  = d.text  || "Neue Nachricht in der App.";
+
+  e.waitUntil(self.registration.showNotification(titel, {
+    body: text,
+    icon: ICON,
+    badge: BADGE,
+    // tag + renotify: eine aktualisierte Sammelnachricht ERSETZT die alte,
+    // statt sich daneben zu stapeln.
+    tag: d.tag || d.kategorie || "fcfn",
+    renotify: true,
+    data: { deep_link: d.deep_link || null, kategorie: d.kategorie || null },
+    // Aktionsknoepfe ignoriert iOS. Sie sind hier bewusst NICHT gesetzt -
+    // kein Weg darf von ihnen abhaengen, also gibt es sie gar nicht erst.
+  }));
+});
+
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  const ziel = (e.notification.data && e.notification.data.deep_link) || "";
+
+  e.waitUntil((async () => {
+    const liste = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    // Laeuft die App schon? Dann Fenster nach vorn holen und dorthin schicken -
+    // kein zweites Fenster, kein Neuladen.
+    for (const c of liste) {
+      if ("focus" in c) {
+        await c.focus();
+        if (ziel) { try { c.postMessage({ typ: "deep-link", ziel: ziel }); } catch (err) {} }
+        return;
+      }
+    }
+    // Kalter Start: die installierte App oeffnen, Ziel im Hash. Der Router in
+    // app.js wertet ihn nach dem ersten Rendern aus.
+    const url = ziel ? ("./" + (ziel.charAt(0) === "#" ? ziel : "#" + ziel)) : "./";
+    if (self.clients.openWindow) await self.clients.openWindow(url);
   })());
 });

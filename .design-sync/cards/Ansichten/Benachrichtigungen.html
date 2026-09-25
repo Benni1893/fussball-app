@@ -1,0 +1,140 @@
+<!-- @dsCard group="Ansichten" -->
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Benachrichtigungen</title>
+<link rel="stylesheet" href="../../../styles.css">
+<style>
+  /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
+  body { padding: 0; min-height: 0; background: var(--bg-1); }
+  .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+  .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
+  .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; line-height: 1.6; }
+  .frame { width: 390px; max-width: 100%; padding: 12px 16px; background: var(--grad-app); border-radius: 12px; }
+</style>
+</head>
+<body>
+<div class="sp">
+
+  <div>
+    <div class="sp-h">Der Abschnitt hat sieben Zustände</div>
+    <div class="card card-pad">
+      <p class="rs">Push scheitert auf beiden Plattformen <b>still</b>, wenn man ihre Regeln verletzt.
+      Deshalb zeigt der Abschnitt nie einen toten Schalter, sondern immer den Weg, der von hier aus
+      wirklich gangbar ist. Die Reihenfolge der Prüfungen ist Absicht: der handlungsleitende Hinweis
+      gewinnt. Ein iPhone im Safari-Tab bekommt „zum Home-Bildschirm“, nicht „wird nicht unterstützt“.</p>
+    </div>
+  </div>
+
+  <div>
+    <div class="sp-h">1 · Bereit — noch nicht gefragt</div>
+    <div class="frame">
+      <div class="set-section">
+        <div class="section-title"><h2>Benachrichtigungen</h2></div>
+        <div class="card card-pad">
+          <p class="set-hint">Kurzfristige Absagen, Terminänderungen und Rückmelde-Erinnerungen direkt aufs Handy.</p>
+          <button class="btn btn-primary" type="button">Benachrichtigungen aktivieren</button>
+          <button class="btn btn-soft" type="button">App installieren</button>
+        </div>
+      </div>
+    </div>
+    <div class="meta">Der zweite Knopf nur auf Android und nur, wenn der Browser beforeinstallprompt angeboten hat.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">2 · Aktiv</div>
+    <div class="frame">
+      <div class="set-section">
+        <div class="section-title"><h2>Benachrichtigungen</h2></div>
+        <div class="card card-pad">
+          <p class="set-hint">Benachrichtigungen sind auf diesem Gerät eingeschaltet.</p>
+          <button class="btn btn-primary" type="button">Testnachricht senden</button>
+          <button class="btn btn-soft" type="button">Auf diesem Gerät ausschalten</button>
+          <div class="cal-copied">Testnachricht unterwegs – sie kommt in bis zu einer Minute</div>
+        </div>
+      </div>
+    </div>
+    <div class="meta">„Auf diesem Gerät“ ist wörtlich gemeint: das Abo hängt am Gerät, nicht am Konto.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">3 · iPhone, noch nicht installiert</div>
+    <div class="frame">
+      <div class="set-section">
+        <div class="section-title"><h2>Benachrichtigungen</h2></div>
+        <div class="card card-pad">
+          <p class="set-hint">Auf dem iPhone gibt es Benachrichtigungen nur, wenn die App auf dem Home-Bildschirm liegt und von dort gestartet wird.</p>
+          <ol class="abo-schritte">
+            <li>Unten in Safari auf das Teilen-Symbol tippen.</li>
+            <li>In der Liste „Zum Home-Bildschirm“ wählen, dann „Hinzufügen“.</li>
+            <li>Die App vom Home-Bildschirm starten und hier wieder herkommen.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+    <div class="meta">Kein Schalter. Er würde hier nichts bewirken — im Safari-Tab gibt es auf iOS kein PushManager-Objekt.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">4 · Berechtigung verweigert</div>
+    <div class="frame">
+      <div class="set-section">
+        <div class="section-title"><h2>Benachrichtigungen</h2></div>
+        <div class="card card-pad">
+          <p class="set-hint">Benachrichtigungen sind für diese App blockiert. Das lässt sich nur in den Systemeinstellungen zurücknehmen:</p>
+          <ol class="abo-schritte">
+            <li>Einstellungen öffnen.</li>
+            <li>Nach unten zu „Fasanerie“ blättern.</li>
+            <li>„Mitteilungen“ antippen und „Mitteilungen erlauben“ einschalten.</li>
+          </ol>
+          <p class="set-hint">Danach hier wieder herkommen.</p>
+        </div>
+      </div>
+    </div>
+    <div class="meta">Der Text unterscheidet iOS und Android — die Wege heißen dort anders.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">5 · In-App-Browser und 6 · nicht unterstützt</div>
+    <div class="frame">
+      <div class="set-section">
+        <div class="section-title"><h2>Benachrichtigungen</h2></div>
+        <div class="card card-pad">
+          <p class="set-hint">Diese Seite läuft gerade im Browser einer anderen App. Dort lassen sich Benachrichtigungen nicht einrichten.</p>
+          <p class="set-hint"><b>In Safari öffnen</b> – über das Menü oben rechts – und dort noch einmal hierherkommen.</p>
+        </div>
+      </div>
+      <div style="height:14px"></div>
+      <div class="set-section">
+        <div class="section-title"><h2>Benachrichtigungen</h2></div>
+        <div class="card card-pad">
+          <p class="set-hint">Dieser Browser kann keine Benachrichtigungen. Die Liste in der App zeigt trotzdem alles an – du verpasst nichts.</p>
+        </div>
+      </div>
+    </div>
+    <div class="meta">Beide Zustände enden ohne Schalter. Der zweite nennt ausdrücklich, dass nichts verloren geht.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">7 · Der einmalige Hinweis auf der Übersicht</div>
+    <div class="frame">
+      <div class="page-head h1row"><h1>Servus, Tobias</h1><span class="role-pill">TRAINER</span></div>
+      <div class="kal-abo-wrap">
+        <button class="card kal-abo hat-x" type="button">
+          <span class="kal-abo-ic" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+          </span>
+          <span class="kal-abo-main"><span class="kal-abo-t">Nichts mehr verpassen?</span></span>
+          <span class="kal-abo-chev" aria-hidden="true">&rsaquo;</span>
+        </button>
+        <button class="kal-abo-x" type="button" aria-label="Hinweis ausblenden">&#10005;</button>
+      </div>
+    </div>
+    <div class="meta">Dieselbe Kachel wie beim Kalender-Abo — kein neues Bauteil. Erscheint nur, solange sich einrichten lässt und noch nichts eingerichtet ist; das X merkt sich der Server am Profil.</div>
+  </div>
+
+</div>
+</body>
+</html>

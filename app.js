@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-25-D";
+  var APP_BUILD = "2026-09-25-E";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -661,6 +661,7 @@
         <h1>Servus, ${esc(me.name.split(" ")[0])}</h1>
         ${rollenPillHtml()}
       </div>
+      ${pushHinweisHtml()}
 
       ${naechstes ? terminKarteHtml(naechstes, { hero: true })
         : `<div class="card card-pad"><div class="lbl">Nächster Termin</div><div class="empty">Keine kommenden Termine.</div></div>`}
@@ -820,6 +821,8 @@
     return calendarToken;
   }
   // Kalender-Icon (mit +) für den Abo-Button. (Plus-Icon: siehe ICON_PLUS weiter unten.)
+  // Glocke fuer den Benachrichtigungs-Hinweis und spaeter die Kopfzeile.
+  const ICON_GLOCKE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>`;
   const ICON_CAL_ADD = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4M12 13v4M10 15h4"/></svg>`;
 
   /* Einzelner Termin als Datei. Der Endpunkt antwortet mit
@@ -1189,6 +1192,254 @@
       <div class="card card-pad bfv-card">${body}</div>`;
   }
 
+  /* ---------- Benachrichtigungen --------------------------------------------
+     Standard Web Push, ein Weg fuer beide Systeme. Die Endpunkte
+     (web.push.apple.com, fcm.googleapis.com, Mozilla) unterscheidet nur der
+     Server; hier ist alles gleich.
+
+     Die Plattformen setzen enge Grenzen, und fast jede davon scheitert STILL,
+     wenn man sie verletzt - deshalb stehen sie hier ausgeschrieben:
+       * iOS kennt Push erst ab 16.4 und NUR in der vom Home-Bildschirm
+         gestarteten App. Im Safari-Tab gibt es kein PushManager-Objekt.
+       * requestPermission() und subscribe() duerfen ausschliesslich direkt im
+         Klick-Handler laufen. Beim Laden aufgerufen lehnt iOS wortlos ab.
+       * userVisibleOnly: true, und der Service Worker MUSS zu jeder Push eine
+         Notification zeigen. Sonst entzieht iOS die Berechtigung.
+       * Aktionsknoepfe ignoriert iOS - kein Weg haengt an ihnen.
+       * Deinstallieren und neu installieren macht das Abo ungueltig. Beim
+         Start wird deshalb abgeglichen, ob der Server dieses Geraet kennt.  */
+
+  // Oeffentlicher VAPID-Schluessel. Darf im Frontend stehen; der private liegt
+  // ausschliesslich in der Vercel-Umgebung.
+  const VAPID_PUBLIC = "BKCO7dmXu3KFwWoVhubEw_nhJJj-LTwx291RtsSfvu3ktS3nIFlyiT-p0cTiQe5rQhbOb8KHAYFFRdLrwPCP118";
+
+  function b64urlZuBytes(s64) {
+    const rest = "=".repeat((4 - (s64.length % 4)) % 4);
+    const roh = atob((s64 + rest).replace(/-/g, "+").replace(/_/g, "/"));
+    const b = new Uint8Array(roh.length);
+    for (let i = 0; i < roh.length; i++) b[i] = roh.charCodeAt(i);
+    return b;
+  }
+
+  /* ---- Umgebung erkennen ---- */
+  function istStandalone() {
+    try {
+      return (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches)
+        || window.navigator.standalone === true;
+    } catch (e) { return false; }
+  }
+  // In-App-Browser von WhatsApp, Instagram, Facebook und Co. Dort laesst sich
+  // nicht installieren und Push nicht einrichten. Heuristik ueber die Kennung -
+  // mehr gibt die Plattform nicht her.
+  function istInAppBrowser(ua) {
+    const u = ua || navigator.userAgent || "";
+    if (/FBAN|FBAV|FB_IAB|Instagram|Line\/|Twitter|MicroMessenger|Snapchat|Pinterest|TikTok/i.test(u)) return true;
+    if (/\bwv\b/.test(u)) return true;                       // Android WebView
+    if (/Android.*Version\/[\d.]+\s+Chrome/i.test(u)) return true;   // WebView alter Bauart
+    return false;
+  }
+  function pushUnterstuetzt() {
+    return "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+  }
+
+  /* Der Zustand der Einstellungsansicht. Rein rechnend, damit pruefbar.
+     Reihenfolge ist Absicht: der handlungsleitende Hinweis gewinnt.        */
+  function pushZustand(u) {
+    if (u.inApp) return "inapp";                       // kann weder installieren noch abonnieren
+    if (u.apple && !u.standalone) return "ios-install"; // erst installieren, dann Push
+    if (!u.unterstuetzt) return "nicht-unterstuetzt";   // alter Browser, iOS unter 16.4
+    if (u.permission === "denied") return "verweigert";
+    if (u.permission === "granted" && u.abo) return "aktiv";
+    return "bereit";
+  }
+
+  let pushAbo = null;            // aktuelle PushSubscription dieses Geraets
+  let installPrompt = null;      // beforeinstallprompt, wenn der Browser ihn anbietet
+  let pushPrefs = null;          // Zeile aus notification_prefs
+
+  async function pushAboLesen() {
+    if (!pushUnterstuetzt()) return null;
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      return await reg.pushManager.getSubscription();
+    } catch (e) { return null; }
+  }
+
+  function pushUmgebung() {
+    return {
+      unterstuetzt: pushUnterstuetzt(),
+      apple: istAppleGeraet(),
+      standalone: istStandalone(),
+      inApp: istInAppBrowser(),
+      permission: ("Notification" in window) ? Notification.permission : "default",
+      abo: !!pushAbo,
+    };
+  }
+
+  /* Anmelden. NUR aus einem Klick-Handler heraus aufrufen. */
+  async function pushAnmelden() {
+    if (!pushUnterstuetzt()) return "nicht-unterstuetzt";
+    let erlaubnis;
+    try { erlaubnis = await Notification.requestPermission(); }
+    catch (e) { erlaubnis = Notification.permission; }
+    if (erlaubnis !== "granted") return erlaubnis;   // "denied" oder "default"
+
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) {
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,                        // Pflicht, iOS verlangt es
+        applicationServerKey: b64urlZuBytes(VAPID_PUBLIC),
+      });
+    }
+    await DB.upsertPushSubscription(sub, istAppleGeraet() ? "ios" : "android");
+    pushAbo = sub;
+    // Der Hinweis hat seinen Zweck erfuellt.
+    pushHinweisMerken();
+    return "granted";
+  }
+
+  async function pushAbmelden() {
+    const sub = await pushAboLesen();
+    if (!sub) { pushAbo = null; return; }
+    try { await DB.deletePushSubscription(sub.endpoint); } catch (e) { /* Server raeumt sonst selbst auf */ }
+    try { await sub.unsubscribe(); } catch (e) {}
+    pushAbo = null;
+  }
+
+  /* Beim Start abgleichen. Nur wenn die Berechtigung schon erteilt ist - ein
+     subscribe() ohne Nutzergeste waere genau der Fehler, den iOS bestraft.
+     Faelle, die das faengt: App geloescht und neu installiert, Abo vom Browser
+     erneuert, Zeile serverseitig aufgeraeumt. */
+  async function pushAbgleich() {
+    if (!pushUnterstuetzt()) return;
+    if (Notification.permission !== "granted") return;
+    try {
+      const sub = await pushAboLesen();
+      if (!sub) { pushAbo = null; return; }
+      pushAbo = sub;
+      const bekannt = await DB.pushSubscriptionBekannt(sub.endpoint);
+      if (!bekannt) await DB.upsertPushSubscription(sub, istAppleGeraet() ? "ios" : "android");
+    } catch (e) { /* stillschweigend - der Nutzer hat nichts angefordert */ }
+  }
+
+  /* Einmaliger Hinweis, dass es Benachrichtigungen gibt. Wie beim
+     Kalender-Hinweis serverseitig gemerkt, damit er nicht auf jedem Geraet
+     neu auftaucht. Fehlschlaege bleiben still. */
+  let pushHinweisSitzung = null;   // false = in dieser Sitzung erledigt
+  function pushHinweisMerken() {
+    if (pushPrefs && !pushPrefs.hint_dismissed_at) pushPrefs.hint_dismissed_at = new Date().toISOString();
+    pushHinweisSitzung = false;
+    const versuch = (n) => {
+      DB.setNotificationPrefs({ hint_dismissed: true }).catch(() => {
+        if (n < 3) setTimeout(() => versuch(n + 1), 2000 * n);
+      });
+    };
+    versuch(1);
+  }
+  /* Zeigen? Nur wenn es serverseitig noch nicht erledigt ist, die Plattform
+     ueberhaupt kann und noch nichts eingerichtet wurde. Rein rechnend.     */
+  function pushHinweisZeigen(prefs, zustand, sitzung) {
+    if (sitzung === false) return false;
+    if (!prefs || prefs.hint_dismissed_at) return false;
+    return zustand === "bereit" || zustand === "ios-install";
+  }
+
+  // Der einmalige Hinweis auf der Uebersicht. Gleiche Kachel wie beim
+  // Kalender-Abo, damit kein neues Bauteil entsteht.
+  function pushHinweisHtml() {
+    const z = pushZustand(pushUmgebung());
+    if (!pushHinweisZeigen(pushPrefs, z, pushHinweisSitzung)) return "";
+    const titel = z === "ios-install"
+      ? "Benachrichtigungen? Erst zum Home-Bildschirm"
+      : "Nichts mehr verpassen?";
+    return '<div class="kal-abo-wrap">' +
+      '<button class="card kal-abo hat-x" data-view-jump="einstellungen" type="button">' +
+        '<span class="kal-abo-ic" aria-hidden="true">' + ICON_GLOCKE + '</span>' +
+        '<span class="kal-abo-main"><span class="kal-abo-t">' + titel + '</span></span>' +
+        '<span class="kal-abo-chev" aria-hidden="true">›</span>' +
+      '</button>' +
+      '<button class="kal-abo-x" data-push-hinweis-weg type="button" aria-label="Hinweis ausblenden">✕</button>' +
+      '</div>';
+  }
+
+  /* ---- Die Anzeige je Zustand ---- */
+  function pushAbschnittHtml() {
+    const u = pushUmgebung();
+    const z = pushZustand(u);
+    const kopf = '<div class="section-title"><h2>Benachrichtigungen</h2></div>';
+    let inhalt;
+
+    if (z === "inapp") {
+      inhalt = '<p class="set-hint">Diese Seite läuft gerade im Browser einer anderen App. ' +
+        'Dort lassen sich Benachrichtigungen nicht einrichten.</p>' +
+        '<p class="set-hint"><b>' + (u.apple ? "In Safari öffnen" : "In Chrome öffnen") +
+        '</b> – über das Menü oben rechts – und dort noch einmal hierherkommen.</p>';
+    } else if (z === "ios-install") {
+      inhalt = '<p class="set-hint">Auf dem iPhone gibt es Benachrichtigungen nur, wenn die App ' +
+        'auf dem Home-Bildschirm liegt und von dort gestartet wird.</p>' +
+        '<ol class="abo-schritte">' +
+        '<li>Unten in Safari auf das Teilen-Symbol tippen.</li>' +
+        '<li>In der Liste „Zum Home-Bildschirm" wählen, dann „Hinzufügen".</li>' +
+        '<li>Die App vom Home-Bildschirm starten und hier wieder herkommen.</li>' +
+        '</ol>';
+    } else if (z === "nicht-unterstuetzt") {
+      inhalt = '<p class="set-hint">Dieser Browser kann keine Benachrichtigungen. ' +
+        'Die Liste in der App zeigt trotzdem alles an – du verpasst nichts.</p>';
+    } else if (z === "verweigert") {
+      inhalt = '<p class="set-hint">Benachrichtigungen sind für diese App blockiert. ' +
+        'Das lässt sich nur in den Systemeinstellungen zurücknehmen:</p>' +
+        (u.apple
+          ? '<ol class="abo-schritte"><li>Einstellungen öffnen.</li>' +
+            '<li>Nach unten zu „Fasanerie" blättern.</li>' +
+            '<li>„Mitteilungen" antippen und „Mitteilungen erlauben" einschalten.</li></ol>'
+          : '<ol class="abo-schritte"><li>Im Browser auf das Schloss-Symbol neben der Adresse tippen.</li>' +
+            '<li>„Berechtigungen" bzw. „Website-Einstellungen" öffnen.</li>' +
+            '<li>„Benachrichtigungen" auf „Zulassen" stellen.</li></ol>') +
+        '<p class="set-hint">Danach hier wieder herkommen.</p>';
+    } else if (z === "aktiv") {
+      inhalt = '<p class="set-hint">Benachrichtigungen sind auf diesem Gerät eingeschaltet.</p>' +
+        '<button class="btn btn-primary" data-push-test type="button">Testnachricht senden</button>' +
+        '<button class="btn btn-soft" data-push-aus type="button">Auf diesem Gerät ausschalten</button>' +
+        '<div class="cal-copied" data-push-meldung hidden></div>';
+    } else {   // "bereit"
+      inhalt = '<p class="set-hint">Kurzfristige Absagen, Terminänderungen und ' +
+        'Rückmelde-Erinnerungen direkt aufs Handy.</p>' +
+        '<button class="btn btn-primary" data-push-an type="button">Benachrichtigungen aktivieren</button>' +
+        (installPrompt && !u.standalone
+          ? '<button class="btn btn-soft" data-push-install type="button">App installieren</button>' : "") +
+        '<div class="cal-copied" data-push-meldung hidden></div>';
+    }
+
+    return '<div class="set-section">' + kopf +
+      '<div class="card card-pad" data-push-karte>' + inhalt + '</div></div>';
+  }
+
+  function pushMeldung(txt) {
+    const el = document.querySelector("[data-push-meldung]");
+    if (!el) { if (txt) window.alert(txt); return; }
+    el.textContent = txt; el.hidden = false;
+    setTimeout(() => { el.hidden = true; }, 2600);
+  }
+
+  /* ---------- Deep Link aus einer Benachrichtigung ---------------------- */
+  // Der Service Worker holt ein offenes Fenster nach vorn und schickt das Ziel
+  // per postMessage. Kalter Start laeuft ueber den Hash und routeDeepLink().
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.addEventListener("message", (e) => {
+      const d = e.data || {};
+      if (d.typ === "deep-link" && d.ziel) routeDeepLink(d.ziel);
+    });
+  }
+
+  // App-Symbol-Zaehler, wo die Plattform ihn kennt. Rein kosmetisch.
+  function appBadgeSetzen(n) {
+    try {
+      if (n > 0 && navigator.setAppBadge) navigator.setAppBadge(n);
+      else if (navigator.clearAppBadge) navigator.clearAppBadge();
+    } catch (e) {}
+  }
+
   /* ---------- Einstellungen (Tab „Mehr") ------------------------------------ */
   function renderEinstellungen() {
     document.body.classList.remove("auth-mode");
@@ -1226,6 +1477,8 @@
           <div class="cal-copied" data-cal-copied-profil hidden></div>
         </div>
       </div>
+
+      ${pushAbschnittHtml()}
 
       ${verwaltung ? `
       <div class="set-verwaltung">
@@ -4017,7 +4270,7 @@
       if (unpay) { if (!window.confirm("Buchung rückgängig machen? Die Strafe steht wieder als offen.")) return; try { await DB.setFinePaid(unpay.dataset.kasseUnpay, false); await reloadData(); tvToast("Zurückgesetzt"); } catch (e) { window.alert("Rückgängig fehlgeschlagen: " + ((e && e.message) || e)); } return; }
     }
 
-    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-cal-hide],[data-cal-copy-profil],[data-ics-event],[data-koord-save],[data-status-set],[data-logout]");
+    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-cal-hide],[data-cal-copy-profil],[data-push-an],[data-push-aus],[data-push-test],[data-push-install],[data-push-hinweis-weg],[data-ics-event],[data-koord-save],[data-status-set],[data-logout]");
     if (!t) return;
 
     // Fitnessstatus setzen. Wer das darf, entscheidet die Datenbank:
@@ -4052,6 +4305,48 @@
 
     // Kalender-Abo-Sheet öffnen (Icon in der Kalender-Kopfzeile)
     if (t.hasAttribute("data-cal-sheet")) { openCalSheet(); return; }
+
+    // Benachrichtigungen. requestPermission und subscribe laufen hier drin,
+    // also direkt im Klick - alles andere lehnt iOS wortlos ab.
+    if (t.hasAttribute("data-push-an")) {
+      (async () => {
+        try {
+          const r = await pushAnmelden();
+          if (r === "granted") { render(); pushMeldung("Benachrichtigungen sind aktiv"); }
+          else if (r === "denied") { render(); }
+          else pushMeldung("Nicht bestätigt – nichts geändert");
+        } catch (err) {
+          pushMeldung("Einrichten fehlgeschlagen: " + ((err && err.message) || err));
+        }
+      })();
+      return;
+    }
+    if (t.hasAttribute("data-push-aus")) {
+      (async () => { await pushAbmelden(); render(); })();
+      return;
+    }
+    if (t.hasAttribute("data-push-test")) {
+      (async () => {
+        try { await DB.sendTestNotification(); pushMeldung("Testnachricht unterwegs – sie kommt in bis zu einer Minute"); }
+        catch (err) { pushMeldung("Fehlgeschlagen: " + ((err && err.message) || err)); }
+      })();
+      return;
+    }
+    if (t.hasAttribute("data-push-install")) {
+      if (installPrompt) { installPrompt.prompt(); installPrompt = null; }
+      return;
+    }
+    if (t.hasAttribute("data-push-hinweis-weg")) {
+      const wrap = t.closest(".kal-abo-wrap");
+      pushHinweisMerken();
+      if (wrap) {
+        wrap.classList.add("is-weg");
+        const weg = () => { if (wrap.parentNode) wrap.remove(); };
+        wrap.addEventListener("transitionend", weg, { once: true });
+        setTimeout(weg, 400);
+      }
+      return;
+    }
 
     // X an der Abo-Kachel: erst einklappen, dann aus dem Baum nehmen.
     if (t.hasAttribute("data-cal-hide")) {
@@ -4562,6 +4857,12 @@
 
   // Aendert sich der Hash bei laufender App, ist das ein Deep Link von aussen.
   window.addEventListener("hashchange", function () { routeDeepLink(); });
+
+  // Android bietet die Installation an. Den Vorschlag aufheben, damit er an
+  // der richtigen Stelle als Knopf erscheint statt als Browserbanner.
+  window.addEventListener("beforeinstallprompt", function (e) {
+    e.preventDefault(); installPrompt = e;
+  });
 
   /* Liegt irgendetwas ueber der Seite? Sheets, Dialoge, Aufstellungs-Panels.
      Pull-to-Refresh darf dann NICHT ausloesen – sonst zieht die Geste die Seite
@@ -5250,6 +5551,11 @@
       boot("render:ok");
       hideSplash();
       routeDeepLink();        // Deep-Link aus Benachrichtigung/Verweis (nach dem ersten Render)
+      // Push: Zustand dieses Geraets abgleichen und Einstellungen holen.
+      // Beides ohne Nutzergeste und deshalb ohne subscribe().
+      try { pushPrefs = await DB.loadNotificationPrefs(); } catch (e) { pushPrefs = null; }
+      pushAbo = await pushAboLesen();
+      pushAbgleich();
     } catch (err) {
       boot("boot:error (" + ((err && err.message) || err) + ")");
       document.body.classList.remove("auth-mode");
