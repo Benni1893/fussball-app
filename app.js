@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-25-B";
+  var APP_BUILD = "2026-09-25-C";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -4453,6 +4453,85 @@
     });
   }
 
+  /* ---------- Deep Links ----------------------------------------------------
+     Aus einer Benachrichtigung heraus soll die App an der richtigen Stelle
+     aufgehen - auch beim KALTSTART der installierten App, wo es noch kein
+     offenes Fenster gibt und der Start ueber start_url plus Hash laeuft.
+
+     Schema (alles hinter dem #):
+       ansicht=<name>   dashboard | kalender | strafen | kasse | einstellungen
+                        | profil | kader | katalog | admin
+       termin=<id>      Kalender, zum Termin scrollen und kurz hervorheben
+       strafen=<filter> offen | gemeldet | bezahlt | alle | meine
+       kasse=<reiter>   pruefen | offen | bezahlt
+       lineup=<id>      bestehend, unveraendert
+
+     Der Hash wird nach dem Sprung entfernt, damit ein Reload nicht in der
+     Zielansicht haengen bleibt - dasselbe Verhalten wie bisher bei lineup=.
+     Unbekannte oder unzulaessige Ziele landen still auf der Standardansicht;
+     eine Benachrichtigung darf nie in einer Fehlermeldung enden.          */
+  const DEEP_ANSICHTEN = ["dashboard", "kalender", "strafen", "kasse", "einstellungen", "profil", "kader", "katalog", "admin"];
+
+  // Darf die aktuelle Rolle diese Ansicht sehen? Spiegelt render().
+  function deepErlaubt(ansicht) {
+    if (ansicht === "kader" || ansicht === "lineup") return Roles.canManageEvents();
+    if (ansicht === "kasse") return Roles.canManageFines();
+    if (ansicht === "admin") return Roles.isAdmin();
+    return DEEP_ANSICHTEN.indexOf(ansicht) !== -1;
+  }
+
+  /* Zerlegt einen Hash in { art, wert }. Rein rechnend, damit pruefbar. */
+  function deepLinkZiel(roh) {
+    const h = String(roh || "").replace(/^#/, "");
+    if (!h) return null;
+    const i = h.indexOf("=");
+    if (i < 1) return null;
+    const art = h.slice(0, i);
+    let wert = h.slice(i + 1);
+    try { wert = decodeURIComponent(wert); } catch (e) { /* roh lassen */ }
+    if (!wert) return null;
+    if (art === "ansicht" && DEEP_ANSICHTEN.indexOf(wert) !== -1) return { art: "ansicht", wert: wert };
+    if (art === "termin") return { art: "termin", wert: wert };
+    if (art === "strafen" && ["offen", "gemeldet", "bezahlt", "alle", "meine"].indexOf(wert) !== -1) return { art: "strafen", wert: wert };
+    if (art === "kasse" && ["pruefen", "offen", "bezahlt"].indexOf(wert) !== -1) return { art: "kasse", wert: wert };
+    if (art === "lineup") return { art: "lineup", wert: wert };
+    return null;
+  }
+
+  // Hash wegraeumen, ohne einen Eintrag in der Verlaufsliste zu hinterlassen.
+  function deepLinkHashWeg() {
+    if (!location.hash) return;
+    try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+  }
+
+  function routeDeepLink(roh) {
+    const ziel = deepLinkZiel(roh === undefined ? location.hash : roh);
+    if (!ziel) { deepLinkHashWeg(); return false; }
+    if (ziel.art === "lineup") { tvRouteInitialHash(); return true; }   // raeumt selbst auf
+    deepLinkHashWeg();
+    if (ziel.art === "ansicht") {
+      if (!deepErlaubt(ziel.wert)) return false;
+      switchView(ziel.wert);
+      return true;
+    }
+    if (ziel.art === "termin") {
+      const e = (DEMO && DEMO.events || []).find((x) => x.id === ziel.wert);
+      if (!e) { switchView("kalender"); return true; }   // Termin geloescht: Kalender statt Fehler
+      navJumpTo("kalender", { kalFilter: "alle", eventId: ziel.wert });
+      return true;
+    }
+    if (ziel.art === "strafen") {
+      navJumpTo("strafen", { strafenFilter: ziel.wert });
+      return true;
+    }
+    if (ziel.art === "kasse") {
+      if (!Roles.canManageFines()) return false;
+      kasse.tab = ziel.wert; kasse.pruefIdx = 0;
+      navJumpTo("kasse", {});
+      return true;
+    }
+    return false;
+  }
   function switchView(view) {
     currentView = view;
     if (view === "lineup") { tv.view = "games"; tv.eventId = null; tv.sel = null; tv.mark = null; tv.alleSpiele = false; } // v2 startet immer bei der Spielauswahl
@@ -4473,6 +4552,9 @@
     window.scrollTo(0, 0);
     render();
   }
+
+  // Aendert sich der Hash bei laufender App, ist das ein Deep Link von aussen.
+  window.addEventListener("hashchange", function () { routeDeepLink(); });
 
   /* Liegt irgendetwas ueber der Seite? Sheets, Dialoge, Aufstellungs-Panels.
      Pull-to-Refresh darf dann NICHT ausloesen – sonst zieht die Geste die Seite
@@ -5160,7 +5242,7 @@
       render();
       boot("render:ok");
       hideSplash();
-      tvRouteInitialHash();   // Deep-Link #lineup=<id> direkt öffnen (nach dem ersten Render)
+      routeDeepLink();        // Deep-Link aus Benachrichtigung/Verweis (nach dem ersten Render)
     } catch (err) {
       boot("boot:error (" + ((err && err.message) || err) + ")");
       document.body.classList.remove("auth-mode");

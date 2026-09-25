@@ -575,3 +575,42 @@ Ausnahme gleich mit ab.
 
 Der Hinweis erscheint nur im Kalender. Wer im Übersichts-Hero zusagt, bekommt
 ihn beim nächsten Öffnen des Kalenders unter der betroffenen Karte.
+
+**Phase 1a: Service Worker, Manifest, Deep Links (25.09.2026)**
+
+Grundlage für Push. Bis hierher gab es **keinen** Service Worker — die einzige
+Fundstelle ging in die Gegenrichtung.
+
+- **Der Worker cacht genau eine Datei: `offline.html`.** Kein Precache der
+  App-Dateien. Diese App hat keinen Build-Schritt und liefert `index.html`,
+  `app.js`, `styles.css` bewusst mit `no-cache` aus; die ganze
+  Build-Stempel-Mechanik existiert, weil veraltete Dateien hier schon Ärger
+  gemacht haben. Ein Worker, der App-Dateien zwischenspeichert, wäre derselbe
+  Ärger noch einmal — nur mit einem Cache, den der Nutzer nicht sieht.
+- **Der `fetch`-Handler ist trotzdem echt.** Chrome verlangt für das
+  Installationsangebot einen Handler, der offline eine gültige Antwort
+  liefert, und ignoriert leere Handler ausdrücklich. Er greift nur bei
+  `request.mode === "navigate"`; alles andere läuft ohne `respondWith` vorbei
+  und behält seine normale Cache-Semantik. Nachgemessen: offline liefert die
+  Navigation 200 mit der Offline-Seite, `styles.css` scheitert weiterhin.
+- **`skipWaiting` + `clients.claim`.** Unbedenklich, weil nichts von der App
+  gecacht wird — es kann keine halb alte, halb neue Mischung entstehen.
+- **Der Diagnose-Knopf deregistriert den Worker nicht mehr.** `unregister()`
+  löscht das Push-Abo mit, und der Nutzer stünde ohne Benachrichtigungen da,
+  ohne zu wissen warum. Er leert jetzt nur Caches und lässt den `fn-sw-`-Cache
+  in Ruhe.
+- **Registrierung inline in `index.html`**, nicht in `app.js` — sie soll auch
+  tragen, wenn `app.js` nicht lädt, wie die Boot-Diagnose daneben. Guard ist
+  `window.isSecureContext`, das deckt https, localhost und 127.0.0.1 ab.
+- **Manifest:** `id: "/"` ergänzt. Ohne `id` kann iOS die App nach einer
+  Scope-Änderung als andere Installation behandeln.
+- **Deep Links** (`#ansicht=`, `#termin=`, `#strafen=`, `#kasse=`, weiterhin
+  `#lineup=`) setzen auf `navJumpTo()` auf, das es schon gab. Der Hash wird
+  nach dem Sprung entfernt, damit ein Reload nicht in der Zielansicht hängt.
+  Unbekannte oder rollenfremde Ziele landen **still** auf der Standardansicht:
+  eine Benachrichtigung darf nie in einer Fehlermeldung enden.
+
+**Noch offen aus dieser Phase:** `offline.html` hat bewusst eigenes,
+eingebettetes CSS (bei fehlendem Netz ist `styles.css` nicht erreichbar) und
+gehört deshalb **nicht** ins Design-System — die Werte sind aus den Tokens
+abgeschrieben und müssen bei einer Token-Änderung von Hand nachgezogen werden.
