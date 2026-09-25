@@ -696,3 +696,43 @@ der Server. Kein Firebase-SDK, keine native App.
 **Nicht geprüft, weil ohne Gerät nicht prüfbar:** ob die Zustellung auf iPhone
 und Android tatsächlich ankommt. Alles bis zur Systemgrenze ist statisch und
 in `pushpruef.mjs` belegt; der Rest ist der Gerätetest.
+
+**Push-Katalog mit Vorschau (25.09.2026)**
+
+Alle Texte der Benachrichtigungen liegen in `notification_templates`, nicht in
+Triggern und nicht im Code. Texte ändern heißt eine Zeile ändern, kein Deploy —
+und jede Nachricht lässt sich vorher einmal echt aufs eigene Handy schicken.
+
+- **Zwei Namenskollisionen abgefangen, eine davon hätte Schaden angerichtet.**
+  `data-kat-save` gehört seit jeher dem Strafenkatalog; mein gleichnamiger
+  Handler stand **vor** seinem im Klickpfad und hätte dessen Speichern-Knopf
+  gekapert. Alles Neue heißt jetzt `pkat-` / `data-pkat-*`. Beim Umbenennen
+  habe ich zunächst zu grob ersetzt und drei fremde `kat-name` sowie den
+  Handler des Strafenkatalogs mitgetroffen — zeilenweise zurückgesetzt und
+  gegengezählt (`kat-in` 7×, `kat-name` 3×, `dataset.katSave` 5× unverändert).
+- **`.input` gab es nie.** Ich hatte sie erfunden; `validate.sh` hat es
+  gefangen. Das Muster hier heißt eine eigene Klasse je Bauteil, die an die
+  gemeinsame Feld-Regel angehängt wird — `.pkat-in` steht jetzt neben
+  `.kat-in`, `.kasse-in`, `.bfv-url`.
+- **16px in den Feldern.** Meine erste Fassung setzte 13px für den
+  Monospace-Look. Darunter zoomt Safari beim Fokus hinein — harte Regel im
+  Projekt. Die Schriftgröße kommt jetzt aus der gemeinsamen Regel
+  (`--fs-input`), nur die Schriftfamilie ist eigen.
+- **Die Attrappen imitieren iOS und Android, nicht unser Design.** Eine
+  Vorschau in Vereinsgrün sähe hübsch aus und zeigte nicht, was der Nutzer
+  sieht. Verwendet werden trotzdem nur vorhandene Tokens: `--card` mit
+  `--line` für hell, `--ink` für dunkel, `--dot-off` für die Nebenzeile
+  (10,0:1). Keine neuen Farben.
+- **In der Design-System-Karte sind Symbol und Badge inline als SVG.** Die
+  Karten rendern aus `ds-bundle/`, wo `assets/` nicht liegt — ein
+  Dateiverweis ergäbe dort 404.
+- **Der Eingabe-Handler frischt nur die betroffene Karte auf**, nicht die
+  ganze Ansicht: ein `render()` je Tastendruck nähme dem Feld den Fokus.
+- **„An mich senden" kennt kein Ziel.** `send_preview_notification` nimmt nur
+  die Kategorie entgegen; das Profil ist im Funktionskörper fest `auth.uid()`.
+  Ein Admin kann damit auch versehentlich niemanden sonst erreichen.
+
+**Nicht bewiesen, weil hier keine Datenbank läuft:** dass RLS und die
+`is_admin()`-Prüfungen zur Laufzeit greifen. Statisch geprüft ist, dass sie im
+Migrationstext stehen; der Nachweis gehört in den Gerätetest mit einem
+Nicht-Admin-Konto.

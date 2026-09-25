@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-25-E";
+  var APP_BUILD = "2026-09-25-F";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -388,7 +388,7 @@
   // Ansichten, die im „Mehr"-Menü liegen: dort bleibt der Mehr-Tab aktiv markiert.
   // EINE Liste für beide Stellen (tvSetNavActive und switchView) – vorher standen
   // hier zwei Kopien, was bei jeder neuen Ansicht still auseinanderlaufen konnte.
-  const SHEET_VIEWS = ["admin", "einstellungen", "lineup", "kader"];
+  const SHEET_VIEWS = ["admin", "einstellungen", "lineup", "kader", "pushkatalog"];
 
   // Fallback-Ansicht statt weißem Bildschirm, wenn beim Rendern etwas wirft.
   function renderErrorBoundary(err) {
@@ -416,6 +416,7 @@
       else if (currentView === "lineup") { if (Roles.canManageEvents()) { if (LINEUP_V2) renderLineupV2(); else renderLineup(); } else renderDashboard(); }
       else if (currentView === "kasse") { if (Roles.canManageFines()) renderKasse(); else renderDashboard(); }
       else if (currentView === "admin") { if (Roles.isAdmin()) renderAdmin(); else renderDashboard(); }
+      else if (currentView === "pushkatalog") { if (Roles.isAdmin()) renderPushKatalog(); else renderDashboard(); }
     } catch (err) { renderErrorBoundary(err); }
   }
 
@@ -1192,6 +1193,175 @@
       <div class="card card-pad bfv-card">${body}</div>`;
   }
 
+  /* ---------- Push-Katalog (nur Admin) ---------------------------------------
+     Jede Nachricht einmal ansehen, bevor sie an die Mannschaft geht - und die
+     Texte aendern koennen, ohne zu deployen. Die Vorlagen liegen in
+     notification_templates; hier stehen keine Texte, nur ihre Darstellung.
+
+     Die nachgebauten Mitteilungen imitieren absichtlich iOS und Android und
+     nicht unser Design: eine Vorschau in Vereinsgruen saehe huebsch aus und
+     zeigte nicht, was der Nutzer tatsaechlich sieht.                        */
+
+  let katVorlagen = null;      // geladene Zeilen aus notification_templates
+  let katEntwurf  = {};        // kategorie -> { titel, text }, ungespeichert
+  let katMeldung  = "";
+
+  // Ab diesen Laengen kuerzen die Sperrbildschirme. Gemessen an der Praxis,
+  // nicht an einer Spezifikation - beide Systeme kuerzen geraeteabhaengig.
+  const KAT_TITEL_MAX = 40;
+  const KAT_TEXT_MAX  = 110;
+
+  /* Dieselbe Regel wie render_vorlage() in der Datenbank. Rein rechnend.
+     Rueckgabe: { text } oder { fehler } - nie ein halb ersetzter Text.     */
+  function katRender(vorlage, daten, erlaubt) {
+    const roh = String(vorlage == null ? "" : vorlage);
+    const namen = [];
+    const re = /\{([a-zA-Z0-9_]+)\}/g;
+    let m;
+    while ((m = re.exec(roh)) !== null) if (namen.indexOf(m[1]) < 0) namen.push(m[1]);
+    let out = roh;
+    for (const n of namen) {
+      if (erlaubt && erlaubt.length && erlaubt.indexOf(n) < 0) {
+        return { fehler: "Unbekannter Platzhalter {" + n + "}" };
+      }
+      const w = daten ? daten[n] : null;
+      if (w == null || String(w).trim() === "") {
+        return { fehler: "Kein Wert für {" + n + "}" };
+      }
+      out = out.split("{" + n + "}").join(String(w));
+    }
+    return { text: out };
+  }
+
+  // Aktueller Stand einer Kategorie: ungespeicherter Entwurf schlaegt die
+  // gespeicherte Vorlage.
+  function katStand(v) {
+    const e = katEntwurf[v.kategorie] || {};
+    return { titel: e.titel !== undefined ? e.titel : v.titel_vorlage,
+             text:  e.text  !== undefined ? e.text  : v.text_vorlage,
+             geaendert: e.titel !== undefined || e.text !== undefined };
+  }
+
+  function katZaehler(laenge, max) {
+    const zuviel = laenge > max;
+    return '<span class="pkat-zahl' + (zuviel ? " is-lang" : "") + '">' + laenge + "/" + max +
+      (zuviel ? " · wird abgeschnitten" : "") + "</span>";
+  }
+
+  /* Nachgebaute Mitteilung. art = "ios" | "android". */
+  function katMitteilungHtml(art, titel, text) {
+    if (art === "ios") {
+      return '<div class="mt mt-ios">' +
+        '<span class="mt-ic" aria-hidden="true"><img src="assets/icon-192.png" alt=""></span>' +
+        '<span class="mt-main">' +
+          '<span class="mt-kopf"><span class="mt-app">FASANERIE</span><span class="mt-zeit">jetzt</span></span>' +
+          '<span class="mt-t">' + esc(titel) + '</span>' +
+          '<span class="mt-x">' + esc(text) + '</span>' +
+        '</span></div>';
+    }
+    return '<div class="mt mt-android">' +
+      '<span class="mt-leiste"><span class="mt-badge" aria-hidden="true">' +
+        '<img src="assets/badge-96.png" alt=""></span>' +
+        '<span class="mt-app">Fasanerie · jetzt</span></span>' +
+      '<span class="mt-t">' + esc(titel) + '</span>' +
+      '<span class="mt-x">' + esc(text) + '</span>' +
+      '</div>';
+  }
+
+  function katZeileHtml(v) {
+    const st = katStand(v);
+    const rt = katRender(st.titel, v.beispiel_daten, v.platzhalter);
+    const rx = katRender(st.text,  v.beispiel_daten, v.platzhalter);
+    const fehler = rt.fehler || rx.fehler;
+    const titel = rt.text || st.titel;
+    const text  = rx.text || st.text;
+
+    return '<div class="card card-pad pkat-karte" data-kat="' + esc(v.kategorie) + '">' +
+      '<div class="pkat-kopf">' +
+        '<span class="pkat-name">' + esc(v.kategorie) + '</span>' +
+        '<span class="pkat-marken">' +
+          (v.urgency === "high" ? '<span class="tag tag-cancelled">zeitkritisch</span>' : "") +
+          (v.aktiv ? "" : '<span class="tag tag-manuell">aus</span>') +
+        '</span>' +
+      '</div>' +
+      '<p class="set-hint pkat-wer"><b>An:</b> ' + esc(v.empfaenger_beschreibung) + '<br>' +
+        '<b>Wann:</b> ' + esc(v.ausloeser_beschreibung) + '</p>' +
+
+      (fehler ? '<div class="tk-warn">' + esc(fehler) + '</div>' : "") +
+
+      '<div class="pkat-vorschau">' +
+        katMitteilungHtml("ios", titel, text) +
+        katMitteilungHtml("android", titel, text) +
+      '</div>' +
+
+      '<label class="pkat-feld"><span class="pkat-lbl">Titel ' +
+        katZaehler(titel.length, KAT_TITEL_MAX) + '</span>' +
+        '<input class="pkat-in" data-pkat-titel="' + esc(v.kategorie) + '" value="' + esc(st.titel) + '"></label>' +
+      '<label class="pkat-feld"><span class="pkat-lbl">Text ' +
+        katZaehler(text.length, KAT_TEXT_MAX) + '</span>' +
+        '<textarea class="pkat-in" rows="2" data-pkat-text="' + esc(v.kategorie) + '">' + esc(st.text) + '</textarea></label>' +
+      '<p class="set-hint pkat-platz">Platzhalter: ' +
+        (v.platzhalter && v.platzhalter.length
+          ? v.platzhalter.map((p) => "<code>{" + esc(p) + "}</code>").join(" ")
+          : "keine") + '</p>' +
+
+      '<div class="pkat-knoepfe">' +
+        (st.geaendert
+          ? '<button class="btn btn-primary" data-pkat-save="' + esc(v.kategorie) + '" type="button">Vorlage speichern</button>' +
+            '<button class="btn btn-soft" data-pkat-reset="' + esc(v.kategorie) + '" type="button">Verwerfen</button>'
+          : '<button class="btn btn-primary" data-pkat-send="' + esc(v.kategorie) + '" type="button"' +
+            (fehler ? " disabled" : "") + '>An mich senden</button>') +
+      '</div>' +
+      '</div>';
+  }
+
+  function renderPushKatalog() {
+    document.body.classList.remove("auth-mode");
+    if (!Roles.isAdmin()) { renderDashboard(); return; }
+
+    if (katVorlagen === null) {
+      viewEl.innerHTML = '<div class="page-head">' + navBackChevronHtml() + '<h1>Push-Nachrichten</h1></div>' +
+        '<div class="card card-pad"><p class="set-hint">Vorlagen werden geladen …</p></div>';
+      DB.loadNotificationTemplates()
+        .then((v) => { katVorlagen = v; render(); })
+        .catch((e) => { katVorlagen = []; katMeldung = "Laden fehlgeschlagen: " + ((e && e.message) || e); render(); });
+      return;
+    }
+
+    viewEl.innerHTML =
+      '<div class="page-head">' + navBackChevronHtml() + '<h1>Push-Nachrichten</h1></div>' +
+      '<div class="card card-pad">' +
+        '<p class="set-hint">Jede Nachricht einmal auf dem eigenen Handy ansehen, bevor sie an die ' +
+        'Mannschaft geht. „An mich senden" schickt ausschließlich an dich – auch bei Kategorien, ' +
+        'die sonst alle bekommen. Ruhezeiten und Schalter werden dabei übergangen.</p>' +
+        '<button class="btn btn-primary" data-pkat-alle type="button">Alle an mich senden</button>' +
+        '<button class="btn btn-soft" data-pkat-clear type="button">Vorschauen löschen</button>' +
+        '<div class="cal-copied" data-pkat-meldung' + (katMeldung ? "" : " hidden") + '>' + esc(katMeldung) + '</div>' +
+      '</div>' +
+      '<div class="pkat-liste">' + katVorlagen.map(katZeileHtml).join("") + '</div>';
+    katMeldung = "";
+  }
+
+  function katSag(txt) {
+    const el = document.querySelector("[data-pkat-meldung]");
+    if (!el) return;
+    el.textContent = txt; el.hidden = false;
+  }
+
+  /* "Alle an mich senden": nacheinander mit fuenf Sekunden Abstand. Ohne den
+     Abstand legt das System sie als einen Stapel zusammen und man sieht nur
+     die letzte. Nur aktive Kategorien. */
+  async function katAlleSenden() {
+    const liste = (katVorlagen || []).filter((v) => v.aktiv);
+    for (let i = 0; i < liste.length; i++) {
+      try { await DB.sendPreviewNotification(liste[i].kategorie); }
+      catch (e) { katSag("Fehlgeschlagen bei " + liste[i].kategorie + ": " + ((e && e.message) || e)); return; }
+      katSag((i + 1) + " von " + liste.length + " unterwegs – " + liste[i].kategorie);
+      if (i < liste.length - 1) await new Promise((r) => setTimeout(r, 5000));
+    }
+    katSag(liste.length + " Vorschauen unterwegs. Sie kommen im Minutentakt des Versands an.");
+  }
+
   /* ---------- Benachrichtigungen --------------------------------------------
      Standard Web Push, ein Weg fuer beide Systeme. Die Endpunkte
      (web.push.apple.com, fcm.googleapis.com, Mozilla) unterscheidet nur der
@@ -1493,6 +1663,13 @@
           <p class="set-hint">Vergehen und Beträge werden im Katalog gepflegt.</p>
           <button class="btn" data-goto="katalog">Strafenkatalog öffnen</button>
         </div>
+
+        ${Roles.isAdmin() ? `
+        <div class="section-title set-sub"><h3>Push-Nachrichten</h3></div>
+        <div class="card card-pad">
+          <p class="set-hint">Texte aller Benachrichtigungen ansehen, ändern und zur Probe an sich selbst schicken.</p>
+          <button class="btn" data-goto="pushkatalog">Push-Nachrichten öffnen</button>
+        </div>` : ""}
       </div>` : ""}
       <p class="set-hint" style="text-align:center;margin-top:22px;opacity:.6">Build ${esc(APP_BUILD)}${(window.__HTML_BUILD && window.__HTML_BUILD !== APP_BUILD) ? " · HTML " + esc(window.__HTML_BUILD) + " (Versionen unterschiedlich – evtl. Cache)" : ""} · <a href="?debug=1" style="color:inherit">Diagnose</a></p>
     `;
@@ -4127,6 +4304,50 @@
      Interaktion (Event-Delegation)
      --------------------------------------------------------------------------- */
   // Katalog: Typ-Umschalter blendet die Staffel-Felder ein/aus (ohne Re-Render -> Eingaben bleiben).
+  /* Tippen im Push-Katalog: Entwurf merken und NUR die betroffene Karte
+     auffrischen. Ein voller render() bei jedem Zeichen nimmt dem Feld den
+     Fokus und setzt den Cursor an den Anfang. */
+  viewEl.addEventListener("input", (ev) => {
+    const el = ev.target;
+    if (!el || !el.dataset) return;
+    const k = el.dataset.pkatTitel || el.dataset.pkatText;
+    if (!k) return;
+    const v = (katVorlagen || []).find((x) => x.kategorie === k);
+    if (!v) return;
+    katEntwurf[k] = katEntwurf[k] || {};
+    if (el.dataset.pkatTitel) katEntwurf[k].titel = el.value;
+    else katEntwurf[k].text = el.value;
+
+    const karte = el.closest(".pkat-karte");
+    if (!karte) return;
+    const st = katStand(v);
+    const rt = katRender(st.titel, v.beispiel_daten, v.platzhalter);
+    const rx = katRender(st.text,  v.beispiel_daten, v.platzhalter);
+    const fehler = rt.fehler || rx.fehler;
+    const titel = rt.text || st.titel;
+    const text  = rx.text || st.text;
+
+    const vs = karte.querySelector(".pkat-vorschau");
+    if (vs) vs.innerHTML = katMitteilungHtml("ios", titel, text) + katMitteilungHtml("android", titel, text);
+
+    const zahlen = karte.querySelectorAll(".pkat-lbl");
+    if (zahlen[0]) zahlen[0].innerHTML = "Titel " + katZaehler(titel.length, KAT_TITEL_MAX);
+    if (zahlen[1]) zahlen[1].innerHTML = "Text " + katZaehler(text.length, KAT_TEXT_MAX);
+
+    let warn = karte.querySelector(".tk-warn");
+    if (fehler && !warn && vs) {
+      warn = document.createElement("div"); warn.className = "tk-warn";
+      karte.insertBefore(warn, vs);
+    }
+    if (warn) { warn.textContent = fehler || ""; warn.hidden = !fehler; }
+
+    const kn = karte.querySelector(".pkat-knoepfe");
+    if (kn) kn.innerHTML = st.geaendert
+      ? '<button class="btn btn-primary" data-pkat-save="' + esc(k) + '" type="button">Vorlage speichern</button>' +
+        '<button class="btn btn-soft" data-pkat-reset="' + esc(k) + '" type="button">Verwerfen</button>'
+      : '<button class="btn btn-primary" data-pkat-send="' + esc(k) + '" type="button"' + (fehler ? " disabled" : "") + '>An mich senden</button>';
+  });
+
   viewEl.addEventListener("change", (ev) => {
     if (currentView === "katalog" && ev.target.matches("[data-kat-type]")) {
       const row = ev.target.closest(".kat-edit");
@@ -4270,7 +4491,7 @@
       if (unpay) { if (!window.confirm("Buchung rückgängig machen? Die Strafe steht wieder als offen.")) return; try { await DB.setFinePaid(unpay.dataset.kasseUnpay, false); await reloadData(); tvToast("Zurückgesetzt"); } catch (e) { window.alert("Rückgängig fehlgeschlagen: " + ((e && e.message) || e)); } return; }
     }
 
-    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-cal-hide],[data-cal-copy-profil],[data-push-an],[data-push-aus],[data-push-test],[data-push-install],[data-push-hinweis-weg],[data-ics-event],[data-koord-save],[data-status-set],[data-logout]");
+    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-cal-hide],[data-cal-copy-profil],[data-push-an],[data-push-aus],[data-push-test],[data-push-install],[data-push-hinweis-weg],[data-pkat-save],[data-pkat-reset],[data-pkat-send],[data-pkat-alle],[data-pkat-clear],[data-ics-event],[data-koord-save],[data-status-set],[data-logout]");
     if (!t) return;
 
     // Fitnessstatus setzen. Wer das darf, entscheidet die Datenbank:
@@ -4332,6 +4553,42 @@
       })();
       return;
     }
+    // Push-Katalog.
+    if (t.dataset.pkatSave) {
+      const k = t.dataset.pkatSave;
+      const v = (katVorlagen || []).find((x) => x.kategorie === k);
+      const st = v ? katStand(v) : null;
+      if (st) {
+        (async () => {
+          try {
+            await DB.setNotificationTemplate(k, st.titel, st.text);
+            v.titel_vorlage = st.titel; v.text_vorlage = st.text;
+            delete katEntwurf[k];
+            katMeldung = k + " gespeichert";
+            render();
+          } catch (err) { katSag("Speichern fehlgeschlagen: " + ((err && err.message) || err)); }
+        })();
+      }
+      return;
+    }
+    if (t.dataset.pkatReset) { delete katEntwurf[t.dataset.pkatReset]; render(); return; }
+    if (t.dataset.pkatSend) {
+      const k = t.dataset.pkatSend;
+      (async () => {
+        try { await DB.sendPreviewNotification(k); katSag(k + " unterwegs – kommt in bis zu einer Minute"); }
+        catch (err) { katSag("Fehlgeschlagen: " + ((err && err.message) || err)); }
+      })();
+      return;
+    }
+    if (t.hasAttribute("data-pkat-alle")) { katAlleSenden(); return; }
+    if (t.hasAttribute("data-pkat-clear")) {
+      (async () => {
+        try { const n = await DB.deletePreviewNotifications(); katSag(n + " Vorschauen gelöscht"); }
+        catch (err) { katSag("Fehlgeschlagen: " + ((err && err.message) || err)); }
+      })();
+      return;
+    }
+
     if (t.hasAttribute("data-push-install")) {
       if (installPrompt) { installPrompt.prompt(); installPrompt = null; }
       return;

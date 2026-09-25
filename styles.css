@@ -986,6 +986,70 @@ tbody tr:hover { background: #fbfdfc; }
 .abo-schritte li::marker { font-weight: 700; color: var(--green-800); }
 .abo-schritte li + li { margin-top: 5px; }
 .abo-fuss { margin: 2px 0 0; font-size: 12px; font-weight: 500; line-height: 1.4; color: var(--muted); }
+/* ---------- Push-Katalog (nur Admin) ---------------------------------------
+   Die nachgebauten Mitteilungen imitieren absichtlich iOS und Android und
+   nicht unser Design: eine Vorschau in Vereinsgruen saehe huebsch aus und
+   zeigte nicht, was der Nutzer tatsaechlich sieht. Verwendet werden trotzdem
+   nur vorhandene Tokens - --ink als fast schwarze Flaeche, --card als helle. */
+.pkat-liste { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+.pkat-karte { display: flex; flex-direction: column; gap: 10px; }
+.pkat-kopf { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.pkat-name {
+  font-family: ui-monospace, Menlo, monospace; font-size: 13px; font-weight: 700;
+  color: var(--green-800); min-width: 0; overflow-wrap: anywhere;
+}
+.pkat-marken { display: flex; gap: 6px; flex: none; }
+.pkat-wer { margin: 0; line-height: 1.5; }
+
+.pkat-vorschau { display: flex; flex-direction: column; gap: 8px; }
+
+/* Mitteilung, gemeinsame Grundlage */
+.mt { display: flex; gap: 10px; padding: 10px 12px; border-radius: 14px; }
+.mt .mt-t { display: block; font-size: 14px; font-weight: 700; line-height: 1.25; overflow-wrap: anywhere; }
+.mt .mt-x { display: block; margin-top: 1px; font-size: 14px; font-weight: 400; line-height: 1.3; overflow-wrap: anywhere; }
+.mt .mt-app { font-size: 11px; font-weight: 600; letter-spacing: .04em; }
+
+/* iOS: helle Karte, App-Symbol links, Zeitangabe rechts oben */
+.mt-ios { background: var(--card); border: 1px solid var(--line); color: var(--ink); }
+.mt-ios .mt-ic { flex: none; width: 34px; height: 34px; border-radius: 9px; overflow: hidden; }
+.mt-ios .mt-ic img, .mt-ios .mt-ic svg { width: 100%; height: 100%; display: block; }
+.mt-ios .mt-main { flex: 1 1 auto; min-width: 0; }
+.mt-ios .mt-kopf { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.mt-ios .mt-app { color: var(--muted); text-transform: uppercase; }
+.mt-ios .mt-zeit { flex: none; font-size: 11px; color: var(--muted); }
+
+/* Android: dunkle Flaeche, monochromes Badge in der Kopfzeile */
+.mt-android { flex-direction: column; background: var(--ink); color: #fff; }
+.mt-android .mt-leiste { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.mt-android .mt-badge { flex: none; width: 14px; height: 14px; }
+.mt-android .mt-badge img, .mt-android .mt-badge svg { width: 100%; height: 100%; display: block; color: #fff; }
+.mt-android .mt-app { color: var(--dot-off); }   /* 9,9:1 auf --ink */
+.mt-android .mt-x { color: var(--dot-off); }
+
+.pkat-feld { display: block; }
+.pkat-lbl {
+  display: block; margin-bottom: 4px; font-size: 11px; font-weight: 800;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--green-800);
+}
+/* Kein font-size hier: die gemeinsame Feld-Regel weiter unten setzt 16px,
+   und darunter zoomt Safari beim Fokus hinein. */
+.pkat-in {
+  width: 100%; box-sizing: border-box; padding: 10px 12px;
+  border: 1px solid var(--line); background: #fff;
+  font: inherit; font-family: ui-monospace, Menlo, monospace;
+}
+textarea.pkat-in { resize: vertical; min-height: 76px; line-height: 1.45; }
+/* Zeichenzaehler: unauffaellig, bis es eng wird. */
+.pkat-zahl { font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--muted); }
+.pkat-zahl.is-lang { color: var(--red-700); }   /* 6,2:1 auf Weiss */
+.pkat-platz { margin: 0; line-height: 1.7; }
+.pkat-platz code {
+  font-family: ui-monospace, Menlo, monospace; font-size: 12px;
+  background: var(--green-050); color: var(--green-700);
+  border-radius: 5px; padding: 1px 5px;
+}
+.pkat-knoepfe { display: flex; flex-wrap: wrap; gap: 8px; }
+
 /* Anleitung, dann Schlusssatz: sonst klebt der Satz an der Liste. */
 .abo-schritte + .set-hint { margin-top: 10px; }
 .cal-copied { font-size: .82rem; color: var(--green-700); font-weight: 600; margin-top: 8px; }
@@ -2488,14 +2552,14 @@ body {
 }
 
 /* --- Eingabefelder --------------------------------------------------------- */
-.kat-in, .kasse-in, .bfv-url, .modal-text, .auth-field input {
+.kat-in, .pkat-in, .kasse-in, .bfv-url, .modal-text, .auth-field input {
   background-image: var(--grad-in);
   border-color: var(--line-soft-3);
   box-shadow: var(--shadow-in);
   border-radius: var(--radius-btn);
   font-size: var(--fs-input);   /* harte Regel: 16px, sonst zoomt iOS */
 }
-.kat-in, .kasse-in, .bfv-url, .auth-field input { min-height: var(--h-in); }
+.kat-in, .pkat-in, .kasse-in, .bfv-url, .auth-field input { min-height: var(--h-in); }
 ::placeholder { color: var(--muted); opacity: 1; }   /* Vorlage #9aa8a0 = 2,5:1 */
 
 /* --- Untere Navigation: durchscheinend mit Weichzeichner -------------------- */

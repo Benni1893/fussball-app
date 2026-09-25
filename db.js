@@ -356,6 +356,39 @@ window.DB = (function () {
     return data;
   }
 
+  /* ---- Push-Katalog (nur Admin; RLS und die RPCs erzwingen das) --------- */
+  async function loadNotificationTemplates() {
+    const { data, error } = await client.from("notification_templates")
+      .select("*").order("kategorie");
+    if (error) throw error;
+    return data || [];
+  }
+  async function setNotificationTemplate(kategorie, titel, text, aktiv) {
+    const { error } = await client.rpc("set_notification_template", {
+      p_kategorie: kategorie, p_titel: titel, p_text: text,
+      p_aktiv: (aktiv === undefined ? null : aktiv),
+    });
+    if (error) throw error;
+  }
+  async function sendPreviewNotification(kategorie) {
+    const { data, error } = await client.rpc("send_preview_notification", { p_kategorie: kategorie });
+    if (error) throw error;
+    return data;
+  }
+  async function deletePreviewNotifications() {
+    const { data, error } = await client.rpc("delete_preview_notifications");
+    if (error) throw error;
+    return data;
+  }
+  // Eigene Vorschau-Zeilen samt Versandstand - zum Nachsehen, ob etwas raus ist.
+  async function loadPreviewOutbox() {
+    const { data, error } = await client.from("notification_outbox")
+      .select("id,kategorie,titel,text,sent_at,error,created_at")
+      .eq("ist_vorschau", true).order("created_at", { ascending: false }).limit(30);
+    if (error) throw error;
+    return data || [];
+  }
+
   // Strafe löschen (treasurer/admin generell; coach für Auto-Strafen). RLS erzwingt.
   async function deleteFine(fineId) {
     const { error } = await client.from("fines").delete().eq("id", fineId);
@@ -551,6 +584,8 @@ window.DB = (function () {
     client, loadAll, setRsvp, deleteRsvp, setFinePaid, deleteFine, addFines, setCalendarHint,
     upsertPushSubscription, deletePushSubscription, pushSubscriptionBekannt,
     loadNotificationPrefs, setNotificationPrefs, sendTestNotification,
+    loadNotificationTemplates, setNotificationTemplate, sendPreviewNotification,
+    deletePreviewNotifications, loadPreviewOutbox,
     insertCatalog, updateCatalog, deleteCatalog,
     insertEvents, updateEvent, updateSeriesFrom, deleteEvent, deleteSeriesFrom,
     upsertSportstaette,
