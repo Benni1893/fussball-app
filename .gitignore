@@ -33,7 +33,10 @@ preview/
 # design-sync: Bauergebnis, wird aus .design-sync/ neu erzeugt
 ds-bundle/
 node_modules/
-migrations/
+# Nur der Wurzelordner migrations/ (lokale Arbeitskopie). Ohne den Schraegstrich
+# am Anfang griff die Regel auch auf supabase/migrations/ - die Dateien ab 0031
+# fielen dadurch still aus der Versionierung.
+/migrations/
 
 # design-sync: Messartefakte der Bildvergleiche, bleiben lokal
 .design-sync/reference/compare/
