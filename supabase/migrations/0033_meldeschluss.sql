@@ -20,6 +20,20 @@
 -- rsvps, das Frontend und die kuenftigen Erinnerungen. Gerechnet wird nur noch
 -- in compute_deadline().
 --
+-- Zu den uebrigen Termintypen (sonstiges usw.): Die alte Regel las sich so,
+-- als bekaemen sie ueber das else 3 Stunden. Das war nie wirksam - in ALLEN
+-- vier SQL-Kopien steht der Typfilter VOR der Fristberechnung:
+--   0008 Zeile 73  where type in ('spiel','training')
+--   0009 Zeile 34  if e.type not in ('spiel','training') then return
+--   0010 Zeile 27  where type in ('spiel','training')
+--   0010 Zeile 86  if e.type not in ('spiel','training') then return
+-- Der else-Zweig war fuer alles ausser 'training' toter Code, und das
+-- Frontend gibt fuer diese Typen ohnehin seit jeher null zurueck (app.js,
+-- meldeschlussMs, erste Zeile). compute_deadline liefert deshalb null - das
+-- ist keine Verhaltensaenderung, sondern dieselbe Wirkung ohne die
+-- irrefuehrende Rechnung. Die Gegenprobe unten vergleicht folgerichtig nur
+-- die Typen, die die alte Logik tatsaechlich bestraft hat.
+--
 -- Bewusst NICHT enthalten: eine Schreibfunktion fuer team_settings. Es gibt
 -- noch keine Oberflaeche dafuer; sie kommt zusammen mit der Einstellungsansicht.
 -- Bis dahin gelten die Vorgabewerte, also genau der heutige Stand.
@@ -82,6 +96,9 @@ returns timestamptz
 language sql stable security definer set search_path = public
 as $$
   select case
+    -- Nur Spiele und Trainings kennen einen Meldeschluss. Alle vier alten
+    -- SQL-Kopien filtern vor der Rechnung auf diese beiden Typen, das
+    -- Frontend ebenso - fuer alles andere gab es nie eine wirksame Frist.
     when p_type not in ('spiel','training') then null
     when p_starts_at is null                then null      -- ganztaegig: kein Meldeschluss
     else p_starts_at - (
@@ -96,9 +113,11 @@ as $$
   end;
 $$;
 
--- Trigger auf events. Heisst absichtlich "zdeadline": Postgres feuert
--- gleichzeitige Trigger in alphabetischer Reihenfolge, und diese Berechnung
--- braucht das starts_at, das trg_events_starts_at (0008) gerade erst gesetzt hat.
+-- Trigger auf events. ACHTUNG, REIHENFOLGE: Postgres feuert gleichzeitige
+-- Trigger in alphabetischer Namensreihenfolge. Diese Berechnung braucht das
+-- starts_at, das trg_events_starts_at (0008) im selben BEFORE-Durchgang
+-- gerade erst gesetzt hat - deshalb der Name mit z. Wer einen der beiden
+-- Trigger umbenennt, muss diese Ordnung wiederherstellen.
 create or replace function public.events_set_deadline_at()
 returns trigger language plpgsql security definer set search_path = public as $$
 begin
@@ -113,15 +132,26 @@ create trigger trg_events_zdeadline
   before insert or update on public.events
   for each row execute function public.events_set_deadline_at();
 
--- Aendert ein Verein seine Vorgabe, gelten die neuen Werte fuer alle Termine
--- dieses Vereins, die keine eigene Ausnahme tragen.
+-- Die Abhaengigkeit an beiden Objekten hinterlegen, damit sie beim naechsten
+-- Lesen auffaellt - auch dem, der nur einen der beiden Trigger vor sich hat.
+comment on trigger trg_events_zdeadline on public.events is
+  'Setzt deadline_at. Muss NACH trg_events_starts_at feuern (alphabetische Reihenfolge, s < z) - braucht dessen starts_at.';
+comment on trigger trg_events_starts_at on public.events is
+  'Setzt starts_at aus date+time (Europe/Berlin). Muss VOR trg_events_zdeadline feuern (alphabetische Reihenfolge, s < z).';
+
+-- Aendert ein Verein seine Vorgabe, gelten die neuen Werte fuer die
+-- ZUKUENFTIGEN Termine dieses Vereins ohne eigene Ausnahme.
+-- Vergangene Termine behalten ihre Frist: apply_event_fines laeuft ueber
+-- auto_fined_at, und eine nachtraeglich verschobene Frist koennte dort
+-- rueckwirkend anders strafen als zum Zeitpunkt des Termins gegolten hat.
 create or replace function public.team_settings_refresh_events()
 returns trigger language plpgsql security definer set search_path = public as $$
 begin
   update public.events e
      set deadline_at = public.compute_deadline(e.club_id, e.type, e.starts_at, e.deadline_override_hours)
    where e.club_id = new.club_id
-     and e.deadline_override_hours is null;
+     and e.deadline_override_hours is null
+     and e.starts_at > now();
   return new;
 end;
 $$;
@@ -251,8 +281,11 @@ $$;
 grant execute on function public.compute_deadline(uuid, text, timestamptz, integer) to authenticated;
 
 -- ----------------------------------------------------------------------------
--- 5) Gegenprobe: liefert die neue Spalte fuer JEDEN bestehenden Termin
+-- 5) Gegenprobe: liefert die neue Spalte fuer jeden bestehenden Termin
 --    denselben Wert wie die bisher ausgeschriebene Regel?
+--    Verglichen werden nur Spiele und Trainings - die uebrigen Typen hat die
+--    alte Logik nie erreicht (Typfilter vor der Rechnung, siehe Kopf), fuer
+--    sie gab und gibt es keine Frist.
 --    Bricht die Migration ab, wenn auch nur eine Zeile abweicht.
 -- ----------------------------------------------------------------------------
 do $$
@@ -268,6 +301,16 @@ begin
 
   if v_abweichungen > 0 then
     raise exception 'Meldeschluss weicht bei % Terminen von der alten Regel ab - Migration abgebrochen.', v_abweichungen;
+  end if;
+
+  -- Und umgekehrt: kein Termin ausserhalb spiel/training darf eine Frist haben.
+  select count(*) into v_abweichungen
+    from public.events e
+   where e.type not in ('spiel','training')
+     and e.deadline_at is not null;
+
+  if v_abweichungen > 0 then
+    raise exception 'Meldeschluss bei % Terminen ausserhalb spiel/training gesetzt - Migration abgebrochen.', v_abweichungen;
   end if;
 
   raise notice 'Meldeschluss: alle bestehenden Termine rechnen unveraendert.';
