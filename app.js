@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-26-F";
+  var APP_BUILD = "2026-09-26-G";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -4286,15 +4286,7 @@
     // der Link „Auch ..." holt den zweiten dazu - gemischte Vorgaenge bleiben
     // moeglich, weil beide Bloecke in denselben kasseBuild() laufen.
     bloecke: { katalog: false, indiv: false },
-    /* Filter je Reiter getrennt: wer in „Offen" nach einem Spieler sucht,
-       will in „Eingegangen" nicht denselben Ausschnitt sehen. Sie ueberleben
-       den Reiterwechsel, nicht aber einen Neustart der App. */
-    filter: { pruefen: { spieler: [] },
-              offen:   { spieler: [], sort: "alt", faellig: false },
-              bezahlt: { spieler: [], sort: "neu", zahlart: [], zeit: "saison" } },
-    // Entwurf des Filterblatts: „Anwenden" schreibt ihn nach filter[tab].
-    flEntwurf: null,
-    suche: "",         // Frage im Vollbild „Spieler suchen"
+    suche: "",         // Frage im Suchfeld der Spielerauswahl
   };
 
   /* Zahlart-Symbole. Die Vorlage zeigt sie im Buchen-Blatt, in der Zeile
@@ -4408,10 +4400,8 @@
      Meldung im Blick, dahinter zwei Geisterkarten als Stapeltiefe. Nach jeder
      Entscheidung wird die Liste kuerzer, der Index bleibt stehen - dadurch
      rueckt die naechste Meldung von selbst nach. */
-  function renderKassePruefen(list, alle) {
-    const gesamt = alle === undefined ? list : alle;
-    if (!gesamt.length) return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Nichts zu prüfen</div><div class="rs">Sobald jemand eine Zahlung meldet, liegt sie hier.</div></div>`;
-    if (!list.length) return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Keine Treffer</div><div class="rs">Von diesem Spieler liegt nichts zum Prüfen vor.</div></div>`;
+  function renderKassePruefen(list) {
+    if (!list.length) return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Nichts zu prüfen</div><div class="rs">Sobald jemand eine Zahlung meldet, liegt sie hier.</div></div>`;
     const sorted = list.slice().sort((a, b) => a.player.name.localeCompare(b.player.name));
     if (kasse.pruefIdx >= sorted.length || kasse.pruefIdx < 0) kasse.pruefIdx = 0;
     const i = kasse.pruefIdx, s = sorted[i];
@@ -4450,18 +4440,16 @@
 
   /* Reiter „Offen" (Vorlage 5B): eine Karte je Strafe, gebucht wird ueber das
      Blatt - die drei Zahlart-Chips sind aus der Zeile dorthin gewandert. */
-  function renderKasseOffen(list, all) {
-    if (!all.length) return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Keine offenen Posten</div><div class="rs">Alles verbucht.</div></div>`;
-    if (!list.length) return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Keine Treffer</div><div class="rs">Für diesen Spieler steht nichts offen.</div></div>`;
-    const sorted = list.slice().sort((a, b) => a.player.name.localeCompare(b.player.name));
-    return `<div class="krow-list">${sorted.map(krowHtml).join("")}</div>`;
+  function renderKasseOffen(list) {
+    if (!list.length) return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Keine offenen Posten</div><div class="rs">Alles verbucht.</div></div>`;
+    // Die Reihenfolge kommt schon sortiert an (älteste zuerst).
+    return `<div class="krow-list">${list.map(krowHtml).join("")}</div>`;
   }
 
   /* Reiter „Eingegangen" (Vorlage 4A): EINE Karte mit Zeilen, nicht je Eintrag
      eine eigene Karte. Antippen oeffnet das Blatt mit Verlauf und Rueckgaengig. */
-  function renderKasseEing(list, all) {
-    if (!all.length) return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Noch keine Zahlungen</div><div class="rs">Bestätigte Eingänge stehen hier.</div></div>`;
-    if (!list.length) return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Keine Treffer</div><div class="rs">Für diesen Spieler ist nichts eingegangen.</div></div>`;
+  function renderKasseEing(list) {
+    if (!list.length) return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Noch keine Zahlungen</div><div class="rs">Bestätigte Eingänge stehen hier.</div></div>`;
     return `<div class="card ks-ein">${list.map((s) => {
       const art = s.zahlart ? (ZAHLART_LABEL[s.zahlart] || s.zahlart) : "";
       const wann = s.paidAt ? fmtKurz(String(s.paidAt).slice(0, 10)) : fmtKurz(s.datum);
@@ -4477,128 +4465,40 @@
   }
 
   /* ==========================================================================
-     Filter fuer „Offen" und „Eingegangen"
+     Reihenfolge der Listen
 
-     Zwei Reiter, zwei verschiedene Fragen - deshalb zwei verschiedene Saetze
-     von Moeglichkeiten. In „Offen" sucht man, wer wie lange schon schuldet;
-     in „Eingegangen", was wann und wie hereinkam.
-
-     Alles hier ist rein rechnend und haengt an keinem DOM - dadurch laesst es
-     sich ohne Browser pruefen. Die Reiterzahlen bleiben ungefiltert; gefiltert
-     wird nur die Liste, und darueber steht, wie viel davon uebrig ist.
+     Von den Filtern ist nur die Sortierung geblieben, und die steht fest:
+     „Offen" zeigt die ältesten Schulden zuerst - sie drängen am meisten -,
+     „Eingegangen" die jüngste Buchung zuerst. Beides rein rechnend und ohne
+     DOM, damit es ohne Browser prüfbar bleibt.
      ========================================================================== */
-  const KS_FAELLIG_TAGE = 28;   // „ueberfaellig" = aelter als vier Wochen
+  const KS_REIHENFOLGE = { offen: "alt", bezahlt: "neu" };
 
-/* Die Reihenfolge folgt dem Entwurf: der Standard steht links. Deshalb
-     beginnt „Offen" mit „Älteste", „Eingegangen" mit „Neueste". */
-  const KS_SORT = {
-    offen:   [["alt", "Älteste"], ["betrag", "Betrag"], ["neu", "Neueste"]],
-    bezahlt: [["neu", "Neueste"], ["betrag", "Betrag"], ["alt", "Älteste"]],
-  };
-  const KS_ZEIT = [["monat", "Dieser Monat"], ["vormonat", "Letzter Monat"], ["saison", "Saison"]];
-
-  /* „Zu pruefen" bekommt nur die Spielerauswahl: der Reiter zeigt einen
-     Kartenstapel, keine Liste - eine Sortierung waere dort ohne Wirkung, und
-     „ueberfaellig" passt nicht zu Meldungen, die gerade erst eingegangen sind. */
-  function ksFilterNeu(tab) {
-    if (tab === "pruefen") return { spieler: [] };
-    return tab === "bezahlt"
-      ? { spieler: [], sort: "neu", zahlart: [], zeit: "saison" }
-      : { spieler: [], sort: "alt", faellig: false };
-  }
-
-  /* Worauf sich der Zeitraum bezieht: in „Eingegangen" das Buchungsdatum.
-     Fehlt es (Altbestand), faellt es auf das Strafendatum zurueck, statt die
-     Zeile verschwinden zu lassen. */
+  /* Worauf sich die Reihenfolge bezieht: in „Eingegangen" das Buchungsdatum.
+     Fehlt es (Altbestand), fällt es auf das Strafendatum zurück, statt die
+     Zeile ans Ende zu schieben. */
   function ksBezugsdatum(s, tab) {
     if (tab === "bezahlt") return s.paidAt ? String(s.paidAt).slice(0, 10) : s.datum;
     return s.datum;
-  }
-
-  /* Die Saison laeuft vom 1. Juli bis zum 30. Juni. „Saison" ist damit kein
-     Synonym fuer „alles": eine Buchung aus der Vorsaison faellt bewusst
-     heraus - danach fragt in der Kasse niemand. */
-  function ksSaisonStart(heute) {
-    const d = parseDate(heute);
-    const jahr = d.getMonth() >= 6 ? d.getFullYear() : d.getFullYear() - 1;
-    return jahr + "-07-01";
-  }
-
-  function ksImZeitraum(iso, zeit, heute) {
-    if (!zeit || zeit === "alle") return true;
-    if (!iso) return false;
-    const h = parseDate(heute);
-    if (zeit === "saison") return iso >= ksSaisonStart(heute);
-    const monat = (j, m) => j + "-" + String(m + 1).padStart(2, "0");
-    if (zeit === "monat") return iso.slice(0, 7) === monat(h.getFullYear(), h.getMonth());
-    if (zeit === "vormonat") {
-      // Im Januar ist der Vormonat der Dezember des Vorjahres.
-      const m = h.getMonth() === 0 ? 11 : h.getMonth() - 1;
-      const j = h.getMonth() === 0 ? h.getFullYear() - 1 : h.getFullYear();
-      return iso.slice(0, 7) === monat(j, m);
-    }
-    return true;
-  }
-
-  // Aelter als vier Wochen, gerechnet ab dem Datum der Strafe.
-  function ksIstFaellig(s, heute) {
-    if (!s.datum) return false;
-    const grenze = new Date(parseDate(heute).getTime() - KS_FAELLIG_TAGE * 86400000);
-    return parseDate(s.datum).getTime() <= grenze.getTime();
   }
 
   function ksSortieren(liste, sort, tab) {
     const d = (x) => ksBezugsdatum(x, tab);
     const name = (x) => (x.player && x.player.name) || "";
     const kopie = liste.slice();
-    if (sort === "betrag") {
-      return kopie.sort((a, b) => (b.betrag - a.betrag) || name(a).localeCompare(name(b)));
-    }
     const alt = sort === "alt";
     return kopie.sort((a, b) => {
       const v = String(d(a)).localeCompare(String(d(b)));
       if (v !== 0) return alt ? v : -v;
+      // Gleicher Tag: der Name entscheidet, damit die Reihenfolge nicht springt.
       return name(a).localeCompare(name(b));
     });
   }
 
-  function ksFiltern(liste, f, tab, heute) {
-    let l = liste;
-    if (f.spieler && f.spieler.length) l = l.filter((s) => f.spieler.indexOf(s.playerId) !== -1);
-    // Der Pruefstapel sortiert sich selbst nach Namen - hier nur filtern.
-    if (tab === "pruefen") return l;
-    if (tab === "offen") {
-      if (f.faellig) l = l.filter((s) => ksIstFaellig(s, heute));
-    } else {
-      if (f.zahlart && f.zahlart.length) l = l.filter((s) => f.zahlart.indexOf(s.zahlart) !== -1);
-      if (f.zeit) l = l.filter((s) => ksImZeitraum(ksBezugsdatum(s, tab), f.zeit, heute));
-    }
-    return ksSortieren(l, f.sort, tab);
-  }
-
-  /* Wie viele Filter stehen? Jeder Spieler und jede Zahlart zaehlen einzeln,
-     „ueberfaellig", Zeitraum und Sortierung je einmal - aber nur, wenn sie vom
-     Standard abweichen. */
-  function ksFilterAnzahl(f, tab) {
-    if (!f) return 0;
-    if (tab === "pruefen") return f.spieler ? f.spieler.length : 0;
-    const std = ksFilterNeu(tab);
-    // Nur zaehlen, was auch als Chip erscheinen kann - sonst nennt die Leiste
-    // eine Zahl, zu der der Nutzer keinen Chip findet und nichts abwaehlen kann.
-    const kennt = (liste, wert) => liste.some((x) => x[0] === wert);
-    let n = (f.spieler ? f.spieler.length : 0);
-    if (f.sort && f.sort !== std.sort && kennt(KS_SORT[tab] || [], f.sort)) n++;
-    if (tab === "offen") { if (f.faellig) n++; }
-    else {
-      n += (f.zahlart ? f.zahlart.length : 0);
-      if (f.zeit && f.zeit !== std.zeit && kennt(KS_ZEIT, f.zeit)) n++;
-    }
-    return n;
-  }
-
-  /* Namenssuche: Gross- und Kleinschreibung egal, Umlaute tolerant in beide
-     Richtungen („muller" findet „Müller", „Müller" findet „Muller"), und es
-     zählt jeder Teilstring, nicht nur der Wortanfang. */
+  /* Namenssuche für die Spielerauswahl: Groß- und Kleinschreibung egal,
+     Umlaute tolerant in beide Richtungen („muller" findet „Müller", „Müller"
+     findet „Muller"), und es zählt jeder Teilstring, nicht nur der
+     Wortanfang. */
   function ksNorm(x) {
     return String(x == null ? "" : x).toLowerCase()
       .replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/ß/g, "ss")
@@ -4613,70 +4513,7 @@
     return liste.filter((p) => ksSucheTrifft(p.name, frage));
   }
 
-  /* --- Markup der Filterleiste --------------------------------------------- */
-  const ICON_FILTER = `<svg ${SVG}><path d="M3 5h18"/><path d="M6.5 12h11"/><path d="M10 19h4"/></svg>`;
-  const ICON_LUPE   = `<svg ${SVG}><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>`;
-  const ICON_PERSON = `<svg ${SVG}><circle cx="12" cy="8" r="3.6"/><path d="M5.5 20c0-3.4 2.9-5.6 6.5-5.6s6.5 2.2 6.5 5.6"/></svg>`;
-
-  function ksFilterChips(f, tab) {
-    const chips = [];
-    (f.spieler || []).forEach((id) => {
-      const pl = playerById[id];
-      if (pl) chips.push(["sp:" + id, pl.name]);
-    });
-    if (tab === "pruefen") return chips;
-    if (tab === "offen") {
-      if (f.faellig) chips.push(["faellig", "Nur überfällig"]);
-    } else {
-      (f.zahlart || []).forEach((a) => {
-        const z = KASSE_ZAHLARTEN.find((x) => x[0] === a);
-        if (z) chips.push(["za:" + a, z[1]]);
-      });
-      if (f.zeit && f.zeit !== "saison") {
-        const z = KS_ZEIT.find((x) => x[0] === f.zeit);
-        if (z) chips.push(["zeit", z[1]]);
-      }
-    }
-    const std = ksFilterNeu(tab);
-    if (f.sort && f.sort !== std.sort) {
-      const so = (KS_SORT[tab] || []).find((x) => x[0] === f.sort);
-      if (so) chips.push(["sort", so[1]]);
-    }
-    return chips;
-  }
-
-  function ksFilterleisteHtml(tab) {
-    const f = kasse.filter[tab] || ksFilterNeu(tab);
-    const n = ksFilterAnzahl(f, tab);
-    const chips = ksFilterChips(f, tab);
-    return `<div class="ks-fl">
-      <button type="button" class="ks-fl-b" data-ks-fl-auf>
-        <span class="ks-zi" aria-hidden="true">${ICON_FILTER}</span>
-        <span class="ks-fl-t">Filter</span>
-        ${n ? `<span class="ks-fl-n">${n}</span>` : ""}
-      </button>
-      ${chips.length ? `<div class="ks-fl-aktiv">${chips.map(([k, label]) =>
-        `<span class="ks-fl-chip">${esc(label)}<button type="button" data-ks-fl-weg="${esc(k)}"
-          aria-label="${esc(label)} entfernen">&times;</button></span>`).join("")}</div>` : ""}
-    </div>`;
-  }
-
-  /* Ueber der Liste: in „Offen" wie viele von wie vielen, in „Eingegangen"
-     zusaetzlich die Summe - dort ist die Frage „wie viel ist hereingekommen",
-     nicht „wie viele Zeilen sind es". Steht nur da, wenn gefiltert wird. */
-  function ksTrefferHtml(gezeigt, gesamt, f, tab) {
-    if (!ksFilterAnzahl(f, tab)) return "";
-    if (tab === "pruefen") {
-      return `<div class="ks-treffer">${gezeigt.length} von ${gesamt}</div>`;
-    }
-    if (tab === "bezahlt") {
-      const summe = gezeigt.reduce((a, s) => a + s.betrag, 0);
-      return `<div class="ks-treffer">${gezeigt.length} ${gezeigt.length === 1 ? "Zahlung" : "Zahlungen"}
-        · ${euro(summe).replace(/\s/g, " ")}</div>`;
-    }
-    if (gezeigt.length === gesamt) return "";
-    return `<div class="ks-treffer">${gezeigt.length} von ${gesamt}</div>`;
-  }
+  const ICON_LUPE = `<svg ${SVG}><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>`;
 
   /* ==========================================================================
      „Strafe verhängen" als eigene Seite
@@ -4853,10 +4690,8 @@
     /* Gefiltert wird nur die Liste. Die Reiterzahlen und die Kennzahlen oben
        bleiben die Gesamtzahlen - sonst wüsste man nicht mehr, wovon man einen
        Ausschnitt sieht. */
-    const fPruef = kasse.filter.pruefen, fOffen = kasse.filter.offen, fBez = kasse.filter.bezahlt;
-    const gemeldetGef = ksFiltern(gemeldet, fPruef, "pruefen", HEUTE);
-    const offenGef    = ksFiltern(offen,    fOffen, "offen",   HEUTE);
-    const bezahltGef  = ksFiltern(bezahlt,  fBez,   "bezahlt", HEUTE);
+    const offenSort   = ksSortieren(offen,   KS_REIHENFOLGE.offen,   "offen");
+    const bezahltSort = ksSortieren(bezahlt, KS_REIHENFOLGE.bezahlt, "bezahlt");
     const zaehler = { pruefen: gemeldet.length, offen: offen.length, bezahlt: bezahlt.length };
     const REITER = [["pruefen", "Zu prüfen"], ["offen", "Offen"], ["bezahlt", "Eingegangen"]];
 
@@ -4891,12 +4726,9 @@
           ${REITER.map(([k, label]) => `<button class="ks-seg-b${kasse.tab === k ? " is-on" : ""}" role="tab"
             aria-selected="${kasse.tab === k}" data-kstab="${k}">${label} <span class="ks-seg-n">${zaehler[k]}</span></button>`).join("")}
         </div>
-        ${kasse.tab === "pruefen" ? ksFilterleisteHtml("pruefen") + ksTrefferHtml(gemeldetGef, gemeldet.length, fPruef, "pruefen")
-            + renderKassePruefen(gemeldetGef, gemeldet) : ""}
-        ${kasse.tab === "offen" ? ksFilterleisteHtml("offen") + ksTrefferHtml(offenGef, offen.length, fOffen, "offen")
-            + renderKasseOffen(offenGef, offen) : ""}
-        ${kasse.tab === "bezahlt" ? ksFilterleisteHtml("bezahlt") + ksTrefferHtml(bezahltGef, bezahlt.length, fBez, "bezahlt")
-            + renderKasseEing(bezahltGef, bezahlt) : ""}
+        ${kasse.tab === "pruefen" ? renderKassePruefen(gemeldet) : ""}
+        ${kasse.tab === "offen" ? renderKasseOffen(offenSort) : ""}
+        ${kasse.tab === "bezahlt" ? renderKasseEing(bezahltSort) : ""}
       </div>
     `;
   }
@@ -5110,10 +4942,7 @@
   /* Eine Meldung weiter oder zurueck, mit kurzer Bewegung. Der Stapel ist
      ringfoermig: hinter der letzten kommt wieder die erste. */
   function ksBlaettern(richtung, karte) {
-    const f = kasse.filter.pruefen;
-    const anzahl = aktiveStrafen()
-      .filter((s) => fineStatus(s) === "gemeldet")
-      .filter((s) => !f.spieler.length || f.spieler.indexOf(s.playerId) !== -1).length;
+    const anzahl = aktiveStrafen().filter((s) => fineStatus(s) === "gemeldet").length;
     if (anzahl < 2) return;
     const neu = (kasse.pruefIdx + richtung + anzahl) % anzahl;
     if (neu === kasse.pruefIdx) return;
@@ -5154,9 +4983,8 @@
       const n = rows.length;
       ksSeiteLeeren();
       // Zurueck zur Kassen-Startseite und gleich dorthin, wo die neuen
-      // Strafen liegen. Ein stehender Filter koennte sie verstecken - deshalb
-      // faellt er hier zurueck.
-      kasse.tab = "offen"; kasse.filter.offen = ksFilterNeu("offen");
+      // Strafen liegen.
+      kasse.tab = "offen";
       await reloadData();                          // rendert Kasse neu (aktualisierte Listen)
       tvToast(n + (n === 1 ? " Strafe verhängt" : " Strafen verhängt"));
     } catch (e) {
@@ -5417,287 +5245,6 @@
     blattZu("ksScrim", "ksSheet");
     if (kasse.seite) { ksSeiteSpielerAktualisieren(); return; }
     if (currentView === "kasse") renderKasse();
-  }
-
-  /* ==========================================================================
-     Filter-Blatt und Vollbild „Spieler suchen"
-
-     Das Filterblatt arbeitet auf einem Entwurf. Erst „Anwenden" schreibt ihn
-     in kasse.filter[tab] - wer zwischendurch schließt, ändert nichts. Die
-     Spielersuche liegt als zweites Blatt darüber; der Stapel in blattAuf()
-     sorgt dafür, dass die Navigation erst wiederkommt, wenn beide zu sind.
-     ========================================================================== */
-  // Die Reiternamen sind zugleich die Schluessel in kasse.filter.
-  function ksFlTab() { return kasse.tab; }
-
-  function ksFlEnsure() {
-    if (document.getElementById("ksFlBl")) return;
-    const scrim = document.createElement("div"); scrim.className = "tv-scrim"; scrim.id = "ksFlScrim";
-    const sheet = document.createElement("div"); sheet.className = "tv-sheet ks-bl ks-flbl"; sheet.id = "ksFlBl";
-    sheet.setAttribute("role", "dialog"); sheet.setAttribute("aria-modal", "true");
-    sheet.setAttribute("aria-label", "Filter");
-    document.body.appendChild(scrim); document.body.appendChild(sheet);
-    scrim.addEventListener("click", ksFlZu);
-    sheet.addEventListener("click", (ev) => {
-      if (ev.target.closest("[data-ks-fl-close]")) { ksFlZu(); return; }
-      if (ev.target.closest("[data-ks-fl-spieler]")) { ksSuAuf(); return; }
-      const so = ev.target.closest("[data-ks-fl-sort]");
-      if (so) {
-        kasse.flEntwurf.sort = so.dataset.ksFlSort;
-        ksFlWahlSetzen(sheet, "data-ks-fl-sort", so.dataset.ksFlSort);
-        ksFlCtaAktualisieren(sheet); return;
-      }
-      const ze = ev.target.closest("[data-ks-fl-zeit]");
-      if (ze) {
-        kasse.flEntwurf.zeit = ze.dataset.ksFlZeit;
-        ksFlWahlSetzen(sheet, "data-ks-fl-zeit", ze.dataset.ksFlZeit);
-        ksFlCtaAktualisieren(sheet); return;
-      }
-      const sw = ev.target.closest("[data-ks-fl-faellig]");
-      if (sw) {
-        kasse.flEntwurf.faellig = !kasse.flEntwurf.faellig;
-        sw.setAttribute("aria-checked", kasse.flEntwurf.faellig ? "true" : "false");
-        ksFlCtaAktualisieren(sheet); return;
-      }
-      if (ev.target.closest("[data-ks-fl-reset]")) { kasse.flEntwurf = ksFilterNeu(ksFlTab()); mitScroll(sheet, ksFlRender); return; }
-      // Zahlart: Mehrfachauswahl, jede Pille fuer sich.
-      const za = ev.target.closest("[data-ks-fl-za]");
-      if (za) {
-        const wert = za.dataset.ksFlZa, l = kasse.flEntwurf.zahlart, i = l.indexOf(wert);
-        if (i === -1) l.push(wert); else l.splice(i, 1);
-        ksZaUmschalten(za, i === -1);
-        ksFlCtaAktualisieren(sheet);
-        return;
-      }
-      // Der Knopf unten wendet an und schliesst - „Anwenden" heisst jetzt
-      // „N Strafen anzeigen", damit vorher klar ist, was herauskommt.
-      if (ev.target.closest("[data-ks-fl-ok]")) {
-        kasse.filter[ksFlTab()] = kasse.flEntwurf;
-        ksFlZu();
-        if (currentView === "kasse") renderKasse();
-        return;
-      }
-    });
-  }
-
-  /* Eine Zeile der Segmentleiste im Filterblatt. */
-  function ksSegHtml(liste, wert, attr) {
-    return `<div class="ks-seg is-hell" role="tablist">${liste.map(([k, label]) =>
-      `<button type="button" class="ks-seg-b${wert === k ? " is-on" : ""}" role="tab"
-        aria-selected="${wert === k}" ${attr}="${k}">${esc(label)}</button>`).join("")}</div>`;
-  }
-
-  // Die Zahlart-Pillen: Mehrfachauswahl, gewaehlt mit Haken und gruenem Rand.
-  function ksZaHtml(gewaehlt) {
-    return `<div class="ks-za-row">${KASSE_ZAHLARTEN.map(([k, label]) => {
-      const an = gewaehlt.indexOf(k) !== -1;
-      return `<button type="button" class="ks-za${an ? " is-on" : ""}" aria-pressed="${an}" data-ks-fl-za="${k}">
-        ${an ? `<span class="ks-za-ok" aria-hidden="true">${ICON_CHECK}</span>` : ""}<span>${esc(label)}</span>
-      </button>`;
-    }).join("")}</div>`;
-  }
-
-  /* Wie viele Zeilen zeigt der Entwurf? Rein gelesen aus den schon geladenen
-     Daten - dieselbe Rechnung wie in der Liste, nur vorab. */
-  function ksFlTreffer() {
-    const tab = ksFlTab();
-    const zustand = tab === "bezahlt" ? "bestätigt" : tab === "pruefen" ? "gemeldet" : "offen";
-    const basis = aktiveStrafen()
-      .map((s) => ({ ...s, betrag: strafeBetrag(s), st: fineStatus(s), player: playerById[s.playerId] }))
-      .filter((s) => s.player && s.st === zustand);
-    return ksFiltern(basis, kasse.flEntwurf, tab, HEUTE).length;
-  }
-
-  function ksFlCtaText() {
-    const n = ksFlTreffer();
-    const tab = ksFlTab();
-    const wort = tab === "bezahlt" ? (n === 1 ? "Zahlung" : "Zahlungen")
-      : tab === "pruefen" ? (n === 1 ? "Meldung" : "Meldungen")
-      : (n === 1 ? "Strafe" : "Strafen");
-    return n + " " + wort + " anzeigen";
-  }
-
-  // Nur den Knopf nachziehen - das Blatt bleibt stehen.
-  function ksFlCtaAktualisieren(sheet) {
-    const btn = sheet && sheet.querySelector("[data-ks-fl-ok]");
-    if (btn) btn.textContent = ksFlCtaText();
-  }
-
-  // „Alle" oder die gewaehlten Namen, direkt in der Zeile statt als Chips.
-  function ksFlSpielerText(ids) {
-    if (!ids.length) return "Alle";
-    return ids.map((id) => playerById[id] && playerById[id].name).filter(Boolean).join(", ");
-  }
-
-  function ksFlRender() {
-    const sheet = document.getElementById("ksFlBl"); if (!sheet) return;
-    const tab = ksFlTab(), f = kasse.flEntwurf;
-
-    const spieler =
-      '<button type="button" class="ks-fl-box ks-fl-sp" data-ks-fl-spieler>' +
-        '<span class="ks-zi" aria-hidden="true">' + ICON_PERSON + '</span>' +
-        '<span class="ks-fl-sp-t">Spieler</span>' +
-        '<span class="ks-fl-sp-w' + (f.spieler.length ? " is-gewaehlt" : "") + '">' +
-          esc(ksFlSpielerText(f.spieler)) + '</span>' +
-        '<span class="kasse-picker-arrow" aria-hidden="true">›</span>' +
-      '</button>';
-
-    let mitte;
-    if (tab === "pruefen") {
-      mitte = '<div class="ks-fl-hinweis">Die Meldungen werden nacheinander gezeigt, ' +
-        'eine Sortierung gibt es hier nicht.</div>';
-    } else if (tab === "offen") {
-      mitte =
-        '<div class="lbl ks-fl-lbl">Sortierung</div>' +
-        ksSegHtml(KS_SORT.offen, f.sort, "data-ks-fl-sort") +
-        '<div class="lbl ks-fl-lbl">Einschränken</div>' +
-        '<div class="ks-fl-box ks-fl-schalter">' +
-          '<span class="ks-fl-box-main">' +
-            '<span class="ks-fl-box-t">Nur überfällig</span>' +
-            '<span class="ks-fl-box-s">Älter als 4 Wochen ab Strafdatum</span>' +
-          '</span>' +
-          '<button class="sw" role="switch" aria-checked="' + (f.faellig ? "true" : "false") +
-          '" aria-label="Nur überfällige Strafen" type="button" data-ks-fl-faellig></button>' +
-        '</div>';
-    } else {
-      mitte =
-        '<div class="lbl ks-fl-lbl">Sortierung</div>' +
-        ksSegHtml(KS_SORT.bezahlt, f.sort, "data-ks-fl-sort") +
-        '<div class="lbl ks-fl-lbl">Zahlart</div>' +
-        ksZaHtml(f.zahlart || []) +
-        '<div class="ks-fl-hinweis">Ohne Auswahl werden alle Zahlarten gezeigt.</div>' +
-        '<div class="lbl ks-fl-lbl">Zeitraum</div>' +
-        ksSegHtml(KS_ZEIT, f.zeit, "data-ks-fl-zeit") +
-        '<div class="ks-fl-hinweis">Saison: 1. Juli bis 30. Juni, nach Buchungsdatum</div>';
-    }
-
-    sheet.innerHTML =
-      '<div class="tv-sh ks-fl-kopf"><span class="tv-grip"></span>' +
-        '<strong class="ks-fl-titel">Filter</strong>' +
-        '<button type="button" class="link-btn ks-fl-reset" data-ks-fl-reset>Zurücksetzen</button>' +
-        '<button type="button" class="ks-fl-x" data-ks-fl-close aria-label="Schließen">' + ICON_X + '</button>' +
-      '</div>' +
-      '<div class="tv-shbody" data-scroll="ksFlBody">' + spieler + mitte + '</div>' +
-      '<div class="ks-fl-fuss">' +
-        '<button type="button" class="btn btn-primary ks-fuss-btn" data-ks-fl-ok>' + ksFlCtaText() + '</button>' +
-      '</div>';
-  }
-
-  // Eine Zahlart-Pille an- oder abwaehlen: Rand, Fuellung und Haken.
-  function ksZaUmschalten(pille, an) {
-    pille.classList.toggle("is-on", an);
-    pille.setAttribute("aria-pressed", an ? "true" : "false");
-    const alt = pille.querySelector(".ks-za-ok");
-    if (an && !alt) pille.insertAdjacentHTML("afterbegin",
-      '<span class="ks-za-ok" aria-hidden="true">' + ICON_CHECK + '</span>');
-    else if (!an && alt) alt.remove();
-  }
-
-  /* Eine Wahl in einer Liste umsetzen: den alten Haken loeschen, den neuen
-     setzen. Kein Neuaufbau - das Blatt scrollt sonst an den Anfang. */
-  function ksFlWahlSetzen(sheet, attr, wert) {
-    sheet.querySelectorAll("[" + attr + "]").forEach((b) => {
-      const an = b.getAttribute(attr) === wert;
-      b.classList.toggle("is-on", an);
-      const haken = b.querySelector(".ks-check");
-      if (haken) haken.innerHTML = an ? ICON_CHECK : "";
-    });
-  }
-
-  function ksFlAuf() {
-    ksFlEnsure();
-    const tab = ksFlTab();
-    const f = kasse.filter[tab] || ksFilterNeu(tab);
-    // Tiefe Kopie: der Entwurf darf den stehenden Filter nicht anfassen.
-    kasse.flEntwurf = tab === "pruefen"
-      ? { spieler: f.spieler.slice() }
-      : tab === "bezahlt"
-        ? { spieler: f.spieler.slice(), sort: f.sort, zahlart: (f.zahlart || []).slice(), zeit: f.zeit }
-        : { spieler: f.spieler.slice(), sort: f.sort, faellig: !!f.faellig };
-    ksFlRender();
-    blattAuf("ksFlScrim", "ksFlBl");
-  }
-  function ksFlZu() { ksSuZu(); blattZu("ksFlScrim", "ksFlBl"); }
-
-  /* --- Vollbild „Spieler suchen" (liegt über dem Filterblatt) -------------- */
-  function ksSuEnsure() {
-    if (document.getElementById("ksSuBl")) return;
-    const scrim = document.createElement("div"); scrim.className = "tv-scrim"; scrim.id = "ksSuScrim";
-    const sheet = document.createElement("div"); sheet.className = "tv-sheet tv-kfull ks-such"; sheet.id = "ksSuBl";
-    sheet.setAttribute("role", "dialog"); sheet.setAttribute("aria-modal", "true");
-    sheet.setAttribute("aria-label", "Spieler suchen");
-    document.body.appendChild(scrim); document.body.appendChild(sheet);
-    scrim.addEventListener("click", ksSuZu);
-    sheet.addEventListener("click", (ev) => {
-      if (ev.target.closest("[data-ks-su-close]")) { ksSuZu(); return; }
-      if (ev.target.closest("[data-ks-such-leer]")) {
-        kasse.suche = "";
-        const b = document.getElementById("ksSuBody");
-        if (b) b.innerHTML = ksSpielerZeilenHtml(kasse.flEntwurf.spieler, "", "data-ks-su-player");
-        const feld = sheet.querySelector(".ks-such-in");
-        if (feld) feld.value = "";
-        ksSuchKreuz(sheet);
-        ksFokusSuche("ksSuIn");
-        return;
-      }
-      const weg = ev.target.closest("[data-ks-su-weg]");
-      if (weg) { ksSuUmschalten(sheet, weg.dataset.ksSuWeg); return; }
-      const row = ev.target.closest("[data-ks-su-player]");
-      if (row) { ksSuUmschalten(sheet, row.dataset.ksSuPlayer); }
-    });
-    sheet.addEventListener("input", (ev) => {
-      if (!ev.target.matches("#ksSuIn")) return;
-      kasse.suche = ev.target.value;
-      const b = document.getElementById("ksSuBody");
-      if (b) b.innerHTML = ksSpielerZeilenHtml(kasse.flEntwurf.spieler, kasse.suche, "data-ks-su-player");
-      ksSuchKreuz(sheet);
-    });
-    sheet.addEventListener("keydown", ksSuchEnter);
-  }
-
-  function ksSuKnopfText(n) {
-    return n ? "Übernehmen: " + n + (n === 1 ? " Spieler" : " Spieler") : "Alle Spieler";
-  }
-
-  // Wie in der Spielerauswahl: Zeile, Chips, Knopf - sonst nichts.
-  function ksSuUmschalten(sheet, id) {
-    const l = kasse.flEntwurf.spieler;
-    const i = l.indexOf(id);
-    if (i === -1) l.push(id); else l.splice(i, 1);
-    ksZeileUmschalten(sheet, "data-ks-su-player", id, i === -1);
-    ksChipsAktualisieren(sheet, l, "data-ks-su-weg");
-    const btn = sheet.querySelector(".ks-fuss-btn");
-    if (btn) btn.textContent = ksSuKnopfText(l.length);
-  }
-
-  function ksSuRender() {
-    const sheet = document.getElementById("ksSuBl"); if (!sheet) return;
-    sheet.innerHTML =
-      '<div class="tv-sh"><strong>Spieler suchen</strong>' +
-      '<button class="tv-shx" data-ks-su-close aria-label="Schließen">&times;</button></div>' +
-      ksSuchfeldHtml("ksSuIn", kasse.suche, "Suchen") +
-      ksGewaehltChipsHtml(kasse.flEntwurf.spieler, "data-ks-su-weg") +
-      '<div class="tv-shbody" id="ksSuBody" data-scroll="ksSuBody">' +
-      ksSpielerZeilenHtml(kasse.flEntwurf.spieler, kasse.suche, "data-ks-su-player") + '</div>' +
-      '<div class="ks-fuss"><button type="button" class="btn btn-primary ks-fuss-btn" data-ks-su-close>' +
-      ksSuKnopfText(kasse.flEntwurf.spieler.length) + '</button></div>';
-  }
-
-  function ksSuAuf() {
-    ksSuEnsure(); kasse.suche = ""; ksSuRender();
-    blattAuf("ksSuScrim", "ksSuBl");   // ohne Fokus, siehe ksOpenPlayers
-  }
-  function ksSuZu() {
-    if (!blattOffen("ksSuBl")) return;
-    blattZu("ksSuScrim", "ksSuBl");
-    const sheet = document.getElementById("ksFlBl");
-    if (!sheet) return;
-    const w = sheet.querySelector(".ks-fl-sp-w");
-    if (w) {
-      w.textContent = ksFlSpielerText(kasse.flEntwurf.spieler);
-      w.classList.toggle("is-gewaehlt", kasse.flEntwurf.spieler.length > 0);
-    }
-    ksFlCtaAktualisieren(sheet);
   }
 
   /* ---- Vollbild-Waehler „Strafe verhaengen" --------------------------------
@@ -5969,25 +5516,6 @@
       //     passiert auf der Seite, die an <body> hängt (ksSeiteKlick). ---
       if (ev.target.closest("[data-ks-wahl]")) { ksWahlOpen(); return; }
 
-      // --- Filter ---
-      if (ev.target.closest("[data-ks-fl-auf]")) { ksFlAuf(); return; }
-      const flWeg = ev.target.closest("[data-ks-fl-weg]");
-      if (flWeg) {
-        const tab = ksFlTab(), f = kasse.filter[tab], wert = flWeg.dataset.ksFlWeg;
-        const std = ksFilterNeu(tab);
-        if (wert === "zeit") f.zeit = std.zeit;
-        else if (wert === "sort") f.sort = std.sort;
-        else if (wert === "faellig") f.faellig = false;
-        else if (wert.slice(0, 3) === "za:") {
-          const i = f.zahlart.indexOf(wert.slice(3));
-          if (i >= 0) f.zahlart.splice(i, 1);
-        } else {
-          const i = f.spieler.indexOf(wert.slice(3));
-          if (i >= 0) f.spieler.splice(i, 1);
-        }
-        renderKasse(); return;
-      }
-
       // --- Reiter ---
       const tab = ev.target.closest("[data-kstab]");
       if (tab) { kasse.tab = tab.dataset.kstab; renderKasse(); return; }
@@ -6009,12 +5537,7 @@
         return;
       }
       if (ev.target.closest("[data-kasse-confirm-all]")) {
-        // Die gefilterte Auswahl, nicht alles - sonst bestaetigt der Knopf
-        // mehr, als auf dem Bildschirm steht.
-        const f = kasse.filter.pruefen;
-        const liste = aktiveStrafen()
-          .filter((s) => fineStatus(s) === "gemeldet")
-          .filter((s) => !f.spieler.length || f.spieler.indexOf(s.playerId) !== -1);
+        const liste = aktiveStrafen().filter((s) => fineStatus(s) === "gemeldet");
         if (!liste.length) return;
         if (!window.confirm(liste.length + " gemeldete Strafen bestätigen?")) return;
         try {

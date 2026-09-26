@@ -1050,3 +1050,25 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
   nicht mehr durchkommt.
 - **Die Zahlart-Reihenfolge bleibt PayPal · Bar · Überweisung**, entgegen dem
   Entwurf. Bestätigt: die stehende Regel gilt weiter.
+
+**Filter wieder entfernt (26.09.2026)**
+
+- **Entscheidung: die Kasse braucht keine Filter.** Ein Amateurkader ist klein
+  genug, dass man scrollt; jede Filterleiste nimmt oben Platz weg, der der
+  Liste fehlt. Raus sind: Filterleiste, Chips, „x von y", das Filterblatt in
+  beiden Fassungen, die Spielersuche des Filters, alle Filterkriterien
+  (überfällig, Zahlart, Zeitraum) und `filterdesign.png` als Vorlage.
+- **Was geblieben ist**, weil es woanders gebraucht wird: die Spielerauswahl
+  samt Suchfeld und Namenssuche (Umlaut-tolerant) — die hängt an „Strafe
+  verhängen", nicht am Filter. Ebenso `ksSortieren` und `ksBezugsdatum`.
+- **Die Reihenfolge ist geblieben, nur jetzt fest**: „Offen" älteste zuerst,
+  „Eingegangen" neueste Buchung zuerst, bei gleichem Datum nach Namen. Das war
+  vorher der Standardwert der Filter und ist jetzt `KS_REIHENFOLGE`. Vor den
+  Filtern sortierte „Offen" nach Namen — das kommt bewusst **nicht** zurück:
+  wer eine Schuld eintreibt, fängt bei der ältesten an.
+- **Zwei Stellen sind mit zurückgefallen**: „Alle bestätigen" und das Wischen
+  im Prüfstapel zählen wieder über alle Meldungen. Sie waren nur wegen des
+  Filters eingeschränkt.
+- **Das Prüfskript hat einen eigenen Abschnitt dagegen**: er prüft, dass in
+  `app.js` und `styles.css` kein Rest übrig ist — sechzehn Namen im Code,
+  fünf im Stylesheet. So bleibt es auch entfernt.

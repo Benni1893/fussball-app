@@ -24,15 +24,9 @@ function frisch() {
   M.kasse.bloecke = { katalog: false, indiv: false };
   M.kasse.players = []; M.kasse.items = {}; M.kasse.bezug = {}; M.kasse.indiv = [];
   M.kasse.indivBetrag = ''; M.kasse.indivGrund = ''; M.kasse.comment = '';
-  M.kasse.filter = { pruefen: M.ksFilterNeu('pruefen'), offen: M.ksFilterNeu('offen'), bezahlt: M.ksFilterNeu('bezahlt') };
 }
 function reiter(tab) { frisch(); M.kasse.tab = tab; return M.kasseHtml(DATEN); }
 function leer(tab)   { frisch(); M.kasse.tab = tab; return M.kasseHtml([]); }
-function gefiltert() {
-  frisch(); M.kasse.tab = 'offen';
-  M.kasse.filter.offen = { spieler: ['p2'], sort: 'betrag', faellig: true };
-  return M.kasseHtml(DATEN);
-}
 function seiteHtml(modus) {
   frisch();
   M.kasse.seite = modus;
@@ -106,60 +100,6 @@ const PERSON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strok
 const KREUZ = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
   'stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>';
 
-const seg = (liste, wert, attr) => '<div class="ks-seg is-hell">' + liste.map(([k, label]) =>
-  '<button type="button" class="ks-seg-b' + (wert === k ? ' is-on' : '') + '" ' + attr + '="' + k + '">' +
-  label + '</button>').join('') + '</div>';
-
-const zaPillen = (gewaehlt) => '<div class="ks-za-row">' + M.KASSE_ZAHLARTEN.map(([k, label]) => {
-  const an = gewaehlt.indexOf(k) !== -1;
-  return '<button type="button" class="ks-za' + (an ? ' is-on' : '') + '">' +
-    (an ? '<span class="ks-za-ok">' + HAKEN + '</span>' : '') + '<span>' + label + '</span></button>';
-}).join('') + '</div>';
-
-const spielerZeile = (namen) =>
-  '<button type="button" class="ks-fl-box ks-fl-sp">' +
-    '<span class="ks-zi">' + PERSON + '</span>' +
-    '<span class="ks-fl-sp-t">Spieler</span>' +
-    '<span class="ks-fl-sp-w' + (namen ? ' is-gewaehlt' : '') + '">' + (namen || 'Alle') + '</span>' +
-    '<span class="kasse-picker-arrow">›</span></button>';
-
-const filterBlatt =
-  spielerZeile('') +
-  '<div class="lbl ks-fl-lbl">Sortierung</div>' + seg(M.KS_SORT.offen, 'alt', 'data-s') +
-  '<div class="lbl ks-fl-lbl">Einschränken</div>' +
-  '<div class="ks-fl-box ks-fl-schalter"><span class="ks-fl-box-main">' +
-    '<span class="ks-fl-box-t">Nur überfällig</span>' +
-    '<span class="ks-fl-box-s">Älter als 4 Wochen ab Strafdatum</span></span>' +
-    '<button class="sw" role="switch" aria-checked="false" type="button"></button></div>';
-
-const filterBlattB =
-  spielerZeile('Jonas Berger, Lukas Weber') +
-  '<div class="lbl ks-fl-lbl">Sortierung</div>' + seg(M.KS_SORT.bezahlt, 'betrag', 'data-s') +
-  '<div class="lbl ks-fl-lbl">Zahlart</div>' + zaPillen(['paypal', 'bar']) +
-  '<div class="ks-fl-hinweis">Ohne Auswahl werden alle Zahlarten gezeigt.</div>' +
-  '<div class="lbl ks-fl-lbl">Zeitraum</div>' + seg(M.KS_ZEIT, 'monat', 'data-z') +
-  '<div class="ks-fl-hinweis">Saison: 1. Juli bis 30. Juni, nach Buchungsdatum</div>';
-
-const filterFuss = (text) =>
-  '<div class="ks-fl-fuss"><button type="button" class="btn btn-primary">' + text + '</button></div>';
-
-/* Das Filterblatt hat einen eigenen Kopf: Titel, Zurücksetzen, nacktes Kreuz. */
-function filterBlattDemo(body, cta) {
-  return '<div class="blatt-demo ks-flbl"><div class="tv-sh ks-fl-kopf"><span class="tv-grip"></span>' +
-    '<strong class="ks-fl-titel">Filter</strong>' +
-    '<button type="button" class="link-btn ks-fl-reset">Zurücksetzen</button>' +
-    '<button type="button" class="ks-fl-x" aria-label="Schließen">' + KREUZ + '</button></div>' +
-    '<div class="tv-shbody">' + body + '</div>' + filterFuss(cta) + '</div>';
-}
-
-const suche =
-  '<div class="tv-sh"><strong>Spieler suchen</strong>' +
-  '<button class="tv-shx" aria-label="Schließen">&times;</button></div>' +
-  M.ksSuchfeldHtml('ksSuIn', 'ko', 'Suchen') +
-  M.ksGewaehltChipsHtml(['p2'], 'data-weg') +
-  '<div class="tv-shbody">' + M.ksSpielerZeilenHtml(['p2'], 'ko', 'data-p') + '</div>' +
-  '<div class="ks-fuss"><button type="button" class="btn btn-primary ks-fuss-btn">Übernehmen: 1 Spieler</button></div>';
-
 const auswahl = (gewaehlt) =>
   '<div class="tv-sh"><strong>Spieler auswählen</strong>' +
   '<button class="tv-shx" aria-label="Schließen">&times;</button></div>' +
@@ -180,9 +120,7 @@ const ANSICHTEN = [
    'Zeilen statt Karten. Die Zahlart steht mit eigenem Symbol; PayPal trägt als einzige ihre Hausfarbe, weil es eine Marke ist.'],
   ['4 · Leer — je Reiter ein eigener Satz', leer('offen'),
    'Leer und „keine Treffer" sind zwei verschiedene Meldungen: die erste heißt, es gibt nichts, die zweite, der Filter greift.'],
-  ['5 · Gefiltert — Leiste, Chips, „x von y"', gefiltert(),
-   'Die Leiste nennt die Zahl der aktiven Filter, darunter stehen sie einzeln als abwählbare Chips. Kennzahlen und Reiterzahlen bleiben ungefiltert — sonst wüsste man nicht mehr, wovon man einen Ausschnitt sieht.'],
-  ['6 · Strafe verhängen: Katalog-Seite', '<div class="seite-demo">' + seiteHtml('katalog') + '</div>',
+  ['5 · Strafe verhängen: Katalog-Seite', '<div class="seite-demo">' + seiteHtml('katalog') + '</div>',
    'Eine eigene Seite, kein Abschnitt im Feed: ohne Kennzahlen, ohne Reiter, ohne untere Navigation. Kopf oben fest, Speichern unten fest mit Anzahl und Summe.'],
   ['9 · Strafe verhängen: Individuell-Seite', '<div class="seite-demo">' + seiteHtml('indiv') + '</div>',
    'Spiegelbildlich aufgebaut. Der Link unten holt den jeweils anderen Block dazu — gemischte Vorgänge bleiben in einem create_fines_batch.'],
@@ -242,55 +180,37 @@ ${ANSICHTEN.map(([t, inhalt, m]) => `  <div>
   </div>
 `).join('\n')}
   <div>
-    <div class="sp-h">8 · Blatt „Als bezahlt buchen"</div>
+    <div class="sp-h">7 · Blatt „Als bezahlt buchen"</div>
     <div class="frame">${blatt('Als bezahlt buchen', buchenBlatt)}</div>
     <div class="meta">Die Zahlart ist nach der Angabe des Spielers vorbelegt; der Hinweis darunter sagt, warum. Der Knopf trägt Betrag und Zahlart, damit vor dem Tippen klar ist, was gebucht wird.</div>
   </div>
 
   <div>
-    <div class="sp-h">9 · Detail-Blatt mit Verlauf</div>
+    <div class="sp-h">8 · Detail-Blatt mit Verlauf</div>
     <div class="frame">${blatt('Strafe', detailBlatt)}</div>
     <div class="meta">Öffnet sich beim Tippen auf eine Karte. Bei einer bestätigten Zahlung steht hier zusätzlich „Buchung rückgängig".</div>
   </div>
 
   <div>
-    <div class="sp-h">10 · Vollbild-Wähler „Strafe verhängen"</div>
+    <div class="sp-h">9 · Vollbild-Wähler „Strafe verhängen"</div>
     <div class="frame"><div class="wahl-demo ks-wahl">${waehler}</div></div>
     <div class="meta">Genau zwei Wege, gleich groß. Beide führen in dasselbe Formular, nur mit unterschiedlich vorbelegten Blöcken; ein Link dort holt den anderen dazu, damit gemischte Vorgänge möglich bleiben.</div>
   </div>
 
   <div>
-    <div class="sp-h">11 · Danach sofort: Spieler auswählen</div>
+    <div class="sp-h">10 · Danach sofort: Spieler auswählen</div>
     <div class="frame"><div class="such-demo ks-such">${auswahl([])}</div></div>
     <div class="meta">Ohne Spieler lässt sich nichts speichern, also fragt der Ablauf zuerst danach — kein zusätzlicher Tipp auf „Spieler auswählen". „Weiter" unten in Daumenreichweite, bei null gesperrt.</div>
   </div>
 
   <div>
-    <div class="sp-h">12 · Drei gewählt</div>
+    <div class="sp-h">11 · Drei gewählt</div>
     <div class="frame"><div class="such-demo ks-such">${auswahl(['p1', 'p2', 'p4'])}</div></div>
     <div class="meta">Die Gewählten stehen oben als Chips und sind dort einzeln abwählbar. Der Knopf trägt die Zahl.</div>
   </div>
 
   <div>
-    <div class="sp-h">13 · Filter-Blatt</div>
-    <div class="frame">${filterBlattDemo(filterBlatt, '243 Strafen anzeigen')}</div>
-    <div class="meta">Arbeitet auf einem Entwurf: erst „Anwenden" schreibt ihn in den Filter des Reiters. Wer zwischendurch schließt, ändert nichts.</div>
-  </div>
-
-  <div>
-    <div class="sp-h">14 · Filter-Blatt „Eingegangen"</div>
-    <div class="frame">${filterBlattDemo(filterBlattB, '4 Zahlungen anzeigen')}</div>
-    <div class="meta">Anderer Reiter, andere Frage: Zahlart als Mehrfachauswahl und Zeitraum nach Buchungsdatum. Sortierung gibt es hier nicht — Neueste zuerst ist fest.</div>
-  </div>
-
-  <div>
-    <div class="sp-h">15 · Vollbild „Spieler suchen"</div>
-    <div class="frame"><div class="such-demo ks-such">${suche}</div></div>
-    <div class="meta">Liegt über dem Filter-Blatt. Suchfeld oben mit sofortigem Fokus, Mehrfachauswahl, Umlaute tolerant in beide Richtungen: „muller" findet „Müller" und umgekehrt.</div>
-  </div>
-
-  <div>
-    <div class="sp-h">16 · Spieleransicht „Zahlung melden"</div>
+    <div class="sp-h">13 · Spieleransicht „Zahlung melden"</div>
     <div class="frame">${blatt('Zahlung melden', melden)}</div>
     <div class="meta">Die Gegenseite zum Buchen-Blatt: der Spieler sagt, wie er gezahlt hat, und darf einen Satz dazuschreiben. Beides landet in reported_method und reported_note und steht dem Kassenwart vor Augen.</div>
   </div>

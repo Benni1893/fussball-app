@@ -57,17 +57,14 @@ const RUECK = `
     kasseBuild, kasseSummaryHtml, zartIconHtml,
     fmtPunkt, fmtKurz, fmtGemeldet,
     KASSE_ZAHLARTEN, ZAHLART_LABEL,
-    // Filter und Suche
-    ksFilterNeu, ksFiltern, ksSortieren, ksImZeitraum, ksBezugsdatum,
-    ksFilterAnzahl, ksFilterChips, ksFilterleisteHtml, ksTrefferHtml,
-    ksIstFaellig, ksSaisonStart, KS_FAELLIG_TAGE,
+    // Reihenfolge und Suche
+    ksSortieren, ksBezugsdatum, KS_REIHENFOLGE,
     ksNorm, ksSucheTrifft, ksSpielerSuchen,
-    KS_ZEIT, KS_SORT,
     // Seite „Strafe verhängen"
     ksSeiteHtml, ksSeiteBeruehrt, KS_SEITE_TITEL,
     // Blätter (Markup ohne DOM-Anbindung)
     ksSuchfeldHtml, ksSpielerZeilenHtml, ksGewaehltChipsHtml,
-    ICON_LUPE, ICON_FILTER,
+    ICON_LUPE,
     setDaten(p, d) { playerById = p; DEMO = d; },
   };
 `;

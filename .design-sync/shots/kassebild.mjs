@@ -25,7 +25,6 @@ function frisch() {
   M.kasse.bloecke = { katalog: false, indiv: false };
   M.kasse.players = []; M.kasse.items = {}; M.kasse.bezug = {}; M.kasse.indiv = [];
   M.kasse.indivBetrag = ''; M.kasse.indivGrund = ''; M.kasse.comment = '';
-  M.kasse.filter = { pruefen: M.ksFilterNeu('pruefen'), offen: M.ksFilterNeu('offen'), bezahlt: M.ksFilterNeu('bezahlt') };
 }
 
 /* Der Rahmen der App: Kopfband, Inhaltsspalte, Bottom-Nav. Nur so viel, dass
@@ -264,127 +263,6 @@ for (const [modus, datei] of [['katalog', 'seite-katalog-tastatur.png'], ['indiv
   await p.setViewportSize({ width: 390, height: 844 });
 }
 frisch();
-
-console.log('--- Filter: Leiste, gefilterte Liste, ohne Treffer ---');
-{
-  frisch();
-  M.kasse.tab = 'offen';
-  M.kasse.filter.offen = { spieler: ['p2'], sort: 'betrag', faellig: true };
-  await schuss(p, seite(M.kasseHtml(DATEN)), 'filter-offen.png', 844);
-  fehler += await ueberlauf(p, 'Filter offen');
-
-  M.kasse.tab = 'bezahlt';
-  M.kasse.filter.bezahlt = { spieler: [], sort: 'neu', zahlart: ['bar'], zeit: 'saison' };
-  await schuss(p, seite(M.kasseHtml(DATEN)), 'filter-eingegangen.png', 700);
-  fehler += await ueberlauf(p, 'Filter eingegangen');
-
-  // Leerzustand einer gefilterten Liste - nicht zu verwechseln mit „nichts da".
-  M.kasse.tab = 'offen';
-  M.kasse.filter.offen = { spieler: [], sort: 'alt', faellig: true };
-  // Nur frische Strafen, Filter auf „überfällig" - garantiert kein Treffer.
-  const alt = DATEN.filter((s) => s.st !== 'offen')
-    .concat(DATEN.filter((s) => s.st === 'offen').slice(0, 5).map((s) => ({ ...s, datum: '2026-09-25' })));
-  await schuss(p, seite(M.kasseHtml(alt)), 'filter-leer.png', 700);
-  fehler += await ueberlauf(p, 'Filter ohne Treffer');
-  frisch();
-}
-
-console.log('--- Filter-Blatt nach filterdesign.png ---');
-{
-  /* Das Markup kommt aus ksFlRender() - woertlich aus app.js gelesen, damit
-     die Gegenprobe das Blatt der App misst und nicht einen Nachbau. Nur die
-     Zaehlung des Knopfs wird gestuetzt: sie liest sonst aus der Datenbank. */
-  const quelle = fs.readFileSync('app.js', 'utf8');
-  const teil = (a, b) => {
-    const i = quelle.indexOf(a), j = quelle.indexOf(b, i);
-    if (i < 0 || j < 0) throw new Error('Anker nicht gefunden: ' + a);
-    return quelle.slice(i, j);
-  };
-  const bau = teil('  function ksSegHtml(liste, wert, attr) {', '  function ksFlRender() {')
-            + teil('  function ksFlRender() {', '  // Eine Zahlart-Pille');
-
-  const SVGA = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
-    'stroke-linecap="round" stroke-linejoin="round"';
-  const stuetzen = [
-    'const ICON_CHECK = ' + JSON.stringify('<svg ' + SVGA + '><path d="M20 6 9 17l-5-5"/></svg>') + ';',
-    'const ICON_X = ' + JSON.stringify('<svg ' + SVGA + '><path d="M18 6 6 18M6 6l12 12"/></svg>') + ';',
-    'const ICON_PERSON = ' + JSON.stringify('<svg ' + SVGA +
-      '><circle cx="12" cy="8" r="3.6"/><path d="M5.5 20c0-3.4 2.9-5.6 6.5-5.6s6.5 2.2 6.5 5.6"/></svg>') + ';',
-    'function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ' +
-      '({ "&": "&amp;", "<": "&lt;", ">": "&gt;", 0x22: "&quot;" }[c] || c)); }',
-    'const KS_SORT = ' + JSON.stringify(M.KS_SORT) + ';',
-    'const KS_ZEIT = ' + JSON.stringify(M.KS_ZEIT) + ';',
-    'const KASSE_ZAHLARTEN = ' + JSON.stringify(M.KASSE_ZAHLARTEN) + ';',
-    'const playerById = ' + JSON.stringify(SPIELER_BY_ID) + ';',
-  ].join('\n');
-
-  const faelle = [
-    ['pruefen', { spieler: [] }, 3, 'fd-0-pruefen.png', '0 Zu prüfen, nur Spieler'],
-    ['offen',   { spieler: [], sort: 'alt', faellig: false }, 243, 'fd-1-offen.png', '1 Offen'],
-    ['bezahlt', { spieler: [], sort: 'neu', zahlart: [], zeit: 'saison' }, 58, 'fd-2-eingegangen.png', '2 Eingegangen'],
-    ['bezahlt', { spieler: ['p4', 'p1'], sort: 'betrag', zahlart: ['bar', 'paypal'], zeit: 'monat' }, 4,
-     'fd-3-eingegangen-aktiv.png', '3 Eingegangen, Filter aktiv'],
-  ];
-
-  for (const [tab, entwurf, zahl, datei, name] of faelle) {
-    /* Die Stütze für ksFlTreffer() steht HINTER bau: Funktionsdeklarationen
-       werden hochgezogen, die letzte gewinnt. Stünde sie davor, käme die
-       echte zum Zug und suchte nach der Datenbank. */
-    const skript = stuetzen +
-      '\nconst kasse = { flEntwurf: ' + JSON.stringify(entwurf) + ' };' +
-      '\nfunction ksFlTab() { return ' + JSON.stringify(tab) + '; }\n' +
-      bau +
-      '\nfunction ksFlTreffer() { return ' + zahl + '; }' +
-      '\nksFlRender();';
-    const html = seite('', '.tv-scrim { opacity: 1; } .tv-sheet { transform: translateY(0); }')
-      .replace('</body>',
-        '<div class="tv-scrim open"></div>' +
-        '<div class="tv-sheet ks-bl ks-flbl open" id="ksFlBl"></div>' +
-        '<script>' + skript + '<' + '/script></body>');
-    const f = path.join(ZIEL, '_tmp.html');
-    fs.writeFileSync(f, html);
-    await p.goto(pathToFileURL(path.resolve(f)).href);
-    await p.waitForTimeout(150);
-    await p.screenshot({ path: path.join(ZIEL, datei) });
-    console.log('  ' + datei + '  (' + name + ')');
-    fehler += await ueberlauf(p, 'Filter-Blatt ' + name);
-
-    const m = await p.evaluate(() => {
-      const klein = [...document.querySelectorAll('#ksFlBl button')].map((b) => {
-        const r = b.getBoundingClientRect();
-        const na = getComputedStyle(b, '::after');
-        const h = Math.max(r.height, parseFloat(na.height) || 0);
-        return { k: (b.className || b.textContent.trim()).slice(0, 16), h: Math.round(h) };
-      }).filter((x) => x.h < 44);
-      return { klein, cta: (document.querySelector('[data-ks-fl-ok]') || {}).textContent,
-               leer: document.getElementById('ksFlBl').children.length };
-    });
-    if (!m.leer) { console.log('  !! das Blatt ist leer geblieben'); fehler++; }
-    if (m.klein.length) {
-      console.log('  !! unter 44 px: ' + m.klein.map((x) => x.k + ' ' + x.h).join(', '));
-      fehler++;
-    }
-    console.log('  Knopf: ' + JSON.stringify((m.cta || '').trim()));
-  }
-}
-
-
-console.log('--- Vollbild „Spieler suchen" ---');
-for (const [frage, gewaehlt, hoehe, datei] of [
-  ['',   ['p2'],       844, 'suche-leer.png'],
-  ['ko', ['p2', 'p4'], 420, 'suche-tastatur.png'],   // 420 px = Tastatur offen
-]) {
-  const inhalt =
-    '<div class="tv-sh"><strong>Spieler suchen</strong>' +
-    '<button class="ks-done">Fertig</button></div>' +
-    M.ksSuchfeldHtml('ksSuIn', frage, 'Name eingeben') +
-    M.ksGewaehltChipsHtml(gewaehlt, 'data-x') +
-    '<div class="tv-shbody">' + M.ksSpielerZeilenHtml(gewaehlt, frage, 'data-p') + '</div>';
-  await p.setViewportSize({ width: 390, height: hoehe });
-  await schuss(p, vollbildSeite(inhalt, 'ks-such'), datei, hoehe);
-  fehler += await ueberlauf(p, 'Spieler suchen ' + (frage || 'leer'));
-  await p.setViewportSize({ width: 390, height: 844 });
-}
 
 console.log('--- Spielerauswahl ---');
 {
@@ -698,8 +576,6 @@ console.log('--- Scrollposition beim Antippen ---');
   // Die gezielten Aktualisierer, woertlich.
   const helfer = teil('  function mitScroll(wurzel, fn) {', '  function ksEnsureSheet() {')
     + teil('  function ksSpielerUmschalten(sheet, id) {', '  // Das Kreuz zum Leeren')
-    + teil('  function ksSuKnopfText(n) {', '  function ksSuRender() {')
-    + teil('  function ksFlWahlSetzen(sheet, attr, wert) {', '  function ksFlAuf() {')
     + teil('  function ksKatalogZeileHtml(k) {', '  function ksSeiteHtml() {');
 
   // Die Stuetzen, die diese Funktionen brauchen.
@@ -724,8 +600,6 @@ console.log('--- Scrollposition beim Antippen ---');
   const listen = [
     ['Spielerauswahl (Strafe)', 'ksBody', 'data-ks-player',
      (n) => 'ksSpielerUmschalten(document.getElementById("huelle"), "' + n + '")'],
-    ['Spieler suchen (Filter)', 'ksSuBody', 'data-ks-su-player',
-     (n) => 'ksSuUmschalten(document.getElementById("huelle"), "' + n + '")'],
   ];
 
   const sag = (ok, text, detail) => {
@@ -842,37 +716,6 @@ console.log('--- Scrollposition beim Antippen ---');
     sag(m.vollNeu === 0, 'Katalogliste: kein voller Neuaufbau der Seite');
   }
 
-  /* Das Filterblatt: eine Sortierung waehlen darf nicht nach oben springen. */
-  {
-    const html = seite('', '.rahmen { position: fixed; inset: 0; display: flex; flex-direction: column; }' +
-                           '#flBody { flex: 1 1 auto; overflow-y: auto; }')
-      .replace('</body>',
-        '<div class="rahmen ks-bl" id="huelle">' +
-        '<div class="tv-shbody" id="flBody" data-scroll="ksFlBody">' +
-        '<div style="height:600px"></div>' +
-        '<div class="ks-seg is-hell" style="display:block">' +
-        ['neu', 'alt', 'betrag'].map((k) =>
-          '<button type="button" class="ks-seg-b' + (k === 'neu' ? ' is-on' : '') + '" data-ks-fl-sort="' + k + '">' +
-          k + '</button>').join('') +
-        '</div><div style="height:400px"></div></div></div>' +
-        '<script>' + stuetzen + helfer + '<\/script></body>');
-    const f = path.join(ZIEL, '_tmp.html');
-    fs.writeFileSync(f, html);
-    await p.goto(pathToFileURL(path.resolve(f)).href);
-    const m = await p.evaluate(async () => {
-      const box = document.getElementById('flBody');
-      box.scrollTop = 500;
-      await new Promise((r) => setTimeout(r, 60));
-      const vorher = Math.round(box.scrollTop);
-      ksFlWahlSetzen(document.getElementById('huelle'), 'data-ks-fl-sort', 'betrag');
-      await new Promise((r) => setTimeout(r, 60));
-      const an = [...document.querySelectorAll('.ks-seg-b.is-on')].map((b) => b.getAttribute('data-ks-fl-sort'));
-      return { vorher, nachher: Math.round(box.scrollTop), an };
-    });
-    sag(m.vorher === m.nachher, 'Filter-Blatt: Position bleibt beim Wählen',
-      m.vorher + ' -> ' + m.nachher);
-    sag(m.an.length === 1 && m.an[0] === 'betrag', 'Filter-Blatt: genau eine Wahl ist markiert', m.an.join());
-  }
 }
 
 
@@ -947,13 +790,11 @@ console.log('--- Renderzahl und Fokus beim Öffnen ---');
 
   // Kein Eingabefeld bekommt beim Öffnen den Fokus.
   const oeffnen = teil('  function ksOpenPlayers()', '  /* „Weiter": aus dem Wähler');
-  const suAuf = teil('  function ksSuAuf() {', '  function ksSuZu() {');
   sag(!/ksFokusSuche/.test(oeffnen), 'Spielerauswahl öffnet ohne Fokus');
-  sag(!/ksFokusSuche/.test(suAuf), 'Spielersuche öffnet ohne Fokus');
   sag(!/autofocus/.test(quelle), 'nirgends ein autofocus');
   // Nur noch beim Leeren des Suchfelds - dort ist er gewollt.
   const fokusStellen = (quelle.match(/ksFokusSuche\(/g) || []).length;
-  sag(fokusStellen === 3, 'ksFokusSuche wird nur noch beim Leeren gerufen (plus Definition)',
+  sag(fokusStellen === 2, 'ksFokusSuche wird nur noch beim Leeren gerufen (plus Definition)',
     fokusStellen + ' Stellen');
 }
 
@@ -963,11 +804,7 @@ console.log('--- Renderzahl und Fokus beim Öffnen ---');
    was wirklich uebereinander liegt. */
 console.log('--- Kontrast (AA) ---');
 {
-  // Mit gesetztem Filter, damit Leiste, Chips und „x von y" auch gemessen werden.
   frisch(); M.kasse.tab = 'offen';
-  /* Ohne „überfällig": die Zeile mit der Angabe des Spielers ist frisch und
-     fiele sonst heraus - sie soll aber mitgemessen werden. */
-  M.kasse.filter.offen = { spieler: ['p2'], sort: 'betrag', faellig: false };
   const f = path.join(ZIEL, '_tmp.html');
   fs.writeFileSync(f, seite(M.kasseHtml(DATEN)));
   await p.goto(pathToFileURL(path.resolve(f)).href);
@@ -1014,10 +851,6 @@ console.log('--- Kontrast (AA) ---');
       ['.ks-sag', 'Angabe des Spielers'],
       ['.ks-storno', 'Storno'],
       ['.ks-buchen', 'Als bezahlt buchen'],
-      ['.ks-fl-b', 'Filterleiste'],
-      ['.ks-fl-n', 'Zahl der aktiven Filter'],
-      ['.ks-fl-chip', 'Filter-Chip'],
-      ['.ks-treffer', 'Zeile x von y'],
     ];
     return proben.map(([sel, name]) => {
       const el = document.querySelector(sel);
