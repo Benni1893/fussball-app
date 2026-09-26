@@ -899,3 +899,46 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
 - **Kontrast**: `.ks-treffer` stand zuerst auf `--muted-2` und kam auf dem
   App-Grund nur auf 4,37:1 — jetzt `--green-800` (7,93:1). Offen bleiben die
   zwei bekannten `--grad-btn`-Werte (3,88:1) aus dem vorgemerkten Paket.
+
+**Strafe verhängen: Ablauf, Tastatur, Scroll-Bug (26.09.2026)**
+
+- **Ursache des kaputten Bildschirms (scrollbug.webp): ein transformierter
+  Vorfahre.** Pull-to-Refresh setzt beim Ziehen `container.style.transform =
+  translateY(...)` auf die `.scroll-area`. Ein transformierter Vorfahre wird
+  zum Bezugsrahmen für `position: fixed` — die Eingabeseite lag in `#view`,
+  also im Container, und rutschte unter die Kopfzeile und fiel auf die Höhe
+  ihres Containers zusammen. **Nicht** `reloadData()`, **nicht** ein Browser-
+  Neuladen. Im Browser nachgestellt und gemessen: im transformierten Container
+  `top 224, height 0`, an `<body>` `top 0, height 844`.
+- **Drei Gegenmaßnahmen, nicht eine.** Die Seite hängt jetzt an `<body>`;
+  `ueberlagerungOffen()` kennt sie, sodass Pull-to-Refresh gar nicht anläuft;
+  und `overscroll-behavior-y: contain` liegt auf `body` und den
+  Scrollbereichen. Jede allein hätte gereicht — zusammen hält es auch, wenn
+  später jemand eine der drei anfasst.
+- **Neuladen ist abgesichert.** Der Zustand steht im Hash (`#strafe=katalog`
+  bzw. `#strafe=individuell`, per `replaceState`, also ohne History-Müll). Nach
+  einem Neustart geht eine **leere** Seite auf — das halb gefüllte Formular lebte
+  ohnehin nur im Speicher, und es vorzutäuschen wäre schlimmer als es zu
+  verwerfen.
+- **Hintergrund-Neuladen zeichnet das Formular nicht neu.** `renderKasse()`
+  ruft nur `ksSeiteSync()`, und das blendet bloß ein und aus. Neu gezeichnet
+  wird die Seite ausschließlich bei eigenen Änderungen.
+- **iOS-Kontaktvorschlag (abstandundkontakt.webp)**: kam vom Feld, das iOS für
+  ein Namensfeld hielt. Gegenmittel sind alle Attribute *und* der Platzhalter:
+  „Name eingeben" wurde zu „Suchen", `aria-label` ebenso, `name="ks-q"`.
+  **Nicht am Gerät verifiziert** — hier steht kein iPhone. Bleibt etwas über
+  der Tastatur stehen, sag mir, was genau, dann ist die nächste Stellschraube
+  ein `<form>`-loses Feld in einem `<div role="search">`.
+- **Der Knopf ist von oben rechts nach unten gewandert.** „Fertig" oben rechts
+  ist bei 6,7 Zoll nicht mehr erreichbar. Neu `.ks-fuss` mit `.ks-fuss-btn` —
+  dasselbe Bauteil für Spielerauswahl, Spielersuche und beide Eingabeseiten.
+  Er ist ein Flex-Geschwister des Scrollbereichs, kein Überlagerer; deshalb
+  kann er den letzten Listeneintrag nicht verdecken (im Bildskript geprüft).
+- **Tastatur**: `--kb` aus `visualViewport`, erst ab 90 px als Tastatur
+  gewertet — darunter ist es die schrumpfende Adressleiste. `.tv-kfull` und
+  `.ks-seite` enden bei `bottom: var(--kb)`. Gemessen bei 420 px sichtbarer
+  Höhe: der Knopf sitzt bei 406.
+- **Verloren gegangen und nicht wiederhergestellt**: das Wischen nach unten
+  zum Schließen der Spielerauswahl. Es fiel beim Umbau der Auswahl weg; mit
+  dem Kreuz oben und dem Knopf unten gibt es zwei klare Wege hinaus. Sag
+  Bescheid, wenn die Geste zurück soll.

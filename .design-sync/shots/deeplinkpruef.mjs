@@ -16,7 +16,9 @@ const bauen = (rollen) => new Function('Roles', code + '\n return { deepLinkZiel
 });
 
 const fehler = [];
+let geprueft = 0;
 const pruefe = (ist, soll, text) => {
+  geprueft++;
   const ok = JSON.stringify(ist) === JSON.stringify(soll);
   console.log((ok ? '  ok   ' : '  FEHL ') + text + (ok ? '' : '\n         erwartet ' + JSON.stringify(soll) + ', bekommen ' + JSON.stringify(ist)));
   if (!ok) fehler.push(text);
@@ -31,6 +33,8 @@ pruefe(f('#termin=abc-123'),   { art: 'termin',  wert: 'abc-123' },  'termin=<id
 pruefe(f('#strafen=meine'),    { art: 'strafen', wert: 'meine' },    'strafen=meine');
 pruefe(f('#kasse=pruefen'),    { art: 'kasse',   wert: 'pruefen' },  'kasse=pruefen');
 pruefe(f('#lineup=xyz'),       { art: 'lineup',  wert: 'xyz' },      'lineup bleibt bestehen');
+pruefe(f('#strafe=katalog'),      { art: 'strafe',  wert: 'katalog' },     'strafe=katalog');
+pruefe(f('#strafe=individuell'),  { art: 'strafe',  wert: 'individuell' }, 'strafe=individuell');
 pruefe(f('#termin=' + encodeURIComponent('a b/c')), { art: 'termin', wert: 'a b/c' }, 'prozentkodierter Wert');
 
 console.log('--- ungueltige Ziele landen still auf null ---');
@@ -39,6 +43,8 @@ for (const [h, t] of [
   ['#=kalender', 'ohne Art'], ['#ansicht=', 'ohne Wert'],
   ['#ansicht=geheim', 'unbekannte Ansicht'], ['#strafen=alles', 'unbekannter Filter'],
   ['#kasse=irgendwas', 'unbekannter Reiter'], ['#quatsch=1', 'unbekannte Art'],
+  ['#strafe=indiv', 'der interne Name ist kein gueltiger Link'],
+  ['#strafe=', 'ohne Weg'],
   ['#ansicht=kalender&x=1', 'Anhaengsel macht den Wert unbekannt'],
 ]) pruefe(f(h), null, t);
 pruefe(f(null), null, 'null');
@@ -64,5 +70,5 @@ console.log('--- Rollenpruefung ---');
   pruefe(admin('geheim'),     false, 'unbekannte Ansicht nie');
 }
 
-console.log(fehler.length === 0 ? '\n--- bestanden (' + (7 + 12 + 12) + ' Faelle) ---' : '\n--- NICHT bestanden: ' + fehler.length + ' ---');
+console.log(fehler.length === 0 ? '\n--- bestanden (' + geprueft + ' Faelle) ---' : '\n--- NICHT bestanden: ' + fehler.length + ' ---');
 process.exit(fehler.length === 0 ? 0 : 1);

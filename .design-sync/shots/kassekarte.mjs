@@ -120,10 +120,23 @@ const filterFuss =
   '<button type="button" class="btn btn-primary">Anwenden</button></div>';
 
 const suche =
-  '<div class="tv-sh"><strong>Spieler suchen</strong><button class="ks-done">Fertig</button></div>' +
-  M.ksSuchfeldHtml('ksSuIn', 'ko', 'Name eingeben') +
+  '<div class="tv-sh"><strong>Spieler suchen</strong>' +
+  '<button class="tv-shx" aria-label="Schließen">&times;</button></div>' +
+  M.ksSuchfeldHtml('ksSuIn', 'ko', 'Suchen') +
   M.ksGewaehltChipsHtml(['p2'], 'data-weg') +
-  '<div class="tv-shbody">' + M.ksSpielerZeilenHtml(['p2'], 'ko', 'data-p') + '</div>';
+  '<div class="tv-shbody">' + M.ksSpielerZeilenHtml(['p2'], 'ko', 'data-p') + '</div>' +
+  '<div class="ks-fuss"><button type="button" class="btn btn-primary ks-fuss-btn">Übernehmen: 1 Spieler</button></div>';
+
+const auswahl = (gewaehlt) =>
+  '<div class="tv-sh"><strong>Spieler auswählen</strong>' +
+  '<button class="tv-shx" aria-label="Schließen">&times;</button></div>' +
+  M.ksSuchfeldHtml('ksSuche', '', 'Suchen') +
+  M.ksGewaehltChipsHtml(gewaehlt, 'data-weg') +
+  '<div class="tv-shbody">' + M.ksSpielerZeilenHtml(gewaehlt, '', 'data-p') + '</div>' +
+  '<div class="ks-fuss"><button type="button" class="btn btn-primary ks-fuss-btn"' +
+  (gewaehlt.length ? '' : ' disabled') + '>' +
+  (gewaehlt.length ? 'Weiter mit ' + gewaehlt.length + (gewaehlt.length === 1 ? ' Spieler' : ' Spielern') : 'Weiter') +
+  '</button></div>';
 
 const ANSICHTEN = [
   ['1 · Zu prüfen — genau eine Meldung im Blick', reiter('pruefen'),
@@ -138,7 +151,7 @@ const ANSICHTEN = [
    'Die Leiste nennt die Zahl der aktiven Filter, darunter stehen sie einzeln als abwählbare Chips. Kennzahlen und Reiterzahlen bleiben ungefiltert — sonst wüsste man nicht mehr, wovon man einen Ausschnitt sieht.'],
   ['6 · Strafe verhängen: Katalog-Seite', '<div class="seite-demo">' + seiteHtml('katalog') + '</div>',
    'Eine eigene Seite, kein Abschnitt im Feed: ohne Kennzahlen, ohne Reiter, ohne untere Navigation. Kopf oben fest, Speichern unten fest mit Anzahl und Summe.'],
-  ['7 · Strafe verhängen: Individuell-Seite', '<div class="seite-demo">' + seiteHtml('indiv') + '</div>',
+  ['9 · Strafe verhängen: Individuell-Seite', '<div class="seite-demo">' + seiteHtml('indiv') + '</div>',
    'Spiegelbildlich aufgebaut. Der Link unten holt den jeweils anderen Block dazu — gemischte Vorgänge bleiben in einem create_fines_batch.'],
 ];
 
@@ -196,37 +209,49 @@ ${ANSICHTEN.map(([t, inhalt, m]) => `  <div>
   </div>
 `).join('\n')}
   <div>
-    <div class="sp-h">5 · Blatt „Als bezahlt buchen"</div>
+    <div class="sp-h">8 · Blatt „Als bezahlt buchen"</div>
     <div class="frame">${blatt('Als bezahlt buchen', buchenBlatt)}</div>
     <div class="meta">Die Zahlart ist nach der Angabe des Spielers vorbelegt; der Hinweis darunter sagt, warum. Der Knopf trägt Betrag und Zahlart, damit vor dem Tippen klar ist, was gebucht wird.</div>
   </div>
 
   <div>
-    <div class="sp-h">6 · Detail-Blatt mit Verlauf</div>
+    <div class="sp-h">9 · Detail-Blatt mit Verlauf</div>
     <div class="frame">${blatt('Strafe', detailBlatt)}</div>
     <div class="meta">Öffnet sich beim Tippen auf eine Karte. Bei einer bestätigten Zahlung steht hier zusätzlich „Buchung rückgängig".</div>
   </div>
 
   <div>
-    <div class="sp-h">7 · Vollbild-Wähler „Strafe verhängen"</div>
+    <div class="sp-h">10 · Vollbild-Wähler „Strafe verhängen"</div>
     <div class="frame"><div class="wahl-demo ks-wahl">${waehler}</div></div>
     <div class="meta">Genau zwei Wege, gleich groß. Beide führen in dasselbe Formular, nur mit unterschiedlich vorbelegten Blöcken; ein Link dort holt den anderen dazu, damit gemischte Vorgänge möglich bleiben.</div>
   </div>
 
   <div>
-    <div class="sp-h">8 · Filter-Blatt</div>
+    <div class="sp-h">11 · Danach sofort: Spieler auswählen</div>
+    <div class="frame"><div class="such-demo ks-such">${auswahl([])}</div></div>
+    <div class="meta">Ohne Spieler lässt sich nichts speichern, also fragt der Ablauf zuerst danach — kein zusätzlicher Tipp auf „Spieler auswählen". „Weiter" unten in Daumenreichweite, bei null gesperrt.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">12 · Drei gewählt</div>
+    <div class="frame"><div class="such-demo ks-such">${auswahl(['p1', 'p2', 'p4'])}</div></div>
+    <div class="meta">Die Gewählten stehen oben als Chips und sind dort einzeln abwählbar. Der Knopf trägt die Zahl.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">13 · Filter-Blatt</div>
     <div class="frame">${blatt('Filter', filterBlatt, filterFuss)}</div>
     <div class="meta">Arbeitet auf einem Entwurf: erst „Anwenden" schreibt ihn in den Filter des Reiters. Wer zwischendurch schließt, ändert nichts.</div>
   </div>
 
   <div>
-    <div class="sp-h">9 · Vollbild „Spieler suchen"</div>
+    <div class="sp-h">14 · Vollbild „Spieler suchen"</div>
     <div class="frame"><div class="such-demo ks-such">${suche}</div></div>
     <div class="meta">Liegt über dem Filter-Blatt. Suchfeld oben mit sofortigem Fokus, Mehrfachauswahl, Umlaute tolerant in beide Richtungen: „muller" findet „Müller" und umgekehrt.</div>
   </div>
 
   <div>
-    <div class="sp-h">10 · Spieleransicht „Zahlung melden"</div>
+    <div class="sp-h">15 · Spieleransicht „Zahlung melden"</div>
     <div class="frame">${blatt('Zahlung melden', melden)}</div>
     <div class="meta">Die Gegenseite zum Buchen-Blatt: der Spieler sagt, wie er gezahlt hat, und darf einen Satz dazuschreiben. Beides landet in reported_method und reported_note und steht dem Kassenwart vor Augen.</div>
   </div>

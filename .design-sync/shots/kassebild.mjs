@@ -73,6 +73,21 @@ async function ueberlauf(p, name) {
   return 0;
 }
 
+/* Ein fester Knopf am unteren Rand nuetzt nichts, wenn er unter der Tastatur
+   liegt. Geprueft wird am gerenderten Bild, nicht an der Absicht. */
+async function knopfSichtbar(p, sel, name) {
+  const m = await p.evaluate((s) => {
+    const b = document.querySelector(s);
+    if (!b) return null;
+    const r = b.getBoundingClientRect();
+    return { unten: Math.round(r.bottom), fenster: window.innerHeight, ok: r.bottom <= window.innerHeight + 1 };
+  }, sel);
+  if (!m) { console.log('  !! ' + name + ': Knopf nicht gefunden'); return 1; }
+  if (!m.ok) { console.log('  !! ' + name + ': liegt bei ' + m.unten + ', Fenster ' + m.fenster); return 1; }
+  console.log('  ' + name + ' sitzt bei ' + m.unten + ' von ' + m.fenster + ' px');
+  return 0;
+}
+
 const br = await chromium.launch({ channel: 'chrome' });
 const ctx = await br.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2,
   isMobile: true, hasTouch: true });
@@ -210,6 +225,12 @@ for (const [art, note, datei] of [[null, '', 'zm-leer.png'], ['bar', 'zahle bar 
   fehler += await ueberlauf(p, 'Zahlung melden ' + (art || 'leer'));
 }
 
+/* Die Eingabeseite haengt in der App an <body>, nicht in der Ansicht. Fuer das
+   Bild wird sie genauso eingehaengt: direkt im <body>, ohne Huelle. */
+function seiteVollbild(inhalt) {
+  return seite('').replace('</body>', inhalt + '</body>');
+}
+
 console.log('--- Die beiden „Strafe verhängen"-Seiten ---');
 for (const [modus, datei] of [['katalog', 'seite-katalog.png'], ['indiv', 'seite-indiv.png']]) {
   frisch();
@@ -218,7 +239,7 @@ for (const [modus, datei] of [['katalog', 'seite-katalog.png'], ['indiv', 'seite
   M.kasse.players = ['p1', 'p2', 'p4'];
   if (modus === 'katalog') M.kasse.items = { k1: { menge: 2 } };
   else M.kasse.indiv = [{ betrag: '7,50', grund: 'Trikot vergessen' }];
-  await schuss(p, seite(M.kasseHtml(DATEN)), datei, 844);
+  await schuss(p, seiteVollbild(M.ksSeiteHtml()), datei, 844);
   fehler += await ueberlauf(p, 'Seite ' + modus);
 }
 
@@ -233,15 +254,8 @@ for (const [modus, datei] of [['katalog', 'seite-katalog-tastatur.png'], ['indiv
   if (modus === 'katalog') M.kasse.items = { k1: { menge: 1 } };
   else { M.kasse.indivBetrag = '7,50'; M.kasse.indivGrund = 'Trikot'; }
   await p.setViewportSize({ width: 390, height: 420 });
-  await schuss(p, seite(M.kasseHtml(DATEN)), datei, 420);
-  const sicht = await p.evaluate(() => {
-    const b = document.querySelector('.ks-seite-save');
-    if (!b) return null;
-    const r = b.getBoundingClientRect();
-    return { unten: Math.round(r.bottom), fenster: window.innerHeight, sichtbar: r.bottom <= window.innerHeight + 1 };
-  });
-  if (!sicht || !sicht.sichtbar) { console.log('  !! Speichern-Knopf nicht sichtbar bei 420 px'); fehler++; }
-  else console.log('  Speichern-Knopf sitzt bei ' + sicht.unten + ' von ' + sicht.fenster + ' px');
+  await schuss(p, seiteVollbild(M.ksSeiteHtml()), datei, 420);
+  fehler += await knopfSichtbar(p, '.ks-fuss-btn', 'Speichern (' + modus + ')');
   await p.setViewportSize({ width: 390, height: 844 });
 }
 frisch();
@@ -308,11 +322,90 @@ for (const [frage, gewaehlt, hoehe, datei] of [
   await p.setViewportSize({ width: 390, height: 844 });
 }
 
-/* --- Scroll-Sperre -------------------------------------------------------
-   Im echten Browser geprueft, nicht behauptet: lockBodyScroll(), blattAuf()
-   und blattZu() kommen woertlich aus app.js. Geprueft wird, was auf iOS im
-   Standalone-Modus schiefgeht, wenn man nur overflow:hidden setzt - der
-   Hintergrund scrollt weiter und die Position ist beim Schliessen verloren. */
+console.log('--- Spielerauswahl ---');
+{
+  const auswahl = (gewaehlt, frage) =>
+    '<div class="tv-sh"><strong>Spieler auswählen</strong>' +
+    '<button class="tv-shx" aria-label="Schließen">&times;</button></div>' +
+    M.ksSuchfeldHtml('ksSuche', frage, 'Suchen') +
+    M.ksGewaehltChipsHtml(gewaehlt, 'data-weg') +
+    '<div class="tv-shbody">' + M.ksSpielerZeilenHtml(gewaehlt, frage, 'data-p') + '</div>' +
+    '<div class="ks-fuss"><button type="button" class="btn btn-primary ks-fuss-btn"' +
+    (gewaehlt.length ? '' : ' disabled') + '>' +
+    (gewaehlt.length ? 'Weiter mit ' + gewaehlt.length + (gewaehlt.length === 1 ? ' Spieler' : ' Spielern') : 'Weiter') +
+    '</button></div>';
+
+  for (const [gewaehlt, frage, hoehe, datei, name] of [
+    [[],                   '',   844, 'auswahl-0.png', 'keiner gewählt'],
+    [['p2'],               '',   844, 'auswahl-1.png', 'einer gewählt'],
+    [['p1', 'p2', 'p4'],   '',   844, 'auswahl-3.png', 'drei gewählt'],
+    [['p2'],               'ko', 420, 'auswahl-tastatur.png', 'mit Tastatur'],
+  ]) {
+    await p.setViewportSize({ width: 390, height: hoehe });
+    await schuss(p, vollbildSeite(auswahl(gewaehlt, frage), 'ks-such'), datei, hoehe);
+    fehler += await ueberlauf(p, 'Spielerauswahl, ' + name);
+    fehler += await knopfSichtbar(p, '.ks-fuss-btn', 'Weiter (' + name + ')');
+    // Der Knopf darf den letzten Listeneintrag nicht verdecken.
+    const frei = await p.evaluate(() => {
+      const letzte = [...document.querySelectorAll('.ks-prow')].pop();
+      const fuss = document.querySelector('.ks-fuss');
+      if (!letzte || !fuss) return true;
+      return letzte.getBoundingClientRect().bottom <= fuss.getBoundingClientRect().top + 0.5
+          || letzte.getBoundingClientRect().top > window.innerHeight;   // ausserhalb: scrollt
+    });
+    if (!frei) { console.log('  !! der Knopf verdeckt den letzten Eintrag'); fehler++; }
+    await p.setViewportSize({ width: 390, height: 844 });
+  }
+  // Der Knopf ist bei null Spielern wirklich gesperrt.
+  await p.setViewportSize({ width: 390, height: 844 });
+  await schuss(p, vollbildSeite(auswahl([], ''), 'ks-such'), 'auswahl-0.png', 844);
+  const gesperrt = await p.evaluate(() => {
+    const b = document.querySelector('.ks-fuss-btn');
+    return !!(b && b.disabled);
+  });
+  console.log('  ' + (gesperrt ? 'ok  ' : 'FEHL') + ' bei null Spielern ist „Weiter" gesperrt');
+  if (!gesperrt) fehler++;
+}
+
+/* --- Die Ursache des Scroll-Bugs, nachgestellt ---------------------------
+   scrollbug.webp entstand so: Pull-to-Refresh setzt beim Ziehen einen
+   `transform` auf den Scroll-Container. Ein transformierter Vorfahre wird zum
+   Bezugsrahmen fuer `position: fixed` - die Seite darin rutscht unter die
+   Kopfzeile und faellt auf die Hoehe ihres Containers zusammen.
+   Hier wird beides nebeneinander gemessen: drin kaputt, an <body> heil. */
+console.log('--- Warum die Seite an <body> hängt ---');
+{
+  const html = seite('').replace('</body>',
+    '<div id="behaelter" style="transform: translateY(70px)">' +
+    '  <div class="ks-seite" id="drin"><div class="ks-seite-kopf">A</div>' +
+    '  <div class="ks-seite-body">B</div><div class="ks-fuss">C</div></div>' +
+    '</div>' +
+    '<div class="ks-seite" id="draussen"><div class="ks-seite-kopf">A</div>' +
+    '<div class="ks-seite-body">B</div><div class="ks-fuss">C</div></div>' +
+    '</body>');
+  const f = path.join(ZIEL, '_tmp.html');
+  fs.writeFileSync(f, html);
+  await p.goto(pathToFileURL(path.resolve(f)).href);
+  const m = await p.evaluate(() => {
+    const r = (id) => {
+      const b = document.getElementById(id).getBoundingClientRect();
+      return { oben: Math.round(b.top), hoehe: Math.round(b.height) };
+    };
+    return { drin: r('drin'), draussen: r('draussen'), fenster: window.innerHeight };
+  });
+  const sag = (ok, text, detail) => {
+    console.log('  ' + (ok ? 'ok  ' : 'FEHL') + ' ' + text + (detail ? '   ' + detail : ''));
+    if (!ok) fehler++;
+  };
+  sag(m.drin.oben !== 0 || m.drin.hoehe !== m.fenster,
+    'im transformierten Container ist position:fixed kaputt',
+    'oben ' + m.drin.oben + ', Höhe ' + m.drin.hoehe);
+  sag(m.draussen.oben === 0 && m.draussen.hoehe === m.fenster,
+    'an <body> füllt sie den Bildschirm',
+    'oben ' + m.draussen.oben + ', Höhe ' + m.draussen.hoehe + ' von ' + m.fenster);
+}
+
+
 console.log('--- Scroll-Sperre ---');
 {
   const quelle = fs.readFileSync('app.js', 'utf8');

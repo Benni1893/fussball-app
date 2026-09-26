@@ -71,7 +71,7 @@ Layout-Beiwerk kommt als `style="…"` mit Tokens oder als neue, sprechende Klas
 | Platzansicht | `.tv-lu` (`.tv-ro`) `.tv-top` `.tv-ic` `.tv-hi` `.tv-game` `.tv-sub` · `.tv-formbar` `.tv-fpill` `.tv-fmore` · `.tv-field` `.tv-pitch` `.tv-pitch-bg` `.tv-slot` (`.filled` `.sel`) `.tv-disc` `.tv-role` `.tv-pn` · `.tv-bank` `.tv-bank-h` `.tv-bank-row` `.tv-bslot` `.tv-bnr` `.tv-bn` `.tv-bx` `.tv-bplus` `.tv-bfrei` · `.tv-actions` `.tv-primary` `.tv-ghost` `.tv-cta` `.tv-ro-note` |
 | Rückmeldungen-Blatt | `.rs2-panel` `.rs2-griff` `.rs2-kopf` `.rs2-kopf-text` `.rs2-titel` `.rs2-sub` `.rs2-zu` · `.rs2-bar` · `.rs2-kacheln` `.rs2-kachel` `.rs2-k-l` `.rs2-k-z` · `.rs2-liste` `.rs2-zeile` `.rs2-av` `.rs2-n` `.rs2-grund` `.rs2-leer` · `.rs2-fuss` `.rs2-btn` `.rs2-btn2` |
 | Konto | `.mine-banner` (`.is-clear`) `.mb-label` `.mb-value` `.mb-sub` `.mb-bar` `.mb-note` `.mb-pay` `.mb-pp` `.mb-foot` `.mb-cd` `.pp-word` · `.fine-list` `.fine-row` `.fine-main` `.fine-name` `.fine-desc` `.fine-reason` `.fine-right` `.fine-amt` |
-| Kasse | `.kpi-tapbar` `.ks-neu` `.kasse-add` `.kasse-lbl` `.kasse-count` `.kasse-players` `.kasse-chip` `.kasse-in` `.kasse-two` `.kasse-sum` `.kasse-sum-row` `.kasse-sum-total` `.kasse-save` `.ks-auch` · Reiter: `.ks-seg` `.ks-seg-b` (`.is-on`) `.ks-seg-n` · Filter: `.ks-fl` `.ks-fl-b` `.ks-fl-t` `.ks-fl-n` `.ks-fl-aktiv` `.ks-fl-chip` `.ks-treffer` · Filter-Blatt: `.ks-flbl` `.ks-fl-suche` `.ks-fl-suche-t` `.ks-fl-suche-n` `.ks-fl-hinweis` `.ks-fl-fuss` `.ks-wahlliste` `.ks-wahlz` (`.is-on`) · Suche: `.ks-such` `.ks-suchfeld` `.ks-such-in` `.ks-such-x` `.ks-gewaehlt` `.ks-gchip` · Eingabeseite: `.ks-seite` `.ks-seite-kopf` `.ks-seite-zur` `.ks-seite-t` `.ks-seite-x` `.ks-seite-body` `.ks-seite-fuss` `.ks-seite-save` · Prüfkarte: `.ks-deck` `.ks-card` `.ks-kopf` `.ks-av` `.ks-name` `.ks-amt` `.ks-meta` `.ks-zitat` `.ks-actions` · Offen: `.krow-list` `.krow` `.krow-top` `.krow-title` `.krow-amt` `.krow-strafe` `.krow-verh` `.krow-actions` `.ks-storno` `.ks-buchen` · Eingegangen: `.ks-ein` `.ks-ein-row` `.ks-ok` `.ks-ein-main` `.ks-ein-n` `.ks-ein-m` `.ks-ein-b` · Angabe des Spielers: `.ks-sag` `.ks-zi` (`.is-pp`) · Blatt: `.ks-bl` `.ks-bl-sum` `.ks-bl-top` `.ks-bl-n` `.ks-bl-b` `.ks-bl-s` `.ks-bl-lbl` `.ks-bl-h` `.ks-bl-cta` · Wähler: `.ks-wahl` `.ks-wahl-b` `.ks-wahl-t` `.ks-wahl-s` `.ks-wahl-f` · Zahlung melden: `.zm-lbl` `.zm-opt` `.zm-zahl` (`.is-lang`) `.zm-note` · `.ks-leer` `.ks-leer-t` · `.ks-ichips` `.ks-ichip` · `.zart-row` `.zart` (`.is-on`) |
+| Kasse | `.kpi-tapbar` `.ks-neu` `.kasse-add` `.kasse-lbl` `.kasse-count` `.kasse-players` `.kasse-chip` `.kasse-in` `.kasse-two` `.kasse-sum` `.kasse-sum-row` `.kasse-sum-total` `.kasse-save` `.ks-auch` · Reiter: `.ks-seg` `.ks-seg-b` (`.is-on`) `.ks-seg-n` · Filter: `.ks-fl` `.ks-fl-b` `.ks-fl-t` `.ks-fl-n` `.ks-fl-aktiv` `.ks-fl-chip` `.ks-treffer` · Filter-Blatt: `.ks-flbl` `.ks-fl-suche` `.ks-fl-suche-t` `.ks-fl-suche-n` `.ks-fl-hinweis` `.ks-fl-fuss` `.ks-wahlliste` `.ks-wahlz` (`.is-on`) · Suche: `.ks-such` `.ks-suchfeld` `.ks-such-in` `.ks-such-x` `.ks-gewaehlt` `.ks-gchip` · Eingabeseite: `.ks-seite` `.ks-seite-kopf` `.ks-seite-zur` `.ks-seite-t` `.ks-seite-x` `.ks-seite-body` · gemeinsamer Fuß: `.ks-fuss` `.ks-fuss-btn` · Prüfkarte: `.ks-deck` `.ks-card` `.ks-kopf` `.ks-av` `.ks-name` `.ks-amt` `.ks-meta` `.ks-zitat` `.ks-actions` · Offen: `.krow-list` `.krow` `.krow-top` `.krow-title` `.krow-amt` `.krow-strafe` `.krow-verh` `.krow-actions` `.ks-storno` `.ks-buchen` · Eingegangen: `.ks-ein` `.ks-ein-row` `.ks-ok` `.ks-ein-main` `.ks-ein-n` `.ks-ein-m` `.ks-ein-b` · Angabe des Spielers: `.ks-sag` `.ks-zi` (`.is-pp`) · Blatt: `.ks-bl` `.ks-bl-sum` `.ks-bl-top` `.ks-bl-n` `.ks-bl-b` `.ks-bl-s` `.ks-bl-lbl` `.ks-bl-h` `.ks-bl-cta` · Wähler: `.ks-wahl` `.ks-wahl-b` `.ks-wahl-t` `.ks-wahl-s` `.ks-wahl-f` · Zahlung melden: `.zm-lbl` `.zm-opt` `.zm-zahl` (`.is-lang`) `.zm-note` · `.ks-leer` `.ks-leer-t` · `.ks-ichips` `.ks-ichip` · `.zart-row` `.zart` (`.is-on`) |
 | Katalog | `.kat-list` `.kat-item` `.kat-name` `.kat-sub` `.kat-amount` (`.is-staffel`) `.kat-actions` `.kat-add` · Bearbeiten: `.kat-edit` `.kat-in` `.kat-fixed` `.kat-eur` `.kat-staffel` `.kat-edit-actions` |
 | Formulare | `.termin-form` `.tf-row` `.tf-2col` `.tf-wdh` `.tf-radio` `.tf-bis` `.tf-summary` |
 | Tabelle | `.table-wrap` + `.rollen-tbl` `.player-cell` `.rollen-av` `.rollen-name` `.rollen-mail` |
@@ -278,3 +278,55 @@ Hinspringen.
 
 Derselbe Aufbau eignet sich für jeden mehrstufigen Vorgang. Der Knopf unten
 trägt das Ergebnis, nicht nur das Verb: **„3 Strafen · 30,00 € speichern"**.
+
+## Vollbild-Flächen gehören an `<body>`
+
+Eine Fläche mit `position: fixed`, die den Bildschirm füllt, wird **an
+`<body>` gehängt**, nie in `#view`. Grund: Pull-to-Refresh verschiebt den
+Scroll-Container beim Ziehen per `transform`. Ein transformierter Vorfahre
+wird zum Bezugsrahmen für `position: fixed` — die Fläche rutscht dann unter
+die Kopfzeile und fällt auf die Höhe ihres Containers zusammen. Gemessen:
+im transformierten Container landet sie bei `top 224, height 0`, an `<body>`
+bei `top 0, height 844`.
+
+Dazu gehört:
+
+- `ueberlagerungOffen()` kennt die Fläche, damit Pull-to-Refresh gar nicht
+  erst anläuft.
+- `overscroll-behavior-y: contain` auf `body` und auf dem Scrollbereich,
+  solange sie offen ist.
+- Ihr Zustand steht im Hash (`#strafe=katalog`), damit ein Neuladen auf einer
+  leeren, benutzbaren Fläche landet statt auf einem halben Formular.
+- `renderKasse()` blendet sie nur ein und aus; neu gezeichnet wird sie nur bei
+  eigenen Änderungen. Ein Hintergrund-Neuladen der Daten lässt Eingaben stehen.
+
+## Bestätigen sitzt unten
+
+Kein „Fertig" oben rechts: bei 6,7 Zoll kommt der Daumen dort nicht mehr hin.
+Stattdessen `.ks-fuss` mit `.ks-fuss-btn` über die volle Breite, als
+Flex-Geschwister des Scrollbereichs — dadurch kann er den letzten
+Listeneintrag nicht verdecken. Der Knopf trägt das Ergebnis, nicht das Verb:
+**„Weiter mit 3 Spielern"**, **„3 Strafen · 30,00 € speichern"**; bei leerer
+Auswahl ist er `disabled`.
+
+Bei offener Tastatur endet die ganze Vollbildfläche über ihr: `--kb` kommt aus
+`visualViewport` (`innerHeight − height − offsetTop`, erst ab 90 px als
+Tastatur gewertet), und `.tv-kfull` wie `.ks-seite` setzen `bottom: var(--kb)`.
+
+## Suchfelder ohne Kontaktvorschläge
+
+iOS blendet über der Tastatur „Kontakt autom. ausfüllen" samt echtem Namen
+ein, sobald es ein Feld für ein Namensfeld hält. Es schließt das aus Feldtyp,
+`name`, `id`, Platzhalter **und** Beschriftung. Ein Suchfeld trägt deshalb:
+
+```html
+<input class="ks-such-in" id="ksSuche" name="ks-q" type="search"
+  inputmode="search" enterkeyhint="search"
+  autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+  data-1p-ignore data-lpignore="true"
+  placeholder="Suchen" aria-label="Suchen">
+```
+
+Der Platzhalter sagt **„Suchen"**, nicht „Name eingeben" — das Wort allein
+reicht iOS als Hinweis. Enter schickt nichts ab, es schließt nur die Tastatur
+(die Liste filtert schon beim Tippen).

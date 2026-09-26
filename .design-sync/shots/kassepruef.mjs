@@ -399,7 +399,7 @@ console.log('--- Zeile „Offen" ---');
   pruefe(abgelehnt.includes('Abgelehnt: Kein Eingang gefunden'), 'Ablehnungsgrund bleibt sichtbar');
 }
 
-/* ===== 7. „Strafe verhaengen": Waehler und die zwei Seiten ============== */
+/* ===== 7. „Strafe verhaengen": Waehler, Spielerauswahl, zwei Seiten ===== */
 console.log('--- Strafe verhängen: der Weg dorthin ---');
 {
   frisch();
@@ -407,40 +407,112 @@ console.log('--- Strafe verhängen: der Weg dorthin ---');
   pruefe(zu.includes('data-ks-wahl'), 'auf der Startseite öffnet der Knopf den Wähler');
   pruefe(!zu.includes('ks-seite'), 'die Startseite zeigt keine Eingabeseite');
   pruefe(!zu.includes('kasse-catlist'), 'und keinen Katalog');
+  // Die Seite haengt nicht mehr im Feed - kasseHtml zeigt immer die Liste.
+  M.kasse.seite = 'katalog';
+  pruefe(!M.kasseHtml(DATEN).includes('ks-seite'), 'auch mit offener Seite rendert kasseHtml den Feed');
+  pruefe(M.kasseHtml(DATEN).includes('kpi-grid'), 'der Feed bleibt vollständig, er liegt nur darunter');
+  frisch();
 }
 
-console.log('--- Die Seite ersetzt den Kassen-Feed ---');
+console.log('--- Der Wähler führt direkt in die Spielerauswahl ---');
+{
+  // Der Klickpfad im Waehler setzt kasse.wartet und oeffnet die Auswahl -
+  // er setzt NICHT kasse.seite. Ohne Spieler gibt es nichts zu verlieren.
+  const waehler = app.slice(app.indexOf('const m = ev.target.closest("[data-ks-modus]")'),
+                            app.indexOf('function ksWahlOpen'));
+  pruefe(waehler.includes('kasse.wartet = modus;'), 'der Wähler merkt sich den Weg');
+  pruefe(waehler.includes('ksOpenPlayers();'), 'und öffnet sofort die Spielerauswahl');
+  pruefe(!/kasse\.seite = modus/.test(waehler), 'die Seite wird dort noch nicht geöffnet');
+  pruefe(waehler.includes('kasse.players = [];'), 'die Auswahl startet leer');
+
+  // „Weiter" macht aus dem gemerkten Weg die Seite.
+  const weiter = app.slice(app.indexOf('function ksWeiter()'), app.indexOf('function ksAbbruch()'));
+  pruefe(weiter.includes('if (!kasse.players.length) return;'), 'ohne Spieler passiert nichts');
+  pruefe(weiter.includes('kasse.seite = ziel;'), '„Weiter" öffnet die Seite');
+  pruefe(weiter.includes('blattZu("ksScrim", "ksSheet")'), 'und schließt die Auswahl');
+
+  // Das Kreuz bricht ab, solange nur die Auswahl lief.
+  const ab = app.slice(app.indexOf('function ksAbbruch()'), app.indexOf('function ksClosePlayers()'));
+  pruefe(ab.includes('kasse.wartet = null;') && ab.includes('kasse.players = [];'),
+    'Abbruch aus dem Wähler heraus räumt auf');
+}
+
+console.log('--- Spielerauswahl: Knopf unten statt Fertig oben ---');
+{
+  frisch();
+  const knopf = (n) => {
+    const roh = app.slice(app.indexOf('function ksWeiterKnopfHtml'), app.indexOf('function ksEnsureSheet'));
+    return roh;
+  };
+  pruefe(/data-ks-weiter/.test(knopf()), 'der Knopf trägt data-ks-weiter');
+  pruefe(/class="ks-fuss"/.test(knopf()), 'er sitzt im gemeinsamen Fuß');
+  pruefe(/n \? "" : " disabled"/.test(knopf()), 'bei null Spielern ist er deaktiviert');
+  pruefe(/"Weiter mit " \+ n/.test(knopf()), 'und nennt die Zahl');
+  pruefe(/n === 1 \? " Spieler" : " Spielern"/.test(knopf()), 'Einzahl und Mehrzahl');
+  // Oben rechts steht kein Fertig mehr.
+  const render = app.slice(app.indexOf('function ksRenderPlayers()'), app.indexOf('function ksOpenPlayers()'));
+  pruefe(!render.includes('data-ks-done'), 'kein „Fertig" oben rechts');
+  pruefe(render.includes('data-ks-abbruch'), 'stattdessen ein Kreuz zum Abbrechen');
+  pruefe(render.includes('ksWeiterKnopfHtml(kasse.players.length)'), 'der Fuß kennt die Zahl');
+}
+
+console.log('--- Suchfeld: keine Kontaktvorschläge ---');
+{
+  const feld = M.ksSuchfeldHtml('ksSuche', '', 'Suchen');
+  for (const attr of ['type="search"', 'autocomplete="off"', 'autocorrect="off"',
+                      'autocapitalize="off"', 'spellcheck="false"', 'enterkeyhint="search"',
+                      'inputmode="search"']) {
+    pruefe(feld.includes(attr), 'Suchfeld: ' + attr);
+  }
+  // iOS schliesst aus name, id, Platzhalter und Beschriftung auf ein Namensfeld.
+  const verdaechtig = /name|kontakt|contact|user|benutzer|vorname|nachname/i;
+  const name = (feld.match(/name="([^"]*)"/) || [])[1] || '';
+  const id = (feld.match(/id="([^"]*)"/) || [])[1] || '';
+  const platz = (feld.match(/placeholder="([^"]*)"/) || [])[1] || '';
+  const aria = (feld.match(/aria-label="([^"]*)"/) || [])[1] || '';
+  pruefe(!verdaechtig.test(name), 'name ohne verräterisches Wort', name);
+  pruefe(!verdaechtig.test(id), 'id ohne verräterisches Wort', id);
+  pruefe(!verdaechtig.test(platz), 'Platzhalter ohne „Name"', platz);
+  pruefe(!verdaechtig.test(aria), 'Beschriftung ohne „Name"', aria);
+  pruefe(feld.includes('data-1p-ignore'), 'auch Passwortmanager bleiben draußen');
+  // Enter schliesst nur die Tastatur.
+  const enter = app.slice(app.indexOf('function ksSuchEnter'), app.indexOf('function ksRenderPlayers'));
+  pruefe(enter.includes('ev.preventDefault();') && enter.includes('ev.target.blur();'),
+    'Enter schließt nur die Tastatur');
+  // Abstand nach oben.
+  pruefe(/\.ks-suchfeld \{[^}]*margin: 14px 16px 10px/.test(css), 'das Suchfeld klebt nicht mehr am Kopf');
+}
+
+console.log('--- Die Seite: was NICHT mehr drauf ist ---');
 {
   for (const modus of ['katalog', 'indiv']) {
     frisch();
     M.kasse.seite = modus;
     M.kasse.bloecke = { katalog: modus === 'katalog', indiv: modus === 'indiv' };
-    const h = M.kasseHtml(DATEN);
+    const h = M.ksSeiteHtml();
     pruefe(h.includes('class="ks-seite"'), modus + ': eigene Seite');
-    // Genau das, was laut Auftrag NICHT mehr da sein darf.
     pruefe(!h.includes('kpi-grid'), modus + ': keine Kennzahl-Kacheln');
     pruefe(!h.includes('Prüfen und verbuchen'), modus + ': keine Überschrift „Prüfen und verbuchen"');
     pruefe(!h.includes('ks-seg-b'), modus + ': keine Reiterleiste');
     pruefe(!h.includes('data-ks-fl-auf'), modus + ': keine Filterleiste');
     pruefe(!h.includes('krow-list') && !h.includes('ks-ein-row'), modus + ': keine Liste');
-    // Und das, was dazukommt.
     pruefe(h.includes('data-ks-seite-zurueck'), modus + ': Zurück zur Auswahl');
     pruefe(h.includes('data-ks-seite-zu'), modus + ': Schließen zur Kasse');
-    pruefe(h.includes('ks-seite-fuss'), modus + ': Speichern sitzt fest am unteren Rand');
+    pruefe(h.includes('class="ks-fuss"'), modus + ': Speichern im gemeinsamen Fuß');
   }
+  frisch();
 }
 
 console.log('--- Aufbau je Seite ---');
 {
   frisch();
   M.kasse.seite = 'katalog'; M.kasse.bloecke = { katalog: true, indiv: false };
-  const k = M.kasseHtml(DATEN);
+  const k = M.ksSeiteHtml();
   pruefe(k.includes('Strafe aus Katalog'), 'Katalog-Seite trägt ihren Titel');
   pruefe(k.includes('kasse-catlist'), 'Katalog-Seite: Katalogliste');
   pruefe(k.includes('data-kasse-catrow'), 'Katalog-Seite: Katalogzeilen zum Antippen');
-  // Die Mengensteuerung erscheint erst an der gewählten Zeile.
   M.kasse.items = { k1: { menge: 2 } };
-  const kMenge = M.kasseHtml(DATEN);
+  const kMenge = M.ksSeiteHtml();
   pruefe(kMenge.includes('data-kasse-qty="k1"'), 'Katalog-Seite: Mengen-Plus/Minus an der gewählten Zeile');
   pruefe(kMenge.includes('>2×<'), 'Katalog-Seite: die Menge steht daneben');
   M.kasse.items = {};
@@ -449,28 +521,34 @@ console.log('--- Aufbau je Seite ---');
 
   frisch();
   M.kasse.seite = 'indiv'; M.kasse.bloecke = { katalog: false, indiv: true };
-  const i = M.kasseHtml(DATEN);
+  const i = M.ksSeiteHtml();
   pruefe(i.includes('Individuelle Strafe'), 'Individuell-Seite trägt ihren Titel');
   pruefe(i.includes('data-kasse-indiv-add'), 'Individuell-Seite: Betrag und Grund');
   pruefe(!i.includes('kasse-catlist'), 'Individuell-Seite: keine Katalogliste');
   pruefe(i.includes('data-ks-auch="katalog"'), 'Individuell-Seite: Link „Auch aus dem Katalog"');
 
-  // Der gewählte Weg steht oben.
   frisch();
   M.kasse.seite = 'indiv'; M.kasse.bloecke = { katalog: true, indiv: true };
-  const b = M.kasseHtml(DATEN);
+  const b = M.ksSeiteHtml();
   pruefe(b.indexOf('Individuelle Strafe<') < b.indexOf('Aus dem Katalog'),
     'auf der Individuell-Seite steht der individuelle Block oben');
   pruefe(!b.includes('data-ks-auch'), 'sind beide Blöcke da, verschwindet der Link');
 
-  // Spielerauswahl, Datum, Kommentar und Zusammenfassung gehören auf beide.
   for (const [name, h] of [['Katalog', k], ['Individuell', i]]) {
-    pruefe(h.includes('data-ks-open-players'), name + ': Spielerauswahl');
+    pruefe(h.includes('data-ks-open-players'), name + ': Spieler ändern');
     pruefe(h.includes('data-kasse-date'), name + ': Datum');
     pruefe(h.includes('data-kasse-input="comment"'), name + ': Kommentar');
     pruefe(h.includes('id="kasseSummary"'), name + ': Zusammenfassung');
     pruefe(h.includes('data-kasse-add'), name + ': Speichern');
   }
+  // Die gewaehlten Spieler stehen oben als Chips und sind antippbar.
+  frisch();
+  M.kasse.seite = 'katalog'; M.kasse.bloecke = { katalog: true, indiv: false };
+  M.kasse.players = ['p1', 'p2'];
+  const mitSpielern = M.ksSeiteHtml();
+  pruefe(mitSpielern.includes('ks-gchip'), 'gewählte Spieler stehen als Chips');
+  pruefe(mitSpielern.includes('Lukas Weber') && mitSpielern.includes('Daniel Koch'), 'mit Namen');
+  pruefe(mitSpielern.includes('2 Spieler gewählt'), 'die Zeile darüber nennt die Zahl');
   frisch();
 }
 
@@ -478,37 +556,26 @@ console.log('--- Der Speichern-Knopf ---');
 {
   frisch();
   M.kasse.seite = 'katalog'; M.kasse.bloecke = { katalog: true, indiv: false };
-  // Ohne Spieler und ohne Strafe: deaktiviert.
-  let h = M.kasseHtml(DATEN);
+  let h = M.ksSeiteHtml();
   pruefe(/data-kasse-add disabled/.test(h), 'ohne alles deaktiviert');
   pruefe(h.includes('>Strafe speichern<'), 'und trägt den schlichten Text');
 
-  // Nur Spieler, keine Strafe: weiterhin deaktiviert.
   M.kasse.players = ['p1', 'p2', 'p3'];
-  h = M.kasseHtml(DATEN);
-  pruefe(/data-kasse-add disabled/.test(h), 'nur Spieler: noch deaktiviert');
+  pruefe(/data-kasse-add disabled/.test(M.ksSeiteHtml()), 'nur Spieler: noch deaktiviert');
 
-  // Nur Strafe, kein Spieler: ebenfalls.
   M.kasse.players = []; M.kasse.items = { k1: { menge: 1 } };
-  h = M.kasseHtml(DATEN);
-  pruefe(/data-kasse-add disabled/.test(h), 'nur Strafe: noch deaktiviert');
+  pruefe(/data-kasse-add disabled/.test(M.ksSeiteHtml()), 'nur Strafe: noch deaktiviert');
 
-  // Beides: aktiv, mit Anzahl und Summe.
   M.kasse.players = ['p1', 'p2', 'p3'];
-  h = M.kasseHtml(DATEN);
+  h = M.ksSeiteHtml();
   pruefe(!/data-kasse-add disabled/.test(h), 'Spieler und Strafe: aktiv');
-  pruefe(h.includes('3 Strafen · 15,00 € speichern'), 'Knopf nennt Anzahl und Summe',
-    (h.match(/ks-seite-save"[^>]*>([^<]+)</) || [])[1]);
+  pruefe(h.includes('3 Strafen · 15,00 € speichern'), 'Knopf nennt Anzahl und Summe');
 
-  // Zwei Strafen je Spieler: die Anzahl zählt die Einträge, nicht die Spieler.
   M.kasse.items = { k1: { menge: 1 }, k2: { menge: 1 } };
-  h = M.kasseHtml(DATEN);
-  pruefe(h.includes('6 Strafen · 45,00 € speichern'), '3 Spieler × 2 Strafen = 6 Einträge');
+  pruefe(M.ksSeiteHtml().includes('6 Strafen · 45,00 € speichern'), '3 Spieler × 2 Strafen = 6 Einträge');
 
-  // Einzahl.
   M.kasse.players = ['p1']; M.kasse.items = { k1: { menge: 1 } };
-  h = M.kasseHtml(DATEN);
-  pruefe(h.includes('1 Strafe · 5,00 € speichern'), 'eine Strafe im Singular');
+  pruefe(M.ksSeiteHtml().includes('1 Strafe · 5,00 € speichern'), 'eine Strafe im Singular');
   frisch();
 }
 
@@ -533,7 +600,6 @@ console.log('--- Nachfragen beim Verlassen ---');
 console.log('--- Der Vorgang rechnet weiter wie bisher ---');
 {
   frisch();
-  // Gemischt: 2 Spieler x (1 Katalogstrafe x2 + 1 freie Strafe)
   M.kasse.players = ['p1', 'p2'];
   M.kasse.items = { k1: { menge: 2 } };
   M.kasse.indiv = [{ betrag: '7,50', grund: 'Trikot vergessen' }];
@@ -545,21 +611,59 @@ console.log('--- Der Vorgang rechnet weiter wie bisher ---');
   pruefe(b.valid, 'der Vorgang ist gültig');
   pruefe(b.lines[0].offense === 'Zu spät zum Training ×2', 'die Menge steht im Text-Schnappschuss');
 
-  // Staffel ohne Bezugsgroesse blockiert - unveraendert.
   M.kasse.items = { k4: { menge: 1 } };
   M.kasse.indiv = [];
   pruefe(M.kasseBuild().incomplete, 'Staffel ohne Bezugsgröße: unvollständig');
   pruefe(!M.kasseBuild().valid, 'und damit nicht speicherbar');
   M.kasse.bezug = { k4: '7' };
-  const st = M.kasseBuild();
-  gleich(st.proSpieler, 14, 'Staffel: 7 Stunden × 2,00 = 14,00');
+  gleich(M.kasseBuild().proSpieler, 14, 'Staffel: 7 Stunden × 2,00 = 14,00');
   M.kasse.bezug = { k4: '30' };
   gleich(M.kasseBuild().proSpieler, 20, 'Staffel: Deckel bei 20,00 greift');
 
-  // Ohne Spieler kein Vorgang.
   M.kasse.players = [];
   pruefe(!M.kasseBuild().valid, 'ohne Spieler nicht speicherbar');
   frisch();
+}
+
+console.log('--- Pull-to-Refresh und Neuladen ---');
+{
+  // Die Seite haengt an <body>, nicht in #view. Genau das war die Ursache:
+  // Pull-to-Refresh setzt einen transform auf den Container, und ein
+  // transformierter Vorfahre macht aus position:fixed etwas anderes.
+  pruefe(/host\.id = "ksSeite";/.test(app) && /document\.body\.appendChild\(host\)/.test(app),
+    'die Eingabeseite hängt an <body>');
+  pruefe(!/viewEl\.innerHTML = ksSeiteHtml/.test(app), 'sie wird nicht mehr in #view gerendert');
+  pruefe(/container\.style\.transform = "translateY\("/.test(app),
+    'Pull-to-Refresh verschiebt weiterhin den Container (das war die Ursache)');
+  pruefe(/#ksSeite:not\(\[hidden\]\)/.test(
+    app.slice(app.indexOf('function ueberlagerungOffen'), app.indexOf('function sheetSwipeToClose'))),
+    'und wird blockiert, solange die Seite offen ist');
+  pruefe(/#ksSheet\.open/.test(
+    app.slice(app.indexOf('function ueberlagerungOffen'), app.indexOf('function sheetSwipeToClose'))),
+    'ebenso bei offener Spielerauswahl');
+  // Kein Gummiband nach aussen.
+  pruefe(/body\.blatt-offen, body\.ks-seite-offen \{ overscroll-behavior-y: contain; \}/.test(css),
+    'CSS: overscroll-behavior-y contain auf dem body');
+  pruefe(/\.tv-kfull \.tv-shbody, \.ks-seite-body \{ overscroll-behavior-y: contain; \}/.test(css),
+    'CSS: und auf den Scrollbereichen');
+
+  // Der Zustand steht im Hash, damit ein Neuladen sauber landet.
+  pruefe(/art === "strafe" && \["katalog", "individuell"\]/.test(app), 'Deep Link strafe= ist bekannt');
+  pruefe(/"#strafe=" \+ \(modus === "indiv" \? "individuell" : "katalog"\)/.test(app),
+    'die offene Seite schreibt ihren Hash');
+  pruefe(/history\.replaceState/.test(app.slice(app.indexOf('function ksSeiteHash'), app.indexOf('function ksSeiteKnopf'))),
+    'per replaceState - die Zurück-Taste bleibt sauber');
+  const route = app.slice(app.indexOf('if (ziel.art === "strafe")'), app.indexOf('deepLinkHashWeg();\n    if (ziel.art === "ansicht")'));
+  pruefe(route.includes('ksSeiteLeeren();'), 'nach dem Neuladen startet die Seite leer');
+  pruefe(route.includes('Roles.canManageFines()'), 'und nur, wenn die Rolle es darf');
+
+  // Ein Hintergrund-Neuladen darf das Formular nicht neu zeichnen.
+  const sync = app.slice(app.indexOf('function ksSeiteSync'), app.indexOf('function ksSeiteHash'));
+  pruefe(sync.includes('if (h.hidden || !h.firstChild)'),
+    'renderKasse zeichnet die Seite nur, wenn noch nichts da ist');
+  const rk = app.slice(app.indexOf('function renderKasse()'), app.indexOf('const KS_TABS'));
+  pruefe(rk.includes('ksSeiteSync();') && !rk.includes('ksSeiteZeichnen();'),
+    'renderKasse ruft nur den Abgleich, nie das Neuzeichnen');
 }
 
 
