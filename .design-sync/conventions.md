@@ -71,7 +71,7 @@ Layout-Beiwerk kommt als `style="…"` mit Tokens oder als neue, sprechende Klas
 | Platzansicht | `.tv-lu` (`.tv-ro`) `.tv-top` `.tv-ic` `.tv-hi` `.tv-game` `.tv-sub` · `.tv-formbar` `.tv-fpill` `.tv-fmore` · `.tv-field` `.tv-pitch` `.tv-pitch-bg` `.tv-slot` (`.filled` `.sel`) `.tv-disc` `.tv-role` `.tv-pn` · `.tv-bank` `.tv-bank-h` `.tv-bank-row` `.tv-bslot` `.tv-bnr` `.tv-bn` `.tv-bx` `.tv-bplus` `.tv-bfrei` · `.tv-actions` `.tv-primary` `.tv-ghost` `.tv-cta` `.tv-ro-note` |
 | Rückmeldungen-Blatt | `.rs2-panel` `.rs2-griff` `.rs2-kopf` `.rs2-kopf-text` `.rs2-titel` `.rs2-sub` `.rs2-zu` · `.rs2-bar` · `.rs2-kacheln` `.rs2-kachel` `.rs2-k-l` `.rs2-k-z` · `.rs2-liste` `.rs2-zeile` `.rs2-av` `.rs2-n` `.rs2-grund` `.rs2-leer` · `.rs2-fuss` `.rs2-btn` `.rs2-btn2` |
 | Konto | `.mine-banner` (`.is-clear`) `.mb-label` `.mb-value` `.mb-sub` `.mb-bar` `.mb-note` `.mb-pay` `.mb-pp` `.mb-foot` `.mb-cd` `.pp-word` · `.fine-list` `.fine-row` `.fine-main` `.fine-name` `.fine-desc` `.fine-reason` `.fine-right` `.fine-amt` |
-| Kasse | `.kpi-tapbar` `.ks-neu` `.kasse-add` `.kasse-lbl` `.kasse-count` `.kasse-players` `.kasse-chip` `.kasse-in` `.kasse-two` `.kasse-sum` `.kasse-sum-row` `.kasse-sum-total` `.kasse-save` `.ks-auch` · Reiter: `.ks-seg` `.ks-seg-b` (`.is-on`) `.ks-seg-n` · Filter: `.ks-fl` `.ks-fl-b` `.ks-fl-t` `.ks-fl-n` `.ks-fl-aktiv` `.ks-fl-chip` `.ks-treffer` · Filter-Blatt: `.ks-flbl` `.ks-fl-suche` `.ks-fl-suche-t` `.ks-fl-suche-n` `.ks-fl-hinweis` `.ks-fl-fuss` `.ks-wahlliste` `.ks-wahlz` (`.is-on`) · Suche: `.ks-such` `.ks-suchfeld` `.ks-such-in` `.ks-such-x` `.ks-gewaehlt` `.ks-gchip` · Eingabeseite: `.ks-seite` `.ks-seite-kopf` `.ks-seite-zur` `.ks-seite-t` `.ks-seite-x` `.ks-seite-body` · gemeinsamer Fuß: `.ks-fuss` `.ks-fuss-btn` · Prüfkarte: `.ks-deck` `.ks-card` `.ks-kopf` `.ks-av` `.ks-name` `.ks-amt` `.ks-meta` `.ks-zitat` `.ks-actions` · Offen: `.krow-list` `.krow` `.krow-top` `.krow-title` `.krow-amt` `.krow-strafe` `.krow-verh` `.krow-actions` `.ks-storno` `.ks-buchen` · Eingegangen: `.ks-ein` `.ks-ein-row` `.ks-ok` `.ks-ein-main` `.ks-ein-n` `.ks-ein-m` `.ks-ein-b` · Angabe des Spielers: `.ks-sag` `.ks-zi` (`.is-pp`) · Blatt: `.ks-bl` `.ks-bl-sum` `.ks-bl-top` `.ks-bl-n` `.ks-bl-b` `.ks-bl-s` `.ks-bl-lbl` `.ks-bl-h` `.ks-bl-cta` · Wähler: `.ks-wahl` `.ks-wahl-b` `.ks-wahl-t` `.ks-wahl-s` `.ks-wahl-f` · Zahlung melden: `.zm-lbl` `.zm-opt` `.zm-zahl` (`.is-lang`) `.zm-note` · `.ks-leer` `.ks-leer-t` · `.ks-ichips` `.ks-ichip` · `.zart-row` `.zart` (`.is-on`) |
+| Kasse | `.kpi-tapbar` `.ks-neu` `.kasse-add` `.kasse-lbl` `.kasse-count` `.kasse-players` `.kasse-chip` `.kasse-in` `.kasse-two` `.kasse-sum` `.kasse-sum-row` `.kasse-sum-total` `.kasse-save` `.ks-auch` · Reiter: `.ks-seg` `.ks-seg-b` (`.is-on`) `.ks-seg-n` · Filter: `.ks-fl` `.ks-fl-b` `.ks-fl-t` `.ks-fl-n` `.ks-fl-aktiv` `.ks-fl-chip` `.ks-treffer` · Filter-Blatt: `.ks-flbl` `.ks-fl-suche` `.ks-fl-suche-t` `.ks-fl-suche-n` `.ks-fl-hinweis` `.ks-fl-fuss` `.ks-fl-zeile` `.ks-fl-zeile-t` `.ks-wahlliste` `.ks-wahlz` (`.is-on`) · Suche: `.ks-such` `.ks-suchfeld` `.ks-such-in` `.ks-such-x` `.ks-gewaehlt` `.ks-gchip` · Eingabeseite: `.ks-seite` `.ks-seite-kopf` `.ks-seite-zur` `.ks-seite-t` `.ks-seite-x` `.ks-seite-body` · gemeinsamer Fuß: `.ks-fuss` `.ks-fuss-btn` · Prüfkarte: `.ks-deck` `.ks-card` `.ks-kopf` `.ks-av` `.ks-name` `.ks-amt` `.ks-meta` `.ks-zitat` `.ks-actions` · Offen: `.krow-list` `.krow` `.krow-top` `.krow-title` `.krow-amt` `.krow-strafe` `.krow-verh` `.krow-actions` `.ks-storno` `.ks-buchen` · Eingegangen: `.ks-ein` `.ks-ein-row` `.ks-ok` `.ks-ein-main` `.ks-ein-n` `.ks-ein-m` `.ks-ein-b` · Angabe des Spielers: `.ks-sag` `.ks-zi` (`.is-pp`) · Blatt: `.ks-bl` `.ks-bl-sum` `.ks-bl-top` `.ks-bl-n` `.ks-bl-b` `.ks-bl-s` `.ks-bl-lbl` `.ks-bl-h` `.ks-bl-cta` · Wähler: `.ks-wahl` `.ks-wahl-b` `.ks-wahl-t` `.ks-wahl-s` `.ks-wahl-f` · Zahlung melden: `.zm-lbl` `.zm-opt` `.zm-zahl` (`.is-lang`) `.zm-note` · `.ks-leer` `.ks-leer-t` · `.ks-ichips` `.ks-ichip` · `.zart-row` `.zart` (`.is-on`) |
 | Katalog | `.kat-list` `.kat-item` `.kat-name` `.kat-sub` `.kat-amount` (`.is-staffel`) `.kat-actions` `.kat-add` · Bearbeiten: `.kat-edit` `.kat-in` `.kat-fixed` `.kat-eur` `.kat-staffel` `.kat-edit-actions` |
 | Formulare | `.termin-form` `.tf-row` `.tf-2col` `.tf-wdh` `.tf-radio` `.tf-bis` `.tf-summary` |
 | Tabelle | `.table-wrap` + `.rollen-tbl` `.player-cell` `.rollen-av` `.rollen-name` `.rollen-mail` |
@@ -365,3 +365,35 @@ sichtbarer zweiter Aufbau.
 Vollbildflächen bekommen **keinen Fokus beim Öffnen**. Ein automatisch
 fokussiertes Feld holt die Tastatur und mit ihr die iOS-Formularleiste (Pfeile
 und Haken) hoch, bevor die Ansicht steht. Wer suchen will, tippt das Feld an.
+
+## Filter: je Reiter die passende Frage
+
+Ein Filterblatt zeigt nicht überall dasselbe. In „Offen" lautet die Frage *wer
+schuldet wie lange schon*, in „Eingegangen" *was kam wann und wie herein*:
+
+| | Offen | Eingegangen |
+|---|---|---|
+| Spieler | ✓ Mehrfachauswahl | ✓ Mehrfachauswahl |
+| Überfällig | ✓ Schalter `.sw`, älter als 4 Wochen | — |
+| Zahlart | — | ✓ Mehrfachauswahl, Reihenfolge wie im Buchen-Blatt |
+| Zeitraum | — | Dieser Monat · Letzter Monat · **Saison** |
+| Sortierung | **Älteste** · Höchster Betrag · Neueste | fest: Neueste |
+
+**„Saison" heißt 1. Juli bis 30. Juni**, nicht „alles" — eine Buchung aus der
+Vorsaison fällt bewusst heraus.
+
+Über der Liste steht bei aktivem Filter, was übrig ist: in „Offen" **„12 von
+197"**, in „Eingegangen" **„12 Zahlungen · 186,00 €"** — dort ist die Frage,
+wie viel hereinkam, nicht wie viele Zeilen es sind.
+
+**Die Zahl an der Leiste zählt genau das, was auch als Chip erscheint.** Ein
+Wert, den die Oberfläche nicht anbietet, zählt nicht mit — sonst nennt die
+Leiste eine Zahl, zu der niemand einen Chip zum Abwählen findet.
+
+## Zeilen in einer Karte: 16, nicht 14
+
+`.kat-item` und `.laz-row` sind **eigenständige Karten** und tragen 14 px
+waagerecht. Eine Zeile **innerhalb** einer Karte (`.ks-ein-row`) nimmt dagegen
+den Karten-Standard **16 px** — wie `.card-pad` und `.ks-card`. Der Abstand
+zwischen Avatar bzw. Symbolkreis und Text bleibt in beiden Fällen **12 px**;
+das ist das Maß aller Avatarzeilen der App.

@@ -60,6 +60,7 @@ const RUECK = `
     // Filter und Suche
     ksFilterNeu, ksFiltern, ksSortieren, ksImZeitraum, ksBezugsdatum,
     ksFilterAnzahl, ksFilterChips, ksFilterleisteHtml, ksTrefferHtml,
+    ksIstFaellig, ksSaisonStart, KS_FAELLIG_TAGE,
     ksNorm, ksSucheTrifft, ksSpielerSuchen,
     KS_ZEIT, KS_SORT,
     // Seite „Strafe verhängen"

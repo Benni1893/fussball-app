@@ -24,13 +24,13 @@ function frisch() {
   M.kasse.bloecke = { katalog: false, indiv: false };
   M.kasse.players = []; M.kasse.items = {}; M.kasse.bezug = {}; M.kasse.indiv = [];
   M.kasse.indivBetrag = ''; M.kasse.indivGrund = ''; M.kasse.comment = '';
-  M.kasse.filter = { offen: M.ksFilterNeu(), bezahlt: M.ksFilterNeu() };
+  M.kasse.filter = { offen: M.ksFilterNeu('offen'), bezahlt: M.ksFilterNeu('bezahlt') };
 }
 function reiter(tab) { frisch(); M.kasse.tab = tab; return M.kasseHtml(DATEN); }
 function leer(tab)   { frisch(); M.kasse.tab = tab; return M.kasseHtml([]); }
 function gefiltert() {
   frisch(); M.kasse.tab = 'offen';
-  M.kasse.filter.offen = { spieler: ['p2'], sort: 'betrag', zeit: '30' };
+  M.kasse.filter.offen = { spieler: ['p2'], sort: 'betrag', faellig: true };
   return M.kasseHtml(DATEN);
 }
 function seiteHtml(modus) {
@@ -111,9 +111,21 @@ const filterBlatt =
     '<span class="ks-fl-suche-n">2 gewählt</span>' +
     '<span class="kasse-picker-arrow">›</span></button>' +
   M.ksGewaehltChipsHtml(['p2', 'p4'], 'data-weg') +
-  '<div class="lbl ks-bl-lbl">Sortierung</div>' + wahlliste(M.KS_SORT.offen, 'betrag') +
-  '<div class="lbl ks-bl-lbl">Zeitraum</div>' + wahlliste(M.KS_ZEIT, '30') +
-  '<div class="ks-fl-hinweis">Der Zeitraum zählt ab dem Datum der Strafe.</div>';
+  '<div class="ks-fl-zeile"><span class="ks-fl-zeile-t">Nur überfällig</span>' +
+  '<button class="sw" role="switch" aria-checked="true" type="button"></button></div>' +
+  '<div class="ks-fl-hinweis">Älter als vier Wochen, gerechnet ab dem Datum der Strafe.</div>' +
+  '<div class="lbl ks-bl-lbl">Sortierung</div>' + wahlliste(M.KS_SORT.offen, 'betrag');
+
+const filterBlattB =
+  '<button type="button" class="ks-fl-suche">' +
+    '<span class="ks-zi">' + M.ICON_LUPE + '</span>' +
+    '<span class="ks-fl-suche-t">Spieler suchen</span>' +
+    '<span class="ks-fl-suche-n">alle</span>' +
+    '<span class="kasse-picker-arrow">›</span></button>' +
+  '<div class="lbl ks-bl-lbl">Zahlart</div>' + wahlliste(M.KASSE_ZAHLARTEN, 'bar') +
+  '<div class="ks-fl-hinweis">Ohne Auswahl zählen alle Zahlarten.</div>' +
+  '<div class="lbl ks-bl-lbl">Zeitraum</div>' + wahlliste(M.KS_ZEIT, 'saison') +
+  '<div class="ks-fl-hinweis">Nach Buchungsdatum. Die Saison läuft vom 1. Juli bis zum 30. Juni.</div>';
 
 const filterFuss =
   '<div class="ks-fl-fuss"><button type="button" class="btn">Filter zurücksetzen</button>' +
@@ -245,13 +257,19 @@ ${ANSICHTEN.map(([t, inhalt, m]) => `  <div>
   </div>
 
   <div>
-    <div class="sp-h">14 · Vollbild „Spieler suchen"</div>
+    <div class="sp-h">14 · Filter-Blatt „Eingegangen"</div>
+    <div class="frame">${blatt('Filter', filterBlattB, filterFuss)}</div>
+    <div class="meta">Anderer Reiter, andere Frage: Zahlart als Mehrfachauswahl und Zeitraum nach Buchungsdatum. Sortierung gibt es hier nicht — Neueste zuerst ist fest.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">15 · Vollbild „Spieler suchen"</div>
     <div class="frame"><div class="such-demo ks-such">${suche}</div></div>
     <div class="meta">Liegt über dem Filter-Blatt. Suchfeld oben mit sofortigem Fokus, Mehrfachauswahl, Umlaute tolerant in beide Richtungen: „muller" findet „Müller" und umgekehrt.</div>
   </div>
 
   <div>
-    <div class="sp-h">15 · Spieleransicht „Zahlung melden"</div>
+    <div class="sp-h">16 · Spieleransicht „Zahlung melden"</div>
     <div class="frame">${blatt('Zahlung melden', melden)}</div>
     <div class="meta">Die Gegenseite zum Buchen-Blatt: der Spieler sagt, wie er gezahlt hat, und darf einen Satz dazuschreiben. Beides landet in reported_method und reported_note und steht dem Kassenwart vor Augen.</div>
   </div>

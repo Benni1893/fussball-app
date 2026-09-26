@@ -979,3 +979,29 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
   steht im Code wieder als Wert, aber als **Rückfall** hinter `sagtZahlart` —
   der alte Fehler war ein fest verdrahteter Wert *ohne* diesen Rückfall. Das
   Prüfskript unterscheidet beides.
+
+**Filter vereinfacht, Eingegangen-Zeile korrigiert (26.09.2026)**
+
+- **Zwei Reiter, zwei Sätze.** „Offen" hat Spieler, den Schalter „Nur
+  überfällig" und drei Sortierungen; „Eingegangen" hat Spieler, Zahlart
+  (mehrfach) und Zeitraum, die Sortierung ist fest. Alles andere ist weg.
+  `ksFilterNeu(tab)` liefert deshalb je Reiter ein anderes Objekt.
+- **„Überfällig" sind 28 Tage**, gerechnet ab dem Datum der Strafe. Die Zahl
+  steht als `KS_FAELLIG_TAGE` im Code, nicht verstreut in Vergleichen.
+- **„Saison" ist nicht „alles".** 1. Juli bis 30. Juni; eine Buchung aus der
+  Vorsaison fällt bewusst heraus. Steht als Hinweis im Blatt, damit niemand
+  rätselt, wo die alten Zahlungen sind.
+- **Der Monatswechsel ist der Fall, der schiefgeht.** Im Januar ist der
+  Vormonat der Dezember des **Vorjahres** — geprüft, nicht angenommen.
+- **Die Zahl an der Leiste zählt jetzt genau das, was als Chip erscheint.**
+  Vorher hätte ein Zeitraum, den die Oberfläche nicht anbietet (`alle`),
+  mitgezählt, ohne einen Chip zu erzeugen — die Leiste hätte „2" gesagt und
+  nur einen Chip gezeigt. Das Prüfskript vergleicht beides jetzt über elf
+  Filterzustände hinweg.
+- **Der Text in „Eingegangen" klebte, weil die Zeile 14 px trug.** Das ist der
+  Innenabstand einer **eigenständigen** Karte (`.kat-item`, `.laz-row`). Die
+  Zeile sitzt aber **in** einer Karte, und dort ist 16 der Standard
+  (`.card-pad`, `.ks-card`). Der Abstand zwischen Kreis und Text war mit 12 px
+  bereits richtig — das ist das Maß aller Avatarzeilen, im Bildskript gegen
+  die Spielerliste gegengeprüft. Gemessen von der Innenkante: 14 → 16 links
+  und rechts.

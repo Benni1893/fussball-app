@@ -25,7 +25,7 @@ function frisch() {
   M.kasse.bloecke = { katalog: false, indiv: false };
   M.kasse.players = []; M.kasse.items = {}; M.kasse.bezug = {}; M.kasse.indiv = [];
   M.kasse.indivBetrag = ''; M.kasse.indivGrund = ''; M.kasse.comment = '';
-  M.kasse.filter = { offen: M.ksFilterNeu(), bezahlt: M.ksFilterNeu() };
+  M.kasse.filter = { offen: M.ksFilterNeu('offen'), bezahlt: M.ksFilterNeu('bezahlt') };
 }
 
 /* Der Rahmen der App: Kopfband, Inhaltsspalte, Bottom-Nav. Nur so viel, dass
@@ -264,20 +264,21 @@ console.log('--- Filter: Leiste, gefilterte Liste, ohne Treffer ---');
 {
   frisch();
   M.kasse.tab = 'offen';
-  M.kasse.filter.offen = { spieler: ['p2'], sort: 'betrag', zeit: '30' };
+  M.kasse.filter.offen = { spieler: ['p2'], sort: 'betrag', faellig: true };
   await schuss(p, seite(M.kasseHtml(DATEN)), 'filter-offen.png', 844);
   fehler += await ueberlauf(p, 'Filter offen');
 
   M.kasse.tab = 'bezahlt';
-  M.kasse.filter.bezahlt = { spieler: ['p1'], sort: 'neu', zeit: 'alle' };
+  M.kasse.filter.bezahlt = { spieler: [], sort: 'neu', zahlart: ['bar'], zeit: 'saison' };
   await schuss(p, seite(M.kasseHtml(DATEN)), 'filter-eingegangen.png', 700);
   fehler += await ueberlauf(p, 'Filter eingegangen');
 
   // Leerzustand einer gefilterten Liste - nicht zu verwechseln mit „nichts da".
   M.kasse.tab = 'offen';
-  M.kasse.filter.offen = { spieler: ['p7'], sort: 'neu', zeit: 'heute' };
+  M.kasse.filter.offen = { spieler: [], sort: 'alt', faellig: true };
+  // Nur frische Strafen, Filter auf „überfällig" - garantiert kein Treffer.
   const alt = DATEN.filter((s) => s.st !== 'offen')
-    .concat(DATEN.filter((s) => s.st === 'offen').slice(0, 5).map((s) => ({ ...s, datum: '2026-01-02' })));
+    .concat(DATEN.filter((s) => s.st === 'offen').slice(0, 5).map((s) => ({ ...s, datum: '2026-09-25' })));
   await schuss(p, seite(M.kasseHtml(alt)), 'filter-leer.png', 700);
   fehler += await ueberlauf(p, 'Filter ohne Treffer');
   frisch();
@@ -295,14 +296,31 @@ console.log('--- Filter-Blatt ---');
       '<span class="ks-fl-suche-n">2 gewählt</span>' +
       '<span class="kasse-picker-arrow">›</span></button>' +
     M.ksGewaehltChipsHtml(['p2', 'p4'], 'data-x') +
-    '<div class="lbl ks-bl-lbl">Sortierung</div>' + wahl(M.KS_SORT.offen, 'betrag', 'data-s') +
-    '<div class="lbl ks-bl-lbl">Zeitraum</div>' + wahl(M.KS_ZEIT, '30', 'data-z') +
-    '<div class="ks-fl-hinweis">Der Zeitraum zählt ab dem Datum der Strafe.</div>';
+    '<div class="ks-fl-zeile"><span class="ks-fl-zeile-t">Nur überfällig</span>' +
+    '<button class="sw" role="switch" aria-checked="true" type="button"></button></div>' +
+    '<div class="ks-fl-hinweis">Älter als vier Wochen, gerechnet ab dem Datum der Strafe.</div>' +
+    '<div class="lbl ks-bl-lbl">Sortierung</div>' + wahl(M.KS_SORT.offen, 'betrag', 'data-s');
   const fuss =
     '<div class="ks-fl-fuss"><button type="button" class="btn">Filter zurücksetzen</button>' +
     '<button type="button" class="btn btn-primary">Anwenden</button></div>';
   await schuss(p, blattSeite('Filter', body, 'ks-flbl', fuss), 'filter-blatt.png', 844);
   fehler += await ueberlauf(p, 'Filter-Blatt');
+
+  // Dasselbe Blatt im Reiter „Eingegangen": Zahlart und Zeitraum statt
+  // ueberfaellig und Sortierung.
+  const bodyB =
+    '<button type="button" class="ks-fl-suche">' +
+      '<span class="ks-zi">' + M.ICON_LUPE + '</span>' +
+      '<span class="ks-fl-suche-t">Spieler suchen</span>' +
+      '<span class="ks-fl-suche-n">alle</span>' +
+      '<span class="kasse-picker-arrow">›</span></button>' +
+    '<div class="lbl ks-bl-lbl">Zahlart</div>' +
+    wahl(M.KASSE_ZAHLARTEN, 'bar', 'data-za') +
+    '<div class="ks-fl-hinweis">Ohne Auswahl zählen alle Zahlarten.</div>' +
+    '<div class="lbl ks-bl-lbl">Zeitraum</div>' + wahl(M.KS_ZEIT, 'saison', 'data-z') +
+    '<div class="ks-fl-hinweis">Nach Buchungsdatum. Die Saison läuft vom 1. Juli bis zum 30. Juni.</div>';
+  await schuss(p, blattSeite('Filter', bodyB, 'ks-flbl', fuss), 'filter-blatt-eingegangen.png', 844);
+  fehler += await ueberlauf(p, 'Filter-Blatt Eingegangen');
 }
 
 console.log('--- Vollbild „Spieler suchen" ---');
@@ -481,6 +499,70 @@ console.log('--- Scroll-Sperre ---');
   sag(stapel.nochFixiert, 'ein unbekanntes Blatt bringt den Zähler nicht durcheinander');
   sag(stapel.frei && stapel.zurueck === 500, 'danach ist der body frei und die Position zurück',
     stapel.zurueck + ' px');
+}
+
+
+/* --- Eingegangen: Innenabstand vorher/nachher ---------------------------
+   „Vorher" ist die alte Regel, inline wieder eingesetzt: die Zeile trug
+   14 px waagerecht - den Innenabstand einer EIGENSTAENDIGEN Karte
+   (.kat-item). Sie sitzt aber IN einer Karte, wo 16 der Standard ist. */
+console.log('--- Eingegangen: Innenabstand vorher und nachher ---');
+{
+  const ALT = '.vorher .ks-ein-row { padding: 13px 14px; } .vorher .ks-ein-b { padding-left: 0; }';
+  frisch(); M.kasse.tab = 'bezahlt';
+  const liste = M.renderKasseEing(
+    DATEN.filter((s) => s.st === 'bestätigt').slice(0, 4),
+    DATEN.filter((s) => s.st === 'bestätigt'));
+  const html = seite(
+    '<div class="sp-h2">vorher</div><div class="vorher">' + liste + '</div>' +
+    '<div class="sp-h2">nachher</div><div class="nachher">' + liste + '</div>',
+    ALT + '.sp-h2 { font: 700 11px/1 system-ui; letter-spacing: .6px; text-transform: uppercase; ' +
+          'color: var(--muted); margin: 14px 0 6px; }');
+  await schuss(p, html, 'eingegangen-vorher-nachher.png', null);
+
+  const m = await p.evaluate(() => {
+    const mass = (sel) => {
+      const karte = document.querySelector(sel + ' .ks-ein');
+      const zeile = karte.querySelector('.ks-ein-row');
+      const kreis = zeile.querySelector('.ks-ok');
+      const name = zeile.querySelector('.ks-ein-n');
+      const betrag = zeile.querySelector('.ks-ein-b');
+      const k = karte.getBoundingClientRect();
+      // Von der INNENkante messen: .ks-ein ist eine .card mit 1px Rand.
+      const rand = parseFloat(getComputedStyle(karte).borderLeftWidth) || 0;
+      return {
+        linksKreis: Math.round(kreis.getBoundingClientRect().left - k.left - rand),
+        kreisText: Math.round(name.getBoundingClientRect().left - kreis.getBoundingClientRect().right),
+        rechtsBetrag: Math.round(k.right - rand - betrag.getBoundingClientRect().right),
+      };
+    };
+    return { vorher: mass('.vorher'), nachher: mass('.nachher') };
+  });
+
+  const sag = (ok, text, detail) => {
+    console.log('  ' + (ok ? 'ok  ' : 'FEHL') + ' ' + text + (detail ? '   ' + detail : ''));
+    if (!ok) fehler++;
+  };
+  console.log('  vorher:  ' + JSON.stringify(m.vorher));
+  console.log('  nachher: ' + JSON.stringify(m.nachher));
+  sag(m.vorher.linksKreis === 14, 'vorher saß der Kreis 14 px vom Rand', m.vorher.linksKreis + ' px');
+  sag(m.nachher.linksKreis === 16, 'nachher 16 px - der Karten-Standard', m.nachher.linksKreis + ' px');
+  sag(m.nachher.rechtsBetrag === 16, 'der Betrag hat denselben Abstand nach rechts',
+    m.nachher.rechtsBetrag + ' px');
+  sag(m.nachher.kreisText === 12, 'zwischen Kreis und Text 12 px wie bei jedem Avatar',
+    m.nachher.kreisText + ' px');
+  // Gegenprobe an einer anderen Avatarzeile der App.
+  const avatar = await p.evaluate(() => {
+    const el = document.createElement('div');
+    el.innerHTML = '<div class="kat-list"><button class="kat-item ks-prow">' +
+      '<span class="avatar">AB</span><span class="kat-name">Test</span></button></div>';
+    document.body.appendChild(el);
+    const a = el.querySelector('.avatar'), n = el.querySelector('.kat-name');
+    const g = Math.round(n.getBoundingClientRect().left - a.getBoundingClientRect().right);
+    el.remove();
+    return g;
+  });
+  sag(avatar === m.nachher.kreisText, 'dasselbe Maß wie in der Spielerliste', avatar + ' px');
 }
 
 
@@ -837,7 +919,9 @@ console.log('--- Kontrast (AA) ---');
 {
   // Mit gesetztem Filter, damit Leiste, Chips und „x von y" auch gemessen werden.
   frisch(); M.kasse.tab = 'offen';
-  M.kasse.filter.offen = { spieler: ['p2'], sort: 'betrag', zeit: '30' };
+  /* Ohne „überfällig": die Zeile mit der Angabe des Spielers ist frisch und
+     fiele sonst heraus - sie soll aber mitgemessen werden. */
+  M.kasse.filter.offen = { spieler: ['p2'], sort: 'betrag', faellig: false };
   const f = path.join(ZIEL, '_tmp.html');
   fs.writeFileSync(f, seite(M.kasseHtml(DATEN)));
   await p.goto(pathToFileURL(path.resolve(f)).href);

@@ -20,6 +20,9 @@ const app = fs.readFileSync('app.js', 'utf8');
 const db  = fs.readFileSync('db.js', 'utf8');
 const css = fs.readFileSync('styles.css', 'utf8');
 
+// Wie die App schreibt: das schmale Leerzeichen vor dem Euro wird ein normales.
+const euroTxt = (n) => n.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' }).replace(/\s/g, ' ');
+
 const M = ladeKasse();
 M.setDaten(SPIELER_BY_ID, { katalog: KATALOG, strafen: [], players: SPIELER });
 const DATEN = beispielDaten();
@@ -28,7 +31,7 @@ const frisch = () => {
   M.kasse.bloecke = { katalog: false, indiv: false };
   M.kasse.players = []; M.kasse.items = {}; M.kasse.bezug = {}; M.kasse.indiv = [];
   M.kasse.indivBetrag = ''; M.kasse.indivGrund = ''; M.kasse.comment = '';
-  M.kasse.filter = { offen: M.ksFilterNeu(), bezahlt: M.ksFilterNeu() };
+  M.kasse.filter = { offen: M.ksFilterNeu('offen'), bezahlt: M.ksFilterNeu('bezahlt') };
 };
 
 /* ===== 1. Kennzahlen und Summen ========================================= */
@@ -92,7 +95,7 @@ console.log('--- Der Reiter entscheidet, was gezeigt wird ---');
   }
 }
 
-/* ===== 3. Filter: Leiste, Sortierung, Zeitraum, Kombination ============= */
+/* ===== 3. Filter: zwei Reiter, zwei Fragen ============================== */
 console.log('--- Filterleiste ---');
 {
   frisch(); M.kasse.tab = 'offen';
@@ -102,84 +105,120 @@ console.log('--- Filterleiste ---');
   M.kasse.tab = 'pruefen';
   pruefe(!M.kasseHtml(DATEN).includes('data-ks-fl-auf'), 'Filterleiste steht NICHT in „Zu prüfen"');
 
-  // Ohne Filter keine Zahl und keine Chips.
   frisch(); M.kasse.tab = 'offen';
   const leer = M.kasseHtml(DATEN);
   pruefe(!leer.includes('ks-fl-n'), 'ohne Filter keine Zahl an der Leiste');
   pruefe(!leer.includes('ks-fl-chip'), 'ohne Filter keine Chips');
-  pruefe(!leer.includes('ks-treffer'), 'ohne Filter keine Zeile „x von y"');
+  pruefe(!leer.includes('ks-treffer'), 'ohne Filter keine Zeile darüber');
+}
+
+console.log('--- Was es je Reiter gibt ---');
+{
+  const o = M.ksFilterNeu('offen'), b = M.ksFilterNeu('bezahlt');
+  gleich(Object.keys(o).sort(), ['faellig', 'sort', 'spieler'], 'Offen: Spieler, überfällig, Sortierung');
+  gleich(Object.keys(b).sort(), ['sort', 'spieler', 'zahlart', 'zeit'], 'Eingegangen: Spieler, Zahlart, Zeitraum, Sortierung');
+  gleich(o.sort, 'alt', 'Offen: Standard ist „Älteste zuerst"');
+  gleich(o.faellig, false, 'Offen: überfällig ist aus');
+  gleich(b.sort, 'neu', 'Eingegangen: Standard ist „Neueste zuerst"');
+  gleich(b.zeit, 'saison', 'Eingegangen: Standard ist „Saison"');
+  gleich(b.zahlart, [], 'Eingegangen: ohne Auswahl zählen alle Zahlarten');
+
+  // Die angebotenen Sortierungen.
+  gleich(M.KS_SORT.offen.map((x) => x[0]), ['alt', 'betrag', 'neu'],
+    'Offen: Älteste, Höchster Betrag, Neueste');
+  gleich(M.KS_SORT.bezahlt.map((x) => x[0]), ['neu'], 'Eingegangen: Sortierung ist fest');
+  gleich(M.KS_ZEIT.map((x) => x[0]), ['monat', 'vormonat', 'saison'],
+    'Zeiträume: Dieser Monat, Letzter Monat, Saison');
+  // Die Zahlarten stehen in derselben Reihenfolge wie im Buchen-Blatt.
+  gleich(M.KASSE_ZAHLARTEN.map((x) => x[0]), ['paypal', 'bar', 'ueberweisung'],
+    'Zahlart in der Reihenfolge des Buchen-Blatts');
 }
 
 console.log('--- Zählung der aktiven Filter ---');
 {
-  const z = (f) => M.ksFilterAnzahl(f);
-  gleich(z(M.ksFilterNeu()), 0, 'Standard zählt als kein Filter');
-  gleich(z({ spieler: ['p1'], sort: 'neu', zeit: 'alle' }), 1, 'ein Spieler');
-  gleich(z({ spieler: ['p1', 'p2'], sort: 'neu', zeit: 'alle' }), 2, 'zwei Spieler zählen zweimal');
-  gleich(z({ spieler: [], sort: 'neu', zeit: '7' }), 1, 'Zeitraum');
-  gleich(z({ spieler: [], sort: 'betrag', zeit: 'alle' }), 1, 'abweichende Sortierung');
-  gleich(z({ spieler: ['p1'], sort: 'alt', zeit: '30' }), 3, 'alles zusammen');
-  gleich(z(null), 0, 'kein Filterobjekt');
+  const zo = (f) => M.ksFilterAnzahl({ ...M.ksFilterNeu('offen'), ...f }, 'offen');
+  const zb = (f) => M.ksFilterAnzahl({ ...M.ksFilterNeu('bezahlt'), ...f }, 'bezahlt');
+  gleich(zo({}), 0, 'Offen: Standard zählt als kein Filter');
+  gleich(zo({ spieler: ['p1'] }), 1, 'Offen: ein Spieler');
+  gleich(zo({ spieler: ['p1', 'p2'] }), 2, 'Offen: zwei Spieler zählen zweimal');
+  gleich(zo({ faellig: true }), 1, 'Offen: überfällig');
+  gleich(zo({ sort: 'betrag' }), 1, 'Offen: abweichende Sortierung');
+  gleich(zo({ sort: 'alt' }), 0, 'Offen: die Standardsortierung zählt nicht');
+  gleich(zo({ spieler: ['p1'], faellig: true, sort: 'neu' }), 3, 'Offen: alles zusammen');
+
+  gleich(zb({}), 0, 'Eingegangen: Standard zählt als kein Filter');
+  gleich(zb({ zahlart: ['bar'] }), 1, 'Eingegangen: eine Zahlart');
+  gleich(zb({ zahlart: ['bar', 'paypal'] }), 2, 'Eingegangen: zwei Zahlarten zählen zweimal');
+  gleich(zb({ zeit: 'monat' }), 1, 'Eingegangen: Zeitraum');
+  gleich(zb({ zeit: 'saison' }), 0, 'Eingegangen: die Saison ist der Standard');
+  gleich(zb({ spieler: ['p1'], zahlart: ['bar'], zeit: 'vormonat' }), 3, 'Eingegangen: alles zusammen');
+  gleich(M.ksFilterAnzahl(null, 'offen'), 0, 'kein Filterobjekt');
+
+  /* Die Zahl an der Leiste und die Chips darunter muessen immer dasselbe
+     sagen - sonst nennt die Leiste etwas, das man nicht abwaehlen kann. */
+  const paare = [
+    ['offen', {}], ['offen', { spieler: ['p1', 'p2'] }], ['offen', { faellig: true }],
+    ['offen', { sort: 'neu' }], ['offen', { spieler: ['p1'], faellig: true, sort: 'betrag' }],
+    ['bezahlt', {}], ['bezahlt', { zahlart: ['bar', 'paypal'] }], ['bezahlt', { zeit: 'monat' }],
+    ['bezahlt', { spieler: ['p3'], zahlart: ['ueberweisung'], zeit: 'vormonat' }],
+    // Ein Wert, den die Oberflaeche gar nicht anbietet, darf auch nicht zaehlen.
+    ['bezahlt', { zeit: 'alle' }], ['offen', { sort: 'gibt-es-nicht' }],
+  ];
+  for (const [tab, teil] of paare) {
+    const f = { ...M.ksFilterNeu(tab), ...teil };
+    gleich(M.ksFilterAnzahl(f, tab), M.ksFilterChips(f, tab).length,
+      tab + ': Zahl und Chips stimmen überein  ' + JSON.stringify(teil));
+  }
 }
 
-console.log('--- Sortierung ---');
+console.log('--- Überfällig ---');
 {
-  const offen = DATEN.filter((s) => s.st === 'offen');
-  const datum = (l) => l.map((s) => s.datum);
-  const neu = M.ksSortieren(offen, 'neu', 'offen');
-  const alt = M.ksSortieren(offen, 'alt', 'offen');
-  pruefe(datum(neu)[0] >= datum(neu)[datum(neu).length - 1], 'Neueste zuerst: absteigend');
-  pruefe(datum(alt)[0] <= datum(alt)[datum(alt).length - 1], 'Älteste zuerst: aufsteigend');
-  gleich(datum(neu)[0], datum(alt)[datum(alt).length - 1], 'die beiden Enden tauschen');
-  const betrag = M.ksSortieren(offen, 'betrag', 'offen');
-  pruefe(betrag[0].betrag >= betrag[betrag.length - 1].betrag, 'Höchster Betrag zuerst');
-  gleich(betrag[0].betrag, Math.max(...offen.map((s) => s.betrag)), 'der größte Betrag steht oben');
-  // Sortieren darf nichts wegwerfen und die Eingabe nicht verändern.
-  gleich(neu.length, offen.length, 'Sortieren verliert keine Zeile');
-  const vorher = offen.map((s) => s.id).join();
-  M.ksSortieren(offen, 'betrag', 'offen');
-  gleich(offen.map((s) => s.id).join(), vorher, 'die übergebene Liste bleibt unangetastet');
-  // Gleiches Datum: der Name entscheidet, damit die Reihenfolge stabil ist.
-  const gleichTag = [
-    { datum: '2026-09-10', betrag: 5, player: { name: 'Zeta Zulu' }, playerId: 'z' },
-    { datum: '2026-09-10', betrag: 5, player: { name: 'Alpha Anton' }, playerId: 'a' },
-  ];
-  gleich(M.ksSortieren(gleichTag, 'neu', 'offen').map((s) => s.playerId), ['a', 'z'],
-    'bei gleichem Datum entscheidet der Name');
-
-  // „Eingegangen" sortiert nach dem Buchungsdatum, nicht nach dem Strafendatum.
-  gleich(M.ksBezugsdatum({ datum: '2026-01-01', paidAt: '2026-09-22T19:05:00Z' }, 'bezahlt'),
-    '2026-09-22', 'Eingegangen: Buchungsdatum zählt');
-  gleich(M.ksBezugsdatum({ datum: '2026-01-01', paidAt: '2026-09-22T19:05:00Z' }, 'offen'),
-    '2026-01-01', 'Offen: Datum der Strafe zählt');
-  gleich(M.ksBezugsdatum({ datum: '2026-01-01', paidAt: null }, 'bezahlt'),
-    '2026-01-01', 'ohne Buchungsdatum fällt es auf das Strafendatum zurück');
+  const H = '2026-09-25';
+  const f = (datum) => M.ksIstFaellig({ datum: datum }, H);
+  // Vier Wochen = 28 Tage, gerechnet ab dem Datum der Strafe.
+  pruefe(f('2026-08-28'), 'genau 28 Tage alt: überfällig');
+  pruefe(f('2026-08-27'), '29 Tage alt: überfällig');
+  pruefe(!f('2026-08-29'), '27 Tage alt: noch nicht');
+  pruefe(!f(H), 'heute verhängt: nicht');
+  pruefe(!f('2026-09-26'), 'morgen datiert: nicht');
+  pruefe(!f({}.datum), 'ohne Datum: nicht');
+  gleich(M.KS_FAELLIG_TAGE, 28, 'die Grenze steht als Zahl im Code');
 }
 
 console.log('--- Zeiträume ---');
 {
   const H = '2026-09-25';
   const z = (iso, was) => M.ksImZeitraum(iso, was, H);
-  pruefe(z('2026-01-01', 'alle'), 'Alle lässt alles durch');
-  pruefe(z(H, 'heute'), 'Heute: heute');
-  pruefe(!z('2026-09-24', 'heute'), 'Heute: gestern nicht');
-  // „Letzte 7 Tage" = heute und die sechs Tage davor.
-  pruefe(z(H, '7'), '7 Tage: heute');
-  pruefe(z('2026-09-19', '7'), '7 Tage: der sechste Tag davor zählt noch');
-  pruefe(!z('2026-09-18', '7'), '7 Tage: der siebte Tag davor nicht mehr');
-  pruefe(z('2026-08-27', '30'), '30 Tage: die Untergrenze');
-  pruefe(!z('2026-08-26', '30'), '30 Tage: ein Tag darüber hinaus nicht');
-  // Ein Datum in der Zukunft gehört in keinen Rückblick.
-  pruefe(!z('2026-09-26', '7'), 'morgen liegt nicht in den letzten 7 Tagen');
-  pruefe(!z(null, '7'), 'ohne Datum kein Treffer');
-  pruefe(z(null, 'alle'), 'ohne Datum, aber ohne Zeitraum: Treffer');
+  pruefe(z('2026-09-01', 'monat'), 'Dieser Monat: der Erste');
+  pruefe(z(H, 'monat'), 'Dieser Monat: heute');
+  pruefe(z('2026-09-30', 'monat'), 'Dieser Monat: der Letzte');
+  pruefe(!z('2026-08-31', 'monat'), 'Dieser Monat: der Vormonat nicht');
+  pruefe(z('2026-08-31', 'vormonat'), 'Letzter Monat: der Letzte');
+  pruefe(z('2026-08-01', 'vormonat'), 'Letzter Monat: der Erste');
+  pruefe(!z('2026-09-01', 'vormonat'), 'Letzter Monat: dieser nicht');
+  pruefe(!z('2026-07-31', 'vormonat'), 'Letzter Monat: der davor nicht');
+
+  // Jahreswechsel: im Januar ist der Vormonat der Dezember des Vorjahres.
+  const J = '2027-01-15';
+  pruefe(M.ksImZeitraum('2026-12-24', 'vormonat', J), 'Januar: Dezember ist der Vormonat');
+  pruefe(!M.ksImZeitraum('2027-01-02', 'vormonat', J), 'Januar: der Januar nicht');
+  pruefe(M.ksImZeitraum('2027-01-02', 'monat', J), 'Januar: dieser Monat stimmt');
+
+  // Saison: 1. Juli bis 30. Juni.
+  gleich(M.ksSaisonStart('2026-09-25'), '2026-07-01', 'September gehört zur Saison 2026/27');
+  gleich(M.ksSaisonStart('2027-06-30'), '2026-07-01', 'der 30. Juni noch zur alten');
+  gleich(M.ksSaisonStart('2027-07-01'), '2027-07-01', 'der 1. Juli zur neuen');
+  pruefe(z('2026-07-01', 'saison'), 'Saison: der erste Tag');
+  pruefe(!z('2026-06-30', 'saison'), 'Saison: der Tag davor nicht mehr');
+  pruefe(z(H, 'saison'), 'Saison: heute');
+  pruefe(!z(null, 'saison'), 'ohne Datum kein Treffer');
 }
 
-console.log('--- Filtern, auch kombiniert ---');
+console.log('--- Filtern in „Offen" ---');
 {
   const H = '2026-09-25';
   const offen = DATEN.filter((s) => s.st === 'offen');
-  const f = (o) => M.ksFiltern(offen, { ...M.ksFilterNeu(), ...o }, 'offen', H);
+  const f = (o) => M.ksFiltern(offen, { ...M.ksFilterNeu('offen'), ...o }, 'offen', H);
 
   gleich(f({}).length, offen.length, 'ohne Filter bleibt alles');
 
@@ -190,75 +229,133 @@ console.log('--- Filtern, auch kombiniert ---');
   pruefe(zwei.every((s) => s.playerId === 'p2' || s.playerId === 'p3'), 'zwei Spieler: beide durch');
   pruefe(zwei.length > nurKoch.length, 'zwei Spieler ergeben mehr Zeilen als einer');
 
-  const sep = f({ zeit: '30' });
-  pruefe(sep.every((s) => s.datum >= '2026-08-27'), 'Zeitraum greift',
-    sep.length + ' Zeilen');
+  const faellig = f({ faellig: true });
+  pruefe(faellig.length > 0 && faellig.every((s) => s.datum <= '2026-08-28'),
+    'überfällig lässt nur Altes durch', faellig.length + ' von ' + offen.length);
+  pruefe(faellig.length < offen.length, 'und es fällt wirklich etwas weg');
 
-  // Kombination: beides muss gelten, nicht eines von beidem.
-  const komb = f({ spieler: ['p2'], zeit: '30' });
-  pruefe(komb.every((s) => s.playerId === 'p2' && s.datum >= '2026-08-27'),
-    'Spieler UND Zeitraum, nicht ODER');
-  pruefe(komb.length <= nurKoch.length && komb.length <= sep.length,
+  // Kombination: beides muss gelten.
+  const komb = f({ spieler: ['p2'], faellig: true });
+  pruefe(komb.every((s) => s.playerId === 'p2' && s.datum <= '2026-08-28'),
+    'Spieler UND überfällig, nicht ODER');
+  pruefe(komb.length <= nurKoch.length && komb.length <= faellig.length,
     'die Kombination ist nie größer als ihre Teile', komb.length + ' Zeilen');
 
-  // Kombination mit Sortierung.
-  const ks = f({ spieler: ['p2', 'p3'], sort: 'betrag' });
-  pruefe(ks.length > 1 && ks[0].betrag >= ks[1].betrag, 'gefiltert UND sortiert');
+  // Sortierung.
+  const alt = f({ sort: 'alt' }), neu = f({ sort: 'neu' }), betrag = f({ sort: 'betrag' });
+  pruefe(alt[0].datum <= alt[alt.length - 1].datum, 'Älteste zuerst: aufsteigend');
+  pruefe(neu[0].datum >= neu[neu.length - 1].datum, 'Neueste zuerst: absteigend');
+  gleich(alt[0].datum, neu[neu.length - 1].datum, 'die beiden Enden tauschen');
+  gleich(betrag[0].betrag, Math.max(...offen.map((s) => s.betrag)), 'Höchster Betrag steht oben');
+  gleich(f({}).map((s) => s.id).join(), alt.map((s) => s.id).join(), 'Standard ist „Älteste zuerst"');
 
-  // Ein Spieler ohne Treffer ergibt eine leere Liste, keinen Fehler.
   gleich(f({ spieler: ['gibt-es-nicht'] }).length, 0, 'unbekannter Spieler: leer');
 }
 
-console.log('--- Was die Leiste anzeigt ---');
+console.log('--- Filtern in „Eingegangen" ---');
 {
-  frisch();
-  M.kasse.tab = 'offen';
-  M.kasse.filter.offen = { spieler: ['p2'], sort: 'betrag', zeit: '30' };
-  const h = M.kasseHtml(DATEN);
-  pruefe(h.includes('<span class="ks-fl-n">3</span>'), 'die Leiste nennt drei aktive Filter');
-  pruefe(h.includes('Daniel Koch'), 'der Spieler steht als Chip');
-  pruefe(h.includes('Letzte 30 Tage'), 'der Zeitraum steht als Chip');
-  pruefe(h.includes('Höchster Betrag zuerst'), 'die Sortierung steht als Chip');
-  pruefe(h.includes('data-ks-fl-weg="sp:p2"'), 'der Spieler-Chip ist einzeln abwählbar');
-  pruefe(h.includes('data-ks-fl-weg="zeit"') && h.includes('data-ks-fl-weg="sort"'),
-    'Zeitraum und Sortierung ebenso');
+  const H = '2026-09-25';
+  const bez = DATEN.filter((s) => s.st === 'bestätigt');
+  const f = (o) => M.ksFiltern(bez, { ...M.ksFilterNeu('bezahlt'), ...o }, 'bezahlt', H);
 
-  // Die Kennzahlen und die Reiterzahlen bleiben ungefiltert.
-  pruefe(h.includes('3.090,00 €'), 'die Kennzahl bleibt die Gesamtsumme');
-  pruefe(/Offen <span class="ks-seg-n">140<\/span>/.test(h), 'die Reiterzahl bleibt 140');
+  const alle = f({ zeit: 'alle' });
+  gleich(alle.length, bez.length, 'ohne Zeitraum bleibt alles');
 
-  // „x von y" zählt die gezeigten gegen die gesamten.
+  // Zahlart, einzeln und kombiniert.
+  const bar = f({ zeit: 'alle', zahlart: ['bar'] });
+  pruefe(bar.length > 0 && bar.every((s) => s.zahlart === 'bar'), 'eine Zahlart greift',
+    bar.length + ' Zeilen');
+  const pp = f({ zeit: 'alle', zahlart: ['paypal'] });
+  const beide = f({ zeit: 'alle', zahlart: ['bar', 'paypal'] });
+  gleich(beide.length, bar.length + pp.length, 'zwei Zahlarten sind die Summe der beiden');
+  pruefe(beide.every((s) => s.zahlart === 'bar' || s.zahlart === 'paypal'),
+    'und nichts anderes kommt durch');
+  gleich(f({ zeit: 'alle', zahlart: [] }).length, bez.length, 'leere Auswahl heißt alle');
+
+  // Zeitraum, bezogen auf das Buchungsdatum.
+  const monat = f({ zeit: 'monat' });
+  pruefe(monat.every((s) => String(s.paidAt).slice(0, 7) === '2026-09'),
+    'Dieser Monat: nach Buchungsdatum', monat.length + ' Zeilen');
+  const vormonat = f({ zeit: 'vormonat' });
+  pruefe(vormonat.every((s) => String(s.paidAt).slice(0, 7) === '2026-08'),
+    'Letzter Monat: nach Buchungsdatum', vormonat.length + ' Zeilen');
+  pruefe(monat.length > 0 && vormonat.length > 0, 'beide Monate kommen in den Beispieldaten vor');
+
+  // Kombination Spieler + Zahlart + Zeitraum.
+  const komb = f({ spieler: ['p1'], zahlart: ['bar'], zeit: 'monat' });
+  pruefe(komb.every((s) => s.playerId === 'p1' && s.zahlart === 'bar'
+    && String(s.paidAt).slice(0, 7) === '2026-09'), 'alle drei gelten gleichzeitig');
+
+  // Sortierung ist fest.
+  const s1 = f({ zeit: 'alle' });
+  pruefe(String(s1[0].paidAt) >= String(s1[s1.length - 1].paidAt), 'Neueste zuerst');
+}
+
+console.log('--- Was über der Liste steht ---');
+{
+  frisch(); M.kasse.tab = 'offen';
+  M.kasse.filter.offen = { spieler: ['p2'], sort: 'betrag', faellig: false };
+  let h = M.kasseHtml(DATEN);
   const gezeigt = (h.match(/class="krow"/g) || []).length;
   const m = h.match(/class="ks-treffer">(\d+) von (\d+)</);
-  pruefe(!!m, 'die Zeile „x von y" steht da');
+  pruefe(!!m, 'Offen: „x von y" steht da');
   if (m) {
     gleich(Number(m[1]), gezeigt, 'x ist die Zahl der gezeigten Karten');
     gleich(Number(m[2]), DATEN.filter((s) => s.st === 'offen').length, 'y ist die Gesamtzahl');
   }
+  pruefe(h.includes('3.090,00 €'), 'die Kennzahl bleibt die Gesamtsumme');
+  pruefe(/Offen <span class="ks-seg-n">140<\/span>/.test(h), 'die Reiterzahl bleibt 140');
+  pruefe(h.includes('Daniel Koch'), 'der Spieler steht als Chip');
+  pruefe(h.includes('Höchster Betrag'), 'die Sortierung steht als Chip');
+  pruefe(h.includes('data-ks-fl-weg="sp:p2"') && h.includes('data-ks-fl-weg="sort"'),
+    'beide Chips sind einzeln abwählbar');
+
+  // Eingegangen: Anzahl UND Summe der gefilterten Einträge.
+  frisch(); M.kasse.tab = 'bezahlt';
+  M.kasse.filter.bezahlt = { spieler: [], sort: 'neu', zahlart: ['bar'], zeit: 'alle' };
+  h = M.kasseHtml(DATEN);
+  const bar = DATEN.filter((s) => s.st === 'bestätigt' && s.zahlart === 'bar');
+  const summe = bar.reduce((a, s) => a + s.betrag, 0);
+  const t = h.match(/class="ks-treffer">([\s\S]*?)<\/div>/);
+  pruefe(!!t, 'Eingegangen: die Zeile steht da');
+  if (t) {
+    const txt = t[1].replace(/\s+/g, ' ').trim();
+    pruefe(txt.indexOf(bar.length + ' Zahlungen') === 0, 'sie nennt die Anzahl', txt);
+    pruefe(txt.indexOf(euroTxt(summe)) !== -1, 'und die Summe der gefilterten Einträge',
+      'erwartet ' + euroTxt(summe) + ' in „' + txt + '"');
+  }
+  pruefe(h.includes('data-ks-fl-weg="za:bar"'), 'die Zahlart ist als Chip abwählbar');
+  pruefe(h.includes('>Bar<'), 'der Chip trägt die Beschriftung des Buchen-Blatts');
+  pruefe(h.includes('548,00 €'), 'die Kennzahl bleibt die Gesamtsumme');
+  pruefe(/Eingegangen <span class="ks-seg-n">31<\/span>/.test(h), 'die Reiterzahl bleibt 31');
   frisch();
 }
 
-console.log('--- Filter je Reiter getrennt ---');
+console.log('--- Filter je Reiter getrennt, über den Reiterwechsel hinweg ---');
 {
   frisch();
-  M.kasse.filter.offen   = { spieler: ['p2'], sort: 'neu', zeit: 'alle' };
-  M.kasse.filter.bezahlt = M.ksFilterNeu();
+  M.kasse.filter.offen   = { spieler: ['p2'], sort: 'alt', faellig: true };
+  M.kasse.filter.bezahlt = M.ksFilterNeu('bezahlt');
   M.kasse.tab = 'bezahlt';
-  const h = M.kasseHtml(DATEN);
-  pruefe(!h.includes('ks-fl-n'), '„Eingegangen" ist ungefiltert, obwohl „Offen" einen Filter hat');
+  pruefe(!M.kasseHtml(DATEN).includes('ks-fl-n'),
+    '„Eingegangen" ist ungefiltert, obwohl „Offen" einen Filter hat');
   M.kasse.tab = 'offen';
   pruefe(M.kasseHtml(DATEN).includes('ks-fl-n'), 'und „Offen" hat ihn weiterhin');
+  // Hin und zurück ändert nichts.
+  M.kasse.tab = 'bezahlt'; M.kasseHtml(DATEN);
+  M.kasse.tab = 'offen';
+  const h = M.kasseHtml(DATEN);
+  pruefe(h.includes('Daniel Koch') && h.includes('Nur überfällig'),
+    'nach dem Reiterwechsel stehen beide Chips noch');
   frisch();
 }
 
 console.log('--- Gefilterte Liste ohne Treffer ---');
 {
   frisch(); M.kasse.tab = 'offen';
-  // Eine Strafe von vorgestern, Filter auf „Heute" - garantiert kein Treffer,
-  // unabhaengig davon, wie die Beispieldaten gerade streuen.
   const alteStrafe = DATEN.filter((s) => s.st === 'offen').slice(0, 1)
-    .map((s) => ({ ...s, datum: '2026-01-02' }));
-  M.kasse.filter.offen = { spieler: [], sort: 'neu', zeit: 'heute' };
+    .map((s) => ({ ...s, datum: '2026-09-25' }));
+  M.kasse.filter.offen = { spieler: [], sort: 'alt', faellig: true };
   const h = M.kasseHtml(alteStrafe);
   pruefe(h.includes('Keine Treffer'), 'eigene Meldung statt des Leerzustands');
   pruefe(!h.includes('Keine offenen Posten'), 'nicht mit „gar nichts da" verwechselt');
@@ -752,7 +849,10 @@ console.log('--- Bauteile ---');
 
   // Trefferflaechen: was angetippt wird, ist gross genug.
   pruefe(/\.ks-seg-b \{[^}]*min-height: 44px/.test(css), 'Reiter 44 px');
-  pruefe(/\.ks-ein-row \{[^}]*padding: 13px 14px/.test(css), 'Zeile „Eingegangen" mit 13+13 über 32 px Kreis = 58');
+  pruefe(/\.ks-ein-row \{[^}]*padding: 13px 16px/.test(css),
+    'Zeile „Eingegangen": 16 waagerecht wie der Karten-Standard, 13 senkrecht über 32 px Kreis = 58');
+  pruefe(/\.ks-ein-row \{[^}]*gap: 12px/.test(css),
+    'und 12 px zwischen Kreis und Text - das Maß aller Avatarzeilen');
   pruefe(/\.zart \{[^}]*min-height: 64px/.test(css), 'Zahlart-Chips 64 px (Symbol über dem Text)');
   pruefe(/\.ks-fl-b \{[^}]*min-height: var\(--tap\)/.test(css), 'Filterleiste 44 px');
   pruefe(/\.ks-wahlz \{[^}]*min-height: var\(--h-row\)/.test(css), 'Zeilen im Filterblatt 52 px');
