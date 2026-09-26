@@ -2417,51 +2417,87 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
    das die App ohnehin für Zahlen benutzt. */
 .ks-treffer { margin: -4px 0 10px 2px; font-size: 13px; font-weight: 600; color: var(--green-800); }
 
-/* Filter-Blatt */
+/* Filter-Blatt nach filterdesign.png -------------------------------------
+   Kopf mit Titel, „Zurücksetzen" und nacktem Kreuz; darunter eine Zeile je
+   Frage; unten ein Knopf, der das Ergebnis schon nennt. */
 .ks-flbl .tv-shbody { padding-bottom: 8px; }
-.ks-fl-suche {
-  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
-  min-height: 56px; padding: 0 12px;
-  background: var(--surface-2); border: 0; border-radius: var(--radius-md);
-  font: inherit; cursor: pointer; -webkit-appearance: none; appearance: none;
-  -webkit-tap-highlight-color: transparent;
-}
-.ks-fl-suche .ks-zi { color: var(--muted-2); }
-.ks-fl-suche-t { flex: 1; min-width: 0; font-size: 16px; font-weight: 700; color: var(--ink); }
-.ks-fl-suche-n { flex: none; font-size: 14px; font-weight: 600; color: var(--muted-2); }
-.ks-fl-hinweis { margin-top: 10px; font-size: 13px; font-weight: 500; color: var(--muted-2); }
-/* Zeile mit Schalter im Filterblatt - derselbe Aufbau wie in den
-   Benachrichtigungs-Einstellungen, nur ohne Unterzeile. */
-.ks-fl-zeile {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  min-height: var(--h-row); margin-top: 16px;
-}
-.ks-fl-zeile-t { font-size: 15px; font-weight: 700; color: var(--ink); }
-.ks-fl-fuss {
-  flex: 0 0 auto; display: flex; gap: 10px;
-  padding: 12px 16px calc(14px + env(safe-area-inset-bottom));
-  border-top: 1px solid var(--line); background: var(--card);
-}
-.ks-fl-fuss .btn { flex: 1 1 0; min-height: var(--h-btn-lg); }
-
-/* Auswahlliste im Blatt: eine Zeile je Möglichkeit, Haken rechts. */
-.ks-wahlliste { display: flex; flex-direction: column; }
-.ks-wahlz {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  width: 100%; min-height: var(--h-row); padding: 0 2px;
-  border: 0; background: none; font: inherit; font-size: 15px; font-weight: 600;
-  color: var(--ink); text-align: left; cursor: pointer;
+.ks-fl-kopf { align-items: baseline; gap: 14px; padding: 15px 16px 4px; }
+.ks-fl-titel { flex: 1; font-size: 22px; font-weight: 800; letter-spacing: -.02em; color: var(--ink); }
+.ks-fl-reset { flex: none; font-size: 15px; font-weight: 600; text-decoration: none; }
+/* Das Kreuz steht nackt, ohne den grauen Kreis der übrigen Blätter. */
+.ks-fl-x {
+  position: relative; flex: none; width: 24px; height: 24px; padding: 0;
+  border: 0; background: none; color: var(--muted-2); cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
   -webkit-appearance: none; appearance: none; -webkit-tap-highlight-color: transparent;
 }
-.ks-wahlz + .ks-wahlz { border-top: 1px solid var(--line); }
-.ks-wahlz.is-on { color: var(--green-800); font-weight: 700; }
-/* .ks-check ist weiss auf weiss, bis der Kasten gefuellt ist - die Liste
-   markiert mit .is-on statt .is-sel, deshalb dieselbe Fuellung noch einmal. */
-.ks-wahlz.is-on .ks-check {
-  background: var(--grad-btn); border-color: var(--green-650);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.25);
+.ks-fl-x svg { width: 21px; height: 21px; }
+.ks-fl-x::after {
+  content: ""; position: absolute; top: 50%; left: 50%;
+  width: var(--tap); height: var(--tap); transform: translate(-50%, -50%);
 }
 
+/* Umrandete Zeile - trägt die Spielerauswahl und den Schalter. */
+.ks-fl-box {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  min-height: 56px; padding: 10px 14px;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-md);
+  font: inherit; text-align: left;
+  -webkit-appearance: none; appearance: none;
+}
+.ks-fl-sp { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.ks-fl-sp:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; }
+.ks-fl-sp .ks-zi { flex: none; width: 20px; height: 20px; color: var(--muted-2); }
+.ks-fl-sp .ks-zi svg { width: 20px; height: 20px; }
+.ks-fl-sp-t { flex: none; font-size: 17px; font-weight: 700; color: var(--ink); }
+/* Der Wert steht rechts und weicht dem Namen: eine lange Liste wird gekürzt,
+   die Beschriftung bleibt. */
+.ks-fl-sp-w {
+  flex: 1; min-width: 0; text-align: right;
+  font-size: 15px; font-weight: 500; color: var(--muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ks-fl-sp-w.is-gewaehlt { color: var(--ink); font-weight: 600; }
+
+.ks-fl-schalter { margin-top: 0; }
+.ks-fl-box-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ks-fl-box-t { font-size: 17px; font-weight: 700; color: var(--ink); }
+.ks-fl-box-s { font-size: 13px; font-weight: 500; color: var(--muted); }
+
+.ks-fl-lbl { display: block; margin: 18px 0 8px; }
+
+/* Segmentleiste im Blatt: heller als die Reiterleiste, weil sie auf Weiß
+   liegt und nicht auf dem App-Grund. Gemessen: #eef2ef. */
+.ks-seg.is-hell { background: var(--surface-6); margin-bottom: 0; }
+.ks-seg.is-hell .ks-seg-b { font-size: 15px; }
+
+/* Zahlart als Pillen, Mehrfachauswahl. */
+.ks-za-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.ks-za {
+  position: relative; display: inline-flex; align-items: center; gap: 6px;
+  min-height: var(--tap); padding: 0 16px;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-pill);
+  font: inherit; font-size: 15px; font-weight: 600; color: var(--ink);
+  cursor: pointer; white-space: nowrap;
+  -webkit-appearance: none; appearance: none; -webkit-tap-highlight-color: transparent;
+}
+.ks-za.is-on {
+  background: var(--green-050); border-color: var(--green-600);
+  color: var(--green-800); font-weight: 700;
+}
+.ks-za:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; }
+.ks-za-ok { flex: none; display: inline-flex; width: 15px; height: 15px; color: var(--green-700); }
+.ks-za-ok svg { width: 15px; height: 15px; stroke-width: 2.6; }
+
+.ks-fl-hinweis { margin-top: 10px; font-size: 13px; font-weight: 500; color: var(--muted-2); }
+
+/* Ein Knopf statt zweier: er wendet an und nennt vorher das Ergebnis. */
+.ks-fl-fuss {
+  flex: 0 0 auto;
+  padding: 16px 16px calc(14px + env(safe-area-inset-bottom));
+  background: var(--card);
+}
+.ks-fl-fuss .btn { width: 100%; min-height: var(--h-btn-xl); font-size: 17px; }
 /* Suchfeld im Kopf der Vollbild-Blätter */
 /* Abstand nach oben wie in den uebrigen Vollbildseiten: die Leiste klebte
    vorher an der Kopfzeile (abstandundkontakt.webp). */

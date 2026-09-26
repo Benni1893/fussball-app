@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-26-D";
+  var APP_BUILD = "2026-09-26-E";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -4486,9 +4486,11 @@
      ========================================================================== */
   const KS_FAELLIG_TAGE = 28;   // „ueberfaellig" = aelter als vier Wochen
 
+/* Die Reihenfolge folgt dem Entwurf: der Standard steht links. Deshalb
+     beginnt „Offen" mit „Älteste", „Eingegangen" mit „Neueste". */
   const KS_SORT = {
-    offen:   [["alt", "Älteste zuerst"], ["betrag", "Höchster Betrag"], ["neu", "Neueste zuerst"]],
-    bezahlt: [["neu", "Neueste zuerst"]],   // fest, deshalb ohne Auswahl im Blatt
+    offen:   [["alt", "Älteste"], ["betrag", "Betrag"], ["neu", "Neueste"]],
+    bezahlt: [["neu", "Neueste"], ["betrag", "Betrag"], ["alt", "Älteste"]],
   };
   const KS_ZEIT = [["monat", "Dieser Monat"], ["vormonat", "Letzter Monat"], ["saison", "Saison"]];
 
@@ -4604,6 +4606,7 @@
   /* --- Markup der Filterleiste --------------------------------------------- */
   const ICON_FILTER = `<svg ${SVG}><path d="M3 5h18"/><path d="M6.5 12h11"/><path d="M10 19h4"/></svg>`;
   const ICON_LUPE   = `<svg ${SVG}><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>`;
+  const ICON_PERSON = `<svg ${SVG}><circle cx="12" cy="8" r="3.6"/><path d="M5.5 20c0-3.4 2.9-5.6 6.5-5.6s6.5 2.2 6.5 5.6"/></svg>`;
 
   function ksFilterChips(f, tab) {
     const chips = [];
@@ -5244,9 +5247,8 @@
     if (alt && neu) { alt.outerHTML = neu; return; }
     if (alt && !neu) { alt.remove(); return; }
     if (!alt && neu) {
-      // Die Chips stehen unter dem Suchfeld bzw., im Filterblatt, unter der
-      // Zeile „Spieler suchen".
-      const davor = wurzel.querySelector(".ks-suchfeld") || wurzel.querySelector(".ks-fl-suche");
+      // Die Chips stehen unter dem Suchfeld der Vollbild-Blaetter.
+      const davor = wurzel.querySelector(".ks-suchfeld");
       if (davor) davor.insertAdjacentHTML("afterend", neu);
     }
   }
@@ -5420,32 +5422,35 @@
       if (ev.target.closest("[data-ks-fl-close]")) { ksFlZu(); return; }
       if (ev.target.closest("[data-ks-fl-spieler]")) { ksSuAuf(); return; }
       const so = ev.target.closest("[data-ks-fl-sort]");
-      if (so) { kasse.flEntwurf.sort = so.dataset.ksFlSort; ksFlWahlSetzen(sheet, "data-ks-fl-sort", so.dataset.ksFlSort); return; }
+      if (so) {
+        kasse.flEntwurf.sort = so.dataset.ksFlSort;
+        ksFlWahlSetzen(sheet, "data-ks-fl-sort", so.dataset.ksFlSort);
+        ksFlCtaAktualisieren(sheet); return;
+      }
       const ze = ev.target.closest("[data-ks-fl-zeit]");
-      if (ze) { kasse.flEntwurf.zeit = ze.dataset.ksFlZeit; ksFlWahlSetzen(sheet, "data-ks-fl-zeit", ze.dataset.ksFlZeit); return; }
-      // Zahlart ist Mehrfachauswahl: jede Zeile fuer sich an oder aus.
-      const za = ev.target.closest("[data-ks-fl-za]");
-      if (za) {
-        const wert = za.dataset.ksFlZa, l = kasse.flEntwurf.zahlart, i = l.indexOf(wert);
-        if (i === -1) l.push(wert); else l.splice(i, 1);
-        ksFlZeileUmschalten(za, i === -1);
-        return;
+      if (ze) {
+        kasse.flEntwurf.zeit = ze.dataset.ksFlZeit;
+        ksFlWahlSetzen(sheet, "data-ks-fl-zeit", ze.dataset.ksFlZeit);
+        ksFlCtaAktualisieren(sheet); return;
       }
       const sw = ev.target.closest("[data-ks-fl-faellig]");
       if (sw) {
         kasse.flEntwurf.faellig = !kasse.flEntwurf.faellig;
         sw.setAttribute("aria-checked", kasse.flEntwurf.faellig ? "true" : "false");
-        return;
-      }
-      const spWeg = ev.target.closest("[data-ks-fl-sp-weg]");
-      if (spWeg) {
-        const l = kasse.flEntwurf.spieler, i = l.indexOf(spWeg.dataset.ksFlSpWeg);
-        if (i >= 0) l.splice(i, 1);
-        ksChipsAktualisieren(sheet, l, "data-ks-fl-sp-weg");
-        ksFlZahlAktualisieren(sheet);
-        return;
+        ksFlCtaAktualisieren(sheet); return;
       }
       if (ev.target.closest("[data-ks-fl-reset]")) { kasse.flEntwurf = ksFilterNeu(ksFlTab()); mitScroll(sheet, ksFlRender); return; }
+      // Zahlart: Mehrfachauswahl, jede Pille fuer sich.
+      const za = ev.target.closest("[data-ks-fl-za]");
+      if (za) {
+        const wert = za.dataset.ksFlZa, l = kasse.flEntwurf.zahlart, i = l.indexOf(wert);
+        if (i === -1) l.push(wert); else l.splice(i, 1);
+        ksZaUmschalten(za, i === -1);
+        ksFlCtaAktualisieren(sheet);
+        return;
+      }
+      // Der Knopf unten wendet an und schliesst - „Anwenden" heisst jetzt
+      // „N Strafen anzeigen", damit vorher klar ist, was herauskommt.
       if (ev.target.closest("[data-ks-fl-ok]")) {
         kasse.filter[ksFlTab()] = kasse.flEntwurf;
         ksFlZu();
@@ -5455,71 +5460,113 @@
     });
   }
 
-  /* Eine Zeile der Auswahllisten im Filterblatt. `mehrfach` entscheidet nur
-     ueber die Bedeutung, nicht ueber das Aussehen: gewaehlt ist gewaehlt. */
-  function ksWahlZeileHtml(k, label, an, attr) {
-    return `<button type="button" class="ks-wahlz${an ? " is-on" : ""}" ${attr}="${k}">
-      <span>${esc(label)}</span>
-      <span class="ks-check" aria-hidden="true">${an ? ICON_CHECK : ""}</span>
-    </button>`;
+  /* Eine Zeile der Segmentleiste im Filterblatt. */
+  function ksSegHtml(liste, wert, attr) {
+    return `<div class="ks-seg is-hell" role="tablist">${liste.map(([k, label]) =>
+      `<button type="button" class="ks-seg-b${wert === k ? " is-on" : ""}" role="tab"
+        aria-selected="${wert === k}" ${attr}="${k}">${esc(label)}</button>`).join("")}</div>`;
+  }
+
+  // Die Zahlart-Pillen: Mehrfachauswahl, gewaehlt mit Haken und gruenem Rand.
+  function ksZaHtml(gewaehlt) {
+    return `<div class="ks-za-row">${KASSE_ZAHLARTEN.map(([k, label]) => {
+      const an = gewaehlt.indexOf(k) !== -1;
+      return `<button type="button" class="ks-za${an ? " is-on" : ""}" aria-pressed="${an}" data-ks-fl-za="${k}">
+        ${an ? `<span class="ks-za-ok" aria-hidden="true">${ICON_CHECK}</span>` : ""}<span>${esc(label)}</span>
+      </button>`;
+    }).join("")}</div>`;
+  }
+
+  /* Wie viele Zeilen zeigt der Entwurf? Rein gelesen aus den schon geladenen
+     Daten - dieselbe Rechnung wie in der Liste, nur vorab. */
+  function ksFlTreffer() {
+    const tab = ksFlTab();
+    const zustand = tab === "bezahlt" ? "bestätigt" : "offen";
+    const basis = aktiveStrafen()
+      .map((s) => ({ ...s, betrag: strafeBetrag(s), st: fineStatus(s), player: playerById[s.playerId] }))
+      .filter((s) => s.player && s.st === zustand);
+    return ksFiltern(basis, kasse.flEntwurf, tab, HEUTE).length;
+  }
+
+  function ksFlCtaText() {
+    const n = ksFlTreffer();
+    const wort = ksFlTab() === "bezahlt"
+      ? (n === 1 ? "Zahlung" : "Zahlungen")
+      : (n === 1 ? "Strafe" : "Strafen");
+    return n + " " + wort + " anzeigen";
+  }
+
+  // Nur den Knopf nachziehen - das Blatt bleibt stehen.
+  function ksFlCtaAktualisieren(sheet) {
+    const btn = sheet && sheet.querySelector("[data-ks-fl-ok]");
+    if (btn) btn.textContent = ksFlCtaText();
+  }
+
+  // „Alle" oder die gewaehlten Namen, direkt in der Zeile statt als Chips.
+  function ksFlSpielerText(ids) {
+    if (!ids.length) return "Alle";
+    return ids.map((id) => playerById[id] && playerById[id].name).filter(Boolean).join(", ");
   }
 
   function ksFlRender() {
     const sheet = document.getElementById("ksFlBl"); if (!sheet) return;
     const tab = ksFlTab(), f = kasse.flEntwurf;
-    const n = f.spieler.length;
-    const liste = (inhalt) => '<div class="ks-wahlliste">' + inhalt + '</div>';
 
     const spieler =
-      '<button type="button" class="ks-fl-suche" data-ks-fl-spieler>' +
-        '<span class="ks-zi" aria-hidden="true">' + ICON_LUPE + '</span>' +
-        '<span class="ks-fl-suche-t">Spieler suchen</span>' +
-        '<span class="ks-fl-suche-n">' + (n ? n + " gewählt" : "alle") + '</span>' +
+      '<button type="button" class="ks-fl-box ks-fl-sp" data-ks-fl-spieler>' +
+        '<span class="ks-zi" aria-hidden="true">' + ICON_PERSON + '</span>' +
+        '<span class="ks-fl-sp-t">Spieler</span>' +
+        '<span class="ks-fl-sp-w' + (f.spieler.length ? " is-gewaehlt" : "") + '">' +
+          esc(ksFlSpielerText(f.spieler)) + '</span>' +
         '<span class="kasse-picker-arrow" aria-hidden="true">›</span>' +
-      '</button>' +
-      ksGewaehltChipsHtml(f.spieler, "data-ks-fl-sp-weg");
+      '</button>';
 
     let mitte;
     if (tab === "offen") {
-      /* „Nur überfällig" ist eine An/Aus-Einstellung, also der Standard-
-         Schalter .sw - kein Chip und kein Knopfpaar. */
       mitte =
-        '<div class="ks-fl-zeile">' +
-          '<span class="ks-fl-zeile-t">Nur überfällig</span>' +
+        '<div class="lbl ks-fl-lbl">Sortierung</div>' +
+        ksSegHtml(KS_SORT.offen, f.sort, "data-ks-fl-sort") +
+        '<div class="lbl ks-fl-lbl">Einschränken</div>' +
+        '<div class="ks-fl-box ks-fl-schalter">' +
+          '<span class="ks-fl-box-main">' +
+            '<span class="ks-fl-box-t">Nur überfällig</span>' +
+            '<span class="ks-fl-box-s">Älter als 4 Wochen ab Strafdatum</span>' +
+          '</span>' +
           '<button class="sw" role="switch" aria-checked="' + (f.faellig ? "true" : "false") +
           '" aria-label="Nur überfällige Strafen" type="button" data-ks-fl-faellig></button>' +
-        '</div>' +
-        '<div class="ks-fl-hinweis">Älter als vier Wochen, gerechnet ab dem Datum der Strafe.</div>' +
-        '<div class="lbl ks-bl-lbl">Sortierung</div>' +
-        liste(KS_SORT.offen.map(([k, label]) =>
-          ksWahlZeileHtml(k, label, f.sort === k, "data-ks-fl-sort")).join(""));
+        '</div>';
     } else {
       mitte =
-        '<div class="lbl ks-bl-lbl">Zahlart</div>' +
-        liste(KASSE_ZAHLARTEN.map(([k, label]) =>
-          ksWahlZeileHtml(k, label, (f.zahlart || []).indexOf(k) !== -1, "data-ks-fl-za")).join("")) +
-        '<div class="ks-fl-hinweis">Ohne Auswahl zählen alle Zahlarten.</div>' +
-        '<div class="lbl ks-bl-lbl">Zeitraum</div>' +
-        liste(KS_ZEIT.map(([k, label]) =>
-          ksWahlZeileHtml(k, label, f.zeit === k, "data-ks-fl-zeit")).join("")) +
-        '<div class="ks-fl-hinweis">Nach Buchungsdatum. Die Saison läuft vom 1. Juli bis zum 30. Juni.</div>';
+        '<div class="lbl ks-fl-lbl">Sortierung</div>' +
+        ksSegHtml(KS_SORT.bezahlt, f.sort, "data-ks-fl-sort") +
+        '<div class="lbl ks-fl-lbl">Zahlart</div>' +
+        ksZaHtml(f.zahlart || []) +
+        '<div class="ks-fl-hinweis">Ohne Auswahl werden alle Zahlarten gezeigt.</div>' +
+        '<div class="lbl ks-fl-lbl">Zeitraum</div>' +
+        ksSegHtml(KS_ZEIT, f.zeit, "data-ks-fl-zeit") +
+        '<div class="ks-fl-hinweis">Saison: 1. Juli bis 30. Juni, nach Buchungsdatum</div>';
     }
 
     sheet.innerHTML =
-      '<div class="tv-sh"><span class="tv-grip"></span><strong>Filter</strong>' +
-      '<button class="tv-shx" data-ks-fl-close aria-label="Schließen">&times;</button></div>' +
+      '<div class="tv-sh ks-fl-kopf"><span class="tv-grip"></span>' +
+        '<strong class="ks-fl-titel">Filter</strong>' +
+        '<button type="button" class="link-btn ks-fl-reset" data-ks-fl-reset>Zurücksetzen</button>' +
+        '<button type="button" class="ks-fl-x" data-ks-fl-close aria-label="Schließen">' + ICON_X + '</button>' +
+      '</div>' +
       '<div class="tv-shbody" data-scroll="ksFlBody">' + spieler + mitte + '</div>' +
       '<div class="ks-fl-fuss">' +
-        '<button type="button" class="btn" data-ks-fl-reset>Filter zurücksetzen</button>' +
-        '<button type="button" class="btn btn-primary" data-ks-fl-ok>Anwenden</button>' +
+        '<button type="button" class="btn btn-primary ks-fuss-btn" data-ks-fl-ok>' + ksFlCtaText() + '</button>' +
       '</div>';
   }
 
-  // Eine einzelne Zeile an- oder abhaken (Mehrfachauswahl).
-  function ksFlZeileUmschalten(zeile, an) {
-    zeile.classList.toggle("is-on", an);
-    const haken = zeile.querySelector(".ks-check");
-    if (haken) haken.innerHTML = an ? ICON_CHECK : "";
+  // Eine Zahlart-Pille an- oder abwaehlen: Rand, Fuellung und Haken.
+  function ksZaUmschalten(pille, an) {
+    pille.classList.toggle("is-on", an);
+    pille.setAttribute("aria-pressed", an ? "true" : "false");
+    const alt = pille.querySelector(".ks-za-ok");
+    if (an && !alt) pille.insertAdjacentHTML("afterbegin",
+      '<span class="ks-za-ok" aria-hidden="true">' + ICON_CHECK + '</span>');
+    else if (!an && alt) alt.remove();
   }
 
   /* Eine Wahl in einer Liste umsetzen: den alten Haken loeschen, den neuen
@@ -5531,14 +5578,6 @@
       const haken = b.querySelector(".ks-check");
       if (haken) haken.innerHTML = an ? ICON_CHECK : "";
     });
-  }
-
-  // „2 gewählt" neben „Spieler suchen".
-  function ksFlZahlAktualisieren(sheet) {
-    const el = sheet.querySelector(".ks-fl-suche-n");
-    if (!el) return;
-    const n = kasse.flEntwurf.spieler.length;
-    el.textContent = n ? n + " gewählt" : "alle";
   }
 
   function ksFlAuf() {
@@ -5627,8 +5666,12 @@
     blattZu("ksSuScrim", "ksSuBl");
     const sheet = document.getElementById("ksFlBl");
     if (!sheet) return;
-    ksChipsAktualisieren(sheet, kasse.flEntwurf.spieler, "data-ks-fl-sp-weg");
-    ksFlZahlAktualisieren(sheet);
+    const w = sheet.querySelector(".ks-fl-sp-w");
+    if (w) {
+      w.textContent = ksFlSpielerText(kasse.flEntwurf.spieler);
+      w.classList.toggle("is-gewaehlt", kasse.flEntwurf.spieler.length > 0);
+    }
+    ksFlCtaAktualisieren(sheet);
   }
 
   /* ---- Vollbild-Waehler „Strafe verhaengen" --------------------------------
