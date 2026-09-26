@@ -25,7 +25,7 @@ function frisch() {
   M.kasse.bloecke = { katalog: false, indiv: false };
   M.kasse.players = []; M.kasse.items = {}; M.kasse.bezug = {}; M.kasse.indiv = [];
   M.kasse.indivBetrag = ''; M.kasse.indivGrund = ''; M.kasse.comment = '';
-  M.kasse.filter = { offen: M.ksFilterNeu('offen'), bezahlt: M.ksFilterNeu('bezahlt') };
+  M.kasse.filter = { pruefen: M.ksFilterNeu('pruefen'), offen: M.ksFilterNeu('offen'), bezahlt: M.ksFilterNeu('bezahlt') };
 }
 
 /* Der Rahmen der App: Kopfband, Inhaltsspalte, Bottom-Nav. Nur so viel, dass
@@ -319,7 +319,8 @@ console.log('--- Filter-Blatt nach filterdesign.png ---');
   ].join('\n');
 
   const faelle = [
-    ['offen',   { spieler: [], sort: 'alt', faellig: false }, 243, 'fd-1-offen.png', '1 Zu prüfen / Offen'],
+    ['pruefen', { spieler: [] }, 3, 'fd-0-pruefen.png', '0 Zu prüfen, nur Spieler'],
+    ['offen',   { spieler: [], sort: 'alt', faellig: false }, 243, 'fd-1-offen.png', '1 Offen'],
     ['bezahlt', { spieler: [], sort: 'neu', zahlart: [], zeit: 'saison' }, 58, 'fd-2-eingegangen.png', '2 Eingegangen'],
     ['bezahlt', { spieler: ['p4', 'p1'], sort: 'betrag', zahlart: ['bar', 'paypal'], zeit: 'monat' }, 4,
      'fd-3-eingegangen-aktiv.png', '3 Eingegangen, Filter aktiv'],

@@ -31,7 +31,7 @@ const frisch = () => {
   M.kasse.bloecke = { katalog: false, indiv: false };
   M.kasse.players = []; M.kasse.items = {}; M.kasse.bezug = {}; M.kasse.indiv = [];
   M.kasse.indivBetrag = ''; M.kasse.indivGrund = ''; M.kasse.comment = '';
-  M.kasse.filter = { offen: M.ksFilterNeu('offen'), bezahlt: M.ksFilterNeu('bezahlt') };
+  M.kasse.filter = { pruefen: M.ksFilterNeu('pruefen'), offen: M.ksFilterNeu('offen'), bezahlt: M.ksFilterNeu('bezahlt') };
 };
 
 /* ===== 1. Kennzahlen und Summen ========================================= */
@@ -103,7 +103,7 @@ console.log('--- Filterleiste ---');
   M.kasse.tab = 'bezahlt';
   pruefe(M.kasseHtml(DATEN).includes('data-ks-fl-auf'), 'Filterleiste steht in „Eingegangen"');
   M.kasse.tab = 'pruefen';
-  pruefe(!M.kasseHtml(DATEN).includes('data-ks-fl-auf'), 'Filterleiste steht NICHT in „Zu prüfen"');
+  pruefe(M.kasseHtml(DATEN).includes('data-ks-fl-auf'), 'Filterleiste steht auch in „Zu prüfen"');
 
   frisch(); M.kasse.tab = 'offen';
   const leer = M.kasseHtml(DATEN);
@@ -137,6 +137,65 @@ console.log('--- Was es je Reiter gibt ---');
   // Die Zahlarten stehen in derselben Reihenfolge wie im Buchen-Blatt.
   gleich(M.KASSE_ZAHLARTEN.map((x) => x[0]), ['paypal', 'bar', 'ueberweisung'],
     'Zahlart in der Reihenfolge des Buchen-Blatts');
+}
+
+console.log('--- „Zu prüfen": nur Spieler ---');
+{
+  const f = M.ksFilterNeu('pruefen');
+  gleich(Object.keys(f), ['spieler'], 'nur die Spielerauswahl, sonst nichts');
+  gleich(M.ksFilterAnzahl({ spieler: ['p1', 'p3'] }, 'pruefen'), 2, 'die Zahl zählt die Spieler');
+  gleich(M.ksFilterChips({ spieler: ['p1'] }, 'pruefen').map((c) => c[0]), ['sp:p1'],
+    'und es gibt nur Spieler-Chips');
+
+  // Gefiltert wird, sortiert nicht - der Stapel ordnet selbst nach Namen.
+  const gem = DATEN.filter((s) => s.st === 'gemeldet');
+  const vorher = gem.map((s) => s.id).join();
+  gleich(M.ksFiltern(gem, { spieler: [] }, 'pruefen', '2026-09-25').map((s) => s.id).join(), vorher,
+    'ohne Filter bleibt die Reihenfolge unangetastet');
+  const nur = M.ksFiltern(gem, { spieler: ['p1'] }, 'pruefen', '2026-09-25');
+  pruefe(nur.length > 0 && nur.every((s) => s.playerId === 'p1'), 'der Spielerfilter greift',
+    nur.length + ' von ' + gem.length);
+
+  // Im Blatt steht nur die Spielerzeile.
+  frisch(); M.kasse.tab = 'pruefen';
+  const h = M.kasseHtml(DATEN);
+  pruefe(h.includes('data-ks-fl-auf'), 'die Leiste ist da');
+  pruefe(!h.includes('data-ks-fl-faellig'), 'kein „Nur überfällig"');
+  pruefe(!h.includes('data-ks-fl-sort'), 'keine Sortierung');
+  pruefe(!h.includes('data-ks-fl-za'), 'keine Zahlart');
+
+  // Gefiltert: „x von y" darüber, die Karte zählt den gefilterten Stapel.
+  M.kasse.filter.pruefen = { spieler: ['p1'] };
+  const g = M.kasseHtml(DATEN);
+  const m = g.match(/class="ks-treffer">(\d+) von (\d+)</);
+  pruefe(!!m, '„x von y" steht über der Karte');
+  if (m) {
+    gleich(Number(m[1]), nur.length, 'x ist die Zahl der gefilterten Meldungen');
+    gleich(Number(m[2]), gem.length, 'y bleibt die Gesamtzahl');
+  }
+  pruefe(/Zu prüfen <span class="ks-seg-n">3<\/span>/.test(g), 'die Reiterzahl bleibt ungefiltert');
+  pruefe(g.includes('>1 von 1<'), 'die Karte zählt den gefilterten Stapel');
+
+  // Ein Spieler ohne Meldung: eigene Meldung statt „Nichts zu prüfen".
+  M.kasse.filter.pruefen = { spieler: ['p5'] };
+  const k = M.kasseHtml(DATEN);
+  pruefe(k.includes('Keine Treffer'), 'ohne Treffer eine eigene Meldung');
+  pruefe(!k.includes('Nichts zu prüfen'), 'nicht mit „gar nichts da" verwechselt');
+  // Und ohne Meldungen überhaupt bleibt der alte Leerzustand.
+  M.kasse.filter.pruefen = { spieler: [] };
+  pruefe(M.kasseHtml(DATEN.filter((s) => s.st !== 'gemeldet')).includes('Nichts zu prüfen'),
+    'gar nichts da: der bekannte Leerzustand');
+  frisch();
+}
+
+console.log('--- „Alle bestätigen" meint die gefilterte Auswahl ---');
+{
+  const q = app.slice(app.indexOf('data-kasse-confirm-all'), app.indexOf('const rej ='));
+  pruefe(q.includes('kasse.filter.pruefen'), 'der Knopf kennt den Filter');
+  pruefe(q.includes('f.spieler.indexOf(s.playerId) !== -1'),
+    'und bestätigt nur, was auf dem Bildschirm steht');
+  const b = app.slice(app.indexOf('function ksBlaettern'), app.indexOf('async function kasseSave'));
+  pruefe(b.includes('kasse.filter.pruefen'), 'auch das Blättern zählt nur die gefilterten Meldungen');
 }
 
 console.log('--- Zählung der aktiven Filter ---');

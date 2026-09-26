@@ -24,7 +24,7 @@ function frisch() {
   M.kasse.bloecke = { katalog: false, indiv: false };
   M.kasse.players = []; M.kasse.items = {}; M.kasse.bezug = {}; M.kasse.indiv = [];
   M.kasse.indivBetrag = ''; M.kasse.indivGrund = ''; M.kasse.comment = '';
-  M.kasse.filter = { offen: M.ksFilterNeu('offen'), bezahlt: M.ksFilterNeu('bezahlt') };
+  M.kasse.filter = { pruefen: M.ksFilterNeu('pruefen'), offen: M.ksFilterNeu('offen'), bezahlt: M.ksFilterNeu('bezahlt') };
 }
 function reiter(tab) { frisch(); M.kasse.tab = tab; return M.kasseHtml(DATEN); }
 function leer(tab)   { frisch(); M.kasse.tab = tab; return M.kasseHtml([]); }

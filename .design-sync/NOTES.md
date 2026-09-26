@@ -1036,3 +1036,17 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
 - **Alle Farben des Entwurfs sind vorhandene Tokens**: Segmentkasten
   `--surface-6` (#eef2ef gemessen), Pille gewählt `--green-050`, Pille
   ungewählt `--card` mit `--line`. Kein neues Token nötig.
+
+**Nachtrag zu den Filterblättern: „Zu prüfen" (26.09.2026)**
+
+- **Entschieden: „Zu prüfen" bekommt die Filterleiste, im Blatt aber nur die
+  Spielerauswahl.** Keine Sortierung (der Reiter zeigt einen Kartenstapel,
+  eine Meldung nach der anderen — eine Sortierung wäre dort ohne sichtbare
+  Wirkung) und kein „überfällig" (gemeldete Zahlungen sind meist frisch).
+- **Zwei Stellen, die sonst gelogen hätten**: „Alle bestätigen" bestätigt jetzt
+  nur die gefilterte Auswahl, nicht alles — sonst hätte der Knopf mehr getan,
+  als auf dem Bildschirm steht. Und das Wischen im Stapel zählt ebenfalls nur
+  die gefilterten Meldungen, sonst zeigte „1 von 3" auf eine Meldung, die gar
+  nicht mehr durchkommt.
+- **Die Zahlart-Reihenfolge bleibt PayPal · Bar · Überweisung**, entgegen dem
+  Entwurf. Bestätigt: die stehende Regel gilt weiter.
