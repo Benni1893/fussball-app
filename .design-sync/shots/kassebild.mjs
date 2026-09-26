@@ -484,6 +484,352 @@ console.log('--- Scroll-Sperre ---');
 }
 
 
+/* --- Kartenkopf vorher/nachher ------------------------------------------
+   „Vorher" ist die alte Regel, inline wieder eingesetzt: .link-btn trug seine
+   44px Trefferflaeche als echte min-height, dadurch wurde die Zeile 44 hoch
+   und beide Beschriftungen rutschten in deren Mitte. */
+console.log('--- Kartenkopf vorher und nachher ---');
+{
+  const ALT = `
+    .vorher .ks-kopf { align-items: center; min-height: 22px; }
+    .vorher .ks-kopf .link-btn { min-height: 44px; line-height: normal; }
+    .vorher .ks-kopf .link-btn::after { content: none; }
+  `;
+  frisch(); M.kasse.tab = 'pruefen';
+  const karte = M.renderKassePruefen(DATEN.filter((s) => s.st === 'gemeldet'));
+  const html = seite(
+    '<div class="sp-h2">vorher</div><div class="vorher">' + karte + '</div>' +
+    '<div class="sp-h2">nachher</div><div>' + karte + '</div>',
+    ALT + '.sp-h2 { font: 700 11px/1 system-ui; letter-spacing: .6px; text-transform: uppercase; ' +
+          'color: var(--muted); margin: 14px 0 6px; }');
+  await schuss(p, html, 'kopf-vorher-nachher.png', null);
+
+  const m = await p.evaluate(() => {
+    const mass = (sel) => {
+      const karte = document.querySelector(sel + ' .ks-card');
+      const lbl = karte.querySelector('.lbl');
+      const link = karte.querySelector('.link-btn');
+      const k = karte.getBoundingClientRect(), l = lbl.getBoundingClientRect(), a = link.getBoundingClientRect();
+      const cs = getComputedStyle(karte);
+      return {
+        obenLbl: Math.round(l.top - k.top - parseFloat(cs.paddingTop)),
+        linksLbl: Math.round(l.left - k.left - parseFloat(cs.paddingLeft)),
+        rechtsLink: Math.round(k.right - parseFloat(cs.paddingRight) - a.right),
+        grundlinie: Math.round(Math.abs((l.top + l.height) - (a.top + a.height))),
+      };
+    };
+    return { vorher: mass('.vorher'), nachher: mass('div:not(.vorher) > .ks-deck') };
+  });
+
+  const sag = (ok, text, detail) => {
+    console.log('  ' + (ok ? 'ok  ' : 'FEHL') + ' ' + text + (detail ? '   ' + detail : ''));
+    if (!ok) fehler++;
+  };
+  console.log('  vorher:  ' + JSON.stringify(m.vorher));
+  console.log('  nachher: ' + JSON.stringify(m.nachher));
+  sag(m.vorher.obenLbl > 8, 'vorher stand „1 VON 3" deutlich unter der Innenkante',
+    m.vorher.obenLbl + ' px');
+  /* Gemessen wird der Glyphenkasten, nicht der Zeilenkasten: Grossbuchstaben
+     sitzen ein paar Pixel unter dessen Oberkante, und jede Schrift hat eine
+     kleine Seitenvorbreite. Ein, zwei Pixel sind daher Schriftmass, kein
+     Layoutfehler - 18 px waren es. */
+  sag(m.nachher.obenLbl <= 4, 'nachher sitzt es auf der Innenkante',
+    m.nachher.obenLbl + ' px (Schriftmaß)');
+  sag(m.nachher.linksLbl <= 2, 'linksbündig auf der Innenkante', m.nachher.linksLbl + ' px');
+  sag(m.nachher.rechtsLink <= 2, '„Alle bestätigen" rechtsbündig auf der Innenkante',
+    m.nachher.rechtsLink + ' px');
+  sag(m.vorher.obenLbl - m.nachher.obenLbl >= 12, 'die überflüssige Luft ist weg',
+    m.vorher.obenLbl + ' -> ' + m.nachher.obenLbl + ' px');
+  sag(m.vorher.grundlinie > 8 && m.nachher.grundlinie <= 1,
+    'vorher lagen die Grundlinien auseinander, jetzt nicht mehr',
+    m.vorher.grundlinie + ' -> ' + m.nachher.grundlinie + ' px');
+  sag(m.nachher.grundlinie <= 1, 'beide auf einer Grundlinie', m.nachher.grundlinie + ' px Versatz');
+  // Die Trefferflaeche bleibt trotzdem 44.
+  const tap = await p.evaluate(() => {
+    const link = document.querySelector('div:not(.vorher) > .ks-deck .link-btn');
+    const h = getComputedStyle(link, '::after').height;
+    return Math.round(parseFloat(h));
+  });
+  sag(tap === 44, 'die Trefferfläche ist weiterhin 44 px', tap + ' px');
+}
+
+
+/* --- Antippen darf die Liste nicht verschieben ---------------------------
+   Im echten Browser geprueft: weit nach unten scrollen, einen der letzten
+   Eintraege antippen, Scrollposition auf den Pixel vergleichen. Die
+   Klickpfade kommen dabei woertlich aus app.js - nachgebaut wuerde nur das
+   Skript pruefen. */
+console.log('--- Scrollposition beim Antippen ---');
+{
+  const quelle = fs.readFileSync('app.js', 'utf8');
+  const teil = (a, b) => {
+    const i = quelle.indexOf(a), j = quelle.indexOf(b, i);
+    if (i < 0 || j < 0) throw new Error('Anker nicht gefunden: ' + a);
+    return quelle.slice(i, j);
+  };
+  // Die gezielten Aktualisierer, woertlich.
+  const helfer = teil('  function mitScroll(wurzel, fn) {', '  function ksEnsureSheet() {')
+    + teil('  function ksSpielerUmschalten(sheet, id) {', '  // Das Kreuz zum Leeren')
+    + teil('  function ksSuKnopfText(n) {', '  function ksSuRender() {')
+    + teil('  function ksFlWahlSetzen(sheet, attr, wert) {', '  function ksFlAuf() {')
+    + teil('  function ksKatalogZeileHtml(k) {', '  function ksSeiteHtml() {');
+
+  // Die Stuetzen, die diese Funktionen brauchen.
+  const stuetzen = `
+    const ICON_CHECK = '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>';
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const euro = (n) => n.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
+    const initials = (n) => n.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+    const playerById = window.__spieler;
+    const DEMO = { players: window.__spielerListe, katalog: window.__katalog };
+    const kasse = window.__kasse;
+    function nachname(n) { const t = String(n||'').trim().split(/\\s+/); return t[t.length-1] || ''; }
+    function ksNorm(x) { return String(x==null?'':x).toLowerCase().replace(/ä/g,'a').replace(/ö/g,'o').replace(/ü/g,'u').replace(/ß/g,'ss').normalize('NFD').replace(/[\\u0300-\\u036f]/g,''); }
+    function ksSucheTrifft(name, frage) { const q = ksNorm(frage).trim(); return !q || ksNorm(name).indexOf(q) !== -1; }
+    function ksSpielerSuchen(l, f) { return l.filter((p) => ksSucheTrifft(p.name, f)); }
+    function kasseSummaryHtml() { return '<div class="kasse-sum-empty">Summe</div>'; }
+    function ksSeiteKnopf() {}
+    function ksSeiteZeichnen() { window.__vollNeu = (window.__vollNeu || 0) + 1; }
+    function ksSeiteSummeAktualisieren() {}
+  `;
+
+  const listen = [
+    ['Spielerauswahl (Strafe)', 'ksBody', 'data-ks-player',
+     (n) => 'ksSpielerUmschalten(document.getElementById("huelle"), "' + n + '")'],
+    ['Spieler suchen (Filter)', 'ksSuBody', 'data-ks-su-player',
+     (n) => 'ksSuUmschalten(document.getElementById("huelle"), "' + n + '")'],
+  ];
+
+  const sag = (ok, text, detail) => {
+    console.log('  ' + (ok ? 'ok  ' : 'FEHL') + ' ' + text + (detail ? '   ' + detail : ''));
+    if (!ok) fehler++;
+  };
+
+  // Genug Spieler, damit die Liste wirklich scrollt.
+  const VIELE = [];
+  for (let i = 0; i < 40; i++) VIELE.push({ id: 'v' + i, name: 'Spieler Nummer' + String(i).padStart(2, '0') });
+  const VIELE_BY_ID = Object.fromEntries(VIELE.map((p) => [p.id, p]));
+
+  for (const [name, bodyId, attr, ruf] of listen) {
+    const istSuche = attr === 'data-ks-su-player';
+    const html = seite('', '.rahmen { position: fixed; inset: 0; display: flex; flex-direction: column; }' +
+                           '#' + bodyId + ' { flex: 1 1 auto; overflow-y: auto; }')
+      .replace('</body>',
+        '<div class="rahmen ks-such" id="huelle">' +
+        '<div class="ks-suchfeld"><input class="ks-such-in"></div>' +
+        '<div class="tv-shbody" id="' + bodyId + '" data-scroll="' + bodyId + '"></div>' +
+        '<div class="ks-fuss"><button class="ks-fuss-btn" data-ks-weiter>Weiter</button></div></div>' +
+        '<script>' +
+        'window.__spieler = ' + JSON.stringify(VIELE_BY_ID) + ';' +
+        'window.__spielerListe = ' + JSON.stringify(VIELE) + ';' +
+        'window.__katalog = [];' +
+        'window.__kasse = { players: [], items: {}, bezug: {}, indiv: [], flEntwurf: { spieler: [], sort: "neu", zeit: "alle" } };' +
+        stuetzen + helfer +
+        'document.getElementById("' + bodyId + '").innerHTML = ksSpielerZeilenHtml(' +
+        (istSuche ? 'window.__kasse.flEntwurf.spieler' : 'window.__kasse.players') +
+        ', "", "' + attr + '");' +
+        'window.__tippe = (id) => { ' + ruf('IDID').replace('"IDID"', 'id') + ' };' +
+        '<\/script></body>');
+    const f = path.join(ZIEL, '_tmp.html');
+    fs.writeFileSync(f, html);
+    await p.goto(pathToFileURL(path.resolve(f)).href);
+
+    const m = await p.evaluate(async (bid) => {
+      const box = document.getElementById(bid);
+      const zeilen = [...box.querySelectorAll('.ks-prow')];
+      const vorletzte = zeilen[zeilen.length - 2];
+      vorletzte.scrollIntoView({ block: 'end' });
+      await new Promise((r) => setTimeout(r, 60));
+      const vorher = Math.round(box.scrollTop);
+      const id = vorletzte.getAttribute('data-ks-player') || vorletzte.getAttribute('data-ks-su-player');
+      window.__tippe(id);
+      await new Promise((r) => setTimeout(r, 60));
+      const zeile = box.querySelector('[data-ks-player="' + id + '"], [data-ks-su-player="' + id + '"]');
+      return { vorher, nachher: Math.round(box.scrollTop), markiert: !!(zeile && zeile.classList.contains('is-sel')),
+               chips: !!document.querySelector('.ks-gchip'),
+               knopf: (document.querySelector('.ks-fuss-btn') || {}).textContent };
+    }, bodyId);
+
+    sag(m.vorher > 0, name + ': Liste war wirklich gescrollt', m.vorher + ' px');
+    sag(m.vorher === m.nachher, name + ': Position bleibt auf den Pixel',
+      m.vorher + ' -> ' + m.nachher);
+    sag(m.markiert, name + ': die Zeile ist jetzt markiert');
+    sag(m.chips, name + ': der Spieler steht als Chip');
+  }
+
+  /* Die Katalogliste auf der Eingabeseite: dasselbe mit einer echten
+     Katalogzeile und mit Plus/Minus. */
+  {
+    const KAT = [];
+    for (let i = 0; i < 30; i++) KAT.push({ id: 'k' + i, vergehen: 'Vergehen Nummer ' + i, betrag: 5 + i, typ: 'fest' });
+    const html = seite('', '.rahmen { position: fixed; inset: 0; display: flex; flex-direction: column; }' +
+                           '#katBody { flex: 1 1 auto; overflow-y: auto; }')
+      .replace('</body>',
+        '<div class="rahmen" id="ksSeite">' +
+        '<div class="ks-seite-body" id="katBody" data-scroll="katBody"></div>' +
+        '<div class="ks-fuss"><button class="ks-fuss-btn" data-kasse-add>Speichern</button></div></div>' +
+        '<script>' +
+        'window.__spieler = {}; window.__spielerListe = [];' +
+        'window.__katalog = ' + JSON.stringify(KAT) + ';' +
+        'window.__kasse = { players: [], items: {}, bezug: {}, indiv: [] };' +
+        stuetzen + helfer +
+        'document.getElementById("katBody").innerHTML = ksKatalogBlockHtml();' +
+        '<\/script></body>');
+    const f = path.join(ZIEL, '_tmp.html');
+    fs.writeFileSync(f, html);
+    await p.goto(pathToFileURL(path.resolve(f)).href);
+
+    const m = await p.evaluate(async () => {
+      const box = document.getElementById('katBody');
+      const zeilen = [...box.querySelectorAll('[data-kat-zeile]')];
+      const vorletzte = zeilen[zeilen.length - 2];
+      vorletzte.scrollIntoView({ block: 'end' });
+      await new Promise((r) => setTimeout(r, 60));
+      const vorher = Math.round(box.scrollTop);
+      const id = vorletzte.getAttribute('data-kat-zeile');
+      // Auswaehlen - wie der Klickpfad es tut.
+      window.__kasse.items[id] = { menge: 1 };
+      ksKatalogZeileAktualisieren(id);
+      await new Promise((r) => setTimeout(r, 60));
+      const nachWahl = Math.round(box.scrollTop);
+      // Menge erhoehen - nur die Zahl zwischen den Knoepfen.
+      window.__kasse.items[id].menge = 2;
+      const n = document.querySelector('[data-kat-zeile="' + id + '"] .qty-n');
+      if (n) n.textContent = '2×';
+      await new Promise((r) => setTimeout(r, 60));
+      const nachMenge = Math.round(box.scrollTop);
+      const zeile = document.querySelector('[data-kat-zeile="' + id + '"]');
+      return { vorher, nachWahl, nachMenge, markiert: !!(zeile && zeile.classList.contains('is-sel')),
+               menge: (document.querySelector('[data-kat-zeile="' + id + '"] .qty-n') || {}).textContent,
+               vollNeu: window.__vollNeu || 0 };
+    });
+
+    sag(m.vorher > 0, 'Katalogliste: war wirklich gescrollt', m.vorher + ' px');
+    sag(m.vorher === m.nachWahl, 'Katalogliste: Position bleibt beim Auswählen',
+      m.vorher + ' -> ' + m.nachWahl);
+    sag(m.nachWahl === m.nachMenge, 'Katalogliste: Position bleibt bei Plus/Minus',
+      m.nachWahl + ' -> ' + m.nachMenge);
+    sag(m.markiert, 'Katalogliste: die Zeile ist markiert');
+    sag(m.menge === '2×', 'Katalogliste: die Menge steht daneben', m.menge);
+    sag(m.vollNeu === 0, 'Katalogliste: kein voller Neuaufbau der Seite');
+  }
+
+  /* Das Filterblatt: eine Sortierung waehlen darf nicht nach oben springen. */
+  {
+    const html = seite('', '.rahmen { position: fixed; inset: 0; display: flex; flex-direction: column; }' +
+                           '#flBody { flex: 1 1 auto; overflow-y: auto; }')
+      .replace('</body>',
+        '<div class="rahmen ks-bl" id="huelle">' +
+        '<div class="tv-shbody" id="flBody" data-scroll="ksFlBody">' +
+        '<div style="height:600px"></div>' +
+        '<div class="ks-wahlliste">' +
+        ['neu', 'alt', 'betrag'].map((k) =>
+          '<button type="button" class="ks-wahlz' + (k === 'neu' ? ' is-on' : '') + '" data-ks-fl-sort="' + k + '">' +
+          '<span>' + k + '</span><span class="ks-check">' + (k === 'neu' ? HAKEN : '') + '</span></button>').join('') +
+        '</div><div style="height:400px"></div></div></div>' +
+        '<script>' + stuetzen + helfer + '<\/script></body>');
+    const f = path.join(ZIEL, '_tmp.html');
+    fs.writeFileSync(f, html);
+    await p.goto(pathToFileURL(path.resolve(f)).href);
+    const m = await p.evaluate(async () => {
+      const box = document.getElementById('flBody');
+      box.scrollTop = 500;
+      await new Promise((r) => setTimeout(r, 60));
+      const vorher = Math.round(box.scrollTop);
+      ksFlWahlSetzen(document.getElementById('huelle'), 'data-ks-fl-sort', 'betrag');
+      await new Promise((r) => setTimeout(r, 60));
+      const an = [...document.querySelectorAll('.ks-wahlz.is-on')].map((b) => b.getAttribute('data-ks-fl-sort'));
+      return { vorher, nachher: Math.round(box.scrollTop), an };
+    });
+    sag(m.vorher === m.nachher, 'Filter-Blatt: Position bleibt beim Wählen',
+      m.vorher + ' -> ' + m.nachher);
+    sag(m.an.length === 1 && m.an[0] === 'betrag', 'Filter-Blatt: genau eine Wahl ist markiert', m.an.join());
+  }
+}
+
+
+/* --- Wie oft wird beim Öffnen gerendert? ---------------------------------
+   Der Uebergang soll jede Ansicht genau einmal aufbauen. Gemessen wird das,
+   indem ksSeiteHtml() gezaehlt wird - die Steuerung darum herum kommt
+   woertlich aus app.js. */
+console.log('--- Renderzahl und Fokus beim Öffnen ---');
+{
+  const quelle = fs.readFileSync('app.js', 'utf8');
+  const teil = (a, b) => {
+    const i = quelle.indexOf(a), j = quelle.indexOf(b, i);
+    if (i < 0 || j < 0) throw new Error('Anker nicht gefunden: ' + a);
+    return quelle.slice(i, j);
+  };
+  const steuerung = teil('  let _scrollLocks = 0, _scrollLockY = 0;', '  function closeTerminModal()')
+    + teil('  let ksSeiteGesperrt = false;', '  function ksSeiteEingabe(ev) {');
+
+  const html = seite('<div style="height:2000px"></div>').replace('</body>',
+    '<nav class="app-nav"><button class="nav-btn">A</button></nav>' +
+    '<script>' +
+    'window.__zaehler = 0;' +
+    'const kasse = { seite: null };' +
+    'function ksSeiteHtml() { window.__zaehler++; return "<div class=\\"ks-seite\\"><div class=\\"ks-seite-body\\"></div></div>"; }' +
+    'function ksSeiteKnopf() {}' +
+    'function ksSeiteKlick() {}' +
+    'function ksSeiteEingabe() {}' +
+    'function kasseSummaryHtml() { return ""; }' +
+    steuerung +
+    'window.__kasse = kasse; window.__sync = ksSeiteSync; window.__zeichnen = ksSeiteZeichnen;' +
+    '<\/script></body>');
+  const f = path.join(ZIEL, '_tmp.html');
+  fs.writeFileSync(f, html);
+  await p.goto(pathToFileURL(path.resolve(f)).href);
+
+  const m = await p.evaluate(async () => {
+    const warte = () => new Promise((r) => setTimeout(r, 40));
+    // So laeuft ksWeiter(): Seite setzen, einmal abgleichen.
+    window.__kasse.seite = 'katalog';
+    window.__sync();
+    await warte();
+    const nachOeffnen = window.__zaehler;
+    // Jetzt ein Hintergrund-Neuladen: renderKasse() ruft nur den Abgleich.
+    window.__sync(); window.__sync(); window.__sync();
+    await warte();
+    const nachHintergrund = window.__zaehler;
+    const hash = location.hash;
+    const navWeg = getComputedStyle(document.querySelector('.app-nav')).pointerEvents === 'none';
+    const gesperrt = getComputedStyle(document.body).position === 'fixed';
+    // Schliessen raeumt auf.
+    window.__kasse.seite = null;
+    window.__sync();
+    await warte();
+    return { nachOeffnen, nachHintergrund, hash, navWeg, gesperrt,
+             hashWeg: location.hash === '',
+             frei: getComputedStyle(document.body).position !== 'fixed',
+             versteckt: document.getElementById('ksSeite').hidden };
+  });
+
+  const sag = (ok, text, detail) => {
+    console.log('  ' + (ok ? 'ok  ' : 'FEHL') + ' ' + text + (detail ? '   ' + detail : ''));
+    if (!ok) fehler++;
+  };
+  sag(m.nachOeffnen === 1, 'die Seite wird beim Öffnen genau einmal gerendert', m.nachOeffnen + '×');
+  sag(m.nachHintergrund === 1, 'drei Hintergrund-Abgleiche rendern sie kein zweites Mal', m.nachHintergrund + '×');
+  sag(m.hash === '#strafe=katalog', 'der Hash steht', m.hash);
+  sag(m.navWeg, 'die untere Navigation ist weg');
+  sag(m.gesperrt, 'der Hintergrund ist gesperrt');
+  sag(m.hashWeg, 'nach dem Schließen ist der Hash weg');
+  sag(m.frei, 'und der Hintergrund frei');
+  sag(m.versteckt, 'die Seite ist versteckt');
+
+  // Kein Eingabefeld bekommt beim Öffnen den Fokus.
+  const oeffnen = teil('  function ksOpenPlayers()', '  /* „Weiter": aus dem Wähler');
+  const suAuf = teil('  function ksSuAuf() {', '  function ksSuZu() {');
+  sag(!/ksFokusSuche/.test(oeffnen), 'Spielerauswahl öffnet ohne Fokus');
+  sag(!/ksFokusSuche/.test(suAuf), 'Spielersuche öffnet ohne Fokus');
+  sag(!/autofocus/.test(quelle), 'nirgends ein autofocus');
+  // Nur noch beim Leeren des Suchfelds - dort ist er gewollt.
+  const fokusStellen = (quelle.match(/ksFokusSuche\(/g) || []).length;
+  sag(fokusStellen === 3, 'ksFokusSuche wird nur noch beim Leeren gerufen (plus Definition)',
+    fokusStellen + ' Stellen');
+}
+
+
 /* --- Kontrast ------------------------------------------------------------
    Gemessen wird am gerenderten Bild, nicht an den Tokens: erst dort steht,
    was wirklich uebereinander liegt. */

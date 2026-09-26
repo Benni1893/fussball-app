@@ -942,3 +942,40 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
   zum Schließen der Spielerauswahl. Es fiel beim Umbau der Auswahl weg; mit
   dem Kreuz oben und dem Knopf unten gibt es zwei klare Wege hinaus. Sag
   Bescheid, wenn die Geste zurück soll.
+
+**Kartenkopf, Flackern, Sprung nach oben (26.09.2026)**
+
+- **Der Abstand im Kartenkopf (abstandoben.png) kam von der Trefferfläche.**
+  `.link-btn` trägt `min-height: 44px`. In `.ks-kopf` (`align-items: center`)
+  machte das die Zeile 44 px hoch und schob „1 VON 3" und „Alle bestätigen" in
+  deren Mitte. Weder doppeltes Padding noch ein Rest von `.ks-bulk` — das war
+  schon weg. Die 44 px kommen jetzt über `::after`, wie beim Schalter und bei
+  den Chips. Gemessen: Label 18 px unter der Innenkante → 3 px (Schriftmaß),
+  Grundlinienversatz 17 px → 1 px, Trefferfläche weiterhin 44 px.
+- **Das Flackern (flackernbalken.webp) hatte zwei Quellen.** Erstens der
+  automatische Fokus: er holte Tastatur und iOS-Formularleiste hoch, bevor die
+  Ansicht stand. Zweitens die Reihenfolge beim Blattwechsel — erst schließen,
+  dann öffnen. Dazwischen war der Blattstapel leer: Scroll-Sperre fiel,
+  Hintergrund sprang, Navigation fuhr ein, alles sofort zurück. Jetzt erst
+  öffnen, dann schließen; der Stapel fällt nie auf null.
+- **Genau ein Rendern je Ansicht.** `ksWeiter()` rief vorher `ksSeiteSync()`
+  *und* `ksSeiteZeichnen()` — zwei Aufbauten hintereinander. Im Browser
+  gezählt: jetzt 1, und drei Hintergrund-Abgleiche machen daraus keine 2.
+- **Die iOS-Formularleiste lässt sich nicht per Code entfernen.** Sie gehört
+  zur Tastatur. Sie erscheint jetzt nur noch, wenn ein Eingabefeld wirklich
+  aktiv ist — also beim Antippen des Suchfelds, nicht mehr beim Öffnen.
+  **Am Gerät bestätigen**, hier steht kein iPhone.
+- **Der Sprung nach oben (Punkt 4) kam vom vollständigen Neuaufbau.** Jeder
+  Tipp setzte `sheet.innerHTML` bzw. zeichnete die ganze Seite; der neue
+  Scroll-Container startet bei 0. Jetzt wird nur die eine Zeile getauscht,
+  dazu Chips, Summe und Knopf. Im Browser auf den Pixel geprüft, in allen
+  fünf Listen: Spielerauswahl 1889 → 1889, Spielersuche 1889 → 1889,
+  Katalogliste 1320 → 1320 (Auswählen und Plus/Minus), Filter-Blatt 332 → 332.
+  Für den unvermeidbaren Fall („Auch aus dem Katalog" holt einen ganzen Block)
+  gibt es `mitScroll()`.
+- **Vorauswahl der Zahlart ist jetzt PayPal**, nicht Bar — sowohl im
+  Buchen-Blatt als auch beim Bestätigen einer Meldung ohne Angabe. Die Angabe
+  des Spielers sticht weiterhin alles. Achtung beim Lesen der Prüfung: „paypal"
+  steht im Code wieder als Wert, aber als **Rückfall** hinter `sagtZahlart` —
+  der alte Fehler war ein fest verdrahteter Wert *ohne* diesen Rückfall. Das
+  Prüfskript unterscheidet beides.

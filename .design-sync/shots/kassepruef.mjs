@@ -440,15 +440,12 @@ console.log('--- Der Wähler führt direkt in die Spielerauswahl ---');
 console.log('--- Spielerauswahl: Knopf unten statt Fertig oben ---');
 {
   frisch();
-  const knopf = (n) => {
-    const roh = app.slice(app.indexOf('function ksWeiterKnopfHtml'), app.indexOf('function ksEnsureSheet'));
-    return roh;
-  };
-  pruefe(/data-ks-weiter/.test(knopf()), 'der Knopf trägt data-ks-weiter');
-  pruefe(/class="ks-fuss"/.test(knopf()), 'er sitzt im gemeinsamen Fuß');
-  pruefe(/n \? "" : " disabled"/.test(knopf()), 'bei null Spielern ist er deaktiviert');
-  pruefe(/"Weiter mit " \+ n/.test(knopf()), 'und nennt die Zahl');
-  pruefe(/n === 1 \? " Spieler" : " Spielern"/.test(knopf()), 'Einzahl und Mehrzahl');
+  const knopf = app.slice(app.indexOf('function ksWeiterText'), app.indexOf('function ksEnsureSheet'));
+  pruefe(/data-ks-weiter/.test(knopf), 'der Knopf trägt data-ks-weiter');
+  pruefe(/class="ks-fuss"/.test(knopf), 'er sitzt im gemeinsamen Fuß');
+  pruefe(/n \? "" : " disabled"/.test(knopf), 'bei null Spielern ist er deaktiviert');
+  pruefe(/"Weiter mit " \+ n/.test(knopf), 'und nennt die Zahl');
+  pruefe(/n === 1 \? " Spieler" : " Spielern"/.test(knopf), 'Einzahl und Mehrzahl');
   // Oben rechts steht kein Fertig mehr.
   const render = app.slice(app.indexOf('function ksRenderPlayers()'), app.indexOf('function ksOpenPlayers()'));
   pruefe(!render.includes('data-ks-done'), 'kein „Fertig" oben rechts');
@@ -690,10 +687,14 @@ console.log('--- Schreibpfade ---');
                      'deleteFine', 'setFinePaid', 'createFinesBatch']) {
     pruefe(app.includes('DB.' + rpc + '('), 'DB.' + rpc + ' wird weiter benutzt');
   }
-  // Der alte Fehler: jede Bestaetigung wurde als PayPal gebucht.
-  pruefe(!/confirmFines\([^)]*"paypal"/.test(app), 'kein fest verdrahtetes „paypal" beim Bestätigen mehr');
-  pruefe(/confirmFines\(\[conf\.dataset\.kasseConfirm\], \(s && s\.sagtZahlart\) \|\| "bar"\)/.test(app),
-    'einzeln bestätigen bucht die Angabe des Spielers, sonst bar');
+  /* Der alte Fehler: jede Bestaetigung wurde fest als „paypal" gebucht, egal
+     was der Spieler gesagt hatte. PayPal ist jetzt wieder der Wert - aber als
+     RUECKFALL hinter der Angabe des Spielers, nicht als fester Wert. Genau
+     das wird hier unterschieden. */
+  pruefe(/confirmFines\(\[conf\.dataset\.kasseConfirm\], \(s && s\.sagtZahlart\) \|\| "paypal"\)/.test(app),
+    'einzeln bestätigen bucht die Angabe des Spielers, sonst PayPal');
+  pruefe(!/confirmFines\(\s*\[[^\]]*\]\s*,\s*"[a-z]+"\s*\)/.test(app),
+    'nirgends eine fest verdrahtete Zahlart beim Bestätigen');
   pruefe(/nachArt\[a\] = nachArt\[a\] \|\| \[\]/.test(app),
     '„Alle bestätigen" gruppiert nach Zahlart statt alle gleich zu buchen');
 

@@ -330,3 +330,38 @@ ein, sobald es ein Feld für ein Namensfeld hält. Es schließt das aus Feldtyp,
 Der Platzhalter sagt **„Suchen"**, nicht „Name eingeben" — das Wort allein
 reicht iOS als Hinweis. Enter schickt nichts ab, es schließt nur die Tastatur
 (die Liste filtert schon beim Tippen).
+
+## Antippen baut keine Liste neu
+
+Ein `innerHTML` auf einem Scroll-Container erzeugt ihn neu — und ein neuer
+Container startet bei `scrollTop: 0`. Wer weit unten in einer Liste etwas
+antippt, landet dann wieder oben. Deshalb gilt:
+
+**Beim Umschalten wird nur ausgetauscht, was sich ändert.** Für jede Liste gibt
+es eine Funktion für *eine* Zeile (`ksSpielerZeileHtml`, `ksKatalogZeileHtml`),
+und der Klickpfad ersetzt genau diese Zeile plus die Anzeigen außerhalb des
+Scrollbereichs: Chipleiste, Zusammenfassung, Knopf.
+
+Bleibt ein voller Neuaufbau unvermeidbar (ein ganzer Block kommt dazu), läuft
+er durch `mitScroll(wurzel, fn)`: sichert `scrollTop` jedes `[data-scroll]`
+und setzt ihn danach zurück. Jeder Scrollbereich trägt deshalb ein
+`data-scroll="…"`.
+
+Dasselbe gilt für den Fokus: ein Feld, das beim Neuaufbau verschwindet und
+wiederkommt, verliert ihn — die Tastatur klappt zu und wieder auf.
+
+## Übergänge zwischen Blättern
+
+Beim Wechsel von einem Blatt zum nächsten wird **zuerst das neue geöffnet,
+dann das alte geschlossen**. Andersherum leert sich der Blattstapel für einen
+Moment: `unlockBodyScroll()` gibt den Hintergrund frei und springt zur
+gemerkten Position, `body.blatt-offen` fällt weg und die untere Navigation
+fährt ein — alles sofort wieder zurück. Das ist das Flackern.
+
+Und jede Ansicht wird **genau einmal** aufgebaut. `ksSeiteSync()` zeichnet nur,
+wenn noch nichts da ist; ein zusätzliches `ksSeiteZeichnen()` daneben wäre ein
+sichtbarer zweiter Aufbau.
+
+Vollbildflächen bekommen **keinen Fokus beim Öffnen**. Ein automatisch
+fokussiertes Feld holt die Tastatur und mit ihr die iOS-Formularleiste (Pfeile
+und Haken) hoch, bevor die Ansicht steht. Wer suchen will, tippt das Feld an.
