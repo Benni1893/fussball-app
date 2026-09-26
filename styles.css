@@ -293,6 +293,8 @@ body.auth-mode .hdr-gear { display: none; }   /* ausgeloggt: kein Zahnrad */
   box-shadow: 0 -2px 12px rgba(15,61,46,.06);
   /* Safe-Area unten mit der Nav-Farbe füllen; Icons bleiben darüber */
   padding-bottom: env(safe-area-inset-bottom);
+  /* Sie fährt weg, wenn ein Blatt aufgeht (body.blatt-offen). */
+  transition: transform .24s cubic-bezier(.22,1,.36,1);
 }
 .nav-btn {
   position: relative;
@@ -1657,10 +1659,10 @@ body.auth-mode .view { padding-left: 0; padding-right: 0; }
 .lu-scrim { position: fixed; inset: 0; background: rgba(20,28,22,.45); opacity: 0; pointer-events: none; transition: opacity .2s ease; z-index: 90; }
 .lu-scrim.open { opacity: 1; pointer-events: auto; }
 .lu-sheet {
-  position: fixed; left: 0; right: 0; bottom: calc(56px + env(safe-area-inset-bottom)); z-index: 91;
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 91;
   background: var(--card); border-radius: 18px 18px 0 0; box-shadow: 0 -10px 30px rgba(15,61,46,.22);
   transform: translateY(120%); transition: transform .28s cubic-bezier(.22,1,.36,1);
-  max-height: 66dvh; display: flex; flex-direction: column;
+  max-height: 80dvh; display: flex; flex-direction: column;
 }
 .lu-sheet.open { transform: translateY(0); }
 .lu-sheet-head { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 15px 16px 8px; }
@@ -1961,18 +1963,32 @@ body.auth-mode .view { padding-left: 0; padding-right: 0; }
 .tv-bank-empty { color: var(--muted); font-size: 12px; align-self: center; padding: 6px 2px; }
 
 /* Bottom-Sheets über der Nav */
+/* Solange ein Blatt offen ist, ist die untere Navigation weg. Der Scrim liegt
+   zwar ohnehin darueber (90 gegen 60), aber eine durchscheinende Leiste unter
+   einem Blatt sieht aus wie ein Bedienfehler. `visibility` zusaetzlich, damit
+   sie auch für die Tastatursteuerung und Screenreader verschwindet. */
+body.blatt-offen .app-nav {
+  transform: translateY(110%);
+  pointer-events: none; visibility: hidden;
+  transition: transform .24s cubic-bezier(.22,1,.36,1), visibility 0s linear .24s;
+}
+body.blatt-offen .tv-toast { bottom: calc(16px + env(safe-area-inset-bottom)); }
+
 .tv-scrim { position: fixed; inset: 0; background: rgba(20,28,22,.45); opacity: 0; pointer-events: none; transition: opacity .2s ease; z-index: 90; }
 .tv-scrim.open { opacity: 1; pointer-events: auto; }
 /* Geschlossen VOLLSTÄNDIG ausblenden: Sheet sitzt bei bottom:56px+safe (über der Nav),
    daher muss der Versatz mit ins translate, sonst ragt die (leere, kurze) Kopfzeile über die Nav. */
-.tv-sheet { position: fixed; left: 0; right: 0; bottom: calc(56px + env(safe-area-inset-bottom)); z-index: 91; background: var(--card); border-radius: 18px 18px 0 0; box-shadow: 0 -10px 30px rgba(15,61,46,.22); transform: translateY(calc(100% + 56px + env(safe-area-inset-bottom) + 12px)); transition: transform .28s cubic-bezier(.22,1,.36,1); max-height: 66dvh; display: flex; flex-direction: column; }
+.tv-sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 91; background: var(--card); border-radius: 18px 18px 0 0; box-shadow: 0 -10px 30px rgba(15,61,46,.22); transform: translateY(calc(100% + 12px)); transition: transform .28s cubic-bezier(.22,1,.36,1); max-height: 80dvh; display: flex; flex-direction: column; }
 .tv-sheet.open { transform: translateY(0); }
 .tv-sh { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 15px 16px 8px; }
 .tv-grip { position: absolute; left: 50%; transform: translateX(-50%); top: 7px; width: 38px; height: 4px; border-radius: 999px; background: var(--line); }
 .tv-sh strong { font-size: 16px; }
 .tv-shsub { font-size: 12px; color: var(--muted); font-weight: 600; }
 .tv-shx { border: 0; background: var(--bg); width: 44px; height: 44px; border-radius: 50%; font-size: 20px; color: var(--muted); }
-.tv-shbody { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 6px 16px 16px; }
+.tv-shbody { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 6px 16px 16px; overscroll-behavior: contain; }
+/* Das Blatt sitzt am unteren Bildschirmrand, seit die Navigation darunter
+   ausgeblendet wird. Der letzte Block haelt deshalb selbst die Safe-Area frei. */
+.tv-sheet > .tv-shbody:last-child { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
 .tv-shactions { padding: 8px 16px calc(10px + env(safe-area-inset-bottom)); display: flex; gap: 10px; }
 .tv-shactions button { flex: 1 1 0; min-height: 48px; border-radius: 12px; font-weight: 800; font-size: 15px; }
 .tv-btnp { border: 0; background: var(--green-700); color: #fff; }
@@ -2350,17 +2366,170 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 .ks-seg-b.is-on .ks-seg-n { color: var(--muted); opacity: 1; }
 .ks-seg-b:focus-visible { outline: 2px solid var(--green-700); outline-offset: -2px; }
 
-/* Schmale Spielerzeile unter der Reiterleiste. */
-.ks-fil { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding: 0 2px; }
-/* Die Zeile steht direkt auf dem App-Grund. Dort erreicht --muted nur 3,8:1,
-   deshalb traegt die Beschriftung hier das Dunkelgruen der Ueberschriften. */
-.ks-fil .lbl { flex: none; color: var(--green-800); }
-.ks-fil-in {
-  flex: 1; min-width: 0; min-height: var(--tap); font: inherit; font-size: var(--fs-input);
-  padding: 0 10px; border: 1px solid var(--line-soft-3); border-radius: var(--radius-btn);
-  background: var(--card); color: var(--ink); -webkit-appearance: none; appearance: none;
+/* Filterleiste unter der Reiterleiste. Schmal: sie ist ein Zugang, kein
+   Bedienfeld - gefiltert wird im Blatt. */
+.ks-fl { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
+.ks-fl-b {
+  display: inline-flex; align-items: center; gap: 7px;
+  min-height: var(--tap); padding: 0 12px;
+  background: var(--card); border: 1px solid var(--line-soft-3); border-radius: var(--radius-btn);
+  box-shadow: var(--shadow-sm); color: var(--green-800);
+  font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.ks-fl-b:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; }
+.ks-fl-b .ks-zi { color: var(--muted-2); }
+.ks-fl-t { line-height: 1; }
+.ks-fl-n {
+  min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px;
+  background: var(--green-800); color: #fff; font-size: 12px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.ks-fl-aktiv { display: flex; flex-wrap: wrap; gap: 6px; flex: 1 1 100%; }
+.ks-fl-chip {
+  display: inline-flex; align-items: center; gap: 2px;
+  max-width: 100%; padding: 5px 4px 5px 11px;
+  background: var(--green-050); border-radius: var(--radius-pill);
+  color: var(--green-800); font-size: 13px; font-weight: 600;
+}
+.ks-fl-chip > button {
+  position: relative; flex: none; width: 26px; height: 26px;
+  border: 0; background: none; color: var(--green-800);
+  font-size: 17px; line-height: 1; cursor: pointer;
+  -webkit-appearance: none; appearance: none; -webkit-tap-highlight-color: transparent;
+}
+/* Sichtbar 26, Trefferfläche 44 - dieselbe Lösung wie beim Schalter. */
+.ks-fl-chip > button::after {
+  content: ""; position: absolute; top: 50%; left: 50%;
+  width: var(--tap); height: var(--tap); transform: translate(-50%, -50%);
+}
+/* „12 von 140" - steht nur da, wenn gefiltert wird. Sie steht auf dem
+   App-Grund; dort reicht --muted-2 nur für 4,37:1, deshalb das Dunkelgrün,
+   das die App ohnehin für Zahlen benutzt. */
+.ks-treffer { margin: -4px 0 10px 2px; font-size: 13px; font-weight: 600; color: var(--green-800); }
+
+/* Filter-Blatt */
+.ks-flbl .tv-shbody { padding-bottom: 8px; }
+.ks-fl-suche {
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  min-height: 56px; padding: 0 12px;
+  background: var(--surface-2); border: 0; border-radius: var(--radius-md);
+  font: inherit; cursor: pointer; -webkit-appearance: none; appearance: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.ks-fl-suche .ks-zi { color: var(--muted-2); }
+.ks-fl-suche-t { flex: 1; min-width: 0; font-size: 16px; font-weight: 700; color: var(--ink); }
+.ks-fl-suche-n { flex: none; font-size: 14px; font-weight: 600; color: var(--muted-2); }
+.ks-fl-hinweis { margin-top: 12px; font-size: 13px; font-weight: 500; color: var(--muted-2); }
+.ks-fl-fuss {
+  flex: 0 0 auto; display: flex; gap: 10px;
+  padding: 12px 16px calc(14px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line); background: var(--card);
+}
+.ks-fl-fuss .btn { flex: 1 1 0; min-height: var(--h-btn-lg); }
+
+/* Auswahlliste im Blatt: eine Zeile je Möglichkeit, Haken rechts. */
+.ks-wahlliste { display: flex; flex-direction: column; }
+.ks-wahlz {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  width: 100%; min-height: var(--h-row); padding: 0 2px;
+  border: 0; background: none; font: inherit; font-size: 15px; font-weight: 600;
+  color: var(--ink); text-align: left; cursor: pointer;
+  -webkit-appearance: none; appearance: none; -webkit-tap-highlight-color: transparent;
+}
+.ks-wahlz + .ks-wahlz { border-top: 1px solid var(--line); }
+.ks-wahlz.is-on { color: var(--green-800); font-weight: 700; }
+/* .ks-check ist weiss auf weiss, bis der Kasten gefuellt ist - die Liste
+   markiert mit .is-on statt .is-sel, deshalb dieselbe Fuellung noch einmal. */
+.ks-wahlz.is-on .ks-check {
+  background: var(--grad-btn); border-color: var(--green-650);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.25);
 }
 
+/* Suchfeld im Kopf der Vollbild-Blätter */
+.ks-suchfeld {
+  position: relative; flex: 0 0 auto; display: flex; align-items: center; gap: 8px;
+  margin: 0 16px 10px; padding: 0 10px;
+  background: var(--surface-2); border: 1px solid var(--line-soft-3); border-radius: var(--radius-btn);
+}
+.ks-suchfeld .ks-zi { color: var(--muted-2); }
+.ks-such-in {
+  flex: 1; min-width: 0; min-height: var(--h-in);
+  border: 0; background: none; font: inherit; font-size: var(--fs-input); color: var(--ink);
+  -webkit-appearance: none; appearance: none;
+}
+.ks-such-in::-webkit-search-cancel-button { display: none; }
+.ks-such-in:focus { outline: none; }
+.ks-such-x {
+  position: relative; flex: none; width: 28px; height: 28px;
+  border: 0; background: none; color: var(--muted-2); font-size: 20px; line-height: 1;
+  cursor: pointer; -webkit-appearance: none; appearance: none;
+}
+.ks-such-x::after {
+  content: ""; position: absolute; top: 50%; left: 50%;
+  width: var(--tap); height: var(--tap); transform: translate(-50%, -50%);
+}
+/* Gewählte Spieler als Chips über der Liste. */
+.ks-gewaehlt { flex: 0 0 auto; display: flex; flex-wrap: wrap; gap: 6px; margin: 0 16px 10px; }
+.ks-seite-body .ks-gewaehlt { margin: 0; }
+.ks-gchip {
+  display: inline-flex; align-items: center; gap: 2px;
+  padding: 5px 4px 5px 11px;
+  background: var(--green-050); border-radius: var(--radius-pill);
+  color: var(--green-800); font-size: 13px; font-weight: 600;
+}
+.ks-gchip > button {
+  position: relative; flex: none; width: 26px; height: 26px;
+  border: 0; background: none; color: var(--green-800);
+  font-size: 17px; line-height: 1; cursor: pointer;
+  -webkit-appearance: none; appearance: none; -webkit-tap-highlight-color: transparent;
+}
+.ks-gchip > button::after {
+  content: ""; position: absolute; top: 50%; left: 50%;
+  width: var(--tap); height: var(--tap); transform: translate(-50%, -50%);
+}
+.ks-such .tv-shbody { padding-top: 0; }
+
+/* ---------- „Strafe verhängen" als eigene Seite ---------------------------
+   Sie füllt den Bildschirm: Kopf oben fest, Speichern unten fest, dazwischen
+   scrollt der Vorgang. Die untere Navigation ist weg (body.ks-seite-offen). */
+body.ks-seite-offen .app-nav { transform: translateY(110%); pointer-events: none; visibility: hidden; }
+.ks-seite {
+  position: fixed; inset: 0; z-index: 61;
+  display: flex; flex-direction: column;
+  background: var(--grad-app);
+}
+.ks-seite-kopf {
+  flex: 0 0 auto; display: flex; align-items: center; gap: 8px;
+  padding: calc(env(safe-area-inset-top) + 10px) 8px 10px;
+  background: var(--card); border-bottom: 1px solid var(--line);
+}
+.ks-seite-zur {
+  display: inline-flex; align-items: center; gap: 2px;
+  min-height: var(--tap); padding: 0 8px;
+  border: 0; background: none; color: var(--green-800);
+  font: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
+  -webkit-appearance: none; appearance: none; -webkit-tap-highlight-color: transparent;
+}
+.ks-seite-zur > span:first-child { font-size: 20px; line-height: 1; }
+.ks-seite-t {
+  flex: 1; min-width: 0; text-align: center; font-size: 16px; font-weight: 700; color: var(--ink);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ks-seite-x { flex: none; }
+.ks-seite-body {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 16px 16px 20px;
+}
+.ks-seite-fuss {
+  flex: 0 0 auto;
+  padding: 12px 16px calc(14px + env(safe-area-inset-bottom));
+  background: var(--card); border-top: 1px solid var(--line);
+}
+.ks-seite-save { width: 100%; min-height: var(--h-btn-xl); font-size: 16px; }
+.ks-seite-save:disabled { opacity: .5; cursor: default; }
 /* Prüfkarte (Vorlage 6A) */
 .ks-deck { position: relative; touch-action: pan-y; }   /* hier wird geblaettert */
 .ks-card { position: relative; padding: 16px 16px 18px; text-align: center; cursor: pointer;
@@ -2423,14 +2592,17 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
    sie gross genug fuer Symbol und Beschriftung. */
 .zart-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px;
   padding: 4px; background: var(--seg-bg); border-radius: var(--radius); }
+/* Symbol ueber dem Text: so hat die Beschriftung das ganze Drittel fuer sich.
+   Nebeneinander blieben bei 390 px nur rund 78 px Text je Chip - zu wenig. */
 .zart {
-  position: relative; min-height: 52px; padding: 0 6px;
+  position: relative; min-height: 64px; padding: 8px 4px;
   border: 0; border-radius: 11px; background: none; color: var(--ink);
-  font: inherit; font-size: 15px; font-weight: 700; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; gap: 6px;
+  font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
   white-space: nowrap; overflow: hidden;
   -webkit-tap-highlight-color: transparent;
 }
+.zart .ks-zi, .zart .ks-zi svg { width: 20px; height: 20px; }
 .zart .ks-zi { color: var(--muted); }
 .zart .ks-zi.is-pp { color: var(--pp-blue); }
 .zart.is-on { background: var(--grad-chip-on); color: #fff; box-shadow: var(--shadow-chip-on); }
@@ -2439,6 +2611,7 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 
 /* ---------- Kasse: Blatt (buchen / Detail) und Vollbild-Wähler ------------- */
 .ks-bl .tv-shbody { padding: 0 16px calc(20px + env(safe-area-inset-bottom)); }
+.ks-bl > .tv-shbody:last-child { padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
 .ks-bl-sum { background: var(--surface-2); border-radius: var(--radius-md); padding: 12px 14px; }
 .ks-bl-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .ks-bl-n { flex: 1; min-width: 0; font-size: 16px; font-weight: 700; color: var(--ink);

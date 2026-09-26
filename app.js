@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-25-J";
+  var APP_BUILD = "2026-09-26-A";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -2259,6 +2259,54 @@
     window.scrollTo(0, _scrollLockY);
   }
 
+  /* --------------------------------------------------------------------------
+     Blatt-Steuerung: EIN Weg, ein Bottom-Sheet zu oeffnen und zu schliessen.
+
+     Vorher hat jedes Blatt selbst `classList.add("open")` gerufen. Die
+     Dialoge und die .more-sheet-Blaetter sperrten dabei den Hintergrund,
+     die .tv-sheet-Blaetter nicht - dort scrollte der Feed unter dem offenen
+     Blatt weiter. Auf iOS im Standalone-Modus reicht `overflow: hidden` auf
+     dem body nicht; lockBodyScroll() fixiert ihn und stellt die Scrollposition
+     beim Schliessen wieder her. Genau das haengt jetzt an jedem Blatt.
+
+     `body.blatt-offen` blendet zusaetzlich die untere Navigation aus. Der
+     Scrim liegt zwar ohnehin darueber (z-index 90 gegen 60), aber eine
+     durchscheinende Navigationsleiste unter einem Blatt sieht aus wie ein
+     Bedienfehler.
+
+     Der Stapel erlaubt ein Blatt ueber einem Blatt (Filter -> Spielersuche);
+     die Navigation kommt erst zurueck, wenn das letzte zu ist.             */
+  const BLATT_STAPEL = [];
+  function blattAuf(scrimId, sheetId) {
+    const s = document.getElementById(scrimId), p = document.getElementById(sheetId);
+    if (!p || p.classList.contains("open")) return;
+    if (s) s.classList.add("open");
+    p.classList.add("open");
+    BLATT_STAPEL.push({ scrim: scrimId, sheet: sheetId });
+    document.body.classList.add("blatt-offen");
+    lockBodyScroll();
+  }
+  function blattZu(scrimId, sheetId) {
+    const s = document.getElementById(scrimId), p = document.getElementById(sheetId);
+    // Nur zaehlen, wenn wirklich etwas offen war - sonst laeuft der Zaehler
+    // von lockBodyScroll() aus dem Tritt und der body bleibt fixiert.
+    const war = !!(p && p.classList.contains("open"));
+    if (s) s.classList.remove("open");
+    if (p) p.classList.remove("open");
+    if (!war) return;
+    const i = BLATT_STAPEL.findIndex((x) => x.sheet === sheetId);
+    if (i >= 0) BLATT_STAPEL.splice(i, 1);
+    if (!BLATT_STAPEL.length) document.body.classList.remove("blatt-offen");
+    unlockBodyScroll();
+  }
+  // Alles zu, z. B. beim Ansichtswechsel. Rueckwaerts, damit der Stapel stimmt.
+  function blattAlleZu() {
+    for (const b of BLATT_STAPEL.slice().reverse()) blattZu(b.scrim, b.sheet);
+  }
+  function blattOffen(sheetId) {
+    return BLATT_STAPEL.some((x) => x.sheet === sheetId);
+  }
+
   function closeTerminModal() { const ex = document.getElementById("terminModal"); if (ex) { ex.remove(); unlockBodyScroll(); } }
 
   // existing = null -> anlegen; sonst bearbeiten (Event-Objekt aus DEMO.events).
@@ -3159,17 +3207,13 @@
     const tt = document.getElementById("luPanelTitle"); if (tt) tt.textContent = "Spieler für " + (slot ? slot.role : "Position");
     const ss = document.getElementById("luPanelSub"); if (ss) ss.textContent = lb.assign[key] ? "Ersetzen oder Position leeren" : "Passenden Spieler antippen";
     lbRenderPanelBody(key);
-    document.getElementById("luScrim").classList.add("open");
-    document.getElementById("luPanel").classList.add("open");
+    blattAuf("luScrim", "luPanel");
     const grp = slot ? lbTeamPart(slot.role) : null;
     if (grp) { const h = document.querySelector('#luPanelBody [data-grp="' + grp + '"]'); if (h) h.scrollIntoView({ block: "start" }); }
   }
-  function lbClosePanel() {
-    const p = document.getElementById("luPanel"), s = document.getElementById("luScrim");
-    if (p) p.classList.remove("open"); if (s) s.classList.remove("open");
-  }
-  function lbOpenMore() { lbEnsurePanels(); lbRenderMoreBody(); document.getElementById("luMoreScrim").classList.add("open"); document.getElementById("luMore").classList.add("open"); }
-  function lbCloseMore() { const m = document.getElementById("luMore"), s = document.getElementById("luMoreScrim"); if (m) m.classList.remove("open"); if (s) s.classList.remove("open"); }
+  function lbClosePanel() { blattZu("luScrim", "luPanel"); }
+  function lbOpenMore() { lbEnsurePanels(); lbRenderMoreBody(); blattAuf("luMoreScrim", "luMore"); }
+  function lbCloseMore() { blattZu("luMoreScrim", "luMore"); }
 
   /* =========================================================================
      AUFSTELLUNG v2 (Neubau). Aktiv bei LINEUP_V2 = true; die Legacy-Seite
@@ -3710,7 +3754,11 @@
     }, { passive: true });
   }
   function tvTeardownPanels() { const w = document.getElementById("tvPanels"); if (w && w.parentNode) w.parentNode.removeChild(w); }
-  function tvClosePanels() { ["tvScrimKader","tvSheetKader","tvScrimForm","tvSheetForm","tvScrimMenu","tvSheetMenu"].forEach(id => { const e = document.getElementById(id); if (e) e.classList.remove("open"); }); }
+  function tvClosePanels() {
+    blattZu("tvScrimKader", "tvSheetKader");
+    blattZu("tvScrimForm",  "tvSheetForm");
+    blattZu("tvScrimMenu",  "tvSheetMenu");
+  }
 
   /* C2: Tauschen per Tap.
      Erster Tap auf eine BESETZTE Position markiert sie (goldener Ring).
@@ -3764,8 +3812,7 @@
     document.getElementById("tvKaderSub").textContent = tv.assign[key] ? "Ersetzen oder Position leeren" : "Passenden Spieler antippen";
     document.getElementById("tvKaderAction").innerHTML = "";   // Sammel-Button nur im Bank-Modus
     tvRenderKaderBody(key);
-    document.getElementById("tvScrimKader").classList.add("open");
-    document.getElementById("tvSheetKader").classList.add("open");
+    blattAuf("tvScrimKader", "tvSheetKader");
     const grp = slot ? lbTeamPart(slot.role) : null;
     if (grp) { const el = document.querySelector('#tvKaderBody [data-tvgrp="' + grp + '"]'); if (el) el.scrollIntoView({ block: "start" }); }
   }
@@ -3777,8 +3824,7 @@
     document.getElementById("tvKaderSub").textContent = "Ersatzspieler antippen (" + tv.bank.length + "/" + TV_BANK_MAX + ")";
     tvRenderKaderAction();
     tvRenderKaderBody(null);
-    document.getElementById("tvScrimKader").classList.add("open");
-    document.getElementById("tvSheetKader").classList.add("open");
+    blattAuf("tvScrimKader", "tvSheetKader");
   }
   // Sammel-Button „Alle Zugesagten auf die Bank" (nur Bank-Modus, fest über der Liste).
   function tvBankCandidates() {
@@ -3809,7 +3855,7 @@
     tvCloseKader(); tvViewLineup();
     tvToast(left > 0 ? (take.length + " gesetzt · " + left + " passten nicht mehr") : (take.length + " Zugesagte auf die Bank"));
   }
-  function tvCloseKader() { tv.sel = null; const s = document.getElementById("tvScrimKader"), p = document.getElementById("tvSheetKader"); if (s) s.classList.remove("open"); if (p) p.classList.remove("open"); }
+  function tvCloseKader() { tv.sel = null; blattZu("tvScrimKader", "tvSheetKader"); }
   function tvRenderKaderBody(key) {
     const body = document.getElementById("tvKaderBody"); if (!body) return;
     const placed = tvPlacedAll();                                      // Startelf UND Bank = vergeben
@@ -3839,10 +3885,9 @@
     document.getElementById("tvFormTitle").textContent = tvFavMode ? "Favoriten bearbeiten" : "Formation wechseln";
     document.getElementById("tvFormSub").textContent = tvFavMode ? "2 bis 4 markieren" : "Tippen zum Wechseln · Stern = Favorit";
     tvRenderFgrid(); tvRenderFormActions();
-    document.getElementById("tvScrimForm").classList.add("open");
-    document.getElementById("tvSheetForm").classList.add("open");
+    blattAuf("tvScrimForm", "tvSheetForm");
   }
-  function tvCloseForm() { const s = document.getElementById("tvScrimForm"), p = document.getElementById("tvSheetForm"); if (s) s.classList.remove("open"); if (p) p.classList.remove("open"); }
+  function tvCloseForm() { blattZu("tvScrimForm", "tvSheetForm"); }
   function tvRenderFgrid() {
     document.getElementById("tvFgrid").innerHTML = Object.keys(FORMATIONS).map(f => {
       const fav = tvFav.includes(f), on = (!tvFavMode && f === tv.formation) || (tvFavMode && fav);
@@ -3866,10 +3911,9 @@
         '<small>' + esc(l.formation) + '</small></button>').join("") : "") +
       '<button class="tv-mi" data-tvfavedit>Favoriten bearbeiten</button>' +
       '<button class="tv-mi danger" data-tvclear>Aufstellung leeren</button>';
-    document.getElementById("tvScrimMenu").classList.add("open");
-    document.getElementById("tvSheetMenu").classList.add("open");
+    blattAuf("tvScrimMenu", "tvSheetMenu");
   }
-  function tvCloseMenu() { const s = document.getElementById("tvScrimMenu"), p = document.getElementById("tvSheetMenu"); if (s) s.classList.remove("open"); if (p) p.classList.remove("open"); }
+  function tvCloseMenu() { blattZu("tvScrimMenu", "tvSheetMenu"); }
 
   let tvToastT = 0;
   function tvToast(msg) { const t = document.getElementById("tvToast"); if (!t) return; t.textContent = msg; t.classList.add("show"); clearTimeout(tvToastT); tvToastT = setTimeout(() => t.classList.remove("show"), 2000); }
@@ -4114,12 +4158,10 @@
     zmEnsure();
     zm.zahlart = ""; zm.note = "";
     zmRender();
-    const s = document.getElementById("zmScrim"), p = document.getElementById("zmBl");
-    if (s) s.classList.add("open"); if (p) p.classList.add("open");
+    blattAuf("zmScrim", "zmBl");
   }
   function zmClose() {
-    const s = document.getElementById("zmScrim"), p = document.getElementById("zmBl");
-    if (s) s.classList.remove("open"); if (p) p.classList.remove("open");
+    blattZu("zmScrim", "zmBl");
   }
 
   async function zmSenden() {
@@ -4232,14 +4274,23 @@
     players: [], items: {}, bezug: {}, indiv: [],
     indivBetrag: "", indivGrund: "",
     date: new Date().toISOString().slice(0, 10), comment: "",
-    tab: "pruefen", spFilter: "",
+    tab: "pruefen",
     pruefIdx: 0,       // welche Meldung im Kartenstapel gerade vorn liegt
     zahlart: {},       // gewaehlte Zahlart je Strafe, Vorgabe: Angabe des Spielers
-    formOpen: false,   // „Strafe verhaengen" ist eingeklappt, bis jemand es oeffnet
-    // Welche Bloecke das Formular zeigt. Der Vollbild-Waehler setzt einen,
+    // Welche eigene Seite offen ist: null | "katalog" | "indiv".
+    seite: null,
+    // Welche Bloecke die Seite zeigt. Der Vollbild-Waehler setzt einen,
     // der Link „Auch ..." holt den zweiten dazu - gemischte Vorgaenge bleiben
     // moeglich, weil beide Bloecke in denselben kasseBuild() laufen.
     bloecke: { katalog: false, indiv: false },
+    /* Filter je Reiter getrennt: wer in „Offen" nach einem Spieler sucht,
+       will in „Eingegangen" nicht denselben Ausschnitt sehen. Sie ueberleben
+       den Reiterwechsel, nicht aber einen Neustart der App. */
+    filter: { offen: { spieler: [], sort: "neu", zeit: "alle" },
+              bezahlt: { spieler: [], sort: "neu", zeit: "alle" } },
+    // Entwurf des Filterblatts: „Anwenden" schreibt ihn nach filter[tab].
+    flEntwurf: null,
+    suche: "",         // Frage im Vollbild „Spieler suchen"
   };
 
   /* Zahlart-Symbole. Die Vorlage zeigt sie im Buchen-Blatt, in der Zeile
@@ -4384,7 +4435,12 @@
       </div>`;
   }
 
-  const KASSE_ZAHLARTEN = [["bar", "bar"], ["ueberweisung", "Überweisung"], ["paypal", "PayPal"]];
+  /* Reihenfolge der Auswahl: PayPal, Bar, Überweisung. Überall gleich - im
+     Buchen-Blatt, beim Melden und in jeder künftigen Stelle. Die Beschriftung
+     ist die kurze: „Überweisung" passt bei 390 px nicht in ein Drittel, ohne
+     abzuschneiden. In Listen und im Verlauf steht weiterhin das lange Wort,
+     dafür gibt es ZAHLART_LABEL. */
+  const KASSE_ZAHLARTEN = [["paypal", "PayPal"], ["bar", "Bar"], ["ueberweisung", "Überweisung"]];
 
   /* Reiter „Offen" (Vorlage 5B): eine Karte je Strafe, gebucht wird ueber das
      Blatt - die drei Zahlart-Chips sind aus der Zeile dorthin gewandert. */
@@ -4414,35 +4470,257 @@
     }).join("")}</div>`;
   }
 
-  /* Schmale Spielerzeile unter der Reiterleiste. Nur in „Offen" und
-     „Eingegangen": im Prüfstapel liegt ohnehin immer genau eine Meldung vorn. */
-  function ksFilterHtml(all) {
-    const players = [...new Set(all.map((s) => s.playerId))].map((id) => playerById[id])
-      .filter(Boolean).sort((a, b) => a.name.localeCompare(b.name));
-    if (players.length < 2) return "";
-    return `<label class="ks-fil"><span class="lbl">Spieler</span>
-      <select class="ks-fil-in" data-ks-filter aria-label="Nach Spieler filtern">
-        <option value="">Alle</option>
-        ${players.map((p) => `<option value="${p.id}"${kasse.spFilter === p.id ? " selected" : ""}>${esc(p.name)}</option>`).join("")}
-      </select></label>`;
+  /* ==========================================================================
+     Filter fuer „Offen" und „Eingegangen"
+
+     Alles hier ist rein rechnend und haengt an keinem DOM - dadurch laesst es
+     sich ohne Browser pruefen. Die Reiterzahlen bleiben ungefiltert; gefiltert
+     wird nur die Liste, und darueber steht, wie viele von wie vielen.
+     ========================================================================== */
+  const KS_ZEIT = [["alle", "Alle"], ["heute", "Heute"], ["7", "Letzte 7 Tage"], ["30", "Letzte 30 Tage"]];
+  const KS_SORT = {
+    // „Höchster Betrag zuerst" gibt es nur in „Offen": bei den eingegangenen
+    // Zahlungen sucht man nach Zeit, nicht nach Größe.
+    offen:   [["neu", "Neueste zuerst"], ["alt", "Älteste zuerst"], ["betrag", "Höchster Betrag zuerst"]],
+    bezahlt: [["neu", "Neueste zuerst"], ["alt", "Älteste zuerst"]],
+  };
+
+  function ksFilterNeu() { return { spieler: [], sort: "neu", zeit: "alle" }; }
+
+  /* Worauf sich der Zeitraum bezieht: in „Offen" das Datum der Strafe, in
+     „Eingegangen" das Buchungsdatum. Fehlt das Buchungsdatum (Altbestand),
+     fällt es auf das Strafendatum zurück, statt die Zeile verschwinden zu
+     lassen. */
+  function ksBezugsdatum(s, tab) {
+    if (tab === "bezahlt") return s.paidAt ? String(s.paidAt).slice(0, 10) : s.datum;
+    return s.datum;
   }
 
-  /* Das Markup der Kasse als reine Funktion. Sie liest nur aus `kasse`,
-     `playerById` und der uebergebenen Strafenliste - dadurch laesst sie sich
-     ohne Browser und ohne Datenbank mit Beispieldaten rendern, so wie es die
-     Gegenprobe gegen _neukasse.png tut. renderKasse() haengt sie nur ein. */
+  // „Letzte 7 Tage" heißt: heute und die sechs Tage davor.
+  function ksImZeitraum(iso, zeit, heute) {
+    if (!zeit || zeit === "alle") return true;
+    if (!iso) return false;
+    if (zeit === "heute") return iso === heute;
+    const tage = parseInt(zeit, 10);
+    if (!isFinite(tage)) return true;
+    const h = parseDate(heute), d = parseDate(iso);
+    const grenze = new Date(h.getTime() - (tage - 1) * 86400000);
+    return d.getTime() >= grenze.getTime() && d.getTime() <= h.getTime();
+  }
+
+  function ksSortieren(liste, sort, tab) {
+    const d = (x) => ksBezugsdatum(x, tab);
+    const name = (x) => (x.player && x.player.name) || "";
+    const kopie = liste.slice();
+    if (sort === "betrag") {
+      return kopie.sort((a, b) => (b.betrag - a.betrag) || name(a).localeCompare(name(b)));
+    }
+    const alt = sort === "alt";
+    return kopie.sort((a, b) => {
+      const v = String(d(a)).localeCompare(String(d(b)));
+      if (v !== 0) return alt ? v : -v;
+      return name(a).localeCompare(name(b));
+    });
+  }
+
+  function ksFiltern(liste, f, tab, heute) {
+    let l = liste;
+    if (f.spieler && f.spieler.length) l = l.filter((s) => f.spieler.indexOf(s.playerId) !== -1);
+    if (f.zeit && f.zeit !== "alle") l = l.filter((s) => ksImZeitraum(ksBezugsdatum(s, tab), f.zeit, heute));
+    return ksSortieren(l, f.sort, tab);
+  }
+
+  /* Wie viele Filter stehen? Jeder Spieler zählt einzeln, Zeitraum und
+     Sortierung je einmal - aber nur, wenn sie vom Standard abweichen. */
+  function ksFilterAnzahl(f) {
+    if (!f) return 0;
+    return (f.spieler ? f.spieler.length : 0)
+      + (f.zeit && f.zeit !== "alle" ? 1 : 0)
+      + (f.sort && f.sort !== "neu" ? 1 : 0);
+  }
+
+  /* Namenssuche: Groß- und Kleinschreibung egal, Umlaute tolerant in beide
+     Richtungen („muller" findet „Müller", „Müller" findet „Muller"), und es
+     zählt jeder Teilstring, nicht nur der Wortanfang. */
+  function ksNorm(x) {
+    return String(x == null ? "" : x).toLowerCase()
+      .replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/ß/g, "ss")
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+  function ksSucheTrifft(name, frage) {
+    const q = ksNorm(frage).trim();
+    if (!q) return true;
+    return ksNorm(name).indexOf(q) !== -1;
+  }
+  function ksSpielerSuchen(liste, frage) {
+    return liste.filter((p) => ksSucheTrifft(p.name, frage));
+  }
+
+  /* --- Markup der Filterleiste --------------------------------------------- */
+  const ICON_FILTER = `<svg ${SVG}><path d="M3 5h18"/><path d="M6.5 12h11"/><path d="M10 19h4"/></svg>`;
+  const ICON_LUPE   = `<svg ${SVG}><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>`;
+
+  function ksFilterChips(f, tab) {
+    const chips = [];
+    (f.spieler || []).forEach((id) => {
+      const pl = playerById[id];
+      if (pl) chips.push(["sp:" + id, pl.name]);
+    });
+    if (f.zeit && f.zeit !== "alle") {
+      const z = KS_ZEIT.find((x) => x[0] === f.zeit);
+      if (z) chips.push(["zeit", z[1]]);
+    }
+    if (f.sort && f.sort !== "neu") {
+      const so = (KS_SORT[tab] || []).find((x) => x[0] === f.sort);
+      if (so) chips.push(["sort", so[1]]);
+    }
+    return chips;
+  }
+
+  function ksFilterleisteHtml(tab) {
+    const f = kasse.filter[tab] || ksFilterNeu();
+    const n = ksFilterAnzahl(f);
+    const chips = ksFilterChips(f, tab);
+    return `<div class="ks-fl">
+      <button type="button" class="ks-fl-b" data-ks-fl-auf>
+        <span class="ks-zi" aria-hidden="true">${ICON_FILTER}</span>
+        <span class="ks-fl-t">Filter</span>
+        ${n ? `<span class="ks-fl-n">${n}</span>` : ""}
+      </button>
+      ${chips.length ? `<div class="ks-fl-aktiv">${chips.map(([k, label]) =>
+        `<span class="ks-fl-chip">${esc(label)}<button type="button" data-ks-fl-weg="${esc(k)}"
+          aria-label="${esc(label)} entfernen">&times;</button></span>`).join("")}</div>` : ""}
+    </div>`;
+  }
+
+  // „12 von 140" - steht nur da, wenn wirklich gefiltert wird.
+  function ksTrefferHtml(gezeigt, gesamt, f) {
+    if (!ksFilterAnzahl(f) || gezeigt === gesamt) return "";
+    return `<div class="ks-treffer">${gezeigt} von ${gesamt}</div>`;
+  }
+
+  /* ==========================================================================
+     „Strafe verhängen" als eigene Seite
+
+     Der Vollbild-Wähler führt nicht mehr in den Kassen-Feed zurück, sondern auf
+     eine von zwei fokussierten Seiten: ohne Kennzahlen, ohne Reiter, ohne
+     untere Navigation. Beide teilen sich Kopf, Fuß und die Blöcke - nur die
+     Vorauswahl unterscheidet sie, und der Link unten holt den anderen Block
+     dazu. Der Schreibpfad bleibt kasseBuild() plus create_fines_batch.
+     ========================================================================== */
+  const KS_SEITE_TITEL = { katalog: "Strafe aus Katalog", indiv: "Individuelle Strafe" };
+
+  // Steht schon etwas drin? Entscheidet, ob „Schließen" nachfragt.
+  function ksSeiteBeruehrt() {
+    return !!(kasse.players.length || Object.keys(kasse.items).length || kasse.indiv.length
+      || String(kasse.indivBetrag).trim() || String(kasse.indivGrund).trim() || kasse.comment.trim());
+  }
+
+  function ksKatalogBlockHtml() {
+    return `
+      <div class="kasse-sub">Aus dem Katalog <span class="kasse-sub-hint">antippen zum Auswählen</span></div>
+      <div class="kat-list kasse-catlist">
+        ${DEMO.katalog.map((k) => {
+          const on = !!kasse.items[k.id];
+          const menge = (kasse.items[k.id] && kasse.items[k.id].menge) || 1;
+          const preis = k.typ === "staffel"
+            ? euro(k.proEinheit || 0).replace(/\s/g, " ") + " / " + (k.schritt || 1) + " " + esc(k.einheit || "")
+            : euro(k.betrag).replace(/\s/g, " ");
+          return `<div class="kasse-catrow${on ? " is-sel" : ""}">
+            <button type="button" class="kasse-catpick" data-kasse-catrow="${k.id}">
+              <span class="ks-check" aria-hidden="true">${on ? ICON_CHECK : ""}</span>
+              <span class="kat-name">${esc(k.vergehen)}${k.typ === "staffel" ? ` <span class="badge badge-auto">gestaffelt</span>` : ""}</span>
+              <span class="kat-amount">${preis}</span>
+            </button>
+            ${on && k.typ === "staffel" ? `<div class="kasse-bezugwrap">
+              <input class="kasse-in kasse-bezug" data-kasse-bezug="${k.id}" inputmode="decimal" placeholder="${esc(k.einheit || "Menge")}" value="${esc(kasse.bezug[k.id] || "")}">
+              ${k.maxBetrag != null ? `<span class="kasse-staffel-hint">max ${euro(k.maxBetrag).replace(/\s/g, " ")}</span>` : ""}
+            </div>` : ""}
+            ${on && k.typ !== "staffel" ? `<div class="kasse-qty">
+              <button type="button" class="qty-btn" data-kasse-qty="${k.id}" data-d="-1" aria-label="weniger">−</button>
+              <span class="qty-n">${menge}×</span>
+              <button type="button" class="qty-btn" data-kasse-qty="${k.id}" data-d="1" aria-label="mehr">+</button>
+            </div>` : ""}
+          </div>`;
+        }).join("")}
+      </div>`;
+  }
+
+  function ksIndivBlockHtml() {
+    return `
+      <div class="kasse-sub">Individuelle Strafe</div>
+      <input class="kasse-in" data-kasse-input="betrag" inputmode="decimal" placeholder="Betrag €" value="${esc(kasse.indivBetrag)}">
+      <input class="kasse-in" data-kasse-input="grund" type="text" placeholder="Grund" value="${esc(kasse.indivGrund)}">
+      <button type="button" class="btn kasse-addbtn" data-kasse-indiv-add>Hinzufügen</button>
+      ${kasse.indiv.length ? `<div class="ks-ichips">${kasse.indiv.map((e, i) => `
+        <span class="ks-ichip">${esc(e.grund)} · ${euro(parseFloat(String(e.betrag).replace(",", ".")) || 0).replace(/\s/g, " ")}
+          <button type="button" class="chip-x" data-kasse-indiv-del="${i}" aria-label="entfernen">×</button></span>`).join("")}</div>` : ""}`;
+  }
+
+  function ksSeiteHtml() {
+    const modus = kasse.seite;
+    const chosen = kasse.players.map((id) => playerById[id] && playerById[id].name).filter(Boolean);
+    const build = kasseBuild();
+    /* Die Reihenfolge folgt dem gewählten Weg: der Block, für den man sich
+       entschieden hat, steht oben. */
+    const bloecke = modus === "katalog"
+      ? [kasse.bloecke.katalog ? ksKatalogBlockHtml() : "", kasse.bloecke.indiv ? ksIndivBlockHtml() : ""]
+      : [kasse.bloecke.indiv ? ksIndivBlockHtml() : "", kasse.bloecke.katalog ? ksKatalogBlockHtml() : ""];
+    const fehlt = modus === "katalog"
+      ? (kasse.bloecke.indiv ? null : ["indiv", "Auch individuelle Strafe"])
+      : (kasse.bloecke.katalog ? null : ["katalog", "Auch aus dem Katalog"]);
+    const knopf = build.valid
+      ? `${build.entries} ${build.entries === 1 ? "Strafe" : "Strafen"} · ${euro(build.total).replace(/\s/g, " ")} speichern`
+      : "Strafe speichern";
+
+    return `
+      <div class="ks-seite">
+        <div class="ks-seite-kopf">
+          <button type="button" class="ks-seite-zur" data-ks-seite-zurueck>
+            <span aria-hidden="true">‹</span><span>Zurück</span>
+          </button>
+          <strong class="ks-seite-t">${esc(KS_SEITE_TITEL[modus] || "Strafe verhängen")}</strong>
+          <button type="button" class="tv-shx ks-seite-x" data-ks-seite-zu aria-label="Schließen">&times;</button>
+        </div>
+
+        <div class="ks-seite-body">
+          <button type="button" class="kasse-picker" data-ks-open-players>
+            <span class="kasse-picker-txt">${chosen.length ? chosen.length + " Spieler gewählt" : "Spieler auswählen"}</span>
+            <span class="kasse-picker-arrow" aria-hidden="true">›</span>
+          </button>
+          ${chosen.length ? `<div class="ks-gewaehlt">${chosen.map((n) => `<span class="ks-gchip">${esc(n)}</span>`).join("")}</div>` : ""}
+
+          ${bloecke.join("")}
+          ${fehlt ? `<button type="button" class="link-btn ks-auch" data-ks-auch="${fehlt[0]}">${fehlt[1]}</button>` : ""}
+
+          <div class="kasse-sub">Datum &amp; Kommentar</div>
+          <input class="kasse-in" type="date" data-kasse-date value="${kasse.date}" aria-label="Datum">
+          <textarea class="kasse-in kasse-comment" data-kasse-input="comment" rows="2" placeholder="Kommentar (optional)" aria-label="Kommentar">${esc(kasse.comment)}</textarea>
+
+          <div id="kasseSummary">${kasseSummaryHtml()}</div>
+        </div>
+
+        <div class="ks-seite-fuss">
+          <button class="btn btn-primary ks-seite-save" data-kasse-add${build.valid ? "" : " disabled"}>${knopf}</button>
+        </div>
+      </div>`;
+  }
+
   function kasseHtml(alle) {
+    if (kasse.seite) return ksSeiteHtml();
+
     const offen    = alle.filter((s) => s.st === "offen");
     const gemeldet = alle.filter((s) => s.st === "gemeldet");
-    const bezahlt  = alle.filter((s) => s.st === "bestätigt").sort((a, b) => (b.paidAt || "").localeCompare(a.paidAt || ""));
+    const bezahlt  = alle.filter((s) => s.st === "bestätigt");
     const offenGesamt    = offen.reduce((a, s) => a + s.betrag, 0);
     const gemeldetGesamt = gemeldet.reduce((a, s) => a + s.betrag, 0);
     const bezahltGesamt  = bezahlt.reduce((a, s) => a + s.betrag, 0);
-    const chosen = kasse.players.map((id) => playerById[id] && playerById[id].name).filter(Boolean);
-    const build = kasseBuild();
-    const sp = kasse.spFilter;
-    const offenGef   = sp ? offen.filter((s) => s.playerId === sp) : offen;
-    const bezahltGef = sp ? bezahlt.filter((s) => s.playerId === sp) : bezahlt;
+    /* Gefiltert wird nur die Liste. Die Reiterzahlen und die Kennzahlen oben
+       bleiben die Gesamtzahlen - sonst wüsste man nicht mehr, wovon man einen
+       Ausschnitt sieht. */
+    const fOffen = kasse.filter.offen, fBez = kasse.filter.bezahlt;
+    const offenGef   = ksFiltern(offen,   fOffen, "offen",   HEUTE);
+    const bezahltGef = ksFiltern(bezahlt, fBez,   "bezahlt", HEUTE);
     const zaehler = { pruefen: gemeldet.length, offen: offen.length, bezahlt: bezahlt.length };
     const REITER = [["pruefen", "Zu prüfen"], ["offen", "Offen"], ["bezahlt", "Eingegangen"]];
 
@@ -4467,65 +4745,9 @@
         </button>
       </div>
 
-      ${!kasse.formOpen ? `
       <button type="button" class="ks-neu" data-ks-wahl>
         ${ICON_PLUS}<span>Strafe verhängen</span>
-      </button>` : `
-      <div class="section-title"><h2>Strafe verhängen</h2>
-        <button class="link-btn" data-kasse-toggle>Schließen</button></div>
-      <div class="card card-pad kasse-add">
-        <button type="button" class="kasse-picker" data-ks-open-players>
-          <span class="kasse-picker-txt">${chosen.length ? chosen.length + " Spieler gewählt" : "Spieler auswählen"}</span>
-          <span class="kasse-picker-arrow" aria-hidden="true">›</span>
-        </button>
-        ${chosen.length ? `<div class="kasse-chosen">${chosen.map(esc).join(", ")}</div>` : ""}
-
-        ${!kasse.bloecke.katalog ? "" : `
-        <div class="kasse-sub">Aus dem Katalog <span class="kasse-sub-hint">antippen zum Auswählen</span></div>
-        <div class="kat-list kasse-catlist">
-          ${DEMO.katalog.map((k) => {
-            const on = !!kasse.items[k.id];
-            const menge = (kasse.items[k.id] && kasse.items[k.id].menge) || 1;
-            const preis = k.typ === "staffel"
-              ? euro(k.proEinheit || 0).replace(/\s/g, " ") + " / " + (k.schritt || 1) + " " + esc(k.einheit || "")
-              : euro(k.betrag).replace(/\s/g, " ");
-            return `<div class="kasse-catrow${on ? " is-sel" : ""}">
-              <button type="button" class="kasse-catpick" data-kasse-catrow="${k.id}">
-                <span class="ks-check" aria-hidden="true">${on ? ICON_CHECK : ""}</span>
-                <span class="kat-name">${esc(k.vergehen)}${k.typ === "staffel" ? ` <span class="badge badge-auto">gestaffelt</span>` : ""}</span>
-                <span class="kat-amount">${preis}</span>
-              </button>
-              ${on && k.typ === "staffel" ? `<div class="kasse-bezugwrap">
-                <input class="kasse-in kasse-bezug" data-kasse-bezug="${k.id}" inputmode="decimal" placeholder="${esc(k.einheit || "Menge")}" value="${esc(kasse.bezug[k.id] || "")}">
-                ${k.maxBetrag != null ? `<span class="kasse-staffel-hint">max ${euro(k.maxBetrag).replace(/\s/g, " ")}</span>` : ""}
-              </div>` : ""}
-              ${on && k.typ !== "staffel" ? `<div class="kasse-qty">
-                <button type="button" class="qty-btn" data-kasse-qty="${k.id}" data-d="-1" aria-label="weniger">−</button>
-                <span class="qty-n">${menge}×</span>
-                <button type="button" class="qty-btn" data-kasse-qty="${k.id}" data-d="1" aria-label="mehr">+</button>
-              </div>` : ""}
-            </div>`;
-          }).join("")}
-        </div>
-        ${kasse.bloecke.indiv ? "" : `<button type="button" class="link-btn ks-auch" data-ks-auch="indiv">Auch individuelle Strafe</button>`}`}
-
-        ${!kasse.bloecke.indiv ? "" : `
-        <div class="kasse-sub">Individuelle Strafe</div>
-        <input class="kasse-in" data-kasse-input="betrag" inputmode="decimal" placeholder="Betrag €" value="${esc(kasse.indivBetrag)}">
-        <input class="kasse-in" data-kasse-input="grund" type="text" placeholder="Grund" value="${esc(kasse.indivGrund)}">
-        <button type="button" class="btn kasse-addbtn" data-kasse-indiv-add>Hinzufügen</button>
-        ${kasse.indiv.length ? `<div class="ks-ichips">${kasse.indiv.map((e, i) => `
-          <span class="ks-ichip">${esc(e.grund)} · ${euro(parseFloat(String(e.betrag).replace(",", ".")) || 0).replace(/\s/g, " ")}
-            <button type="button" class="chip-x" data-kasse-indiv-del="${i}" aria-label="entfernen">×</button></span>`).join("")}</div>` : ""}
-        ${kasse.bloecke.katalog ? "" : `<button type="button" class="link-btn ks-auch" data-ks-auch="katalog">Auch aus dem Katalog</button>`}`}
-
-        <div class="kasse-sub">Datum &amp; Kommentar</div>
-        <input class="kasse-in" type="date" data-kasse-date value="${kasse.date}" aria-label="Datum">
-        <textarea class="kasse-in kasse-comment" data-kasse-input="comment" rows="2" placeholder="Kommentar (optional)" aria-label="Kommentar">${esc(kasse.comment)}</textarea>
-
-        <div id="kasseSummary">${kasseSummaryHtml()}</div>
-        <button class="tv-primary kasse-save" data-kasse-add${build.valid ? "" : " disabled"}>Strafen speichern</button>
-      </div>`}
+      </button>
 
       <div class="section-title kasse-verbuchen"><h2>Prüfen und verbuchen</h2></div>
       <div class="ks-pane">
@@ -4533,13 +4755,22 @@
           ${REITER.map(([k, label]) => `<button class="ks-seg-b${kasse.tab === k ? " is-on" : ""}" role="tab"
             aria-selected="${kasse.tab === k}" data-kstab="${k}">${label} <span class="ks-seg-n">${zaehler[k]}</span></button>`).join("")}
         </div>
-        ${kasse.tab === "offen"   ? ksFilterHtml(offen) : ""}
-        ${kasse.tab === "bezahlt" ? ksFilterHtml(bezahlt) : ""}
         ${kasse.tab === "pruefen" ? renderKassePruefen(gemeldet) : ""}
-        ${kasse.tab === "offen"   ? renderKasseOffen(offenGef, offen) : ""}
-        ${kasse.tab === "bezahlt" ? renderKasseEing(bezahltGef, bezahlt) : ""}
+        ${kasse.tab === "offen" ? ksFilterleisteHtml("offen") + ksTrefferHtml(offenGef.length, offen.length, fOffen)
+            + renderKasseOffen(offenGef, offen) : ""}
+        ${kasse.tab === "bezahlt" ? ksFilterleisteHtml("bezahlt") + ksTrefferHtml(bezahltGef.length, bezahlt.length, fBez)
+            + renderKasseEing(bezahltGef, bezahlt) : ""}
       </div>
     `;
+  }
+
+  /* Die Seite verlassen: Eingaben und Blockwahl fallen zurueck, damit der
+     naechste Vorgang wieder sauber ueber den Waehler geht. */
+  function ksSeiteLeeren() {
+    kasse.seite = null;
+    kasse.bloecke = { katalog: false, indiv: false };
+    kasse.players = []; kasse.items = {}; kasse.bezug = {}; kasse.indiv = [];
+    kasse.indivBetrag = ""; kasse.indivGrund = ""; kasse.comment = "";
   }
 
   function renderKasse() {
@@ -4547,6 +4778,9 @@
       .map((s) => ({ ...s, betrag: strafeBetrag(s), st: fineStatus(s), player: playerById[s.playerId] }))
       .filter((s) => s.player);
     viewEl.innerHTML = kasseHtml(alle);
+    // Auf den beiden „Strafe verhängen"-Seiten ist die untere Navigation weg:
+    // sie sind ein Vorgang mit Anfang und Ende, kein Ziel zum Hinspringen.
+    document.body.classList.toggle("ks-seite-offen", !!kasse.seite);
     ksAttachSwipe();
     startCountdowns();
   }
@@ -4619,14 +4853,14 @@
     const btn = viewEl.querySelector("[data-kasse-add]"); if (btn) btn.disabled = true;
     try {
       await DB.createFinesBatch(rows, kasse.comment.trim() || null);
-      kasse.players = []; kasse.items = {}; kasse.bezug = {}; kasse.indiv = [];
-      kasse.formOpen = false;                      // nach dem Speichern wieder einklappen
-      kasse.bloecke = { katalog: false, indiv: false };
-      kasse.indivBetrag = ""; kasse.indivGrund = ""; kasse.comment = "";
-      // Zurueck zur Uebersicht und gleich dorthin, wo die neue Strafe liegt.
-      kasse.tab = "offen"; kasse.spFilter = "";
+      const n = rows.length;
+      ksSeiteLeeren();
+      // Zurueck zur Kassen-Startseite und gleich dorthin, wo die neuen
+      // Strafen liegen. Ein stehender Filter koennte sie verstecken - deshalb
+      // faellt er hier zurueck.
+      kasse.tab = "offen"; kasse.filter.offen = ksFilterNeu();
       await reloadData();                          // rendert Kasse neu (aktualisierte Listen)
-      tvToast(rows.length + (rows.length > 1 ? " Einträge" : " Eintrag") + " gespeichert");
+      tvToast(n + (n === 1 ? " Strafe verhängt" : " Strafen verhängt"));
     } catch (e) {
       if (btn) btn.disabled = false;
       try { console.error("Strafen anlegen fehlgeschlagen:", { code: e && e.code, message: e && e.message, details: e && e.details, hint: e && e.hint }); } catch (x) {}
@@ -4635,40 +4869,259 @@
   }
 
   /* ---- Vollbild-Spielerauswahl der Kasse (Stil wie die Trainer-Kaderauswahl) ---- */
-  function ksEnsureSheet() {
-    if (document.getElementById("ksSheet")) return;
-    const scrim = document.createElement("div"); scrim.className = "tv-scrim"; scrim.id = "ksScrim"; scrim.setAttribute("data-ks-close", "");
-    const sheet = document.createElement("div"); sheet.className = "tv-sheet tv-kfull"; sheet.id = "ksSheet";
-    sheet.innerHTML =
-      '<div class="tv-sh"><strong>Spieler auswählen</strong><button class="ks-done" data-ks-done>Fertig</button></div>' +
-      '<div class="tv-shbody" id="ksBody"></div>';
-    document.body.appendChild(scrim); document.body.appendChild(sheet);
-    scrim.addEventListener("click", ksClosePlayers);
-    sheet.addEventListener("click", (ev) => {
-      if (ev.target.closest("[data-ks-done]")) { ksClosePlayers(); return; }
-      const row = ev.target.closest("[data-ks-player]");
-      if (row) { const id = row.dataset.ksPlayer; const i = kasse.players.indexOf(id); if (i === -1) kasse.players.push(id); else kasse.players.splice(i, 1); ksRenderPlayers(); }
-    });
-    // Wisch-nach-unten zum Schließen (nur wenn oben in der Liste).
-    let sy = 0, dragging = false;
-    sheet.addEventListener("touchstart", (e) => { const b = document.getElementById("ksBody"); if (e.touches.length !== 1 || (b && b.scrollTop > 0)) { dragging = false; return; } sy = e.touches[0].clientY; dragging = true; sheet.style.transition = "none"; }, { passive: true });
-    sheet.addEventListener("touchmove", (e) => { if (!dragging) return; const dy = e.touches[0].clientY - sy; if (dy <= 0) { sheet.style.transform = "translateY(0)"; return; } sheet.style.transform = "translateY(" + dy + "px)"; }, { passive: true });
-    sheet.addEventListener("touchend", (e) => { if (!dragging) return; dragging = false; sheet.style.transition = ""; const dy = (e.changedTouches[0].clientY - sy); sheet.style.transform = ""; if (dy > 90) ksClosePlayers(); }, { passive: true });
+  /* Setzt den Fokus in ein Suchfeld, sobald das Blatt steht. Zwei Anläufe:
+     iOS gibt die Tastatur nur frei, wenn der Fokus aus einer Nutzergeste
+     kommt - der zweite Anlauf nach dem Aufbau fängt die Fälle ab, in denen
+     das Feld im ersten Moment noch nicht im Dokument hing. */
+  function ksFokusSuche(id) {
+    const setz = () => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); }
+      try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) {}
+    };
+    setz();
+    requestAnimationFrame(setz);
   }
-  function ksRenderPlayers() {
-    const body = document.getElementById("ksBody"); if (!body) return;
-    const spieler = [...DEMO.players].sort((a, b) => nachname(a.name).localeCompare(nachname(b.name), "de"));
-    body.innerHTML = `<div class="kat-list ks-plist">${spieler.map((p) => {
-      const on = kasse.players.includes(p.id);
-      return `<button type="button" class="kat-item ks-prow${on ? " is-sel" : ""}" data-ks-player="${p.id}">
+
+  /* Suchfeld im Kopf eines Blattes. Immer gleich gebaut, damit „Spieler
+     auswählen" und „Spieler suchen" sich gleich anfühlen. */
+  function ksSuchfeldHtml(id, wert, platz) {
+    return `<div class="ks-suchfeld">
+      <span class="ks-zi" aria-hidden="true">${ICON_LUPE}</span>
+      <input class="ks-such-in" id="${id}" type="search" inputmode="search" autocomplete="off"
+        value="${esc(wert || "")}" placeholder="${esc(platz)}" aria-label="${esc(platz)}">
+      ${wert ? `<button type="button" class="ks-such-x" data-ks-such-leer aria-label="Suche leeren">&times;</button>` : ""}
+    </div>`;
+  }
+
+  function ksSpielerZeilenHtml(gewaehlt, frage, attr) {
+    const alle = [...DEMO.players].sort((a, b) => nachname(a.name).localeCompare(nachname(b.name), "de"));
+    const treffer = ksSpielerSuchen(alle, frage);
+    if (!treffer.length) {
+      return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Kein Treffer</div>
+        <div class="rs">Kein Spieler heißt so.</div></div>`;
+    }
+    return `<div class="kat-list ks-plist">${treffer.map((p) => {
+      const on = gewaehlt.indexOf(p.id) !== -1;
+      return `<button type="button" class="kat-item ks-prow${on ? " is-sel" : ""}" ${attr}="${p.id}">
         <span class="avatar">${initials(p.name)}</span>
         <span class="kat-name">${esc(p.name)}</span>
         <span class="ks-check" aria-hidden="true">${on ? ICON_CHECK : ""}</span>
       </button>`;
     }).join("")}</div>`;
   }
-  function ksOpenPlayers() { ksEnsureSheet(); ksRenderPlayers(); const s = document.getElementById("ksScrim"), p = document.getElementById("ksSheet"); if (s) s.classList.add("open"); if (p) p.classList.add("open"); }
-  function ksClosePlayers() { const s = document.getElementById("ksScrim"), p = document.getElementById("ksSheet"); if (s) s.classList.remove("open"); if (p) p.classList.remove("open"); if (currentView === "kasse") renderKasse(); }
+
+  function ksGewaehltChipsHtml(ids, attr) {
+    if (!ids.length) return "";
+    return `<div class="ks-gewaehlt">${ids.map((id) => {
+      const p = playerById[id];
+      if (!p) return "";
+      return `<span class="ks-gchip">${esc(p.name)}<button type="button" ${attr}="${id}"
+        aria-label="${esc(p.name)} entfernen">&times;</button></span>`;
+    }).join("")}</div>`;
+  }
+
+  function ksEnsureSheet() {
+    if (document.getElementById("ksSheet")) return;
+    const scrim = document.createElement("div"); scrim.className = "tv-scrim"; scrim.id = "ksScrim"; scrim.setAttribute("data-ks-close", "");
+    const sheet = document.createElement("div"); sheet.className = "tv-sheet tv-kfull ks-such"; sheet.id = "ksSheet";
+    document.body.appendChild(scrim); document.body.appendChild(sheet);
+    scrim.addEventListener("click", ksClosePlayers);
+    sheet.addEventListener("click", (ev) => {
+      if (ev.target.closest("[data-ks-done]")) { ksClosePlayers(); return; }
+      if (ev.target.closest("[data-ks-such-leer]")) { kasse.suche = ""; ksRenderPlayers(); ksFokusSuche("ksSuche"); return; }
+      const weg = ev.target.closest("[data-ks-player-weg]");
+      if (weg) {
+        const i = kasse.players.indexOf(weg.dataset.ksPlayerWeg);
+        if (i >= 0) kasse.players.splice(i, 1);
+        ksRenderPlayers(); return;
+      }
+      const row = ev.target.closest("[data-ks-player]");
+      if (row) {
+        const id = row.dataset.ksPlayer; const i = kasse.players.indexOf(id);
+        if (i === -1) kasse.players.push(id); else kasse.players.splice(i, 1);
+        ksRenderPlayers();
+      }
+    });
+    // Tippen filtert die Liste, ohne das Feld neu zu zeichnen - sonst
+    // verliert es den Fokus und die Tastatur klappt zu.
+    sheet.addEventListener("input", (ev) => {
+      if (!ev.target.matches("#ksSuche")) return;
+      kasse.suche = ev.target.value;
+      const b = document.getElementById("ksBody");
+      if (b) b.innerHTML = ksSpielerZeilenHtml(kasse.players, kasse.suche, "data-ks-player");
+      const x = sheet.querySelector(".ks-such-x");
+      if (kasse.suche && !x) {
+        const f = sheet.querySelector(".ks-suchfeld");
+        if (f) f.insertAdjacentHTML("beforeend",
+          '<button type="button" class="ks-such-x" data-ks-such-leer aria-label="Suche leeren">&times;</button>');
+      } else if (!kasse.suche && x) { x.remove(); }
+    });
+  }
+
+  function ksRenderPlayers() {
+    const sheet = document.getElementById("ksSheet"); if (!sheet) return;
+    sheet.innerHTML =
+      '<div class="tv-sh"><strong>Spieler auswählen</strong>' +
+      '<button class="ks-done" data-ks-done>Fertig</button></div>' +
+      ksSuchfeldHtml("ksSuche", kasse.suche, "Name eingeben") +
+      ksGewaehltChipsHtml(kasse.players, "data-ks-player-weg") +
+      '<div class="tv-shbody" id="ksBody">' +
+      ksSpielerZeilenHtml(kasse.players, kasse.suche, "data-ks-player") + '</div>';
+  }
+
+  function ksOpenPlayers() { ksEnsureSheet(); kasse.suche = ""; ksRenderPlayers(); blattAuf("ksScrim", "ksSheet"); ksFokusSuche("ksSuche"); }
+  function ksClosePlayers() { blattZu("ksScrim", "ksSheet"); if (currentView === "kasse") renderKasse(); }
+
+  /* ==========================================================================
+     Filter-Blatt und Vollbild „Spieler suchen"
+
+     Das Filterblatt arbeitet auf einem Entwurf. Erst „Anwenden" schreibt ihn
+     in kasse.filter[tab] - wer zwischendurch schließt, ändert nichts. Die
+     Spielersuche liegt als zweites Blatt darüber; der Stapel in blattAuf()
+     sorgt dafür, dass die Navigation erst wiederkommt, wenn beide zu sind.
+     ========================================================================== */
+  function ksFlTab() { return kasse.tab === "bezahlt" ? "bezahlt" : "offen"; }
+
+  function ksFlEnsure() {
+    if (document.getElementById("ksFlBl")) return;
+    const scrim = document.createElement("div"); scrim.className = "tv-scrim"; scrim.id = "ksFlScrim";
+    const sheet = document.createElement("div"); sheet.className = "tv-sheet ks-bl ks-flbl"; sheet.id = "ksFlBl";
+    sheet.setAttribute("role", "dialog"); sheet.setAttribute("aria-modal", "true");
+    sheet.setAttribute("aria-label", "Filter");
+    document.body.appendChild(scrim); document.body.appendChild(sheet);
+    scrim.addEventListener("click", ksFlZu);
+    sheet.addEventListener("click", (ev) => {
+      if (ev.target.closest("[data-ks-fl-close]")) { ksFlZu(); return; }
+      if (ev.target.closest("[data-ks-fl-spieler]")) { ksSuAuf(); return; }
+      const so = ev.target.closest("[data-ks-fl-sort]");
+      if (so) { kasse.flEntwurf.sort = so.dataset.ksFlSort; ksFlRender(); return; }
+      const ze = ev.target.closest("[data-ks-fl-zeit]");
+      if (ze) { kasse.flEntwurf.zeit = ze.dataset.ksFlZeit; ksFlRender(); return; }
+      if (ev.target.closest("[data-ks-fl-reset]")) { kasse.flEntwurf = ksFilterNeu(); ksFlRender(); return; }
+      if (ev.target.closest("[data-ks-fl-ok]")) {
+        kasse.filter[ksFlTab()] = kasse.flEntwurf;
+        ksFlZu();
+        if (currentView === "kasse") renderKasse();
+        return;
+      }
+    });
+  }
+
+  function ksFlRender() {
+    const sheet = document.getElementById("ksFlBl"); if (!sheet) return;
+    const tab = ksFlTab(), f = kasse.flEntwurf;
+    const wahl = (liste, wert, attr) => `<div class="ks-wahlliste">${liste.map(([k, label]) =>
+      `<button type="button" class="ks-wahlz${wert === k ? " is-on" : ""}" ${attr}="${k}">
+        <span>${esc(label)}</span>
+        <span class="ks-check" aria-hidden="true">${wert === k ? ICON_CHECK : ""}</span>
+      </button>`).join("")}</div>`;
+    const n = f.spieler.length;
+    sheet.innerHTML =
+      '<div class="tv-sh"><span class="tv-grip"></span><strong>Filter</strong>' +
+      '<button class="tv-shx" data-ks-fl-close aria-label="Schließen">&times;</button></div>' +
+      '<div class="tv-shbody">' +
+        '<button type="button" class="ks-fl-suche" data-ks-fl-spieler>' +
+          '<span class="ks-zi" aria-hidden="true">' + ICON_LUPE + '</span>' +
+          '<span class="ks-fl-suche-t">Spieler suchen</span>' +
+          '<span class="ks-fl-suche-n">' + (n ? n + (n === 1 ? " gewählt" : " gewählt") : "alle") + '</span>' +
+          '<span class="kasse-picker-arrow" aria-hidden="true">›</span>' +
+        '</button>' +
+        ksGewaehltChipsHtml(f.spieler, "data-ks-fl-sp-weg") +
+        '<div class="lbl ks-bl-lbl">Sortierung</div>' + wahl(KS_SORT[tab], f.sort, "data-ks-fl-sort") +
+        '<div class="lbl ks-bl-lbl">Zeitraum</div>' + wahl(KS_ZEIT, f.zeit, "data-ks-fl-zeit") +
+        '<div class="ks-fl-hinweis">' +
+          (tab === "bezahlt" ? "Der Zeitraum zählt ab dem Buchungsdatum."
+                             : "Der Zeitraum zählt ab dem Datum der Strafe.") +
+        '</div>' +
+      '</div>' +
+      '<div class="ks-fl-fuss">' +
+        '<button type="button" class="btn" data-ks-fl-reset>Filter zurücksetzen</button>' +
+        '<button type="button" class="btn btn-primary" data-ks-fl-ok>Anwenden</button>' +
+      '</div>';
+    // Chips im Entwurf sind auch hier einzeln abwählbar.
+    sheet.querySelectorAll("[data-ks-fl-sp-weg]").forEach((b) => {
+      b.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        const i = f.spieler.indexOf(b.dataset.ksFlSpWeg);
+        if (i >= 0) f.spieler.splice(i, 1);
+        ksFlRender();
+      });
+    });
+  }
+
+  function ksFlAuf() {
+    ksFlEnsure();
+    const f = kasse.filter[ksFlTab()] || ksFilterNeu();
+    // Tiefe Kopie: der Entwurf darf den stehenden Filter nicht anfassen.
+    kasse.flEntwurf = { spieler: f.spieler.slice(), sort: f.sort, zeit: f.zeit };
+    ksFlRender();
+    blattAuf("ksFlScrim", "ksFlBl");
+  }
+  function ksFlZu() { ksSuZu(); blattZu("ksFlScrim", "ksFlBl"); }
+
+  /* --- Vollbild „Spieler suchen" (liegt über dem Filterblatt) -------------- */
+  function ksSuEnsure() {
+    if (document.getElementById("ksSuBl")) return;
+    const scrim = document.createElement("div"); scrim.className = "tv-scrim"; scrim.id = "ksSuScrim";
+    const sheet = document.createElement("div"); sheet.className = "tv-sheet tv-kfull ks-such"; sheet.id = "ksSuBl";
+    sheet.setAttribute("role", "dialog"); sheet.setAttribute("aria-modal", "true");
+    sheet.setAttribute("aria-label", "Spieler suchen");
+    document.body.appendChild(scrim); document.body.appendChild(sheet);
+    scrim.addEventListener("click", ksSuZu);
+    sheet.addEventListener("click", (ev) => {
+      if (ev.target.closest("[data-ks-su-close]")) { ksSuZu(); return; }
+      if (ev.target.closest("[data-ks-such-leer]")) { kasse.suche = ""; ksSuRender(); ksFokusSuche("ksSuIn"); return; }
+      const weg = ev.target.closest("[data-ks-su-weg]");
+      if (weg) {
+        const i = kasse.flEntwurf.spieler.indexOf(weg.dataset.ksSuWeg);
+        if (i >= 0) kasse.flEntwurf.spieler.splice(i, 1);
+        ksSuRender(); return;
+      }
+      const row = ev.target.closest("[data-ks-su-player]");
+      if (row) {
+        const id = row.dataset.ksSuPlayer, l = kasse.flEntwurf.spieler;
+        const i = l.indexOf(id);
+        if (i === -1) l.push(id); else l.splice(i, 1);
+        ksSuRender();
+      }
+    });
+    sheet.addEventListener("input", (ev) => {
+      if (!ev.target.matches("#ksSuIn")) return;
+      kasse.suche = ev.target.value;
+      const b = document.getElementById("ksSuBody");
+      if (b) b.innerHTML = ksSpielerZeilenHtml(kasse.flEntwurf.spieler, kasse.suche, "data-ks-su-player");
+      const x = sheet.querySelector(".ks-such-x");
+      if (kasse.suche && !x) {
+        const fe = sheet.querySelector(".ks-suchfeld");
+        if (fe) fe.insertAdjacentHTML("beforeend",
+          '<button type="button" class="ks-such-x" data-ks-such-leer aria-label="Suche leeren">&times;</button>');
+      } else if (!kasse.suche && x) { x.remove(); }
+    });
+  }
+
+  function ksSuRender() {
+    const sheet = document.getElementById("ksSuBl"); if (!sheet) return;
+    sheet.innerHTML =
+      '<div class="tv-sh"><strong>Spieler suchen</strong>' +
+      '<button class="ks-done" data-ks-su-close>Fertig</button></div>' +
+      ksSuchfeldHtml("ksSuIn", kasse.suche, "Name eingeben") +
+      ksGewaehltChipsHtml(kasse.flEntwurf.spieler, "data-ks-su-weg") +
+      '<div class="tv-shbody" id="ksSuBody">' +
+      ksSpielerZeilenHtml(kasse.flEntwurf.spieler, kasse.suche, "data-ks-su-player") + '</div>';
+  }
+
+  function ksSuAuf() {
+    ksSuEnsure(); kasse.suche = ""; ksSuRender();
+    blattAuf("ksSuScrim", "ksSuBl");
+    ksFokusSuche("ksSuIn");
+  }
+  function ksSuZu() {
+    if (!blattOffen("ksSuBl")) return;
+    blattZu("ksSuScrim", "ksSuBl");
+    ksFlRender();
+  }
 
   /* ---- Vollbild-Waehler „Strafe verhaengen" --------------------------------
      Genau zwei Wege, gleich gross, beide fuehren in dasselbe Formular - nur
@@ -4702,23 +5155,17 @@
       if (!m) return;
       const modus = m.dataset.ksModus;
       kasse.bloecke = { katalog: modus === "katalog", indiv: modus === "indiv" };
-      kasse.formOpen = true;
+      kasse.seite = modus;
       ksWahlClose();
-      if (currentView === "kasse") {
-        renderKasse();
-        const f = viewEl.querySelector(".kasse-add");
-        if (f && f.scrollIntoView) f.scrollIntoView({ block: "start", behavior: "smooth" });
-      }
+      if (currentView === "kasse") { renderKasse(); window.scrollTo(0, 0); }
     });
   }
   function ksWahlOpen() {
     ksWahlEnsure();
-    const s = document.getElementById("ksWahlScrim"), p = document.getElementById("ksWahl");
-    if (s) s.classList.add("open"); if (p) p.classList.add("open");
+    blattAuf("ksWahlScrim", "ksWahl");
   }
   function ksWahlClose() {
-    const s = document.getElementById("ksWahlScrim"), p = document.getElementById("ksWahl");
-    if (s) s.classList.remove("open"); if (p) p.classList.remove("open");
+    blattZu("ksWahlScrim", "ksWahl");
   }
 
   /* ---- Blatt: buchen und Detail -------------------------------------------
@@ -4807,12 +5254,10 @@
     ksBlattEnsure();
     ksBlatt.art = art; ksBlatt.id = id;
     ksBlattRender();
-    const s = document.getElementById("ksBlScrim"), p = document.getElementById("ksBl");
-    if (s) s.classList.add("open"); if (p) p.classList.add("open");
+    blattAuf("ksBlScrim", "ksBl");
   }
   function ksBlattClose() {
-    const s = document.getElementById("ksBlScrim"), p = document.getElementById("ksBl");
-    if (s) s.classList.remove("open"); if (p) p.classList.remove("open");
+    blattZu("ksBlScrim", "ksBl");
     ksBlatt.art = null; ksBlatt.id = null;
   }
 
@@ -4925,8 +5370,6 @@
     if (ev.target.matches("[data-kasse-date]")) {
       kasse.date = ev.target.value || new Date().toISOString().slice(0, 10);
       const sum = document.getElementById("kasseSummary"); if (sum) sum.innerHTML = kasseSummaryHtml();
-    } else if (ev.target.matches("[data-ks-filter]")) {
-      kasse.spFilter = ev.target.value; renderKasse();
     }
   });
 
@@ -4961,10 +5404,34 @@
     if (currentView === "kasse") {
       if (ev.target.closest("[data-ks-open-players]")) { ksOpenPlayers(); return; }
 
-      // --- „Strafe verhängen": Vollbild-Wähler, dann das Formular ---
+      // --- „Strafe verhängen": Vollbild-Wähler, dann die eigene Seite ---
       if (ev.target.closest("[data-ks-wahl]")) { ksWahlOpen(); return; }
       const auch = ev.target.closest("[data-ks-auch]");
       if (auch) { kasse.bloecke[auch.dataset.ksAuch] = true; renderKasse(); return; }
+
+      // --- Kopf der Seite: zurück zur Auswahl, schließen zur Kasse ---
+      if (ev.target.closest("[data-ks-seite-zurueck]")) {
+        if (ksSeiteBeruehrt() && !window.confirm("Zurück zur Auswahl? Die Eingaben gehen verloren.")) return;
+        ksSeiteLeeren(); renderKasse(); ksWahlOpen(); return;
+      }
+      if (ev.target.closest("[data-ks-seite-zu]")) {
+        if (ksSeiteBeruehrt() && !window.confirm("Schließen? Die Eingaben gehen verloren.")) return;
+        ksSeiteLeeren(); renderKasse(); return;
+      }
+
+      // --- Filter ---
+      if (ev.target.closest("[data-ks-fl-auf]")) { ksFlAuf(); return; }
+      const flWeg = ev.target.closest("[data-ks-fl-weg]");
+      if (flWeg) {
+        const tab = ksFlTab(), f = kasse.filter[tab], wert = flWeg.dataset.ksFlWeg;
+        if (wert === "zeit") f.zeit = "alle";
+        else if (wert === "sort") f.sort = "neu";
+        else {
+          const i = f.spieler.indexOf(wert.slice(3));
+          if (i >= 0) f.spieler.splice(i, 1);
+        }
+        renderKasse(); return;
+      }
 
       // --- Anlage: Katalog auswählen / Menge / Individuell ---
       const crow = ev.target.closest("[data-kasse-catrow]");
@@ -4989,14 +5456,6 @@
       const idel = ev.target.closest("[data-kasse-indiv-del]");
       if (idel) { kasse.indiv.splice(parseInt(idel.dataset.kasseIndivDel, 10), 1); renderKasse(); return; }
       if (ev.target.closest("[data-kasse-add]")) { await kasseSave(); return; }
-
-      // --- Formular schließen. Die Blockwahl faellt mit zurueck, damit der
-      //     naechste Vorgang wieder ueber den Waehler geht. ---
-      if (ev.target.closest("[data-kasse-toggle]")) {
-        kasse.formOpen = false;
-        kasse.bloecke = { katalog: false, indiv: false };
-        renderKasse(); return;
-      }
 
       // --- Reiter ---
       const tab = ev.target.closest("[data-kstab]");
@@ -5689,8 +6148,11 @@
     // Kachel-Sprung-Zustand (Ursprung/Readonly/Hash) beim normalen Tab-Wechsel verwerfen.
     tv.origin = null; tv.readonly = false; tv.dirty = false; navReturn = null;
     // Kasse-Vollbild-Auswahl beim Tab-Wechsel schließen.
-    const kss = document.getElementById("ksScrim"), ksh = document.getElementById("ksSheet");
-    if (kss) kss.classList.remove("open"); if (ksh) ksh.classList.remove("open");
+    blattAlleZu();
+    // Die „Strafe verhängen"-Seite ueberlebt keinen Ansichtswechsel - sonst
+    // faende man sie beim naechsten Aufruf der Kasse halb ausgefuellt vor.
+    if (kasse.seite) ksSeiteLeeren();
+    document.body.classList.remove("ks-seite-offen");
     if (/^#?lineup=/.test(location.hash || "")) { try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {} }
     // Bereiche im „Mehr"-Menü (Aufstellung/Rollen) markieren den Mehr-Tab als aktiv.
     // Bereiche, die im Admin-„Mehr"-Sheet liegen (dann ist der Mehr-Tab aktiv).
