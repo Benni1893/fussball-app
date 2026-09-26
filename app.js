@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-26-C";
+  var APP_BUILD = "2026-09-26-D";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -4289,8 +4289,8 @@
     /* Filter je Reiter getrennt: wer in „Offen" nach einem Spieler sucht,
        will in „Eingegangen" nicht denselben Ausschnitt sehen. Sie ueberleben
        den Reiterwechsel, nicht aber einen Neustart der App. */
-    filter: { offen: { spieler: [], sort: "neu", zeit: "alle" },
-              bezahlt: { spieler: [], sort: "neu", zeit: "alle" } },
+    filter: { offen:   { spieler: [], sort: "alt", faellig: false },
+              bezahlt: { spieler: [], sort: "neu", zahlart: [], zeit: "saison" } },
     // Entwurf des Filterblatts: „Anwenden" schreibt ihn nach filter[tab].
     flEntwurf: null,
     suche: "",         // Frage im Vollbild „Spieler suchen"
@@ -4476,39 +4476,66 @@
   /* ==========================================================================
      Filter fuer „Offen" und „Eingegangen"
 
+     Zwei Reiter, zwei verschiedene Fragen - deshalb zwei verschiedene Saetze
+     von Moeglichkeiten. In „Offen" sucht man, wer wie lange schon schuldet;
+     in „Eingegangen", was wann und wie hereinkam.
+
      Alles hier ist rein rechnend und haengt an keinem DOM - dadurch laesst es
      sich ohne Browser pruefen. Die Reiterzahlen bleiben ungefiltert; gefiltert
-     wird nur die Liste, und darueber steht, wie viele von wie vielen.
+     wird nur die Liste, und darueber steht, wie viel davon uebrig ist.
      ========================================================================== */
-  const KS_ZEIT = [["alle", "Alle"], ["heute", "Heute"], ["7", "Letzte 7 Tage"], ["30", "Letzte 30 Tage"]];
+  const KS_FAELLIG_TAGE = 28;   // „ueberfaellig" = aelter als vier Wochen
+
   const KS_SORT = {
-    // „Höchster Betrag zuerst" gibt es nur in „Offen": bei den eingegangenen
-    // Zahlungen sucht man nach Zeit, nicht nach Größe.
-    offen:   [["neu", "Neueste zuerst"], ["alt", "Älteste zuerst"], ["betrag", "Höchster Betrag zuerst"]],
-    bezahlt: [["neu", "Neueste zuerst"], ["alt", "Älteste zuerst"]],
+    offen:   [["alt", "Älteste zuerst"], ["betrag", "Höchster Betrag"], ["neu", "Neueste zuerst"]],
+    bezahlt: [["neu", "Neueste zuerst"]],   // fest, deshalb ohne Auswahl im Blatt
   };
+  const KS_ZEIT = [["monat", "Dieser Monat"], ["vormonat", "Letzter Monat"], ["saison", "Saison"]];
 
-  function ksFilterNeu() { return { spieler: [], sort: "neu", zeit: "alle" }; }
+  function ksFilterNeu(tab) {
+    return tab === "bezahlt"
+      ? { spieler: [], sort: "neu", zahlart: [], zeit: "saison" }
+      : { spieler: [], sort: "alt", faellig: false };
+  }
 
-  /* Worauf sich der Zeitraum bezieht: in „Offen" das Datum der Strafe, in
-     „Eingegangen" das Buchungsdatum. Fehlt das Buchungsdatum (Altbestand),
-     fällt es auf das Strafendatum zurück, statt die Zeile verschwinden zu
-     lassen. */
+  /* Worauf sich der Zeitraum bezieht: in „Eingegangen" das Buchungsdatum.
+     Fehlt es (Altbestand), faellt es auf das Strafendatum zurueck, statt die
+     Zeile verschwinden zu lassen. */
   function ksBezugsdatum(s, tab) {
     if (tab === "bezahlt") return s.paidAt ? String(s.paidAt).slice(0, 10) : s.datum;
     return s.datum;
   }
 
-  // „Letzte 7 Tage" heißt: heute und die sechs Tage davor.
+  /* Die Saison laeuft vom 1. Juli bis zum 30. Juni. „Saison" ist damit kein
+     Synonym fuer „alles": eine Buchung aus der Vorsaison faellt bewusst
+     heraus - danach fragt in der Kasse niemand. */
+  function ksSaisonStart(heute) {
+    const d = parseDate(heute);
+    const jahr = d.getMonth() >= 6 ? d.getFullYear() : d.getFullYear() - 1;
+    return jahr + "-07-01";
+  }
+
   function ksImZeitraum(iso, zeit, heute) {
     if (!zeit || zeit === "alle") return true;
     if (!iso) return false;
-    if (zeit === "heute") return iso === heute;
-    const tage = parseInt(zeit, 10);
-    if (!isFinite(tage)) return true;
-    const h = parseDate(heute), d = parseDate(iso);
-    const grenze = new Date(h.getTime() - (tage - 1) * 86400000);
-    return d.getTime() >= grenze.getTime() && d.getTime() <= h.getTime();
+    const h = parseDate(heute);
+    if (zeit === "saison") return iso >= ksSaisonStart(heute);
+    const monat = (j, m) => j + "-" + String(m + 1).padStart(2, "0");
+    if (zeit === "monat") return iso.slice(0, 7) === monat(h.getFullYear(), h.getMonth());
+    if (zeit === "vormonat") {
+      // Im Januar ist der Vormonat der Dezember des Vorjahres.
+      const m = h.getMonth() === 0 ? 11 : h.getMonth() - 1;
+      const j = h.getMonth() === 0 ? h.getFullYear() - 1 : h.getFullYear();
+      return iso.slice(0, 7) === monat(j, m);
+    }
+    return true;
+  }
+
+  // Aelter als vier Wochen, gerechnet ab dem Datum der Strafe.
+  function ksIstFaellig(s, heute) {
+    if (!s.datum) return false;
+    const grenze = new Date(parseDate(heute).getTime() - KS_FAELLIG_TAGE * 86400000);
+    return parseDate(s.datum).getTime() <= grenze.getTime();
   }
 
   function ksSortieren(liste, sort, tab) {
@@ -4529,26 +4556,41 @@
   function ksFiltern(liste, f, tab, heute) {
     let l = liste;
     if (f.spieler && f.spieler.length) l = l.filter((s) => f.spieler.indexOf(s.playerId) !== -1);
-    if (f.zeit && f.zeit !== "alle") l = l.filter((s) => ksImZeitraum(ksBezugsdatum(s, tab), f.zeit, heute));
+    if (tab === "offen") {
+      if (f.faellig) l = l.filter((s) => ksIstFaellig(s, heute));
+    } else {
+      if (f.zahlart && f.zahlart.length) l = l.filter((s) => f.zahlart.indexOf(s.zahlart) !== -1);
+      if (f.zeit) l = l.filter((s) => ksImZeitraum(ksBezugsdatum(s, tab), f.zeit, heute));
+    }
     return ksSortieren(l, f.sort, tab);
   }
 
-  /* Wie viele Filter stehen? Jeder Spieler zählt einzeln, Zeitraum und
-     Sortierung je einmal - aber nur, wenn sie vom Standard abweichen. */
-  function ksFilterAnzahl(f) {
+  /* Wie viele Filter stehen? Jeder Spieler und jede Zahlart zaehlen einzeln,
+     „ueberfaellig", Zeitraum und Sortierung je einmal - aber nur, wenn sie vom
+     Standard abweichen. */
+  function ksFilterAnzahl(f, tab) {
     if (!f) return 0;
-    return (f.spieler ? f.spieler.length : 0)
-      + (f.zeit && f.zeit !== "alle" ? 1 : 0)
-      + (f.sort && f.sort !== "neu" ? 1 : 0);
+    const std = ksFilterNeu(tab);
+    // Nur zaehlen, was auch als Chip erscheinen kann - sonst nennt die Leiste
+    // eine Zahl, zu der der Nutzer keinen Chip findet und nichts abwaehlen kann.
+    const kennt = (liste, wert) => liste.some((x) => x[0] === wert);
+    let n = (f.spieler ? f.spieler.length : 0);
+    if (f.sort && f.sort !== std.sort && kennt(KS_SORT[tab] || [], f.sort)) n++;
+    if (tab === "offen") { if (f.faellig) n++; }
+    else {
+      n += (f.zahlart ? f.zahlart.length : 0);
+      if (f.zeit && f.zeit !== std.zeit && kennt(KS_ZEIT, f.zeit)) n++;
+    }
+    return n;
   }
 
-  /* Namenssuche: Groß- und Kleinschreibung egal, Umlaute tolerant in beide
+  /* Namenssuche: Gross- und Kleinschreibung egal, Umlaute tolerant in beide
      Richtungen („muller" findet „Müller", „Müller" findet „Muller"), und es
      zählt jeder Teilstring, nicht nur der Wortanfang. */
   function ksNorm(x) {
     return String(x == null ? "" : x).toLowerCase()
       .replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/ß/g, "ss")
-      .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      .normalize("NFD").replace(/[̀-ͯ]/g, "");
   }
   function ksSucheTrifft(name, frage) {
     const q = ksNorm(frage).trim();
@@ -4569,11 +4611,20 @@
       const pl = playerById[id];
       if (pl) chips.push(["sp:" + id, pl.name]);
     });
-    if (f.zeit && f.zeit !== "alle") {
-      const z = KS_ZEIT.find((x) => x[0] === f.zeit);
-      if (z) chips.push(["zeit", z[1]]);
+    if (tab === "offen") {
+      if (f.faellig) chips.push(["faellig", "Nur überfällig"]);
+    } else {
+      (f.zahlart || []).forEach((a) => {
+        const z = KASSE_ZAHLARTEN.find((x) => x[0] === a);
+        if (z) chips.push(["za:" + a, z[1]]);
+      });
+      if (f.zeit && f.zeit !== "saison") {
+        const z = KS_ZEIT.find((x) => x[0] === f.zeit);
+        if (z) chips.push(["zeit", z[1]]);
+      }
     }
-    if (f.sort && f.sort !== "neu") {
+    const std = ksFilterNeu(tab);
+    if (f.sort && f.sort !== std.sort) {
       const so = (KS_SORT[tab] || []).find((x) => x[0] === f.sort);
       if (so) chips.push(["sort", so[1]]);
     }
@@ -4581,8 +4632,8 @@
   }
 
   function ksFilterleisteHtml(tab) {
-    const f = kasse.filter[tab] || ksFilterNeu();
-    const n = ksFilterAnzahl(f);
+    const f = kasse.filter[tab] || ksFilterNeu(tab);
+    const n = ksFilterAnzahl(f, tab);
     const chips = ksFilterChips(f, tab);
     return `<div class="ks-fl">
       <button type="button" class="ks-fl-b" data-ks-fl-auf>
@@ -4596,10 +4647,18 @@
     </div>`;
   }
 
-  // „12 von 140" - steht nur da, wenn wirklich gefiltert wird.
-  function ksTrefferHtml(gezeigt, gesamt, f) {
-    if (!ksFilterAnzahl(f) || gezeigt === gesamt) return "";
-    return `<div class="ks-treffer">${gezeigt} von ${gesamt}</div>`;
+  /* Ueber der Liste: in „Offen" wie viele von wie vielen, in „Eingegangen"
+     zusaetzlich die Summe - dort ist die Frage „wie viel ist hereingekommen",
+     nicht „wie viele Zeilen sind es". Steht nur da, wenn gefiltert wird. */
+  function ksTrefferHtml(gezeigt, gesamt, f, tab) {
+    if (!ksFilterAnzahl(f, tab)) return "";
+    if (tab === "bezahlt") {
+      const summe = gezeigt.reduce((a, s) => a + s.betrag, 0);
+      return `<div class="ks-treffer">${gezeigt.length} ${gezeigt.length === 1 ? "Zahlung" : "Zahlungen"}
+        · ${euro(summe).replace(/\s/g, " ")}</div>`;
+    }
+    if (gezeigt.length === gesamt) return "";
+    return `<div class="ks-treffer">${gezeigt.length} von ${gesamt}</div>`;
   }
 
   /* ==========================================================================
@@ -4815,9 +4874,9 @@
             aria-selected="${kasse.tab === k}" data-kstab="${k}">${label} <span class="ks-seg-n">${zaehler[k]}</span></button>`).join("")}
         </div>
         ${kasse.tab === "pruefen" ? renderKassePruefen(gemeldet) : ""}
-        ${kasse.tab === "offen" ? ksFilterleisteHtml("offen") + ksTrefferHtml(offenGef.length, offen.length, fOffen)
+        ${kasse.tab === "offen" ? ksFilterleisteHtml("offen") + ksTrefferHtml(offenGef, offen.length, fOffen, "offen")
             + renderKasseOffen(offenGef, offen) : ""}
-        ${kasse.tab === "bezahlt" ? ksFilterleisteHtml("bezahlt") + ksTrefferHtml(bezahltGef.length, bezahlt.length, fBez)
+        ${kasse.tab === "bezahlt" ? ksFilterleisteHtml("bezahlt") + ksTrefferHtml(bezahltGef, bezahlt.length, fBez, "bezahlt")
             + renderKasseEing(bezahltGef, bezahlt) : ""}
       </div>
     `;
@@ -5075,7 +5134,7 @@
       // Zurueck zur Kassen-Startseite und gleich dorthin, wo die neuen
       // Strafen liegen. Ein stehender Filter koennte sie verstecken - deshalb
       // faellt er hier zurueck.
-      kasse.tab = "offen"; kasse.filter.offen = ksFilterNeu();
+      kasse.tab = "offen"; kasse.filter.offen = ksFilterNeu("offen");
       await reloadData();                          // rendert Kasse neu (aktualisierte Listen)
       tvToast(n + (n === 1 ? " Strafe verhängt" : " Strafen verhängt"));
     } catch (e) {
@@ -5364,6 +5423,20 @@
       if (so) { kasse.flEntwurf.sort = so.dataset.ksFlSort; ksFlWahlSetzen(sheet, "data-ks-fl-sort", so.dataset.ksFlSort); return; }
       const ze = ev.target.closest("[data-ks-fl-zeit]");
       if (ze) { kasse.flEntwurf.zeit = ze.dataset.ksFlZeit; ksFlWahlSetzen(sheet, "data-ks-fl-zeit", ze.dataset.ksFlZeit); return; }
+      // Zahlart ist Mehrfachauswahl: jede Zeile fuer sich an oder aus.
+      const za = ev.target.closest("[data-ks-fl-za]");
+      if (za) {
+        const wert = za.dataset.ksFlZa, l = kasse.flEntwurf.zahlart, i = l.indexOf(wert);
+        if (i === -1) l.push(wert); else l.splice(i, 1);
+        ksFlZeileUmschalten(za, i === -1);
+        return;
+      }
+      const sw = ev.target.closest("[data-ks-fl-faellig]");
+      if (sw) {
+        kasse.flEntwurf.faellig = !kasse.flEntwurf.faellig;
+        sw.setAttribute("aria-checked", kasse.flEntwurf.faellig ? "true" : "false");
+        return;
+      }
       const spWeg = ev.target.closest("[data-ks-fl-sp-weg]");
       if (spWeg) {
         const l = kasse.flEntwurf.spieler, i = l.indexOf(spWeg.dataset.ksFlSpWeg);
@@ -5372,7 +5445,7 @@
         ksFlZahlAktualisieren(sheet);
         return;
       }
-      if (ev.target.closest("[data-ks-fl-reset]")) { kasse.flEntwurf = ksFilterNeu(); mitScroll(sheet, ksFlRender); return; }
+      if (ev.target.closest("[data-ks-fl-reset]")) { kasse.flEntwurf = ksFilterNeu(ksFlTab()); mitScroll(sheet, ksFlRender); return; }
       if (ev.target.closest("[data-ks-fl-ok]")) {
         kasse.filter[ksFlTab()] = kasse.flEntwurf;
         ksFlZu();
@@ -5382,37 +5455,71 @@
     });
   }
 
+  /* Eine Zeile der Auswahllisten im Filterblatt. `mehrfach` entscheidet nur
+     ueber die Bedeutung, nicht ueber das Aussehen: gewaehlt ist gewaehlt. */
+  function ksWahlZeileHtml(k, label, an, attr) {
+    return `<button type="button" class="ks-wahlz${an ? " is-on" : ""}" ${attr}="${k}">
+      <span>${esc(label)}</span>
+      <span class="ks-check" aria-hidden="true">${an ? ICON_CHECK : ""}</span>
+    </button>`;
+  }
+
   function ksFlRender() {
     const sheet = document.getElementById("ksFlBl"); if (!sheet) return;
     const tab = ksFlTab(), f = kasse.flEntwurf;
-    const wahl = (liste, wert, attr) => `<div class="ks-wahlliste">${liste.map(([k, label]) =>
-      `<button type="button" class="ks-wahlz${wert === k ? " is-on" : ""}" ${attr}="${k}">
-        <span>${esc(label)}</span>
-        <span class="ks-check" aria-hidden="true">${wert === k ? ICON_CHECK : ""}</span>
-      </button>`).join("")}</div>`;
     const n = f.spieler.length;
+    const liste = (inhalt) => '<div class="ks-wahlliste">' + inhalt + '</div>';
+
+    const spieler =
+      '<button type="button" class="ks-fl-suche" data-ks-fl-spieler>' +
+        '<span class="ks-zi" aria-hidden="true">' + ICON_LUPE + '</span>' +
+        '<span class="ks-fl-suche-t">Spieler suchen</span>' +
+        '<span class="ks-fl-suche-n">' + (n ? n + " gewählt" : "alle") + '</span>' +
+        '<span class="kasse-picker-arrow" aria-hidden="true">›</span>' +
+      '</button>' +
+      ksGewaehltChipsHtml(f.spieler, "data-ks-fl-sp-weg");
+
+    let mitte;
+    if (tab === "offen") {
+      /* „Nur überfällig" ist eine An/Aus-Einstellung, also der Standard-
+         Schalter .sw - kein Chip und kein Knopfpaar. */
+      mitte =
+        '<div class="ks-fl-zeile">' +
+          '<span class="ks-fl-zeile-t">Nur überfällig</span>' +
+          '<button class="sw" role="switch" aria-checked="' + (f.faellig ? "true" : "false") +
+          '" aria-label="Nur überfällige Strafen" type="button" data-ks-fl-faellig></button>' +
+        '</div>' +
+        '<div class="ks-fl-hinweis">Älter als vier Wochen, gerechnet ab dem Datum der Strafe.</div>' +
+        '<div class="lbl ks-bl-lbl">Sortierung</div>' +
+        liste(KS_SORT.offen.map(([k, label]) =>
+          ksWahlZeileHtml(k, label, f.sort === k, "data-ks-fl-sort")).join(""));
+    } else {
+      mitte =
+        '<div class="lbl ks-bl-lbl">Zahlart</div>' +
+        liste(KASSE_ZAHLARTEN.map(([k, label]) =>
+          ksWahlZeileHtml(k, label, (f.zahlart || []).indexOf(k) !== -1, "data-ks-fl-za")).join("")) +
+        '<div class="ks-fl-hinweis">Ohne Auswahl zählen alle Zahlarten.</div>' +
+        '<div class="lbl ks-bl-lbl">Zeitraum</div>' +
+        liste(KS_ZEIT.map(([k, label]) =>
+          ksWahlZeileHtml(k, label, f.zeit === k, "data-ks-fl-zeit")).join("")) +
+        '<div class="ks-fl-hinweis">Nach Buchungsdatum. Die Saison läuft vom 1. Juli bis zum 30. Juni.</div>';
+    }
+
     sheet.innerHTML =
       '<div class="tv-sh"><span class="tv-grip"></span><strong>Filter</strong>' +
       '<button class="tv-shx" data-ks-fl-close aria-label="Schließen">&times;</button></div>' +
-      '<div class="tv-shbody" data-scroll="ksFlBody">' +
-        '<button type="button" class="ks-fl-suche" data-ks-fl-spieler>' +
-          '<span class="ks-zi" aria-hidden="true">' + ICON_LUPE + '</span>' +
-          '<span class="ks-fl-suche-t">Spieler suchen</span>' +
-          '<span class="ks-fl-suche-n">' + (n ? n + (n === 1 ? " gewählt" : " gewählt") : "alle") + '</span>' +
-          '<span class="kasse-picker-arrow" aria-hidden="true">›</span>' +
-        '</button>' +
-        ksGewaehltChipsHtml(f.spieler, "data-ks-fl-sp-weg") +
-        '<div class="lbl ks-bl-lbl">Sortierung</div>' + wahl(KS_SORT[tab], f.sort, "data-ks-fl-sort") +
-        '<div class="lbl ks-bl-lbl">Zeitraum</div>' + wahl(KS_ZEIT, f.zeit, "data-ks-fl-zeit") +
-        '<div class="ks-fl-hinweis">' +
-          (tab === "bezahlt" ? "Der Zeitraum zählt ab dem Buchungsdatum."
-                             : "Der Zeitraum zählt ab dem Datum der Strafe.") +
-        '</div>' +
-      '</div>' +
+      '<div class="tv-shbody" data-scroll="ksFlBody">' + spieler + mitte + '</div>' +
       '<div class="ks-fl-fuss">' +
         '<button type="button" class="btn" data-ks-fl-reset>Filter zurücksetzen</button>' +
         '<button type="button" class="btn btn-primary" data-ks-fl-ok>Anwenden</button>' +
       '</div>';
+  }
+
+  // Eine einzelne Zeile an- oder abhaken (Mehrfachauswahl).
+  function ksFlZeileUmschalten(zeile, an) {
+    zeile.classList.toggle("is-on", an);
+    const haken = zeile.querySelector(".ks-check");
+    if (haken) haken.innerHTML = an ? ICON_CHECK : "";
   }
 
   /* Eine Wahl in einer Liste umsetzen: den alten Haken loeschen, den neuen
@@ -5436,9 +5543,12 @@
 
   function ksFlAuf() {
     ksFlEnsure();
-    const f = kasse.filter[ksFlTab()] || ksFilterNeu();
+    const tab = ksFlTab();
+    const f = kasse.filter[tab] || ksFilterNeu(tab);
     // Tiefe Kopie: der Entwurf darf den stehenden Filter nicht anfassen.
-    kasse.flEntwurf = { spieler: f.spieler.slice(), sort: f.sort, zeit: f.zeit };
+    kasse.flEntwurf = tab === "bezahlt"
+      ? { spieler: f.spieler.slice(), sort: f.sort, zahlart: (f.zahlart || []).slice(), zeit: f.zeit }
+      : { spieler: f.spieler.slice(), sort: f.sort, faellig: !!f.faellig };
     ksFlRender();
     blattAuf("ksFlScrim", "ksFlBl");
   }
@@ -5795,9 +5905,14 @@
       const flWeg = ev.target.closest("[data-ks-fl-weg]");
       if (flWeg) {
         const tab = ksFlTab(), f = kasse.filter[tab], wert = flWeg.dataset.ksFlWeg;
-        if (wert === "zeit") f.zeit = "alle";
-        else if (wert === "sort") f.sort = "neu";
-        else {
+        const std = ksFilterNeu(tab);
+        if (wert === "zeit") f.zeit = std.zeit;
+        else if (wert === "sort") f.sort = std.sort;
+        else if (wert === "faellig") f.faellig = false;
+        else if (wert.slice(0, 3) === "za:") {
+          const i = f.zahlart.indexOf(wert.slice(3));
+          if (i >= 0) f.zahlart.splice(i, 1);
+        } else {
           const i = f.spieler.indexOf(wert.slice(3));
           if (i >= 0) f.spieler.splice(i, 1);
         }

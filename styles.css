@@ -2429,7 +2429,14 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 .ks-fl-suche .ks-zi { color: var(--muted-2); }
 .ks-fl-suche-t { flex: 1; min-width: 0; font-size: 16px; font-weight: 700; color: var(--ink); }
 .ks-fl-suche-n { flex: none; font-size: 14px; font-weight: 600; color: var(--muted-2); }
-.ks-fl-hinweis { margin-top: 12px; font-size: 13px; font-weight: 500; color: var(--muted-2); }
+.ks-fl-hinweis { margin-top: 10px; font-size: 13px; font-weight: 500; color: var(--muted-2); }
+/* Zeile mit Schalter im Filterblatt - derselbe Aufbau wie in den
+   Benachrichtigungs-Einstellungen, nur ohne Unterzeile. */
+.ks-fl-zeile {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  min-height: var(--h-row); margin-top: 16px;
+}
+.ks-fl-zeile-t { font-size: 15px; font-weight: 700; color: var(--ink); }
 .ks-fl-fuss {
   flex: 0 0 auto; display: flex; gap: 10px;
   padding: 12px 16px calc(14px + env(safe-area-inset-bottom));
@@ -2594,12 +2601,18 @@ body.kb-open .ks-fuss { padding-bottom: 12px; }
 
 /* Reiter „Eingegangen" (Vorlage 4A): EINE Karte mit Zeilen. */
 .ks-ein { overflow: hidden; }
+/* 16 waagerecht, nicht 14: die Zeile hatte den Innenabstand einer
+   eigenstaendigen Karte (.kat-item) geerbt. Sie sitzt aber IN einer Karte,
+   und dort ist 16 der Standard - wie bei .card-pad und .ks-card. Der Abstand
+   zum Text bleibt 12, das ist das Mass aller Avatarzeilen der App. */
 .ks-ein-row {
   display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
-  padding: 13px 14px; border: 0; background: none; font: inherit; cursor: pointer;
+  padding: 13px 16px; border: 0; background: none; font: inherit; cursor: pointer;
   -webkit-tap-highlight-color: transparent; -webkit-appearance: none; appearance: none;
 }
 .ks-ein-row + .ks-ein-row { border-top: 1px solid var(--line); }
+/* Die Zeile des Betrags bekommt denselben Abstand zur rechten Innenkante. */
+.ks-ein-b { padding-left: 4px; }
 .ks-ein-row:focus-visible { outline: 2px solid var(--green-700); outline-offset: -2px; }
 .ks-ok { flex: none; width: 32px; height: 32px; border-radius: 50%;
   background: var(--green-050); color: var(--green-600); display: grid; place-items: center; }
