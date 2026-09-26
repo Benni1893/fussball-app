@@ -1973,6 +1973,12 @@ body.blatt-offen .app-nav {
   transition: transform .24s cubic-bezier(.22,1,.36,1), visibility 0s linear .24s;
 }
 body.blatt-offen .tv-toast { bottom: calc(16px + env(safe-area-inset-bottom)); }
+/* Kein Gummiband nach aussen, solange etwas darueber liegt: sonst zieht die
+   Geste die Seite dahinter und der Pull-to-Refresh setzt einen transform auf
+   den Container - und ein transformierter Vorfahre bricht position:fixed. */
+html:has(body.blatt-offen), html:has(body.ks-seite-offen) { overscroll-behavior-y: contain; }
+body.blatt-offen, body.ks-seite-offen { overscroll-behavior-y: contain; }
+.tv-kfull .tv-shbody, .ks-seite-body { overscroll-behavior-y: contain; }
 
 .tv-scrim { position: fixed; inset: 0; background: rgba(20,28,22,.45); opacity: 0; pointer-events: none; transition: opacity .2s ease; z-index: 90; }
 .tv-scrim.open { opacity: 1; pointer-events: auto; }
@@ -2076,7 +2082,10 @@ body.blatt-offen .tv-toast { bottom: calc(16px + env(safe-area-inset-bottom)); }
 .tv-mi.danger:hover, .tv-mi.danger:active { background: var(--red-050); color: var(--red-600); }
 
 /* Kader-Auswahl als VOLLBILD (deckt die Nav vollstaendig ab). */
-.tv-sheet.tv-kfull { top: 0; bottom: 0; left: 0; right: 0; height: 100dvh; max-height: none; border-radius: 0; transform: translateY(100%); }
+/* --kb ist die Hoehe, die die Tastatur unten verdeckt (visualViewport).
+   Ohne Tastatur 0 - dann aendert sich nichts. */
+html { --kb: 0px; }
+.tv-sheet.tv-kfull { top: 0; bottom: var(--kb); left: 0; right: 0; height: auto; max-height: none; border-radius: 0; transform: translateY(100%); }
 .tv-sheet.tv-kfull.open { transform: translateY(0); }
 .tv-sheet.tv-kfull .tv-sh { flex: 0 0 auto; padding-top: calc(env(safe-area-inset-top) + 12px); border-bottom: 1px solid var(--line); background: var(--card); }
 .tv-sheet.tv-kfull .tv-grip { display: none; }
@@ -2447,9 +2456,11 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 }
 
 /* Suchfeld im Kopf der Vollbild-Blätter */
+/* Abstand nach oben wie in den uebrigen Vollbildseiten: die Leiste klebte
+   vorher an der Kopfzeile (abstandundkontakt.webp). */
 .ks-suchfeld {
   position: relative; flex: 0 0 auto; display: flex; align-items: center; gap: 8px;
-  margin: 0 16px 10px; padding: 0 10px;
+  margin: 14px 16px 10px; padding: 0 10px;
   background: var(--surface-2); border: 1px solid var(--line-soft-3); border-radius: var(--radius-btn);
 }
 .ks-suchfeld .ks-zi { color: var(--muted-2); }
@@ -2495,7 +2506,7 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
    scrollt der Vorgang. Die untere Navigation ist weg (body.ks-seite-offen). */
 body.ks-seite-offen .app-nav { transform: translateY(110%); pointer-events: none; visibility: hidden; }
 .ks-seite {
-  position: fixed; inset: 0; z-index: 61;
+  position: fixed; top: 0; left: 0; right: 0; bottom: var(--kb); z-index: 61;
   display: flex; flex-direction: column;
   background: var(--grad-app);
 }
@@ -2523,13 +2534,19 @@ body.ks-seite-offen .app-nav { transform: translateY(110%); pointer-events: none
   display: flex; flex-direction: column; gap: 10px;
   padding: 16px 16px 20px;
 }
-.ks-seite-fuss {
+/* Ein Fuss fuer alles, was bestaetigt wird: Spielerauswahl, Spielersuche und
+   beide Eingabeseiten. Er ist ein Flex-Geschwister des Scrollbereichs, kein
+   Ueberlagerer - deshalb kann er den letzten Listeneintrag nicht verdecken.
+   Bei offener Tastatur endet die ganze Flaeche ueber ihr (--kb), der Fuss
+   sitzt dann direkt darueber und braucht keinen Safe-Area-Abstand mehr. */
+.ks-fuss {
   flex: 0 0 auto;
   padding: 12px 16px calc(14px + env(safe-area-inset-bottom));
   background: var(--card); border-top: 1px solid var(--line);
 }
-.ks-seite-save { width: 100%; min-height: var(--h-btn-xl); font-size: 16px; }
-.ks-seite-save:disabled { opacity: .5; cursor: default; }
+body.kb-open .ks-fuss { padding-bottom: 12px; }
+.ks-fuss-btn { width: 100%; min-height: var(--h-btn-xl); font-size: 16px; }
+.ks-fuss-btn:disabled { opacity: .5; cursor: default; }
 /* Prüfkarte (Vorlage 6A) */
 .ks-deck { position: relative; touch-action: pan-y; }   /* hier wird geblaettert */
 .ks-card { position: relative; padding: 16px 16px 18px; text-align: center; cursor: pointer;

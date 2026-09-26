@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-26-A";
+  var APP_BUILD = "2026-09-26-B";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -4279,6 +4279,9 @@
     zahlart: {},       // gewaehlte Zahlart je Strafe, Vorgabe: Angabe des Spielers
     // Welche eigene Seite offen ist: null | "katalog" | "indiv".
     seite: null,
+    // Gewaehlter Weg, solange die Spielerauswahl noch laeuft. Erst „Weiter"
+    // macht daraus kasse.seite - vorher gibt es nichts, was man verlieren kann.
+    wartet: null,
     // Welche Bloecke die Seite zeigt. Der Vollbild-Waehler setzt einen,
     // der Link „Auch ..." holt den zweiten dazu - gemischte Vorgaenge bleiben
     // moeglich, weil beide Bloecke in denselben kasseBuild() laufen.
@@ -4700,15 +4703,13 @@
           <div id="kasseSummary">${kasseSummaryHtml()}</div>
         </div>
 
-        <div class="ks-seite-fuss">
-          <button class="btn btn-primary ks-seite-save" data-kasse-add${build.valid ? "" : " disabled"}>${knopf}</button>
+        <div class="ks-fuss">
+          <button class="btn btn-primary ks-fuss-btn" data-kasse-add${build.valid ? "" : " disabled"}>${knopf}</button>
         </div>
       </div>`;
   }
 
   function kasseHtml(alle) {
-    if (kasse.seite) return ksSeiteHtml();
-
     const offen    = alle.filter((s) => s.st === "offen");
     const gemeldet = alle.filter((s) => s.st === "gemeldet");
     const bezahlt  = alle.filter((s) => s.st === "bestätigt");
@@ -4764,10 +4765,149 @@
     `;
   }
 
+  /* ==========================================================================
+     Die Eingabeseite hängt an <body>, nicht in der Ansicht
+
+     Vorher lag sie in #view, also im Container, den Pull-to-Refresh beim Ziehen
+     per `transform: translateY(...)` verschiebt. Ein transformierter Vorfahre
+     macht aus `position: fixed` eine Positionierung relativ zu ihm: die Seite
+     rutschte unter die Kopfzeile und fiel auf die Höhe ihres Containers
+     zusammen - der sichtbare Scherbenhaufen aus scrollbug.webp.
+
+     An <body> gehängt kann kein Vorfahre sie mehr verbiegen. Zweiter Gewinn:
+     ein Hintergrund-Neuladen zeichnet nur den Feed dahinter neu, das offene
+     Formular bleibt stehen und behält seine Eingaben.
+     ========================================================================== */
+  let ksSeiteGesperrt = false;
+
+  function ksSeiteEnsure() {
+    let host = document.getElementById("ksSeite");
+    if (host) return host;
+    host = document.createElement("div");
+    host.id = "ksSeite";
+    host.hidden = true;
+    document.body.appendChild(host);
+    host.addEventListener("click", ksSeiteKlick);
+    host.addEventListener("input", ksSeiteEingabe);
+    host.addEventListener("change", (ev) => {
+      if (!ev.target.matches("[data-kasse-date]")) return;
+      kasse.date = ev.target.value || new Date().toISOString().slice(0, 10);
+      const sum = document.getElementById("kasseSummary");
+      if (sum) sum.innerHTML = kasseSummaryHtml();
+      ksSeiteKnopf();
+    });
+    return host;
+  }
+
+  // Zeichnet die Seite neu. Nur aufrufen, wenn sich ihr Inhalt geändert hat -
+  // nicht bei jedem renderKasse(), sonst gehen Eingaben verloren.
+  function ksSeiteZeichnen() {
+    const host = ksSeiteEnsure();
+    host.innerHTML = ksSeiteHtml();
+    ksSeiteKnopf();
+  }
+
+  /* Ein- und Ausblenden, ohne den Inhalt anzufassen. renderKasse() ruft das
+     bei jedem Durchlauf; neu gezeichnet wird nur, wenn noch nichts da ist. */
+  function ksSeiteSync() {
+    const host = document.getElementById("ksSeite");
+    if (!kasse.seite) {
+      if (host) { host.hidden = true; host.innerHTML = ""; }
+      document.body.classList.remove("ks-seite-offen");
+      if (ksSeiteGesperrt) { ksSeiteGesperrt = false; unlockBodyScroll(); }
+      ksSeiteHash(null);
+      return;
+    }
+    const h = ksSeiteEnsure();
+    if (h.hidden || !h.firstChild) { h.hidden = false; ksSeiteZeichnen(); }
+    document.body.classList.add("ks-seite-offen");
+    if (!ksSeiteGesperrt) { ksSeiteGesperrt = true; lockBodyScroll(); }
+    ksSeiteHash(kasse.seite);
+  }
+
+  /* Der Zustand steht im Hash. Ein Neuladen - ob vom Nutzer, vom Browser oder
+     nach einem Update der App - landet dann auf einer leeren, funktionsfähigen
+     Seite statt auf einem halben Formular. replaceState, damit die
+     Zurück-Taste nicht durch die Zwischenstände läuft. */
+  function ksSeiteHash(modus) {
+    const soll = modus ? "#strafe=" + (modus === "indiv" ? "individuell" : "katalog") : "";
+    const ist = location.hash || "";
+    if (ist === soll) return;
+    // Fremde Hashes nicht anfassen - die gehören einem Deep Link.
+    if (!soll && !/^#strafe=/.test(ist)) return;
+    try { history.replaceState(null, "", location.pathname + location.search + soll); } catch (e) {}
+  }
+
+  /* Der Knopf unten trägt das Ergebnis. Er wird einzeln nachgezogen, damit ein
+     Antippen im Katalog nicht die ganze Seite neu baut (und die Tastatur
+     zuklappt). */
+  function ksSeiteKnopf() {
+    const btn = document.querySelector("#ksSeite [data-kasse-add]");
+    if (!btn) return;
+    const b = kasseBuild();
+    btn.disabled = !b.valid;
+    btn.textContent = b.valid
+      ? b.entries + (b.entries === 1 ? " Strafe · " : " Strafen · ") + euro(b.total).replace(/\s/g, " ") + " speichern"
+      : "Strafe speichern";
+  }
+
+  function ksSeiteEingabe(ev) {
+    const el = ev.target;
+    if (!el || !el.dataset) return;
+    if (el.matches("[data-kasse-bezug]")) { kasse.bezug[el.dataset.kasseBezug] = el.value; ksSeiteKnopf(); return; }
+    const f = el.dataset.kasseInput;
+    if (!f) return;
+    if (f === "betrag") kasse.indivBetrag = el.value;
+    else if (f === "grund") kasse.indivGrund = el.value;
+    else if (f === "comment") kasse.comment = el.value;
+    const sum = document.getElementById("kasseSummary");
+    if (sum) sum.innerHTML = kasseSummaryHtml();
+    ksSeiteKnopf();
+  }
+
+  async function ksSeiteKlick(ev) {
+    // Kopf
+    if (ev.target.closest("[data-ks-seite-zurueck]")) {
+      if (ksSeiteBeruehrt() && !window.confirm("Zurück zur Auswahl? Die Eingaben gehen verloren.")) return;
+      ksSeiteLeeren(); renderKasse(); ksWahlOpen(); return;
+    }
+    if (ev.target.closest("[data-ks-seite-zu]")) {
+      if (ksSeiteBeruehrt() && !window.confirm("Schließen? Die Eingaben gehen verloren.")) return;
+      ksSeiteLeeren(); renderKasse(); return;
+    }
+    // Spieler ändern
+    if (ev.target.closest("[data-ks-open-players]")) { ksOpenPlayers(); return; }
+    // Blöcke
+    const auch = ev.target.closest("[data-ks-auch]");
+    if (auch) { kasse.bloecke[auch.dataset.ksAuch] = true; ksSeiteZeichnen(); return; }
+    const crow = ev.target.closest("[data-kasse-catrow]");
+    if (crow) {
+      const id = crow.dataset.kasseCatrow;
+      if (kasse.items[id]) { delete kasse.items[id]; delete kasse.bezug[id]; }
+      else kasse.items[id] = { menge: 1 };
+      ksSeiteZeichnen(); return;
+    }
+    const qty = ev.target.closest("[data-kasse-qty]");
+    if (qty) {
+      const id = qty.dataset.kasseQty, d = parseInt(qty.dataset.d, 10) || 0;
+      if (kasse.items[id]) { kasse.items[id].menge = Math.max(1, (parseInt(kasse.items[id].menge, 10) || 1) + d); ksSeiteZeichnen(); }
+      return;
+    }
+    if (ev.target.closest("[data-kasse-indiv-add]")) {
+      const b = parseFloat(String(kasse.indivBetrag).replace(",", "."));
+      if (!isFinite(b) || b < 0 || !kasse.indivGrund.trim()) { window.alert("Bitte Betrag und Grund eingeben."); return; }
+      kasse.indiv.push({ betrag: kasse.indivBetrag, grund: kasse.indivGrund.trim() });
+      kasse.indivBetrag = ""; kasse.indivGrund = ""; ksSeiteZeichnen(); return;
+    }
+    const idel = ev.target.closest("[data-kasse-indiv-del]");
+    if (idel) { kasse.indiv.splice(parseInt(idel.dataset.kasseIndivDel, 10), 1); ksSeiteZeichnen(); return; }
+    if (ev.target.closest("[data-kasse-add]")) { await kasseSave(); return; }
+  }
+
   /* Die Seite verlassen: Eingaben und Blockwahl fallen zurueck, damit der
      naechste Vorgang wieder sauber ueber den Waehler geht. */
   function ksSeiteLeeren() {
-    kasse.seite = null;
+    kasse.seite = null; kasse.wartet = null;
     kasse.bloecke = { katalog: false, indiv: false };
     kasse.players = []; kasse.items = {}; kasse.bezug = {}; kasse.indiv = [];
     kasse.indivBetrag = ""; kasse.indivGrund = ""; kasse.comment = "";
@@ -4778,9 +4918,7 @@
       .map((s) => ({ ...s, betrag: strafeBetrag(s), st: fineStatus(s), player: playerById[s.playerId] }))
       .filter((s) => s.player);
     viewEl.innerHTML = kasseHtml(alle);
-    // Auf den beiden „Strafe verhängen"-Seiten ist die untere Navigation weg:
-    // sie sind ein Vorgang mit Anfang und Ende, kein Ziel zum Hinspringen.
-    document.body.classList.toggle("ks-seite-offen", !!kasse.seite);
+    ksSeiteSync();
     ksAttachSwipe();
     startCountdowns();
   }
@@ -4850,7 +4988,7 @@
         rows.push({ playerId: pid, catalogId: l.catId, offense: l.offense, betrag: l.betrag, date: kasse.date });
       });
     });
-    const btn = viewEl.querySelector("[data-kasse-add]"); if (btn) btn.disabled = true;
+    const btn = document.querySelector("#ksSeite [data-kasse-add]"); if (btn) btn.disabled = true;
     try {
       await DB.createFinesBatch(rows, kasse.comment.trim() || null);
       const n = rows.length;
@@ -4884,13 +5022,22 @@
     requestAnimationFrame(setz);
   }
 
-  /* Suchfeld im Kopf eines Blattes. Immer gleich gebaut, damit „Spieler
-     auswählen" und „Spieler suchen" sich gleich anfühlen. */
+  /* Suchfeld im Kopf eines Vollbild-Blattes.
+
+     Die vielen Attribute sind kein Zierrat: iOS blendet über der Tastatur
+     „Kontakt autom. ausfüllen" samt echtem Namen ein, sobald es ein Feld für
+     ein Namensfeld hält (abstandundkontakt.webp). Es schließt das aus
+     Feldtyp, name, id, Platzhalter und Beschriftung. Deshalb heißen Feld und
+     Name neutral (ks-q, nicht „name" oder „spieler"), und der Platzhalter
+     sagt „Suchen" statt „Name eingeben". */
   function ksSuchfeldHtml(id, wert, platz) {
     return `<div class="ks-suchfeld">
       <span class="ks-zi" aria-hidden="true">${ICON_LUPE}</span>
-      <input class="ks-such-in" id="${id}" type="search" inputmode="search" autocomplete="off"
-        value="${esc(wert || "")}" placeholder="${esc(platz)}" aria-label="${esc(platz)}">
+      <input class="ks-such-in" id="${id}" name="ks-q" type="search"
+        inputmode="search" enterkeyhint="search"
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+        data-1p-ignore data-lpignore="true"
+        value="${esc(wert || "")}" placeholder="${esc(platz)}" aria-label="Suchen">
       ${wert ? `<button type="button" class="ks-such-x" data-ks-such-leer aria-label="Suche leeren">&times;</button>` : ""}
     </div>`;
   }
@@ -4922,6 +5069,16 @@
     }).join("")}</div>`;
   }
 
+  /* Der Knopf unten in Daumenreichweite - nicht „Fertig" oben rechts, wo der
+     Daumen bei sieben Zoll nicht mehr hinkommt. Er trägt die Zahl, damit vor
+     dem Tippen klar ist, was weitergeht. */
+  function ksWeiterKnopfHtml(n) {
+    const text = n ? "Weiter mit " + n + (n === 1 ? " Spieler" : " Spielern") : "Weiter";
+    return `<div class="ks-fuss">
+      <button type="button" class="btn btn-primary ks-fuss-btn" data-ks-weiter${n ? "" : " disabled"}>${text}</button>
+    </div>`;
+  }
+
   function ksEnsureSheet() {
     if (document.getElementById("ksSheet")) return;
     const scrim = document.createElement("div"); scrim.className = "tv-scrim"; scrim.id = "ksScrim"; scrim.setAttribute("data-ks-close", "");
@@ -4929,7 +5086,8 @@
     document.body.appendChild(scrim); document.body.appendChild(sheet);
     scrim.addEventListener("click", ksClosePlayers);
     sheet.addEventListener("click", (ev) => {
-      if (ev.target.closest("[data-ks-done]")) { ksClosePlayers(); return; }
+      if (ev.target.closest("[data-ks-weiter]")) { ksWeiter(); return; }
+      if (ev.target.closest("[data-ks-abbruch]")) { ksAbbruch(); return; }
       if (ev.target.closest("[data-ks-such-leer]")) { kasse.suche = ""; ksRenderPlayers(); ksFokusSuche("ksSuche"); return; }
       const weg = ev.target.closest("[data-ks-player-weg]");
       if (weg) {
@@ -4944,35 +5102,75 @@
         ksRenderPlayers();
       }
     });
-    // Tippen filtert die Liste, ohne das Feld neu zu zeichnen - sonst
-    // verliert es den Fokus und die Tastatur klappt zu.
+    /* Tippen filtert die Liste, ohne das Feld neu zu zeichnen - sonst
+       verliert es den Fokus und die Tastatur klappt zu. */
     sheet.addEventListener("input", (ev) => {
       if (!ev.target.matches("#ksSuche")) return;
       kasse.suche = ev.target.value;
       const b = document.getElementById("ksBody");
       if (b) b.innerHTML = ksSpielerZeilenHtml(kasse.players, kasse.suche, "data-ks-player");
-      const x = sheet.querySelector(".ks-such-x");
-      if (kasse.suche && !x) {
-        const f = sheet.querySelector(".ks-suchfeld");
-        if (f) f.insertAdjacentHTML("beforeend",
-          '<button type="button" class="ks-such-x" data-ks-such-leer aria-label="Suche leeren">&times;</button>');
-      } else if (!kasse.suche && x) { x.remove(); }
+      ksSuchKreuz(sheet);
     });
+    sheet.addEventListener("keydown", ksSuchEnter);
+  }
+
+  // Das Kreuz zum Leeren erscheint und verschwindet mit dem Inhalt.
+  function ksSuchKreuz(sheet) {
+    const x = sheet.querySelector(".ks-such-x");
+    const in_ = sheet.querySelector(".ks-such-in");
+    const leer = !in_ || !in_.value;
+    if (!leer && !x) {
+      const f = sheet.querySelector(".ks-suchfeld");
+      if (f) f.insertAdjacentHTML("beforeend",
+        '<button type="button" class="ks-such-x" data-ks-such-leer aria-label="Suche leeren">&times;</button>');
+    } else if (leer && x) { x.remove(); }
+  }
+
+  /* Enter schliesst nur die Tastatur. Es gibt nichts abzuschicken - die Liste
+     filtert schon beim Tippen. */
+  function ksSuchEnter(ev) {
+    if (ev.key !== "Enter" || !ev.target.matches(".ks-such-in")) return;
+    ev.preventDefault();
+    ev.target.blur();
   }
 
   function ksRenderPlayers() {
     const sheet = document.getElementById("ksSheet"); if (!sheet) return;
     sheet.innerHTML =
       '<div class="tv-sh"><strong>Spieler auswählen</strong>' +
-      '<button class="ks-done" data-ks-done>Fertig</button></div>' +
-      ksSuchfeldHtml("ksSuche", kasse.suche, "Name eingeben") +
+      '<button class="tv-shx" data-ks-abbruch aria-label="Schließen">&times;</button></div>' +
+      ksSuchfeldHtml("ksSuche", kasse.suche, "Suchen") +
       ksGewaehltChipsHtml(kasse.players, "data-ks-player-weg") +
       '<div class="tv-shbody" id="ksBody">' +
-      ksSpielerZeilenHtml(kasse.players, kasse.suche, "data-ks-player") + '</div>';
+      ksSpielerZeilenHtml(kasse.players, kasse.suche, "data-ks-player") + '</div>' +
+      ksWeiterKnopfHtml(kasse.players.length);
   }
 
   function ksOpenPlayers() { ksEnsureSheet(); kasse.suche = ""; ksRenderPlayers(); blattAuf("ksScrim", "ksSheet"); ksFokusSuche("ksSuche"); }
-  function ksClosePlayers() { blattZu("ksScrim", "ksSheet"); if (currentView === "kasse") renderKasse(); }
+
+  /* „Weiter": aus dem Wähler heraus geht es auf die Seite, von der Seite aus
+     ist es schlicht ein Bestätigen. */
+  function ksWeiter() {
+    if (!kasse.players.length) return;
+    const ziel = kasse.wartet;
+    kasse.wartet = null;
+    blattZu("ksScrim", "ksSheet");
+    if (ziel) { kasse.seite = ziel; ksSeiteSync(); ksSeiteZeichnen(); return; }
+    ksSeiteZeichnen();
+  }
+
+  /* Abbruch mit dem Kreuz. Kam man aus dem Wähler, gibt es noch keine Seite -
+     dann zurück zur Kasse. Kam man von der Seite, bleibt sie stehen. */
+  function ksAbbruch() {
+    if (kasse.wartet) { kasse.wartet = null; kasse.players = []; kasse.bloecke = { katalog: false, indiv: false }; }
+    ksClosePlayers();
+  }
+
+  function ksClosePlayers() {
+    blattZu("ksScrim", "ksSheet");
+    if (kasse.seite) { ksSeiteZeichnen(); return; }
+    if (currentView === "kasse") renderKasse();
+  }
 
   /* ==========================================================================
      Filter-Blatt und Vollbild „Spieler suchen"
@@ -5092,24 +5290,23 @@
       kasse.suche = ev.target.value;
       const b = document.getElementById("ksSuBody");
       if (b) b.innerHTML = ksSpielerZeilenHtml(kasse.flEntwurf.spieler, kasse.suche, "data-ks-su-player");
-      const x = sheet.querySelector(".ks-such-x");
-      if (kasse.suche && !x) {
-        const fe = sheet.querySelector(".ks-suchfeld");
-        if (fe) fe.insertAdjacentHTML("beforeend",
-          '<button type="button" class="ks-such-x" data-ks-such-leer aria-label="Suche leeren">&times;</button>');
-      } else if (!kasse.suche && x) { x.remove(); }
+      ksSuchKreuz(sheet);
     });
+    sheet.addEventListener("keydown", ksSuchEnter);
   }
 
   function ksSuRender() {
     const sheet = document.getElementById("ksSuBl"); if (!sheet) return;
+    const n = kasse.flEntwurf.spieler.length;
     sheet.innerHTML =
       '<div class="tv-sh"><strong>Spieler suchen</strong>' +
-      '<button class="ks-done" data-ks-su-close>Fertig</button></div>' +
-      ksSuchfeldHtml("ksSuIn", kasse.suche, "Name eingeben") +
+      '<button class="tv-shx" data-ks-su-close aria-label="Schließen">&times;</button></div>' +
+      ksSuchfeldHtml("ksSuIn", kasse.suche, "Suchen") +
       ksGewaehltChipsHtml(kasse.flEntwurf.spieler, "data-ks-su-weg") +
       '<div class="tv-shbody" id="ksSuBody">' +
-      ksSpielerZeilenHtml(kasse.flEntwurf.spieler, kasse.suche, "data-ks-su-player") + '</div>';
+      ksSpielerZeilenHtml(kasse.flEntwurf.spieler, kasse.suche, "data-ks-su-player") + '</div>' +
+      '<div class="ks-fuss"><button type="button" class="btn btn-primary ks-fuss-btn" data-ks-su-close>' +
+      (n ? 'Übernehmen: ' + n + (n === 1 ? ' Spieler' : ' Spieler') : 'Alle Spieler') + '</button></div>';
   }
 
   function ksSuAuf() {
@@ -5155,9 +5352,13 @@
       if (!m) return;
       const modus = m.dataset.ksModus;
       kasse.bloecke = { katalog: modus === "katalog", indiv: modus === "indiv" };
-      kasse.seite = modus;
+      // Nicht direkt auf die Seite: zuerst die Spielerauswahl. Ohne Spieler
+      // kann man dort ohnehin nichts speichern, und der Umweg ueber einen
+      // zusaetzlichen Tipp auf „Spieler auswählen" entfaellt.
+      kasse.wartet = modus;
+      kasse.players = [];
       ksWahlClose();
-      if (currentView === "kasse") { renderKasse(); window.scrollTo(0, 0); }
+      ksOpenPlayers();
     });
   }
   function ksWahlOpen() {
@@ -5350,29 +5551,6 @@
       if (row) row.classList.toggle("is-staffel", ev.target.value === "staffel");
     }
   });
-  viewEl.addEventListener("input", (ev) => {
-    if (currentView !== "kasse") return;
-    const t = ev.target;
-    // Staffel-Bezugsgröße je Katalogeintrag (ohne Re-Render -> Fokus bleibt).
-    if (t.matches("[data-kasse-bezug]")) { kasse.bezug[t.dataset.kasseBezug] = t.value; }
-    else if (t.matches("[data-kasse-input]")) {
-      const f = t.dataset.kasseInput;
-      if (f === "betrag") kasse.indivBetrag = t.value;
-      else if (f === "grund") kasse.indivGrund = t.value;
-      else if (f === "comment") kasse.comment = t.value;
-    } else return;
-    const sum = document.getElementById("kasseSummary"); if (sum) sum.innerHTML = kasseSummaryHtml();
-    const btn = viewEl.querySelector("[data-kasse-add]"); if (btn) btn.disabled = !kasseBuild().valid;
-  });
-  // Datum (change) + Spielerfilter in „Offen" und „Eingegangen".
-  viewEl.addEventListener("change", (ev) => {
-    if (currentView !== "kasse") return;
-    if (ev.target.matches("[data-kasse-date]")) {
-      kasse.date = ev.target.value || new Date().toISOString().slice(0, 10);
-      const sum = document.getElementById("kasseSummary"); if (sum) sum.innerHTML = kasseSummaryHtml();
-    }
-  });
-
   /* Die Karten in „Zu prüfen" und „Offen" sind antippbar, aber keine echten
      Knöpfe - sie enthalten selbst welche, und ein Knopf im Knopf ist kein
      gültiges HTML. Deshalb tragen sie role="button" und bekommen die Tastatur
@@ -5402,22 +5580,9 @@
 
     // Kasse-Interaktionen (Statuswechsel laufen über RPCs -> serverseitig erzwungen).
     if (currentView === "kasse") {
-      if (ev.target.closest("[data-ks-open-players]")) { ksOpenPlayers(); return; }
-
-      // --- „Strafe verhängen": Vollbild-Wähler, dann die eigene Seite ---
+      // --- „Strafe verhängen" öffnet den Vollbild-Wähler. Alles Weitere
+      //     passiert auf der Seite, die an <body> hängt (ksSeiteKlick). ---
       if (ev.target.closest("[data-ks-wahl]")) { ksWahlOpen(); return; }
-      const auch = ev.target.closest("[data-ks-auch]");
-      if (auch) { kasse.bloecke[auch.dataset.ksAuch] = true; renderKasse(); return; }
-
-      // --- Kopf der Seite: zurück zur Auswahl, schließen zur Kasse ---
-      if (ev.target.closest("[data-ks-seite-zurueck]")) {
-        if (ksSeiteBeruehrt() && !window.confirm("Zurück zur Auswahl? Die Eingaben gehen verloren.")) return;
-        ksSeiteLeeren(); renderKasse(); ksWahlOpen(); return;
-      }
-      if (ev.target.closest("[data-ks-seite-zu]")) {
-        if (ksSeiteBeruehrt() && !window.confirm("Schließen? Die Eingaben gehen verloren.")) return;
-        ksSeiteLeeren(); renderKasse(); return;
-      }
 
       // --- Filter ---
       if (ev.target.closest("[data-ks-fl-auf]")) { ksFlAuf(); return; }
@@ -5432,30 +5597,6 @@
         }
         renderKasse(); return;
       }
-
-      // --- Anlage: Katalog auswählen / Menge / Individuell ---
-      const crow = ev.target.closest("[data-kasse-catrow]");
-      if (crow) {
-        const id = crow.dataset.kasseCatrow;
-        if (kasse.items[id]) { delete kasse.items[id]; delete kasse.bezug[id]; }
-        else kasse.items[id] = { menge: 1 };
-        renderKasse(); return;
-      }
-      const qty = ev.target.closest("[data-kasse-qty]");
-      if (qty) {
-        const id = qty.dataset.kasseQty, d = parseInt(qty.dataset.d, 10) || 0;
-        if (kasse.items[id]) { kasse.items[id].menge = Math.max(1, (parseInt(kasse.items[id].menge, 10) || 1) + d); renderKasse(); }
-        return;
-      }
-      if (ev.target.closest("[data-kasse-indiv-add]")) {
-        const b = parseFloat(String(kasse.indivBetrag).replace(",", "."));
-        if (!isFinite(b) || b < 0 || !kasse.indivGrund.trim()) { window.alert("Bitte Betrag und Grund eingeben."); return; }
-        kasse.indiv.push({ betrag: kasse.indivBetrag, grund: kasse.indivGrund.trim() });
-        kasse.indivBetrag = ""; kasse.indivGrund = ""; renderKasse(); return;
-      }
-      const idel = ev.target.closest("[data-kasse-indiv-del]");
-      if (idel) { kasse.indiv.splice(parseInt(idel.dataset.kasseIndivDel, 10), 1); renderKasse(); return; }
-      if (ev.target.closest("[data-kasse-add]")) { await kasseSave(); return; }
 
       // --- Reiter ---
       const tab = ev.target.closest("[data-kstab]");
@@ -6074,6 +6215,11 @@
        termin=<id>      Kalender, zum Termin scrollen und kurz hervorheben
        strafen=<filter> offen | gemeldet | bezahlt | alle | meine
        kasse=<reiter>   pruefen | offen | bezahlt
+       strafe=<weg>     katalog | individuell - oeffnet die Eingabeseite.
+                        Anders als die uebrigen bleibt dieser Hash stehen,
+                        solange die Seite offen ist: ein Neuladen landet dann
+                        auf einer leeren, funktionsfaehigen Seite statt auf
+                        einem halben Formular.
        lineup=<id>      bestehend, unveraendert
 
      Der Hash wird nach dem Sprung entfernt, damit ein Reload nicht in der
@@ -6104,6 +6250,7 @@
     if (art === "termin") return { art: "termin", wert: wert };
     if (art === "strafen" && ["offen", "gemeldet", "bezahlt", "alle", "meine"].indexOf(wert) !== -1) return { art: "strafen", wert: wert };
     if (art === "kasse" && ["pruefen", "offen", "bezahlt"].indexOf(wert) !== -1) return { art: "kasse", wert: wert };
+    if (art === "strafe" && ["katalog", "individuell"].indexOf(wert) !== -1) return { art: "strafe", wert: wert };
     if (art === "lineup") return { art: "lineup", wert: wert };
     return null;
   }
@@ -6118,6 +6265,18 @@
     const ziel = deepLinkZiel(roh === undefined ? location.hash : roh);
     if (!ziel) { deepLinkHashWeg(); return false; }
     if (ziel.art === "lineup") { tvRouteInitialHash(); return true; }   // raeumt selbst auf
+    /* strafe= bleibt stehen: der Hash IST der Zustand der Eingabeseite.
+       Nach einem Neuladen geht sie dadurch leer und benutzbar wieder auf -
+       nie mit halb gefuelltem Formular, denn das lebte nur im Speicher. */
+    if (ziel.art === "strafe") {
+      if (!Roles.canManageFines()) { deepLinkHashWeg(); return false; }
+      const modus = ziel.wert === "individuell" ? "indiv" : "katalog";
+      ksSeiteLeeren();
+      kasse.seite = modus;
+      kasse.bloecke = { katalog: modus === "katalog", indiv: modus === "indiv" };
+      navJumpTo("kasse", {});
+      return true;
+    }
     deepLinkHashWeg();
     if (ziel.art === "ansicht") {
       if (!deepErlaubt(ziel.wert)) return false;
@@ -6151,8 +6310,8 @@
     blattAlleZu();
     // Die „Strafe verhängen"-Seite ueberlebt keinen Ansichtswechsel - sonst
     // faende man sie beim naechsten Aufruf der Kasse halb ausgefuellt vor.
-    if (kasse.seite) ksSeiteLeeren();
-    document.body.classList.remove("ks-seite-offen");
+    if (kasse.seite) { ksSeiteLeeren(); ksSeiteSync(); }
+    kasse.wartet = null;
     if (/^#?lineup=/.test(location.hash || "")) { try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {} }
     // Bereiche im „Mehr"-Menü (Aufstellung/Rollen) markieren den Mehr-Tab als aktiv.
     // Bereiche, die im Admin-„Mehr"-Sheet liegen (dann ist der Mehr-Tab aktiv).
@@ -6183,7 +6342,12 @@
     return !!(document.querySelector(".more-sheet:not([hidden])")
            || document.querySelector(".tv-sheet.open")
            || document.querySelector(".modal-ov")
-           || document.querySelector("#ksSheet.open"));
+           || document.querySelector("#ksSheet.open")
+           // Die Eingabeseite liegt ueber allem. Zoege man hier, verschoebe
+           // der Pull-to-Refresh den Container - und ein transformierter
+           // Vorfahre macht aus position:fixed eine Positionierung relativ zu
+           // ihm. Genau so ist scrollbug.webp entstanden.
+           || document.querySelector("#ksSeite:not([hidden])"));
   }
 
   /* Wisch nach unten schliesst ein Bottom-Sheet, wie unter iOS gewohnt.
@@ -6427,6 +6591,30 @@
   // rendern und dieselbe Datenquelle (DEMO) nutzen. Modul bleibt generisch fuer
   // spaetere Seiten mit eigenem Scroll-Container.
   attachPullToRefresh(document.getElementById("scrollArea"), reloadData);
+
+  /* Wie viel verdeckt die Tastatur?
+
+     `position: fixed` misst unter iOS am LAYOUT-Viewport, nicht am sichtbaren.
+     Ein Knopf am unteren Rand einer Vollbildflaeche liegt deshalb hinter der
+     Tastatur. visualViewport sagt, wie viel unten fehlt; der Wert steht als
+     --kb im Dokument, und die Vollbildflaechen enden dort statt bei 0.
+
+     Kein visualViewport (aelteres Android, Desktop): --kb bleibt 0 und alles
+     verhaelt sich wie vorher. */
+  (function () {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    let t = 0;
+    function abgleich() {
+      const unten = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+      // Unter ~90px ist es keine Tastatur, sondern die schrumpfende Adressleiste.
+      document.documentElement.style.setProperty("--kb", (unten > 90 ? unten : 0) + "px");
+    }
+    const geplant = () => { cancelAnimationFrame(t); t = requestAnimationFrame(abgleich); };
+    vv.addEventListener("resize", geplant);
+    vv.addEventListener("scroll", geplant);
+    abgleich();
+  })();
 
   /* Tastatur-Fix (iOS): sobald ein Eingabefeld fokussiert ist, die unteren fixen Leisten
      (Nav + Simulations-Bar) ausblenden -> kein Spalt, durch den Inhalt durchscheint. Nach dem
