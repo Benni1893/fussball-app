@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-26-B";
+  var APP_BUILD = "2026-09-26-C";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -4619,34 +4619,94 @@
       || String(kasse.indivBetrag).trim() || String(kasse.indivGrund).trim() || kasse.comment.trim());
   }
 
+  /* Eine Katalogzeile. Eigene Funktion, damit ein Tipp genau diese Zeile
+     austauschen kann statt der ganzen Liste - sonst springt die Seite an den
+     Anfang. */
+  function ksKatalogZeileHtml(k) {
+    const on = !!kasse.items[k.id];
+    const menge = (kasse.items[k.id] && kasse.items[k.id].menge) || 1;
+    const preis = k.typ === "staffel"
+      ? euro(k.proEinheit || 0).replace(/\s/g, " ") + " / " + (k.schritt || 1) + " " + esc(k.einheit || "")
+      : euro(k.betrag).replace(/\s/g, " ");
+    return `<div class="kasse-catrow${on ? " is-sel" : ""}" data-kat-zeile="${k.id}">
+      <button type="button" class="kasse-catpick" data-kasse-catrow="${k.id}">
+        <span class="ks-check" aria-hidden="true">${on ? ICON_CHECK : ""}</span>
+        <span class="kat-name">${esc(k.vergehen)}${k.typ === "staffel" ? ` <span class="badge badge-auto">gestaffelt</span>` : ""}</span>
+        <span class="kat-amount">${preis}</span>
+      </button>
+      ${on && k.typ === "staffel" ? `<div class="kasse-bezugwrap">
+        <input class="kasse-in kasse-bezug" data-kasse-bezug="${k.id}" inputmode="decimal" placeholder="${esc(k.einheit || "Menge")}" value="${esc(kasse.bezug[k.id] || "")}">
+        ${k.maxBetrag != null ? `<span class="kasse-staffel-hint">max ${euro(k.maxBetrag).replace(/\s/g, " ")}</span>` : ""}
+      </div>` : ""}
+      ${on && k.typ !== "staffel" ? `<div class="kasse-qty">
+        <button type="button" class="qty-btn" data-kasse-qty="${k.id}" data-d="-1" aria-label="weniger">−</button>
+        <span class="qty-n">${menge}×</span>
+        <button type="button" class="qty-btn" data-kasse-qty="${k.id}" data-d="1" aria-label="mehr">+</button>
+      </div>` : ""}
+    </div>`;
+  }
+
   function ksKatalogBlockHtml() {
     return `
       <div class="kasse-sub">Aus dem Katalog <span class="kasse-sub-hint">antippen zum Auswählen</span></div>
       <div class="kat-list kasse-catlist">
-        ${DEMO.katalog.map((k) => {
-          const on = !!kasse.items[k.id];
-          const menge = (kasse.items[k.id] && kasse.items[k.id].menge) || 1;
-          const preis = k.typ === "staffel"
-            ? euro(k.proEinheit || 0).replace(/\s/g, " ") + " / " + (k.schritt || 1) + " " + esc(k.einheit || "")
-            : euro(k.betrag).replace(/\s/g, " ");
-          return `<div class="kasse-catrow${on ? " is-sel" : ""}">
-            <button type="button" class="kasse-catpick" data-kasse-catrow="${k.id}">
-              <span class="ks-check" aria-hidden="true">${on ? ICON_CHECK : ""}</span>
-              <span class="kat-name">${esc(k.vergehen)}${k.typ === "staffel" ? ` <span class="badge badge-auto">gestaffelt</span>` : ""}</span>
-              <span class="kat-amount">${preis}</span>
-            </button>
-            ${on && k.typ === "staffel" ? `<div class="kasse-bezugwrap">
-              <input class="kasse-in kasse-bezug" data-kasse-bezug="${k.id}" inputmode="decimal" placeholder="${esc(k.einheit || "Menge")}" value="${esc(kasse.bezug[k.id] || "")}">
-              ${k.maxBetrag != null ? `<span class="kasse-staffel-hint">max ${euro(k.maxBetrag).replace(/\s/g, " ")}</span>` : ""}
-            </div>` : ""}
-            ${on && k.typ !== "staffel" ? `<div class="kasse-qty">
-              <button type="button" class="qty-btn" data-kasse-qty="${k.id}" data-d="-1" aria-label="weniger">−</button>
-              <span class="qty-n">${menge}×</span>
-              <button type="button" class="qty-btn" data-kasse-qty="${k.id}" data-d="1" aria-label="mehr">+</button>
-            </div>` : ""}
-          </div>`;
-        }).join("")}
+        ${DEMO.katalog.map(ksKatalogZeileHtml).join("")}
       </div>`;
+  }
+
+  /* Nur diese eine Zeile neu setzen, dann Summe und Knopf nachziehen. Findet
+     sich die Zeile nicht, wird doch komplett gezeichnet - aber mit gesicherter
+     Scrollposition. */
+  function ksKatalogZeileAktualisieren(id) {
+    const k = (DEMO.katalog || []).find((x) => x.id === id);
+    const alt = document.querySelector('#ksSeite [data-kat-zeile="' + id + '"]');
+    if (!k || !alt) { ksSeiteZeichnen(); return; }
+    alt.outerHTML = ksKatalogZeileHtml(k);
+    ksSeiteSummeAktualisieren();
+  }
+
+  function ksSeiteSummeAktualisieren() {
+    const sum = document.getElementById("kasseSummary");
+    if (sum) sum.innerHTML = kasseSummaryHtml();
+    ksSeiteKnopf();
+  }
+
+  /* Die freien Strafen: nur die Chipleiste und die beiden Felder anfassen. */
+  function ksIndivChipsHtml() {
+    if (!kasse.indiv.length) return "";
+    return `<div class="ks-ichips">${kasse.indiv.map((e, i) => `
+      <span class="ks-ichip">${esc(e.grund)} · ${euro(parseFloat(String(e.betrag).replace(",", ".")) || 0).replace(/\s/g, " ")}
+        <button type="button" class="chip-x" data-kasse-indiv-del="${i}" aria-label="entfernen">×</button></span>`).join("")}</div>`;
+  }
+
+  function ksIndivAktualisieren() {
+    const host = document.getElementById("ksSeite");
+    if (!host) return;
+    const neu = ksIndivChipsHtml();
+    const alt = host.querySelector(".ks-ichips");
+    if (alt && neu) alt.outerHTML = neu;
+    else if (alt) alt.remove();
+    else if (neu) {
+      const knopf = host.querySelector("[data-kasse-indiv-add]");
+      if (knopf) knopf.insertAdjacentHTML("afterend", neu);
+    }
+    const b = host.querySelector('[data-kasse-input="betrag"]');
+    const g = host.querySelector('[data-kasse-input="grund"]');
+    if (b) b.value = kasse.indivBetrag;
+    if (g) g.value = kasse.indivGrund;
+    ksSeiteSummeAktualisieren();
+  }
+
+  /* Die Spielerauswahl hat sich geaendert: Kopfzeile, Chips, Summe, Knopf.
+     Die Bloecke darunter bleiben stehen - samt Scrollposition und Eingaben. */
+  function ksSeiteSpielerAktualisieren() {
+    const host = document.getElementById("ksSeite");
+    if (!host || !host.firstChild) return;
+    const namen = kasse.players.map((id) => playerById[id] && playerById[id].name).filter(Boolean);
+    const txt = host.querySelector(".kasse-picker-txt");
+    if (txt) txt.textContent = namen.length ? namen.length + " Spieler gewählt" : "Spieler auswählen";
+    ksChipsAktualisieren(host, kasse.players, "data-ks-seite-sp-weg");
+    ksSeiteSummeAktualisieren();
   }
 
   function ksIndivBlockHtml() {
@@ -4655,9 +4715,7 @@
       <input class="kasse-in" data-kasse-input="betrag" inputmode="decimal" placeholder="Betrag €" value="${esc(kasse.indivBetrag)}">
       <input class="kasse-in" data-kasse-input="grund" type="text" placeholder="Grund" value="${esc(kasse.indivGrund)}">
       <button type="button" class="btn kasse-addbtn" data-kasse-indiv-add>Hinzufügen</button>
-      ${kasse.indiv.length ? `<div class="ks-ichips">${kasse.indiv.map((e, i) => `
-        <span class="ks-ichip">${esc(e.grund)} · ${euro(parseFloat(String(e.betrag).replace(",", ".")) || 0).replace(/\s/g, " ")}
-          <button type="button" class="chip-x" data-kasse-indiv-del="${i}" aria-label="entfernen">×</button></span>`).join("")}</div>` : ""}`;
+      ${ksIndivChipsHtml()}`;
   }
 
   function ksSeiteHtml() {
@@ -4686,12 +4744,12 @@
           <button type="button" class="tv-shx ks-seite-x" data-ks-seite-zu aria-label="Schließen">&times;</button>
         </div>
 
-        <div class="ks-seite-body">
+        <div class="ks-seite-body" data-scroll="ksSeiteBody">
           <button type="button" class="kasse-picker" data-ks-open-players>
             <span class="kasse-picker-txt">${chosen.length ? chosen.length + " Spieler gewählt" : "Spieler auswählen"}</span>
             <span class="kasse-picker-arrow" aria-hidden="true">›</span>
           </button>
-          ${chosen.length ? `<div class="ks-gewaehlt">${chosen.map((n) => `<span class="ks-gchip">${esc(n)}</span>`).join("")}</div>` : ""}
+          ${ksGewaehltChipsHtml(kasse.players, "data-ks-seite-sp-weg")}
 
           ${bloecke.join("")}
           ${fehlt ? `<button type="button" class="link-btn ks-auch" data-ks-auch="${fehlt[0]}">${fehlt[1]}</button>` : ""}
@@ -4879,28 +4937,49 @@
     if (ev.target.closest("[data-ks-open-players]")) { ksOpenPlayers(); return; }
     // Blöcke
     const auch = ev.target.closest("[data-ks-auch]");
-    if (auch) { kasse.bloecke[auch.dataset.ksAuch] = true; ksSeiteZeichnen(); return; }
+    if (auch) {
+      kasse.bloecke[auch.dataset.ksAuch] = true;
+      // Ein ganzer Block kommt dazu - hier muss die Seite neu, aber die
+      // Scrollposition bleibt.
+      mitScroll(document.getElementById("ksSeite"), ksSeiteZeichnen);
+      return;
+    }
+    /* Ab hier wird nur ausgetauscht, was sich aendert. Ein ksSeiteZeichnen()
+       wuerde den Scrollbereich neu erzeugen - und der startet bei 0. */
     const crow = ev.target.closest("[data-kasse-catrow]");
     if (crow) {
       const id = crow.dataset.kasseCatrow;
       if (kasse.items[id]) { delete kasse.items[id]; delete kasse.bezug[id]; }
       else kasse.items[id] = { menge: 1 };
-      ksSeiteZeichnen(); return;
+      ksKatalogZeileAktualisieren(id); return;
     }
     const qty = ev.target.closest("[data-kasse-qty]");
     if (qty) {
       const id = qty.dataset.kasseQty, d = parseInt(qty.dataset.d, 10) || 0;
-      if (kasse.items[id]) { kasse.items[id].menge = Math.max(1, (parseInt(kasse.items[id].menge, 10) || 1) + d); ksSeiteZeichnen(); }
+      if (kasse.items[id]) {
+        kasse.items[id].menge = Math.max(1, (parseInt(kasse.items[id].menge, 10) || 1) + d);
+        // Nur die Zahl zwischen den Knoepfen, damit der Finger auf dem Plus
+        // bleiben kann und nichts darunter wegrutscht.
+        const n = document.querySelector('#ksSeite [data-kat-zeile="' + id + '"] .qty-n');
+        if (n) { n.textContent = kasse.items[id].menge + "×"; ksSeiteSummeAktualisieren(); }
+        else ksKatalogZeileAktualisieren(id);
+      }
       return;
     }
     if (ev.target.closest("[data-kasse-indiv-add]")) {
       const b = parseFloat(String(kasse.indivBetrag).replace(",", "."));
       if (!isFinite(b) || b < 0 || !kasse.indivGrund.trim()) { window.alert("Bitte Betrag und Grund eingeben."); return; }
       kasse.indiv.push({ betrag: kasse.indivBetrag, grund: kasse.indivGrund.trim() });
-      kasse.indivBetrag = ""; kasse.indivGrund = ""; ksSeiteZeichnen(); return;
+      kasse.indivBetrag = ""; kasse.indivGrund = ""; ksIndivAktualisieren(); return;
     }
     const idel = ev.target.closest("[data-kasse-indiv-del]");
-    if (idel) { kasse.indiv.splice(parseInt(idel.dataset.kasseIndivDel, 10), 1); ksSeiteZeichnen(); return; }
+    if (idel) { kasse.indiv.splice(parseInt(idel.dataset.kasseIndivDel, 10), 1); ksIndivAktualisieren(); return; }
+    const spWeg = ev.target.closest("[data-ks-seite-sp-weg]");
+    if (spWeg) {
+      const i = kasse.players.indexOf(spWeg.dataset.ksSeiteSpWeg);
+      if (i >= 0) kasse.players.splice(i, 1);
+      ksSeiteSpielerAktualisieren(); return;
+    }
     if (ev.target.closest("[data-kasse-add]")) { await kasseSave(); return; }
   }
 
@@ -5042,6 +5121,41 @@
     </div>`;
   }
 
+  /* ==========================================================================
+     Antippen darf die Liste nicht neu bauen
+
+     Vorher hat jeder Tipp auf eine Zeile das ganze Blatt bzw. die ganze Seite
+     per innerHTML neu gesetzt. Ein frisch erzeugter Scroll-Container startet
+     bei scrollTop 0 - deshalb sprang die Ansicht an den Anfang, und ein
+     fokussiertes Feld verlor nebenbei den Fokus.
+
+     Ab hier wird nur ausgetauscht, was sich wirklich geaendert hat: die eine
+     Zeile, die Chipleiste, die Zusammenfassung, der Knopf. Wo ein voller
+     Neuaufbau unvermeidbar bleibt, sichert mitScroll() die Position.
+     ========================================================================== */
+
+  // Merkt die Scrollposition aller Scrollbereiche eines Elements und stellt
+  // sie nach dem Neuaufbau wieder her - ohne sichtbaren Sprung.
+  function mitScroll(wurzel, fn) {
+    if (!wurzel) { fn(); return; }
+    const vorher = [...wurzel.querySelectorAll("[data-scroll]")].map((e) => [e.dataset.scroll, e.scrollTop]);
+    const eigen = wurzel.scrollTop;
+    fn();
+    for (const [schluessel, oben] of vorher) {
+      const e = wurzel.querySelector('[data-scroll="' + schluessel + '"]');
+      if (e) e.scrollTop = oben;
+    }
+    if (eigen) wurzel.scrollTop = eigen;
+  }
+
+  function ksSpielerZeileHtml(p, on, attr) {
+    return `<button type="button" class="kat-item ks-prow${on ? " is-sel" : ""}" ${attr}="${p.id}">
+      <span class="avatar">${initials(p.name)}</span>
+      <span class="kat-name">${esc(p.name)}</span>
+      <span class="ks-check" aria-hidden="true">${on ? ICON_CHECK : ""}</span>
+    </button>`;
+  }
+
   function ksSpielerZeilenHtml(gewaehlt, frage, attr) {
     const alle = [...DEMO.players].sort((a, b) => nachname(a.name).localeCompare(nachname(b.name), "de"));
     const treffer = ksSpielerSuchen(alle, frage);
@@ -5049,14 +5163,33 @@
       return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Kein Treffer</div>
         <div class="rs">Kein Spieler heißt so.</div></div>`;
     }
-    return `<div class="kat-list ks-plist">${treffer.map((p) => {
-      const on = gewaehlt.indexOf(p.id) !== -1;
-      return `<button type="button" class="kat-item ks-prow${on ? " is-sel" : ""}" ${attr}="${p.id}">
-        <span class="avatar">${initials(p.name)}</span>
-        <span class="kat-name">${esc(p.name)}</span>
-        <span class="ks-check" aria-hidden="true">${on ? ICON_CHECK : ""}</span>
-      </button>`;
-    }).join("")}</div>`;
+    return `<div class="kat-list ks-plist">${treffer.map((p) =>
+      ksSpielerZeileHtml(p, gewaehlt.indexOf(p.id) !== -1, attr)).join("")}</div>`;
+  }
+
+  /* Eine Zeile umschalten, ohne die Liste anzufassen. Haken und Markierung
+     sitzen in der Zeile - mehr aendert sich dort nicht. */
+  function ksZeileUmschalten(wurzel, attr, id, an) {
+    const zeile = wurzel && wurzel.querySelector("[" + attr + '="' + id + '"]');
+    if (!zeile) return;
+    zeile.classList.toggle("is-sel", an);
+    const haken = zeile.querySelector(".ks-check");
+    if (haken) haken.innerHTML = an ? ICON_CHECK : "";
+  }
+
+  // Die Chipleiste steht ueber dem Scrollbereich; sie darf voll neu.
+  function ksChipsAktualisieren(wurzel, ids, attr) {
+    if (!wurzel) return;
+    const neu = ksGewaehltChipsHtml(ids, attr);
+    const alt = wurzel.querySelector(".ks-gewaehlt");
+    if (alt && neu) { alt.outerHTML = neu; return; }
+    if (alt && !neu) { alt.remove(); return; }
+    if (!alt && neu) {
+      // Die Chips stehen unter dem Suchfeld bzw., im Filterblatt, unter der
+      // Zeile „Spieler suchen".
+      const davor = wurzel.querySelector(".ks-suchfeld") || wurzel.querySelector(".ks-fl-suche");
+      if (davor) davor.insertAdjacentHTML("afterend", neu);
+    }
   }
 
   function ksGewaehltChipsHtml(ids, attr) {
@@ -5072,13 +5205,20 @@
   /* Der Knopf unten in Daumenreichweite - nicht „Fertig" oben rechts, wo der
      Daumen bei sieben Zoll nicht mehr hinkommt. Er trägt die Zahl, damit vor
      dem Tippen klar ist, was weitergeht. */
+  function ksWeiterText(n) {
+    return n ? "Weiter mit " + n + (n === 1 ? " Spieler" : " Spielern") : "Weiter";
+  }
   function ksWeiterKnopfHtml(n) {
-    const text = n ? "Weiter mit " + n + (n === 1 ? " Spieler" : " Spielern") : "Weiter";
     return `<div class="ks-fuss">
-      <button type="button" class="btn btn-primary ks-fuss-btn" data-ks-weiter${n ? "" : " disabled"}>${text}</button>
+      <button type="button" class="btn btn-primary ks-fuss-btn" data-ks-weiter${n ? "" : " disabled"}>${ksWeiterText(n)}</button>
     </div>`;
   }
-
+  function ksWeiterAktualisieren(wurzel, n) {
+    const btn = wurzel && wurzel.querySelector("[data-ks-weiter]");
+    if (!btn) return;
+    btn.disabled = !n;
+    btn.textContent = ksWeiterText(n);
+  }
   function ksEnsureSheet() {
     if (document.getElementById("ksSheet")) return;
     const scrim = document.createElement("div"); scrim.className = "tv-scrim"; scrim.id = "ksScrim"; scrim.setAttribute("data-ks-close", "");
@@ -5088,19 +5228,21 @@
     sheet.addEventListener("click", (ev) => {
       if (ev.target.closest("[data-ks-weiter]")) { ksWeiter(); return; }
       if (ev.target.closest("[data-ks-abbruch]")) { ksAbbruch(); return; }
-      if (ev.target.closest("[data-ks-such-leer]")) { kasse.suche = ""; ksRenderPlayers(); ksFokusSuche("ksSuche"); return; }
+      if (ev.target.closest("[data-ks-such-leer]")) {
+        // Leeren heisst weitersuchen: hier ist der Fokus erwuenscht.
+        kasse.suche = "";
+        const b = document.getElementById("ksBody");
+        if (b) b.innerHTML = ksSpielerZeilenHtml(kasse.players, "", "data-ks-player");
+        const feld = sheet.querySelector(".ks-such-in");
+        if (feld) feld.value = "";
+        ksSuchKreuz(sheet);
+        ksFokusSuche("ksSuche");
+        return;
+      }
       const weg = ev.target.closest("[data-ks-player-weg]");
-      if (weg) {
-        const i = kasse.players.indexOf(weg.dataset.ksPlayerWeg);
-        if (i >= 0) kasse.players.splice(i, 1);
-        ksRenderPlayers(); return;
-      }
+      if (weg) { ksSpielerUmschalten(sheet, weg.dataset.ksPlayerWeg); return; }
       const row = ev.target.closest("[data-ks-player]");
-      if (row) {
-        const id = row.dataset.ksPlayer; const i = kasse.players.indexOf(id);
-        if (i === -1) kasse.players.push(id); else kasse.players.splice(i, 1);
-        ksRenderPlayers();
-      }
+      if (row) { ksSpielerUmschalten(sheet, row.dataset.ksPlayer); }
     });
     /* Tippen filtert die Liste, ohne das Feld neu zu zeichnen - sonst
        verliert es den Fokus und die Tastatur klappt zu. */
@@ -5112,6 +5254,17 @@
       ksSuchKreuz(sheet);
     });
     sheet.addEventListener("keydown", ksSuchEnter);
+  }
+
+  /* Einen Spieler an- oder abwaehlen. Angefasst werden genau drei Dinge: die
+     Zeile, die Chipleiste und der Knopf. Die Liste selbst bleibt stehen - und
+     damit auch die Scrollposition. */
+  function ksSpielerUmschalten(sheet, id) {
+    const i = kasse.players.indexOf(id);
+    if (i === -1) kasse.players.push(id); else kasse.players.splice(i, 1);
+    ksZeileUmschalten(sheet, "data-ks-player", id, i === -1);
+    ksChipsAktualisieren(sheet, kasse.players, "data-ks-player-weg");
+    ksWeiterAktualisieren(sheet, kasse.players.length);
   }
 
   // Das Kreuz zum Leeren erscheint und verschwindet mit dem Inhalt.
@@ -5141,12 +5294,16 @@
       '<button class="tv-shx" data-ks-abbruch aria-label="Schließen">&times;</button></div>' +
       ksSuchfeldHtml("ksSuche", kasse.suche, "Suchen") +
       ksGewaehltChipsHtml(kasse.players, "data-ks-player-weg") +
-      '<div class="tv-shbody" id="ksBody">' +
+      '<div class="tv-shbody" id="ksBody" data-scroll="ksBody">' +
       ksSpielerZeilenHtml(kasse.players, kasse.suche, "data-ks-player") + '</div>' +
       ksWeiterKnopfHtml(kasse.players.length);
   }
 
-  function ksOpenPlayers() { ksEnsureSheet(); kasse.suche = ""; ksRenderPlayers(); blattAuf("ksScrim", "ksSheet"); ksFokusSuche("ksSuche"); }
+  /* Bewusst OHNE Fokus: ein automatisch fokussiertes Feld holt die Tastatur
+     und mit ihr die iOS-Formularleiste (Pfeile und Haken) hoch, noch bevor die
+     Ansicht steht - das war das Flackern aus flackernbalken.webp. Wer suchen
+     will, tippt das Feld an. */
+  function ksOpenPlayers() { ksEnsureSheet(); kasse.suche = ""; ksRenderPlayers(); blattAuf("ksScrim", "ksSheet"); }
 
   /* „Weiter": aus dem Wähler heraus geht es auf die Seite, von der Seite aus
      ist es schlicht ein Bestätigen. */
@@ -5154,9 +5311,19 @@
     if (!kasse.players.length) return;
     const ziel = kasse.wartet;
     kasse.wartet = null;
+    if (ziel) {
+      /* Erst die Seite aufbauen und sperren, dann das Blatt schliessen -
+         der Stapel faellt dabei nie auf null. ksSeiteSync() zeichnet die
+         Seite genau einmal; ein zweites ksSeiteZeichnen() waere ein
+         sichtbarer zweiter Aufbau. */
+      kasse.seite = ziel;
+      ksSeiteSync();
+      blattZu("ksScrim", "ksSheet");
+      return;
+    }
+    // Von der Seite aus geoeffnet: nur die geaenderte Auswahl nachziehen.
     blattZu("ksScrim", "ksSheet");
-    if (ziel) { kasse.seite = ziel; ksSeiteSync(); ksSeiteZeichnen(); return; }
-    ksSeiteZeichnen();
+    ksSeiteSpielerAktualisieren();
   }
 
   /* Abbruch mit dem Kreuz. Kam man aus dem Wähler, gibt es noch keine Seite -
@@ -5168,7 +5335,7 @@
 
   function ksClosePlayers() {
     blattZu("ksScrim", "ksSheet");
-    if (kasse.seite) { ksSeiteZeichnen(); return; }
+    if (kasse.seite) { ksSeiteSpielerAktualisieren(); return; }
     if (currentView === "kasse") renderKasse();
   }
 
@@ -5194,10 +5361,18 @@
       if (ev.target.closest("[data-ks-fl-close]")) { ksFlZu(); return; }
       if (ev.target.closest("[data-ks-fl-spieler]")) { ksSuAuf(); return; }
       const so = ev.target.closest("[data-ks-fl-sort]");
-      if (so) { kasse.flEntwurf.sort = so.dataset.ksFlSort; ksFlRender(); return; }
+      if (so) { kasse.flEntwurf.sort = so.dataset.ksFlSort; ksFlWahlSetzen(sheet, "data-ks-fl-sort", so.dataset.ksFlSort); return; }
       const ze = ev.target.closest("[data-ks-fl-zeit]");
-      if (ze) { kasse.flEntwurf.zeit = ze.dataset.ksFlZeit; ksFlRender(); return; }
-      if (ev.target.closest("[data-ks-fl-reset]")) { kasse.flEntwurf = ksFilterNeu(); ksFlRender(); return; }
+      if (ze) { kasse.flEntwurf.zeit = ze.dataset.ksFlZeit; ksFlWahlSetzen(sheet, "data-ks-fl-zeit", ze.dataset.ksFlZeit); return; }
+      const spWeg = ev.target.closest("[data-ks-fl-sp-weg]");
+      if (spWeg) {
+        const l = kasse.flEntwurf.spieler, i = l.indexOf(spWeg.dataset.ksFlSpWeg);
+        if (i >= 0) l.splice(i, 1);
+        ksChipsAktualisieren(sheet, l, "data-ks-fl-sp-weg");
+        ksFlZahlAktualisieren(sheet);
+        return;
+      }
+      if (ev.target.closest("[data-ks-fl-reset]")) { kasse.flEntwurf = ksFilterNeu(); mitScroll(sheet, ksFlRender); return; }
       if (ev.target.closest("[data-ks-fl-ok]")) {
         kasse.filter[ksFlTab()] = kasse.flEntwurf;
         ksFlZu();
@@ -5219,7 +5394,7 @@
     sheet.innerHTML =
       '<div class="tv-sh"><span class="tv-grip"></span><strong>Filter</strong>' +
       '<button class="tv-shx" data-ks-fl-close aria-label="Schließen">&times;</button></div>' +
-      '<div class="tv-shbody">' +
+      '<div class="tv-shbody" data-scroll="ksFlBody">' +
         '<button type="button" class="ks-fl-suche" data-ks-fl-spieler>' +
           '<span class="ks-zi" aria-hidden="true">' + ICON_LUPE + '</span>' +
           '<span class="ks-fl-suche-t">Spieler suchen</span>' +
@@ -5238,15 +5413,25 @@
         '<button type="button" class="btn" data-ks-fl-reset>Filter zurücksetzen</button>' +
         '<button type="button" class="btn btn-primary" data-ks-fl-ok>Anwenden</button>' +
       '</div>';
-    // Chips im Entwurf sind auch hier einzeln abwählbar.
-    sheet.querySelectorAll("[data-ks-fl-sp-weg]").forEach((b) => {
-      b.addEventListener("click", (ev) => {
-        ev.stopPropagation();
-        const i = f.spieler.indexOf(b.dataset.ksFlSpWeg);
-        if (i >= 0) f.spieler.splice(i, 1);
-        ksFlRender();
-      });
+  }
+
+  /* Eine Wahl in einer Liste umsetzen: den alten Haken loeschen, den neuen
+     setzen. Kein Neuaufbau - das Blatt scrollt sonst an den Anfang. */
+  function ksFlWahlSetzen(sheet, attr, wert) {
+    sheet.querySelectorAll("[" + attr + "]").forEach((b) => {
+      const an = b.getAttribute(attr) === wert;
+      b.classList.toggle("is-on", an);
+      const haken = b.querySelector(".ks-check");
+      if (haken) haken.innerHTML = an ? ICON_CHECK : "";
     });
+  }
+
+  // „2 gewählt" neben „Spieler suchen".
+  function ksFlZahlAktualisieren(sheet) {
+    const el = sheet.querySelector(".ks-fl-suche-n");
+    if (!el) return;
+    const n = kasse.flEntwurf.spieler.length;
+    el.textContent = n ? n + " gewählt" : "alle";
   }
 
   function ksFlAuf() {
@@ -5270,20 +5455,20 @@
     scrim.addEventListener("click", ksSuZu);
     sheet.addEventListener("click", (ev) => {
       if (ev.target.closest("[data-ks-su-close]")) { ksSuZu(); return; }
-      if (ev.target.closest("[data-ks-such-leer]")) { kasse.suche = ""; ksSuRender(); ksFokusSuche("ksSuIn"); return; }
+      if (ev.target.closest("[data-ks-such-leer]")) {
+        kasse.suche = "";
+        const b = document.getElementById("ksSuBody");
+        if (b) b.innerHTML = ksSpielerZeilenHtml(kasse.flEntwurf.spieler, "", "data-ks-su-player");
+        const feld = sheet.querySelector(".ks-such-in");
+        if (feld) feld.value = "";
+        ksSuchKreuz(sheet);
+        ksFokusSuche("ksSuIn");
+        return;
+      }
       const weg = ev.target.closest("[data-ks-su-weg]");
-      if (weg) {
-        const i = kasse.flEntwurf.spieler.indexOf(weg.dataset.ksSuWeg);
-        if (i >= 0) kasse.flEntwurf.spieler.splice(i, 1);
-        ksSuRender(); return;
-      }
+      if (weg) { ksSuUmschalten(sheet, weg.dataset.ksSuWeg); return; }
       const row = ev.target.closest("[data-ks-su-player]");
-      if (row) {
-        const id = row.dataset.ksSuPlayer, l = kasse.flEntwurf.spieler;
-        const i = l.indexOf(id);
-        if (i === -1) l.push(id); else l.splice(i, 1);
-        ksSuRender();
-      }
+      if (row) { ksSuUmschalten(sheet, row.dataset.ksSuPlayer); }
     });
     sheet.addEventListener("input", (ev) => {
       if (!ev.target.matches("#ksSuIn")) return;
@@ -5295,29 +5480,45 @@
     sheet.addEventListener("keydown", ksSuchEnter);
   }
 
+  function ksSuKnopfText(n) {
+    return n ? "Übernehmen: " + n + (n === 1 ? " Spieler" : " Spieler") : "Alle Spieler";
+  }
+
+  // Wie in der Spielerauswahl: Zeile, Chips, Knopf - sonst nichts.
+  function ksSuUmschalten(sheet, id) {
+    const l = kasse.flEntwurf.spieler;
+    const i = l.indexOf(id);
+    if (i === -1) l.push(id); else l.splice(i, 1);
+    ksZeileUmschalten(sheet, "data-ks-su-player", id, i === -1);
+    ksChipsAktualisieren(sheet, l, "data-ks-su-weg");
+    const btn = sheet.querySelector(".ks-fuss-btn");
+    if (btn) btn.textContent = ksSuKnopfText(l.length);
+  }
+
   function ksSuRender() {
     const sheet = document.getElementById("ksSuBl"); if (!sheet) return;
-    const n = kasse.flEntwurf.spieler.length;
     sheet.innerHTML =
       '<div class="tv-sh"><strong>Spieler suchen</strong>' +
       '<button class="tv-shx" data-ks-su-close aria-label="Schließen">&times;</button></div>' +
       ksSuchfeldHtml("ksSuIn", kasse.suche, "Suchen") +
       ksGewaehltChipsHtml(kasse.flEntwurf.spieler, "data-ks-su-weg") +
-      '<div class="tv-shbody" id="ksSuBody">' +
+      '<div class="tv-shbody" id="ksSuBody" data-scroll="ksSuBody">' +
       ksSpielerZeilenHtml(kasse.flEntwurf.spieler, kasse.suche, "data-ks-su-player") + '</div>' +
       '<div class="ks-fuss"><button type="button" class="btn btn-primary ks-fuss-btn" data-ks-su-close>' +
-      (n ? 'Übernehmen: ' + n + (n === 1 ? ' Spieler' : ' Spieler') : 'Alle Spieler') + '</button></div>';
+      ksSuKnopfText(kasse.flEntwurf.spieler.length) + '</button></div>';
   }
 
   function ksSuAuf() {
     ksSuEnsure(); kasse.suche = ""; ksSuRender();
-    blattAuf("ksSuScrim", "ksSuBl");
-    ksFokusSuche("ksSuIn");
+    blattAuf("ksSuScrim", "ksSuBl");   // ohne Fokus, siehe ksOpenPlayers
   }
   function ksSuZu() {
     if (!blattOffen("ksSuBl")) return;
     blattZu("ksSuScrim", "ksSuBl");
-    ksFlRender();
+    const sheet = document.getElementById("ksFlBl");
+    if (!sheet) return;
+    ksChipsAktualisieren(sheet, kasse.flEntwurf.spieler, "data-ks-fl-sp-weg");
+    ksFlZahlAktualisieren(sheet);
   }
 
   /* ---- Vollbild-Waehler „Strafe verhaengen" --------------------------------
@@ -5357,8 +5558,12 @@
       // zusaetzlichen Tipp auf „Spieler auswählen" entfaellt.
       kasse.wartet = modus;
       kasse.players = [];
-      ksWahlClose();
+      /* Erst das neue Blatt auf, dann das alte zu. Andersherum leert sich der
+         Blattstapel fuer einen Moment: die Scroll-Sperre faellt, der
+         Hintergrund springt an seine gemerkte Position, die Navigation faehrt
+         ein - und alles sofort wieder zurueck. Genau das flackerte. */
       ksOpenPlayers();
+      ksWahlClose();
     });
   }
   function ksWahlOpen() {
@@ -5412,8 +5617,9 @@
       </div>`;
     let body;
     if (ksBlatt.art === "buchen") {
-      // Vorbelegung: was der Spieler angegeben hat, sonst bar.
-      const gewaehlt = kasse.zahlart[s.id] || s.sagtZahlart || "bar";
+      /* Vorbelegung: was der Spieler angegeben hat, sonst PayPal - so kommt
+         das Geld in dieser Mannschaft ueberwiegend an. */
+      const gewaehlt = kasse.zahlart[s.id] || s.sagtZahlart || "paypal";
       const chips = KASSE_ZAHLARTEN.map(([k, label]) =>
         `<button type="button" class="zart${gewaehlt === k ? " is-on" : ""}" data-ks-zart="${k}">${zartIconHtml(k)}<span>${label}</span></button>`).join("");
       body = summe +
@@ -5465,7 +5671,7 @@
   async function ksBlattBuchen() {
     const s = ksStrafeById(ksBlatt.id);
     if (!s) return;
-    const method = kasse.zahlart[s.id] || s.sagtZahlart || "bar";
+    const method = kasse.zahlart[s.id] || s.sagtZahlart || "paypal";
     const btn = document.querySelector("[data-ks-bl-buchen]"); if (btn) btn.disabled = true;
     try {
       await DB.markFinesPaid([s.id], method);
@@ -5614,7 +5820,7 @@
       const conf = ev.target.closest("[data-kasse-confirm]");
       if (conf) {
         const s = ksStrafeById(conf.dataset.kasseConfirm);
-        try { await DB.confirmFines([conf.dataset.kasseConfirm], (s && s.sagtZahlart) || "bar"); await reloadData(); tvToast("Bestätigt"); }
+        try { await DB.confirmFines([conf.dataset.kasseConfirm], (s && s.sagtZahlart) || "paypal"); await reloadData(); tvToast("Bestätigt"); }
         catch (e) { window.alert("Bestätigen fehlgeschlagen: " + ((e && e.message) || e)); }
         return;
       }
@@ -5627,7 +5833,7 @@
           // gebucht wird und nicht alle mit der des ersten Spielers.
           const nachArt = {};
           liste.forEach((s) => {
-            const a = s.sagtZahlart || "bar";
+            const a = s.sagtZahlart || "paypal";
             (nachArt[a] = nachArt[a] || []).push(s.id);
           });
           for (const a of Object.keys(nachArt)) await DB.confirmFines(nachArt[a], a);

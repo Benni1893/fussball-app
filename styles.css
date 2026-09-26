@@ -2552,8 +2552,20 @@ body.kb-open .ks-fuss { padding-bottom: 12px; }
 .ks-card { position: relative; padding: 16px 16px 18px; text-align: center; cursor: pointer;
   -webkit-tap-highlight-color: transparent; }
 .ks-card:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; }
-.ks-kopf { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 22px; }
-.ks-kopf .link-btn { font-size: 14px; font-weight: 700; text-decoration: none; color: var(--green-700); }
+/* „1 VON 3" und „Alle bestätigen" sitzen auf der Innenkante der Karte und auf
+   einer Grundlinie. Der Knopf traegt seine 44px Trefferflaeche ueber ::after
+   statt ueber min-height: als echte Hoehe machte sie die Zeile 44 hoch und
+   schob beide Beschriftungen in deren Mitte - die Luft oben aus
+   abstandoben.png. */
+.ks-kopf { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.ks-kopf .link-btn {
+  position: relative; min-height: 0; line-height: 1;
+  font-size: 14px; font-weight: 700; text-decoration: none; color: var(--green-700);
+}
+.ks-kopf .link-btn::after {
+  content: ""; position: absolute; top: 50%; right: 0;
+  width: calc(100% + 16px); height: var(--tap); transform: translateY(-50%);
+}
 /* Heller Kreis mit dunkler Schrift - die Vorlage setzt ihn ruhiger als den
    dunkelgruenen Avatar der uebrigen Listen. */
 .ks-av { width: 56px; height: 56px; font-size: 17px; margin: 14px auto 0;
