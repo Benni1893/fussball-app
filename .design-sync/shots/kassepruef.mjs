@@ -124,9 +124,14 @@ console.log('--- Was es je Reiter gibt ---');
   gleich(b.zahlart, [], 'Eingegangen: ohne Auswahl zählen alle Zahlarten');
 
   // Die angebotenen Sortierungen.
+  /* Der Entwurf stellt den Standard nach links - deshalb beginnt „Offen"
+     mit „Älteste" und „Eingegangen" mit „Neueste". */
   gleich(M.KS_SORT.offen.map((x) => x[0]), ['alt', 'betrag', 'neu'],
-    'Offen: Älteste, Höchster Betrag, Neueste');
-  gleich(M.KS_SORT.bezahlt.map((x) => x[0]), ['neu'], 'Eingegangen: Sortierung ist fest');
+    'Offen: Älteste, Betrag, Neueste');
+  gleich(M.KS_SORT.bezahlt.map((x) => x[0]), ['neu', 'betrag', 'alt'],
+    'Eingegangen: Neueste, Betrag, Älteste');
+  gleich(M.KS_SORT.offen.map((x) => x[1]), ['Älteste', 'Betrag', 'Neueste'],
+    'kurze Beschriftungen wie im Entwurf');
   gleich(M.KS_ZEIT.map((x) => x[0]), ['monat', 'vormonat', 'saison'],
     'Zeiträume: Dieser Monat, Letzter Monat, Saison');
   // Die Zahlarten stehen in derselben Reihenfolge wie im Buchen-Blatt.
@@ -306,7 +311,7 @@ console.log('--- Was über der Liste steht ---');
   pruefe(h.includes('3.090,00 €'), 'die Kennzahl bleibt die Gesamtsumme');
   pruefe(/Offen <span class="ks-seg-n">140<\/span>/.test(h), 'die Reiterzahl bleibt 140');
   pruefe(h.includes('Daniel Koch'), 'der Spieler steht als Chip');
-  pruefe(h.includes('Höchster Betrag'), 'die Sortierung steht als Chip');
+  pruefe(h.includes('>Betrag<'), 'die Sortierung steht als Chip');
   pruefe(h.includes('data-ks-fl-weg="sp:p2"') && h.includes('data-ks-fl-weg="sort"'),
     'beide Chips sind einzeln abwählbar');
 
@@ -855,7 +860,12 @@ console.log('--- Bauteile ---');
     'und 12 px zwischen Kreis und Text - das Maß aller Avatarzeilen');
   pruefe(/\.zart \{[^}]*min-height: 64px/.test(css), 'Zahlart-Chips 64 px (Symbol über dem Text)');
   pruefe(/\.ks-fl-b \{[^}]*min-height: var\(--tap\)/.test(css), 'Filterleiste 44 px');
-  pruefe(/\.ks-wahlz \{[^}]*min-height: var\(--h-row\)/.test(css), 'Zeilen im Filterblatt 52 px');
+  pruefe(/\.ks-fl-box \{[^}]*min-height: 56px/.test(css), 'Zeilen im Filterblatt 56 px');
+  pruefe(/\.ks-za \{[^}]*min-height: var\(--tap\)/.test(css), 'Zahlart-Pillen 44 px');
+  pruefe(/\.ks-fl-x::after \{[^}]*width: var\(--tap\)/.test(css),
+    'das nackte Kreuz hat 44 px Trefferfläche');
+  pruefe(/\.ks-seg\.is-hell \{[^}]*background: var\(--surface-6\)/.test(css),
+    'die Segmentleiste im Blatt ist heller als die Reiterleiste');
   pruefe(/\.ks-such-in \{[^}]*min-height: var\(--h-in\)/.test(css), 'Suchfeld 46 px');
   pruefe(/\.ks-such-in \{[^}]*font-size: var\(--fs-input\)/.test(css),
     'Suchfeld mit 16px - sonst zoomt Safari beim Fokus');

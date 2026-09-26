@@ -100,36 +100,57 @@ function blatt(kopf, body, fuss = '') {
 const HAKEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
   'stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
 
-const wahlliste = (liste, wert) => '<div class="ks-wahlliste">' + liste.map(([k, label]) =>
-  '<button type="button" class="ks-wahlz' + (wert === k ? ' is-on' : '') + '">' +
-  '<span>' + label + '</span><span class="ks-check">' + (wert === k ? HAKEN : '') + '</span></button>').join('') + '</div>';
+const PERSON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
+  'stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/>' +
+  '<path d="M5.5 20c0-3.4 2.9-5.6 6.5-5.6s6.5 2.2 6.5 5.6"/></svg>';
+const KREUZ = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
+  'stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+
+const seg = (liste, wert, attr) => '<div class="ks-seg is-hell">' + liste.map(([k, label]) =>
+  '<button type="button" class="ks-seg-b' + (wert === k ? ' is-on' : '') + '" ' + attr + '="' + k + '">' +
+  label + '</button>').join('') + '</div>';
+
+const zaPillen = (gewaehlt) => '<div class="ks-za-row">' + M.KASSE_ZAHLARTEN.map(([k, label]) => {
+  const an = gewaehlt.indexOf(k) !== -1;
+  return '<button type="button" class="ks-za' + (an ? ' is-on' : '') + '">' +
+    (an ? '<span class="ks-za-ok">' + HAKEN + '</span>' : '') + '<span>' + label + '</span></button>';
+}).join('') + '</div>';
+
+const spielerZeile = (namen) =>
+  '<button type="button" class="ks-fl-box ks-fl-sp">' +
+    '<span class="ks-zi">' + PERSON + '</span>' +
+    '<span class="ks-fl-sp-t">Spieler</span>' +
+    '<span class="ks-fl-sp-w' + (namen ? ' is-gewaehlt' : '') + '">' + (namen || 'Alle') + '</span>' +
+    '<span class="kasse-picker-arrow">›</span></button>';
 
 const filterBlatt =
-  '<button type="button" class="ks-fl-suche">' +
-    '<span class="ks-zi">' + M.ICON_LUPE + '</span>' +
-    '<span class="ks-fl-suche-t">Spieler suchen</span>' +
-    '<span class="ks-fl-suche-n">2 gewählt</span>' +
-    '<span class="kasse-picker-arrow">›</span></button>' +
-  M.ksGewaehltChipsHtml(['p2', 'p4'], 'data-weg') +
-  '<div class="ks-fl-zeile"><span class="ks-fl-zeile-t">Nur überfällig</span>' +
-  '<button class="sw" role="switch" aria-checked="true" type="button"></button></div>' +
-  '<div class="ks-fl-hinweis">Älter als vier Wochen, gerechnet ab dem Datum der Strafe.</div>' +
-  '<div class="lbl ks-bl-lbl">Sortierung</div>' + wahlliste(M.KS_SORT.offen, 'betrag');
+  spielerZeile('') +
+  '<div class="lbl ks-fl-lbl">Sortierung</div>' + seg(M.KS_SORT.offen, 'alt', 'data-s') +
+  '<div class="lbl ks-fl-lbl">Einschränken</div>' +
+  '<div class="ks-fl-box ks-fl-schalter"><span class="ks-fl-box-main">' +
+    '<span class="ks-fl-box-t">Nur überfällig</span>' +
+    '<span class="ks-fl-box-s">Älter als 4 Wochen ab Strafdatum</span></span>' +
+    '<button class="sw" role="switch" aria-checked="false" type="button"></button></div>';
 
 const filterBlattB =
-  '<button type="button" class="ks-fl-suche">' +
-    '<span class="ks-zi">' + M.ICON_LUPE + '</span>' +
-    '<span class="ks-fl-suche-t">Spieler suchen</span>' +
-    '<span class="ks-fl-suche-n">alle</span>' +
-    '<span class="kasse-picker-arrow">›</span></button>' +
-  '<div class="lbl ks-bl-lbl">Zahlart</div>' + wahlliste(M.KASSE_ZAHLARTEN, 'bar') +
-  '<div class="ks-fl-hinweis">Ohne Auswahl zählen alle Zahlarten.</div>' +
-  '<div class="lbl ks-bl-lbl">Zeitraum</div>' + wahlliste(M.KS_ZEIT, 'saison') +
-  '<div class="ks-fl-hinweis">Nach Buchungsdatum. Die Saison läuft vom 1. Juli bis zum 30. Juni.</div>';
+  spielerZeile('Jonas Berger, Lukas Weber') +
+  '<div class="lbl ks-fl-lbl">Sortierung</div>' + seg(M.KS_SORT.bezahlt, 'betrag', 'data-s') +
+  '<div class="lbl ks-fl-lbl">Zahlart</div>' + zaPillen(['paypal', 'bar']) +
+  '<div class="ks-fl-hinweis">Ohne Auswahl werden alle Zahlarten gezeigt.</div>' +
+  '<div class="lbl ks-fl-lbl">Zeitraum</div>' + seg(M.KS_ZEIT, 'monat', 'data-z') +
+  '<div class="ks-fl-hinweis">Saison: 1. Juli bis 30. Juni, nach Buchungsdatum</div>';
 
-const filterFuss =
-  '<div class="ks-fl-fuss"><button type="button" class="btn">Filter zurücksetzen</button>' +
-  '<button type="button" class="btn btn-primary">Anwenden</button></div>';
+const filterFuss = (text) =>
+  '<div class="ks-fl-fuss"><button type="button" class="btn btn-primary">' + text + '</button></div>';
+
+/* Das Filterblatt hat einen eigenen Kopf: Titel, Zurücksetzen, nacktes Kreuz. */
+function filterBlattDemo(body, cta) {
+  return '<div class="blatt-demo ks-flbl"><div class="tv-sh ks-fl-kopf"><span class="tv-grip"></span>' +
+    '<strong class="ks-fl-titel">Filter</strong>' +
+    '<button type="button" class="link-btn ks-fl-reset">Zurücksetzen</button>' +
+    '<button type="button" class="ks-fl-x" aria-label="Schließen">' + KREUZ + '</button></div>' +
+    '<div class="tv-shbody">' + body + '</div>' + filterFuss(cta) + '</div>';
+}
 
 const suche =
   '<div class="tv-sh"><strong>Spieler suchen</strong>' +
@@ -252,13 +273,13 @@ ${ANSICHTEN.map(([t, inhalt, m]) => `  <div>
 
   <div>
     <div class="sp-h">13 · Filter-Blatt</div>
-    <div class="frame">${blatt('Filter', filterBlatt, filterFuss)}</div>
+    <div class="frame">${filterBlattDemo(filterBlatt, '243 Strafen anzeigen')}</div>
     <div class="meta">Arbeitet auf einem Entwurf: erst „Anwenden" schreibt ihn in den Filter des Reiters. Wer zwischendurch schließt, ändert nichts.</div>
   </div>
 
   <div>
     <div class="sp-h">14 · Filter-Blatt „Eingegangen"</div>
-    <div class="frame">${blatt('Filter', filterBlattB, filterFuss)}</div>
+    <div class="frame">${filterBlattDemo(filterBlattB, '4 Zahlungen anzeigen')}</div>
     <div class="meta">Anderer Reiter, andere Frage: Zahlart als Mehrfachauswahl und Zeitraum nach Buchungsdatum. Sortierung gibt es hier nicht — Neueste zuerst ist fest.</div>
   </div>
 

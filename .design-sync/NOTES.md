@@ -1005,3 +1005,34 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
   bereits richtig — das ist das Maß aller Avatarzeilen, im Bildskript gegen
   die Spielerliste gegengeprüft. Gemessen von der Innenkante: 14 → 16 links
   und rechts.
+
+**Filterblätter nach filterdesign.png (26.09.2026)**
+
+- **Eine Datei, drei Panels**, kein Ordner: `reference/app/filterdesign.png`.
+  Panel 1 „Zu prüfen / Offen", Panel 2 und 3 „Eingegangen".
+- **Was sich am Aufbau ändert**: Kopf mit Titel, „Zurücksetzen" und nacktem
+  Kreuz (kein grauer Kreis); die Spielerauswahl als umrandete Zeile, die die
+  gewählten Namen **inline** zeigt statt als Chipleiste darunter;
+  Einfachauswahl als Segmentleiste statt als Liste mit Haken; Zahlart als
+  Pillen; unten **ein** Knopf, der die Trefferzahl nennt und anwendet.
+- **„Anwenden" ist weg.** Der Zählknopf ist beides. Das ist ehrlicher: man
+  sieht vor dem Tippen, was herauskommt.
+- **Die Zahl auf dem Knopf ist reine Rechnung** auf den schon geladenen
+  Daten — dieselbe wie in der Liste, nur vorab. Keine neue Abfrage, keine
+  Änderung an der Fachlogik.
+- **Sortierung gibt es jetzt auch in „Eingegangen".** Im Paket davor war sie
+  dort fest („Neueste zuerst"); der Entwurf zeigt drei Möglichkeiten. Die
+  Reihenfolge folgt dem Entwurf: der Standard steht links, deshalb beginnt
+  „Offen" mit „Älteste" und „Eingegangen" mit „Neueste".
+- **Eine bewusste Abweichung: die Reihenfolge der Zahlart-Pillen.** Der
+  Entwurf zeigt Bar · Überweisung · PayPal, die stehende Regel lautet
+  „PayPal links, Bar Mitte, Überweisung rechts ... überall". Zwei
+  Reihenfolgen in derselben App wären schlechter als jede einzelne, deshalb
+  bleibt die Regel. Rückfrage läuft.
+- **Offene Frage: Panel 1 heißt „Zu prüfen / Offen".** „Zu prüfen" hat heute
+  gar keinen Filter. Ob das Blatt dort ebenfalls auftauchen soll, ist nicht zu
+  erraten — „Nur überfällig" passt dort nicht, und der Reiter zeigt einen
+  Kartenstapel, keine Liste. Nicht gebaut, nachgefragt.
+- **Alle Farben des Entwurfs sind vorhandene Tokens**: Segmentkasten
+  `--surface-6` (#eef2ef gemessen), Pille gewählt `--green-050`, Pille
+  ungewählt `--card` mit `--line`. Kein neues Token nötig.

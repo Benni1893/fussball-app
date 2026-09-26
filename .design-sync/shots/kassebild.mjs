@@ -94,6 +94,11 @@ const ctx = await br.newContext({ viewport: { width: 390, height: 844 }, deviceS
 const p = await ctx.newPage();
 let fehler = 0;
 
+/* Ein Skriptfehler in einer gerenderten Seite blieb bisher still - das Bild
+   war dann einfach leer und niemand sah, warum. */
+p.on('pageerror', (e) => { console.log('  !! Skriptfehler: ' + e.message); fehler++; });
+p.on('console', (m) => { if (m.type() === 'error') console.log('  !! Konsole: ' + m.text()); });
+
 console.log('--- Die drei Reiter mit den Zahlen der Vorlage ---');
 for (const [tab, datei] of [['pruefen', 'neu-1-pruefen.png'], ['offen', 'neu-2-offen.png'], ['bezahlt', 'neu-4-eingegangen.png']]) {
   frisch(); M.kasse.tab = tab;
@@ -284,44 +289,84 @@ console.log('--- Filter: Leiste, gefilterte Liste, ohne Treffer ---');
   frisch();
 }
 
-console.log('--- Filter-Blatt ---');
+console.log('--- Filter-Blatt nach filterdesign.png ---');
 {
-  const wahl = (liste, wert, attr) => `<div class="ks-wahlliste">${liste.map(([k, label]) =>
-    `<button type="button" class="ks-wahlz${wert === k ? ' is-on' : ''}" ${attr}="${k}">
-      <span>${label}</span><span class="ks-check">${wert === k ? HAKEN : ''}</span></button>`).join('')}</div>`;
-  const body =
-    '<button type="button" class="ks-fl-suche">' +
-      '<span class="ks-zi">' + M.ICON_LUPE + '</span>' +
-      '<span class="ks-fl-suche-t">Spieler suchen</span>' +
-      '<span class="ks-fl-suche-n">2 gewählt</span>' +
-      '<span class="kasse-picker-arrow">›</span></button>' +
-    M.ksGewaehltChipsHtml(['p2', 'p4'], 'data-x') +
-    '<div class="ks-fl-zeile"><span class="ks-fl-zeile-t">Nur überfällig</span>' +
-    '<button class="sw" role="switch" aria-checked="true" type="button"></button></div>' +
-    '<div class="ks-fl-hinweis">Älter als vier Wochen, gerechnet ab dem Datum der Strafe.</div>' +
-    '<div class="lbl ks-bl-lbl">Sortierung</div>' + wahl(M.KS_SORT.offen, 'betrag', 'data-s');
-  const fuss =
-    '<div class="ks-fl-fuss"><button type="button" class="btn">Filter zurücksetzen</button>' +
-    '<button type="button" class="btn btn-primary">Anwenden</button></div>';
-  await schuss(p, blattSeite('Filter', body, 'ks-flbl', fuss), 'filter-blatt.png', 844);
-  fehler += await ueberlauf(p, 'Filter-Blatt');
+  /* Das Markup kommt aus ksFlRender() - woertlich aus app.js gelesen, damit
+     die Gegenprobe das Blatt der App misst und nicht einen Nachbau. Nur die
+     Zaehlung des Knopfs wird gestuetzt: sie liest sonst aus der Datenbank. */
+  const quelle = fs.readFileSync('app.js', 'utf8');
+  const teil = (a, b) => {
+    const i = quelle.indexOf(a), j = quelle.indexOf(b, i);
+    if (i < 0 || j < 0) throw new Error('Anker nicht gefunden: ' + a);
+    return quelle.slice(i, j);
+  };
+  const bau = teil('  function ksSegHtml(liste, wert, attr) {', '  function ksFlRender() {')
+            + teil('  function ksFlRender() {', '  // Eine Zahlart-Pille');
 
-  // Dasselbe Blatt im Reiter „Eingegangen": Zahlart und Zeitraum statt
-  // ueberfaellig und Sortierung.
-  const bodyB =
-    '<button type="button" class="ks-fl-suche">' +
-      '<span class="ks-zi">' + M.ICON_LUPE + '</span>' +
-      '<span class="ks-fl-suche-t">Spieler suchen</span>' +
-      '<span class="ks-fl-suche-n">alle</span>' +
-      '<span class="kasse-picker-arrow">›</span></button>' +
-    '<div class="lbl ks-bl-lbl">Zahlart</div>' +
-    wahl(M.KASSE_ZAHLARTEN, 'bar', 'data-za') +
-    '<div class="ks-fl-hinweis">Ohne Auswahl zählen alle Zahlarten.</div>' +
-    '<div class="lbl ks-bl-lbl">Zeitraum</div>' + wahl(M.KS_ZEIT, 'saison', 'data-z') +
-    '<div class="ks-fl-hinweis">Nach Buchungsdatum. Die Saison läuft vom 1. Juli bis zum 30. Juni.</div>';
-  await schuss(p, blattSeite('Filter', bodyB, 'ks-flbl', fuss), 'filter-blatt-eingegangen.png', 844);
-  fehler += await ueberlauf(p, 'Filter-Blatt Eingegangen');
+  const SVGA = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
+    'stroke-linecap="round" stroke-linejoin="round"';
+  const stuetzen = [
+    'const ICON_CHECK = ' + JSON.stringify('<svg ' + SVGA + '><path d="M20 6 9 17l-5-5"/></svg>') + ';',
+    'const ICON_X = ' + JSON.stringify('<svg ' + SVGA + '><path d="M18 6 6 18M6 6l12 12"/></svg>') + ';',
+    'const ICON_PERSON = ' + JSON.stringify('<svg ' + SVGA +
+      '><circle cx="12" cy="8" r="3.6"/><path d="M5.5 20c0-3.4 2.9-5.6 6.5-5.6s6.5 2.2 6.5 5.6"/></svg>') + ';',
+    'function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ' +
+      '({ "&": "&amp;", "<": "&lt;", ">": "&gt;", 0x22: "&quot;" }[c] || c)); }',
+    'const KS_SORT = ' + JSON.stringify(M.KS_SORT) + ';',
+    'const KS_ZEIT = ' + JSON.stringify(M.KS_ZEIT) + ';',
+    'const KASSE_ZAHLARTEN = ' + JSON.stringify(M.KASSE_ZAHLARTEN) + ';',
+    'const playerById = ' + JSON.stringify(SPIELER_BY_ID) + ';',
+  ].join('\n');
+
+  const faelle = [
+    ['offen',   { spieler: [], sort: 'alt', faellig: false }, 243, 'fd-1-offen.png', '1 Zu prüfen / Offen'],
+    ['bezahlt', { spieler: [], sort: 'neu', zahlart: [], zeit: 'saison' }, 58, 'fd-2-eingegangen.png', '2 Eingegangen'],
+    ['bezahlt', { spieler: ['p4', 'p1'], sort: 'betrag', zahlart: ['bar', 'paypal'], zeit: 'monat' }, 4,
+     'fd-3-eingegangen-aktiv.png', '3 Eingegangen, Filter aktiv'],
+  ];
+
+  for (const [tab, entwurf, zahl, datei, name] of faelle) {
+    /* Die Stütze für ksFlTreffer() steht HINTER bau: Funktionsdeklarationen
+       werden hochgezogen, die letzte gewinnt. Stünde sie davor, käme die
+       echte zum Zug und suchte nach der Datenbank. */
+    const skript = stuetzen +
+      '\nconst kasse = { flEntwurf: ' + JSON.stringify(entwurf) + ' };' +
+      '\nfunction ksFlTab() { return ' + JSON.stringify(tab) + '; }\n' +
+      bau +
+      '\nfunction ksFlTreffer() { return ' + zahl + '; }' +
+      '\nksFlRender();';
+    const html = seite('', '.tv-scrim { opacity: 1; } .tv-sheet { transform: translateY(0); }')
+      .replace('</body>',
+        '<div class="tv-scrim open"></div>' +
+        '<div class="tv-sheet ks-bl ks-flbl open" id="ksFlBl"></div>' +
+        '<script>' + skript + '<' + '/script></body>');
+    const f = path.join(ZIEL, '_tmp.html');
+    fs.writeFileSync(f, html);
+    await p.goto(pathToFileURL(path.resolve(f)).href);
+    await p.waitForTimeout(150);
+    await p.screenshot({ path: path.join(ZIEL, datei) });
+    console.log('  ' + datei + '  (' + name + ')');
+    fehler += await ueberlauf(p, 'Filter-Blatt ' + name);
+
+    const m = await p.evaluate(() => {
+      const klein = [...document.querySelectorAll('#ksFlBl button')].map((b) => {
+        const r = b.getBoundingClientRect();
+        const na = getComputedStyle(b, '::after');
+        const h = Math.max(r.height, parseFloat(na.height) || 0);
+        return { k: (b.className || b.textContent.trim()).slice(0, 16), h: Math.round(h) };
+      }).filter((x) => x.h < 44);
+      return { klein, cta: (document.querySelector('[data-ks-fl-ok]') || {}).textContent,
+               leer: document.getElementById('ksFlBl').children.length };
+    });
+    if (!m.leer) { console.log('  !! das Blatt ist leer geblieben'); fehler++; }
+    if (m.klein.length) {
+      console.log('  !! unter 44 px: ' + m.klein.map((x) => x.k + ' ' + x.h).join(', '));
+      fehler++;
+    }
+    console.log('  Knopf: ' + JSON.stringify((m.cta || '').trim()));
+  }
 }
+
 
 console.log('--- Vollbild „Spieler suchen" ---');
 for (const [frage, gewaehlt, hoehe, datei] of [
@@ -804,10 +849,10 @@ console.log('--- Scrollposition beim Antippen ---');
         '<div class="rahmen ks-bl" id="huelle">' +
         '<div class="tv-shbody" id="flBody" data-scroll="ksFlBody">' +
         '<div style="height:600px"></div>' +
-        '<div class="ks-wahlliste">' +
+        '<div class="ks-seg is-hell" style="display:block">' +
         ['neu', 'alt', 'betrag'].map((k) =>
-          '<button type="button" class="ks-wahlz' + (k === 'neu' ? ' is-on' : '') + '" data-ks-fl-sort="' + k + '">' +
-          '<span>' + k + '</span><span class="ks-check">' + (k === 'neu' ? HAKEN : '') + '</span></button>').join('') +
+          '<button type="button" class="ks-seg-b' + (k === 'neu' ? ' is-on' : '') + '" data-ks-fl-sort="' + k + '">' +
+          k + '</button>').join('') +
         '</div><div style="height:400px"></div></div></div>' +
         '<script>' + stuetzen + helfer + '<\/script></body>');
     const f = path.join(ZIEL, '_tmp.html');
@@ -820,7 +865,7 @@ console.log('--- Scrollposition beim Antippen ---');
       const vorher = Math.round(box.scrollTop);
       ksFlWahlSetzen(document.getElementById('huelle'), 'data-ks-fl-sort', 'betrag');
       await new Promise((r) => setTimeout(r, 60));
-      const an = [...document.querySelectorAll('.ks-wahlz.is-on')].map((b) => b.getAttribute('data-ks-fl-sort'));
+      const an = [...document.querySelectorAll('.ks-seg-b.is-on')].map((b) => b.getAttribute('data-ks-fl-sort'));
       return { vorher, nachher: Math.round(box.scrollTop), an };
     });
     sag(m.vorher === m.nachher, 'Filter-Blatt: Position bleibt beim Wählen',
