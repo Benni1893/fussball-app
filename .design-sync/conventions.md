@@ -71,7 +71,7 @@ Layout-Beiwerk kommt als `style="…"` mit Tokens oder als neue, sprechende Klas
 | Platzansicht | `.tv-lu` (`.tv-ro`) `.tv-top` `.tv-ic` `.tv-hi` `.tv-game` `.tv-sub` · `.tv-formbar` `.tv-fpill` `.tv-fmore` · `.tv-field` `.tv-pitch` `.tv-pitch-bg` `.tv-slot` (`.filled` `.sel`) `.tv-disc` `.tv-role` `.tv-pn` · `.tv-bank` `.tv-bank-h` `.tv-bank-row` `.tv-bslot` `.tv-bnr` `.tv-bn` `.tv-bx` `.tv-bplus` `.tv-bfrei` · `.tv-actions` `.tv-primary` `.tv-ghost` `.tv-cta` `.tv-ro-note` |
 | Rückmeldungen-Blatt | `.rs2-panel` `.rs2-griff` `.rs2-kopf` `.rs2-kopf-text` `.rs2-titel` `.rs2-sub` `.rs2-zu` · `.rs2-bar` · `.rs2-kacheln` `.rs2-kachel` `.rs2-k-l` `.rs2-k-z` · `.rs2-liste` `.rs2-zeile` `.rs2-av` `.rs2-n` `.rs2-grund` `.rs2-leer` · `.rs2-fuss` `.rs2-btn` `.rs2-btn2` |
 | Konto | `.mine-banner` (`.is-clear`) `.mb-label` `.mb-value` `.mb-sub` `.mb-bar` `.mb-note` `.mb-pay` `.mb-pp` `.mb-foot` `.mb-cd` `.pp-word` · `.fine-list` `.fine-row` `.fine-main` `.fine-name` `.fine-desc` `.fine-reason` `.fine-right` `.fine-amt` |
-| Kasse | `.kpi-tapbar` `.ks-neu` `.kasse-add` `.kasse-lbl` `.kasse-count` `.kasse-players` `.kasse-chip` `.kasse-in` `.kasse-two` `.kasse-sum` `.kasse-sum-row` `.kasse-sum-total` `.kasse-save` `.ks-auch` · Reiter: `.ks-seg` `.ks-seg-b` (`.is-on`) `.ks-seg-n` · Spielerfilter: `.ks-fil` `.ks-fil-in` · Prüfkarte: `.ks-deck` `.ks-card` `.ks-kopf` `.ks-av` `.ks-name` `.ks-amt` `.ks-meta` `.ks-zitat` `.ks-actions` · Offen: `.krow-list` `.krow` `.krow-top` `.krow-title` `.krow-amt` `.krow-strafe` `.krow-verh` `.krow-actions` `.ks-storno` `.ks-buchen` · Eingegangen: `.ks-ein` `.ks-ein-row` `.ks-ok` `.ks-ein-main` `.ks-ein-n` `.ks-ein-m` `.ks-ein-b` · Angabe des Spielers: `.ks-sag` `.ks-zi` (`.is-pp`) · Blatt: `.ks-bl` `.ks-bl-sum` `.ks-bl-top` `.ks-bl-n` `.ks-bl-b` `.ks-bl-s` `.ks-bl-lbl` `.ks-bl-h` `.ks-bl-cta` · Wähler: `.ks-wahl` `.ks-wahl-b` `.ks-wahl-t` `.ks-wahl-s` `.ks-wahl-f` · Zahlung melden: `.zm-lbl` `.zm-opt` `.zm-zahl` (`.is-lang`) `.zm-note` · `.ks-leer` `.ks-leer-t` · `.ks-ichips` `.ks-ichip` · `.zart-row` `.zart` (`.is-on`) |
+| Kasse | `.kpi-tapbar` `.ks-neu` `.kasse-add` `.kasse-lbl` `.kasse-count` `.kasse-players` `.kasse-chip` `.kasse-in` `.kasse-two` `.kasse-sum` `.kasse-sum-row` `.kasse-sum-total` `.kasse-save` `.ks-auch` · Reiter: `.ks-seg` `.ks-seg-b` (`.is-on`) `.ks-seg-n` · Filter: `.ks-fl` `.ks-fl-b` `.ks-fl-t` `.ks-fl-n` `.ks-fl-aktiv` `.ks-fl-chip` `.ks-treffer` · Filter-Blatt: `.ks-flbl` `.ks-fl-suche` `.ks-fl-suche-t` `.ks-fl-suche-n` `.ks-fl-hinweis` `.ks-fl-fuss` `.ks-wahlliste` `.ks-wahlz` (`.is-on`) · Suche: `.ks-such` `.ks-suchfeld` `.ks-such-in` `.ks-such-x` `.ks-gewaehlt` `.ks-gchip` · Eingabeseite: `.ks-seite` `.ks-seite-kopf` `.ks-seite-zur` `.ks-seite-t` `.ks-seite-x` `.ks-seite-body` `.ks-seite-fuss` `.ks-seite-save` · Prüfkarte: `.ks-deck` `.ks-card` `.ks-kopf` `.ks-av` `.ks-name` `.ks-amt` `.ks-meta` `.ks-zitat` `.ks-actions` · Offen: `.krow-list` `.krow` `.krow-top` `.krow-title` `.krow-amt` `.krow-strafe` `.krow-verh` `.krow-actions` `.ks-storno` `.ks-buchen` · Eingegangen: `.ks-ein` `.ks-ein-row` `.ks-ok` `.ks-ein-main` `.ks-ein-n` `.ks-ein-m` `.ks-ein-b` · Angabe des Spielers: `.ks-sag` `.ks-zi` (`.is-pp`) · Blatt: `.ks-bl` `.ks-bl-sum` `.ks-bl-top` `.ks-bl-n` `.ks-bl-b` `.ks-bl-s` `.ks-bl-lbl` `.ks-bl-h` `.ks-bl-cta` · Wähler: `.ks-wahl` `.ks-wahl-b` `.ks-wahl-t` `.ks-wahl-s` `.ks-wahl-f` · Zahlung melden: `.zm-lbl` `.zm-opt` `.zm-zahl` (`.is-lang`) `.zm-note` · `.ks-leer` `.ks-leer-t` · `.ks-ichips` `.ks-ichip` · `.zart-row` `.zart` (`.is-on`) |
 | Katalog | `.kat-list` `.kat-item` `.kat-name` `.kat-sub` `.kat-amount` (`.is-staffel`) `.kat-actions` `.kat-add` · Bearbeiten: `.kat-edit` `.kat-in` `.kat-fixed` `.kat-eur` `.kat-staffel` `.kat-edit-actions` |
 | Formulare | `.termin-form` `.tf-row` `.tf-2col` `.tf-wdh` `.tf-radio` `.tf-bis` `.tf-summary` |
 | Tabelle | `.table-wrap` + `.rollen-tbl` `.player-cell` `.rollen-av` `.rollen-name` `.rollen-mail` |
@@ -242,3 +242,39 @@ mit `.tk-warn` und tauscht nur die Farbfamilie: `--grad-task-gold`,
 Er überlebt eine Ablehnung: abgelehnt heißt, der Kassenwart widerspricht der
 Behauptung, nicht dass sie nie gemacht wurde. Deshalb kann eine wieder offene
 Strafe den Balken und den Ablehnungsgrund gleichzeitig tragen.
+
+## Blätter: eine Steuerung, nicht elf
+
+Jedes Bottom-Sheet und jedes Vollbild-Blatt geht durch `blattAuf(scrimId,
+sheetId)` und `blattZu(...)`. Niemand setzt `classList.add("open")` mehr selbst —
+`kassepruef.mjs` prüft das.
+
+Was die Steuerung leistet:
+
+- **`lockBodyScroll()`** fixiert den `body` (`position: fixed`, `top:
+  -<scrollY>px`) und stellt die Scrollposition beim Schließen wieder her.
+  `overflow: hidden` allein reicht auf iOS im Standalone-Modus nicht. Der
+  Zähler darin erlaubt ein Blatt über einem Blatt.
+- **`body.blatt-offen`** fährt die untere Navigation weg (`translateY(110%)`,
+  `pointer-events: none`, danach `visibility: hidden`). Sie kommt erst zurück,
+  wenn das letzte Blatt zu ist.
+- Das Blatt sitzt seither am **unteren Bildschirmrand** (`bottom: 0`), nicht
+  mehr über der Navigationsleiste. Der letzte Block darin hält die Safe-Area
+  selbst frei.
+- `overscroll-behavior: contain` auf `.tv-shbody` und `.ks-seite-body`: Scrollen
+  im Blatt schlägt nicht auf den Hintergrund durch.
+
+Die `.more-sheet`-Blätter (Kalender-Abo, Rückmeldungen, Termin-Menü) und die
+Dialoge (`.modal-ov`) sperrten schon vorher und liegen mit z-index 70 bzw. 1000
+ohnehin über der Navigation — sie bleiben, wie sie sind.
+
+## Eine Seite statt eines Abschnitts
+
+`Strafe verhängen` ist keine Sektion im Kassen-Feed mehr, sondern eine eigene
+Seite (`.ks-seite`, `position: fixed`): Kopf oben fest, Speichern unten fest,
+dazwischen scrollt der Vorgang. `body.ks-seite-offen` blendet die untere
+Navigation aus — die Seite ist ein Vorgang mit Anfang und Ende, kein Ziel zum
+Hinspringen.
+
+Derselbe Aufbau eignet sich für jeden mehrstufigen Vorgang. Der Knopf unten
+trägt das Ergebnis, nicht nur das Verb: **„3 Strafen · 30,00 € speichern"**.

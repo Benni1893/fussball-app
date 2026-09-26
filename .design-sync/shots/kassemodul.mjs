@@ -26,6 +26,8 @@ const TEILE = [
   stueck('  const ZAHLART_LABEL = {', '\n'),
   stueck('  const SVG = ', '  let katEdit = null;'),
   stueck('  const kasse = {', '  function renderKasse() {'),
+  // Die Bausteine der Vollbild-Blaetter stehen hinter renderKasse().
+  stueck('  function ksSuchfeldHtml(', '  function ksEnsureSheet() {'),
 ];
 
 /* Was die Kasse aus der uebrigen App braucht. Alles andere kommt woertlich
@@ -42,17 +44,29 @@ const STUETZEN = `
   function vergehenName(s) { return s.vergehen || ""; }
   function fmtLong(iso) { const d = parseDate(iso); return d.getDate() + ". " + MON_LANG[d.getMonth()] + " " + d.getFullYear(); }
   function fmtTsStub() { return ""; }
+  // Sortierschluessel der Spielerliste - in app.js ein Einzeiler weiter oben.
+  function nachname(n) { const t = String(n || "").trim().split(/\s+/); return t[t.length - 1] || ""; }
   let playerById = {};
   let DEMO = { katalog: [], strafen: [], players: [] };
 `;
 
 const RUECK = `
   return {
-    kasse, kasseHtml, krowHtml, ksSagtHtml, ksFilterHtml,
+    kasse, kasseHtml, krowHtml, ksSagtHtml,
     renderKassePruefen, renderKasseOffen, renderKasseEing,
     kasseBuild, kasseSummaryHtml, zartIconHtml,
     fmtPunkt, fmtKurz, fmtGemeldet,
     KASSE_ZAHLARTEN, ZAHLART_LABEL,
+    // Filter und Suche
+    ksFilterNeu, ksFiltern, ksSortieren, ksImZeitraum, ksBezugsdatum,
+    ksFilterAnzahl, ksFilterChips, ksFilterleisteHtml, ksTrefferHtml,
+    ksNorm, ksSucheTrifft, ksSpielerSuchen,
+    KS_ZEIT, KS_SORT,
+    // Seite „Strafe verhängen"
+    ksSeiteHtml, ksSeiteBeruehrt, KS_SEITE_TITEL,
+    // Blätter (Markup ohne DOM-Anbindung)
+    ksSuchfeldHtml, ksSpielerZeilenHtml, ksGewaehltChipsHtml,
+    ICON_LUPE, ICON_FILTER,
     setDaten(p, d) { playerById = p; DEMO = d; },
   };
 `;

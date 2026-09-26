@@ -19,14 +19,30 @@ const DATEN = [
   ...ALLE.filter((s) => s.st === 'bestätigt').slice(0, 6),
 ];
 
-function reiter(tab) {
-  M.kasse.tab = tab; M.kasse.spFilter = ''; M.kasse.formOpen = false;
+function frisch() {
+  M.kasse.tab = 'pruefen'; M.kasse.seite = null;
   M.kasse.bloecke = { katalog: false, indiv: false };
+  M.kasse.players = []; M.kasse.items = {}; M.kasse.bezug = {}; M.kasse.indiv = [];
+  M.kasse.indivBetrag = ''; M.kasse.indivGrund = ''; M.kasse.comment = '';
+  M.kasse.filter = { offen: M.ksFilterNeu(), bezahlt: M.ksFilterNeu() };
+}
+function reiter(tab) { frisch(); M.kasse.tab = tab; return M.kasseHtml(DATEN); }
+function leer(tab)   { frisch(); M.kasse.tab = tab; return M.kasseHtml([]); }
+function gefiltert() {
+  frisch(); M.kasse.tab = 'offen';
+  M.kasse.filter.offen = { spieler: ['p2'], sort: 'betrag', zeit: '30' };
   return M.kasseHtml(DATEN);
 }
-function leer(tab) {
-  M.kasse.tab = tab; M.kasse.spFilter = ''; M.kasse.formOpen = false;
-  return M.kasseHtml([]);
+function seiteHtml(modus) {
+  frisch();
+  M.kasse.seite = modus;
+  M.kasse.bloecke = { katalog: modus === 'katalog', indiv: modus === 'indiv' };
+  M.kasse.players = ['p1', 'p2', 'p4'];
+  if (modus === 'katalog') M.kasse.items = { k1: { menge: 2 } };
+  else M.kasse.indiv = [{ betrag: '7,50', grund: 'Trikot vergessen' }];
+  const h = M.kasseHtml(DATEN);
+  frisch();
+  return h;
 }
 
 const s = DATEN.find((x) => x.id === "o1") || DATEN.find((x) => x.st === "offen");
@@ -75,11 +91,39 @@ const melden =
   '<textarea class="kasse-in zm-note" rows="2">zahle bar am Donnerstag</textarea>' +
   '<button class="btn btn-primary ks-bl-cta">Zahlung melden</button>';
 
-function blatt(kopf, body) {
+function blatt(kopf, body, fuss = '') {
   return '<div class="blatt-demo"><div class="tv-sh"><span class="tv-grip"></span><strong>' + kopf +
     '</strong><button class="tv-shx" aria-label="Schließen">&times;</button></div>' +
-    '<div class="tv-shbody">' + body + '</div></div>';
+    '<div class="tv-shbody">' + body + '</div>' + fuss + '</div>';
 }
+
+const HAKEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
+  'stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+
+const wahlliste = (liste, wert) => '<div class="ks-wahlliste">' + liste.map(([k, label]) =>
+  '<button type="button" class="ks-wahlz' + (wert === k ? ' is-on' : '') + '">' +
+  '<span>' + label + '</span><span class="ks-check">' + (wert === k ? HAKEN : '') + '</span></button>').join('') + '</div>';
+
+const filterBlatt =
+  '<button type="button" class="ks-fl-suche">' +
+    '<span class="ks-zi">' + M.ICON_LUPE + '</span>' +
+    '<span class="ks-fl-suche-t">Spieler suchen</span>' +
+    '<span class="ks-fl-suche-n">2 gewählt</span>' +
+    '<span class="kasse-picker-arrow">›</span></button>' +
+  M.ksGewaehltChipsHtml(['p2', 'p4'], 'data-weg') +
+  '<div class="lbl ks-bl-lbl">Sortierung</div>' + wahlliste(M.KS_SORT.offen, 'betrag') +
+  '<div class="lbl ks-bl-lbl">Zeitraum</div>' + wahlliste(M.KS_ZEIT, '30') +
+  '<div class="ks-fl-hinweis">Der Zeitraum zählt ab dem Datum der Strafe.</div>';
+
+const filterFuss =
+  '<div class="ks-fl-fuss"><button type="button" class="btn">Filter zurücksetzen</button>' +
+  '<button type="button" class="btn btn-primary">Anwenden</button></div>';
+
+const suche =
+  '<div class="tv-sh"><strong>Spieler suchen</strong><button class="ks-done">Fertig</button></div>' +
+  M.ksSuchfeldHtml('ksSuIn', 'ko', 'Name eingeben') +
+  M.ksGewaehltChipsHtml(['p2'], 'data-weg') +
+  '<div class="tv-shbody">' + M.ksSpielerZeilenHtml(['p2'], 'ko', 'data-p') + '</div>';
 
 const ANSICHTEN = [
   ['1 · Zu prüfen — genau eine Meldung im Blick', reiter('pruefen'),
@@ -89,7 +133,13 @@ const ANSICHTEN = [
   ['3 · Eingegangen — eine Karte mit Zeilen', reiter('bezahlt'),
    'Zeilen statt Karten. Die Zahlart steht mit eigenem Symbol; PayPal trägt als einzige ihre Hausfarbe, weil es eine Marke ist.'],
   ['4 · Leer — je Reiter ein eigener Satz', leer('offen'),
-   'Leer und „keine Treffer" sind zwei verschiedene Meldungen: die erste heißt, es gibt nichts, die zweite, der Spielerfilter greift.'],
+   'Leer und „keine Treffer" sind zwei verschiedene Meldungen: die erste heißt, es gibt nichts, die zweite, der Filter greift.'],
+  ['5 · Gefiltert — Leiste, Chips, „x von y"', gefiltert(),
+   'Die Leiste nennt die Zahl der aktiven Filter, darunter stehen sie einzeln als abwählbare Chips. Kennzahlen und Reiterzahlen bleiben ungefiltert — sonst wüsste man nicht mehr, wovon man einen Ausschnitt sieht.'],
+  ['6 · Strafe verhängen: Katalog-Seite', '<div class="seite-demo">' + seiteHtml('katalog') + '</div>',
+   'Eine eigene Seite, kein Abschnitt im Feed: ohne Kennzahlen, ohne Reiter, ohne untere Navigation. Kopf oben fest, Speichern unten fest mit Anzahl und Summe.'],
+  ['7 · Strafe verhängen: Individuell-Seite', '<div class="seite-demo">' + seiteHtml('indiv') + '</div>',
+   'Spiegelbildlich aufgebaut. Der Link unten holt den jeweils anderen Block dazu — gemischte Vorgänge bleiben in einem create_fines_batch.'],
 ];
 
 const html = `<!-- @dsCard group="Ansichten" -->
@@ -115,6 +165,12 @@ const html = `<!-- @dsCard group="Ansichten" -->
   .wahl-demo { background: var(--card); border-radius: 12px; height: 520px; display: flex; flex-direction: column; overflow: hidden; }
   .wahl-demo .tv-shbody { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; gap: 14px; padding: 16px; }
   .wahl-demo .ks-wahl-b { flex: 1 1 0; max-height: 300px; }
+  /* Die Eingabeseite liegt in der App ueber dem ganzen Bildschirm. */
+  .seite-demo { position: relative; height: 620px; border-radius: 12px; overflow: hidden; }
+  .seite-demo .ks-seite { position: absolute; }
+  .seite-demo .ks-seite-kopf { padding-top: 12px; }
+  .such-demo { background: var(--card); border-radius: 12px; height: 520px; display: flex; flex-direction: column; overflow: hidden; }
+  .such-demo .tv-shbody { flex: 1 1 auto; }
 </style>
 </head>
 <body>
@@ -158,7 +214,19 @@ ${ANSICHTEN.map(([t, inhalt, m]) => `  <div>
   </div>
 
   <div>
-    <div class="sp-h">8 · Spieleransicht „Zahlung melden"</div>
+    <div class="sp-h">8 · Filter-Blatt</div>
+    <div class="frame">${blatt('Filter', filterBlatt, filterFuss)}</div>
+    <div class="meta">Arbeitet auf einem Entwurf: erst „Anwenden" schreibt ihn in den Filter des Reiters. Wer zwischendurch schließt, ändert nichts.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">9 · Vollbild „Spieler suchen"</div>
+    <div class="frame"><div class="such-demo ks-such">${suche}</div></div>
+    <div class="meta">Liegt über dem Filter-Blatt. Suchfeld oben mit sofortigem Fokus, Mehrfachauswahl, Umlaute tolerant in beide Richtungen: „muller" findet „Müller" und umgekehrt.</div>
+  </div>
+
+  <div>
+    <div class="sp-h">10 · Spieleransicht „Zahlung melden"</div>
     <div class="frame">${blatt('Zahlung melden', melden)}</div>
     <div class="meta">Die Gegenseite zum Buchen-Blatt: der Spieler sagt, wie er gezahlt hat, und darf einen Satz dazuschreiben. Beides landet in reported_method und reported_note und steht dem Kassenwart vor Augen.</div>
   </div>

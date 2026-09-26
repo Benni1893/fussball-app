@@ -7,6 +7,7 @@
 import { chromium } from 'playwright';
 import fs from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { ladeKasse, SPIELER, SPIELER_BY_ID, beispielDaten, KATALOG } from './kassemodul.mjs';
 
 const ZIEL = '.design-sync/reference/compare';
@@ -15,6 +16,17 @@ fs.mkdirSync(ZIEL, { recursive: true });
 const M = ladeKasse();
 M.setDaten(SPIELER_BY_ID, { katalog: KATALOG, strafen: [], players: SPIELER });
 const DATEN = beispielDaten();
+const HAKEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
+  'stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+
+// Zustand zurueck auf Anfang, damit kein Bild vom vorigen erbt.
+function frisch() {
+  M.kasse.tab = 'pruefen'; M.kasse.seite = null;
+  M.kasse.bloecke = { katalog: false, indiv: false };
+  M.kasse.players = []; M.kasse.items = {}; M.kasse.bezug = {}; M.kasse.indiv = [];
+  M.kasse.indivBetrag = ''; M.kasse.indivGrund = ''; M.kasse.comment = '';
+  M.kasse.filter = { offen: M.ksFilterNeu(), bezahlt: M.ksFilterNeu() };
+}
 
 /* Der Rahmen der App: Kopfband, Inhaltsspalte, Bottom-Nav. Nur so viel, dass
    die Kasse an derselben Stelle sitzt wie in der Vorlage. */
@@ -36,7 +48,7 @@ function seite(inhalt, extra = '') {
 async function schuss(p, html, datei, hoehe) {
   const f = path.join(ZIEL, '_tmp.html');
   fs.writeFileSync(f, html);
-  await p.goto('file://' + path.resolve(f).replace(/\\/g, '/'));
+  await p.goto(pathToFileURL(path.resolve(f)).href);
   await p.waitForTimeout(180);
   await p.setViewportSize({ width: 390, height: hoehe || 844 });
   await p.screenshot({ path: path.join(ZIEL, datei), fullPage: !hoehe });
@@ -69,7 +81,7 @@ let fehler = 0;
 
 console.log('--- Die drei Reiter mit den Zahlen der Vorlage ---');
 for (const [tab, datei] of [['pruefen', 'neu-1-pruefen.png'], ['offen', 'neu-2-offen.png'], ['bezahlt', 'neu-4-eingegangen.png']]) {
-  M.kasse.tab = tab; M.kasse.spFilter = ''; M.kasse.formOpen = false;
+  frisch(); M.kasse.tab = tab;
   await schuss(p, seite(M.kasseHtml(DATEN)), datei, tab === 'offen' ? 900 : 844);
   fehler += await ueberlauf(p, tab);
 }
@@ -136,15 +148,25 @@ function blattMarkup(art, s, zahlart) {
     (s.st === 'bestätigt' ? '<button class="btn ks-bl-cta">Buchung rückgängig</button>' : '');
 }
 
-function blattSeite(kopf, body) {
+function blattSeite(kopf, body, extraKlasse = '', fuss = '') {
   return seite('', `
     .tv-scrim { opacity: 1; }
     .tv-sheet { transform: translateY(0); }
   `).replace('</div></body>',
     '</div><div class="tv-scrim open"></div>' +
-    '<div class="tv-sheet ks-bl open"><div class="tv-sh"><span class="tv-grip"></span><strong>' + kopf +
+    '<div class="tv-sheet ks-bl ' + extraKlasse + ' open"><div class="tv-sh"><span class="tv-grip"></span><strong>' + kopf +
     '</strong><button class="tv-shx" aria-label="Schließen">&times;</button></div>' +
-    '<div class="tv-shbody">' + body + '</div></div></body>');
+    '<div class="tv-shbody">' + body + '</div>' + fuss + '</div></body>');
+}
+
+/* Ein Vollbild-Blatt (tv-kfull), fuer „Spieler suchen" und den Waehler. */
+function vollbildSeite(inhalt, extraKlasse = '') {
+  return seite('', `
+    .tv-scrim { opacity: 1; }
+    .tv-sheet.tv-kfull { transform: translateY(0); }
+  `).replace('</div></body>',
+    '</div><div class="tv-scrim open"></div>' +
+    '<div class="tv-sheet tv-kfull ' + extraKlasse + ' open">' + inhalt + '</div></body>');
 }
 
 console.log('--- Blatt „Als bezahlt buchen" und Detail ---');
@@ -159,17 +181,14 @@ console.log('--- Blatt „Als bezahlt buchen" und Detail ---');
 
 console.log('--- Vollbild-Wähler „Strafe verhängen" ---');
 {
-  const waehler = seite('', '.tv-scrim { opacity: 1; } .tv-sheet.tv-kfull { transform: translateY(0); }')
-    .replace('</div></body>',
-      '</div><div class="tv-scrim open"></div>' +
-      '<div class="tv-sheet tv-kfull ks-wahl open">' +
+  const waehler = vollbildSeite(
       '<div class="tv-sh"><strong>Strafe verhängen</strong><button class="tv-shx" aria-label="Schließen">&times;</button></div>' +
       '<div class="tv-shbody">' +
         '<button type="button" class="ks-wahl-b"><span class="ks-wahl-t">Strafe aus Katalog hinzufügen</span>' +
         '<span class="ks-wahl-s">Aus dem Strafenkatalog wählen, mit Menge oder Bezugsgröße.</span></button>' +
         '<button type="button" class="ks-wahl-b"><span class="ks-wahl-t">Individuelle Strafe</span>' +
         '<span class="ks-wahl-s">Freier Grund und freier Betrag.</span></button></div>' +
-      '<div class="ks-wahl-f"><button type="button" class="btn">Schließen</button></div></div></body>');
+      '<div class="ks-wahl-f"><button type="button" class="btn">Schließen</button></div>', 'ks-wahl');
   await schuss(p, waehler, 'waehler.png', 844);
   fehler += await ueberlauf(p, 'Wähler');
 }
@@ -191,34 +210,198 @@ for (const [art, note, datei] of [[null, '', 'zm-leer.png'], ['bar', 'zahle bar 
   fehler += await ueberlauf(p, 'Zahlung melden ' + (art || 'leer'));
 }
 
-console.log('--- Formular je Modus ---');
-for (const [modus, datei] of [['katalog', 'form-katalog.png'], ['indiv', 'form-indiv.png']]) {
-  M.kasse.formOpen = true;
+console.log('--- Die beiden „Strafe verhängen"-Seiten ---');
+for (const [modus, datei] of [['katalog', 'seite-katalog.png'], ['indiv', 'seite-indiv.png']]) {
+  frisch();
+  M.kasse.seite = modus;
   M.kasse.bloecke = { katalog: modus === 'katalog', indiv: modus === 'indiv' };
-  M.kasse.players = ['p1', 'p2'];
-  M.kasse.tab = 'offen';
-  await schuss(p, seite(M.kasseHtml(DATEN)), datei, 900);
-  fehler += await ueberlauf(p, 'Formular ' + modus);
+  M.kasse.players = ['p1', 'p2', 'p4'];
+  if (modus === 'katalog') M.kasse.items = { k1: { menge: 2 } };
+  else M.kasse.indiv = [{ betrag: '7,50', grund: 'Trikot vergessen' }];
+  await schuss(p, seite(M.kasseHtml(DATEN)), datei, 844);
+  fehler += await ueberlauf(p, 'Seite ' + modus);
 }
-M.kasse.formOpen = false; M.kasse.bloecke = { katalog: false, indiv: false }; M.kasse.players = [];
 
-console.log('--- Spielerfilter aktiv ---');
-{
-  M.kasse.tab = 'offen'; M.kasse.spFilter = 'p1';
-  await schuss(p, seite(M.kasseHtml(DATEN)), 'filter-offen.png', 700);
-  fehler += await ueberlauf(p, 'Filter offen');
-  M.kasse.spFilter = '';
+/* Mit offener Tastatur: iOS verkleinert das sichtbare Fenster, es bleiben rund
+   420 px. Der Speichern-Knopf muss auch dann erreichbar bleiben. */
+console.log('--- Die Seiten mit offener Tastatur (420 px hoch) ---');
+for (const [modus, datei] of [['katalog', 'seite-katalog-tastatur.png'], ['indiv', 'seite-indiv-tastatur.png']]) {
+  frisch();
+  M.kasse.seite = modus;
+  M.kasse.bloecke = { katalog: modus === 'katalog', indiv: modus === 'indiv' };
+  M.kasse.players = ['p1', 'p2', 'p4'];
+  if (modus === 'katalog') M.kasse.items = { k1: { menge: 1 } };
+  else { M.kasse.indivBetrag = '7,50'; M.kasse.indivGrund = 'Trikot'; }
+  await p.setViewportSize({ width: 390, height: 420 });
+  await schuss(p, seite(M.kasseHtml(DATEN)), datei, 420);
+  const sicht = await p.evaluate(() => {
+    const b = document.querySelector('.ks-seite-save');
+    if (!b) return null;
+    const r = b.getBoundingClientRect();
+    return { unten: Math.round(r.bottom), fenster: window.innerHeight, sichtbar: r.bottom <= window.innerHeight + 1 };
+  });
+  if (!sicht || !sicht.sichtbar) { console.log('  !! Speichern-Knopf nicht sichtbar bei 420 px'); fehler++; }
+  else console.log('  Speichern-Knopf sitzt bei ' + sicht.unten + ' von ' + sicht.fenster + ' px');
+  await p.setViewportSize({ width: 390, height: 844 });
 }
+frisch();
+
+console.log('--- Filter: Leiste, gefilterte Liste, ohne Treffer ---');
+{
+  frisch();
+  M.kasse.tab = 'offen';
+  M.kasse.filter.offen = { spieler: ['p2'], sort: 'betrag', zeit: '30' };
+  await schuss(p, seite(M.kasseHtml(DATEN)), 'filter-offen.png', 844);
+  fehler += await ueberlauf(p, 'Filter offen');
+
+  M.kasse.tab = 'bezahlt';
+  M.kasse.filter.bezahlt = { spieler: ['p1'], sort: 'neu', zeit: 'alle' };
+  await schuss(p, seite(M.kasseHtml(DATEN)), 'filter-eingegangen.png', 700);
+  fehler += await ueberlauf(p, 'Filter eingegangen');
+
+  // Leerzustand einer gefilterten Liste - nicht zu verwechseln mit „nichts da".
+  M.kasse.tab = 'offen';
+  M.kasse.filter.offen = { spieler: ['p7'], sort: 'neu', zeit: 'heute' };
+  const alt = DATEN.filter((s) => s.st !== 'offen')
+    .concat(DATEN.filter((s) => s.st === 'offen').slice(0, 5).map((s) => ({ ...s, datum: '2026-01-02' })));
+  await schuss(p, seite(M.kasseHtml(alt)), 'filter-leer.png', 700);
+  fehler += await ueberlauf(p, 'Filter ohne Treffer');
+  frisch();
+}
+
+console.log('--- Filter-Blatt ---');
+{
+  const wahl = (liste, wert, attr) => `<div class="ks-wahlliste">${liste.map(([k, label]) =>
+    `<button type="button" class="ks-wahlz${wert === k ? ' is-on' : ''}" ${attr}="${k}">
+      <span>${label}</span><span class="ks-check">${wert === k ? HAKEN : ''}</span></button>`).join('')}</div>`;
+  const body =
+    '<button type="button" class="ks-fl-suche">' +
+      '<span class="ks-zi">' + M.ICON_LUPE + '</span>' +
+      '<span class="ks-fl-suche-t">Spieler suchen</span>' +
+      '<span class="ks-fl-suche-n">2 gewählt</span>' +
+      '<span class="kasse-picker-arrow">›</span></button>' +
+    M.ksGewaehltChipsHtml(['p2', 'p4'], 'data-x') +
+    '<div class="lbl ks-bl-lbl">Sortierung</div>' + wahl(M.KS_SORT.offen, 'betrag', 'data-s') +
+    '<div class="lbl ks-bl-lbl">Zeitraum</div>' + wahl(M.KS_ZEIT, '30', 'data-z') +
+    '<div class="ks-fl-hinweis">Der Zeitraum zählt ab dem Datum der Strafe.</div>';
+  const fuss =
+    '<div class="ks-fl-fuss"><button type="button" class="btn">Filter zurücksetzen</button>' +
+    '<button type="button" class="btn btn-primary">Anwenden</button></div>';
+  await schuss(p, blattSeite('Filter', body, 'ks-flbl', fuss), 'filter-blatt.png', 844);
+  fehler += await ueberlauf(p, 'Filter-Blatt');
+}
+
+console.log('--- Vollbild „Spieler suchen" ---');
+for (const [frage, gewaehlt, hoehe, datei] of [
+  ['',   ['p2'],       844, 'suche-leer.png'],
+  ['ko', ['p2', 'p4'], 420, 'suche-tastatur.png'],   // 420 px = Tastatur offen
+]) {
+  const inhalt =
+    '<div class="tv-sh"><strong>Spieler suchen</strong>' +
+    '<button class="ks-done">Fertig</button></div>' +
+    M.ksSuchfeldHtml('ksSuIn', frage, 'Name eingeben') +
+    M.ksGewaehltChipsHtml(gewaehlt, 'data-x') +
+    '<div class="tv-shbody">' + M.ksSpielerZeilenHtml(gewaehlt, frage, 'data-p') + '</div>';
+  await p.setViewportSize({ width: 390, height: hoehe });
+  await schuss(p, vollbildSeite(inhalt, 'ks-such'), datei, hoehe);
+  fehler += await ueberlauf(p, 'Spieler suchen ' + (frage || 'leer'));
+  await p.setViewportSize({ width: 390, height: 844 });
+}
+
+/* --- Scroll-Sperre -------------------------------------------------------
+   Im echten Browser geprueft, nicht behauptet: lockBodyScroll(), blattAuf()
+   und blattZu() kommen woertlich aus app.js. Geprueft wird, was auf iOS im
+   Standalone-Modus schiefgeht, wenn man nur overflow:hidden setzt - der
+   Hintergrund scrollt weiter und die Position ist beim Schliessen verloren. */
+console.log('--- Scroll-Sperre ---');
+{
+  const quelle = fs.readFileSync('app.js', 'utf8');
+  const teil = (a, b) => {
+    const i = quelle.indexOf(a), j = quelle.indexOf(b, i);
+    if (i < 0 || j < 0) throw new Error('Anker nicht gefunden: ' + a);
+    return quelle.slice(i, j);
+  };
+  const steuerung = teil('  let _scrollLocks = 0, _scrollLockY = 0;', '  function closeTerminModal()');
+
+  const html = seite('<div style="height:3000px"></div>')
+    .replace('</body>',
+      '<nav class="app-nav"><button class="nav-btn">A</button></nav>' +
+      '<div class="tv-scrim" id="tScrim"></div>' +
+      '<div class="tv-sheet" id="tSheet"><div class="tv-shbody" style="height:200px">Blatt</div></div>' +
+      '<script>' + steuerung + '\nwindow.blattAuf = blattAuf; window.blattZu = blattZu;<\/script></body>');
+  const f = path.join(ZIEL, '_tmp.html');
+  fs.writeFileSync(f, html);
+  await p.goto(pathToFileURL(path.resolve(f)).href);
+
+  const mess = await p.evaluate(async () => {
+    const warte = () => new Promise((r) => setTimeout(r, 60));
+    window.scrollTo(0, 300); await warte();
+    const vorher = Math.round(window.scrollY);
+
+    window.blattAuf('tScrim', 'tSheet'); await warte();
+    const st = getComputedStyle(document.body);
+    const navCs = getComputedStyle(document.querySelector('.app-nav'));
+    const navWeg = navCs.pointerEvents === 'none' && navCs.transform !== 'none';
+    await new Promise((r) => setTimeout(r, 320));   // die Bewegung abwarten
+    const navUnsichtbar = getComputedStyle(document.querySelector('.app-nav')).visibility === 'hidden';
+    const fixiert = st.position === 'fixed';
+    const gemerkt = document.body.style.top;
+
+    // Der Versuch, den Hintergrund zu scrollen, darf nichts bewegen.
+    window.scrollTo(0, 1200); await warte();
+    const nachVersuch = Math.round(window.scrollY);
+
+    window.blattZu('tScrim', 'tSheet'); await warte();
+    const nachher = Math.round(window.scrollY);
+    const frei = getComputedStyle(document.body).position !== 'fixed';
+    const navDa = getComputedStyle(document.querySelector('.app-nav')).visibility !== 'hidden';
+    return { vorher, fixiert, gemerkt, navWeg, navUnsichtbar, nachVersuch, nachher, frei, navDa };
+  });
+
+  const sag = (ok, text, detail) => {
+    console.log('  ' + (ok ? 'ok  ' : 'FEHL') + ' ' + text + (detail ? '   ' + detail : ''));
+    if (!ok) fehler++;
+  };
+  sag(mess.vorher === 300, 'Ausgangslage: 300 px gescrollt', mess.vorher + ' px');
+  sag(mess.fixiert, 'offenes Blatt: body ist fixiert');
+  sag(mess.gemerkt === '-300px', 'die Scrollposition ist gemerkt', mess.gemerkt);
+  sag(mess.navWeg, 'die untere Navigation fährt weg und ist nicht antippbar');
+  sag(mess.navUnsichtbar, 'und ist danach auch für Screenreader weg');
+  sag(mess.nachVersuch === 0, 'der Hintergrund lässt sich nicht scrollen', mess.nachVersuch + ' px');
+  sag(mess.frei, 'nach dem Schließen ist der body wieder frei');
+  sag(mess.navDa, 'und die Navigation zurück');
+  sag(mess.nachher === 300, 'die Scrollposition ist exakt wiederhergestellt', mess.nachher + ' px');
+
+  // Verschachtelt: Filter-Blatt, darüber die Spielersuche.
+  const stapel = await p.evaluate(async () => {
+    const warte = () => new Promise((r) => setTimeout(r, 40));
+    window.scrollTo(0, 500); await warte();
+    window.blattAuf('tScrim', 'tSheet');
+    window.blattAuf('tScrim', 'tSheet2');   // gibt es nicht -> darf nichts zählen
+    const nachFalsch = document.body.style.top;
+    window.blattZu('tScrim', 'tSheet2');    // ebenso
+    const nochFixiert = getComputedStyle(document.body).position === 'fixed';
+    window.blattZu('tScrim', 'tSheet'); await warte();
+    return { nachFalsch, nochFixiert, zurueck: Math.round(window.scrollY),
+             frei: getComputedStyle(document.body).position !== 'fixed' };
+  });
+  sag(stapel.nochFixiert, 'ein unbekanntes Blatt bringt den Zähler nicht durcheinander');
+  sag(stapel.frei && stapel.zurueck === 500, 'danach ist der body frei und die Position zurück',
+    stapel.zurueck + ' px');
+}
+
 
 /* --- Kontrast ------------------------------------------------------------
    Gemessen wird am gerenderten Bild, nicht an den Tokens: erst dort steht,
    was wirklich uebereinander liegt. */
 console.log('--- Kontrast (AA) ---');
 {
-  M.kasse.tab = 'offen'; M.kasse.spFilter = '';
+  // Mit gesetztem Filter, damit Leiste, Chips und „x von y" auch gemessen werden.
+  frisch(); M.kasse.tab = 'offen';
+  M.kasse.filter.offen = { spieler: ['p2'], sort: 'betrag', zeit: '30' };
   const f = path.join(ZIEL, '_tmp.html');
   fs.writeFileSync(f, seite(M.kasseHtml(DATEN)));
-  await p.goto('file://' + path.resolve(f).replace(/\\/g, '/'));
+  await p.goto(pathToFileURL(path.resolve(f)).href);
   const werte = await p.evaluate(() => {
     const lin = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
     const L = (rgb) => { const [r, g, b] = rgb; return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b); };
@@ -262,7 +445,10 @@ console.log('--- Kontrast (AA) ---');
       ['.ks-sag', 'Angabe des Spielers'],
       ['.ks-storno', 'Storno'],
       ['.ks-buchen', 'Als bezahlt buchen'],
-      ['.ks-fil .lbl', 'Filter-Beschriftung'],
+      ['.ks-fl-b', 'Filterleiste'],
+      ['.ks-fl-n', 'Zahl der aktiven Filter'],
+      ['.ks-fl-chip', 'Filter-Chip'],
+      ['.ks-treffer', 'Zeile x von y'],
     ];
     return proben.map(([sel, name]) => {
       const el = document.querySelector(sel);

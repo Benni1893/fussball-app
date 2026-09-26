@@ -6,11 +6,11 @@ set -uo pipefail
 
 OUT="ds-bundle"
 CSS="$OUT/_ds_app.css"
-SCAFFOLD="sp sp-h meta bar row duo sw sw-grid frame f-nav f-sheet blatt-demo wahl-demo"   # nur Kartengeruest
+SCAFFOLD="sp sp-h meta bar row duo sw sw-grid frame f-nav f-sheet blatt-demo wahl-demo seite-demo such-demo"   # nur Kartengeruest
 # Echte App-Klassen ohne eigene CSS-Regel. Stehen so in index.html bzw. app.js; sie erben
 # ihre Darstellung vom Elternelement. Bewusst in den Karten behalten, damit das
 # Markup dem der App entspricht - siehe NOTES.md.
-BEKANNT_UNGESTYLT="sim-text mb-top mb-state ks-pane kat-in-name kat-type"
+BEKANNT_UNGESTYLT="sim-text mb-top mb-state ks-pane kat-in-name kat-type kasse-catlist kasse-picker-txt ks-plist"
 
 [ -f "$CSS" ] || { echo "FEHLER: $CSS fehlt - erst 'bash .design-sync/build.sh' laufen lassen." >&2; exit 1; }
 

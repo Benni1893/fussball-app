@@ -860,3 +860,42 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
   an der laufenden App an und brauchen `APP_USER`/`APP_PASS`. Ohne Testkonto
   brechen sie mit `page.fill: got undefined` ab — das ist der bekannte Zustand
   seit dem 18.09., kein Befund dieses Umbaus.
+
+**Kasse: Blätter, Filter, eigene Seiten (26.09.2026)**
+
+- **Die Scroll-Sperre gab es schon, nur nicht überall.** `lockBodyScroll()`
+  (body fixieren, Position merken, beim Schließen zurückspringen) hing an den
+  `.more-sheet`-Blättern und den Dialogen, **nicht** an den `.tv-sheet`-
+  Blättern — dort scrollte der Feed unter dem offenen Blatt weiter. Jetzt geht
+  **jedes** Blatt durch `blattAuf`/`blattZu`.
+- **Geändertes Verhalten bei elf Blättern**, nicht nur in der Kasse:
+  Aufstellung (Spieler, Mehr), Trainer (Kaderauswahl, Formation, Mehr), Kasse
+  (Spieler auswählen, Wähler, buchen/Detail, Filter, Spieler suchen) und
+  „Zahlung melden". Alle sperren jetzt den Hintergrund, alle blenden die
+  Navigation aus, alle sitzen am unteren Bildschirmrand statt über der
+  Navigationsleiste.
+- **Nicht geändert**: Kalender-Abo, Rückmeldungen, Termin-Menü (`.more-sheet`,
+  z-index 70) und die Dialoge (`.modal-ov`, z-index 1000). Sie sperrten schon
+  und decken die Navigation ohnehin ab. Mitgeprüft, nichts zu tun.
+- **„Überweisung" passt.** Gemessen bei 390 px mit Symbol über dem Text: 87 px
+  Text in einem 106 px breiten Drittel. Die Kürzung auf „Bank" war nicht nötig.
+  Die Chips sind dafür von 52 auf 64 px gewachsen.
+- **Sortierung nach Name ist weg.** Standard ist jetzt „Neueste zuerst" in
+  beiden Listen. Bei gleichem Datum entscheidet der Name, damit die Reihenfolge
+  nicht springt.
+- **Die Reiterzahlen bleiben ungefiltert.** 140 heißt 140, auch wenn die Liste
+  zwölf Karten zeigt; darüber steht dann „12 von 140". Sonst wüsste man nicht
+  mehr, wovon man einen Ausschnitt sieht.
+- **Das Filterblatt arbeitet auf einem Entwurf.** „Anwenden" schreibt ihn in
+  den Filter des Reiters, Schließen verwirft ihn. Ohne das wäre „Anwenden" ein
+  Knopf ohne Wirkung.
+- **Nach dem Speichern fällt der Filter in „Offen" zurück.** Sonst könnte ein
+  stehender Zeitraum- oder Spielerfilter genau die Strafen verstecken, die man
+  gerade verhängt hat.
+- **Bekannte Kante, nicht behoben**: auf der Individuell-Seite muss man
+  „Hinzufügen" drücken, bevor „Strafe speichern" aktiv wird. Das ist die
+  unveränderte Eingabeansicht; der Knopf ist deaktiviert, also passiert nichts
+  Falsches, aber der Grund steht nur in der Zusammenfassung weiter unten.
+- **Kontrast**: `.ks-treffer` stand zuerst auf `--muted-2` und kam auf dem
+  App-Grund nur auf 4,37:1 — jetzt `--green-800` (7,93:1). Offen bleiben die
+  zwei bekannten `--grad-btn`-Werte (3,88:1) aus dem vorgemerkten Paket.
