@@ -1736,7 +1736,6 @@
     return '<div class="pn-gruppe">' +
       '<div class="pn-kopf"><span class="pn-kopf-t">Admin</span></div>' +
       '<p class="pn-hinweis">Keine eigenen Kategorien – als Admin bekommst du, was deine übrigen Rollen vorsehen.</p>' +
-      '<button class="btn" data-goto="pushkatalog" type="button">Push-Nachrichten verwalten</button>' +
       '</div>';
   }
 
@@ -2087,6 +2086,7 @@
       <div class="ein-gruppe">
         ${Roles.isAdmin() ? einZeileHtml({ ein: "bfv", ic: einIcon("tabelle"), ton: "dunkelgruen", titel: "Spielplan (BFV)", wert: (DEMO && DEMO.teamName) || "—" }) : ""}
         ${einZeileHtml({ goto: "katalog", ic: einIcon("liste"), ton: "gold", titel: "Strafenkatalog" })}
+        ${Roles.isAdmin() ? einZeileHtml({ goto: "pushkatalog", ic: einIcon("sprech"), ton: "gruen", titel: "Push-Texte" }) : ""}
       </div>` : ""}
 
       <div class="ein-titel">Info</div>
