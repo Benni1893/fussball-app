@@ -1990,6 +1990,21 @@
     '</div>';
   }
 
+  /* Eine Zeile der Uebersicht: farbige Symbolkachel, Titel, optionaler Wert
+     rechts, Chevron. Ganze Zeile ist die Tippflaeche. */
+  function einZeileHtml(opts) {
+    const ziel = opts.ein ? ' data-ein="' + esc(opts.ein) + '"'
+               : opts.goto ? ' data-goto="' + esc(opts.goto) + '"'
+               : opts.jump ? ' data-view-jump="' + esc(opts.jump) + '"'
+               : opts.tat ? ' data-ein-tat="' + esc(opts.tat) + '"' : "";
+    return '<button class="ein-zeile" type="button"' + ziel + '>' +
+      '<span class="ein-ic ' + esc(opts.ton || "gruen") + '" aria-hidden="true">' + opts.ic + '</span>' +
+      '<span class="ein-zeile-t">' + esc(opts.titel) + '</span>' +
+      (opts.wert ? '<span class="ein-zeile-w">' + esc(opts.wert) + '</span>' : "") +
+      '<span class="ein-chev" aria-hidden="true">\u203A</span>' +
+    '</button>';
+  }
+
 
   /* ---------- Einstellungen (Tab „Mehr") ------------------------------------
      Zwei Ebenen: Uebersicht aus Zeilen, dahinter die Unterseiten. Welche
@@ -2003,6 +2018,40 @@
     else renderEinUebersicht();
   }
 
+  /* Symbole der Uebersichtszeilen. Als Funktion, nicht als Konstante: SVG
+     steht weiter unten in der Datei und waere beim Auswerten noch nicht da. */
+  function einIcon(name) {
+    if (name === "glocke")   return `<svg ${SVG}><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>`;
+    if (name === "mond")     return `<svg ${SVG}><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8"/></svg>`;
+    if (name === "kalender") return `<svg ${SVG}><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>`;
+    if (name === "tabelle")  return `<svg ${SVG}><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M8 4v16"/></svg>`;
+    if (name === "liste")    return `<svg ${SVG}><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>`;
+    if (name === "sprech")   return `<svg ${SVG}><path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg>`;
+    if (name === "info")     return `<svg ${SVG}><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>`;
+    if (name === "neu")      return `<svg ${SVG}><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/></svg>`;
+    return "";
+  }
+
+  /* Wert rechts in der Zeile „Mitteilungen". Lesart: „An", wenn auf DIESEM
+     Geraet zugestellt wird; „Aus", wenn der Nutzer es blockiert hat; sonst
+     ist es schlicht noch nicht eingerichtet. */
+  function einMitteilungenWert() {
+    const z = pushZustand(pushUmgebung());
+    if (z === "aktiv") return "An";
+    if (z === "verweigert") return "Aus";
+    return "Nicht eingerichtet";
+  }
+
+  /* Wert rechts in der Zeile „Ruhezeiten". Gleiche Von- und Bis-Zeit heisst
+     „keine Ruhezeit" - so rechnet auch in_quiet_hours(). */
+  function einRuhezeitWert() {
+    const p = pushPrefs || {};
+    const von = (p.quiet_from || "22:00").slice(0, 5);
+    const bis = (p.quiet_to   || "08:00").slice(0, 5);
+    if (!pushPrefs || von === bis) return "Aus";
+    return von + " bis " + bis;
+  }
+
   function renderEinUebersicht() {
     const u = currentProfile || {};
     const player = u.player_id ? playerById[u.player_id] : null;
@@ -2010,58 +2059,37 @@
     const email = u.email || "—";
     const roleText = Roles.list.length ? Roles.list.map((r) => ROLE_LABEL[r] || r).join(" · ") : "Spieler";
     const verwaltung = Roles.canManageSchedule() || Roles.canEditCatalog();
-    // Phase 3: Sportstaetten-Koordinaten-Verwaltung ausgeblendet (DB + Feed bleiben aktiv).
-    // ZUM REAKTIVIEREN diese eine Zeile auf sportstaettenCardHtml() setzen:
-    const sportstaettenCard = ""; /* = sportstaettenCardHtml(); */
 
     viewEl.innerHTML = `
       <div class="page-head"><h1>Einstellungen</h1></div>
 
-      <div class="set-section">
-        <div class="section-title"><h2>Mein Profil</h2></div>
-        <div class="card card-pad set-profile">
-          <div class="set-greet-name">Angemeldet als ${esc(name)}</div>
-          <div class="set-greet-role">${esc(roleText)}</div>
-          <div class="set-row"><span class="set-label">E-Mail</span><span class="set-val">${esc(email)}</span></div>
-          ${u.player_id ? `<button class="btn" data-view-jump="profil" style="width:100%;margin-top:12px">Profil öffnen</button>` : ""}
-          <button class="btn set-logout" data-logout>Abmelden</button>
-        </div>
-      </div>
+      <button class="ein-profil" type="button" data-view-jump="profil">
+        <span class="avatar ein-profil-av">${initials(name)}</span>
+        <span class="ein-profil-main">
+          <span class="ein-profil-name">${esc(name)}</span>
+          <span class="ein-profil-rolle">${esc(roleText)}</span>
+          <span class="ein-profil-mail">${esc(email)}</span>
+        </span>
+        <span class="ein-chev" aria-hidden="true">\u203A</span>
+      </button>
 
-      <div class="set-section">
-        <div class="section-title"><h2>Kalender-Abo</h2></div>
-        <div class="card card-pad">
-          <p class="set-hint">Alle Termine der Mannschaft landen automatisch in deinem Handy-Kalender
-          und ändern sich dort mit, wenn ein Termin verschoben oder abgesagt wird.</p>
-          <button class="btn btn-primary" data-cal-sheet type="button">Termine abonnieren</button>
-          <button class="btn btn-soft" data-cal-copy-profil type="button">Link kopieren</button>
-          <div class="cal-copied" data-cal-copied-profil hidden></div>
-        </div>
+      <div class="ein-gruppe">
+        ${einZeileHtml({ ein: "mitteilungen", ic: einIcon("glocke"),   ton: "gruen",      titel: "Mitteilungen", wert: einMitteilungenWert() })}
+        ${einZeileHtml({ ein: "ruhezeiten",   ic: einIcon("mond"),     ton: "dunkelgruen", titel: "Ruhezeiten",  wert: einRuhezeitWert() })}
+        ${einZeileHtml({ ein: "kalender",     ic: einIcon("kalender"), ton: "gruen",      titel: "Kalender-Abo" })}
       </div>
-
-      ${pushAbschnittHtml()}
 
       ${verwaltung ? `
-      <div class="set-verwaltung">
-        <div class="section-title"><h2>Verwaltung</h2></div>
-
-        ${Roles.isAdmin() ? bfvSectionHtml() : ""}
-
-        ${sportstaettenCard}
-
-        <div class="section-title set-sub"><h3>Strafenkatalog</h3></div>
-        <div class="card card-pad">
-          <p class="set-hint">Vergehen und Beträge werden im Katalog gepflegt.</p>
-          <button class="btn" data-goto="katalog">Strafenkatalog öffnen</button>
-        </div>
-
-        ${Roles.isAdmin() ? `
-        <div class="section-title set-sub"><h3>Push-Nachrichten</h3></div>
-        <div class="card card-pad">
-          <p class="set-hint">Texte aller Benachrichtigungen ansehen, ändern und zur Probe an sich selbst schicken.</p>
-          <button class="btn" data-goto="pushkatalog">Push-Nachrichten öffnen</button>
-        </div>` : ""}
+      <div class="ein-titel">Verwaltung</div>
+      <div class="ein-gruppe">
+        ${Roles.isAdmin() ? einZeileHtml({ ein: "bfv", ic: einIcon("tabelle"), ton: "dunkelgruen", titel: "Spielplan (BFV)", wert: (DEMO && DEMO.teamName) || "—" }) : ""}
+        ${einZeileHtml({ goto: "katalog", ic: einIcon("liste"), ton: "gold", titel: "Strafenkatalog" })}
       </div>` : ""}
+
+      <div class="set-section">
+        <button class="btn set-logout" data-logout>Abmelden</button>
+      </div>
+
       <p class="set-hint" style="text-align:center;margin-top:22px;opacity:.6">Build ${esc(APP_BUILD)}${(window.__HTML_BUILD && window.__HTML_BUILD !== APP_BUILD) ? " · HTML " + esc(window.__HTML_BUILD) + " (Versionen unterschiedlich – evtl. Cache)" : ""} · <a href="?debug=1" style="color:inherit">Diagnose</a></p>
     `;
   }

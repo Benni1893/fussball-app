@@ -1029,6 +1029,64 @@ tbody tr:hover { background: #fbfdfc; }
   .ein-kopf-t { transition: none; }
 }
 
+/* Profilkarte der Uebersicht */
+.ein-profil {
+  appearance: none; -webkit-appearance: none; text-align: left;
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  margin-top: 14px; padding: 14px;
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.ein-profil:active { background: var(--bg-1); }
+.ein-profil-av { flex: none; width: 48px; height: 48px; font-size: 16px; }
+.ein-profil-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.ein-profil-name  { font-size: 17px; font-weight: 800; color: var(--ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ein-profil-rolle { font-size: 12px; font-weight: 600; color: var(--muted); }
+.ein-profil-mail  { font-size: 12px; font-weight: 500; color: var(--muted-2);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Gruppen und Zeilen */
+.ein-titel {
+  margin: 22px 0 8px; padding: 0 2px;
+  font-size: 11px; font-weight: 700; letter-spacing: .68px;
+  text-transform: uppercase; color: var(--muted);
+}
+.ein-gruppe {
+  margin-top: 14px; overflow: hidden;
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+}
+.ein-titel + .ein-gruppe { margin-top: 0; }
+.ein-zeile {
+  appearance: none; -webkit-appearance: none; text-align: left;
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  min-height: 49px; padding: 7px 14px; position: relative;
+  background: none; border: 0; font: inherit; color: var(--ink);
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.ein-zeile:active { background: var(--bg-1); }
+/* Trennlinie erst hinter der Kachel, wie in der Vorlage: 14 + 30 + 12 = 56. */
+.ein-zeile + .ein-zeile::before {
+  content: ""; position: absolute; top: 0; left: 56px; right: 0; height: 1px;
+  background: var(--line);
+}
+.ein-ic {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 8px; color: #fff;
+}
+.ein-ic svg { width: 18px; height: 18px; display: block; }
+.ein-ic.gruen       { background: var(--green-650); }
+.ein-ic.dunkelgruen { background: var(--green-900); }
+.ein-ic.gold        { background: var(--gold-chev); }
+.ein-ic.grau        { background: var(--muted-2); }
+.ein-zeile-t { flex: 1 1 auto; min-width: 0; font-size: 15px; font-weight: 600;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ein-zeile-w { flex: 0 1 auto; min-width: 0; font-size: 14px; font-weight: 500; color: var(--muted);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ein-chev { flex: none; color: var(--gold-chev); font-size: 20px; line-height: 1; opacity: .7; }
+
 /* Mein Kalender – reduziert */
 /* Blatt „Termine abonnieren“: zwei Karten, weil iOS ein webcal-Abo systemweit
    annimmt und Android nicht. Die Karte des erkannten Systems steht oben,
