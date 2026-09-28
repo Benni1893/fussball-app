@@ -2059,6 +2059,9 @@
     const email = u.email || "—";
     const roleText = Roles.list.length ? Roles.list.map((r) => ROLE_LABEL[r] || r).join(" · ") : "Spieler";
     const verwaltung = Roles.canManageSchedule() || Roles.canEditCatalog();
+    const buildTxt = "Build " + APP_BUILD +
+      ((window.__HTML_BUILD && window.__HTML_BUILD !== APP_BUILD)
+        ? " · HTML " + window.__HTML_BUILD + " (Versionen unterschiedlich – evtl. Cache)" : "");
 
     viewEl.innerHTML = `
       <div class="page-head"><h1>Einstellungen</h1></div>
@@ -2086,11 +2089,17 @@
         ${einZeileHtml({ goto: "katalog", ic: einIcon("liste"), ton: "gold", titel: "Strafenkatalog" })}
       </div>` : ""}
 
-      <div class="set-section">
-        <button class="btn set-logout" data-logout>Abmelden</button>
+      <div class="ein-titel">Info</div>
+      <div class="ein-gruppe">
+        ${einZeileHtml({ tat: "diagnose", ic: einIcon("info"), ton: "grau", titel: "Diagnose" })}
+        ${einZeileHtml({ tat: "neuladen", ic: einIcon("neu"),  ton: "grau", titel: "App neu laden" })}
       </div>
 
-      <p class="set-hint" style="text-align:center;margin-top:22px;opacity:.6">Build ${esc(APP_BUILD)}${(window.__HTML_BUILD && window.__HTML_BUILD !== APP_BUILD) ? " · HTML " + esc(window.__HTML_BUILD) + " (Versionen unterschiedlich – evtl. Cache)" : ""} · <a href="?debug=1" style="color:inherit">Diagnose</a></p>
+      <div class="ein-gruppe ein-gruppe-abmelden">
+        <button class="ein-abmelden" type="button" data-logout>Abmelden</button>
+      </div>
+
+      <p class="ein-build">${esc(buildTxt)}</p>
     `;
   }
 
@@ -5797,7 +5806,7 @@
       // „Buchung rückgängig" steht jetzt im Detail-Blatt (ksBlattUnpay).
     }
 
-    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-cal-hide],[data-cal-copy-profil],[data-push-an],[data-push-aus],[data-push-test],[data-push-install],[data-push-hinweis-weg],[data-pn-haupt],[data-pn-kat],[data-pn-alle],[data-pn-ruhe],[data-pn-dringend],[data-pkat-save],[data-pkat-reset],[data-pkat-send],[data-pkat-alle],[data-pkat-clear],[data-ics-event],[data-koord-save],[data-status-set],[data-logout],[data-ein],[data-ein-back]");
+    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-cal-hide],[data-cal-copy-profil],[data-push-an],[data-push-aus],[data-push-test],[data-push-install],[data-push-hinweis-weg],[data-pn-haupt],[data-pn-kat],[data-pn-alle],[data-pn-ruhe],[data-pn-dringend],[data-pkat-save],[data-pkat-reset],[data-pkat-send],[data-pkat-alle],[data-pkat-clear],[data-ics-event],[data-koord-save],[data-status-set],[data-logout],[data-ein],[data-ein-back],[data-ein-tat]");
     if (!t) return;
 
     // Fitnessstatus setzen. Wer das darf, entscheidet die Datenbank:
@@ -5807,13 +5816,23 @@
       return;
     }
 
-    /* Einstellungen: eine Ebene tiefer oder eine Ebene zurueck. */
+    /* Einstellungen: eine Ebene tiefer, eine Ebene zurueck, oder eine der
+       beiden Aktionen aus dem Info-Block. */
     if (t.dataset.ein) { einOeffnen(t.dataset.ein); return; }
     if (t.hasAttribute("data-ein-back")) { einZurueck(); return; }
+    if (t.dataset.einTat === "diagnose") {
+      // Die Diagnoseseite liegt inline in index.html und ist auch dann da,
+      // wenn app.js nicht laedt. Direkt aufrufen statt ueber ?debug=1 - das
+      // waere ein Neustart der App, nur um eine Seite zu zeigen.
+      if (typeof window.__showDiag === "function") window.__showDiag("Einstellungen");
+      else location.href = "?debug=1";
+      return;
+    }
+    if (t.dataset.einTat === "neuladen") { location.reload(); return; }
 
     // Abmelden (in den Einstellungen) – prominent platziert, daher mit Rückfrage.
     if (t.hasAttribute("data-logout")) {
-      if (!window.confirm("Wirklich abmelden?")) return;
+      if (!window.confirm("Abmelden?\n\nDu wirst auf diesem Gerät abgemeldet.")) return;
       await logout();
       return;
     }
