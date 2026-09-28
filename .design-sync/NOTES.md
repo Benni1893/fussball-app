@@ -1096,3 +1096,18 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
   klebenden Leiste.** Eine laufende `transform`-Animation wird sonst zum
   Bezugsrahmen, und die Leiste wandert mit — derselbe Mechanismus, der schon
   die Kassenseite zusammengedrückt hat.
+
+## Prüfskripte: Pflichtliste und „nur mit Testkonto“ (Stand 28.09.2026)
+
+- **Pflichtliste** — laufen ohne Anmeldung und müssen vor jedem Push grün
+  sein: `abopruef`, `deeplinkpruef`, `einpruef`, `icspruef`, `kachelpruef`,
+  `kassepruef`, `katalogpruef`, `kopfpruef`, `meldeschlusspruef`, `p1pruef`,
+  `p3pruef`, `p4pruef`, `prefspruef`, `pushpruef`, `swpruef`, `tkicspruef`.
+  Am 28.09. alle mit Rückgabewert 0 durchgelaufen.
+- **Nur mit Testkonto** — melden sich an der laufenden App an und brauchen
+  `APP_USER`/`APP_PASS`: `blattpruef`, `heropruef`, `pruef`. Ohne Konto
+  brechen sie mit `page.fill: … got undefined` ab. Sie stehen deshalb **nicht**
+  auf der Pflichtliste. Ein Abbruch dort ist kein Befund, ein grünes Ergebnis
+  der Pflichtliste sagt aber auch nichts über sie. Laufen erst wieder, wenn für
+  einen Messlauf ein Testkonto angelegt ist. Das Konto wird danach wieder
+  gelöscht.
