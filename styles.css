@@ -973,6 +973,62 @@ tbody tr:hover { background: #fbfdfc; }
 /* Abmelden (Vorlage 4a): Sekundaerknopf ueber die volle Breite, roter Text
    und roter Rand - deutlich, aber nicht so laut wie eine rote Flaeche. */
 
+
+/* ---- Einstellungen: zwei Ebenen -------------------------------------------
+   Vorlage einstellungen-kader/einstellungenneu.png (Panel 1, 1b, 2) und
+   einstellungenneu2.png (Panel 3-6). Gemessen bei einem Massstab von
+   1 Bildpunkt = 1,13 CSS-px:
+     Symbolkachel     27 Bildpunkte  -> 30px, Radius 8
+     Zeilenabstand    43,5           -> 49px Zeilenhoehe (Mindestmass 44 erfuellt)
+     Trennlinie       #e2e8e4        = --line, eingerueckt bis hinter die Kachel
+     Kachelfarben     #1f7049 --green-650 | #0f3d2e --green-900 | #96772a --gold-chev
+   Alle drei Farben stehen schon im Tokenblock - keine neue Farbe. ---------- */
+
+/* Kopf einer Unterseite. Klebt unter der festen Kopfzeile; beim Scrollen
+   klappt der Seitentitel herein (.is-kompakt, gesetzt von einScrollBeobachter). */
+.ein-kopf {
+  position: sticky;
+  top: var(--header-h, calc(env(safe-area-inset-top) + 74px));
+  z-index: 5;
+  display: flex; align-items: center; gap: 8px;
+  margin: -18px -16px 0;          /* bis an die Raender, trotz .view-Polsterung */
+  padding: 0 16px;
+  min-height: 44px;
+  background: var(--bg);
+}
+.ein-kopf.is-kompakt { box-shadow: 0 1px 0 var(--line); }
+.ein-back {
+  appearance: none; -webkit-appearance: none; border: 0; background: none;
+  display: inline-flex; align-items: center; gap: 2px;
+  min-height: 44px; padding: 0; margin-left: -4px;
+  color: var(--green-800); font: inherit; font-size: 17px; font-weight: 600;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.ein-back:active { opacity: .6; }
+.ein-back-chev { font-size: 26px; line-height: 1; margin-top: -2px; }
+/* Der Seitentitel in der Leiste ist erst da, wenn die grosse Ueberschrift weg ist. */
+.ein-kopf-t {
+  font-size: 17px; font-weight: 800; color: var(--ink);
+  opacity: 0; transform: translateY(4px);
+  transition: opacity .18s ease, transform .18s ease;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ein-kopf.is-kompakt .ein-kopf-t { opacity: 1; transform: none; }
+
+.ein-h1 { font-size: 1.75rem; font-weight: 800; margin: 6px 0 16px; outline: none; }
+
+/* Uebergang zwischen den Ebenen. Bewusst nur auf .ein-body, nicht auf einen
+   Vorfahren der klebenden Leiste - eine laufende transform-Animation waere
+   sonst der Bezugsrahmen und die Leiste wuerde mitwandern. */
+@keyframes ein-rein    { from { transform: translateX(20px);  opacity: 0 } to { transform: none; opacity: 1 } }
+@keyframes ein-zurueck { from { transform: translateX(-20px); opacity: 0 } to { transform: none; opacity: 1 } }
+.ein-anim-rein    { animation: ein-rein    .26s cubic-bezier(.22,1,.36,1) both; }
+.ein-anim-zurueck { animation: ein-zurueck .26s cubic-bezier(.22,1,.36,1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .ein-anim-rein, .ein-anim-zurueck { animation: none; }
+  .ein-kopf-t { transition: none; }
+}
+
 /* Mein Kalender – reduziert */
 /* Blatt „Termine abonnieren“: zwei Karten, weil iOS ein webcal-Abo systemweit
    annimmt und Android nicht. Die Karte des erkannten Systems steht oben,

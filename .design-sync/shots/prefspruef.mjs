@@ -112,7 +112,8 @@ console.log('--- Server: Rolle sticht den Schalter ---');
 
 /* ===== 5. Ausgegraut, aber erhalten ==================================== */
 console.log('--- Hauptschalter aus ---');
-pruefe(/pnAbschnittHtml\("bereit"\)/.test(app), 'der Block erscheint auch im Zustand bereit');
+// Seit den Unterseiten nimmt pnAbschnittHtml ein zweites Argument (welcher Teil).
+pruefe(/pnAbschnittHtml\("bereit"[,)]/.test(app), 'der Block erscheint auch im Zustand bereit');
 pruefe(/const aus = zustand !== "aktiv";/.test(app), 'dort ausgegraut');
 pruefe(/\.pn-liste\.is-aus \.pn-t \{ color: var\(--muted\)/.test(fs.readFileSync('styles.css', 'utf8')),
   'ausgegraut färbt nur den Titel um - die Unterzeile bleibt lesbar');

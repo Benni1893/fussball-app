@@ -141,6 +141,22 @@ vergleichen, Werte übernehmen. Die Messauflösung liegt bei rund 1 CSS-px;
 Abweichungen darunter sind nicht belegbar und werden nicht nachgezogen.
 Wo bewusst von der Vorlage abgewichen wird, steht der Grund in `NOTES.md`.
 
+### Vorlagen für Einstellungen und Kader
+
+Die vier Bilder dieses Pakets liegen zusammen in
+`.design-sync/reference/app/einstellungen-kader/`:
+
+| Datei | Panels |
+| --- | --- |
+| `einstellungenneu.png` | 1 Übersicht Admin · 1b ans Ende gescrollt · 2 Übersicht Spieler · 8 Abmelden bestätigen |
+| `einstellungenneu1.png` | 7 Spielplan (BFV) |
+| `einstellungenneu2.png` | 3 Mitteilungen · 4 gescrollt mit kompaktem Titel · 5 Ruhezeiten · 6 Kalender-Abo |
+| `kaderneu.png` | A1 Liste · A2 Status ändern |
+
+Die Panelnummern laufen über die Dateien hinweg durch und ergeben einen Satz.
+`einstellungenneu2.png` hieß ursprünglich `einstellungenneu .png` — mit einem
+Leerzeichen vor der Endung, das jedes Skript stolpern ließ.
+
 ## Wo die Wahrheit steht
 
 `styles.css` und die drei Dateien, die es zieht — `tokens/tokens.css` (Tokens),

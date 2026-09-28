@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-26-G";
+  var APP_BUILD = "2026-09-26-H";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -1744,10 +1744,14 @@
      Hauptschalter stehen die Kategorien ausgegraut da, damit man sieht, was
      einen erwartet. Die Kategorien gelten fuer ALLE Geraete des Nutzers, der
      Hauptschalter nur fuer dieses - deshalb sind es zwei Ebenen. */
-  function pnAbschnittHtml(zustand) {
+  function pnAbschnittHtml(zustand, teil) {
     if (zustand !== "bereit" && zustand !== "aktiv") return "";
     if (!pushPrefs) return "";
     const aus = zustand !== "aktiv";
+    // Die Ruhezeiten haben seit dem neuen Aufbau eine eigene Unterseite. Der
+    // Vorgabewert "alles" haelt den Baustein fuer jeden anderen Aufrufer heil.
+    teil = teil || "alles";
+    if (teil === "ruhezeiten") return '<div class="pn-block">' + pnRuhezeitHtml(aus) + '</div>';
     return '<div class="pn-block">' +
       '<div class="pn-gruppe"><div class="pn-liste">' +
         '<div class="pn-zeile">' +
@@ -1758,18 +1762,29 @@
         '</div>' +
       '</div></div>' +
       pnGruppenHtml(aus) +
-      pnRuhezeitHtml(aus) +
+      (teil === "alles" ? pnRuhezeitHtml(aus) : "") +
       pnAdminHtml() +
       '<p class="pn-hinweis">Die Liste in der App zeigt alles, was du hier eingeschaltet hast – ' +
       'auch ohne Push auf diesem Gerät.</p>';
   }
 
   /* ---- Die Anzeige je Zustand ---- */
-  function pushAbschnittHtml() {
+  function pushAbschnittHtml(teil) {
+    teil = teil || "alles";
     const u = pushUmgebung();
     const z = pushZustand(u);
-    const kopf = '<div class="section-title"><h2>Benachrichtigungen</h2></div>';
+    // Auf einer Unterseite steht der Name schon als h1 darueber.
+    const kopf = teil === "alles" ? '<div class="section-title"><h2>Benachrichtigungen</h2></div>' : "";
     let inhalt;
+
+    /* Ruhezeiten setzen voraus, dass ueberhaupt zugestellt werden kann.
+       Steht das noch aus, hat die Unterseite nichts zu schalten und sagt
+       stattdessen, was zuerst zu tun ist. */
+    if (teil === "ruhezeiten" && z !== "bereit" && z !== "aktiv") {
+      return '<div class="card card-pad"><p class="set-hint">Ruhezeiten gelten fuer Benachrichtigungen. ' +
+        'Die sind auf diesem Geraet noch nicht eingerichtet.</p>' +
+        '<button class="btn" data-ein="mitteilungen" type="button">Zu den Mitteilungen</button></div>';
+    }
 
     if (z === "inapp") {
       inhalt = '<p class="set-hint">Diese Seite läuft gerade im Browser einer anderen App. ' +
@@ -1799,13 +1814,15 @@
             '<li>„Benachrichtigungen" auf „Zulassen" stellen.</li></ol>') +
         '<p class="set-hint">Danach hier wieder herkommen.</p>';
     } else if (z === "aktiv") {
-      inhalt = pnAbschnittHtml("aktiv") +
-        '<button class="btn btn-primary" data-push-test type="button">Testnachricht senden</button>' +
+      inhalt = pnAbschnittHtml("aktiv", teil) +
+        (teil === "ruhezeiten" ? "" :
+          '<button class="btn btn-primary" data-push-test type="button">Testnachricht senden</button>') +
         '<div class="cal-copied" data-push-meldung hidden></div>';
     } else {   // "bereit"
-      inhalt = '<p class="set-hint">Kurzfristige Absagen, Terminänderungen und ' +
-        'Rückmelde-Erinnerungen direkt aufs Handy.</p>' +
-        pnAbschnittHtml("bereit") +
+      inhalt = (teil === "ruhezeiten" ? "" :
+        '<p class="set-hint">Kurzfristige Absagen, Terminänderungen und ' +
+        'Rückmelde-Erinnerungen direkt aufs Handy.</p>') +
+        pnAbschnittHtml("bereit", teil) +
         (installPrompt && !u.standalone
           ? '<button class="btn btn-soft" data-push-install type="button">App installieren</button>' : "") +
         '<div class="cal-copied" data-push-meldung hidden></div>';
@@ -1839,10 +1856,154 @@
       else if (navigator.clearAppBadge) navigator.clearAppBadge();
     } catch (e) {}
   }
+  /* ---------- Einstellungen: Unterseiten ------------------------------------
+     Die Einstellungen sind ab hier zweistufig: eine Uebersicht aus Zeilen und
+     vier Unterseiten. Jede Unterseite hat eine eigene Adresse, damit
+     Browser-Zurueck, die Wischgeste und Deep Links aus einer Benachrichtigung
+     dasselbe tun.
 
-  /* ---------- Einstellungen (Tab „Mehr") ------------------------------------ */
+     WARUM HASH UND KEIN PFAD: vercel.json hat bewusst keine Catch-all-Regel
+     auf index.html - ein echter Pfad wie /einstellungen/mitteilungen liefe
+     beim Neuladen in einen 404. Die ganze App routet ueber Hashes
+     (#ansicht=, #termin=, #kasse=, #strafe=), und genau die stehen auch in
+     den Push-Vorlagen. #ein=<seite> reiht sich da ein.
+
+     Der Hash BLEIBT stehen, solange eine Unterseite offen ist: er IST der
+     Zustand. Nach einem Neuladen geht dieselbe Seite wieder auf.
+
+     currentView bleibt dabei "einstellungen". Dadurch bleibt die Reiterleiste
+     stehen, "Mehr" bleibt aktiv, und SHEET_VIEWS muss nichts wissen.
+     -------------------------------------------------------------------------- */
+  const EIN_SEITEN = {
+    mitteilungen: { titel: "Mitteilungen",     darf: () => true },
+    ruhezeiten:   { titel: "Ruhezeiten",       darf: () => true },
+    kalender:     { titel: "Kalender-Abo",     darf: () => true },
+    bfv:          { titel: "Spielplan (BFV)",  darf: () => Roles.isAdmin() },
+  };
+  // Ab dieser Scrollhoehe klappt die grosse Ueberschrift in die Zurueck-Leiste
+  // (Vorlage einstellungenneu2.png, Panel 4). Gemessen am Abstand von der
+  // Leiste bis zur Unterkante der h1.
+  const EIN_KOMPAKT_AB = 40;
+
+  const einst = {
+    seite:   null,   // null = Uebersicht, sonst Schluessel aus EIN_SEITEN
+    scroll:  0,      // Scrollposition der Uebersicht, solange eine Unterseite offen ist
+    kompakt: false,  // Titel steckt in der Zurueck-Leiste
+    richtung: "rein",// fuer die Richtung des Uebergangs
+  };
+
+  function einSeiteErlaubt(id) {
+    const s = EIN_SEITEN[id];
+    return !!(s && s.darf());
+  }
+
+  /* Zerlegt einen Hash zu einer Unterseite. Rein rechnend, damit pruefbar. */
+  function einZielAusHash(roh) {
+    const h = String(roh == null ? (location.hash || "") : roh);
+    const m = /^#?ein=([a-z]+)$/.exec(h);
+    if (!m) return null;
+    return einSeiteErlaubt(m[1]) ? m[1] : null;
+  }
+
+  /* Eine Unterseite oeffnen. Merkt die Scrollposition der Uebersicht, setzt
+     einen Verlaufseintrag (damit Zurueck und Wischen funktionieren) und
+     rendert. */
+  function einOeffnen(id) {
+    if (!einSeiteErlaubt(id) || einst.seite === id) return;
+    einst.scroll = window.scrollY || window.pageYOffset || 0;
+    einst.richtung = "rein";
+    try { history.pushState({ einSeite: id }, "", "#ein=" + id); } catch (e) {}
+    einst.seite = id;
+    einst.kompakt = false;
+    render();
+    window.scrollTo(0, 0);
+    einFokusAufTitel();
+  }
+
+  /* Zurueck zur Uebersicht - immer ueber den Verlauf, damit der Chevron
+     dasselbe tut wie die Wischgeste und kein toter Eintrag zurueckbleibt. */
+  function einZurueck() {
+    if (!einst.seite) return;
+    if (history.state && history.state.einSeite) { history.back(); return; }
+    // Direkt per Deep Link hereingekommen: es gibt keinen Eintrag zum Zurueckgehen.
+    try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+    einVerlassen();
+  }
+
+  function einVerlassen() {
+    einst.seite = null;
+    einst.kompakt = false;
+    einst.richtung = "zurueck";
+    render();
+    window.scrollTo(0, einst.scroll || 0);
+  }
+
+  /* Einzige Wahrheit ist der Hash. Wird bei popstate UND hashchange gerufen
+     und tut nichts, wenn der Zustand schon stimmt - sonst rendert es zweimal. */
+  function einSyncAusHash() {
+    if (currentView !== "einstellungen") return false;
+    const soll = einZielAusHash();
+    if (soll === einst.seite) return false;
+    if (!soll) { einVerlassen(); return true; }
+    einst.richtung = "rein";
+    einst.seite = soll;
+    einst.kompakt = false;
+    render();
+    window.scrollTo(0, 0);
+    einFokusAufTitel();
+    return true;
+  }
+
+  /* Vorlesesoftware soll die neue Ebene ansagen. Der Titel traegt dafuer
+     tabindex="-1"; sichtbar passiert nichts (kein Fokusring auf einer
+     Ueberschrift). */
+  function einFokusAufTitel() {
+    requestAnimationFrame(() => {
+      const h = viewEl.querySelector(".ein-h1");
+      if (h) { try { h.focus({ preventScroll: true }); } catch (e) {} }
+    });
+  }
+
+  /* Titel klappt beim Scrollen in die Leiste. Nur eine Klasse umschalten,
+     nicht neu rendern - ein Neuaufbau setzt die Scrollposition zurueck. */
+  function einScrollBeobachter() {
+    if (!einst.seite) return;
+    const kopf = document.querySelector(".ein-kopf");
+    if (!kopf) return;
+    const an = (window.scrollY || window.pageYOffset || 0) > EIN_KOMPAKT_AB;
+    if (an === einst.kompakt) return;
+    einst.kompakt = an;
+    kopf.classList.toggle("is-kompakt", an);
+  }
+  window.addEventListener("scroll", einScrollBeobachter, { passive: true });
+
+  /* Kopf einer Unterseite: Zurueck-Leiste mit dem Namen der VORIGEN Ebene,
+     darunter die grosse Ueberschrift. Beim Scrollen wandert der Titel in die
+     Leiste (.is-kompakt). */
+  function einKopfHtml(titel) {
+    return '<div class="ein-kopf">' +
+      '<button class="ein-back" data-ein-back type="button">' +
+        '<span class="ein-back-chev" aria-hidden="true">\u2039</span>' +
+        '<span class="ein-back-t">Einstellungen</span>' +
+      '</button>' +
+      '<span class="ein-kopf-t" aria-hidden="true">' + esc(titel) + '</span>' +
+    '</div>';
+  }
+
+
+  /* ---------- Einstellungen (Tab „Mehr") ------------------------------------
+     Zwei Ebenen: Uebersicht aus Zeilen, dahinter die Unterseiten. Welche
+     Ebene gerendert wird, entscheidet einst.seite - gesetzt wird das
+     ausschliesslich aus dem Hash (siehe einSyncAusHash). */
   function renderEinstellungen() {
     document.body.classList.remove("auth-mode");
+    // Rolle kann sich geaendert haben, waehrend eine Unterseite offen war.
+    if (einst.seite && !einSeiteErlaubt(einst.seite)) einst.seite = null;
+    if (einst.seite) renderEinUnterseite(einst.seite);
+    else renderEinUebersicht();
+  }
+
+  function renderEinUebersicht() {
     const u = currentProfile || {};
     const player = u.player_id ? playerById[u.player_id] : null;
     const name = player ? player.name : (u.email || "—");
@@ -1903,6 +2064,37 @@
       </div>` : ""}
       <p class="set-hint" style="text-align:center;margin-top:22px;opacity:.6">Build ${esc(APP_BUILD)}${(window.__HTML_BUILD && window.__HTML_BUILD !== APP_BUILD) ? " · HTML " + esc(window.__HTML_BUILD) + " (Versionen unterschiedlich – evtl. Cache)" : ""} · <a href="?debug=1" style="color:inherit">Diagnose</a></p>
     `;
+  }
+
+  /* Eine Unterseite. Kopf immer gleich, Inhalt je Seite - der Inhalt selbst
+     kommt aus den Bausteinen, die es schon gibt. */
+  function renderEinUnterseite(id) {
+    const s = EIN_SEITEN[id];
+    let inhalt = "";
+
+    if (id === "mitteilungen") {
+      inhalt = pushAbschnittHtml("mitteilungen");
+    } else if (id === "ruhezeiten") {
+      inhalt = pushAbschnittHtml("ruhezeiten");
+    } else if (id === "kalender") {
+      inhalt = `
+        <div class="card card-pad">
+          <p class="set-hint">Alle Termine der Mannschaft landen automatisch in deinem Handy-Kalender
+          und ändern sich dort mit, wenn ein Termin verschoben oder abgesagt wird.</p>
+          <button class="btn btn-primary" data-cal-sheet type="button">Termine abonnieren</button>
+          <button class="btn btn-soft" data-cal-copy-profil type="button">Link kopieren</button>
+          <div class="cal-copied" data-cal-copied-profil hidden></div>
+        </div>`;
+    } else if (id === "bfv") {
+      inhalt = bfvSectionHtml();
+    }
+
+    viewEl.innerHTML =
+      einKopfHtml(s.titel) +
+      '<div class="ein-body ' + (einst.richtung === "zurueck" ? "ein-anim-zurueck" : "ein-anim-rein") + '">' +
+        '<h1 class="ein-h1" tabindex="-1">' + esc(s.titel) + '</h1>' +
+        inhalt +
+      '</div>';
   }
 
   /* ---------- Profil (Spieler-Tab): eigener Fitnessstatus ------------------- */
@@ -3687,6 +3879,10 @@
 
   // Browser-/Hardware-Zurück aus einer per Kachel gesprungenen Aufstellung.
   window.addEventListener("popstate", function () {
+    // Einstellungs-Unterseite zuerst: wer von einer Kachel in die Einstellungen
+    // gesprungen ist UND dort eine Unterseite geoeffnet hat, will mit dem ersten
+    // Zurueck die Unterseite schliessen, nicht den ganzen Sprung ruecknehmen.
+    if (einSyncAusHash()) return;
     // Aufstellungs-Sprung von einer Spiel-Karte (ggf. mit ungespeicherten Änderungen).
     if (currentView === "lineup" && tv.origin != null) {
       if (tv.dirty && !tv.readonly) {
@@ -5573,7 +5769,7 @@
       // „Buchung rückgängig" steht jetzt im Detail-Blatt (ksBlattUnpay).
     }
 
-    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-cal-hide],[data-cal-copy-profil],[data-push-an],[data-push-aus],[data-push-test],[data-push-install],[data-push-hinweis-weg],[data-pn-haupt],[data-pn-kat],[data-pn-alle],[data-pn-ruhe],[data-pn-dringend],[data-pkat-save],[data-pkat-reset],[data-pkat-send],[data-pkat-alle],[data-pkat-clear],[data-ics-event],[data-koord-save],[data-status-set],[data-logout]");
+    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-cal-hide],[data-cal-copy-profil],[data-push-an],[data-push-aus],[data-push-test],[data-push-install],[data-push-hinweis-weg],[data-pn-haupt],[data-pn-kat],[data-pn-alle],[data-pn-ruhe],[data-pn-dringend],[data-pkat-save],[data-pkat-reset],[data-pkat-send],[data-pkat-alle],[data-pkat-clear],[data-ics-event],[data-koord-save],[data-status-set],[data-logout],[data-ein],[data-ein-back]");
     if (!t) return;
 
     // Fitnessstatus setzen. Wer das darf, entscheidet die Datenbank:
@@ -5582,6 +5778,10 @@
       await statusSpeichern(t.dataset.statusSet, t.dataset.wert);
       return;
     }
+
+    /* Einstellungen: eine Ebene tiefer oder eine Ebene zurueck. */
+    if (t.dataset.ein) { einOeffnen(t.dataset.ein); return; }
+    if (t.hasAttribute("data-ein-back")) { einZurueck(); return; }
 
     // Abmelden (in den Einstellungen) – prominent platziert, daher mit Rückfrage.
     if (t.hasAttribute("data-logout")) {
@@ -6169,6 +6369,7 @@
     if (art === "strafen" && ["offen", "gemeldet", "bezahlt", "alle", "meine"].indexOf(wert) !== -1) return { art: "strafen", wert: wert };
     if (art === "kasse" && ["pruefen", "offen", "bezahlt"].indexOf(wert) !== -1) return { art: "kasse", wert: wert };
     if (art === "strafe" && ["katalog", "individuell"].indexOf(wert) !== -1) return { art: "strafe", wert: wert };
+    if (art === "ein" && Object.prototype.hasOwnProperty.call(EIN_SEITEN, wert)) return { art: "ein", wert: wert };
     if (art === "lineup") return { art: "lineup", wert: wert };
     return null;
   }
@@ -6193,6 +6394,19 @@
       kasse.seite = modus;
       kasse.bloecke = { katalog: modus === "katalog", indiv: modus === "indiv" };
       navJumpTo("kasse", {});
+      return true;
+    }
+    /* Wie bei strafe= bleibt der Hash stehen: er IST der Zustand der
+       Unterseite. Neuladen fuehrt dadurch wieder genau dorthin. */
+    if (ziel.art === "ein") {
+      if (!einSeiteErlaubt(ziel.wert)) { deepLinkHashWeg(); switchView("einstellungen"); return true; }
+      einst.scroll = 0;
+      if (currentView !== "einstellungen") switchView("einstellungen");   // setzt einst.seite zurueck
+      einst.richtung = "rein";
+      einst.seite = ziel.wert;
+      einst.kompakt = false;
+      render();
+      window.scrollTo(0, 0);
       return true;
     }
     deepLinkHashWeg();
@@ -6226,6 +6440,15 @@
     tv.origin = null; tv.readonly = false; tv.dirty = false; navReturn = null;
     // Kasse-Vollbild-Auswahl beim Tab-Wechsel schließen.
     blattAlleZu();
+    /* Eine offene Einstellungs-Unterseite ueberlebt den Ansichtswechsel nicht -
+       und ihr Hash auch nicht. Bliebe er stehen, zeigte die Adresse eine Seite,
+       die gar nicht mehr offen ist, und ein Neuladen landete wieder dort. */
+    if (einst.seite) {
+      einst.seite = null; einst.kompakt = false; einst.scroll = 0;
+      if (/^#?ein=/.test(location.hash || "")) {
+        try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+      }
+    }
     // Die „Strafe verhängen"-Seite ueberlebt keinen Ansichtswechsel - sonst
     // faende man sie beim naechsten Aufruf der Kasse halb ausgefuellt vor.
     if (kasse.seite) { ksSeiteLeeren(); ksSeiteSync(); }
@@ -6244,7 +6467,10 @@
   }
 
   // Aendert sich der Hash bei laufender App, ist das ein Deep Link von aussen.
-  window.addEventListener("hashchange", function () { routeDeepLink(); });
+  window.addEventListener("hashchange", function () {
+    if (einSyncAusHash()) return;   // popstate war schneller oder es kam von aussen
+    routeDeepLink();
+  });
 
   // Android bietet die Installation an. Den Vorschlag aufheben, damit er an
   // der richtigen Stelle als Knopf erscheint statt als Browserbanner.

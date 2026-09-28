@@ -1072,3 +1072,27 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
 - **Das Prüfskript hat einen eigenen Abschnitt dagegen**: er prüft, dass in
   `app.js` und `styles.css` kein Rest übrig ist — sechzehn Namen im Code,
   fünf im Stylesheet. So bleibt es auch entfernt.
+
+## Einstellungen: zwei Ebenen (F1)
+
+- **Hash statt Pfad.** Der Auftrag nannte `/einstellungen/mitteilungen`.
+  Umgesetzt ist `#ein=mitteilungen`: `vercel.json` hat bewusst keine
+  Catch-all-Regel auf `index.html`, ein echter Pfad liefe beim Neuladen in
+  einen 404. Die ganze App routet über Hashes, und genau die stehen auch in
+  den Push-Vorlagen. Abgestimmt und freigegeben.
+- **Der Hash bleibt stehen**, solange eine Unterseite offen ist — wie bei
+  `#strafe=`. Er ist der Zustand, nicht nur ein Sprungziel. Beim Tab-Wechsel
+  wird er weggeräumt, sonst zeigte die Adresse eine Seite, die nicht offen ist.
+- **Seitenrand 16px statt gemessener 13,5px.** Die Vorlage setzt die Karten
+  näher an den Rand als der Rest der App (`.view` hat 16px). Der Unterschied
+  liegt über der Messauflösung, wird aber bewusst nicht übernommen: sonst
+  stünden die Einstellungen als einzige Ansicht anders als Kalender, Kasse
+  und Strafen.
+- **Keine neue Farbe.** Die drei Kachelfarben der Vorlage sind gemessen
+  `#1f7049`, `#0f3d2e`, `#96772a` — das sind `--green-650`, `--green-900` und
+  `--gold-chev` aus dem bestehenden Tokenblock. Die graue Info-Kachel nutzt
+  `--muted-2`.
+- **Der Übergang sitzt auf `.ein-body`, nicht auf einem Vorfahren der
+  klebenden Leiste.** Eine laufende `transform`-Animation wird sonst zum
+  Bezugsrahmen, und die Leiste wandert mit — derselbe Mechanismus, der schon
+  die Kassenseite zusammengedrückt hat.
