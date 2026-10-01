@@ -10,7 +10,7 @@ unten ist wörtlich aus dem Sitzungsprotokoll übernommen
 sind überholt: die Bilder liegen inzwischen in diesem Ordner, und
 `einstellungenneu .png` heißt jetzt `einstellungenneu2.png`.
 
-## Stand (01.10.2026)
+## Stand (02.10.2026)
 
 | # | Stand |
 |---|---|
@@ -24,13 +24,36 @@ sind überholt: die Bilder liegen inzwischen in diesem Ordner, und
 | F11 bis F13 | offen, Kader |
 | F14 | offen, `.design-sync`-Karten, `conventions.md`, `validate.sh`, Token-Zähler |
 | B1 | fertig: Migration 0041 eingespielt am 01.10.2026, Nachkontrolle bestätigt (Beschreibung ohne internen Bezeichner, Deep Link der Testnachricht auf `#ein=mitteilungen`, keine Vorlage mehr auf `#ansicht=einstellungen`). |
+| L1 bis L4 | offen, App-Landkarte (Paket L, siehe unten) |
+| A | offen, Aufräumen (Nebenbefunde aus der Landkarten-Analyse, siehe unten) |
 
 **Reihenfolge ab hier, kein Vorziehen:**
 1. ~~Migration 0041: zuerst die Gegenprobe, dann die zwei Updates.~~ erledigt 01.10.2026.
-2. Inhaltsabgleich der vier Unterseiten gegen Panel 3 bis 7, ein Commit je Unterseite.
-3. F9.
-4. F14, erst wenn die Einstellungen komplett sind.
-5. Kader F11 bis F13.
+2. Paket L, App-Landkarte. Am 02.10.2026 bewusst vor den Inhaltsabgleich gezogen. Ein Commit je Schritt:
+   - L1 Stand-in für `db.js` und Testdaten (`landkartenmodul.mjs`)
+   - L2 Crawler mit Zustandserkennung und Kanten (`landkarte.mjs`)
+   - L3 Layout: `landkarte.html` (Spalte je Rolle, Ebenen, SVG-Pfeile, Klick vergrößert) plus PNG je Rolle
+   - L4 Drift-Prüfung auf die Pflichtliste, `NOTES.md`, Weg nach Claude Design über `build.sh`
+3. Inhaltsabgleich der vier Unterseiten gegen Panel 3 bis 7, ein Commit je Unterseite.
+4. F9.
+5. F14, erst wenn die Einstellungen komplett sind.
+6. Kader F11 bis F13.
+7. Paket A, Aufräumen (siehe unten).
+
+### Paket L: Vorgaben (02.10.2026)
+- Sechs Spalten: vor der Anmeldung, Spieler, Trainer, Kassenwart, Trainer+Kassenwart, Admin.
+- Rollen kommen echt über das Stand-in (`myRoles`), nicht über die Admin-Simulation.
+- Testdaten nur mit erfundenen Namen, keine echten Spielerdaten.
+- Kein einziger Request an Supabase: jeder Request an `*.supabase.co` lässt den Lauf rot werden.
+- Schreibaufrufe des Stand-ins werden nur protokolliert.
+- `app.js` und die bestehenden Prüfskripte bleiben unverändert. Wäre eine Änderung an `app.js` nötig: stoppen und melden.
+- Versioniert werden nur `landkarte.html` und `landkarte.json`, die PNGs stehen in `.gitignore`.
+- Ablauf je Commit: Dateiliste zeigen, nach OK umsetzen, Pflichtliste 16/16 grün (versionierte Bilder per `git restore` zurück), Commit, Push erst nach OK. Eine Sitzung je Commit, am Ende der Startsatz für die nächste Sitzung.
+
+### Paket A: Aufräumen (Nebenbefunde vom 02.10.2026, nicht anfassen bis dahin)
+- Übersichtskachel `data-nav="kasse"` führt auf Konto mit Filter „offen“, nicht auf die Kasse (`app.js` Handler bei 6206). Klären, ob gewollt.
+- Toter Code: `luPanel`/`luMore` und die alte Aufstellung, seit `LINEUP_V2 = true` unerreichbar (`app.js` um 3433-3451, `confirm` bei 3324, `prompt` bei 3294).
+- Vier verwaiste Handler ohne erzeugendes Element: `data-remind`, `data-toggle-paid`, `data-del-fine`, `data-paypal` (Selektor bei `app.js` 5809).
 
 ---
 
