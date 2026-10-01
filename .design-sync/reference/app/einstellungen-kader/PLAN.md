@@ -26,7 +26,8 @@ sind überholt: die Bilder liegen inzwischen in diesem Ordner, und
 | B1 | fertig: Migration 0041 eingespielt am 01.10.2026, Nachkontrolle bestätigt (Beschreibung ohne internen Bezeichner, Deep Link der Testnachricht auf `#ein=mitteilungen`, keine Vorlage mehr auf `#ansicht=einstellungen`). |
 | L1 | fertig: `landkartenmodul.mjs` (Stand-in für `db.js`, erfundene Testdaten, Uhr fest auf Fr 02.10.2026 18:00), `landkartenrauch.mjs` grün für alle sechs Profile, 0 Requests an Supabase |
 | L2 | fertig: `landkarte.mjs` + `landkartenregeln.mjs`, Ergebnis `.design-sync/landkarte/landkarte.json` (Bilder in `.gitignore`); Tiefengrenze 6, sechs Profile parallel, rund 4 Minuten |
-| L3, L4 | offen, App-Landkarte (Paket L, siehe unten) |
+| L3 | fertig: `landkartenlayout.mjs` erzeugt `.design-sync/landkarte/landkarte.html` (Bilder relativ verlinkt), dazu nicht versioniert unter `bilder/` ein PNG je Rolle (`rollen/<profil>.png`) und die eigenständige `landkarte-komplett.html` (JPEG eingebettet, 9,6 MB, Grenze 15 MB) |
+| L4 | offen, App-Landkarte (Paket L, siehe unten) |
 | A | offen, Aufräumen (Nebenbefunde aus der Landkarten-Analyse, siehe unten) |
 
 **Reihenfolge ab hier, kein Vorziehen:**
