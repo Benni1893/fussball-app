@@ -55,6 +55,7 @@ sind überholt: die Bilder liegen inzwischen in diesem Ordner, und
 - Übersichtskachel `data-nav="kasse"` führt auf Konto mit Filter „offen“, nicht auf die Kasse (`app.js` Handler bei 6206). Klären, ob gewollt.
 - Toter Code: `luPanel`/`luMore` und die alte Aufstellung, seit `LINEUP_V2 = true` unerreichbar (`app.js` um 3433-3451, `confirm` bei 3324, `prompt` bei 3294).
 - Vier verwaiste Handler ohne erzeugendes Element: `data-remind`, `data-toggle-paid`, `data-del-fine`, `data-paypal` (Selektor bei `app.js` 5809).
+- 5. Tab bei Trainer+Kassenwart (ohne Admin): Beschriftung „Trainer“ mit Platz-Symbol, öffnet aber das Mehr-Menü statt der Aufstellung (`setupPrimaryNavTab`, `app.js` 6931-6939: Beschriftung nach höchster Rolle, Ziel nach Anzahl der Spezialbereiche). Klären, ob „Mehr“ gemeint ist. Der Rauchtest `landkartenrauch.mjs` prüft das tatsächliche Verhalten. Nachgetragen am 02.10.2026.
 
 ---
 
