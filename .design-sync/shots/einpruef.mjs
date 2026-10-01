@@ -180,7 +180,7 @@ console.log('--- Migration 0041 ---');
   pruefe(/update public\.notification_templates/.test(sql), 'sie fasst nur die Vorlagen an');
   pruefe(!/create table|alter table|drop /i.test(sql), 'kein DDL');
   pruefe(!/create policy|drop policy/i.test(sql), 'keine Policy');
-  pruefe(sql.includes('„Termin geändert"'), 'der sichtbare Name steht in Anfuehrungszeichen');
+  pruefe(sql.includes('„Termin geändert“'), 'der sichtbare Name steht in Anfuehrungszeichen');
   const oben = sql.slice(0, sql.indexOf('RUECKBAU'));
   pruefe(!/laufen über termin_geaendert/.test(oben.replace(/^--.*$/gm, '')),
     'der interne Bezeichner steht nicht mehr im neuen Text');
