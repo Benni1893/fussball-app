@@ -10,7 +10,7 @@ unten ist wörtlich aus dem Sitzungsprotokoll übernommen
 sind überholt: die Bilder liegen inzwischen in diesem Ordner, und
 `einstellungenneu .png` heißt jetzt `einstellungenneu2.png`.
 
-## Stand (28.09.2026)
+## Stand (01.10.2026)
 
 | # | Stand |
 |---|---|
@@ -23,10 +23,10 @@ sind überholt: die Bilder liegen inzwischen in diesem Ordner, und
 | F10 | fertig (kompakter Titel, steckt im Gerüst-Commit) |
 | F11 bis F13 | offen, Kader |
 | F14 | offen, `.design-sync`-Karten, `conventions.md`, `validate.sh`, Token-Zähler |
-| B1 | Migration 0041 liegt vor, zusätzlich Deep Link der Testnachricht auf `#ein=mitteilungen`. Eingespielt wird erst nach der Gegenprobe. |
+| B1 | fertig: Migration 0041 eingespielt am 01.10.2026, Nachkontrolle bestätigt (Beschreibung ohne internen Bezeichner, Deep Link der Testnachricht auf `#ein=mitteilungen`, keine Vorlage mehr auf `#ansicht=einstellungen`). |
 
 **Reihenfolge ab hier, kein Vorziehen:**
-1. Migration 0041: zuerst die Gegenprobe, dann die zwei Updates.
+1. ~~Migration 0041: zuerst die Gegenprobe, dann die zwei Updates.~~ erledigt 01.10.2026.
 2. Inhaltsabgleich der vier Unterseiten gegen Panel 3 bis 7, ein Commit je Unterseite.
 3. F9.
 4. F14, erst wenn die Einstellungen komplett sind.
