@@ -1,0 +1,5086 @@
+{
+  "erzeugtVon": ".design-sync/shots/landkarte.mjs",
+  "jetzt": "2026-10-02T18:00:00+02:00",
+  "maxTiefe": 6,
+  "profile": {
+    "anmeldung": {
+      "titel": "Vor der Anmeldung",
+      "rollen": null,
+      "knoten": [
+        {
+          "schluessel": "anmeldung/anmelden",
+          "ansicht": "anmeldung",
+          "unter": "anmelden",
+          "oben": [],
+          "ueberschrift": "Anmelden",
+          "tiefe": 0,
+          "pfad": [],
+          "bild": "bilder/anmeldung/anmeldung__anmelden.png"
+        },
+        {
+          "schluessel": "anmeldung/registrieren",
+          "ansicht": "anmeldung",
+          "unter": "registrieren",
+          "oben": [],
+          "ueberschrift": "Konto erstellen",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "auth",
+              "wert": "register",
+              "text": "Jetzt registrieren",
+              "global": false
+            }
+          ],
+          "bild": "bilder/anmeldung/anmeldung__registrieren.png"
+        },
+        {
+          "schluessel": "anmeldung/reset-link-senden",
+          "ansicht": "anmeldung",
+          "unter": "reset-link-senden",
+          "oben": [],
+          "ueberschrift": "Passwort zurücksetzen",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "auth",
+              "wert": "forgot",
+              "text": "Passwort vergessen?",
+              "global": false
+            }
+          ],
+          "bild": "bilder/anmeldung/anmeldung__reset-link-senden.png"
+        }
+      ],
+      "kanten": [
+        {
+          "von": "anmeldung/anmelden",
+          "art": "auth",
+          "wert": "forgot",
+          "text": "Passwort vergessen?",
+          "nach": "anmeldung/reset-link-senden"
+        },
+        {
+          "von": "anmeldung/anmelden",
+          "art": "auth",
+          "wert": "register",
+          "text": "Jetzt registrieren",
+          "nach": "anmeldung/registrieren"
+        },
+        {
+          "von": "anmeldung/registrieren",
+          "art": "auth",
+          "wert": "login",
+          "text": "Hier anmelden",
+          "nach": "anmeldung/anmelden"
+        },
+        {
+          "von": "anmeldung/reset-link-senden",
+          "art": "auth",
+          "wert": "login",
+          "text": "Zurück zur Anmeldung",
+          "nach": "anmeldung/anmelden"
+        }
+      ],
+      "tiefengrenze": [],
+      "ohneWirkung": [],
+      "unbekannt": [],
+      "nichtWiederholbar": [],
+      "gefundeneArten": [
+        "auth"
+      ],
+      "schreibaufrufe": []
+    },
+    "spieler": {
+      "titel": "Spieler",
+      "rollen": [
+        "player"
+      ],
+      "knoten": [
+        {
+          "schluessel": "dashboard",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Servus, Felix",
+          "tiefe": 0,
+          "pfad": [],
+          "bild": "bilder/spieler/dashboard.png"
+        },
+        {
+          "schluessel": "dashboard+zmBl",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "zmBl"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "paid-self",
+              "wert": null,
+              "text": "Zahlung melden",
+              "global": false
+            }
+          ],
+          "bild": "bilder/spieler/dashboard--zmBl.png"
+        },
+        {
+          "schluessel": "einstellungen",
+          "ansicht": "einstellungen",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Einstellungen",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            }
+          ],
+          "bild": "bilder/spieler/einstellungen.png"
+        },
+        {
+          "schluessel": "kalender",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Kalender",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            }
+          ],
+          "bild": "bilder/spieler/kalender.png"
+        },
+        {
+          "schluessel": "katalog",
+          "ansicht": "katalog",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Strafenkatalog",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "katalog",
+              "text": "Katalog",
+              "global": true
+            }
+          ],
+          "bild": "bilder/spieler/katalog.png"
+        },
+        {
+          "schluessel": "strafen",
+          "ansicht": "strafen",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Strafen-Konto",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "strafen",
+              "text": "Konto",
+              "global": true
+            }
+          ],
+          "bild": "bilder/spieler/strafen.png"
+        },
+        {
+          "schluessel": "diagnose",
+          "ansicht": "diagnose",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Diagnose",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein-tat",
+              "wert": "diagnose",
+              "text": "Diagnose›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/spieler/diagnose.png"
+        },
+        {
+          "schluessel": "dialog:abmelden",
+          "ansicht": "dialog",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": null,
+          "dialog": {
+            "typ": "confirm",
+            "text": "Abmelden?\n\nDu wirst auf diesem Gerät abgemeldet."
+          },
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "logout",
+              "wert": null,
+              "text": "Abmelden",
+              "global": false
+            }
+          ],
+          "bild": null
+        },
+        {
+          "schluessel": "einstellungen/kalender",
+          "ansicht": "einstellungen",
+          "unter": "kalender",
+          "oben": [],
+          "ueberschrift": "Kalender-Abo",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "kalender",
+              "text": "Kalender-Abo›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/spieler/einstellungen__kalender.png"
+        },
+        {
+          "schluessel": "einstellungen/mitteilungen",
+          "ansicht": "einstellungen",
+          "unter": "mitteilungen",
+          "oben": [],
+          "ueberschrift": "Mitteilungen",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "mitteilungen",
+              "text": "MitteilungenNicht eingerichtet›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/spieler/einstellungen__mitteilungen.png"
+        },
+        {
+          "schluessel": "einstellungen/ruhezeiten",
+          "ansicht": "einstellungen",
+          "unter": "ruhezeiten",
+          "oben": [],
+          "ueberschrift": "Ruhezeiten",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "ruhezeiten",
+              "text": "Ruhezeiten22:00 bis 08:00›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/spieler/einstellungen__ruhezeiten.png"
+        },
+        {
+          "schluessel": "kalender+calSheet",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "calSheet"
+          ],
+          "ueberschrift": "Kalender",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "cal-sheet",
+              "wert": null,
+              "text": "Termine im Handy-Kalender?›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/spieler/kalender--calSheet.png"
+        },
+        {
+          "schluessel": "profil",
+          "ansicht": "profil",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Profil",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "view-jump",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Spieler spieler@landkarte.exam",
+              "global": false
+            }
+          ],
+          "bild": "bilder/spieler/profil.png"
+        },
+        {
+          "schluessel": "strafen+zmBl",
+          "ansicht": "strafen",
+          "unter": null,
+          "oben": [
+            "zmBl"
+          ],
+          "ueberschrift": "Strafen-Konto",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "strafen",
+              "text": "Konto",
+              "global": true
+            },
+            {
+              "art": "paid-self",
+              "wert": null,
+              "text": "Zahlung melden",
+              "global": false
+            }
+          ],
+          "bild": "bilder/spieler/strafen--zmBl.png"
+        },
+        {
+          "schluessel": "einstellungen/kalender+calSheet",
+          "ansicht": "einstellungen",
+          "unter": "kalender",
+          "oben": [
+            "calSheet"
+          ],
+          "ueberschrift": "Kalender-Abo",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "kalender",
+              "text": "Kalender-Abo›",
+              "global": false
+            },
+            {
+              "art": "cal-sheet",
+              "wert": null,
+              "text": "Termine abonnieren",
+              "global": false
+            }
+          ],
+          "bild": "bilder/spieler/einstellungen__kalender--calSheet.png"
+        }
+      ],
+      "kanten": [
+        {
+          "von": "dashboard",
+          "art": "goto",
+          "wert": "kalender",
+          "text": "Kalender ›",
+          "nach": "kalender"
+        },
+        {
+          "von": "dashboard",
+          "art": "goto",
+          "wert": "strafen",
+          "text": "Alle Strafen",
+          "nach": "strafen"
+        },
+        {
+          "von": "dashboard",
+          "art": "paid-self",
+          "wert": null,
+          "text": "Zahlung melden",
+          "nach": "dashboard+zmBl"
+        },
+        {
+          "von": "dashboard",
+          "art": "tab",
+          "wert": "kalender",
+          "text": "Kalender",
+          "nach": "kalender"
+        },
+        {
+          "von": "dashboard",
+          "art": "tab",
+          "wert": "katalog",
+          "text": "Katalog",
+          "nach": "katalog"
+        },
+        {
+          "von": "dashboard",
+          "art": "tab",
+          "wert": "strafen",
+          "text": "Konto",
+          "nach": "strafen"
+        },
+        {
+          "von": "dashboard",
+          "art": "zahnrad",
+          "wert": null,
+          "text": "Einstellungen öffnen",
+          "nach": "einstellungen"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein-tat",
+          "wert": "diagnose",
+          "text": "Diagnose›",
+          "nach": "diagnose"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
+          "wert": "kalender",
+          "text": "Kalender-Abo›",
+          "nach": "einstellungen/kalender"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
+          "wert": "mitteilungen",
+          "text": "MitteilungenNicht eingerichtet›",
+          "nach": "einstellungen/mitteilungen"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
+          "wert": "ruhezeiten",
+          "text": "Ruhezeiten22:00 bis 08:00›",
+          "nach": "einstellungen/ruhezeiten"
+        },
+        {
+          "von": "einstellungen",
+          "art": "logout",
+          "wert": null,
+          "text": "Abmelden",
+          "nach": "dialog:abmelden"
+        },
+        {
+          "von": "einstellungen",
+          "art": "view-jump",
+          "wert": "profil",
+          "text": "FO Felix Oberhaus Spieler spieler@landkarte.exam",
+          "nach": "profil"
+        },
+        {
+          "von": "einstellungen/kalender",
+          "art": "cal-sheet",
+          "wert": null,
+          "text": "Termine abonnieren",
+          "nach": "einstellungen/kalender+calSheet"
+        },
+        {
+          "von": "einstellungen/ruhezeiten",
+          "art": "ein",
+          "wert": "mitteilungen",
+          "text": "Zu den Mitteilungen",
+          "nach": "einstellungen/mitteilungen"
+        },
+        {
+          "von": "kalender",
+          "art": "cal-sheet",
+          "wert": null,
+          "text": "Termine im Handy-Kalender?›",
+          "nach": "kalender+calSheet"
+        },
+        {
+          "von": "strafen",
+          "art": "paid-self",
+          "wert": null,
+          "text": "Zahlung melden",
+          "nach": "strafen+zmBl"
+        }
+      ],
+      "tiefengrenze": [],
+      "ohneWirkung": [
+        {
+          "von": "dashboard",
+          "art": "tab",
+          "wert": "dashboard",
+          "text": "Übersicht"
+        }
+      ],
+      "unbekannt": [],
+      "nichtWiederholbar": [],
+      "gefundeneArten": [
+        "cal-sheet",
+        "ein",
+        "ein-tat",
+        "goto",
+        "logout",
+        "paid-self",
+        "tab",
+        "view-jump",
+        "zahnrad"
+      ],
+      "schreibaufrufe": []
+    },
+    "trainer": {
+      "titel": "Trainer",
+      "rollen": [
+        "player",
+        "coach"
+      ],
+      "knoten": [
+        {
+          "schluessel": "dashboard",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Servus, Felix",
+          "tiefe": 0,
+          "pfad": [],
+          "bild": "bilder/trainer/dashboard.png"
+        },
+        {
+          "schluessel": "dashboard+rsvpSheet",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "rsvpSheet"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/dashboard--rsvpSheet.png"
+        },
+        {
+          "schluessel": "dashboard+shareModal",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "shareModal"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "kader-info",
+              "wert": null,
+              "text": "Kader-Info16 Spieler›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/dashboard--shareModal.png"
+        },
+        {
+          "schluessel": "dashboard+zmBl",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "zmBl"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "paid-self",
+              "wert": null,
+              "text": "Zahlung melden",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/dashboard--zmBl.png"
+        },
+        {
+          "schluessel": "einstellungen",
+          "ansicht": "einstellungen",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Einstellungen",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            }
+          ],
+          "bild": "bilder/trainer/einstellungen.png"
+        },
+        {
+          "schluessel": "kalender",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Kalender",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            }
+          ],
+          "bild": "bilder/trainer/kalender.png"
+        },
+        {
+          "schluessel": "katalog",
+          "ansicht": "katalog",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Strafenkatalog",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "katalog",
+              "text": "Katalog",
+              "global": true
+            }
+          ],
+          "bild": "bilder/trainer/katalog.png"
+        },
+        {
+          "schluessel": "strafen",
+          "ansicht": "strafen",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Strafen-Konto",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "strafen",
+              "text": "Konto",
+              "global": true
+            }
+          ],
+          "bild": "bilder/trainer/strafen.png"
+        },
+        {
+          "schluessel": "trainer",
+          "ansicht": "trainer",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Trainer",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Trainer",
+              "global": true
+            }
+          ],
+          "bild": "bilder/trainer/trainer.png"
+        },
+        {
+          "schluessel": "trainer/spiel",
+          "ansicht": "trainer",
+          "unter": "spiel",
+          "oben": [],
+          "ueberschrift": null,
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "lineup-edit",
+              "wert": null,
+              "text": "Aufstellung11/11›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/trainer__spiel.png"
+        },
+        {
+          "schluessel": "dashboard+rsvpSheet+shareModal",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "rsvpSheet",
+            "shareModal"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+              "global": false
+            },
+            {
+              "art": "rs-teilen",
+              "wert": null,
+              "text": "Teilen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/dashboard--rsvpSheet--shareModal.png"
+        },
+        {
+          "schluessel": "diagnose",
+          "ansicht": "diagnose",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Diagnose",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein-tat",
+              "wert": "diagnose",
+              "text": "Diagnose›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/diagnose.png"
+        },
+        {
+          "schluessel": "dialog:abmelden",
+          "ansicht": "dialog",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": null,
+          "dialog": {
+            "typ": "confirm",
+            "text": "Abmelden?\n\nDu wirst auf diesem Gerät abgemeldet."
+          },
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "logout",
+              "wert": null,
+              "text": "Abmelden",
+              "global": false
+            }
+          ],
+          "bild": null
+        },
+        {
+          "schluessel": "einstellungen/kalender",
+          "ansicht": "einstellungen",
+          "unter": "kalender",
+          "oben": [],
+          "ueberschrift": "Kalender-Abo",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "kalender",
+              "text": "Kalender-Abo›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/einstellungen__kalender.png"
+        },
+        {
+          "schluessel": "einstellungen/mitteilungen",
+          "ansicht": "einstellungen",
+          "unter": "mitteilungen",
+          "oben": [],
+          "ueberschrift": "Mitteilungen",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "mitteilungen",
+              "text": "MitteilungenNicht eingerichtet›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/einstellungen__mitteilungen.png"
+        },
+        {
+          "schluessel": "einstellungen/ruhezeiten",
+          "ansicht": "einstellungen",
+          "unter": "ruhezeiten",
+          "oben": [],
+          "ueberschrift": "Ruhezeiten",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "ruhezeiten",
+              "text": "Ruhezeiten22:00 bis 08:00›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/einstellungen__ruhezeiten.png"
+        },
+        {
+          "schluessel": "kader",
+          "ansicht": "kader",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Kader",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Trainer",
+              "global": true
+            },
+            {
+              "art": "goto",
+              "wert": "kader",
+              "text": "Kader16 Spieler›13fit1angeschlagen1verletzt1Urla",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/kader.png"
+        },
+        {
+          "schluessel": "kalender+calSheet",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "calSheet"
+          ],
+          "ueberschrift": "Kalender",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "cal-sheet",
+              "wert": null,
+              "text": "Termine im Handy-Kalender?›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/kalender--calSheet.png"
+        },
+        {
+          "schluessel": "kalender+rsvpSheet",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "rsvpSheet"
+          ],
+          "ueberschrift": "Kalender",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/kalender--rsvpSheet.png"
+        },
+        {
+          "schluessel": "kalender+shareModal",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "shareModal"
+          ],
+          "ueberschrift": "Kalender",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "kader-info",
+              "wert": null,
+              "text": "Kader-Info16 Spieler›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/kalender--shareModal.png"
+        },
+        {
+          "schluessel": "kalender+terminModal",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "terminModal"
+          ],
+          "ueberschrift": "Kalender",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "termin-new",
+              "wert": null,
+              "text": "Termin hinzufügen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/kalender--terminModal.png"
+        },
+        {
+          "schluessel": "kalender+tkMenu",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "tkMenu"
+          ],
+          "ueberschrift": "Kalender",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "tkmenu",
+              "wert": null,
+              "text": "Mehr zu diesem Termin",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/kalender--tkMenu.png"
+        },
+        {
+          "schluessel": "profil",
+          "ansicht": "profil",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Profil",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "view-jump",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Spieler · Trainer trainer@land",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/profil.png"
+        },
+        {
+          "schluessel": "strafen+zmBl",
+          "ansicht": "strafen",
+          "unter": null,
+          "oben": [
+            "zmBl"
+          ],
+          "ueberschrift": "Strafen-Konto",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "strafen",
+              "text": "Konto",
+              "global": true
+            },
+            {
+              "art": "paid-self",
+              "wert": null,
+              "text": "Zahlung melden",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/strafen--zmBl.png"
+        },
+        {
+          "schluessel": "trainer/spiel+tvSheetForm",
+          "ansicht": "trainer",
+          "unter": "spiel",
+          "oben": [
+            "tvSheetForm"
+          ],
+          "ueberschrift": null,
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "lineup-edit",
+              "wert": null,
+              "text": "Aufstellung11/11›",
+              "global": false
+            },
+            {
+              "art": "tvmoreform",
+              "wert": null,
+              "text": "Weitere ›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/trainer__spiel--tvSheetForm.png"
+        },
+        {
+          "schluessel": "trainer/spiel+tvSheetKader",
+          "ansicht": "trainer",
+          "unter": "spiel",
+          "oben": [
+            "tvSheetKader"
+          ],
+          "ueberschrift": null,
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "lineup-edit",
+              "wert": null,
+              "text": "Aufstellung11/11›",
+              "global": false
+            },
+            {
+              "art": "tvbankadd",
+              "wert": null,
+              "text": "Bankspieler hinzufügen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/trainer__spiel--tvSheetKader.png"
+        },
+        {
+          "schluessel": "trainer/spiel+tvSheetMenu",
+          "ansicht": "trainer",
+          "unter": "spiel",
+          "oben": [
+            "tvSheetMenu"
+          ],
+          "ueberschrift": null,
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "lineup-edit",
+              "wert": null,
+              "text": "Aufstellung11/11›",
+              "global": false
+            },
+            {
+              "art": "tvmenu",
+              "wert": null,
+              "text": "Mehr",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/trainer__spiel--tvSheetMenu.png"
+        },
+        {
+          "schluessel": "einstellungen/kalender+calSheet",
+          "ansicht": "einstellungen",
+          "unter": "kalender",
+          "oben": [
+            "calSheet"
+          ],
+          "ueberschrift": "Kalender-Abo",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "kalender",
+              "text": "Kalender-Abo›",
+              "global": false
+            },
+            {
+              "art": "cal-sheet",
+              "wert": null,
+              "text": "Termine abonnieren",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/einstellungen__kalender--calSheet.png"
+        },
+        {
+          "schluessel": "kalender+rsvpSheet+shareModal",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "rsvpSheet",
+            "shareModal"
+          ],
+          "ueberschrift": "Kalender",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+              "global": false
+            },
+            {
+              "art": "rs-teilen",
+              "wert": null,
+              "text": "Teilen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/kalender--rsvpSheet--shareModal.png"
+        }
+      ],
+      "kanten": [
+        {
+          "von": "dashboard",
+          "art": "goto",
+          "wert": "kalender",
+          "text": "Kalender ›",
+          "nach": "kalender"
+        },
+        {
+          "von": "dashboard",
+          "art": "kader-info",
+          "wert": null,
+          "text": "Kader-Info16 Spieler›",
+          "nach": "dashboard+shareModal"
+        },
+        {
+          "von": "dashboard",
+          "art": "lineup-edit",
+          "wert": null,
+          "text": "Aufstellung11/11›",
+          "nach": "trainer/spiel"
+        },
+        {
+          "von": "dashboard",
+          "art": "nav",
+          "wert": "kasse",
+          "text": "Mannschaftskasse 37,00 € ›",
+          "nach": "strafen"
+        },
+        {
+          "von": "dashboard",
+          "art": "paid-self",
+          "wert": null,
+          "text": "Zahlung melden",
+          "nach": "dashboard+zmBl"
+        },
+        {
+          "von": "dashboard",
+          "art": "rsvp-sheet",
+          "wert": null,
+          "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+          "nach": "dashboard+rsvpSheet"
+        },
+        {
+          "von": "dashboard",
+          "art": "tab",
+          "wert": "kalender",
+          "text": "Kalender",
+          "nach": "kalender"
+        },
+        {
+          "von": "dashboard",
+          "art": "tab",
+          "wert": "katalog",
+          "text": "Katalog",
+          "nach": "katalog"
+        },
+        {
+          "von": "dashboard",
+          "art": "tab",
+          "wert": "strafen",
+          "text": "Konto",
+          "nach": "strafen"
+        },
+        {
+          "von": "dashboard",
+          "art": "tab5",
+          "wert": null,
+          "text": "Trainer",
+          "nach": "trainer"
+        },
+        {
+          "von": "dashboard",
+          "art": "zahnrad",
+          "wert": null,
+          "text": "Einstellungen öffnen",
+          "nach": "einstellungen"
+        },
+        {
+          "von": "dashboard+rsvpSheet",
+          "art": "rs-teilen",
+          "wert": null,
+          "text": "Teilen",
+          "nach": "dashboard+rsvpSheet+shareModal"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein-tat",
+          "wert": "diagnose",
+          "text": "Diagnose›",
+          "nach": "diagnose"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
+          "wert": "kalender",
+          "text": "Kalender-Abo›",
+          "nach": "einstellungen/kalender"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
+          "wert": "mitteilungen",
+          "text": "MitteilungenNicht eingerichtet›",
+          "nach": "einstellungen/mitteilungen"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
+          "wert": "ruhezeiten",
+          "text": "Ruhezeiten22:00 bis 08:00›",
+          "nach": "einstellungen/ruhezeiten"
+        },
+        {
+          "von": "einstellungen",
+          "art": "goto",
+          "wert": "katalog",
+          "text": "Strafenkatalog›",
+          "nach": "katalog"
+        },
+        {
+          "von": "einstellungen",
+          "art": "logout",
+          "wert": null,
+          "text": "Abmelden",
+          "nach": "dialog:abmelden"
+        },
+        {
+          "von": "einstellungen",
+          "art": "view-jump",
+          "wert": "profil",
+          "text": "FO Felix Oberhaus Spieler · Trainer trainer@land",
+          "nach": "profil"
+        },
+        {
+          "von": "einstellungen/kalender",
+          "art": "cal-sheet",
+          "wert": null,
+          "text": "Termine abonnieren",
+          "nach": "einstellungen/kalender+calSheet"
+        },
+        {
+          "von": "einstellungen/ruhezeiten",
+          "art": "ein",
+          "wert": "mitteilungen",
+          "text": "Zu den Mitteilungen",
+          "nach": "einstellungen/mitteilungen"
+        },
+        {
+          "von": "kalender",
+          "art": "cal-sheet",
+          "wert": null,
+          "text": "Termine im Handy-Kalender?›",
+          "nach": "kalender+calSheet"
+        },
+        {
+          "von": "kalender",
+          "art": "kader-info",
+          "wert": null,
+          "text": "Kader-Info16 Spieler›",
+          "nach": "kalender+shareModal"
+        },
+        {
+          "von": "kalender",
+          "art": "lineup-edit",
+          "wert": null,
+          "text": "Aufstellung11/11›",
+          "nach": "trainer/spiel"
+        },
+        {
+          "von": "kalender",
+          "art": "rsvp-sheet",
+          "wert": null,
+          "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+          "nach": "kalender+rsvpSheet"
+        },
+        {
+          "von": "kalender",
+          "art": "termin-new",
+          "wert": null,
+          "text": "Termin hinzufügen",
+          "nach": "kalender+terminModal"
+        },
+        {
+          "von": "kalender",
+          "art": "tkmenu",
+          "wert": null,
+          "text": "Mehr zu diesem Termin",
+          "nach": "kalender+tkMenu"
+        },
+        {
+          "von": "kalender+rsvpSheet",
+          "art": "rs-teilen",
+          "wert": null,
+          "text": "Teilen",
+          "nach": "kalender+rsvpSheet+shareModal"
+        },
+        {
+          "von": "kalender+tkMenu",
+          "art": "termin-edit",
+          "wert": null,
+          "text": "Termin bearbeiten",
+          "nach": "kalender"
+        },
+        {
+          "von": "strafen",
+          "art": "paid-self",
+          "wert": null,
+          "text": "Zahlung melden",
+          "nach": "strafen+zmBl"
+        },
+        {
+          "von": "trainer",
+          "art": "goto",
+          "wert": "kader",
+          "text": "Kader16 Spieler›13fit1angeschlagen1verletzt1Urla",
+          "nach": "kader"
+        },
+        {
+          "von": "trainer",
+          "art": "tvgame",
+          "wert": null,
+          "text": "Elf aufstellen",
+          "nach": "trainer/spiel"
+        },
+        {
+          "von": "trainer/spiel",
+          "art": "tvbankadd",
+          "wert": null,
+          "text": "Bankspieler hinzufügen",
+          "nach": "trainer/spiel+tvSheetKader"
+        },
+        {
+          "von": "trainer/spiel",
+          "art": "tvmenu",
+          "wert": null,
+          "text": "Mehr",
+          "nach": "trainer/spiel+tvSheetMenu"
+        },
+        {
+          "von": "trainer/spiel",
+          "art": "tvmoreform",
+          "wert": null,
+          "text": "Weitere ›",
+          "nach": "trainer/spiel+tvSheetForm"
+        }
+      ],
+      "tiefengrenze": [],
+      "ohneWirkung": [
+        {
+          "von": "dashboard",
+          "art": "tab",
+          "wert": "dashboard",
+          "text": "Übersicht"
+        },
+        {
+          "von": "trainer/spiel",
+          "art": "tvslot",
+          "wert": null,
+          "text": "1Feldmann"
+        }
+      ],
+      "unbekannt": [],
+      "nichtWiederholbar": [],
+      "gefundeneArten": [
+        "cal-sheet",
+        "ein",
+        "ein-tat",
+        "goto",
+        "kader-info",
+        "lineup-edit",
+        "logout",
+        "nav",
+        "paid-self",
+        "rs-teilen",
+        "rsvp-sheet",
+        "tab",
+        "tab5",
+        "termin-edit",
+        "termin-new",
+        "tkmenu",
+        "tvbankadd",
+        "tvgame",
+        "tvmenu",
+        "tvmoreform",
+        "tvslot",
+        "view-jump",
+        "zahnrad"
+      ],
+      "schreibaufrufe": []
+    },
+    "kassenwart": {
+      "titel": "Kassenwart",
+      "rollen": [
+        "player",
+        "treasurer"
+      ],
+      "knoten": [
+        {
+          "schluessel": "dashboard",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Servus, Felix",
+          "tiefe": 0,
+          "pfad": [],
+          "bild": "bilder/kassenwart/dashboard.png"
+        },
+        {
+          "schluessel": "dashboard+zmBl",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "zmBl"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "paid-self",
+              "wert": null,
+              "text": "Zahlung melden",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/dashboard--zmBl.png"
+        },
+        {
+          "schluessel": "einstellungen",
+          "ansicht": "einstellungen",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Einstellungen",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            }
+          ],
+          "bild": "bilder/kassenwart/einstellungen.png"
+        },
+        {
+          "schluessel": "kalender",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Kalender",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            }
+          ],
+          "bild": "bilder/kassenwart/kalender.png"
+        },
+        {
+          "schluessel": "kasse/pruefen",
+          "ansicht": "kasse",
+          "unter": "pruefen",
+          "oben": [],
+          "ueberschrift": "Kasse",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Kasse",
+              "global": true
+            }
+          ],
+          "bild": "bilder/kassenwart/kasse__pruefen.png"
+        },
+        {
+          "schluessel": "katalog",
+          "ansicht": "katalog",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Strafenkatalog",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "katalog",
+              "text": "Katalog",
+              "global": true
+            }
+          ],
+          "bild": "bilder/kassenwart/katalog.png"
+        },
+        {
+          "schluessel": "strafen",
+          "ansicht": "strafen",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Strafen-Konto",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "strafen",
+              "text": "Konto",
+              "global": true
+            }
+          ],
+          "bild": "bilder/kassenwart/strafen.png"
+        },
+        {
+          "schluessel": "diagnose",
+          "ansicht": "diagnose",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Diagnose",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein-tat",
+              "wert": "diagnose",
+              "text": "Diagnose›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/diagnose.png"
+        },
+        {
+          "schluessel": "dialog:abmelden",
+          "ansicht": "dialog",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": null,
+          "dialog": {
+            "typ": "confirm",
+            "text": "Abmelden?\n\nDu wirst auf diesem Gerät abgemeldet."
+          },
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "logout",
+              "wert": null,
+              "text": "Abmelden",
+              "global": false
+            }
+          ],
+          "bild": null
+        },
+        {
+          "schluessel": "einstellungen/kalender",
+          "ansicht": "einstellungen",
+          "unter": "kalender",
+          "oben": [],
+          "ueberschrift": "Kalender-Abo",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "kalender",
+              "text": "Kalender-Abo›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/einstellungen__kalender.png"
+        },
+        {
+          "schluessel": "einstellungen/mitteilungen",
+          "ansicht": "einstellungen",
+          "unter": "mitteilungen",
+          "oben": [],
+          "ueberschrift": "Mitteilungen",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "mitteilungen",
+              "text": "MitteilungenNicht eingerichtet›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/einstellungen__mitteilungen.png"
+        },
+        {
+          "schluessel": "einstellungen/ruhezeiten",
+          "ansicht": "einstellungen",
+          "unter": "ruhezeiten",
+          "oben": [],
+          "ueberschrift": "Ruhezeiten",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "ruhezeiten",
+              "text": "Ruhezeiten22:00 bis 08:00›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/einstellungen__ruhezeiten.png"
+        },
+        {
+          "schluessel": "kalender+calSheet",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "calSheet"
+          ],
+          "ueberschrift": "Kalender",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "cal-sheet",
+              "wert": null,
+              "text": "Termine im Handy-Kalender?›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/kalender--calSheet.png"
+        },
+        {
+          "schluessel": "kasse/bezahlt",
+          "ansicht": "kasse",
+          "unter": "bezahlt",
+          "oben": [],
+          "ueberschrift": "Kasse",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Kasse",
+              "global": true
+            },
+            {
+              "art": "kstab",
+              "wert": "bezahlt",
+              "text": "Eingegangen 6,00 € 2 Zahlungen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/kasse__bezahlt.png"
+        },
+        {
+          "schluessel": "kasse/offen",
+          "ansicht": "kasse",
+          "unter": "offen",
+          "oben": [],
+          "ueberschrift": "Kasse",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Kasse",
+              "global": true
+            },
+            {
+              "art": "kstab",
+              "wert": "offen",
+              "text": "Offen 37,00 € 4 Strafen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/kasse__offen.png"
+        },
+        {
+          "schluessel": "kasse+ksBl",
+          "ansicht": "kasse",
+          "unter": null,
+          "oben": [
+            "ksBl"
+          ],
+          "ueberschrift": "Kasse",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Kasse",
+              "global": true
+            },
+            {
+              "art": "ks-det",
+              "wert": null,
+              "text": "Meldung von Bruno Kessler im Detail",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/kasse--ksBl.png"
+        },
+        {
+          "schluessel": "kasse+ksWahl",
+          "ansicht": "kasse",
+          "unter": null,
+          "oben": [
+            "ksWahl"
+          ],
+          "ueberschrift": "Kasse",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Kasse",
+              "global": true
+            },
+            {
+              "art": "ks-wahl",
+              "wert": null,
+              "text": "Strafe verhängen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/kasse--ksWahl.png"
+        },
+        {
+          "schluessel": "profil",
+          "ansicht": "profil",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Profil",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "view-jump",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Spieler · Kassenwart kassenwar",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/profil.png"
+        },
+        {
+          "schluessel": "strafen+zmBl",
+          "ansicht": "strafen",
+          "unter": null,
+          "oben": [
+            "zmBl"
+          ],
+          "ueberschrift": "Strafen-Konto",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "strafen",
+              "text": "Konto",
+              "global": true
+            },
+            {
+              "art": "paid-self",
+              "wert": null,
+              "text": "Zahlung melden",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/strafen--zmBl.png"
+        },
+        {
+          "schluessel": "einstellungen/kalender+calSheet",
+          "ansicht": "einstellungen",
+          "unter": "kalender",
+          "oben": [
+            "calSheet"
+          ],
+          "ueberschrift": "Kalender-Abo",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "kalender",
+              "text": "Kalender-Abo›",
+              "global": false
+            },
+            {
+              "art": "cal-sheet",
+              "wert": null,
+              "text": "Termine abonnieren",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/einstellungen__kalender--calSheet.png"
+        },
+        {
+          "schluessel": "kasse+ksSheet",
+          "ansicht": "kasse",
+          "unter": null,
+          "oben": [
+            "ksSheet"
+          ],
+          "ueberschrift": "Kasse",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Kasse",
+              "global": true
+            },
+            {
+              "art": "ks-wahl",
+              "wert": null,
+              "text": "Strafe verhängen",
+              "global": false
+            },
+            {
+              "art": "ks-modus",
+              "wert": "katalog",
+              "text": "Strafe aus Katalog hinzufügenAus dem Strafenkata",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/kasse--ksSheet.png"
+        },
+        {
+          "schluessel": "kasse/strafe-katalog+ksSeite",
+          "ansicht": "kasse",
+          "unter": "strafe-katalog",
+          "oben": [
+            "ksSeite"
+          ],
+          "ueberschrift": "Kasse",
+          "tiefe": 4,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Kasse",
+              "global": true
+            },
+            {
+              "art": "ks-wahl",
+              "wert": null,
+              "text": "Strafe verhängen",
+              "global": false
+            },
+            {
+              "art": "ks-modus",
+              "wert": "katalog",
+              "text": "Strafe aus Katalog hinzufügenAus dem Strafenkata",
+              "global": false
+            },
+            {
+              "art": "ks-weiter",
+              "wert": null,
+              "text": "Weiter",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/kasse__strafe-katalog--ksSeite.png"
+        }
+      ],
+      "kanten": [
+        {
+          "von": "dashboard",
+          "art": "goto",
+          "wert": "kalender",
+          "text": "Kalender ›",
+          "nach": "kalender"
+        },
+        {
+          "von": "dashboard",
+          "art": "nav",
+          "wert": "kasse",
+          "text": "Mannschaftskasse 37,00 € ›",
+          "nach": "strafen"
+        },
+        {
+          "von": "dashboard",
+          "art": "paid-self",
+          "wert": null,
+          "text": "Zahlung melden",
+          "nach": "dashboard+zmBl"
+        },
+        {
+          "von": "dashboard",
+          "art": "tab",
+          "wert": "kalender",
+          "text": "Kalender",
+          "nach": "kalender"
+        },
+        {
+          "von": "dashboard",
+          "art": "tab",
+          "wert": "katalog",
+          "text": "Katalog",
+          "nach": "katalog"
+        },
+        {
+          "von": "dashboard",
+          "art": "tab",
+          "wert": "strafen",
+          "text": "Konto",
+          "nach": "strafen"
+        },
+        {
+          "von": "dashboard",
+          "art": "tab5",
+          "wert": null,
+          "text": "Kasse",
+          "nach": "kasse/pruefen"
+        },
+        {
+          "von": "dashboard",
+          "art": "task-pay",
+          "wert": null,
+          "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+          "nach": "kasse/pruefen"
+        },
+        {
+          "von": "dashboard",
+          "art": "zahnrad",
+          "wert": null,
+          "text": "Einstellungen öffnen",
+          "nach": "einstellungen"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein-tat",
+          "wert": "diagnose",
+          "text": "Diagnose›",
+          "nach": "diagnose"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
+          "wert": "kalender",
+          "text": "Kalender-Abo›",
+          "nach": "einstellungen/kalender"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
+          "wert": "mitteilungen",
+          "text": "MitteilungenNicht eingerichtet›",
+          "nach": "einstellungen/mitteilungen"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
+          "wert": "ruhezeiten",
+          "text": "Ruhezeiten22:00 bis 08:00›",
+          "nach": "einstellungen/ruhezeiten"
+        },
+        {
+          "von": "einstellungen",
+          "art": "goto",
+          "wert": "katalog",
+          "text": "Strafenkatalog›",
+          "nach": "katalog"
+        },
+        {
+          "von": "einstellungen",
+          "art": "logout",
+          "wert": null,
+          "text": "Abmelden",
+          "nach": "dialog:abmelden"
+        },
+        {
+          "von": "einstellungen",
+          "art": "view-jump",
+          "wert": "profil",
+          "text": "FO Felix Oberhaus Spieler · Kassenwart kassenwar",
+          "nach": "profil"
+        },
+        {
+          "von": "einstellungen/kalender",
+          "art": "cal-sheet",
+          "wert": null,
+          "text": "Termine abonnieren",
+          "nach": "einstellungen/kalender+calSheet"
+        },
+        {
+          "von": "einstellungen/ruhezeiten",
+          "art": "ein",
+          "wert": "mitteilungen",
+          "text": "Zu den Mitteilungen",
+          "nach": "einstellungen/mitteilungen"
+        },
+        {
+          "von": "kalender",
+          "art": "cal-sheet",
+          "wert": null,
+          "text": "Termine im Handy-Kalender?›",
+          "nach": "kalender+calSheet"
+        },
+        {
+          "von": "kasse/bezahlt",
+          "art": "ks-det",
+          "wert": null,
+          "text": "Felix Oberhaus bar · 13.09. 3,00 €",
+          "nach": "kasse+ksBl"
+        },
+        {
+          "von": "kasse/bezahlt",
+          "art": "ks-wahl",
+          "wert": null,
+          "text": "Strafe verhängen",
+          "nach": "kasse+ksWahl"
+        },
+        {
+          "von": "kasse/bezahlt",
+          "art": "kstab",
+          "wert": "offen",
+          "text": "Offen 37,00 € 4 Strafen",
+          "nach": "kasse/offen"
+        },
+        {
+          "von": "kasse/bezahlt",
+          "art": "kstab",
+          "wert": "pruefen",
+          "text": "Gemeldet 15,00 € 2 zu prüfen",
+          "nach": "kasse/pruefen"
+        },
+        {
+          "von": "kasse/offen",
+          "art": "ks-buchen",
+          "wert": null,
+          "text": "Als bezahlt buchen",
+          "nach": "kasse+ksBl"
+        },
+        {
+          "von": "kasse/offen",
+          "art": "ks-det",
+          "wert": null,
+          "text": "Ilja Rennert im Detail",
+          "nach": "kasse+ksBl"
+        },
+        {
+          "von": "kasse/offen",
+          "art": "ks-wahl",
+          "wert": null,
+          "text": "Strafe verhängen",
+          "nach": "kasse+ksWahl"
+        },
+        {
+          "von": "kasse/offen",
+          "art": "kstab",
+          "wert": "bezahlt",
+          "text": "Eingegangen 6,00 € 2 Zahlungen",
+          "nach": "kasse/bezahlt"
+        },
+        {
+          "von": "kasse/offen",
+          "art": "kstab",
+          "wert": "pruefen",
+          "text": "Gemeldet 15,00 € 2 zu prüfen",
+          "nach": "kasse/pruefen"
+        },
+        {
+          "von": "kasse/pruefen",
+          "art": "ks-det",
+          "wert": null,
+          "text": "Meldung von Bruno Kessler im Detail",
+          "nach": "kasse+ksBl"
+        },
+        {
+          "von": "kasse/pruefen",
+          "art": "ks-wahl",
+          "wert": null,
+          "text": "Strafe verhängen",
+          "nach": "kasse+ksWahl"
+        },
+        {
+          "von": "kasse/pruefen",
+          "art": "kstab",
+          "wert": "bezahlt",
+          "text": "Eingegangen 6,00 € 2 Zahlungen",
+          "nach": "kasse/bezahlt"
+        },
+        {
+          "von": "kasse/pruefen",
+          "art": "kstab",
+          "wert": "offen",
+          "text": "Offen 37,00 € 4 Strafen",
+          "nach": "kasse/offen"
+        },
+        {
+          "von": "kasse+ksSheet",
+          "art": "ks-weiter",
+          "wert": null,
+          "text": "Weiter",
+          "nach": "kasse/strafe-katalog+ksSeite"
+        },
+        {
+          "von": "kasse+ksWahl",
+          "art": "ks-modus",
+          "wert": "indiv",
+          "text": "Individuelle StrafeFreier Grund und freier Betra",
+          "nach": "kasse+ksSheet"
+        },
+        {
+          "von": "kasse+ksWahl",
+          "art": "ks-modus",
+          "wert": "katalog",
+          "text": "Strafe aus Katalog hinzufügenAus dem Strafenkata",
+          "nach": "kasse+ksSheet"
+        },
+        {
+          "von": "strafen",
+          "art": "paid-self",
+          "wert": null,
+          "text": "Zahlung melden",
+          "nach": "strafen+zmBl"
+        }
+      ],
+      "tiefengrenze": [],
+      "ohneWirkung": [
+        {
+          "von": "dashboard",
+          "art": "tab",
+          "wert": "dashboard",
+          "text": "Übersicht"
+        },
+        {
+          "von": "kasse/bezahlt",
+          "art": "kstab",
+          "wert": "bezahlt",
+          "text": "Eingegangen 6,00 € 2 Zahlungen"
+        },
+        {
+          "von": "kasse/offen",
+          "art": "kstab",
+          "wert": "offen",
+          "text": "Offen 37,00 € 4 Strafen"
+        },
+        {
+          "von": "kasse/pruefen",
+          "art": "kstab",
+          "wert": "pruefen",
+          "text": "Gemeldet 15,00 € 2 zu prüfen"
+        }
+      ],
+      "unbekannt": [],
+      "nichtWiederholbar": [],
+      "gefundeneArten": [
+        "cal-sheet",
+        "ein",
+        "ein-tat",
+        "goto",
+        "ks-buchen",
+        "ks-det",
+        "ks-modus",
+        "ks-wahl",
+        "ks-weiter",
+        "kstab",
+        "logout",
+        "nav",
+        "paid-self",
+        "tab",
+        "tab5",
+        "task-pay",
+        "view-jump",
+        "zahnrad"
+      ],
+      "schreibaufrufe": []
+    },
+    "trainerkassenwart": {
+      "titel": "Trainer+Kassenwart",
+      "rollen": [
+        "player",
+        "coach",
+        "treasurer"
+      ],
+      "knoten": [
+        {
+          "schluessel": "dashboard",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Servus, Felix",
+          "tiefe": 0,
+          "pfad": [],
+          "bild": "bilder/trainerkassenwart/dashboard.png"
+        },
+        {
+          "schluessel": "dashboard+moreSheet",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "moreSheet"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Trainer",
+              "global": true
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/dashboard--moreSheet.png"
+        },
+        {
+          "schluessel": "dashboard+rsvpSheet",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "rsvpSheet"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/dashboard--rsvpSheet.png"
+        },
+        {
+          "schluessel": "dashboard+shareModal",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "shareModal"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "kader-info",
+              "wert": null,
+              "text": "Kader-Info16 Spieler›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/dashboard--shareModal.png"
+        },
+        {
+          "schluessel": "dashboard+zmBl",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "zmBl"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "paid-self",
+              "wert": null,
+              "text": "Zahlung melden",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/dashboard--zmBl.png"
+        },
+        {
+          "schluessel": "einstellungen",
+          "ansicht": "einstellungen",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Einstellungen",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/einstellungen.png"
+        },
+        {
+          "schluessel": "kalender",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Kalender",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/kalender.png"
+        },
+        {
+          "schluessel": "kasse/pruefen",
+          "ansicht": "kasse",
+          "unter": "pruefen",
+          "oben": [],
+          "ueberschrift": "Kasse",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "task-pay",
+              "wert": null,
+              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/kasse__pruefen.png"
+        },
+        {
+          "schluessel": "katalog",
+          "ansicht": "katalog",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Strafenkatalog",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "katalog",
+              "text": "Katalog",
+              "global": true
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/katalog.png"
+        },
+        {
+          "schluessel": "strafen",
+          "ansicht": "strafen",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Strafen-Konto",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "strafen",
+              "text": "Konto",
+              "global": true
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/strafen.png"
+        },
+        {
+          "schluessel": "trainer/spiel",
+          "ansicht": "trainer",
+          "unter": "spiel",
+          "oben": [],
+          "ueberschrift": null,
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "lineup-edit",
+              "wert": null,
+              "text": "Aufstellung11/11›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/trainer__spiel.png"
+        },
+        {
+          "schluessel": "dashboard+rsvpSheet+shareModal",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "rsvpSheet",
+            "shareModal"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+              "global": false
+            },
+            {
+              "art": "rs-teilen",
+              "wert": null,
+              "text": "Teilen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/dashboard--rsvpSheet--shareModal.png"
+        },
+        {
+          "schluessel": "diagnose",
+          "ansicht": "diagnose",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Diagnose",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein-tat",
+              "wert": "diagnose",
+              "text": "Diagnose›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/diagnose.png"
+        },
+        {
+          "schluessel": "dialog:abmelden",
+          "ansicht": "dialog",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": null,
+          "dialog": {
+            "typ": "confirm",
+            "text": "Abmelden?\n\nDu wirst auf diesem Gerät abgemeldet."
+          },
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "logout",
+              "wert": null,
+              "text": "Abmelden",
+              "global": false
+            }
+          ],
+          "bild": null
+        },
+        {
+          "schluessel": "einstellungen/kalender",
+          "ansicht": "einstellungen",
+          "unter": "kalender",
+          "oben": [],
+          "ueberschrift": "Kalender-Abo",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "kalender",
+              "text": "Kalender-Abo›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/einstellungen__kalender.png"
+        },
+        {
+          "schluessel": "einstellungen/mitteilungen",
+          "ansicht": "einstellungen",
+          "unter": "mitteilungen",
+          "oben": [],
+          "ueberschrift": "Mitteilungen",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "mitteilungen",
+              "text": "MitteilungenNicht eingerichtet›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/einstellungen__mitteilungen.png"
+        },
+        {
+          "schluessel": "einstellungen/ruhezeiten",
+          "ansicht": "einstellungen",
+          "unter": "ruhezeiten",
+          "oben": [],
+          "ueberschrift": "Ruhezeiten",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "ruhezeiten",
+              "text": "Ruhezeiten22:00 bis 08:00›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/einstellungen__ruhezeiten.png"
+        },
+        {
+          "schluessel": "kader",
+          "ansicht": "kader",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Kader",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Trainer",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "kader",
+              "text": "Kader",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/kader.png"
+        },
+        {
+          "schluessel": "kalender+calSheet",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "calSheet"
+          ],
+          "ueberschrift": "Kalender",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "cal-sheet",
+              "wert": null,
+              "text": "Termine im Handy-Kalender?›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/kalender--calSheet.png"
+        },
+        {
+          "schluessel": "kalender+rsvpSheet",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "rsvpSheet"
+          ],
+          "ueberschrift": "Kalender",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/kalender--rsvpSheet.png"
+        },
+        {
+          "schluessel": "kalender+shareModal",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "shareModal"
+          ],
+          "ueberschrift": "Kalender",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "kader-info",
+              "wert": null,
+              "text": "Kader-Info16 Spieler›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/kalender--shareModal.png"
+        },
+        {
+          "schluessel": "kalender+terminModal",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "terminModal"
+          ],
+          "ueberschrift": "Kalender",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "termin-new",
+              "wert": null,
+              "text": "Termin hinzufügen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/kalender--terminModal.png"
+        },
+        {
+          "schluessel": "kalender+tkMenu",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "tkMenu"
+          ],
+          "ueberschrift": "Kalender",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "tkmenu",
+              "wert": null,
+              "text": "Mehr zu diesem Termin",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/kalender--tkMenu.png"
+        },
+        {
+          "schluessel": "kasse/bezahlt",
+          "ansicht": "kasse",
+          "unter": "bezahlt",
+          "oben": [],
+          "ueberschrift": "Kasse",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "task-pay",
+              "wert": null,
+              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "global": false
+            },
+            {
+              "art": "kstab",
+              "wert": "bezahlt",
+              "text": "Eingegangen 6,00 € 2 Zahlungen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/kasse__bezahlt.png"
+        },
+        {
+          "schluessel": "kasse/offen",
+          "ansicht": "kasse",
+          "unter": "offen",
+          "oben": [],
+          "ueberschrift": "Kasse",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "task-pay",
+              "wert": null,
+              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "global": false
+            },
+            {
+              "art": "kstab",
+              "wert": "offen",
+              "text": "Offen 37,00 € 4 Strafen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/kasse__offen.png"
+        },
+        {
+          "schluessel": "kasse+ksBl",
+          "ansicht": "kasse",
+          "unter": null,
+          "oben": [
+            "ksBl"
+          ],
+          "ueberschrift": "Kasse",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "task-pay",
+              "wert": null,
+              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "global": false
+            },
+            {
+              "art": "ks-det",
+              "wert": null,
+              "text": "Meldung von Bruno Kessler im Detail",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/kasse--ksBl.png"
+        },
+        {
+          "schluessel": "kasse+ksWahl",
+          "ansicht": "kasse",
+          "unter": null,
+          "oben": [
+            "ksWahl"
+          ],
+          "ueberschrift": "Kasse",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "task-pay",
+              "wert": null,
+              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "global": false
+            },
+            {
+              "art": "ks-wahl",
+              "wert": null,
+              "text": "Strafe verhängen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/kasse--ksWahl.png"
+        },
+        {
+          "schluessel": "profil",
+          "ansicht": "profil",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Profil",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Trainer",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "profil",
+              "text": "Profil",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/profil.png"
+        },
+        {
+          "schluessel": "strafen+zmBl",
+          "ansicht": "strafen",
+          "unter": null,
+          "oben": [
+            "zmBl"
+          ],
+          "ueberschrift": "Strafen-Konto",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "strafen",
+              "text": "Konto",
+              "global": true
+            },
+            {
+              "art": "paid-self",
+              "wert": null,
+              "text": "Zahlung melden",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/strafen--zmBl.png"
+        },
+        {
+          "schluessel": "trainer",
+          "ansicht": "trainer",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Trainer",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Trainer",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "lineup",
+              "text": "Trainer",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/trainer.png"
+        },
+        {
+          "schluessel": "trainer/spiel+tvSheetForm",
+          "ansicht": "trainer",
+          "unter": "spiel",
+          "oben": [
+            "tvSheetForm"
+          ],
+          "ueberschrift": null,
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "lineup-edit",
+              "wert": null,
+              "text": "Aufstellung11/11›",
+              "global": false
+            },
+            {
+              "art": "tvmoreform",
+              "wert": null,
+              "text": "Weitere ›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/trainer__spiel--tvSheetForm.png"
+        },
+        {
+          "schluessel": "trainer/spiel+tvSheetKader",
+          "ansicht": "trainer",
+          "unter": "spiel",
+          "oben": [
+            "tvSheetKader"
+          ],
+          "ueberschrift": null,
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "lineup-edit",
+              "wert": null,
+              "text": "Aufstellung11/11›",
+              "global": false
+            },
+            {
+              "art": "tvbankadd",
+              "wert": null,
+              "text": "Bankspieler hinzufügen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/trainer__spiel--tvSheetKader.png"
+        },
+        {
+          "schluessel": "trainer/spiel+tvSheetMenu",
+          "ansicht": "trainer",
+          "unter": "spiel",
+          "oben": [
+            "tvSheetMenu"
+          ],
+          "ueberschrift": null,
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "lineup-edit",
+              "wert": null,
+              "text": "Aufstellung11/11›",
+              "global": false
+            },
+            {
+              "art": "tvmenu",
+              "wert": null,
+              "text": "Mehr",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/trainer__spiel--tvSheetMenu.png"
+        },
+        {
+          "schluessel": "einstellungen/kalender+calSheet",
+          "ansicht": "einstellungen",
+          "unter": "kalender",
+          "oben": [
+            "calSheet"
+          ],
+          "ueberschrift": "Kalender-Abo",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "kalender",
+              "text": "Kalender-Abo›",
+              "global": false
+            },
+            {
+              "art": "cal-sheet",
+              "wert": null,
+              "text": "Termine abonnieren",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/einstellungen__kalender--calSheet.png"
+        },
+        {
+          "schluessel": "kalender+rsvpSheet+shareModal",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "rsvpSheet",
+            "shareModal"
+          ],
+          "ueberschrift": "Kalender",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+              "global": false
+            },
+            {
+              "art": "rs-teilen",
+              "wert": null,
+              "text": "Teilen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/kalender--rsvpSheet--shareModal.png"
+        },
+        {
+          "schluessel": "kasse+ksSheet",
+          "ansicht": "kasse",
+          "unter": null,
+          "oben": [
+            "ksSheet"
+          ],
+          "ueberschrift": "Kasse",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "task-pay",
+              "wert": null,
+              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "global": false
+            },
+            {
+              "art": "ks-wahl",
+              "wert": null,
+              "text": "Strafe verhängen",
+              "global": false
+            },
+            {
+              "art": "ks-modus",
+              "wert": "katalog",
+              "text": "Strafe aus Katalog hinzufügenAus dem Strafenkata",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/kasse--ksSheet.png"
+        },
+        {
+          "schluessel": "kasse/strafe-katalog+ksSeite",
+          "ansicht": "kasse",
+          "unter": "strafe-katalog",
+          "oben": [
+            "ksSeite"
+          ],
+          "ueberschrift": "Kasse",
+          "tiefe": 4,
+          "pfad": [
+            {
+              "art": "task-pay",
+              "wert": null,
+              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "global": false
+            },
+            {
+              "art": "ks-wahl",
+              "wert": null,
+              "text": "Strafe verhängen",
+              "global": false
+            },
+            {
+              "art": "ks-modus",
+              "wert": "katalog",
+              "text": "Strafe aus Katalog hinzufügenAus dem Strafenkata",
+              "global": false
+            },
+            {
+              "art": "ks-weiter",
+              "wert": null,
+              "text": "Weiter",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/kasse__strafe-katalog--ksSeite.png"
+        }
+      ],
+      "kanten": [
+        {
+          "von": "dashboard",
+          "art": "goto",
+          "wert": "kalender",
+          "text": "Kalender ›",
+          "nach": "kalender"
+        },
+        {
+          "von": "dashboard",
+          "art": "kader-info",
+          "wert": null,
+          "text": "Kader-Info16 Spieler›",
+          "nach": "dashboard+shareModal"
+        },
+        {
+          "von": "dashboard",
+          "art": "lineup-edit",
+          "wert": null,
+          "text": "Aufstellung11/11›",
+          "nach": "trainer/spiel"
+        },
+        {
+          "von": "dashboard",
+          "art": "nav",
+          "wert": "kasse",
+          "text": "Mannschaftskasse 37,00 € ›",
+          "nach": "strafen"
+        },
+        {
+          "von": "dashboard",
+          "art": "paid-self",
+          "wert": null,
+          "text": "Zahlung melden",
+          "nach": "dashboard+zmBl"
+        },
+        {
+          "von": "dashboard",
+          "art": "rsvp-sheet",
+          "wert": null,
+          "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+          "nach": "dashboard+rsvpSheet"
+        },
+        {
+          "von": "dashboard",
+          "art": "tab",
+          "wert": "kalender",
+          "text": "Kalender",
+          "nach": "kalender"
+        },
+        {
+          "von": "dashboard",
+          "art": "tab",
+          "wert": "katalog",
+          "text": "Katalog",
+          "nach": "katalog"
+        },
+        {
+          "von": "dashboard",
+          "art": "tab",
+          "wert": "strafen",
+          "text": "Konto",
+          "nach": "strafen"
+        },
+        {
+          "von": "dashboard",
+          "art": "tab5",
+          "wert": null,
+          "text": "Trainer",
+          "nach": "dashboard+moreSheet"
+        },
+        {
+          "von": "dashboard",
+          "art": "task-pay",
+          "wert": null,
+          "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+          "nach": "kasse/pruefen"
+        },
+        {
+          "von": "dashboard",
+          "art": "zahnrad",
+          "wert": null,
+          "text": "Einstellungen öffnen",
+          "nach": "einstellungen"
+        },
+        {
+          "von": "dashboard+moreSheet",
+          "art": "mehr",
+          "wert": "einstellungen",
+          "text": "Einstellungen",
+          "nach": "einstellungen"
+        },
+        {
+          "von": "dashboard+moreSheet",
+          "art": "mehr",
+          "wert": "kader",
+          "text": "Kader",
+          "nach": "kader"
+        },
+        {
+          "von": "dashboard+moreSheet",
+          "art": "mehr",
+          "wert": "kasse",
+          "text": "Kasse",
+          "nach": "kasse/pruefen"
+        },
+        {
+          "von": "dashboard+moreSheet",
+          "art": "mehr",
+          "wert": "lineup",
+          "text": "Trainer",
+          "nach": "trainer"
+        },
+        {
+          "von": "dashboard+moreSheet",
+          "art": "mehr",
+          "wert": "profil",
+          "text": "Profil",
+          "nach": "profil"
+        },
+        {
+          "von": "dashboard+rsvpSheet",
+          "art": "rs-teilen",
+          "wert": null,
+          "text": "Teilen",
+          "nach": "dashboard+rsvpSheet+shareModal"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein-tat",
+          "wert": "diagnose",
+          "text": "Diagnose›",
+          "nach": "diagnose"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
+          "wert": "kalender",
+          "text": "Kalender-Abo›",
+          "nach": "einstellungen/kalender"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
+          "wert": "mitteilungen",
+          "text": "MitteilungenNicht eingerichtet›",
+          "nach": "einstellungen/mitteilungen"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
+          "wert": "ruhezeiten",
+          "text": "Ruhezeiten22:00 bis 08:00›",
+          "nach": "einstellungen/ruhezeiten"
+        },
+        {
+          "von": "einstellungen",
+          "art": "goto",
+          "wert": "katalog",
+          "text": "Strafenkatalog›",
+          "nach": "katalog"
+        },
+        {
+          "von": "einstellungen",
+          "art": "logout",
+          "wert": null,
+          "text": "Abmelden",
+          "nach": "dialog:abmelden"
+        },
+        {
+          "von": "einstellungen",
+          "art": "view-jump",
+          "wert": "profil",
+          "text": "FO Felix Oberhaus Spieler · Trainer · Kassenwart",
+          "nach": "profil"
+        },
+        {
+          "von": "einstellungen/kalender",
+          "art": "cal-sheet",
+          "wert": null,
+          "text": "Termine abonnieren",
+          "nach": "einstellungen/kalender+calSheet"
+        },
+        {
+          "von": "einstellungen/ruhezeiten",
+          "art": "ein",
+          "wert": "mitteilungen",
+          "text": "Zu den Mitteilungen",
+          "nach": "einstellungen/mitteilungen"
+        },
+        {
+          "von": "kalender",
+          "art": "cal-sheet",
+          "wert": null,
+          "text": "Termine im Handy-Kalender?›",
+          "nach": "kalender+calSheet"
+        },
+        {
+          "von": "kalender",
+          "art": "kader-info",
+          "wert": null,
+          "text": "Kader-Info16 Spieler›",
+          "nach": "kalender+shareModal"
+        },
+        {
+          "von": "kalender",
+          "art": "lineup-edit",
+          "wert": null,
+          "text": "Aufstellung11/11›",
+          "nach": "trainer/spiel"
+        },
+        {
+          "von": "kalender",
+          "art": "rsvp-sheet",
+          "wert": null,
+          "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+          "nach": "kalender+rsvpSheet"
+        },
+        {
+          "von": "kalender",
+          "art": "termin-new",
+          "wert": null,
+          "text": "Termin hinzufügen",
+          "nach": "kalender+terminModal"
+        },
+        {
+          "von": "kalender",
+          "art": "tkmenu",
+          "wert": null,
+          "text": "Mehr zu diesem Termin",
+          "nach": "kalender+tkMenu"
+        },
+        {
+          "von": "kalender+rsvpSheet",
+          "art": "rs-teilen",
+          "wert": null,
+          "text": "Teilen",
+          "nach": "kalender+rsvpSheet+shareModal"
+        },
+        {
+          "von": "kalender+tkMenu",
+          "art": "termin-edit",
+          "wert": null,
+          "text": "Termin bearbeiten",
+          "nach": "kalender"
+        },
+        {
+          "von": "kasse/bezahlt",
+          "art": "ks-det",
+          "wert": null,
+          "text": "Felix Oberhaus bar · 13.09. 3,00 €",
+          "nach": "kasse+ksBl"
+        },
+        {
+          "von": "kasse/bezahlt",
+          "art": "ks-wahl",
+          "wert": null,
+          "text": "Strafe verhängen",
+          "nach": "kasse+ksWahl"
+        },
+        {
+          "von": "kasse/bezahlt",
+          "art": "kstab",
+          "wert": "offen",
+          "text": "Offen 37,00 € 4 Strafen",
+          "nach": "kasse/offen"
+        },
+        {
+          "von": "kasse/bezahlt",
+          "art": "kstab",
+          "wert": "pruefen",
+          "text": "Gemeldet 15,00 € 2 zu prüfen",
+          "nach": "kasse/pruefen"
+        },
+        {
+          "von": "kasse/offen",
+          "art": "ks-buchen",
+          "wert": null,
+          "text": "Als bezahlt buchen",
+          "nach": "kasse+ksBl"
+        },
+        {
+          "von": "kasse/offen",
+          "art": "ks-det",
+          "wert": null,
+          "text": "Ilja Rennert im Detail",
+          "nach": "kasse+ksBl"
+        },
+        {
+          "von": "kasse/offen",
+          "art": "ks-wahl",
+          "wert": null,
+          "text": "Strafe verhängen",
+          "nach": "kasse+ksWahl"
+        },
+        {
+          "von": "kasse/offen",
+          "art": "kstab",
+          "wert": "bezahlt",
+          "text": "Eingegangen 6,00 € 2 Zahlungen",
+          "nach": "kasse/bezahlt"
+        },
+        {
+          "von": "kasse/offen",
+          "art": "kstab",
+          "wert": "pruefen",
+          "text": "Gemeldet 15,00 € 2 zu prüfen",
+          "nach": "kasse/pruefen"
+        },
+        {
+          "von": "kasse/pruefen",
+          "art": "ks-det",
+          "wert": null,
+          "text": "Meldung von Bruno Kessler im Detail",
+          "nach": "kasse+ksBl"
+        },
+        {
+          "von": "kasse/pruefen",
+          "art": "ks-wahl",
+          "wert": null,
+          "text": "Strafe verhängen",
+          "nach": "kasse+ksWahl"
+        },
+        {
+          "von": "kasse/pruefen",
+          "art": "kstab",
+          "wert": "bezahlt",
+          "text": "Eingegangen 6,00 € 2 Zahlungen",
+          "nach": "kasse/bezahlt"
+        },
+        {
+          "von": "kasse/pruefen",
+          "art": "kstab",
+          "wert": "offen",
+          "text": "Offen 37,00 € 4 Strafen",
+          "nach": "kasse/offen"
+        },
+        {
+          "von": "kasse+ksSheet",
+          "art": "ks-weiter",
+          "wert": null,
+          "text": "Weiter",
+          "nach": "kasse/strafe-katalog+ksSeite"
+        },
+        {
+          "von": "kasse+ksWahl",
+          "art": "ks-modus",
+          "wert": "indiv",
+          "text": "Individuelle StrafeFreier Grund und freier Betra",
+          "nach": "kasse+ksSheet"
+        },
+        {
+          "von": "kasse+ksWahl",
+          "art": "ks-modus",
+          "wert": "katalog",
+          "text": "Strafe aus Katalog hinzufügenAus dem Strafenkata",
+          "nach": "kasse+ksSheet"
+        },
+        {
+          "von": "strafen",
+          "art": "paid-self",
+          "wert": null,
+          "text": "Zahlung melden",
+          "nach": "strafen+zmBl"
+        },
+        {
+          "von": "trainer",
+          "art": "goto",
+          "wert": "kader",
+          "text": "Kader16 Spieler›13fit1angeschlagen1verletzt1Urla",
+          "nach": "kader"
+        },
+        {
+          "von": "trainer",
+          "art": "tvgame",
+          "wert": null,
+          "text": "Elf aufstellen",
+          "nach": "trainer/spiel"
+        },
+        {
+          "von": "trainer/spiel",
+          "art": "tvbankadd",
+          "wert": null,
+          "text": "Bankspieler hinzufügen",
+          "nach": "trainer/spiel+tvSheetKader"
+        },
+        {
+          "von": "trainer/spiel",
+          "art": "tvmenu",
+          "wert": null,
+          "text": "Mehr",
+          "nach": "trainer/spiel+tvSheetMenu"
+        },
+        {
+          "von": "trainer/spiel",
+          "art": "tvmoreform",
+          "wert": null,
+          "text": "Weitere ›",
+          "nach": "trainer/spiel+tvSheetForm"
+        }
+      ],
+      "tiefengrenze": [],
+      "ohneWirkung": [
+        {
+          "von": "dashboard",
+          "art": "tab",
+          "wert": "dashboard",
+          "text": "Übersicht"
+        },
+        {
+          "von": "kasse/bezahlt",
+          "art": "kstab",
+          "wert": "bezahlt",
+          "text": "Eingegangen 6,00 € 2 Zahlungen"
+        },
+        {
+          "von": "kasse/offen",
+          "art": "kstab",
+          "wert": "offen",
+          "text": "Offen 37,00 € 4 Strafen"
+        },
+        {
+          "von": "kasse/pruefen",
+          "art": "kstab",
+          "wert": "pruefen",
+          "text": "Gemeldet 15,00 € 2 zu prüfen"
+        },
+        {
+          "von": "trainer/spiel",
+          "art": "tvslot",
+          "wert": null,
+          "text": "1Feldmann"
+        }
+      ],
+      "unbekannt": [],
+      "nichtWiederholbar": [],
+      "gefundeneArten": [
+        "cal-sheet",
+        "ein",
+        "ein-tat",
+        "goto",
+        "kader-info",
+        "ks-buchen",
+        "ks-det",
+        "ks-modus",
+        "ks-wahl",
+        "ks-weiter",
+        "kstab",
+        "lineup-edit",
+        "logout",
+        "mehr",
+        "nav",
+        "paid-self",
+        "rs-teilen",
+        "rsvp-sheet",
+        "tab",
+        "tab5",
+        "task-pay",
+        "termin-edit",
+        "termin-new",
+        "tkmenu",
+        "tvbankadd",
+        "tvgame",
+        "tvmenu",
+        "tvmoreform",
+        "tvslot",
+        "view-jump",
+        "zahnrad"
+      ],
+      "schreibaufrufe": []
+    },
+    "admin": {
+      "titel": "Admin",
+      "rollen": [
+        "player",
+        "admin"
+      ],
+      "knoten": [
+        {
+          "schluessel": "dashboard",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Servus, Felix",
+          "tiefe": 0,
+          "pfad": [],
+          "bild": "bilder/admin/dashboard.png"
+        },
+        {
+          "schluessel": "dashboard+moreSheet",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "moreSheet"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Mehr",
+              "global": true
+            }
+          ],
+          "bild": "bilder/admin/dashboard--moreSheet.png"
+        },
+        {
+          "schluessel": "dashboard+rsvpSheet",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "rsvpSheet"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/dashboard--rsvpSheet.png"
+        },
+        {
+          "schluessel": "dashboard+shareModal",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "shareModal"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "kader-info",
+              "wert": null,
+              "text": "Kader-Info16 Spieler›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/dashboard--shareModal.png"
+        },
+        {
+          "schluessel": "dashboard+zmBl",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "zmBl"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "paid-self",
+              "wert": null,
+              "text": "Zahlung melden",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/dashboard--zmBl.png"
+        },
+        {
+          "schluessel": "einstellungen",
+          "ansicht": "einstellungen",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Einstellungen",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            }
+          ],
+          "bild": "bilder/admin/einstellungen.png"
+        },
+        {
+          "schluessel": "kalender",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Kalender",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            }
+          ],
+          "bild": "bilder/admin/kalender.png"
+        },
+        {
+          "schluessel": "kasse/pruefen",
+          "ansicht": "kasse",
+          "unter": "pruefen",
+          "oben": [],
+          "ueberschrift": "Kasse",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "task-pay",
+              "wert": null,
+              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/kasse__pruefen.png"
+        },
+        {
+          "schluessel": "katalog",
+          "ansicht": "katalog",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Strafenkatalog",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "katalog",
+              "text": "Katalog",
+              "global": true
+            }
+          ],
+          "bild": "bilder/admin/katalog.png"
+        },
+        {
+          "schluessel": "strafen",
+          "ansicht": "strafen",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Strafen-Konto",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "strafen",
+              "text": "Konto",
+              "global": true
+            }
+          ],
+          "bild": "bilder/admin/strafen.png"
+        },
+        {
+          "schluessel": "trainer/spiel",
+          "ansicht": "trainer",
+          "unter": "spiel",
+          "oben": [],
+          "ueberschrift": null,
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "lineup-edit",
+              "wert": null,
+              "text": "Aufstellung11/11›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/trainer__spiel.png"
+        },
+        {
+          "schluessel": "dashboard+rsvpSheet+shareModal",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "rsvpSheet",
+            "shareModal"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+              "global": false
+            },
+            {
+              "art": "rs-teilen",
+              "wert": null,
+              "text": "Teilen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/dashboard--rsvpSheet--shareModal.png"
+        },
+        {
+          "schluessel": "diagnose",
+          "ansicht": "diagnose",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Diagnose",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein-tat",
+              "wert": "diagnose",
+              "text": "Diagnose›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/diagnose.png"
+        },
+        {
+          "schluessel": "dialog:abmelden",
+          "ansicht": "dialog",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": null,
+          "dialog": {
+            "typ": "confirm",
+            "text": "Abmelden?\n\nDu wirst auf diesem Gerät abgemeldet."
+          },
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "logout",
+              "wert": null,
+              "text": "Abmelden",
+              "global": false
+            }
+          ],
+          "bild": null
+        },
+        {
+          "schluessel": "einstellungen/bfv",
+          "ansicht": "einstellungen",
+          "unter": "bfv",
+          "oben": [],
+          "ueberschrift": "Spielplan (BFV)",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "bfv",
+              "text": "Spielplan (BFV)SV Musterhausen 2›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/einstellungen__bfv.png"
+        },
+        {
+          "schluessel": "einstellungen/kalender",
+          "ansicht": "einstellungen",
+          "unter": "kalender",
+          "oben": [],
+          "ueberschrift": "Kalender-Abo",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "kalender",
+              "text": "Kalender-Abo›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/einstellungen__kalender.png"
+        },
+        {
+          "schluessel": "einstellungen/mitteilungen",
+          "ansicht": "einstellungen",
+          "unter": "mitteilungen",
+          "oben": [],
+          "ueberschrift": "Mitteilungen",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "mitteilungen",
+              "text": "MitteilungenNicht eingerichtet›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/einstellungen__mitteilungen.png"
+        },
+        {
+          "schluessel": "einstellungen/ruhezeiten",
+          "ansicht": "einstellungen",
+          "unter": "ruhezeiten",
+          "oben": [],
+          "ueberschrift": "Ruhezeiten",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "ruhezeiten",
+              "text": "Ruhezeiten22:00 bis 08:00›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/einstellungen__ruhezeiten.png"
+        },
+        {
+          "schluessel": "kader",
+          "ansicht": "kader",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Kader",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Mehr",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "kader",
+              "text": "Kader",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/kader.png"
+        },
+        {
+          "schluessel": "kalender+calSheet",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "calSheet"
+          ],
+          "ueberschrift": "Kalender",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "cal-sheet",
+              "wert": null,
+              "text": "Termine im Handy-Kalender?›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/kalender--calSheet.png"
+        },
+        {
+          "schluessel": "kalender+rsvpSheet",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "rsvpSheet"
+          ],
+          "ueberschrift": "Kalender",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/kalender--rsvpSheet.png"
+        },
+        {
+          "schluessel": "kalender+shareModal",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "shareModal"
+          ],
+          "ueberschrift": "Kalender",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "kader-info",
+              "wert": null,
+              "text": "Kader-Info16 Spieler›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/kalender--shareModal.png"
+        },
+        {
+          "schluessel": "kalender+terminModal",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "terminModal"
+          ],
+          "ueberschrift": "Kalender",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "termin-new",
+              "wert": null,
+              "text": "Termin hinzufügen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/kalender--terminModal.png"
+        },
+        {
+          "schluessel": "kalender+tkMenu",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "tkMenu"
+          ],
+          "ueberschrift": "Kalender",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "tkmenu",
+              "wert": null,
+              "text": "Mehr zu diesem Termin",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/kalender--tkMenu.png"
+        },
+        {
+          "schluessel": "kasse/bezahlt",
+          "ansicht": "kasse",
+          "unter": "bezahlt",
+          "oben": [],
+          "ueberschrift": "Kasse",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "task-pay",
+              "wert": null,
+              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "global": false
+            },
+            {
+              "art": "kstab",
+              "wert": "bezahlt",
+              "text": "Eingegangen 6,00 € 2 Zahlungen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/kasse__bezahlt.png"
+        },
+        {
+          "schluessel": "kasse/offen",
+          "ansicht": "kasse",
+          "unter": "offen",
+          "oben": [],
+          "ueberschrift": "Kasse",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "task-pay",
+              "wert": null,
+              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "global": false
+            },
+            {
+              "art": "kstab",
+              "wert": "offen",
+              "text": "Offen 37,00 € 4 Strafen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/kasse__offen.png"
+        },
+        {
+          "schluessel": "kasse+ksBl",
+          "ansicht": "kasse",
+          "unter": null,
+          "oben": [
+            "ksBl"
+          ],
+          "ueberschrift": "Kasse",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "task-pay",
+              "wert": null,
+              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "global": false
+            },
+            {
+              "art": "ks-det",
+              "wert": null,
+              "text": "Meldung von Bruno Kessler im Detail",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/kasse--ksBl.png"
+        },
+        {
+          "schluessel": "kasse+ksWahl",
+          "ansicht": "kasse",
+          "unter": null,
+          "oben": [
+            "ksWahl"
+          ],
+          "ueberschrift": "Kasse",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "task-pay",
+              "wert": null,
+              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "global": false
+            },
+            {
+              "art": "ks-wahl",
+              "wert": null,
+              "text": "Strafe verhängen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/kasse--ksWahl.png"
+        },
+        {
+          "schluessel": "profil",
+          "ansicht": "profil",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Profil",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Mehr",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "profil",
+              "text": "Profil",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/profil.png"
+        },
+        {
+          "schluessel": "push-nachrichten",
+          "ansicht": "push-nachrichten",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Push-Nachrichten",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "goto",
+              "wert": "pushkatalog",
+              "text": "Push-Texte›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/push-nachrichten.png"
+        },
+        {
+          "schluessel": "rollen-verwalten",
+          "ansicht": "rollen-verwalten",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Rollen verwalten",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Mehr",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "admin",
+              "text": "Rollen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/rollen-verwalten.png"
+        },
+        {
+          "schluessel": "strafen+zmBl",
+          "ansicht": "strafen",
+          "unter": null,
+          "oben": [
+            "zmBl"
+          ],
+          "ueberschrift": "Strafen-Konto",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "strafen",
+              "text": "Konto",
+              "global": true
+            },
+            {
+              "art": "paid-self",
+              "wert": null,
+              "text": "Zahlung melden",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/strafen--zmBl.png"
+        },
+        {
+          "schluessel": "trainer",
+          "ansicht": "trainer",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Trainer",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Mehr",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "lineup",
+              "text": "Trainer",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/trainer.png"
+        },
+        {
+          "schluessel": "trainer/spiel+tvSheetForm",
+          "ansicht": "trainer",
+          "unter": "spiel",
+          "oben": [
+            "tvSheetForm"
+          ],
+          "ueberschrift": null,
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "lineup-edit",
+              "wert": null,
+              "text": "Aufstellung11/11›",
+              "global": false
+            },
+            {
+              "art": "tvmoreform",
+              "wert": null,
+              "text": "Weitere ›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/trainer__spiel--tvSheetForm.png"
+        },
+        {
+          "schluessel": "trainer/spiel+tvSheetKader",
+          "ansicht": "trainer",
+          "unter": "spiel",
+          "oben": [
+            "tvSheetKader"
+          ],
+          "ueberschrift": null,
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "lineup-edit",
+              "wert": null,
+              "text": "Aufstellung11/11›",
+              "global": false
+            },
+            {
+              "art": "tvbankadd",
+              "wert": null,
+              "text": "Bankspieler hinzufügen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/trainer__spiel--tvSheetKader.png"
+        },
+        {
+          "schluessel": "trainer/spiel+tvSheetMenu",
+          "ansicht": "trainer",
+          "unter": "spiel",
+          "oben": [
+            "tvSheetMenu"
+          ],
+          "ueberschrift": null,
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "lineup-edit",
+              "wert": null,
+              "text": "Aufstellung11/11›",
+              "global": false
+            },
+            {
+              "art": "tvmenu",
+              "wert": null,
+              "text": "Mehr",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/trainer__spiel--tvSheetMenu.png"
+        },
+        {
+          "schluessel": "einstellungen/kalender+calSheet",
+          "ansicht": "einstellungen",
+          "unter": "kalender",
+          "oben": [
+            "calSheet"
+          ],
+          "ueberschrift": "Kalender-Abo",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "kalender",
+              "text": "Kalender-Abo›",
+              "global": false
+            },
+            {
+              "art": "cal-sheet",
+              "wert": null,
+              "text": "Termine abonnieren",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/einstellungen__kalender--calSheet.png"
+        },
+        {
+          "schluessel": "kalender+rsvpSheet+shareModal",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "rsvpSheet",
+            "shareModal"
+          ],
+          "ueberschrift": "Kalender",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+              "global": false
+            },
+            {
+              "art": "rs-teilen",
+              "wert": null,
+              "text": "Teilen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/kalender--rsvpSheet--shareModal.png"
+        },
+        {
+          "schluessel": "kasse+ksSheet",
+          "ansicht": "kasse",
+          "unter": null,
+          "oben": [
+            "ksSheet"
+          ],
+          "ueberschrift": "Kasse",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "task-pay",
+              "wert": null,
+              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "global": false
+            },
+            {
+              "art": "ks-wahl",
+              "wert": null,
+              "text": "Strafe verhängen",
+              "global": false
+            },
+            {
+              "art": "ks-modus",
+              "wert": "katalog",
+              "text": "Strafe aus Katalog hinzufügenAus dem Strafenkata",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/kasse--ksSheet.png"
+        },
+        {
+          "schluessel": "kasse/strafe-katalog+ksSeite",
+          "ansicht": "kasse",
+          "unter": "strafe-katalog",
+          "oben": [
+            "ksSeite"
+          ],
+          "ueberschrift": "Kasse",
+          "tiefe": 4,
+          "pfad": [
+            {
+              "art": "task-pay",
+              "wert": null,
+              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "global": false
+            },
+            {
+              "art": "ks-wahl",
+              "wert": null,
+              "text": "Strafe verhängen",
+              "global": false
+            },
+            {
+              "art": "ks-modus",
+              "wert": "katalog",
+              "text": "Strafe aus Katalog hinzufügenAus dem Strafenkata",
+              "global": false
+            },
+            {
+              "art": "ks-weiter",
+              "wert": null,
+              "text": "Weiter",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/kasse__strafe-katalog--ksSeite.png"
+        }
+      ],
+      "kanten": [
+        {
+          "von": "dashboard",
+          "art": "goto",
+          "wert": "kalender",
+          "text": "Kalender ›",
+          "nach": "kalender"
+        },
+        {
+          "von": "dashboard",
+          "art": "kader-info",
+          "wert": null,
+          "text": "Kader-Info16 Spieler›",
+          "nach": "dashboard+shareModal"
+        },
+        {
+          "von": "dashboard",
+          "art": "lineup-edit",
+          "wert": null,
+          "text": "Aufstellung11/11›",
+          "nach": "trainer/spiel"
+        },
+        {
+          "von": "dashboard",
+          "art": "nav",
+          "wert": "kasse",
+          "text": "Mannschaftskasse 37,00 € ›",
+          "nach": "strafen"
+        },
+        {
+          "von": "dashboard",
+          "art": "paid-self",
+          "wert": null,
+          "text": "Zahlung melden",
+          "nach": "dashboard+zmBl"
+        },
+        {
+          "von": "dashboard",
+          "art": "rsvp-sheet",
+          "wert": null,
+          "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+          "nach": "dashboard+rsvpSheet"
+        },
+        {
+          "von": "dashboard",
+          "art": "tab",
+          "wert": "kalender",
+          "text": "Kalender",
+          "nach": "kalender"
+        },
+        {
+          "von": "dashboard",
+          "art": "tab",
+          "wert": "katalog",
+          "text": "Katalog",
+          "nach": "katalog"
+        },
+        {
+          "von": "dashboard",
+          "art": "tab",
+          "wert": "strafen",
+          "text": "Konto",
+          "nach": "strafen"
+        },
+        {
+          "von": "dashboard",
+          "art": "tab5",
+          "wert": null,
+          "text": "Mehr",
+          "nach": "dashboard+moreSheet"
+        },
+        {
+          "von": "dashboard",
+          "art": "task-pay",
+          "wert": null,
+          "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+          "nach": "kasse/pruefen"
+        },
+        {
+          "von": "dashboard",
+          "art": "zahnrad",
+          "wert": null,
+          "text": "Einstellungen öffnen",
+          "nach": "einstellungen"
+        },
+        {
+          "von": "dashboard+moreSheet",
+          "art": "mehr",
+          "wert": "admin",
+          "text": "Rollen",
+          "nach": "rollen-verwalten"
+        },
+        {
+          "von": "dashboard+moreSheet",
+          "art": "mehr",
+          "wert": "einstellungen",
+          "text": "Einstellungen",
+          "nach": "einstellungen"
+        },
+        {
+          "von": "dashboard+moreSheet",
+          "art": "mehr",
+          "wert": "kader",
+          "text": "Kader",
+          "nach": "kader"
+        },
+        {
+          "von": "dashboard+moreSheet",
+          "art": "mehr",
+          "wert": "kasse",
+          "text": "Kasse",
+          "nach": "kasse/pruefen"
+        },
+        {
+          "von": "dashboard+moreSheet",
+          "art": "mehr",
+          "wert": "lineup",
+          "text": "Trainer",
+          "nach": "trainer"
+        },
+        {
+          "von": "dashboard+moreSheet",
+          "art": "mehr",
+          "wert": "profil",
+          "text": "Profil",
+          "nach": "profil"
+        },
+        {
+          "von": "dashboard+rsvpSheet",
+          "art": "rs-teilen",
+          "wert": null,
+          "text": "Teilen",
+          "nach": "dashboard+rsvpSheet+shareModal"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein-tat",
+          "wert": "diagnose",
+          "text": "Diagnose›",
+          "nach": "diagnose"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
+          "wert": "bfv",
+          "text": "Spielplan (BFV)SV Musterhausen 2›",
+          "nach": "einstellungen/bfv"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
+          "wert": "kalender",
+          "text": "Kalender-Abo›",
+          "nach": "einstellungen/kalender"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
+          "wert": "mitteilungen",
+          "text": "MitteilungenNicht eingerichtet›",
+          "nach": "einstellungen/mitteilungen"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
+          "wert": "ruhezeiten",
+          "text": "Ruhezeiten22:00 bis 08:00›",
+          "nach": "einstellungen/ruhezeiten"
+        },
+        {
+          "von": "einstellungen",
+          "art": "goto",
+          "wert": "katalog",
+          "text": "Strafenkatalog›",
+          "nach": "katalog"
+        },
+        {
+          "von": "einstellungen",
+          "art": "goto",
+          "wert": "pushkatalog",
+          "text": "Push-Texte›",
+          "nach": "push-nachrichten"
+        },
+        {
+          "von": "einstellungen",
+          "art": "logout",
+          "wert": null,
+          "text": "Abmelden",
+          "nach": "dialog:abmelden"
+        },
+        {
+          "von": "einstellungen",
+          "art": "view-jump",
+          "wert": "profil",
+          "text": "FO Felix Oberhaus Spieler · Administrator admin@",
+          "nach": "profil"
+        },
+        {
+          "von": "einstellungen/kalender",
+          "art": "cal-sheet",
+          "wert": null,
+          "text": "Termine abonnieren",
+          "nach": "einstellungen/kalender+calSheet"
+        },
+        {
+          "von": "einstellungen/ruhezeiten",
+          "art": "ein",
+          "wert": "mitteilungen",
+          "text": "Zu den Mitteilungen",
+          "nach": "einstellungen/mitteilungen"
+        },
+        {
+          "von": "kalender",
+          "art": "cal-sheet",
+          "wert": null,
+          "text": "Termine im Handy-Kalender?›",
+          "nach": "kalender+calSheet"
+        },
+        {
+          "von": "kalender",
+          "art": "kader-info",
+          "wert": null,
+          "text": "Kader-Info16 Spieler›",
+          "nach": "kalender+shareModal"
+        },
+        {
+          "von": "kalender",
+          "art": "lineup-edit",
+          "wert": null,
+          "text": "Aufstellung11/11›",
+          "nach": "trainer/spiel"
+        },
+        {
+          "von": "kalender",
+          "art": "rsvp-sheet",
+          "wert": null,
+          "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+          "nach": "kalender+rsvpSheet"
+        },
+        {
+          "von": "kalender",
+          "art": "termin-new",
+          "wert": null,
+          "text": "Termin hinzufügen",
+          "nach": "kalender+terminModal"
+        },
+        {
+          "von": "kalender",
+          "art": "tkmenu",
+          "wert": null,
+          "text": "Mehr zu diesem Termin",
+          "nach": "kalender+tkMenu"
+        },
+        {
+          "von": "kalender+rsvpSheet",
+          "art": "rs-teilen",
+          "wert": null,
+          "text": "Teilen",
+          "nach": "kalender+rsvpSheet+shareModal"
+        },
+        {
+          "von": "kalender+tkMenu",
+          "art": "termin-edit",
+          "wert": null,
+          "text": "Termin bearbeiten",
+          "nach": "kalender"
+        },
+        {
+          "von": "kasse/bezahlt",
+          "art": "ks-det",
+          "wert": null,
+          "text": "Felix Oberhaus bar · 13.09. 3,00 €",
+          "nach": "kasse+ksBl"
+        },
+        {
+          "von": "kasse/bezahlt",
+          "art": "ks-wahl",
+          "wert": null,
+          "text": "Strafe verhängen",
+          "nach": "kasse+ksWahl"
+        },
+        {
+          "von": "kasse/bezahlt",
+          "art": "kstab",
+          "wert": "offen",
+          "text": "Offen 37,00 € 4 Strafen",
+          "nach": "kasse/offen"
+        },
+        {
+          "von": "kasse/bezahlt",
+          "art": "kstab",
+          "wert": "pruefen",
+          "text": "Gemeldet 15,00 € 2 zu prüfen",
+          "nach": "kasse/pruefen"
+        },
+        {
+          "von": "kasse/offen",
+          "art": "ks-buchen",
+          "wert": null,
+          "text": "Als bezahlt buchen",
+          "nach": "kasse+ksBl"
+        },
+        {
+          "von": "kasse/offen",
+          "art": "ks-det",
+          "wert": null,
+          "text": "Ilja Rennert im Detail",
+          "nach": "kasse+ksBl"
+        },
+        {
+          "von": "kasse/offen",
+          "art": "ks-wahl",
+          "wert": null,
+          "text": "Strafe verhängen",
+          "nach": "kasse+ksWahl"
+        },
+        {
+          "von": "kasse/offen",
+          "art": "kstab",
+          "wert": "bezahlt",
+          "text": "Eingegangen 6,00 € 2 Zahlungen",
+          "nach": "kasse/bezahlt"
+        },
+        {
+          "von": "kasse/offen",
+          "art": "kstab",
+          "wert": "pruefen",
+          "text": "Gemeldet 15,00 € 2 zu prüfen",
+          "nach": "kasse/pruefen"
+        },
+        {
+          "von": "kasse/pruefen",
+          "art": "ks-det",
+          "wert": null,
+          "text": "Meldung von Bruno Kessler im Detail",
+          "nach": "kasse+ksBl"
+        },
+        {
+          "von": "kasse/pruefen",
+          "art": "ks-wahl",
+          "wert": null,
+          "text": "Strafe verhängen",
+          "nach": "kasse+ksWahl"
+        },
+        {
+          "von": "kasse/pruefen",
+          "art": "kstab",
+          "wert": "bezahlt",
+          "text": "Eingegangen 6,00 € 2 Zahlungen",
+          "nach": "kasse/bezahlt"
+        },
+        {
+          "von": "kasse/pruefen",
+          "art": "kstab",
+          "wert": "offen",
+          "text": "Offen 37,00 € 4 Strafen",
+          "nach": "kasse/offen"
+        },
+        {
+          "von": "kasse+ksSheet",
+          "art": "ks-weiter",
+          "wert": null,
+          "text": "Weiter",
+          "nach": "kasse/strafe-katalog+ksSeite"
+        },
+        {
+          "von": "kasse+ksWahl",
+          "art": "ks-modus",
+          "wert": "indiv",
+          "text": "Individuelle StrafeFreier Grund und freier Betra",
+          "nach": "kasse+ksSheet"
+        },
+        {
+          "von": "kasse+ksWahl",
+          "art": "ks-modus",
+          "wert": "katalog",
+          "text": "Strafe aus Katalog hinzufügenAus dem Strafenkata",
+          "nach": "kasse+ksSheet"
+        },
+        {
+          "von": "strafen",
+          "art": "paid-self",
+          "wert": null,
+          "text": "Zahlung melden",
+          "nach": "strafen+zmBl"
+        },
+        {
+          "von": "trainer",
+          "art": "goto",
+          "wert": "kader",
+          "text": "Kader16 Spieler›13fit1angeschlagen1verletzt1Urla",
+          "nach": "kader"
+        },
+        {
+          "von": "trainer",
+          "art": "tvgame",
+          "wert": null,
+          "text": "Elf aufstellen",
+          "nach": "trainer/spiel"
+        },
+        {
+          "von": "trainer/spiel",
+          "art": "tvbankadd",
+          "wert": null,
+          "text": "Bankspieler hinzufügen",
+          "nach": "trainer/spiel+tvSheetKader"
+        },
+        {
+          "von": "trainer/spiel",
+          "art": "tvmenu",
+          "wert": null,
+          "text": "Mehr",
+          "nach": "trainer/spiel+tvSheetMenu"
+        },
+        {
+          "von": "trainer/spiel",
+          "art": "tvmoreform",
+          "wert": null,
+          "text": "Weitere ›",
+          "nach": "trainer/spiel+tvSheetForm"
+        }
+      ],
+      "tiefengrenze": [],
+      "ohneWirkung": [
+        {
+          "von": "dashboard",
+          "art": "tab",
+          "wert": "dashboard",
+          "text": "Übersicht"
+        },
+        {
+          "von": "kasse/bezahlt",
+          "art": "kstab",
+          "wert": "bezahlt",
+          "text": "Eingegangen 6,00 € 2 Zahlungen"
+        },
+        {
+          "von": "kasse/offen",
+          "art": "kstab",
+          "wert": "offen",
+          "text": "Offen 37,00 € 4 Strafen"
+        },
+        {
+          "von": "kasse/pruefen",
+          "art": "kstab",
+          "wert": "pruefen",
+          "text": "Gemeldet 15,00 € 2 zu prüfen"
+        },
+        {
+          "von": "trainer/spiel",
+          "art": "tvslot",
+          "wert": null,
+          "text": "1Feldmann"
+        }
+      ],
+      "unbekannt": [],
+      "nichtWiederholbar": [],
+      "gefundeneArten": [
+        "cal-sheet",
+        "ein",
+        "ein-tat",
+        "goto",
+        "kader-info",
+        "ks-buchen",
+        "ks-det",
+        "ks-modus",
+        "ks-wahl",
+        "ks-weiter",
+        "kstab",
+        "lineup-edit",
+        "logout",
+        "mehr",
+        "nav",
+        "paid-self",
+        "rs-teilen",
+        "rsvp-sheet",
+        "tab",
+        "tab5",
+        "task-pay",
+        "termin-edit",
+        "termin-new",
+        "tkmenu",
+        "tvbankadd",
+        "tvgame",
+        "tvmenu",
+        "tvmoreform",
+        "tvslot",
+        "view-jump",
+        "zahnrad"
+      ],
+      "schreibaufrufe": []
+    }
+  },
+  "nichtErreichteAusloeser": []
+}

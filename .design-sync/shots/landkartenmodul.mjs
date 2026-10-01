@@ -434,9 +434,14 @@ export async function installiere(page, profilName) {
   };
 }
 
-/* Wartet, bis die App fertig gerendert hat: Login-Maske oder Navigation. */
+/* Wartet, bis die App fertig gerendert hat: Login-Maske oder Navigation,
+   und der Splash ist weg. Solange html.sp-lock anliegt, ist die ganze App
+   unsichtbar (index.html, Mindestanzeige 400 ms); erst nach dem Fade wird
+   #splash entfernt.                                                       */
 export async function warteAufApp(page) {
-  await page.waitForFunction(() => !!document.querySelector('.auth-submit') ||
-    (!!document.querySelector('.app-nav') && !document.getElementById('__skeleton')), null, { timeout: 15000 });
-  await page.waitForTimeout(300);
+  await page.waitForFunction(() => (!!document.querySelector('.auth-submit') ||
+    (!!document.querySelector('.app-nav') && !document.getElementById('__skeleton'))) &&
+    !document.documentElement.classList.contains('sp-lock') && !document.getElementById('splash'),
+    null, { timeout: 15000 });
+  await page.waitForTimeout(150);
 }

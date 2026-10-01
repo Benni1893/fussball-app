@@ -40,3 +40,7 @@ node_modules/
 
 # design-sync: Messartefakte der Bildvergleiche, bleiben lokal
 .design-sync/reference/compare/
+
+# App-Landkarte: Bilder werden bei jedem Lauf neu erzeugt (versioniert sind
+# nur landkarte.json und ab L3 landkarte.html)
+.design-sync/landkarte/bilder/
