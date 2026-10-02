@@ -27,6 +27,7 @@ sind überholt: die Bilder liegen inzwischen in diesem Ordner, und
 | L1 | fertig: `landkartenmodul.mjs` (Stand-in für `db.js`, erfundene Testdaten, Uhr fest auf Fr 02.10.2026 18:00), `landkartenrauch.mjs` grün für alle sechs Profile, 0 Requests an Supabase |
 | L2 | fertig: `landkarte.mjs` + `landkartenregeln.mjs`, Ergebnis `.design-sync/landkarte/landkarte.json` (Bilder in `.gitignore`); Tiefengrenze 6, sechs Profile parallel, rund 4 Minuten |
 | L3 | fertig: `landkartenlayout.mjs` erzeugt `.design-sync/landkarte/landkarte.html` (Bilder relativ verlinkt), dazu nicht versioniert unter `bilder/` ein PNG je Rolle (`rollen/<profil>.png`) und die eigenständige `landkarte-komplett.html` (JPEG eingebettet, 9,6 MB, Grenze 15 MB) |
+| L3b | fertig: Zoomen/Verschieben (Mausrad, Ziehen, Pinch, Knöpfe), Stränge je Rolle (Strang = Ansicht des Zustands, Mehr-Menü eigener Strang, Zu- und Ausgänge als Stummel), „Nur diesen Weg zeigen“, Brotkrumen, Auswahl im URL (`?rolle=…&strang=…&weg=…`); gilt für `landkarte.html` und `landkarte-komplett.html` (9,6 MB) |
 | L4 | offen, App-Landkarte (Paket L, siehe unten) |
 | A | offen, Aufräumen (Nebenbefunde aus der Landkarten-Analyse, siehe unten) |
 
@@ -36,6 +37,7 @@ sind überholt: die Bilder liegen inzwischen in diesem Ordner, und
    - L1 Stand-in für `db.js` und Testdaten (`landkartenmodul.mjs`)
    - L2 Crawler mit Zustandserkennung und Kanten (`landkarte.mjs`)
    - L3 Layout: `landkarte.html` (Spalte je Rolle, Ebenen, SVG-Pfeile, Klick vergrößert) plus PNG je Rolle
+   - L3b Bedienung: Zoomen und Verschieben, Stränge einzeln, Weg zu einem Zustand, Auswahl im URL
    - L4 Drift-Prüfung auf die Pflichtliste, `NOTES.md`, Weg nach Claude Design über `build.sh`
 3. Inhaltsabgleich der vier Unterseiten gegen Panel 3 bis 7, ein Commit je Unterseite.
 4. F9.
