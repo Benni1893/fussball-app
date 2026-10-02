@@ -15,7 +15,15 @@
    landkartenlayout.mjs neu laufen lassen, landkarte.json und
    landkarte.html committen (siehe NOTES.md, Abschnitt App-Landkarte).
 
-   Aufruf: node .design-sync/shots/landkartendrift.mjs                    */
+   Der Crawl (rund 3,5 Minuten) laeuft nur, wenn sich seit dem letzten
+   Commit von landkarte.json eine Datei aus OBERFLAECHE geaendert hat
+   (committet oder im Arbeitsstand). Sonst: "uebersprungen, keine
+   Oberflaechenaenderung" und gruen. Der Abgleich landkarte.json /
+   landkarte.html und die Namenspruefung laufen immer.
+
+   Aufruf: node .design-sync/shots/landkartendrift.mjs [--immer]
+           --immer: Crawl auch ohne Oberflaechenaenderung                  */
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { crawle } from './landkarte.mjs';
@@ -37,7 +45,32 @@ for (const [p, v] of Object.entries(alt.profile)) for (const b of pruefeNamen(v.
 const html = ohneCR(fs.readFileSync(path.join(ZIEL, 'landkarte.html'), 'utf8'));
 if (html !== seite(alt, jsonSha(text), null)) befund('landkarte.html ist nicht aus landkarte.json erzeugt (node .design-sync/shots/landkartenlayout.mjs)');
 
-/* 2. Frischer Crawl ohne Bilder. */
+/* 2. Hat sich die Oberflaeche seit dem letzten Commit von landkarte.json
+   geaendert? Ohne git oder ohne solchen Commit: immer crawlen. */
+const OBERFLAECHE = ['app.js', 'index.html', 'styles.css', 'db.js', 'sw.js',
+  '.design-sync/shots/landkartenregeln.mjs', '.design-sync/shots/landkartenmodul.mjs'];
+function oberflaeche() {
+  try {
+    const git = (args) => execFileSync('git', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    const commit = git(['log', '-1', '--format=%H', '--', path.posix.join(ZIEL, 'landkarte.json')]);
+    if (!commit) return { grund: 'landkarte.json noch nicht committet' };
+    const liste = git(['diff', '--name-only', commit, '--', ...OBERFLAECHE]);
+    return { commit: commit.slice(0, 7), dateien: liste ? liste.split('\n') : [] };
+  } catch (e) {
+    return { grund: 'git nicht verfügbar' };
+  }
+}
+const immer = process.argv.includes('--immer');
+const stand = oberflaeche();
+if (!immer && stand.dateien && !stand.dateien.length) {
+  console.log(`Crawl übersprungen, keine Oberflächenänderung seit ${stand.commit} (letzter Commit von landkarte.json); voller Lauf mit --immer`);
+  console.log(`Laufzeit gesamt: ${Math.round((Date.now() - t0) / 1000)} s`);
+  console.log(rot ? `--- ROT: ${rot} Befund(e) ---` : '--- gruen: übersprungen, keine Oberflächenänderung ---');
+  process.exit(rot ? 1 : 0);
+}
+console.log('Crawl, weil: ' + (immer ? '--immer' : stand.dateien ? 'geändert seit ' + stand.commit + ': ' + stand.dateien.join(', ') : stand.grund));
+
+/* 3. Frischer Crawl ohne Bilder. */
 const { json: neu, ergebnisse, laufzeit } = await crawle({ mitBildern: false });
 for (const e of ergebnisse) {
   for (const v of e.verstoesse) befund(`[${e.titel}] ${v}`);
@@ -46,7 +79,7 @@ for (const e of ergebnisse) {
   for (const b of e.namenBefunde) befund('Crawl: ' + b);
 }
 
-/* 3. Vergleich, erst grob (Text), dann je Profil im Einzelnen. */
+/* 4. Vergleich, erst grob (Text), dann je Profil im Einzelnen. */
 if (JSON.stringify(neu, null, 2) + '\n' !== ohneCR(text)) {
   let einzeln = 0;
   const melde = (t) => { befund('Drift: ' + t); einzeln++; };

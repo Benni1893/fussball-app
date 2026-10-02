@@ -2,7 +2,7 @@
    Laedt die echte App je Profil mit landkartenmodul.mjs statt db.js und
    prueft: App startet, 5. Tab passt zur Rolle, keine Diagnose-Seite, kein
    Request an Supabase, Schreibaufrufe landen nur im Protokoll. Ohne Konto,
-   ohne Datenbank. Kommt mit L4 auf die Pflichtliste.
+   ohne Datenbank. Steht seit L4 (02.10.2026) auf der Pflichtliste.
 
    Aufruf: node .design-sync/shots/landkartenrauch.mjs
    Bilder je Profil (lokal, nicht versioniert) nach

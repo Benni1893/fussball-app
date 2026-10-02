@@ -171,8 +171,9 @@ export function straengeVon(profilName, knoten, kanten) {
 /* ---- Sprechende Namen (L4) --------------------------------------------
    Bevorzugt aus der sichtbaren Überschrift (titel aus zustandImBrowser).
    Die Liste NAMEN gilt nur dort, wo die Überschrift fehlt, Testdaten
-   enthält oder einen Knoten im selben Strang nicht unterscheidet; sie hat
-   dann Vorrang. Neue Einträge nur für solche Fälle.                       */
+   enthält, einen Knoten im selben Strang nicht unterscheidet oder zu
+   allgemein ist ("Strafe", "Mehr"); sie hat dann Vorrang. Neue Einträge
+   nur für solche Fälle.                                                   */
 export const NAMEN = {
   'dashboard': 'Übersicht',                                // h1 ist die Begrüßung
   'dialog:abmelden': 'Abmelden bestätigen',                // nativer Dialog, keine Überschrift
@@ -180,6 +181,8 @@ export const NAMEN = {
   'kalender+tkMenu': 'Termin-Menü',                        // Überschrift ist der Termin (Testdaten)
   'kalender+rsvpSheet+shareModal': 'Rückmeldungen teilen', // Überschrift wie das Blatt darunter
   'dashboard+rsvpSheet+shareModal': 'Rückmeldungen teilen',
+  'kasse+ksBl': 'Strafe buchen',                           // Überschrift nur "Strafe"
+  'trainer/spiel+tvSheetMenu': 'Aufstellungs-Menü',        // Überschrift nur "Mehr"
 };
 const TESTDATEN = /Musterhausen|Beispielstadt|Probedorf|Testhausen/;
 const DATUM = /\b\d{1,2}\.\s?(Jan|Feb|Mär|Apr|Mai|Jun|Jul|Aug|Sep|Okt|Nov|Dez)/;

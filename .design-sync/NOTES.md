@@ -1105,8 +1105,10 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
   `p3pruef`, `p4pruef`, `prefspruef`, `pushpruef`, `swpruef`, `tkicspruef`,
   seit L4 (02.10.2026) dazu `landkartenrauch` und `landkartendrift`
   (Abschnitt „App-Landkarte“). Am 28.09. die ersten 16 mit Rückgabewert 0
-  durchgelaufen. `landkartendrift` crawlt die App neu und ist der langsamste
-  Eintrag (rund 3 bis 4 Minuten).
+  durchgelaufen. `landkartendrift` crawlt die App nur neu (rund 3,5 Minuten),
+  wenn sich seit dem letzten Commit von `landkarte.json` eine
+  Oberflächendatei geändert hat; sonst meldet sie „übersprungen, keine
+  Oberflächenänderung“ und ist grün.
 - **Nur mit Testkonto** — melden sich an der laufenden App an und brauchen
   `APP_USER`/`APP_PASS`: `blattpruef`, `heropruef`, `pruef`. Ohne Konto
   brechen sie mit `page.fill: … got undefined` ab. Sie stehen deshalb **nicht**
@@ -1165,6 +1167,18 @@ Kanten, Klickpfade, Überschriften, Namen oder Stränge gegenüber
 `landkarte.json` geändert haben, wenn ein Name nicht sprechend ist, oder wenn
 `landkarte.html` nicht aus `landkarte.json` erzeugt ist. Die Ausgabe nennt jede
 Abweichung einzeln.
+
+Der Crawl läuft nur, wenn sich seit dem letzten Commit von `landkarte.json`
+(`git log -1 -- .design-sync/landkarte/landkarte.json`) eine dieser Dateien
+geändert hat, committet oder im Arbeitsstand: `app.js`, `index.html`,
+`styles.css`, `db.js`, `sw.js`, `landkartenregeln.mjs`,
+`landkartenmodul.mjs`. Die Ausgabe nennt die geänderten Dateien. Sonst:
+„Crawl übersprungen, keine Oberflächenänderung“ und grün, in wenigen
+Sekunden. Der Abgleich `landkarte.json`/`landkarte.html` und die
+Namensprüfung laufen immer. `--immer` erzwingt den Crawl. Ohne git oder ohne
+Commit von `landkarte.json` wird immer gecrawlt. Nicht in der Liste:
+`landkarte.mjs` selbst. Nach einer Änderung am Crawler daher einmal mit
+`--immer` laufen lassen.
 
 **Wenn sie rot ist:**
 1. Unbeabsichtigt (die Oberfläche sollte gleich bleiben): Ursache in `app.js`

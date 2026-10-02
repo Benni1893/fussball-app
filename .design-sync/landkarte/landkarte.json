@@ -1346,8 +1346,8 @@
           ],
           "bild": "bilder/trainer/trainer__spiel--tvSheetMenu.png",
           "strang": "trainer",
-          "name": "Mehr",
-          "nameQuelle": "ueberschrift"
+          "name": "Aufstellungs-Menü",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "einstellungen/kalender+calSheet",
@@ -2108,8 +2108,8 @@
           ],
           "bild": "bilder/kassenwart/kasse--ksBl.png",
           "strang": "kasse",
-          "name": "Strafe",
-          "nameQuelle": "ueberschrift"
+          "name": "Strafe buchen",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "kasse+ksWahl",
@@ -3273,8 +3273,8 @@
           ],
           "bild": "bilder/trainerkassenwart/kasse--ksBl.png",
           "strang": "kasse",
-          "name": "Strafe",
-          "nameQuelle": "ueberschrift"
+          "name": "Strafe buchen",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "kasse+ksWahl",
@@ -3472,8 +3472,8 @@
           ],
           "bild": "bilder/trainerkassenwart/trainer__spiel--tvSheetMenu.png",
           "strang": "trainer",
-          "name": "Mehr",
-          "nameQuelle": "ueberschrift"
+          "name": "Aufstellungs-Menü",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "einstellungen/kalender+calSheet",
@@ -4780,8 +4780,8 @@
           ],
           "bild": "bilder/admin/kasse--ksBl.png",
           "strang": "kasse",
-          "name": "Strafe",
-          "nameQuelle": "ueberschrift"
+          "name": "Strafe buchen",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "kasse+ksWahl",
@@ -5033,8 +5033,8 @@
           ],
           "bild": "bilder/admin/trainer__spiel--tvSheetMenu.png",
           "strang": "trainer",
-          "name": "Mehr",
-          "nameQuelle": "ueberschrift"
+          "name": "Aufstellungs-Menü",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "einstellungen/kalender+calSheet",
