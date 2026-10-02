@@ -9,27 +9,31 @@
      .design-sync/landkarte/landkarte.json          versioniert
      .design-sync/landkarte/bilder/<profil>/*.png   nicht versioniert
 
+   Je Knoten zusaetzlich (L4): strang, name und nameQuelle (ueberschrift
+   oder liste), Regeln in landkartenregeln.mjs.
+
    Rot (Rueckgabewert 1): Request an Supabase, Seitenfehler, Klick ohne
-   erkennbaren Zustand.
+   erkennbaren Zustand, Knoten ohne sprechenden Namen oder doppelter Name
+   im selben Strang.
    Warnung: Ausloeser, die nur wegen der Tiefengrenze nicht verfolgt wurden.
 
    Aufruf: node .design-sync/shots/landkarte.mjs [profil ...]
-           LANDKARTE_TIEFE=n setzt die Tiefengrenze (Standard 6).        */
+           LANDKARTE_TIEFE=n setzt die Tiefengrenze (Standard 6).
+   Als Modul: crawle({ profile, mitBildern }) - landkartendrift.mjs crawlt
+   damit ohne Bilder und ohne etwas zu schreiben.                         */
 import fs from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
 import { starte } from './server.mjs';
 import { PROFILE, JETZT, installiere, neuerKontext, warteAufApp } from './landkartenmodul.mjs';
-import { AUSLOESER, UEBERLAGERUNGEN, zustandImBrowser, schluessel } from './landkartenregeln.mjs';
+import { AUSLOESER, UEBERLAGERUNGEN, zustandImBrowser, schluessel,
+  STRAENGE, straengeVon, knotenName, pruefeNamen } from './landkartenregeln.mjs';
 
 const MAX_TIEFE = Number(process.env.LANDKARTE_TIEFE || 6);
 const ZIEL = '.design-sync/landkarte';
 const BILDER = path.join(ZIEL, 'bilder');
 const RUHE_MS = 450;
-
-const auswahl = process.argv.slice(2);
-const profile = auswahl.length ? auswahl : Object.keys(PROFILE);
-for (const p of profile) if (!PROFILE[p]) { console.error('Unbekanntes Profil: ' + p); process.exit(2); }
 
 const dateiname = (k) => k.replace(/\//g, '__').replace(/\+/g, '--').replace(/[^a-zA-Z0-9_.-]/g, '-') + '.png';
 const slug = (s) => (s || '').toLowerCase().replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
@@ -70,7 +74,7 @@ function kandidatenImBrowser({ ausloeser, ueberlagerungen, oben, istStart, nurAr
   return liste;
 }
 
-async function crawleProfil(browser, basis, name) {
+async function crawleProfil(browser, basis, name, mitBildern) {
   const t0 = Date.now();
   const ctx = await neuerKontext(browser);
   const page = await ctx.newPage();
@@ -80,7 +84,7 @@ async function crawleProfil(browser, basis, name) {
 
   const knoten = new Map(), kanten = [], tiefengrenze = [], ohneWirkung = [], unbekannt = [], nichtWiederholbar = [];
   const gefundeneArten = new Set();
-  fs.mkdirSync(path.join(BILDER, name), { recursive: true });
+  if (mitBildern) fs.mkdirSync(path.join(BILDER, name), { recursive: true });
 
   const lese = () => page.evaluate(zustandImBrowser, UEBERLAGERUNGEN);
   async function start() {
@@ -118,7 +122,7 @@ async function crawleProfil(browser, basis, name) {
   }
   async function bild(k) {
     const datei = path.join(BILDER, name, dateiname(k));
-    await page.screenshot({ path: datei });
+    if (mitBildern) await page.screenshot({ path: datei });
     return path.relative(ZIEL, datei).replace(/\\/g, '/');
   }
   const schritt = (c, istStart) => ({ art: c.art, wert: c.wert ?? null, text: c.text,
@@ -173,63 +177,90 @@ async function crawleProfil(browser, basis, name) {
   await ctx.close();
   const sortiere = (a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b));
   const ohneHash = (n) => { const { hash, ...rest } = n; return rest; };
+  const liste = [...knoten.values()].map(ohneHash).sort((a, b) => a.tiefe - b.tiefe || a.schluessel.localeCompare(b.schluessel));
+  /* Strang und sprechender Name je Knoten (L4). */
+  const strang = straengeVon(name, liste, kanten);
+  const benannt = liste.map((n) => {
+    const s = strang.get(n.schluessel);
+    const { name: nm, quelle } = knotenName(n, STRAENGE[s]);
+    return { ...n, strang: s, name: nm, nameQuelle: quelle };
+  });
+  const namenBefunde = [
+    ...benannt.filter((n) => !STRAENGE[n.strang]).map((n) => `${PROFILE[name].titel}: ${n.schluessel} in unbekanntem Strang "${n.strang}" (STRAENGE ergänzen)`),
+    ...pruefeNamen(PROFILE[name].titel, benannt),
+  ];
   return {
     name, titel: PROFILE[name].titel, rollen: PROFILE[name].rollen,
-    knoten: [...knoten.values()].map(ohneHash).sort((a, b) => a.tiefe - b.tiefe || a.schluessel.localeCompare(b.schluessel)),
+    knoten: benannt,
     kanten: kanten.sort(sortiere),
     tiefengrenze: tiefengrenze.sort(sortiere),
     ohneWirkung: ohneWirkung.sort(sortiere),
     unbekannt, nichtWiederholbar,
     gefundeneArten: [...gefundeneArten].sort(),
     schreibaufrufe: [...new Set(bericht.protokoll.map((p) => p.methode))].sort(),
-    verstoesse: bericht.verstoesse, fehler: bericht.fehler, hinweise: [...new Set(bericht.hinweise)],
+    verstoesse: bericht.verstoesse, fehler: bericht.fehler, hinweise: [...new Set(bericht.hinweise)], namenBefunde,
     sekunden: Math.round((Date.now() - t0) / 1000),
   };
 }
 
-const t0 = Date.now();
-const { server, basis } = await starte(process.cwd());
-const browser = await chromium.launch({ channel: 'chrome' });
-for (const p of profile) fs.rmSync(path.join(BILDER, p), { recursive: true, force: true });
-const ergebnisse = await Promise.all(profile.map((p) => crawleProfil(browser, basis, p)));
-await browser.close();
-server.close();
-const laufzeit = Math.round((Date.now() - t0) / 1000);
+/* Crawlt die gewaehlten Profile parallel und baut das JSON der Landkarte.
+   mitBildern=false: keine Screenshots, bilder/ bleibt unberuehrt. */
+export async function crawle({ profile = Object.keys(PROFILE), mitBildern = true } = {}) {
+  for (const p of profile) if (!PROFILE[p]) throw new Error('Unbekanntes Profil: ' + p);
+  const t0 = Date.now();
+  const { server, basis } = await starte(process.cwd());
+  const browser = await chromium.launch({ channel: 'chrome' });
+  if (mitBildern) for (const p of profile) fs.rmSync(path.join(BILDER, p), { recursive: true, force: true });
+  const ergebnisse = await Promise.all(profile.map((p) => crawleProfil(browser, basis, p, mitBildern)));
+  await browser.close();
+  server.close();
+  const laufzeit = Math.round((Date.now() - t0) / 1000);
 
-const alleArten = new Set(ergebnisse.flatMap((e) => e.gefundeneArten));
-const nichtErreicht = AUSLOESER.map((a) => a.art).filter((a) => !alleArten.has(a));
-
-const json = {
-  erzeugtVon: '.design-sync/shots/landkarte.mjs',
-  jetzt: JETZT,
-  maxTiefe: MAX_TIEFE,
-  profile: Object.fromEntries(ergebnisse.map((e) => {
-    const { name, verstoesse, fehler, hinweise, sekunden, ...rest } = e;
-    return [name, rest];
-  })),
-  nichtErreichteAusloeser: nichtErreicht,
-};
-fs.mkdirSync(ZIEL, { recursive: true });
-// Nur bei einem vollen Lauf schreiben - ein Teillauf wuerde Profile loeschen.
-if (!auswahl.length) fs.writeFileSync(path.join(ZIEL, 'landkarte.json'), JSON.stringify(json, null, 2) + '\n');
-
-let rot = 0, warn = 0;
-console.log('Profil'.padEnd(20) + 'Knoten'.padStart(7) + 'Kanten'.padStart(8) + 'Tiefe'.padStart(7) + 'Sek.'.padStart(6));
-for (const e of ergebnisse) {
-  const tiefe = Math.max(...e.knoten.map((n) => n.tiefe));
-  console.log(e.titel.padEnd(20) + String(e.knoten.length).padStart(7) + String(e.kanten.length).padStart(8)
-    + String(tiefe).padStart(7) + String(e.sekunden).padStart(6));
+  const alleArten = new Set(ergebnisse.flatMap((e) => e.gefundeneArten));
+  const nichtErreicht = AUSLOESER.map((a) => a.art).filter((a) => !alleArten.has(a));
+  const json = {
+    erzeugtVon: '.design-sync/shots/landkarte.mjs',
+    jetzt: JETZT,
+    maxTiefe: MAX_TIEFE,
+    straenge: STRAENGE,
+    profile: Object.fromEntries(ergebnisse.map((e) => {
+      const { name, verstoesse, fehler, hinweise, namenBefunde, sekunden, ...rest } = e;
+      return [name, rest];
+    })),
+    nichtErreichteAusloeser: nichtErreicht,
+  };
+  return { json, ergebnisse, laufzeit };
 }
-for (const e of ergebnisse) {
-  const p = '  [' + e.titel + '] ';
-  for (const v of e.verstoesse) { rot++; console.log('ROT ' + p + v); }
-  for (const f of e.fehler) { rot++; console.log('ROT ' + p + f); }
-  for (const u of e.unbekannt) { rot++; console.log('ROT ' + p + 'Klick ohne erkennbaren Zustand: ' + JSON.stringify(u)); }
-  for (const n of e.nichtWiederholbar) { warn++; console.log('WARNUNG' + p + 'Pfad nicht wiederholbar: ' + JSON.stringify(n)); }
-  for (const t of e.tiefengrenze) { warn++; console.log('WARNUNG' + p + 'Tiefengrenze ' + MAX_TIEFE + ', nicht verfolgt: ' + t.von + ' -> ' + t.art + (t.wert ? '=' + t.wert : '') + ' "' + t.text + '"'); }
-  for (const h of e.hinweise) console.log('Hinweis' + p + h);
+
+const istHaupt = process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href;
+if (istHaupt) {
+  const auswahl = process.argv.slice(2);
+  const profile = auswahl.length ? auswahl : Object.keys(PROFILE);
+  for (const p of profile) if (!PROFILE[p]) { console.error('Unbekanntes Profil: ' + p); process.exit(2); }
+  const { json, ergebnisse, laufzeit } = await crawle({ profile, mitBildern: true });
+  fs.mkdirSync(ZIEL, { recursive: true });
+  // Nur bei einem vollen Lauf schreiben - ein Teillauf wuerde Profile loeschen.
+  if (!auswahl.length) fs.writeFileSync(path.join(ZIEL, 'landkarte.json'), JSON.stringify(json, null, 2) + '\n');
+
+  let rot = 0, warn = 0;
+  console.log('Profil'.padEnd(20) + 'Knoten'.padStart(7) + 'Kanten'.padStart(8) + 'Tiefe'.padStart(7) + 'Sek.'.padStart(6));
+  for (const e of ergebnisse) {
+    const tiefe = Math.max(...e.knoten.map((n) => n.tiefe));
+    console.log(e.titel.padEnd(20) + String(e.knoten.length).padStart(7) + String(e.kanten.length).padStart(8)
+      + String(tiefe).padStart(7) + String(e.sekunden).padStart(6));
+  }
+  for (const e of ergebnisse) {
+    const p = '  [' + e.titel + '] ';
+    for (const v of e.verstoesse) { rot++; console.log('ROT ' + p + v); }
+    for (const f of e.fehler) { rot++; console.log('ROT ' + p + f); }
+    for (const u of e.unbekannt) { rot++; console.log('ROT ' + p + 'Klick ohne erkennbaren Zustand: ' + JSON.stringify(u)); }
+    for (const b of e.namenBefunde) { rot++; console.log('ROT  ' + b); }
+    for (const n of e.nichtWiederholbar) { warn++; console.log('WARNUNG' + p + 'Pfad nicht wiederholbar: ' + JSON.stringify(n)); }
+    for (const t of e.tiefengrenze) { warn++; console.log('WARNUNG' + p + 'Tiefengrenze ' + MAX_TIEFE + ', nicht verfolgt: ' + t.von + ' -> ' + t.art + (t.wert ? '=' + t.wert : '') + ' "' + t.text + '"'); }
+    for (const h of e.hinweise) console.log('Hinweis' + p + h);
+  }
+  console.log('Nicht erreichte Auslöser (in keinem Profil sichtbar): ' + (json.nichtErreichteAusloeser.length ? json.nichtErreichteAusloeser.join(', ') : 'keine'));
+  console.log(`Laufzeit: ${laufzeit} s, Tiefengrenze ${MAX_TIEFE}` + (auswahl.length ? ' (Teillauf, JSON nicht geschrieben)' : ''));
+  console.log(rot ? `--- ROT: ${rot} Befund(e), ${warn} Warnung(en) ---` : `--- gruen, ${warn} Warnung(en) ---`);
+  process.exit(rot ? 1 : 0);
 }
-console.log('Nicht erreichte Auslöser (in keinem Profil sichtbar): ' + (nichtErreicht.length ? nichtErreicht.join(', ') : 'keine'));
-console.log(`Laufzeit: ${laufzeit} s, Tiefengrenze ${MAX_TIEFE}` + (auswahl.length ? ' (Teillauf, JSON nicht geschrieben)' : ''));
-console.log(rot ? `--- ROT: ${rot} Befund(e), ${warn} Warnung(en) ---` : `--- gruen, ${warn} Warnung(en) ---`);
-process.exit(rot ? 1 : 0);

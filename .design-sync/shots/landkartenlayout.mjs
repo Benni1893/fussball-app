@@ -37,7 +37,13 @@
    Strang-Ansicht mit falscher Kartenzahl, Bedienung ohne Wirkung,
    eigenstaendige Fassung 15 MB oder groesser.
 
-   Aufruf: node .design-sync/shots/landkartenlayout.mjs                   */
+   Kartentitel, Kurzlabels und Straenge kommen aus landkarte.json (name,
+   strang; Regeln in landkartenregeln.mjs). Beide Seiten tragen den
+   Fingerabdruck von landkarte.json als <meta name="landkarte-json">.
+
+   Aufruf: node .design-sync/shots/landkartenlayout.mjs
+   Als Modul: seite(), jsonSha(), pruefeDaten() fuer landkartendrift.mjs. */
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -53,31 +59,32 @@ const VORSCHAU = { breite: 300, qualitaet: 0.72 };
 const GROSS = { breite: 480, qualitaet: 0.6 };
 const GRENZE = 15 * 1024 * 1024;
 
-const daten = JSON.parse(fs.readFileSync(path.join(ZIEL, 'landkarte.json'), 'utf8'));
-let rot = 0;
-const fehler = (t) => { console.error('ROT  ' + t); rot++; };
+/* Fingerabdruck von landkarte.json, Zeilenenden egal (Git wandelt sie unter
+   Windows). Steht als <meta name="landkarte-json"> in beiden Seiten;
+   build.sh und landkartendrift.mjs vergleichen ihn. */
+export const ohneCR = (text) => text.replace(/\r\n/g, '\n');
+export const jsonSha = (text) => crypto.createHash('sha256').update(ohneCR(text)).digest('hex').slice(0, 16);
 
-for (const p of REIHENFOLGE) if (!daten.profile[p]) fehler('Profil fehlt in landkarte.json: ' + p);
-for (const p of Object.keys(daten.profile)) if (!REIHENFOLGE.includes(p)) fehler('Profil ohne Spalte: ' + p);
-for (const p of REIHENFOLGE) {
-  const da = new Set(daten.profile[p].knoten.map((n) => n.schluessel));
-  for (const k of daten.profile[p].kanten) if (!da.has(k.von) || !da.has(k.nach)) fehler(`Kante ohne Knoten in ${p}: ${k.von} -> ${k.nach}`);
+/* Befunde zur Form von landkarte.json (leer = in Ordnung). */
+export function pruefeDaten(daten) {
+  const befunde = [];
+  for (const p of REIHENFOLGE) if (!daten.profile[p]) befunde.push('Profil fehlt in landkarte.json: ' + p);
+  if (befunde.length) return befunde;
+  for (const p of Object.keys(daten.profile)) if (!REIHENFOLGE.includes(p)) befunde.push('Profil ohne Spalte: ' + p);
+  for (const p of REIHENFOLGE) {
+    const da = new Set(daten.profile[p].knoten.map((n) => n.schluessel));
+    for (const k of daten.profile[p].kanten) if (!da.has(k.von) || !da.has(k.nach)) befunde.push(`Kante ohne Knoten in ${p}: ${k.von} -> ${k.nach}`);
+    for (const n of daten.profile[p].knoten) if (!n.strang || !daten.straenge || !daten.straenge[n.strang]) befunde.push(`Knoten ohne bekannten Strang in ${p}: ${n.schluessel}`);
+  }
+  return befunde;
 }
-if (rot) process.exit(1);
 
 /* Laeuft im Browser: Modell, Ansichten, Zoom, Pfeile. */
 function client() {
   const D = JSON.parse(document.getElementById('daten').textContent);
   const NS = 'http://www.w3.org/2000/svg';
   const KARTE = 120, LUECKE = 18, MAX_REIHE = 5;
-  const NAMEN = {
-    anmeldung: ['anmeldung', 'Anmeldung'], dashboard: ['uebersicht', 'Übersicht'], mehr: ['mehr', 'Mehr'],
-    einstellungen: ['einstellungen', 'Einstellungen'], kalender: ['kalender', 'Kalender'], katalog: ['katalog', 'Katalog'],
-    strafen: ['konto', 'Konto'], trainer: ['trainer', 'Trainer'], kasse: ['kasse', 'Kasse'], kader: ['kader', 'Kader'],
-    profil: ['profil', 'Profil'], diagnose: ['diagnose', 'Diagnose'], 'push-nachrichten': ['push-nachrichten', 'Push-Nachrichten'],
-    'rollen-verwalten': ['rollen-verwalten', 'Rollen verwalten'],
-  };
-  const $ = (s) => document.querySelector(s);
+  const $ =(s) => document.querySelector(s);
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const kurz = (t, n) => (t.length > n ? t.slice(0, n - 1) + '…' : t);
   const glatt = (t) => (t || '').replace(/\s+/g, ' ').trim();
@@ -104,18 +111,9 @@ function client() {
   }
   for (const k of alleKanten) { knoten.get(k.von).aus.push(k); knoten.get(k.nach).ein.push(k); }
 
-  /* Strang = Ansicht des Zustands. Mehr-Menue eigener Strang, native
-     Dialoge gehoeren zur Ansicht, aus der sie kommen. */
-  const strangRoh = (n, tiefe = 0) => {
-    if (n.profil === 'anmeldung') return 'anmeldung';
-    if (n.oben.includes('moreSheet')) return 'mehr';
-    if (n.ansicht === 'dialog' && n.ein.length && tiefe < 5) return strangRoh(knoten.get(n.ein[0].von), tiefe + 1);
-    return n.ansicht;
-  };
+  /* Strang und Name kommen aus landkarte.json (Regeln in landkartenregeln.mjs). */
   for (const n of knoten.values()) {
-    const roh = strangRoh(n);
-    const [slug, name] = NAMEN[roh] || [roh, roh];
-    n.strang = slug;
+    const slug = n.strang, name = D.straenge[slug] || slug;
     const pr = profile[n.profil];
     let s = pr.straenge.find((x) => x.slug === slug);
     if (!s) pr.straenge.push(s = { slug, name, ids: [] });
@@ -125,9 +123,9 @@ function client() {
   window.__straenge = Object.fromEntries(D.reihenfolge.map((p) => [p, profile[p].straenge.map((s) => ({ slug: s.slug, name: s.name, anzahl: s.ids.length }))]));
 
   const bild = (n, gross) => (D.bilder ? D.bilder[n.id][gross ? 'g' : 'k'] : n.bild);
-  const name = (n) => n.ueberschrift || (n.dialog ? 'Dialog' : n.ansicht);
+  const name = (n) => n.name || n.ueberschrift || n.schluessel;
   const zusatz = (n) => (n.oben.length ? n.oben.join(' › ') : n.unter || (n.tiefe === 0 ? 'Start' : n.ansicht));
-  const kurzLabel = (n) => (n.dialog ? 'Dialog' : n.oben.length ? n.oben[n.oben.length - 1] : n.unter || (NAMEN[n.ansicht] || [0, n.ueberschrift || n.ansicht])[1]);
+  const kurzLabel = name;
 
   /* Weg vom Start bis id (kuerzester Pfad) plus alles, was von id tiefer weitergeht. */
   function wegZu(id) {
@@ -634,9 +632,11 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .druck #welt { position: static; }
 `;
 
-function seite(bilder) {
+/* Die Seite als Text. bilder=null: Bilder relativ verlinkt (landkarte.html),
+   sonst eingebettet (landkarte-komplett.html). */
+export function seite(daten, sha, bilder) {
   const json = JSON.stringify({
-    erzeugtVon: daten.erzeugtVon, jetzt: daten.jetzt, maxTiefe: daten.maxTiefe,
+    erzeugtVon: daten.erzeugtVon, jetzt: daten.jetzt, maxTiefe: daten.maxTiefe, straenge: daten.straenge,
     nichtErreichteAusloeser: daten.nichtErreichteAusloeser, reihenfolge: REIHENFOLGE, profile: daten.profile, bilder,
   }).replace(/</g, '\\u003c');
   return `<!doctype html>
@@ -644,6 +644,7 @@ function seite(bilder) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="landkarte-json" content="${sha}">
 <title>App-Landkarte</title>
 <!-- Erzeugt von .design-sync/shots/landkartenlayout.mjs aus landkarte.json. Nicht von Hand bearbeiten. -->
 <style>${CSS}</style>
@@ -670,137 +671,147 @@ function seite(bilder) {
 `;
 }
 
-/* Bilder pruefen: ohne Lauf von landkarte.mjs gibt es keine PNGs. */
-const alle = REIHENFOLGE.flatMap((p) => daten.profile[p].knoten.map((n) => ({ p, n })));
-for (const { n } of alle) if (!n.bild && !n.dialog) fehler('Knoten ohne Bild und ohne Dialog: ' + n.schluessel);
-for (const { n } of alle) if (n.bild && !fs.existsSync(path.join(ZIEL, n.bild))) fehler('Bild fehlt: ' + n.bild + ' (zuerst landkarte.mjs laufen lassen)');
-if (rot) process.exit(1);
+const istHaupt = process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href;
+if (istHaupt) {
+  const text = fs.readFileSync(path.join(ZIEL, 'landkarte.json'), 'utf8');
+  const daten = JSON.parse(text), sha = jsonSha(text);
+  let rot = 0;
+  const fehler = (t) => { console.error('ROT  ' + t); rot++; };
+  for (const b of pruefeDaten(daten)) fehler(b);
+  if (rot) process.exit(1);
 
-fs.writeFileSync(path.join(ZIEL, 'landkarte.html'), seite(null));
-console.log('geschrieben ' + path.join(ZIEL, 'landkarte.html'));
+  /* Bilder pruefen: ohne Lauf von landkarte.mjs gibt es keine PNGs. */
+  const alle = REIHENFOLGE.flatMap((p) => daten.profile[p].knoten.map((n) => ({ p, n })));
+  for (const { n } of alle) if (!n.bild && !n.dialog) fehler('Knoten ohne Bild und ohne Dialog: ' + n.schluessel);
+  for (const { n } of alle) if (n.bild && !fs.existsSync(path.join(ZIEL, n.bild))) fehler('Bild fehlt: ' + n.bild + ' (zuerst landkarte.mjs laufen lassen)');
+  if (rot) process.exit(1);
 
-const { server, basis } = await starte();
-const browser = await chromium.launch({ channel: 'chrome' });
-const url = basis + ZIEL.replace(/\\/g, '/') + '/landkarte.html';
+  fs.writeFileSync(path.join(ZIEL, 'landkarte.html'), seite(daten, sha, null));
+  console.log('geschrieben ' + path.join(ZIEL, 'landkarte.html'));
 
-async function neueSeite(opt = {}) {
-  const ctx = await browser.newContext({ viewport: { width: 1400, height: 900 }, deviceScaleFactor: 1, ...opt });
-  ctx.on('request', (r) => { const u = r.url(); if (!u.startsWith(basis) && !u.startsWith('data:') && !u.startsWith('file:')) fehler('Request nach aussen: ' + u); });
-  const page = await ctx.newPage();
-  page.on('pageerror', (e) => fehler('Seitenfehler: ' + e.message + ' (' + page.url() + ')'));
-  return page;
-}
-async function bereit(page) {
-  await page.waitForFunction(() => window.__fertig === true);
-  await page.waitForFunction(() => [...document.images].every((i) => i.complete));
-  const kaputt = await page.evaluate(() => document.querySelectorAll('.fehlt').length);
-  if (kaputt) fehler(kaputt + ' Bilder nicht geladen: ' + page.url());
-}
-const karten = (page) => page.evaluate(() => document.querySelectorAll('#karte .karte').length);
+  const { server, basis } = await starte();
+  const browser = await chromium.launch({ channel: 'chrome' });
+  const url = basis + ZIEL.replace(/\\/g, '/') + '/landkarte.html';
 
-/* Gesamtansicht: Seitenfehler, Bilder, Strangliste. */
-const page = await neueSeite();
-await page.goto(url, { waitUntil: 'load' });
-await bereit(page);
-const straenge = await page.evaluate(() => window.__straenge);
-console.log('\nStränge je Rolle (Anzahl Zustände)');
-for (const p of REIHENFOLGE) {
-  const summe = straenge[p].reduce((s, x) => s + x.anzahl, 0);
-  if (summe !== daten.profile[p].knoten.length) fehler(`${p}: Stränge decken ${summe} statt ${daten.profile[p].knoten.length} Zustände ab`);
-  console.log(`  ${daten.profile[p].titel.padEnd(20)} ${straenge[p].map((s) => `${s.name} ${s.anzahl}`).join(' · ')}`);
-}
-console.log('');
-
-/* Bedienung: Zoom per Mausrad, Knoepfe, Ziehen, Klick, Weg, URL. */
-const transform = () => page.evaluate(() => document.getElementById('welt').style.transform);
-const t0 = await transform();
-await page.mouse.move(700, 500);
-await page.mouse.wheel(0, -400);
-const t1 = await transform();
-if (t1 === t0) fehler('Mausrad zoomt nicht');
-await page.mouse.move(700, 500); await page.mouse.down(); await page.mouse.move(820, 560, { steps: 5 }); await page.mouse.up();
-if ((await transform()) === t1) fehler('Ziehen verschiebt nicht');
-await page.click('#plus');
-await page.click('#alles');
-if ((await transform()) !== t0) fehler('Alles zeigen stellt die Ausgangslage nicht her');
-await page.selectOption('#rolle', 'trainer');
-await page.selectOption('#strang', 'kalender');
-if (!page.url().includes('rolle=trainer&strang=kalender')) fehler('Strang-Auswahl nicht im URL: ' + page.url());
-await page.locator('#karte .karte').first().click();
-await page.click('#gross .knopf:not(.leise)');
-if (!/weg=/.test(page.url())) fehler('Nur diesen Weg zeigen ohne Wirkung: ' + page.url());
-await page.goBack();
-if (!page.url().includes('strang=kalender')) fehler('Zurück im Browser ohne Wirkung: ' + page.url());
-await page.click('#gesamt');
-if ((await karten(page)) !== alle.length) fehler('Zurück zur Gesamtkarte zeigt nicht alle Karten');
-
-/* Jeder Strang und je Rolle der tiefste Weg: Kartenzahl und Seitenfehler. */
-for (const p of REIHENFOLGE) {
-  for (const s of straenge[p]) {
-    await page.goto(`${url}?rolle=${p}&strang=${s.slug}`, { waitUntil: 'load' });
-    await page.waitForFunction(() => window.__fertig === true);
-    const n = await karten(page);
-    if (n !== s.anzahl) fehler(`${p} › ${s.slug}: ${n} Karten statt ${s.anzahl}`);
+  async function neueSeite(opt = {}) {
+    const ctx = await browser.newContext({ viewport: { width: 1400, height: 900 }, deviceScaleFactor: 1, ...opt });
+    ctx.on('request', (r) => { const u = r.url(); if (!u.startsWith(basis) && !u.startsWith('data:') && !u.startsWith('file:')) fehler('Request nach aussen: ' + u); });
+    const page = await ctx.newPage();
+    page.on('pageerror', (e) => fehler('Seitenfehler: ' + e.message + ' (' + page.url() + ')'));
+    return page;
   }
-  const tief = [...daten.profile[p].knoten].sort((a, b) => b.tiefe - a.tiefe)[0];
-  await page.goto(`${url}?rolle=${p}&weg=${encodeURIComponent(tief.schluessel)}`, { waitUntil: 'load' });
-  await page.waitForFunction(() => window.__fertig === true);
-  if ((await karten(page)) < tief.tiefe + 1) fehler(`${p}: Weg zu ${tief.schluessel} zu kurz`);
-}
+  async function bereit(page) {
+    await page.waitForFunction(() => window.__fertig === true);
+    await page.waitForFunction(() => [...document.images].every((i) => i.complete));
+    const kaputt = await page.evaluate(() => document.querySelectorAll('.fehlt').length);
+    if (kaputt) fehler(kaputt + ' Bilder nicht geladen: ' + page.url());
+  }
+  const karten = (page) => page.evaluate(() => document.querySelectorAll('#karte .karte').length);
 
-/* PNG je Rolle (Druckmodus) und Kontrollbild Trainer › Kalender. */
-fs.rmSync(ROLLEN, { recursive: true, force: true });
-fs.mkdirSync(ROLLEN, { recursive: true });
-const bildSeite = await neueSeite({ deviceScaleFactor: 2 });
-for (const p of REIHENFOLGE) {
-  await bildSeite.goto(`${url}?rolle=${p}&druck=1`, { waitUntil: 'load' });
-  await bereit(bildSeite);
-  await bildSeite.screenshot({ path: path.join(ROLLEN, p + '.png'), fullPage: true });
-  console.log('Bild    ' + path.join(ROLLEN, p + '.png'));
-}
-await bildSeite.goto(`${url}?rolle=trainer&strang=kalender`, { waitUntil: 'load' });
-await bereit(bildSeite);
-await bildSeite.screenshot({ path: path.join(ROLLEN, 'strang-trainer-kalender.png') });
-console.log('Bild    ' + path.join(ROLLEN, 'strang-trainer-kalender.png'));
+  /* Gesamtansicht: Seitenfehler, Bilder, Strangliste. */
+  const page = await neueSeite();
+  await page.goto(url, { waitUntil: 'load' });
+  await bereit(page);
+  const straenge = await page.evaluate(() => window.__straenge);
+  console.log('\nStränge je Rolle (Anzahl Zustände)');
+  for (const p of REIHENFOLGE) {
+    const summe = straenge[p].reduce((s, x) => s + x.anzahl, 0);
+    if (summe !== daten.profile[p].knoten.length) fehler(`${p}: Stränge decken ${summe} statt ${daten.profile[p].knoten.length} Zustände ab`);
+    console.log(`  ${daten.profile[p].titel.padEnd(20)} ${straenge[p].map((s) => `${s.name} ${s.anzahl}`).join(' · ')}`);
+  }
+  console.log('');
 
-/* Eigenstaendige Fassung: Bilder im Browser verkleinern und als JPEG einbetten. */
-const bilder = {};
-for (const { p, n } of alle) {
-  if (!n.bild) continue;
-  const quelle = basis + (ZIEL + '/' + n.bild).replace(/\\/g, '/');
-  bilder[p + '|' + n.schluessel] = await page.evaluate(async ({ quelle, stufen }) => {
-    const bmp = await createImageBitmap(await (await fetch(quelle)).blob());
-    const aus = {};
-    for (const [k, s] of Object.entries(stufen)) {
-      const c = document.createElement('canvas');
-      c.width = s.breite; c.height = Math.round(bmp.height * s.breite / bmp.width);
-      const g = c.getContext('2d');
-      g.imageSmoothingQuality = 'high';
-      g.drawImage(bmp, 0, 0, c.width, c.height);
-      aus[k] = c.toDataURL('image/jpeg', s.qualitaet);
+  /* Bedienung: Zoom per Mausrad, Knoepfe, Ziehen, Klick, Weg, URL. */
+  const transform = () => page.evaluate(() => document.getElementById('welt').style.transform);
+  const t0 = await transform();
+  await page.mouse.move(700, 500);
+  await page.mouse.wheel(0, -400);
+  const t1 = await transform();
+  if (t1 === t0) fehler('Mausrad zoomt nicht');
+  await page.mouse.move(700, 500); await page.mouse.down(); await page.mouse.move(820, 560, { steps: 5 }); await page.mouse.up();
+  if ((await transform()) === t1) fehler('Ziehen verschiebt nicht');
+  await page.click('#plus');
+  await page.click('#alles');
+  if ((await transform()) !== t0) fehler('Alles zeigen stellt die Ausgangslage nicht her');
+  await page.selectOption('#rolle', 'trainer');
+  await page.selectOption('#strang', 'kalender');
+  if (!page.url().includes('rolle=trainer&strang=kalender')) fehler('Strang-Auswahl nicht im URL: ' + page.url());
+  await page.locator('#karte .karte').first().click();
+  await page.click('#gross .knopf:not(.leise)');
+  if (!/weg=/.test(page.url())) fehler('Nur diesen Weg zeigen ohne Wirkung: ' + page.url());
+  await page.goBack();
+  if (!page.url().includes('strang=kalender')) fehler('Zurück im Browser ohne Wirkung: ' + page.url());
+  await page.click('#gesamt');
+  if ((await karten(page)) !== alle.length) fehler('Zurück zur Gesamtkarte zeigt nicht alle Karten');
+
+  /* Jeder Strang und je Rolle der tiefste Weg: Kartenzahl und Seitenfehler. */
+  for (const p of REIHENFOLGE) {
+    for (const s of straenge[p]) {
+      await page.goto(`${url}?rolle=${p}&strang=${s.slug}`, { waitUntil: 'load' });
+      await page.waitForFunction(() => window.__fertig === true);
+      const n = await karten(page);
+      if (n !== s.anzahl) fehler(`${p} › ${s.slug}: ${n} Karten statt ${s.anzahl}`);
     }
-    return aus;
-  }, { quelle, stufen: { k: VORSCHAU, g: GROSS } });
+    const tief = [...daten.profile[p].knoten].sort((a, b) => b.tiefe - a.tiefe)[0];
+    await page.goto(`${url}?rolle=${p}&weg=${encodeURIComponent(tief.schluessel)}`, { waitUntil: 'load' });
+    await page.waitForFunction(() => window.__fertig === true);
+    if ((await karten(page)) < tief.tiefe + 1) fehler(`${p}: Weg zu ${tief.schluessel} zu kurz`);
+  }
+
+  /* PNG je Rolle (Druckmodus) und Kontrollbild Trainer › Kalender. */
+  fs.rmSync(ROLLEN, { recursive: true, force: true });
+  fs.mkdirSync(ROLLEN, { recursive: true });
+  const bildSeite = await neueSeite({ deviceScaleFactor: 2 });
+  for (const p of REIHENFOLGE) {
+    await bildSeite.goto(`${url}?rolle=${p}&druck=1`, { waitUntil: 'load' });
+    await bereit(bildSeite);
+    await bildSeite.screenshot({ path: path.join(ROLLEN, p + '.png'), fullPage: true });
+    console.log('Bild    ' + path.join(ROLLEN, p + '.png'));
+  }
+  await bildSeite.goto(`${url}?rolle=trainer&strang=kalender`, { waitUntil: 'load' });
+  await bereit(bildSeite);
+  await bildSeite.screenshot({ path: path.join(ROLLEN, 'strang-trainer-kalender.png') });
+  console.log('Bild    ' + path.join(ROLLEN, 'strang-trainer-kalender.png'));
+
+  /* Eigenstaendige Fassung: Bilder im Browser verkleinern und als JPEG einbetten. */
+  const bilder = {};
+  for (const { p, n } of alle) {
+    if (!n.bild) continue;
+    const quelle = basis + (ZIEL + '/' + n.bild).replace(/\\/g, '/');
+    bilder[p + '|' + n.schluessel] = await page.evaluate(async ({ quelle, stufen }) => {
+      const bmp = await createImageBitmap(await (await fetch(quelle)).blob());
+      const aus = {};
+      for (const [k, s] of Object.entries(stufen)) {
+        const c = document.createElement('canvas');
+        c.width = s.breite; c.height = Math.round(bmp.height * s.breite / bmp.width);
+        const g = c.getContext('2d');
+        g.imageSmoothingQuality = 'high';
+        g.drawImage(bmp, 0, 0, c.width, c.height);
+        aus[k] = c.toDataURL('image/jpeg', s.qualitaet);
+      }
+      return aus;
+    }, { quelle, stufen: { k: VORSCHAU, g: GROSS } });
+  }
+  fs.writeFileSync(KOMPLETT, seite(daten, sha, bilder));
+  const groesse = fs.statSync(KOMPLETT).size;
+  console.log(`geschrieben ${KOMPLETT}  ${(groesse / 1024 / 1024).toFixed(1)} MB (${groesse} Bytes)`);
+  if (groesse >= GRENZE) fehler('eigenstaendige Fassung zu gross: ' + groesse + ' Bytes');
+
+  /* Eigenstaendige Fassung ohne Server: Gesamtkarte, Strang per URL, Weg per Klick. */
+  const p2 = await neueSeite();
+  const datei = pathToFileURL(path.resolve(KOMPLETT)).href;
+  await p2.goto(datei, { waitUntil: 'load' });
+  await bereit(p2);
+  await p2.goto(datei + '?rolle=trainer&strang=kalender', { waitUntil: 'load' });
+  await bereit(p2);
+  const soll = straenge.trainer.find((s) => s.slug === 'kalender').anzahl;
+  if ((await karten(p2)) !== soll) fehler('komplett: Strang Trainer › Kalender falsch');
+  await p2.locator('#karte .karte').last().click();
+  await p2.click('#gross .knopf:not(.leise)');
+  await p2.waitForFunction(() => document.querySelector('#krumen').textContent.includes('Weg zu'));
+
+  await browser.close();
+  server.close();
+  console.log(rot ? `ROT (${rot})` : 'GRÜN');
+  process.exit(rot ? 1 : 0);
 }
-fs.writeFileSync(KOMPLETT, seite(bilder));
-const groesse = fs.statSync(KOMPLETT).size;
-console.log(`geschrieben ${KOMPLETT}  ${(groesse / 1024 / 1024).toFixed(1)} MB (${groesse} Bytes)`);
-if (groesse >= GRENZE) fehler('eigenstaendige Fassung zu gross: ' + groesse + ' Bytes');
-
-/* Eigenstaendige Fassung ohne Server: Gesamtkarte, Strang per URL, Weg per Klick. */
-const p2 = await neueSeite();
-const datei = pathToFileURL(path.resolve(KOMPLETT)).href;
-await p2.goto(datei, { waitUntil: 'load' });
-await bereit(p2);
-await p2.goto(datei + '?rolle=trainer&strang=kalender', { waitUntil: 'load' });
-await bereit(p2);
-const soll = straenge.trainer.find((s) => s.slug === 'kalender').anzahl;
-if ((await karten(p2)) !== soll) fehler('komplett: Strang Trainer › Kalender falsch');
-await p2.locator('#karte .karte').last().click();
-await p2.click('#gross .knopf:not(.leise)');
-await p2.waitForFunction(() => document.querySelector('#krumen').textContent.includes('Weg zu'));
-
-await browser.close();
-server.close();
-console.log(rot ? `ROT (${rot})` : 'GRÜN');
-process.exit(rot ? 1 : 0);

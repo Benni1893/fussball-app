@@ -100,6 +100,26 @@ mkdir -p "$OUT/assets"
 cp assets/logo.png     "$OUT/assets/logo.png"
 cp assets/icon-192.png "$OUT/assets/icon-192.png"
 
+# --- 7c. App-Landkarte -------------------------------------------------------
+# Eigenstaendige Fassung (Bilder eingebettet) plus ein Bild je Rolle. Beides
+# ist nicht versioniert und entsteht mit landkarte.mjs + landkartenlayout.mjs.
+# Der Fingerabdruck von landkarte.json steht in der Seite; passt er nicht,
+# ist die Seite veraltet und der Bau bricht ab.
+LK=".design-sync/landkarte"
+LK_SEITE="$LK/bilder/landkarte-komplett.html"
+LK_ROLLEN="anmeldung spieler trainer kassenwart trainerkassenwart admin"
+LK_NEU="node .design-sync/shots/landkarte.mjs && node .design-sync/shots/landkartenlayout.mjs"
+LK_SHA="$(tr -d '\r' < "$LK/landkarte.json" | sha256sum | cut -c1-16)"
+[ -f "$LK_SEITE" ] || { echo "FEHLER: $LK_SEITE fehlt - zuerst: $LK_NEU" >&2; exit 1; }
+grep -q "name=\"landkarte-json\" content=\"$LK_SHA\"" "$LK_SEITE" \
+  || { echo "FEHLER: $LK_SEITE passt nicht zu landkarte.json - neu erzeugen: node .design-sync/shots/landkartenlayout.mjs" >&2; exit 1; }
+mkdir -p "$OUT/landkarte"
+cp "$LK_SEITE" "$OUT/landkarte/landkarte.html"
+for r in $LK_ROLLEN; do
+  [ -f "$LK/bilder/rollen/$r.png" ] || { echo "FEHLER: $LK/bilder/rollen/$r.png fehlt - zuerst: $LK_NEU" >&2; exit 1; }
+  cp "$LK/bilder/rollen/$r.png" "$OUT/landkarte/$r.png"
+done
+
 # --- 9. README --------------------------------------------------------------
 # conventions.md (handgeschrieben, gehoert den Autoren) + generiertes Verzeichnis.
 {
@@ -118,6 +138,8 @@ cp assets/icon-192.png "$OUT/assets/icon-192.png"
   echo "| \`_ds_app.css\` | Alle Regeln der App, nach Bereichen kommentiert. |"
   echo "| \`_ds_bundle.js\` | Leer — dieses System hat bewusst keine JS-Komponenten. |"
   echo "| \`assets/\` | Vereinswappen. |"
+  echo "| \`landkarte/landkarte.html\` | App-Landkarte: alle Zustände je Rolle mit Bild, Klickwegen und Strängen, eigenständig (Bilder eingebettet). |"
+  echo "| \`landkarte/<rolle>.png\` | Dieselbe Landkarte als ein Bild je Rolle ($(echo $LK_ROLLEN | tr ' ' ',' | sed 's/,/, /g')). |"
   echo
   echo "## Vorschaukarten"
   echo
@@ -150,6 +172,7 @@ printf '%s' '{"by":"design-sync-fcfn"}' > "$OUT/_ds_needs_recompile"
   echo "  \"styleSha\": \"$(sha256sum "$SRC_CSS" | cut -c1-16)\","
   echo "  \"shellSha\": \"$(sha256sum index.html | cut -c1-16)\","
   echo "  \"conventionsSha\": \"$(test -f .design-sync/conventions.md && sha256sum .design-sync/conventions.md | cut -c1-16 || echo none)\","
+  echo "  \"landkarteSha\": \"$LK_SHA\","
   echo '  "cardShas": {'
   last=$(find "$CARDS" -name '*.html' | sort | tail -1)
   find "$CARDS" -name '*.html' | sort | while read -r card; do
@@ -163,3 +186,5 @@ printf '%s' '{"by":"design-sync-fcfn"}' > "$OUT/_ds_needs_recompile"
 echo "Bau fertig:"
 echo "  Tokens:  $(grep -c -- '--' "$OUT/tokens/tokens.css") Zeilen mit Token-Definitionen"
 echo "  Karten:  $(find "$OUT/components" -name '*.html' | wc -l)"
+echo "  Landkarte: $(du -h "$OUT/landkarte/landkarte.html" | cut -f1) Seite, $(ls "$OUT/landkarte/"*.png | wc -l) Rollenbilder, $(du -sh "$OUT/landkarte" | cut -f1) zusammen"
+echo "  Bundle:  $(du -sh "$OUT" | cut -f1) ($(du -sb "$OUT" | cut -f1) Bytes)"

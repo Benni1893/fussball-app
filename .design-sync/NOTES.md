@@ -1097,13 +1097,16 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
   Bezugsrahmen, und die Leiste wandert mit — derselbe Mechanismus, der schon
   die Kassenseite zusammengedrückt hat.
 
-## Prüfskripte: Pflichtliste und „nur mit Testkonto“ (Stand 28.09.2026)
+## Prüfskripte: Pflichtliste und „nur mit Testkonto“ (Stand 02.10.2026)
 
-- **Pflichtliste** — laufen ohne Anmeldung und müssen vor jedem Push grün
+- **Pflichtliste (18)** — laufen ohne Anmeldung und müssen vor jedem Push grün
   sein: `abopruef`, `deeplinkpruef`, `einpruef`, `icspruef`, `kachelpruef`,
   `kassepruef`, `katalogpruef`, `kopfpruef`, `meldeschlusspruef`, `p1pruef`,
-  `p3pruef`, `p4pruef`, `prefspruef`, `pushpruef`, `swpruef`, `tkicspruef`.
-  Am 28.09. alle mit Rückgabewert 0 durchgelaufen.
+  `p3pruef`, `p4pruef`, `prefspruef`, `pushpruef`, `swpruef`, `tkicspruef`,
+  seit L4 (02.10.2026) dazu `landkartenrauch` und `landkartendrift`
+  (Abschnitt „App-Landkarte“). Am 28.09. die ersten 16 mit Rückgabewert 0
+  durchgelaufen. `landkartendrift` crawlt die App neu und ist der langsamste
+  Eintrag (rund 3 bis 4 Minuten).
 - **Nur mit Testkonto** — melden sich an der laufenden App an und brauchen
   `APP_USER`/`APP_PASS`: `blattpruef`, `heropruef`, `pruef`. Ohne Konto
   brechen sie mit `page.fill: … got undefined` ab. Sie stehen deshalb **nicht**
@@ -1111,3 +1114,73 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
   der Pflichtliste sagt aber auch nichts über sie. Laufen erst wieder, wenn für
   einen Messlauf ein Testkonto angelegt ist. Das Konto wird danach wieder
   gelöscht.
+
+## App-Landkarte (Paket L, Stand 02.10.2026)
+
+Alle Zustände der App je Rolle, mit Bild, Klickwegen und Strängen. Läuft ohne
+Konto und ohne Datenbank: `landkartenmodul.mjs` ersetzt `db.js` durch ein
+Stand-in mit erfundenen Testdaten (SV Musterhausen, Uhr fest auf Fr 02.10.2026
+18:00). Jeder Request an `*.supabase.co` macht den Lauf rot.
+
+```sh
+node .design-sync/shots/landkarte.mjs           # Crawl, rund 4 Minuten: landkarte.json + bilder/<profil>/
+node .design-sync/shots/landkartenlayout.mjs    # landkarte.html, bilder/rollen/*.png, bilder/landkarte-komplett.html
+node .design-sync/shots/landkartendrift.mjs     # Drift-Prüfung (Pflichtliste)
+node .design-sync/shots/landkartenrauch.mjs     # Rauchtest des Stand-ins (Pflichtliste)
+```
+
+| Datei | versioniert | Inhalt |
+|---|---|---|
+| `.design-sync/landkarte/landkarte.json` | ja | Knoten, Kanten, Klickpfade, Strang und Name je Knoten |
+| `.design-sync/landkarte/landkarte.html` | ja | Karte mit relativ verlinkten Bildern (braucht einen Crawl) |
+| `.design-sync/landkarte/bilder/<profil>/*.png` | nein | ein Bildschirm je Zustand |
+| `.design-sync/landkarte/bilder/rollen/<profil>.png` | nein | eine Spalte je Rolle |
+| `.design-sync/landkarte/bilder/landkarte-komplett.html` | nein | eigenständig, Bilder als JPEG eingebettet, muss unter 15 MB bleiben |
+
+**Bedienung der Seite:** Mausrad oder Zwei-Finger-Geste zoomt, Ziehen
+verschiebt, am Handy Pinch. Auswahl Rolle › Strang, Klick auf eine Karte
+vergrößert und bietet „Nur diesen Weg zeigen“. Die Auswahl steht im URL:
+`landkarte.html?rolle=trainer&strang=kalender`, `…&weg=<Zustandsschlüssel>`.
+
+**Stränge:** Strang = Ansicht des Zustands. Sheets und Unterseiten gehören zur
+Ansicht darunter, das Mehr-Menü ist ein eigener Strang, native Dialoge gehören
+zur Ansicht, aus der sie kommen. Liste und Namen: `STRAENGE` in
+`landkartenregeln.mjs`. Eine neue Ansicht ohne Eintrag dort macht den Crawl rot.
+
+**Sprechende Namen:** Jeder Knoten hat `name` und `nameQuelle`.
+- `ueberschrift`: die sichtbare Überschrift im obersten Blatt, bei
+  Kassen-Reitern Ansicht und Reiter, sonst die h1. Zähler am Ende fallen weg
+  („Offen 4“ → „Offen“), bei Blättern zählt nur der Teil vor „ · “.
+- `liste`: `NAMEN` in `landkartenregeln.mjs`. Nur für Knoten, deren Überschrift
+  fehlt, Testdaten enthält oder sie im selben Strang nicht unterscheidet; dann
+  hat die Liste Vorrang.
+- Rot (Crawl und Drift-Prüfung): kein Name, interner Bezeichner (`ksBl`,
+  `reset-link-senden`), Begrüßung, Testdaten (Vereinsnamen, Datum), bei
+  Blättern dieselbe Überschrift wie die Ansicht darunter, oder zwei gleiche
+  Namen im selben Strang. Gleiche Namen in verschiedenen Strängen sind erlaubt.
+
+**Drift-Prüfung (`landkartendrift.mjs`):** crawlt alle sechs Profile frisch,
+ohne Bilder und ohne etwas zu schreiben, und wird rot, wenn sich Knoten,
+Kanten, Klickpfade, Überschriften, Namen oder Stränge gegenüber
+`landkarte.json` geändert haben, wenn ein Name nicht sprechend ist, oder wenn
+`landkarte.html` nicht aus `landkarte.json` erzeugt ist. Die Ausgabe nennt jede
+Abweichung einzeln.
+
+**Wenn sie rot ist:**
+1. Unbeabsichtigt (die Oberfläche sollte gleich bleiben): Ursache in `app.js`
+   bzw. `index.html` suchen, nicht die Landkarte anpassen.
+2. Beabsichtigt: `landkarte.mjs` und danach `landkartenlayout.mjs` laufen
+   lassen, Ausgabe prüfen, `landkarte.json` und `landkarte.html` mit der
+   Änderung zusammen committen.
+3. Neuer Zustand ohne sprechenden Namen: Überschrift im Blatt ergänzen (in
+   `app.js`, also nur nach Rückfrage) oder Eintrag in `NAMEN`.
+
+**Weg nach Claude Design:** `build.sh` legt `bilder/landkarte-komplett.html`
+als `ds-bundle/landkarte/landkarte.html` und die sechs Rollenbilder als
+`ds-bundle/landkarte/<rolle>.png` ins Bundle und trägt den Fingerabdruck
+(`landkarteSha`) in `_ds_sync.json` ein. Passt die Seite nicht zum
+Fingerabdruck von `landkarte.json` (Meta-Tag `landkarte-json`), oder fehlt
+etwas, bricht der Bau mit dem nötigen Befehl ab. Reihenfolge vor einem Upload:
+`landkarte.mjs`, `landkartenlayout.mjs`, dann wie oben `build.sh`,
+`validate.sh`, `check-conventions.sh`. Am Ende nennt `build.sh` die
+Bundle-Größe.

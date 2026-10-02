@@ -28,7 +28,7 @@ sind überholt: die Bilder liegen inzwischen in diesem Ordner, und
 | L2 | fertig: `landkarte.mjs` + `landkartenregeln.mjs`, Ergebnis `.design-sync/landkarte/landkarte.json` (Bilder in `.gitignore`); Tiefengrenze 6, sechs Profile parallel, rund 4 Minuten |
 | L3 | fertig: `landkartenlayout.mjs` erzeugt `.design-sync/landkarte/landkarte.html` (Bilder relativ verlinkt), dazu nicht versioniert unter `bilder/` ein PNG je Rolle (`rollen/<profil>.png`) und die eigenständige `landkarte-komplett.html` (JPEG eingebettet, 9,6 MB, Grenze 15 MB) |
 | L3b | fertig: Zoomen/Verschieben (Mausrad, Ziehen, Pinch, Knöpfe), Stränge je Rolle (Strang = Ansicht des Zustands, Mehr-Menü eigener Strang, Zu- und Ausgänge als Stummel), „Nur diesen Weg zeigen“, Brotkrumen, Auswahl im URL (`?rolle=…&strang=…&weg=…`); gilt für `landkarte.html` und `landkarte-komplett.html` (9,6 MB) |
-| L4 | offen, App-Landkarte (Paket L, siehe unten) |
+| L4 | fertig: `landkartendrift.mjs` und `landkartenrauch.mjs` auf der Pflichtliste (jetzt 18), sprechender Name je Knoten (`name`, `nameQuelle`, Regeln und Liste `NAMEN` in `landkartenregeln.mjs`), `strang` in `landkarte.json`, Abschnitt „App-Landkarte“ in `NOTES.md`, `build.sh` legt Landkarte und Rollenbilder ins Bundle (`ds-bundle/landkarte/`) |
 | A | offen, Aufräumen (Nebenbefunde aus der Landkarten-Analyse, siehe unten) |
 
 **Reihenfolge ab hier, kein Vorziehen:**
@@ -38,7 +38,7 @@ sind überholt: die Bilder liegen inzwischen in diesem Ordner, und
    - L2 Crawler mit Zustandserkennung und Kanten (`landkarte.mjs`)
    - L3 Layout: `landkarte.html` (Spalte je Rolle, Ebenen, SVG-Pfeile, Klick vergrößert) plus PNG je Rolle
    - L3b Bedienung: Zoomen und Verschieben, Stränge einzeln, Weg zu einem Zustand, Auswahl im URL
-   - L4 Drift-Prüfung auf die Pflichtliste, `NOTES.md`, Weg nach Claude Design über `build.sh`
+   - L4 Drift-Prüfung auf die Pflichtliste, `NOTES.md`, Weg nach Claude Design über `build.sh`; dazu ein sprechender deutscher Name je Knoten (bevorzugt aus der sichtbaren Überschrift, sonst aus der Namensliste in `landkartenregeln.mjs`), die Drift-Prüfung wird rot, wenn ein Knoten keinen sprechenden Namen hat
 3. Inhaltsabgleich der vier Unterseiten gegen Panel 3 bis 7, ein Commit je Unterseite.
 4. F9.
 5. F14, erst wenn die Einstellungen komplett sind.
@@ -53,7 +53,7 @@ sind überholt: die Bilder liegen inzwischen in diesem Ordner, und
 - Schreibaufrufe des Stand-ins werden nur protokolliert.
 - `app.js` und die bestehenden Prüfskripte bleiben unverändert. Wäre eine Änderung an `app.js` nötig: stoppen und melden.
 - Versioniert werden nur `landkarte.html` und `landkarte.json`, die PNGs stehen in `.gitignore`.
-- Ablauf je Commit: Dateiliste zeigen, nach OK umsetzen, Pflichtliste 16/16 grün (versionierte Bilder per `git restore` zurück), Commit, Push erst nach OK. Eine Sitzung je Commit, am Ende der Startsatz für die nächste Sitzung.
+- Ablauf je Commit: Dateiliste zeigen, nach OK umsetzen, Pflichtliste 18/18 grün (16/16 bis L3b) (versionierte Bilder per `git restore` zurück), Commit, Push erst nach OK. Eine Sitzung je Commit, am Ende der Startsatz für die nächste Sitzung.
 
 ### Paket A: Aufräumen (Nebenbefunde vom 02.10.2026, nicht anfassen bis dahin)
 - Übersichtskachel `data-nav="kasse"` führt auf Konto mit Filter „offen“, nicht auf die Kasse (`app.js` Handler bei 6206). Klären, ob gewollt.

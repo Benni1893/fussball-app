@@ -2,6 +2,22 @@
   "erzeugtVon": ".design-sync/shots/landkarte.mjs",
   "jetzt": "2026-10-02T18:00:00+02:00",
   "maxTiefe": 6,
+  "straenge": {
+    "anmeldung": "Anmeldung",
+    "uebersicht": "Übersicht",
+    "mehr": "Mehr",
+    "einstellungen": "Einstellungen",
+    "kalender": "Kalender",
+    "katalog": "Katalog",
+    "konto": "Konto",
+    "trainer": "Trainer",
+    "kasse": "Kasse",
+    "kader": "Kader",
+    "profil": "Profil",
+    "diagnose": "Diagnose",
+    "push-nachrichten": "Push-Nachrichten",
+    "rollen-verwalten": "Rollen verwalten"
+  },
   "profile": {
     "anmeldung": {
       "titel": "Vor der Anmeldung",
@@ -13,9 +29,13 @@
           "unter": "anmelden",
           "oben": [],
           "ueberschrift": "Anmelden",
+          "titel": "Anmelden",
           "tiefe": 0,
           "pfad": [],
-          "bild": "bilder/anmeldung/anmeldung__anmelden.png"
+          "bild": "bilder/anmeldung/anmeldung__anmelden.png",
+          "strang": "anmeldung",
+          "name": "Anmelden",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "anmeldung/registrieren",
@@ -23,6 +43,7 @@
           "unter": "registrieren",
           "oben": [],
           "ueberschrift": "Konto erstellen",
+          "titel": "Konto erstellen",
           "tiefe": 1,
           "pfad": [
             {
@@ -32,7 +53,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/anmeldung/anmeldung__registrieren.png"
+          "bild": "bilder/anmeldung/anmeldung__registrieren.png",
+          "strang": "anmeldung",
+          "name": "Konto erstellen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "anmeldung/reset-link-senden",
@@ -40,6 +64,7 @@
           "unter": "reset-link-senden",
           "oben": [],
           "ueberschrift": "Passwort zurücksetzen",
+          "titel": "Passwort zurücksetzen",
           "tiefe": 1,
           "pfad": [
             {
@@ -49,7 +74,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/anmeldung/anmeldung__reset-link-senden.png"
+          "bild": "bilder/anmeldung/anmeldung__reset-link-senden.png",
+          "strang": "anmeldung",
+          "name": "Passwort zurücksetzen",
+          "nameQuelle": "ueberschrift"
         }
       ],
       "kanten": [
@@ -103,9 +131,13 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Servus, Felix",
+          "titel": "Servus, Felix",
           "tiefe": 0,
           "pfad": [],
-          "bild": "bilder/spieler/dashboard.png"
+          "bild": "bilder/spieler/dashboard.png",
+          "strang": "uebersicht",
+          "name": "Übersicht",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "dashboard+zmBl",
@@ -115,6 +147,7 @@
             "zmBl"
           ],
           "ueberschrift": "Servus, Felix",
+          "titel": "Zahlung melden",
           "tiefe": 1,
           "pfad": [
             {
@@ -124,7 +157,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/spieler/dashboard--zmBl.png"
+          "bild": "bilder/spieler/dashboard--zmBl.png",
+          "strang": "uebersicht",
+          "name": "Zahlung melden",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "einstellungen",
@@ -132,6 +168,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Einstellungen",
+          "titel": "Einstellungen",
           "tiefe": 1,
           "pfad": [
             {
@@ -141,7 +178,10 @@
               "global": true
             }
           ],
-          "bild": "bilder/spieler/einstellungen.png"
+          "bild": "bilder/spieler/einstellungen.png",
+          "strang": "einstellungen",
+          "name": "Einstellungen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kalender",
@@ -149,6 +189,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Kalender",
+          "titel": "Kalender",
           "tiefe": 1,
           "pfad": [
             {
@@ -158,7 +199,10 @@
               "global": true
             }
           ],
-          "bild": "bilder/spieler/kalender.png"
+          "bild": "bilder/spieler/kalender.png",
+          "strang": "kalender",
+          "name": "Kalender",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "katalog",
@@ -166,6 +210,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Strafenkatalog",
+          "titel": "Strafenkatalog",
           "tiefe": 1,
           "pfad": [
             {
@@ -175,7 +220,10 @@
               "global": true
             }
           ],
-          "bild": "bilder/spieler/katalog.png"
+          "bild": "bilder/spieler/katalog.png",
+          "strang": "katalog",
+          "name": "Strafenkatalog",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "strafen",
@@ -183,6 +231,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Strafen-Konto",
+          "titel": "Strafen-Konto",
           "tiefe": 1,
           "pfad": [
             {
@@ -192,7 +241,10 @@
               "global": true
             }
           ],
-          "bild": "bilder/spieler/strafen.png"
+          "bild": "bilder/spieler/strafen.png",
+          "strang": "konto",
+          "name": "Strafen-Konto",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "diagnose",
@@ -200,6 +252,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Diagnose",
+          "titel": "Diagnose",
           "tiefe": 2,
           "pfad": [
             {
@@ -215,7 +268,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/spieler/diagnose.png"
+          "bild": "bilder/spieler/diagnose.png",
+          "strang": "diagnose",
+          "name": "Diagnose",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "dialog:abmelden",
@@ -242,7 +298,10 @@
               "global": false
             }
           ],
-          "bild": null
+          "bild": null,
+          "strang": "einstellungen",
+          "name": "Abmelden bestätigen",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "einstellungen/kalender",
@@ -250,6 +309,7 @@
           "unter": "kalender",
           "oben": [],
           "ueberschrift": "Kalender-Abo",
+          "titel": "Kalender-Abo",
           "tiefe": 2,
           "pfad": [
             {
@@ -265,7 +325,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/spieler/einstellungen__kalender.png"
+          "bild": "bilder/spieler/einstellungen__kalender.png",
+          "strang": "einstellungen",
+          "name": "Kalender-Abo",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "einstellungen/mitteilungen",
@@ -273,6 +336,7 @@
           "unter": "mitteilungen",
           "oben": [],
           "ueberschrift": "Mitteilungen",
+          "titel": "Mitteilungen",
           "tiefe": 2,
           "pfad": [
             {
@@ -288,7 +352,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/spieler/einstellungen__mitteilungen.png"
+          "bild": "bilder/spieler/einstellungen__mitteilungen.png",
+          "strang": "einstellungen",
+          "name": "Mitteilungen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "einstellungen/ruhezeiten",
@@ -296,6 +363,7 @@
           "unter": "ruhezeiten",
           "oben": [],
           "ueberschrift": "Ruhezeiten",
+          "titel": "Ruhezeiten",
           "tiefe": 2,
           "pfad": [
             {
@@ -311,7 +379,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/spieler/einstellungen__ruhezeiten.png"
+          "bild": "bilder/spieler/einstellungen__ruhezeiten.png",
+          "strang": "einstellungen",
+          "name": "Ruhezeiten",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kalender+calSheet",
@@ -321,6 +392,7 @@
             "calSheet"
           ],
           "ueberschrift": "Kalender",
+          "titel": "Termine abonnieren",
           "tiefe": 2,
           "pfad": [
             {
@@ -336,7 +408,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/spieler/kalender--calSheet.png"
+          "bild": "bilder/spieler/kalender--calSheet.png",
+          "strang": "kalender",
+          "name": "Termine abonnieren",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "profil",
@@ -344,6 +419,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Profil",
+          "titel": "Profil",
           "tiefe": 2,
           "pfad": [
             {
@@ -359,7 +435,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/spieler/profil.png"
+          "bild": "bilder/spieler/profil.png",
+          "strang": "profil",
+          "name": "Profil",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "strafen+zmBl",
@@ -369,6 +448,7 @@
             "zmBl"
           ],
           "ueberschrift": "Strafen-Konto",
+          "titel": "Zahlung melden",
           "tiefe": 2,
           "pfad": [
             {
@@ -384,7 +464,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/spieler/strafen--zmBl.png"
+          "bild": "bilder/spieler/strafen--zmBl.png",
+          "strang": "konto",
+          "name": "Zahlung melden",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "einstellungen/kalender+calSheet",
@@ -394,6 +477,7 @@
             "calSheet"
           ],
           "ueberschrift": "Kalender-Abo",
+          "titel": "Termine abonnieren",
           "tiefe": 3,
           "pfad": [
             {
@@ -415,7 +499,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/spieler/einstellungen__kalender--calSheet.png"
+          "bild": "bilder/spieler/einstellungen__kalender--calSheet.png",
+          "strang": "einstellungen",
+          "name": "Termine abonnieren",
+          "nameQuelle": "ueberschrift"
         }
       ],
       "kanten": [
@@ -576,9 +663,13 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Servus, Felix",
+          "titel": "Servus, Felix",
           "tiefe": 0,
           "pfad": [],
-          "bild": "bilder/trainer/dashboard.png"
+          "bild": "bilder/trainer/dashboard.png",
+          "strang": "uebersicht",
+          "name": "Übersicht",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "dashboard+rsvpSheet",
@@ -588,6 +679,7 @@
             "rsvpSheet"
           ],
           "ueberschrift": "Servus, Felix",
+          "titel": "Rückmeldungen",
           "tiefe": 1,
           "pfad": [
             {
@@ -597,7 +689,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainer/dashboard--rsvpSheet.png"
+          "bild": "bilder/trainer/dashboard--rsvpSheet.png",
+          "strang": "uebersicht",
+          "name": "Rückmeldungen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "dashboard+shareModal",
@@ -607,6 +702,7 @@
             "shareModal"
           ],
           "ueberschrift": "Servus, Felix",
+          "titel": "Kader-Info · vs. TSV Beispielstadt",
           "tiefe": 1,
           "pfad": [
             {
@@ -616,7 +712,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainer/dashboard--shareModal.png"
+          "bild": "bilder/trainer/dashboard--shareModal.png",
+          "strang": "uebersicht",
+          "name": "Kader-Info",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "dashboard+zmBl",
@@ -626,6 +725,7 @@
             "zmBl"
           ],
           "ueberschrift": "Servus, Felix",
+          "titel": "Zahlung melden",
           "tiefe": 1,
           "pfad": [
             {
@@ -635,7 +735,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainer/dashboard--zmBl.png"
+          "bild": "bilder/trainer/dashboard--zmBl.png",
+          "strang": "uebersicht",
+          "name": "Zahlung melden",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "einstellungen",
@@ -643,6 +746,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Einstellungen",
+          "titel": "Einstellungen",
           "tiefe": 1,
           "pfad": [
             {
@@ -652,7 +756,10 @@
               "global": true
             }
           ],
-          "bild": "bilder/trainer/einstellungen.png"
+          "bild": "bilder/trainer/einstellungen.png",
+          "strang": "einstellungen",
+          "name": "Einstellungen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kalender",
@@ -660,6 +767,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Kalender",
+          "titel": "Kalender",
           "tiefe": 1,
           "pfad": [
             {
@@ -669,7 +777,10 @@
               "global": true
             }
           ],
-          "bild": "bilder/trainer/kalender.png"
+          "bild": "bilder/trainer/kalender.png",
+          "strang": "kalender",
+          "name": "Kalender",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "katalog",
@@ -677,6 +788,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Strafenkatalog",
+          "titel": "Strafenkatalog",
           "tiefe": 1,
           "pfad": [
             {
@@ -686,7 +798,10 @@
               "global": true
             }
           ],
-          "bild": "bilder/trainer/katalog.png"
+          "bild": "bilder/trainer/katalog.png",
+          "strang": "katalog",
+          "name": "Strafenkatalog",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "strafen",
@@ -694,6 +809,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Strafen-Konto",
+          "titel": "Strafen-Konto",
           "tiefe": 1,
           "pfad": [
             {
@@ -703,7 +819,10 @@
               "global": true
             }
           ],
-          "bild": "bilder/trainer/strafen.png"
+          "bild": "bilder/trainer/strafen.png",
+          "strang": "konto",
+          "name": "Strafen-Konto",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "trainer",
@@ -711,6 +830,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Trainer",
+          "titel": "Trainer",
           "tiefe": 1,
           "pfad": [
             {
@@ -720,7 +840,10 @@
               "global": true
             }
           ],
-          "bild": "bilder/trainer/trainer.png"
+          "bild": "bilder/trainer/trainer.png",
+          "strang": "trainer",
+          "name": "Trainer",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "trainer/spiel",
@@ -728,6 +851,7 @@
           "unter": "spiel",
           "oben": [],
           "ueberschrift": null,
+          "titel": null,
           "tiefe": 1,
           "pfad": [
             {
@@ -737,7 +861,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainer/trainer__spiel.png"
+          "bild": "bilder/trainer/trainer__spiel.png",
+          "strang": "trainer",
+          "name": "Aufstellung",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "dashboard+rsvpSheet+shareModal",
@@ -748,6 +875,7 @@
             "shareModal"
           ],
           "ueberschrift": "Servus, Felix",
+          "titel": "Rückmeldungen",
           "tiefe": 2,
           "pfad": [
             {
@@ -763,7 +891,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainer/dashboard--rsvpSheet--shareModal.png"
+          "bild": "bilder/trainer/dashboard--rsvpSheet--shareModal.png",
+          "strang": "uebersicht",
+          "name": "Rückmeldungen teilen",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "diagnose",
@@ -771,6 +902,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Diagnose",
+          "titel": "Diagnose",
           "tiefe": 2,
           "pfad": [
             {
@@ -786,7 +918,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainer/diagnose.png"
+          "bild": "bilder/trainer/diagnose.png",
+          "strang": "diagnose",
+          "name": "Diagnose",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "dialog:abmelden",
@@ -813,7 +948,10 @@
               "global": false
             }
           ],
-          "bild": null
+          "bild": null,
+          "strang": "einstellungen",
+          "name": "Abmelden bestätigen",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "einstellungen/kalender",
@@ -821,6 +959,7 @@
           "unter": "kalender",
           "oben": [],
           "ueberschrift": "Kalender-Abo",
+          "titel": "Kalender-Abo",
           "tiefe": 2,
           "pfad": [
             {
@@ -836,7 +975,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainer/einstellungen__kalender.png"
+          "bild": "bilder/trainer/einstellungen__kalender.png",
+          "strang": "einstellungen",
+          "name": "Kalender-Abo",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "einstellungen/mitteilungen",
@@ -844,6 +986,7 @@
           "unter": "mitteilungen",
           "oben": [],
           "ueberschrift": "Mitteilungen",
+          "titel": "Mitteilungen",
           "tiefe": 2,
           "pfad": [
             {
@@ -859,7 +1002,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainer/einstellungen__mitteilungen.png"
+          "bild": "bilder/trainer/einstellungen__mitteilungen.png",
+          "strang": "einstellungen",
+          "name": "Mitteilungen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "einstellungen/ruhezeiten",
@@ -867,6 +1013,7 @@
           "unter": "ruhezeiten",
           "oben": [],
           "ueberschrift": "Ruhezeiten",
+          "titel": "Ruhezeiten",
           "tiefe": 2,
           "pfad": [
             {
@@ -882,7 +1029,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainer/einstellungen__ruhezeiten.png"
+          "bild": "bilder/trainer/einstellungen__ruhezeiten.png",
+          "strang": "einstellungen",
+          "name": "Ruhezeiten",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kader",
@@ -890,6 +1040,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Kader",
+          "titel": "Kader",
           "tiefe": 2,
           "pfad": [
             {
@@ -905,7 +1056,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainer/kader.png"
+          "bild": "bilder/trainer/kader.png",
+          "strang": "kader",
+          "name": "Kader",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kalender+calSheet",
@@ -915,6 +1069,7 @@
             "calSheet"
           ],
           "ueberschrift": "Kalender",
+          "titel": "Termine abonnieren",
           "tiefe": 2,
           "pfad": [
             {
@@ -930,7 +1085,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainer/kalender--calSheet.png"
+          "bild": "bilder/trainer/kalender--calSheet.png",
+          "strang": "kalender",
+          "name": "Termine abonnieren",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kalender+rsvpSheet",
@@ -940,6 +1098,7 @@
             "rsvpSheet"
           ],
           "ueberschrift": "Kalender",
+          "titel": "Rückmeldungen",
           "tiefe": 2,
           "pfad": [
             {
@@ -955,7 +1114,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainer/kalender--rsvpSheet.png"
+          "bild": "bilder/trainer/kalender--rsvpSheet.png",
+          "strang": "kalender",
+          "name": "Rückmeldungen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kalender+shareModal",
@@ -965,6 +1127,7 @@
             "shareModal"
           ],
           "ueberschrift": "Kalender",
+          "titel": "Kader-Info · vs. TSV Beispielstadt",
           "tiefe": 2,
           "pfad": [
             {
@@ -980,7 +1143,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainer/kalender--shareModal.png"
+          "bild": "bilder/trainer/kalender--shareModal.png",
+          "strang": "kalender",
+          "name": "Kader-Info",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kalender+terminModal",
@@ -990,6 +1156,7 @@
             "terminModal"
           ],
           "ueberschrift": "Kalender",
+          "titel": "Termin anlegen",
           "tiefe": 2,
           "pfad": [
             {
@@ -1005,7 +1172,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainer/kalender--terminModal.png"
+          "bild": "bilder/trainer/kalender--terminModal.png",
+          "strang": "kalender",
+          "name": "Termin anlegen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kalender+tkMenu",
@@ -1015,6 +1185,7 @@
             "tkMenu"
           ],
           "ueberschrift": "Kalender",
+          "titel": "TSV Beispielstadt · 4. Okt",
           "tiefe": 2,
           "pfad": [
             {
@@ -1030,7 +1201,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainer/kalender--tkMenu.png"
+          "bild": "bilder/trainer/kalender--tkMenu.png",
+          "strang": "kalender",
+          "name": "Termin-Menü",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "profil",
@@ -1038,6 +1212,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Profil",
+          "titel": "Profil",
           "tiefe": 2,
           "pfad": [
             {
@@ -1053,7 +1228,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainer/profil.png"
+          "bild": "bilder/trainer/profil.png",
+          "strang": "profil",
+          "name": "Profil",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "strafen+zmBl",
@@ -1063,6 +1241,7 @@
             "zmBl"
           ],
           "ueberschrift": "Strafen-Konto",
+          "titel": "Zahlung melden",
           "tiefe": 2,
           "pfad": [
             {
@@ -1078,7 +1257,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainer/strafen--zmBl.png"
+          "bild": "bilder/trainer/strafen--zmBl.png",
+          "strang": "konto",
+          "name": "Zahlung melden",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "trainer/spiel+tvSheetForm",
@@ -1088,6 +1270,7 @@
             "tvSheetForm"
           ],
           "ueberschrift": null,
+          "titel": "Formation wechseln",
           "tiefe": 2,
           "pfad": [
             {
@@ -1103,7 +1286,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainer/trainer__spiel--tvSheetForm.png"
+          "bild": "bilder/trainer/trainer__spiel--tvSheetForm.png",
+          "strang": "trainer",
+          "name": "Formation wechseln",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "trainer/spiel+tvSheetKader",
@@ -1113,6 +1299,7 @@
             "tvSheetKader"
           ],
           "ueberschrift": null,
+          "titel": "Spieler für die Bank",
           "tiefe": 2,
           "pfad": [
             {
@@ -1128,7 +1315,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainer/trainer__spiel--tvSheetKader.png"
+          "bild": "bilder/trainer/trainer__spiel--tvSheetKader.png",
+          "strang": "trainer",
+          "name": "Spieler für die Bank",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "trainer/spiel+tvSheetMenu",
@@ -1138,6 +1328,7 @@
             "tvSheetMenu"
           ],
           "ueberschrift": null,
+          "titel": "Mehr",
           "tiefe": 2,
           "pfad": [
             {
@@ -1153,7 +1344,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainer/trainer__spiel--tvSheetMenu.png"
+          "bild": "bilder/trainer/trainer__spiel--tvSheetMenu.png",
+          "strang": "trainer",
+          "name": "Mehr",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "einstellungen/kalender+calSheet",
@@ -1163,6 +1357,7 @@
             "calSheet"
           ],
           "ueberschrift": "Kalender-Abo",
+          "titel": "Termine abonnieren",
           "tiefe": 3,
           "pfad": [
             {
@@ -1184,7 +1379,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainer/einstellungen__kalender--calSheet.png"
+          "bild": "bilder/trainer/einstellungen__kalender--calSheet.png",
+          "strang": "einstellungen",
+          "name": "Termine abonnieren",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kalender+rsvpSheet+shareModal",
@@ -1195,6 +1393,7 @@
             "shareModal"
           ],
           "ueberschrift": "Kalender",
+          "titel": "Rückmeldungen",
           "tiefe": 3,
           "pfad": [
             {
@@ -1216,7 +1415,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainer/kalender--rsvpSheet--shareModal.png"
+          "bild": "bilder/trainer/kalender--rsvpSheet--shareModal.png",
+          "strang": "kalender",
+          "name": "Rückmeldungen teilen",
+          "nameQuelle": "liste"
         }
       ],
       "kanten": [
@@ -1523,9 +1725,13 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Servus, Felix",
+          "titel": "Servus, Felix",
           "tiefe": 0,
           "pfad": [],
-          "bild": "bilder/kassenwart/dashboard.png"
+          "bild": "bilder/kassenwart/dashboard.png",
+          "strang": "uebersicht",
+          "name": "Übersicht",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "dashboard+zmBl",
@@ -1535,6 +1741,7 @@
             "zmBl"
           ],
           "ueberschrift": "Servus, Felix",
+          "titel": "Zahlung melden",
           "tiefe": 1,
           "pfad": [
             {
@@ -1544,7 +1751,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/kassenwart/dashboard--zmBl.png"
+          "bild": "bilder/kassenwart/dashboard--zmBl.png",
+          "strang": "uebersicht",
+          "name": "Zahlung melden",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "einstellungen",
@@ -1552,6 +1762,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Einstellungen",
+          "titel": "Einstellungen",
           "tiefe": 1,
           "pfad": [
             {
@@ -1561,7 +1772,10 @@
               "global": true
             }
           ],
-          "bild": "bilder/kassenwart/einstellungen.png"
+          "bild": "bilder/kassenwart/einstellungen.png",
+          "strang": "einstellungen",
+          "name": "Einstellungen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kalender",
@@ -1569,6 +1783,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Kalender",
+          "titel": "Kalender",
           "tiefe": 1,
           "pfad": [
             {
@@ -1578,7 +1793,10 @@
               "global": true
             }
           ],
-          "bild": "bilder/kassenwart/kalender.png"
+          "bild": "bilder/kassenwart/kalender.png",
+          "strang": "kalender",
+          "name": "Kalender",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kasse/pruefen",
@@ -1586,6 +1804,7 @@
           "unter": "pruefen",
           "oben": [],
           "ueberschrift": "Kasse",
+          "titel": "Kasse · Zu prüfen 2",
           "tiefe": 1,
           "pfad": [
             {
@@ -1595,7 +1814,10 @@
               "global": true
             }
           ],
-          "bild": "bilder/kassenwart/kasse__pruefen.png"
+          "bild": "bilder/kassenwart/kasse__pruefen.png",
+          "strang": "kasse",
+          "name": "Kasse · Zu prüfen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "katalog",
@@ -1603,6 +1825,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Strafenkatalog",
+          "titel": "Strafenkatalog",
           "tiefe": 1,
           "pfad": [
             {
@@ -1612,7 +1835,10 @@
               "global": true
             }
           ],
-          "bild": "bilder/kassenwart/katalog.png"
+          "bild": "bilder/kassenwart/katalog.png",
+          "strang": "katalog",
+          "name": "Strafenkatalog",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "strafen",
@@ -1620,6 +1846,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Strafen-Konto",
+          "titel": "Strafen-Konto",
           "tiefe": 1,
           "pfad": [
             {
@@ -1629,7 +1856,10 @@
               "global": true
             }
           ],
-          "bild": "bilder/kassenwart/strafen.png"
+          "bild": "bilder/kassenwart/strafen.png",
+          "strang": "konto",
+          "name": "Strafen-Konto",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "diagnose",
@@ -1637,6 +1867,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Diagnose",
+          "titel": "Diagnose",
           "tiefe": 2,
           "pfad": [
             {
@@ -1652,7 +1883,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/kassenwart/diagnose.png"
+          "bild": "bilder/kassenwart/diagnose.png",
+          "strang": "diagnose",
+          "name": "Diagnose",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "dialog:abmelden",
@@ -1679,7 +1913,10 @@
               "global": false
             }
           ],
-          "bild": null
+          "bild": null,
+          "strang": "einstellungen",
+          "name": "Abmelden bestätigen",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "einstellungen/kalender",
@@ -1687,6 +1924,7 @@
           "unter": "kalender",
           "oben": [],
           "ueberschrift": "Kalender-Abo",
+          "titel": "Kalender-Abo",
           "tiefe": 2,
           "pfad": [
             {
@@ -1702,7 +1940,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/kassenwart/einstellungen__kalender.png"
+          "bild": "bilder/kassenwart/einstellungen__kalender.png",
+          "strang": "einstellungen",
+          "name": "Kalender-Abo",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "einstellungen/mitteilungen",
@@ -1710,6 +1951,7 @@
           "unter": "mitteilungen",
           "oben": [],
           "ueberschrift": "Mitteilungen",
+          "titel": "Mitteilungen",
           "tiefe": 2,
           "pfad": [
             {
@@ -1725,7 +1967,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/kassenwart/einstellungen__mitteilungen.png"
+          "bild": "bilder/kassenwart/einstellungen__mitteilungen.png",
+          "strang": "einstellungen",
+          "name": "Mitteilungen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "einstellungen/ruhezeiten",
@@ -1733,6 +1978,7 @@
           "unter": "ruhezeiten",
           "oben": [],
           "ueberschrift": "Ruhezeiten",
+          "titel": "Ruhezeiten",
           "tiefe": 2,
           "pfad": [
             {
@@ -1748,7 +1994,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/kassenwart/einstellungen__ruhezeiten.png"
+          "bild": "bilder/kassenwart/einstellungen__ruhezeiten.png",
+          "strang": "einstellungen",
+          "name": "Ruhezeiten",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kalender+calSheet",
@@ -1758,6 +2007,7 @@
             "calSheet"
           ],
           "ueberschrift": "Kalender",
+          "titel": "Termine abonnieren",
           "tiefe": 2,
           "pfad": [
             {
@@ -1773,7 +2023,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/kassenwart/kalender--calSheet.png"
+          "bild": "bilder/kassenwart/kalender--calSheet.png",
+          "strang": "kalender",
+          "name": "Termine abonnieren",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kasse/bezahlt",
@@ -1781,6 +2034,7 @@
           "unter": "bezahlt",
           "oben": [],
           "ueberschrift": "Kasse",
+          "titel": "Kasse · Eingegangen 2",
           "tiefe": 2,
           "pfad": [
             {
@@ -1796,7 +2050,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/kassenwart/kasse__bezahlt.png"
+          "bild": "bilder/kassenwart/kasse__bezahlt.png",
+          "strang": "kasse",
+          "name": "Kasse · Eingegangen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kasse/offen",
@@ -1804,6 +2061,7 @@
           "unter": "offen",
           "oben": [],
           "ueberschrift": "Kasse",
+          "titel": "Kasse · Offen 4",
           "tiefe": 2,
           "pfad": [
             {
@@ -1819,7 +2077,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/kassenwart/kasse__offen.png"
+          "bild": "bilder/kassenwart/kasse__offen.png",
+          "strang": "kasse",
+          "name": "Kasse · Offen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kasse+ksBl",
@@ -1829,6 +2090,7 @@
             "ksBl"
           ],
           "ueberschrift": "Kasse",
+          "titel": "Strafe",
           "tiefe": 2,
           "pfad": [
             {
@@ -1844,7 +2106,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/kassenwart/kasse--ksBl.png"
+          "bild": "bilder/kassenwart/kasse--ksBl.png",
+          "strang": "kasse",
+          "name": "Strafe",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kasse+ksWahl",
@@ -1854,6 +2119,7 @@
             "ksWahl"
           ],
           "ueberschrift": "Kasse",
+          "titel": "Strafe verhängen",
           "tiefe": 2,
           "pfad": [
             {
@@ -1869,7 +2135,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/kassenwart/kasse--ksWahl.png"
+          "bild": "bilder/kassenwart/kasse--ksWahl.png",
+          "strang": "kasse",
+          "name": "Strafe verhängen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "profil",
@@ -1877,6 +2146,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Profil",
+          "titel": "Profil",
           "tiefe": 2,
           "pfad": [
             {
@@ -1892,7 +2162,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/kassenwart/profil.png"
+          "bild": "bilder/kassenwart/profil.png",
+          "strang": "profil",
+          "name": "Profil",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "strafen+zmBl",
@@ -1902,6 +2175,7 @@
             "zmBl"
           ],
           "ueberschrift": "Strafen-Konto",
+          "titel": "Zahlung melden",
           "tiefe": 2,
           "pfad": [
             {
@@ -1917,7 +2191,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/kassenwart/strafen--zmBl.png"
+          "bild": "bilder/kassenwart/strafen--zmBl.png",
+          "strang": "konto",
+          "name": "Zahlung melden",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "einstellungen/kalender+calSheet",
@@ -1927,6 +2204,7 @@
             "calSheet"
           ],
           "ueberschrift": "Kalender-Abo",
+          "titel": "Termine abonnieren",
           "tiefe": 3,
           "pfad": [
             {
@@ -1948,7 +2226,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/kassenwart/einstellungen__kalender--calSheet.png"
+          "bild": "bilder/kassenwart/einstellungen__kalender--calSheet.png",
+          "strang": "einstellungen",
+          "name": "Termine abonnieren",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kasse+ksSheet",
@@ -1958,6 +2239,7 @@
             "ksSheet"
           ],
           "ueberschrift": "Kasse",
+          "titel": "Spieler auswählen",
           "tiefe": 3,
           "pfad": [
             {
@@ -1979,7 +2261,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/kassenwart/kasse--ksSheet.png"
+          "bild": "bilder/kassenwart/kasse--ksSheet.png",
+          "strang": "kasse",
+          "name": "Spieler auswählen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kasse/strafe-katalog+ksSeite",
@@ -1989,6 +2274,7 @@
             "ksSeite"
           ],
           "ueberschrift": "Kasse",
+          "titel": "Strafe aus Katalog",
           "tiefe": 4,
           "pfad": [
             {
@@ -2016,7 +2302,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/kassenwart/kasse__strafe-katalog--ksSeite.png"
+          "bild": "bilder/kassenwart/kasse__strafe-katalog--ksSeite.png",
+          "strang": "kasse",
+          "name": "Strafe aus Katalog",
+          "nameQuelle": "ueberschrift"
         }
       ],
       "kanten": [
@@ -2338,9 +2627,13 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Servus, Felix",
+          "titel": "Servus, Felix",
           "tiefe": 0,
           "pfad": [],
-          "bild": "bilder/trainerkassenwart/dashboard.png"
+          "bild": "bilder/trainerkassenwart/dashboard.png",
+          "strang": "uebersicht",
+          "name": "Übersicht",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "dashboard+moreSheet",
@@ -2350,6 +2643,7 @@
             "moreSheet"
           ],
           "ueberschrift": "Servus, Felix",
+          "titel": "Mehr",
           "tiefe": 1,
           "pfad": [
             {
@@ -2359,7 +2653,10 @@
               "global": true
             }
           ],
-          "bild": "bilder/trainerkassenwart/dashboard--moreSheet.png"
+          "bild": "bilder/trainerkassenwart/dashboard--moreSheet.png",
+          "strang": "mehr",
+          "name": "Mehr",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "dashboard+rsvpSheet",
@@ -2369,6 +2666,7 @@
             "rsvpSheet"
           ],
           "ueberschrift": "Servus, Felix",
+          "titel": "Rückmeldungen",
           "tiefe": 1,
           "pfad": [
             {
@@ -2378,7 +2676,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/dashboard--rsvpSheet.png"
+          "bild": "bilder/trainerkassenwart/dashboard--rsvpSheet.png",
+          "strang": "uebersicht",
+          "name": "Rückmeldungen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "dashboard+shareModal",
@@ -2388,6 +2689,7 @@
             "shareModal"
           ],
           "ueberschrift": "Servus, Felix",
+          "titel": "Kader-Info · vs. TSV Beispielstadt",
           "tiefe": 1,
           "pfad": [
             {
@@ -2397,7 +2699,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/dashboard--shareModal.png"
+          "bild": "bilder/trainerkassenwart/dashboard--shareModal.png",
+          "strang": "uebersicht",
+          "name": "Kader-Info",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "dashboard+zmBl",
@@ -2407,6 +2712,7 @@
             "zmBl"
           ],
           "ueberschrift": "Servus, Felix",
+          "titel": "Zahlung melden",
           "tiefe": 1,
           "pfad": [
             {
@@ -2416,7 +2722,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/dashboard--zmBl.png"
+          "bild": "bilder/trainerkassenwart/dashboard--zmBl.png",
+          "strang": "uebersicht",
+          "name": "Zahlung melden",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "einstellungen",
@@ -2424,6 +2733,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Einstellungen",
+          "titel": "Einstellungen",
           "tiefe": 1,
           "pfad": [
             {
@@ -2433,7 +2743,10 @@
               "global": true
             }
           ],
-          "bild": "bilder/trainerkassenwart/einstellungen.png"
+          "bild": "bilder/trainerkassenwart/einstellungen.png",
+          "strang": "einstellungen",
+          "name": "Einstellungen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kalender",
@@ -2441,6 +2754,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Kalender",
+          "titel": "Kalender",
           "tiefe": 1,
           "pfad": [
             {
@@ -2450,7 +2764,10 @@
               "global": true
             }
           ],
-          "bild": "bilder/trainerkassenwart/kalender.png"
+          "bild": "bilder/trainerkassenwart/kalender.png",
+          "strang": "kalender",
+          "name": "Kalender",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kasse/pruefen",
@@ -2458,6 +2775,7 @@
           "unter": "pruefen",
           "oben": [],
           "ueberschrift": "Kasse",
+          "titel": "Kasse · Zu prüfen 2",
           "tiefe": 1,
           "pfad": [
             {
@@ -2467,7 +2785,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/kasse__pruefen.png"
+          "bild": "bilder/trainerkassenwart/kasse__pruefen.png",
+          "strang": "kasse",
+          "name": "Kasse · Zu prüfen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "katalog",
@@ -2475,6 +2796,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Strafenkatalog",
+          "titel": "Strafenkatalog",
           "tiefe": 1,
           "pfad": [
             {
@@ -2484,7 +2806,10 @@
               "global": true
             }
           ],
-          "bild": "bilder/trainerkassenwart/katalog.png"
+          "bild": "bilder/trainerkassenwart/katalog.png",
+          "strang": "katalog",
+          "name": "Strafenkatalog",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "strafen",
@@ -2492,6 +2817,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Strafen-Konto",
+          "titel": "Strafen-Konto",
           "tiefe": 1,
           "pfad": [
             {
@@ -2501,7 +2827,10 @@
               "global": true
             }
           ],
-          "bild": "bilder/trainerkassenwart/strafen.png"
+          "bild": "bilder/trainerkassenwart/strafen.png",
+          "strang": "konto",
+          "name": "Strafen-Konto",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "trainer/spiel",
@@ -2509,6 +2838,7 @@
           "unter": "spiel",
           "oben": [],
           "ueberschrift": null,
+          "titel": null,
           "tiefe": 1,
           "pfad": [
             {
@@ -2518,7 +2848,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/trainer__spiel.png"
+          "bild": "bilder/trainerkassenwart/trainer__spiel.png",
+          "strang": "trainer",
+          "name": "Aufstellung",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "dashboard+rsvpSheet+shareModal",
@@ -2529,6 +2862,7 @@
             "shareModal"
           ],
           "ueberschrift": "Servus, Felix",
+          "titel": "Rückmeldungen",
           "tiefe": 2,
           "pfad": [
             {
@@ -2544,7 +2878,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/dashboard--rsvpSheet--shareModal.png"
+          "bild": "bilder/trainerkassenwart/dashboard--rsvpSheet--shareModal.png",
+          "strang": "uebersicht",
+          "name": "Rückmeldungen teilen",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "diagnose",
@@ -2552,6 +2889,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Diagnose",
+          "titel": "Diagnose",
           "tiefe": 2,
           "pfad": [
             {
@@ -2567,7 +2905,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/diagnose.png"
+          "bild": "bilder/trainerkassenwart/diagnose.png",
+          "strang": "diagnose",
+          "name": "Diagnose",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "dialog:abmelden",
@@ -2594,7 +2935,10 @@
               "global": false
             }
           ],
-          "bild": null
+          "bild": null,
+          "strang": "einstellungen",
+          "name": "Abmelden bestätigen",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "einstellungen/kalender",
@@ -2602,6 +2946,7 @@
           "unter": "kalender",
           "oben": [],
           "ueberschrift": "Kalender-Abo",
+          "titel": "Kalender-Abo",
           "tiefe": 2,
           "pfad": [
             {
@@ -2617,7 +2962,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/einstellungen__kalender.png"
+          "bild": "bilder/trainerkassenwart/einstellungen__kalender.png",
+          "strang": "einstellungen",
+          "name": "Kalender-Abo",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "einstellungen/mitteilungen",
@@ -2625,6 +2973,7 @@
           "unter": "mitteilungen",
           "oben": [],
           "ueberschrift": "Mitteilungen",
+          "titel": "Mitteilungen",
           "tiefe": 2,
           "pfad": [
             {
@@ -2640,7 +2989,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/einstellungen__mitteilungen.png"
+          "bild": "bilder/trainerkassenwart/einstellungen__mitteilungen.png",
+          "strang": "einstellungen",
+          "name": "Mitteilungen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "einstellungen/ruhezeiten",
@@ -2648,6 +3000,7 @@
           "unter": "ruhezeiten",
           "oben": [],
           "ueberschrift": "Ruhezeiten",
+          "titel": "Ruhezeiten",
           "tiefe": 2,
           "pfad": [
             {
@@ -2663,7 +3016,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/einstellungen__ruhezeiten.png"
+          "bild": "bilder/trainerkassenwart/einstellungen__ruhezeiten.png",
+          "strang": "einstellungen",
+          "name": "Ruhezeiten",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kader",
@@ -2671,6 +3027,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Kader",
+          "titel": "Kader",
           "tiefe": 2,
           "pfad": [
             {
@@ -2686,7 +3043,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/kader.png"
+          "bild": "bilder/trainerkassenwart/kader.png",
+          "strang": "kader",
+          "name": "Kader",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kalender+calSheet",
@@ -2696,6 +3056,7 @@
             "calSheet"
           ],
           "ueberschrift": "Kalender",
+          "titel": "Termine abonnieren",
           "tiefe": 2,
           "pfad": [
             {
@@ -2711,7 +3072,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/kalender--calSheet.png"
+          "bild": "bilder/trainerkassenwart/kalender--calSheet.png",
+          "strang": "kalender",
+          "name": "Termine abonnieren",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kalender+rsvpSheet",
@@ -2721,6 +3085,7 @@
             "rsvpSheet"
           ],
           "ueberschrift": "Kalender",
+          "titel": "Rückmeldungen",
           "tiefe": 2,
           "pfad": [
             {
@@ -2736,7 +3101,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/kalender--rsvpSheet.png"
+          "bild": "bilder/trainerkassenwart/kalender--rsvpSheet.png",
+          "strang": "kalender",
+          "name": "Rückmeldungen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kalender+shareModal",
@@ -2746,6 +3114,7 @@
             "shareModal"
           ],
           "ueberschrift": "Kalender",
+          "titel": "Kader-Info · vs. TSV Beispielstadt",
           "tiefe": 2,
           "pfad": [
             {
@@ -2761,7 +3130,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/kalender--shareModal.png"
+          "bild": "bilder/trainerkassenwart/kalender--shareModal.png",
+          "strang": "kalender",
+          "name": "Kader-Info",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kalender+terminModal",
@@ -2771,6 +3143,7 @@
             "terminModal"
           ],
           "ueberschrift": "Kalender",
+          "titel": "Termin anlegen",
           "tiefe": 2,
           "pfad": [
             {
@@ -2786,7 +3159,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/kalender--terminModal.png"
+          "bild": "bilder/trainerkassenwart/kalender--terminModal.png",
+          "strang": "kalender",
+          "name": "Termin anlegen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kalender+tkMenu",
@@ -2796,6 +3172,7 @@
             "tkMenu"
           ],
           "ueberschrift": "Kalender",
+          "titel": "TSV Beispielstadt · 4. Okt",
           "tiefe": 2,
           "pfad": [
             {
@@ -2811,7 +3188,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/kalender--tkMenu.png"
+          "bild": "bilder/trainerkassenwart/kalender--tkMenu.png",
+          "strang": "kalender",
+          "name": "Termin-Menü",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "kasse/bezahlt",
@@ -2819,6 +3199,7 @@
           "unter": "bezahlt",
           "oben": [],
           "ueberschrift": "Kasse",
+          "titel": "Kasse · Eingegangen 2",
           "tiefe": 2,
           "pfad": [
             {
@@ -2834,7 +3215,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/kasse__bezahlt.png"
+          "bild": "bilder/trainerkassenwart/kasse__bezahlt.png",
+          "strang": "kasse",
+          "name": "Kasse · Eingegangen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kasse/offen",
@@ -2842,6 +3226,7 @@
           "unter": "offen",
           "oben": [],
           "ueberschrift": "Kasse",
+          "titel": "Kasse · Offen 4",
           "tiefe": 2,
           "pfad": [
             {
@@ -2857,7 +3242,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/kasse__offen.png"
+          "bild": "bilder/trainerkassenwart/kasse__offen.png",
+          "strang": "kasse",
+          "name": "Kasse · Offen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kasse+ksBl",
@@ -2867,6 +3255,7 @@
             "ksBl"
           ],
           "ueberschrift": "Kasse",
+          "titel": "Strafe",
           "tiefe": 2,
           "pfad": [
             {
@@ -2882,7 +3271,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/kasse--ksBl.png"
+          "bild": "bilder/trainerkassenwart/kasse--ksBl.png",
+          "strang": "kasse",
+          "name": "Strafe",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kasse+ksWahl",
@@ -2892,6 +3284,7 @@
             "ksWahl"
           ],
           "ueberschrift": "Kasse",
+          "titel": "Strafe verhängen",
           "tiefe": 2,
           "pfad": [
             {
@@ -2907,7 +3300,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/kasse--ksWahl.png"
+          "bild": "bilder/trainerkassenwart/kasse--ksWahl.png",
+          "strang": "kasse",
+          "name": "Strafe verhängen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "profil",
@@ -2915,6 +3311,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Profil",
+          "titel": "Profil",
           "tiefe": 2,
           "pfad": [
             {
@@ -2930,7 +3327,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/profil.png"
+          "bild": "bilder/trainerkassenwart/profil.png",
+          "strang": "profil",
+          "name": "Profil",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "strafen+zmBl",
@@ -2940,6 +3340,7 @@
             "zmBl"
           ],
           "ueberschrift": "Strafen-Konto",
+          "titel": "Zahlung melden",
           "tiefe": 2,
           "pfad": [
             {
@@ -2955,7 +3356,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/strafen--zmBl.png"
+          "bild": "bilder/trainerkassenwart/strafen--zmBl.png",
+          "strang": "konto",
+          "name": "Zahlung melden",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "trainer",
@@ -2963,6 +3367,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Trainer",
+          "titel": "Trainer",
           "tiefe": 2,
           "pfad": [
             {
@@ -2978,7 +3383,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/trainer.png"
+          "bild": "bilder/trainerkassenwart/trainer.png",
+          "strang": "trainer",
+          "name": "Trainer",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "trainer/spiel+tvSheetForm",
@@ -2988,6 +3396,7 @@
             "tvSheetForm"
           ],
           "ueberschrift": null,
+          "titel": "Formation wechseln",
           "tiefe": 2,
           "pfad": [
             {
@@ -3003,7 +3412,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/trainer__spiel--tvSheetForm.png"
+          "bild": "bilder/trainerkassenwart/trainer__spiel--tvSheetForm.png",
+          "strang": "trainer",
+          "name": "Formation wechseln",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "trainer/spiel+tvSheetKader",
@@ -3013,6 +3425,7 @@
             "tvSheetKader"
           ],
           "ueberschrift": null,
+          "titel": "Spieler für die Bank",
           "tiefe": 2,
           "pfad": [
             {
@@ -3028,7 +3441,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/trainer__spiel--tvSheetKader.png"
+          "bild": "bilder/trainerkassenwart/trainer__spiel--tvSheetKader.png",
+          "strang": "trainer",
+          "name": "Spieler für die Bank",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "trainer/spiel+tvSheetMenu",
@@ -3038,6 +3454,7 @@
             "tvSheetMenu"
           ],
           "ueberschrift": null,
+          "titel": "Mehr",
           "tiefe": 2,
           "pfad": [
             {
@@ -3053,7 +3470,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/trainer__spiel--tvSheetMenu.png"
+          "bild": "bilder/trainerkassenwart/trainer__spiel--tvSheetMenu.png",
+          "strang": "trainer",
+          "name": "Mehr",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "einstellungen/kalender+calSheet",
@@ -3063,6 +3483,7 @@
             "calSheet"
           ],
           "ueberschrift": "Kalender-Abo",
+          "titel": "Termine abonnieren",
           "tiefe": 3,
           "pfad": [
             {
@@ -3084,7 +3505,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/einstellungen__kalender--calSheet.png"
+          "bild": "bilder/trainerkassenwart/einstellungen__kalender--calSheet.png",
+          "strang": "einstellungen",
+          "name": "Termine abonnieren",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kalender+rsvpSheet+shareModal",
@@ -3095,6 +3519,7 @@
             "shareModal"
           ],
           "ueberschrift": "Kalender",
+          "titel": "Rückmeldungen",
           "tiefe": 3,
           "pfad": [
             {
@@ -3116,7 +3541,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/kalender--rsvpSheet--shareModal.png"
+          "bild": "bilder/trainerkassenwart/kalender--rsvpSheet--shareModal.png",
+          "strang": "kalender",
+          "name": "Rückmeldungen teilen",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "kasse+ksSheet",
@@ -3126,6 +3554,7 @@
             "ksSheet"
           ],
           "ueberschrift": "Kasse",
+          "titel": "Spieler auswählen",
           "tiefe": 3,
           "pfad": [
             {
@@ -3147,7 +3576,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/kasse--ksSheet.png"
+          "bild": "bilder/trainerkassenwart/kasse--ksSheet.png",
+          "strang": "kasse",
+          "name": "Spieler auswählen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kasse/strafe-katalog+ksSeite",
@@ -3157,6 +3589,7 @@
             "ksSeite"
           ],
           "ueberschrift": "Kasse",
+          "titel": "Strafe aus Katalog",
           "tiefe": 4,
           "pfad": [
             {
@@ -3184,7 +3617,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/kasse__strafe-katalog--ksSeite.png"
+          "bild": "bilder/trainerkassenwart/kasse__strafe-katalog--ksSeite.png",
+          "strang": "kasse",
+          "name": "Strafe aus Katalog",
+          "nameQuelle": "ueberschrift"
         }
       ],
       "kanten": [
@@ -3671,9 +4107,13 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Servus, Felix",
+          "titel": "Servus, Felix",
           "tiefe": 0,
           "pfad": [],
-          "bild": "bilder/admin/dashboard.png"
+          "bild": "bilder/admin/dashboard.png",
+          "strang": "uebersicht",
+          "name": "Übersicht",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "dashboard+moreSheet",
@@ -3683,6 +4123,7 @@
             "moreSheet"
           ],
           "ueberschrift": "Servus, Felix",
+          "titel": "Mehr",
           "tiefe": 1,
           "pfad": [
             {
@@ -3692,7 +4133,10 @@
               "global": true
             }
           ],
-          "bild": "bilder/admin/dashboard--moreSheet.png"
+          "bild": "bilder/admin/dashboard--moreSheet.png",
+          "strang": "mehr",
+          "name": "Mehr",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "dashboard+rsvpSheet",
@@ -3702,6 +4146,7 @@
             "rsvpSheet"
           ],
           "ueberschrift": "Servus, Felix",
+          "titel": "Rückmeldungen",
           "tiefe": 1,
           "pfad": [
             {
@@ -3711,7 +4156,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/dashboard--rsvpSheet.png"
+          "bild": "bilder/admin/dashboard--rsvpSheet.png",
+          "strang": "uebersicht",
+          "name": "Rückmeldungen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "dashboard+shareModal",
@@ -3721,6 +4169,7 @@
             "shareModal"
           ],
           "ueberschrift": "Servus, Felix",
+          "titel": "Kader-Info · vs. TSV Beispielstadt",
           "tiefe": 1,
           "pfad": [
             {
@@ -3730,7 +4179,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/dashboard--shareModal.png"
+          "bild": "bilder/admin/dashboard--shareModal.png",
+          "strang": "uebersicht",
+          "name": "Kader-Info",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "dashboard+zmBl",
@@ -3740,6 +4192,7 @@
             "zmBl"
           ],
           "ueberschrift": "Servus, Felix",
+          "titel": "Zahlung melden",
           "tiefe": 1,
           "pfad": [
             {
@@ -3749,7 +4202,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/dashboard--zmBl.png"
+          "bild": "bilder/admin/dashboard--zmBl.png",
+          "strang": "uebersicht",
+          "name": "Zahlung melden",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "einstellungen",
@@ -3757,6 +4213,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Einstellungen",
+          "titel": "Einstellungen",
           "tiefe": 1,
           "pfad": [
             {
@@ -3766,7 +4223,10 @@
               "global": true
             }
           ],
-          "bild": "bilder/admin/einstellungen.png"
+          "bild": "bilder/admin/einstellungen.png",
+          "strang": "einstellungen",
+          "name": "Einstellungen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kalender",
@@ -3774,6 +4234,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Kalender",
+          "titel": "Kalender",
           "tiefe": 1,
           "pfad": [
             {
@@ -3783,7 +4244,10 @@
               "global": true
             }
           ],
-          "bild": "bilder/admin/kalender.png"
+          "bild": "bilder/admin/kalender.png",
+          "strang": "kalender",
+          "name": "Kalender",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kasse/pruefen",
@@ -3791,6 +4255,7 @@
           "unter": "pruefen",
           "oben": [],
           "ueberschrift": "Kasse",
+          "titel": "Kasse · Zu prüfen 2",
           "tiefe": 1,
           "pfad": [
             {
@@ -3800,7 +4265,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/kasse__pruefen.png"
+          "bild": "bilder/admin/kasse__pruefen.png",
+          "strang": "kasse",
+          "name": "Kasse · Zu prüfen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "katalog",
@@ -3808,6 +4276,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Strafenkatalog",
+          "titel": "Strafenkatalog",
           "tiefe": 1,
           "pfad": [
             {
@@ -3817,7 +4286,10 @@
               "global": true
             }
           ],
-          "bild": "bilder/admin/katalog.png"
+          "bild": "bilder/admin/katalog.png",
+          "strang": "katalog",
+          "name": "Strafenkatalog",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "strafen",
@@ -3825,6 +4297,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Strafen-Konto",
+          "titel": "Strafen-Konto",
           "tiefe": 1,
           "pfad": [
             {
@@ -3834,7 +4307,10 @@
               "global": true
             }
           ],
-          "bild": "bilder/admin/strafen.png"
+          "bild": "bilder/admin/strafen.png",
+          "strang": "konto",
+          "name": "Strafen-Konto",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "trainer/spiel",
@@ -3842,6 +4318,7 @@
           "unter": "spiel",
           "oben": [],
           "ueberschrift": null,
+          "titel": null,
           "tiefe": 1,
           "pfad": [
             {
@@ -3851,7 +4328,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/trainer__spiel.png"
+          "bild": "bilder/admin/trainer__spiel.png",
+          "strang": "trainer",
+          "name": "Aufstellung",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "dashboard+rsvpSheet+shareModal",
@@ -3862,6 +4342,7 @@
             "shareModal"
           ],
           "ueberschrift": "Servus, Felix",
+          "titel": "Rückmeldungen",
           "tiefe": 2,
           "pfad": [
             {
@@ -3877,7 +4358,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/dashboard--rsvpSheet--shareModal.png"
+          "bild": "bilder/admin/dashboard--rsvpSheet--shareModal.png",
+          "strang": "uebersicht",
+          "name": "Rückmeldungen teilen",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "diagnose",
@@ -3885,6 +4369,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Diagnose",
+          "titel": "Diagnose",
           "tiefe": 2,
           "pfad": [
             {
@@ -3900,7 +4385,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/diagnose.png"
+          "bild": "bilder/admin/diagnose.png",
+          "strang": "diagnose",
+          "name": "Diagnose",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "dialog:abmelden",
@@ -3927,7 +4415,10 @@
               "global": false
             }
           ],
-          "bild": null
+          "bild": null,
+          "strang": "einstellungen",
+          "name": "Abmelden bestätigen",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "einstellungen/bfv",
@@ -3935,6 +4426,7 @@
           "unter": "bfv",
           "oben": [],
           "ueberschrift": "Spielplan (BFV)",
+          "titel": "Spielplan (BFV)",
           "tiefe": 2,
           "pfad": [
             {
@@ -3950,7 +4442,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/einstellungen__bfv.png"
+          "bild": "bilder/admin/einstellungen__bfv.png",
+          "strang": "einstellungen",
+          "name": "Spielplan (BFV)",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "einstellungen/kalender",
@@ -3958,6 +4453,7 @@
           "unter": "kalender",
           "oben": [],
           "ueberschrift": "Kalender-Abo",
+          "titel": "Kalender-Abo",
           "tiefe": 2,
           "pfad": [
             {
@@ -3973,7 +4469,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/einstellungen__kalender.png"
+          "bild": "bilder/admin/einstellungen__kalender.png",
+          "strang": "einstellungen",
+          "name": "Kalender-Abo",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "einstellungen/mitteilungen",
@@ -3981,6 +4480,7 @@
           "unter": "mitteilungen",
           "oben": [],
           "ueberschrift": "Mitteilungen",
+          "titel": "Mitteilungen",
           "tiefe": 2,
           "pfad": [
             {
@@ -3996,7 +4496,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/einstellungen__mitteilungen.png"
+          "bild": "bilder/admin/einstellungen__mitteilungen.png",
+          "strang": "einstellungen",
+          "name": "Mitteilungen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "einstellungen/ruhezeiten",
@@ -4004,6 +4507,7 @@
           "unter": "ruhezeiten",
           "oben": [],
           "ueberschrift": "Ruhezeiten",
+          "titel": "Ruhezeiten",
           "tiefe": 2,
           "pfad": [
             {
@@ -4019,7 +4523,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/einstellungen__ruhezeiten.png"
+          "bild": "bilder/admin/einstellungen__ruhezeiten.png",
+          "strang": "einstellungen",
+          "name": "Ruhezeiten",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kader",
@@ -4027,6 +4534,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Kader",
+          "titel": "Kader",
           "tiefe": 2,
           "pfad": [
             {
@@ -4042,7 +4550,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/kader.png"
+          "bild": "bilder/admin/kader.png",
+          "strang": "kader",
+          "name": "Kader",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kalender+calSheet",
@@ -4052,6 +4563,7 @@
             "calSheet"
           ],
           "ueberschrift": "Kalender",
+          "titel": "Termine abonnieren",
           "tiefe": 2,
           "pfad": [
             {
@@ -4067,7 +4579,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/kalender--calSheet.png"
+          "bild": "bilder/admin/kalender--calSheet.png",
+          "strang": "kalender",
+          "name": "Termine abonnieren",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kalender+rsvpSheet",
@@ -4077,6 +4592,7 @@
             "rsvpSheet"
           ],
           "ueberschrift": "Kalender",
+          "titel": "Rückmeldungen",
           "tiefe": 2,
           "pfad": [
             {
@@ -4092,7 +4608,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/kalender--rsvpSheet.png"
+          "bild": "bilder/admin/kalender--rsvpSheet.png",
+          "strang": "kalender",
+          "name": "Rückmeldungen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kalender+shareModal",
@@ -4102,6 +4621,7 @@
             "shareModal"
           ],
           "ueberschrift": "Kalender",
+          "titel": "Kader-Info · vs. TSV Beispielstadt",
           "tiefe": 2,
           "pfad": [
             {
@@ -4117,7 +4637,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/kalender--shareModal.png"
+          "bild": "bilder/admin/kalender--shareModal.png",
+          "strang": "kalender",
+          "name": "Kader-Info",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kalender+terminModal",
@@ -4127,6 +4650,7 @@
             "terminModal"
           ],
           "ueberschrift": "Kalender",
+          "titel": "Termin anlegen",
           "tiefe": 2,
           "pfad": [
             {
@@ -4142,7 +4666,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/kalender--terminModal.png"
+          "bild": "bilder/admin/kalender--terminModal.png",
+          "strang": "kalender",
+          "name": "Termin anlegen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kalender+tkMenu",
@@ -4152,6 +4679,7 @@
             "tkMenu"
           ],
           "ueberschrift": "Kalender",
+          "titel": "TSV Beispielstadt · 4. Okt",
           "tiefe": 2,
           "pfad": [
             {
@@ -4167,7 +4695,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/kalender--tkMenu.png"
+          "bild": "bilder/admin/kalender--tkMenu.png",
+          "strang": "kalender",
+          "name": "Termin-Menü",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "kasse/bezahlt",
@@ -4175,6 +4706,7 @@
           "unter": "bezahlt",
           "oben": [],
           "ueberschrift": "Kasse",
+          "titel": "Kasse · Eingegangen 2",
           "tiefe": 2,
           "pfad": [
             {
@@ -4190,7 +4722,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/kasse__bezahlt.png"
+          "bild": "bilder/admin/kasse__bezahlt.png",
+          "strang": "kasse",
+          "name": "Kasse · Eingegangen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kasse/offen",
@@ -4198,6 +4733,7 @@
           "unter": "offen",
           "oben": [],
           "ueberschrift": "Kasse",
+          "titel": "Kasse · Offen 4",
           "tiefe": 2,
           "pfad": [
             {
@@ -4213,7 +4749,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/kasse__offen.png"
+          "bild": "bilder/admin/kasse__offen.png",
+          "strang": "kasse",
+          "name": "Kasse · Offen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kasse+ksBl",
@@ -4223,6 +4762,7 @@
             "ksBl"
           ],
           "ueberschrift": "Kasse",
+          "titel": "Strafe",
           "tiefe": 2,
           "pfad": [
             {
@@ -4238,7 +4778,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/kasse--ksBl.png"
+          "bild": "bilder/admin/kasse--ksBl.png",
+          "strang": "kasse",
+          "name": "Strafe",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kasse+ksWahl",
@@ -4248,6 +4791,7 @@
             "ksWahl"
           ],
           "ueberschrift": "Kasse",
+          "titel": "Strafe verhängen",
           "tiefe": 2,
           "pfad": [
             {
@@ -4263,7 +4807,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/kasse--ksWahl.png"
+          "bild": "bilder/admin/kasse--ksWahl.png",
+          "strang": "kasse",
+          "name": "Strafe verhängen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "profil",
@@ -4271,6 +4818,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Profil",
+          "titel": "Profil",
           "tiefe": 2,
           "pfad": [
             {
@@ -4286,7 +4834,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/profil.png"
+          "bild": "bilder/admin/profil.png",
+          "strang": "profil",
+          "name": "Profil",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "push-nachrichten",
@@ -4294,6 +4845,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Push-Nachrichten",
+          "titel": "Push-Nachrichten",
           "tiefe": 2,
           "pfad": [
             {
@@ -4309,7 +4861,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/push-nachrichten.png"
+          "bild": "bilder/admin/push-nachrichten.png",
+          "strang": "push-nachrichten",
+          "name": "Push-Nachrichten",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "rollen-verwalten",
@@ -4317,6 +4872,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Rollen verwalten",
+          "titel": "Rollen verwalten",
           "tiefe": 2,
           "pfad": [
             {
@@ -4332,7 +4888,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/rollen-verwalten.png"
+          "bild": "bilder/admin/rollen-verwalten.png",
+          "strang": "rollen-verwalten",
+          "name": "Rollen verwalten",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "strafen+zmBl",
@@ -4342,6 +4901,7 @@
             "zmBl"
           ],
           "ueberschrift": "Strafen-Konto",
+          "titel": "Zahlung melden",
           "tiefe": 2,
           "pfad": [
             {
@@ -4357,7 +4917,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/strafen--zmBl.png"
+          "bild": "bilder/admin/strafen--zmBl.png",
+          "strang": "konto",
+          "name": "Zahlung melden",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "trainer",
@@ -4365,6 +4928,7 @@
           "unter": null,
           "oben": [],
           "ueberschrift": "Trainer",
+          "titel": "Trainer",
           "tiefe": 2,
           "pfad": [
             {
@@ -4380,7 +4944,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/trainer.png"
+          "bild": "bilder/admin/trainer.png",
+          "strang": "trainer",
+          "name": "Trainer",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "trainer/spiel+tvSheetForm",
@@ -4390,6 +4957,7 @@
             "tvSheetForm"
           ],
           "ueberschrift": null,
+          "titel": "Formation wechseln",
           "tiefe": 2,
           "pfad": [
             {
@@ -4405,7 +4973,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/trainer__spiel--tvSheetForm.png"
+          "bild": "bilder/admin/trainer__spiel--tvSheetForm.png",
+          "strang": "trainer",
+          "name": "Formation wechseln",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "trainer/spiel+tvSheetKader",
@@ -4415,6 +4986,7 @@
             "tvSheetKader"
           ],
           "ueberschrift": null,
+          "titel": "Spieler für die Bank",
           "tiefe": 2,
           "pfad": [
             {
@@ -4430,7 +5002,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/trainer__spiel--tvSheetKader.png"
+          "bild": "bilder/admin/trainer__spiel--tvSheetKader.png",
+          "strang": "trainer",
+          "name": "Spieler für die Bank",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "trainer/spiel+tvSheetMenu",
@@ -4440,6 +5015,7 @@
             "tvSheetMenu"
           ],
           "ueberschrift": null,
+          "titel": "Mehr",
           "tiefe": 2,
           "pfad": [
             {
@@ -4455,7 +5031,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/trainer__spiel--tvSheetMenu.png"
+          "bild": "bilder/admin/trainer__spiel--tvSheetMenu.png",
+          "strang": "trainer",
+          "name": "Mehr",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "einstellungen/kalender+calSheet",
@@ -4465,6 +5044,7 @@
             "calSheet"
           ],
           "ueberschrift": "Kalender-Abo",
+          "titel": "Termine abonnieren",
           "tiefe": 3,
           "pfad": [
             {
@@ -4486,7 +5066,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/einstellungen__kalender--calSheet.png"
+          "bild": "bilder/admin/einstellungen__kalender--calSheet.png",
+          "strang": "einstellungen",
+          "name": "Termine abonnieren",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kalender+rsvpSheet+shareModal",
@@ -4497,6 +5080,7 @@
             "shareModal"
           ],
           "ueberschrift": "Kalender",
+          "titel": "Rückmeldungen",
           "tiefe": 3,
           "pfad": [
             {
@@ -4518,7 +5102,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/kalender--rsvpSheet--shareModal.png"
+          "bild": "bilder/admin/kalender--rsvpSheet--shareModal.png",
+          "strang": "kalender",
+          "name": "Rückmeldungen teilen",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "kasse+ksSheet",
@@ -4528,6 +5115,7 @@
             "ksSheet"
           ],
           "ueberschrift": "Kasse",
+          "titel": "Spieler auswählen",
           "tiefe": 3,
           "pfad": [
             {
@@ -4549,7 +5137,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/kasse--ksSheet.png"
+          "bild": "bilder/admin/kasse--ksSheet.png",
+          "strang": "kasse",
+          "name": "Spieler auswählen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "kasse/strafe-katalog+ksSeite",
@@ -4559,6 +5150,7 @@
             "ksSeite"
           ],
           "ueberschrift": "Kasse",
+          "titel": "Strafe aus Katalog",
           "tiefe": 4,
           "pfad": [
             {
@@ -4586,7 +5178,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/kasse__strafe-katalog--ksSeite.png"
+          "bild": "bilder/admin/kasse__strafe-katalog--ksSeite.png",
+          "strang": "kasse",
+          "name": "Strafe aus Katalog",
+          "nameQuelle": "ueberschrift"
         }
       ],
       "kanten": [
