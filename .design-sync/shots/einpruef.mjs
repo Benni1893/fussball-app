@@ -307,6 +307,52 @@ console.log('--- Einstellungen v2: Mitteilungen (E4) ---');
   }
 }
 
+/* ===== 10. Paket Einstellungen v2, E5: Ruhezeiten nach einst2.png ======== */
+console.log('--- Einstellungen v2: Ruhezeiten (E5) ---');
+{
+  const appQ = fs.readFileSync('app.js', 'utf8');
+  const cssQ = fs.readFileSync('styles.css', 'utf8');
+  const ohneKommentar = appQ.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:"'`\\])\/\/[^\n]*/g, '$1');
+
+  // Aufbau: drei Karten, Zeitzeilen mit Pille ueber dem nativen Feld
+  pruefe(appQ.includes('pnZeitZeileHtml("Von", "data-pn-von", von, aus)') && appQ.includes('pnZeitZeileHtml("Bis", "data-pn-bis", bis, aus)'),
+    'Von und Bis als Zeitzeilen mit data-pn-von / data-pn-bis');
+  pruefe(appQ.includes(`'<input class="ein-zeit" type="time" ' + attr`), 'natives Zeitfeld (type="time") bleibt');
+  pruefe(appQ.includes(`'<span class="ein-zeit-wert" aria-hidden="true">' + esc(wert) + '</span>'`), 'Pille zeigt den gespeicherten Wert (24 Stunden)');
+  pruefe(appQ.includes('einSchalterZeileHtml({ titel: "Nachts nicht stören"') && appQ.includes('einSchalterZeileHtml({ titel: "Dringendes trotzdem zustellen"'),
+    'Nachts nicht stören und Dringendes als Schalterkarten');
+  pruefe(appQ.includes(`return '<div class="ein-ruhezeiten" data-push-karte>' + inhalt + '</div>';`), 'Ruhezeiten ohne Rahmen um alles');
+  pruefe(/viewEl\.addEventListener\("change"[\s\S]{0,200}data-pn-von"\)\) pnSetzen\(\{ quiet_from/.test(appQ), 'Speichern über den bestehenden change-Weg');
+
+  // Stil: Trefferflaeche und Pille
+  const regel = (sel) => { const i = cssQ.indexOf(sel + ' {'); return i < 0 ? '' : cssQ.slice(i, cssQ.indexOf('}', i)); };
+  const feld = regel('.ein-zeit');
+  pruefe(/height: 44px/.test(feld) && /opacity: 0/.test(feld) && /font-size: 16px/.test(feld), 'Zeitfeld 44 px hoch, unsichtbar, 16 px (kein Zoom unter iOS)');
+  const pille = regel('.ein-zeit-pille');
+  pruefe(/width: 70px; height: 36px/.test(pille) && /background: var\(--surface-6\)/.test(pille) && /font-size: 16px; font-weight: 700/.test(pille),
+    'Pille 70 x 36, --surface-6, 16/700 (Vorlage)');
+
+  // pn-* ist entfernt
+  pruefe(!/class="pn-|"pn-[a-z]+[ "]/.test(ohneKommentar), 'app.js erzeugt keine pn-*-Klassen mehr');
+  pruefe(!/\.pn-[a-z]/.test(cssQ), 'styles.css hat keine pn-*-Regeln mehr');
+
+  // Umlaute statt Ersatzschreibung in sichtbaren Texten
+  pruefe(appQ.includes('Ruhezeiten gelten für Benachrichtigungen. ') && appQ.includes('Die sind auf diesem Gerät noch nicht eingerichtet.'),
+    'Hinweis-Zustand mit Umlauten');
+  // Nur einzeilige Zeichenketten mit Leerzeichen (Saetze), Zeile fuer Zeile -
+  // Template-Strings ueber mehrere Zeilen wuerden Code mitfassen. Interne
+  // Schluessel wie "pruefen" oder "ueberweisung" stehen ohne Leerzeichen.
+  const zeichenketten = ohneKommentar.split('\n')
+    .flatMap((z) => z.match(/'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"/g) || [])
+    .filter((t) => /\s/.test(t));
+  const ersatz = zeichenketten.filter((t) => /\b(fuer|Fuer|ueber|Ueber|Geraet|geraet|koennen|duerfen|muessen|waehlen|loeschen|geloescht|geaendert)\b/.test(t));
+  pruefe(ersatz.length === 0, 'keine ASCII-Ersatzschreibung in sichtbaren Texten von app.js', ersatz.slice(0, 3).join(' | ') || undefined);
+
+  const pf = '.design-sync/reference/soll/07_einstellungen-v2_5-ruhezeiten.png';
+  const b = fs.existsSync(pf) ? fs.readFileSync(pf) : null;
+  pruefe(!!b && b.readUInt32BE(16) === 390 && b.readUInt32BE(20) === 844, 'Soll-Ausschnitt 5-ruhezeiten (390 x 844)');
+}
+
 console.log('');
 console.log(fehler ? '--- ' + fehler + ' Beanstandung(en), ' + gut + ' ok ---'
                    : '--- bestanden (' + gut + ' Pruefungen) ---');

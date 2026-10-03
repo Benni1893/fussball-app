@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-04-C";
+  var APP_BUILD = "2026-10-04-D";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -1672,7 +1672,7 @@
   /* Eine Schalterzeile in einer Karte: Kachel, Titel, Unterzeile, Schalter
      (Vorlage einst2.png, Panel 3 und 4). Auch fuer "Push auf diesem Geraet". */
   function einSchalterZeileHtml(o) {
-    return '<div class="ein-schalter">' +
+    return '<div class="ein-schalter' + (o.ic ? "" : " ohne-ic") + '">' +
       (o.ic ? '<span class="ein-ic ' + esc(o.ton || "gruen") + '" aria-hidden="true">' + einIcon(o.ic) + '</span>' : "") +
       '<span class="ein-schalter-main"><span class="ein-schalter-t">' + esc(o.titel) + '</span>' +
       (o.sub ? '<span class="ein-schalter-s">' + esc(o.sub) + '</span>' : "") + '</span>' +
@@ -1722,30 +1722,39 @@
     const von = (p.quiet_from || "22:00").slice(0, 5);
     const bis = (p.quiet_to   || "08:00").slice(0, 5);
     const an  = von !== bis;
-    return '<div class="pn-gruppe">' +
-      '<div class="pn-kopf"><span class="pn-kopf-t">Ruhezeiten</span>' +
-        '<span class="pn-kopf-alle">' +
-        pnSchalterHtml('data-pn-ruhe aria-label="Nachts nicht stören"', an ? "true" : "false", aus) +
-        '</span></div>' +
-      '<div class="pn-liste' + (aus ? " is-aus" : "") + '">' +
-        '<div class="pn-zeile"><span class="pn-main">' +
-          '<span class="pn-t">Nachts nicht stören</span>' +
-          '<span class="pn-s">In diesem Zeitraum kommt nichts an. Was liegen bleibt, wird danach zugestellt.</span>' +
-        '</span></div>' +
+    const istAus = aus ? " is-aus" : "";
+    // Vorlage einst2.png, Panel 5: drei Karten, Hinweise darunter.
+    return '<div class="ein-gruppe ein-gruppe-schalter ein-gruppe-erste' + istAus + '">' +
+        einSchalterZeileHtml({ titel: "Nachts nicht stören",
+          schalter: pnSchalterHtml('data-pn-ruhe aria-label="Nachts nicht stören"', an ? "true" : "false", aus) }) +
       '</div>' +
-      (an ? '<div class="pn-zeiten">' +
-        '<label>Von <input class="pn-zeit" type="time" data-pn-von value="' + esc(von) + '"' + (aus ? " disabled" : "") + '></label>' +
-        '<label>Bis <input class="pn-zeit" type="time" data-pn-bis value="' + esc(bis) + '"' + (aus ? " disabled" : "") + '></label>' +
+      '<p class="ein-hinweis">In diesem Zeitraum kommt nichts an. Was liegen bleibt, wird danach zugestellt.</p>' +
+      (an ? '<div class="ein-gruppe ein-gruppe-zeiten' + istAus + '">' +
+          pnZeitZeileHtml("Von", "data-pn-von", von, aus) +
+          pnZeitZeileHtml("Bis", "data-pn-bis", bis, aus) +
         '</div>' +
-        '<div class="pn-liste' + (aus ? " is-aus" : "") + '" style="margin-top:8px">' +
-          '<div class="pn-zeile">' +
-            '<span class="pn-main"><span class="pn-t">Dringendes trotzdem zustellen</span>' +
-            '<span class="pn-s">Kurzfristige Absagen, zu wenig Zusagen, Terminausfall, Terminänderung und die Erinnerung an die Rückmeldung.</span></span>' +
-            pnSchalterHtml('data-pn-dringend aria-label="Dringendes trotzdem zustellen"',
-              (pushPrefs && pushPrefs.quiet_override_urgent) ? "true" : "false", aus) +
-          '</div>' +
-        '</div>' : "") +
-      '</div>';
+        '<div class="ein-gruppe ein-gruppe-schalter' + istAus + '">' +
+          einSchalterZeileHtml({ titel: "Dringendes trotzdem zustellen",
+            schalter: pnSchalterHtml('data-pn-dringend aria-label="Dringendes trotzdem zustellen"',
+              (pushPrefs && pushPrefs.quiet_override_urgent) ? "true" : "false", aus) }) +
+        '</div>' +
+        '<p class="ein-hinweis">Kurzfristige Absagen, zu wenig Zusagen, Terminausfall, Terminänderung ' +
+          'und die Erinnerung an die Rückmeldung.</p>' : "");
+  }
+
+  /* Zeile mit Zeit-Pille. Die Pille zeigt den gespeicherten Wert selbst an,
+     immer 24 Stunden ("22:00"). Darueber liegt das native Zeitfeld,
+     unsichtbar und 44 px hoch: Tippen oeffnet die Auswahl des Systems, und
+     ein "10:00 PM" auf einem englisch eingestellten iPhone kann die Pille
+     nicht sprengen. 16 px Schrift, sonst zoomt iOS beim Fokus. */
+  function pnZeitZeileHtml(titel, attr, wert, aus) {
+    return '<label class="ein-zeitzeile">' +
+      '<span class="ein-zeitzeile-t">' + esc(titel) + '</span>' +
+      '<span class="ein-zeit-pille">' +
+        '<span class="ein-zeit-wert" aria-hidden="true">' + esc(wert) + '</span>' +
+        '<input class="ein-zeit" type="time" ' + attr + ' value="' + esc(wert) + '"' +
+          ' aria-label="Ruhezeit ' + esc(titel.toLowerCase()) + '"' + (aus ? " disabled" : "") + '>' +
+      '</span></label>';
   }
 
   function pnAdminHtml() {
@@ -1765,7 +1774,7 @@
     // Die Ruhezeiten haben seit dem neuen Aufbau eine eigene Unterseite. Der
     // Vorgabewert "alles" haelt den Baustein fuer jeden anderen Aufrufer heil.
     teil = teil || "alles";
-    if (teil === "ruhezeiten") return '<div class="pn-block">' + pnRuhezeitHtml(aus) + '</div>';
+    if (teil === "ruhezeiten") return pnRuhezeitHtml(aus);
     // Mitteilungen (Vorlage einst2.png, Panel 3 und 4): einzelne Karten auf
     // dem Grund, Hinweise darunter, kein Rahmen um alles.
     return '<div class="ein-gruppe ein-gruppe-schalter ein-gruppe-erste">' +
@@ -1813,8 +1822,8 @@
        Steht das noch aus, hat die Unterseite nichts zu schalten und sagt
        stattdessen, was zuerst zu tun ist. */
     if (teil === "ruhezeiten" && z !== "bereit" && z !== "aktiv") {
-      return '<div class="card card-pad"><p class="set-hint">Ruhezeiten gelten fuer Benachrichtigungen. ' +
-        'Die sind auf diesem Geraet noch nicht eingerichtet.</p>' +
+      return '<div class="card card-pad"><p class="set-hint">Ruhezeiten gelten für Benachrichtigungen. ' +
+        'Die sind auf diesem Gerät noch nicht eingerichtet.</p>' +
         '<button class="btn" data-ein="mitteilungen" type="button">Zu den Mitteilungen</button></div>';
     }
 
@@ -1861,10 +1870,13 @@
     }
 
     // Mitteilungen mit Schaltern (aktiv, bereit): Karten direkt auf dem Grund,
-    // wie in der Vorlage. Die Hinweis-Zustaende und die Ruhezeiten (bis E5)
-    // behalten ihre Karte.
+    // wie in der Vorlage. Die Hinweis-Zustaende behalten ihre Karte.
     if (teil === "mitteilungen" && (z === "aktiv" || z === "bereit") && pushPrefs) {
       return '<div class="ein-mitteilungen" data-push-karte>' + inhalt + '</div>';
+    }
+    // Ruhezeiten (Vorlage einst2.png, Panel 5): ebenso Karten auf dem Grund.
+    if (teil === "ruhezeiten" && (z === "aktiv" || z === "bereit") && pushPrefs) {
+      return '<div class="ein-ruhezeiten" data-push-karte>' + inhalt + '</div>';
     }
     return '<div class="set-section">' + kopf +
       '<div class="card card-pad" data-push-karte>' + inhalt + '</div></div>';

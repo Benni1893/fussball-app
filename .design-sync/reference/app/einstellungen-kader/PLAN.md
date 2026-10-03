@@ -45,6 +45,7 @@ sind überholt: die Bilder liegen inzwischen in diesem Ordner, und
    Entscheidungen in `.design-sync/reference/app/einstellungen-v2/PHASE0.md`). Reihenfolge dort:
    E1 Rechte serverseitig (fertig), E2 UI-Rechte, E3 bis E10 je Unterseite (E7 = F9), P1
    Erinnerungs-Push im Rückmeldungen-Blatt, F14 Design-System-Karten.
+   - **Migration 0043 (mit P1) enthält außerdem die Datenbanktexte** (Entscheidung 04.10.2026, keine eigene Migration): Beschreibung „Neue Strafe“ ohne Gedankenstrich („Eine Strafe wird verhängt - von Hand …“), A10 („Höchstens einmal im Monat. Standard AUS.“) und die übrigen Text-Abweichungen A1 bis A11 aus PHASE0.md, sobald der Nutzer sie entschieden hat. Dazu die Fehlermeldungen mit ASCII-Ersatzschreibung aus dem Bereich Einstellungen (send_test_notification, send_preview_notification, set_notification_template, render_vorlage, upsert_push_subscription, set_ical_url, notify_enqueue; Liste in PHASE0.md).
 4. Paket **„Automatische Mitteilungen“**, direkt nach dem Einstellungs-Paket, vor Kader.
    Trigger und Cron-Jobs, die neue Strafe, Zahlung bestätigt/abgelehnt/gemeldet, Erinnerung
    24 h und 2 h vor Meldeschluss, kurzfristige Absage, zu wenig Zusagen, Übersicht nach
@@ -74,6 +75,7 @@ sind überholt: die Bilder liegen inzwischen in diesem Ordner, und
 - **Globale Entscheidung offen (04.10.2026, aus E3): Kartenschatten app-weit an die Vorlage angleichen, ja/nein.** Die Vorlagen von Claude Design zeigen einen weicheren, längeren Schatten (Auslauf rund 21 px) als `--shadow` (rund 12 px). Nicht für die Einstellungen allein angleichen. Zur Entscheidung vorbereiten: Vorher/Nachher-Ausschnitte von zwei, drei Ansichten (z. B. Einstellungen, Übersicht, Kasse) mit dem heutigen und dem angeglichenen Schatten. Seitenhintergrund (`--bg-1`) und iPhone-Rahmen der Vorlage bleiben wie besprochen.
 - Übersichtskachel `data-nav="kasse"` führt auf Konto mit Filter „offen“, nicht auf die Kasse (`app.js` Handler bei 6206). Klären, ob gewollt.
 - Toter Code: `luPanel`/`luMore` und die alte Aufstellung, seit `LINEUP_V2 = true` unerreichbar (`app.js` um 3433-3451, `confirm` bei 3324, `prompt` bei 3294).
+- Fehlermeldungen mit ASCII-Ersatzschreibung außerhalb der Einstellungen (04.10.2026, aus E5): `create_fines_batch` „Keine Strafen uebergeben.“, `report_my_payment` „Bitte eine gueltige Zahlart angeben.“, `set_lineup_active` „Vorlagen koennen nicht aktiv gesetzt werden.“ Braucht eine Migration; Liste in `einstellungen-v2/PHASE0.md`.
 - Vier verwaiste Handler ohne erzeugendes Element: `data-remind`, `data-toggle-paid`, `data-del-fine`, `data-paypal` (Selektor bei `app.js` 5809).
 - 5. Tab bei Trainer+Kassenwart (ohne Admin): Beschriftung „Trainer“ mit Platz-Symbol, öffnet aber das Mehr-Menü statt der Aufstellung (`setupPrimaryNavTab`, `app.js` 6931-6939: Beschriftung nach höchster Rolle, Ziel nach Anzahl der Spezialbereiche). Klären, ob „Mehr“ gemeint ist. Der Rauchtest `landkartenrauch.mjs` prüft das tatsächliche Verhalten. Nachgetragen am 02.10.2026.
 

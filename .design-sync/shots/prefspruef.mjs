@@ -133,7 +133,7 @@ console.log('--- .sw ---');
     'Trefferfläche 44 über ::after');
   pruefe(/\.sw\[aria-checked="mixed"\]/.test(css), 'gemischt ist gestaltet');
   pruefe(/\.sw\[disabled\]/.test(css), 'ausgegraut ist gestaltet');
-  pruefe(!/#[0-9a-fA-F]{6}/.test(css.slice(css.indexOf('.sw {'), css.indexOf('.pn-gruppe + .pn-gruppe'))
+  pruefe(!/#[0-9a-fA-F]{6}/.test(css.slice(css.indexOf('.sw {'), css.indexOf('/* Die Kategorien und Ruhezeiten stehen seit Einstellungen v2'))
     .replace(/background: #fff;/g, '')), 'keine neuen Farben im Schalter (ausser Weiss)');
 }
 

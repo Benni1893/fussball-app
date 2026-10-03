@@ -163,7 +163,7 @@ const PANELS = {
   // Mitteilungen nicht zeigt. Links zum Vergleich Panel 8 (Quelle der
   // Trainer-Symbole), das Soll-Bild entsteht nur unter compare/.
   '3t': { datei: 'einst3.png', x: 856, y: 34, name: '3t-mitteilungen-trainer-kasse', profil: 'trainerkassenwart', seite: 'mitteilungen', push: true, scroll: { text: 'Kurzfristige Absagen', y: 400 }, nurVergleich: true },
-  '5':  { datei: 'einst2.png', x: 867, y: 100, name: '5-ruhezeiten' },
+  '5':  { datei: 'einst2.png', x: 867, y: 100, name: '5-ruhezeiten',           profil: 'admin', seite: 'ruhezeiten', push: true, scroll: 'oben' },
   '6':  { datei: 'einst3.png', x: 12,  y: 34,  name: '6-kalender-abo' },
   '7':  { datei: 'einst3.png', x: 434, y: 34,  name: '7-spielplan-bfv' },
   '8':  { datei: 'einst3.png', x: 856, y: 34,  name: '8-push-texte' },
@@ -244,8 +244,9 @@ const DOM_MITTEILUNGEN = () => {
     zustand: q('.ein-mitteilungen') ? 'karten' : (q('[data-push-karte]') ? 'karte' : 'fehlt'),
     kopf: { ...r(q('.ein-kopf')), kompakt: !!q('.ein-kopf.is-kompakt') },
     h1: { ...r(q('.ein-h1')), ...s(q('.ein-h1'), 'fontSize', 'fontWeight', 'lineHeight') },
-    gruppen: alle('.ein-mitteilungen .ein-gruppe').map((g) => ({ ...r(g), klasse: g.className })),
-    hinweise: alle('.ein-mitteilungen .ein-hinweis').map((h) => ({ ...r(h), ...s(h, 'fontSize', 'lineHeight', 'color'), text: h.textContent.slice(0, 40) })),
+    zeitzeilen: alle('.ein-zeitzeile').map((z) => ({ ...r(z), t: r(z.querySelector('.ein-zeitzeile-t')), pille: { ...r(z.querySelector('.ein-zeit-pille')), ...s(z.querySelector('.ein-zeit-pille'), 'fontSize', 'fontWeight', 'borderRadius', 'backgroundColor') }, feld: r(z.querySelector('.ein-zeit')) })),
+    gruppen: alle('[data-push-karte] .ein-gruppe').map((g) => ({ ...r(g), klasse: g.className })),
+    hinweise: alle('[data-push-karte] .ein-hinweis').map((h) => ({ ...r(h), ...s(h, 'fontSize', 'lineHeight', 'color'), text: h.textContent.slice(0, 40) })),
     gkopf: alle('.ein-gkopf').map((k) => ({ ...r(k), t: { ...r(k.querySelector('.ein-gkopf-t')), ...s(k.querySelector('.ein-gkopf-t'), 'fontSize', 'color') },
       alle: s(k.querySelector('.ein-gkopf-alle span'), 'fontSize', 'fontWeight', 'color'), sw: r(k.querySelector('.sw')) })),
     zeilen: alle('.ein-schalter').map((z) => ({ text: (z.querySelector('.ein-schalter-t') || {}).textContent, ...r(z),
@@ -351,7 +352,7 @@ async function mess(ids) {
       }, p.scroll);
       await page.waitForTimeout(400);
     }
-    const dom = await page.evaluate(p.seite === 'mitteilungen' ? DOM_MITTEILUNGEN : DOM_MESSUNG);
+    const dom = await page.evaluate(p.seite ? DOM_MITTEILUNGEN : DOM_MESSUNG);
     const istB64 = (await page.screenshot()).toString('base64');
     const sollB64 = fs.readFileSync(p.nurVergleich ? path.join(OUT, 'einv2-soll-' + p.name + '.png') : sollPfad(id)).toString('base64');
     const navTop = dom.nav ? Math.floor(dom.nav.y) - 1 : 773;

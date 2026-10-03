@@ -609,3 +609,44 @@ Panel 4 (gescrollt, kompakt): Trennlinien 157/251/346/440 gegen 156/250/343/437.
 **Mitbetroffen, bewusst:** der Unterseiten-Kopf (Zurück-Leiste, Titel 26 px) gilt für alle Unterseiten; Ruhezeiten, Kalender-Abo und Spielplan haben ihn damit schon vor ihren Teilpaketen, passend zu ihren Vorlagen. Der Schalter `.sw` (51 × 31) erscheint auch auf der Seite Ruhezeiten. Der Kompakt-Streifen ist 52 px hoch statt 47 px wie in Panel 4; eine Höhenänderung beim Umschalten ließe die Seite springen.
 
 Neue Tokens: keine.
+
+---
+
+## ASCII-Ersatzschreibungen in App-Texten (04.10.2026)
+
+Gesucht: `fuer`, `Geraet`, ae/oe/ue statt Umlaut, ss statt ß. Nur Zeichenketten (keine Kommentare) in `app.js`, `db.js`, `index.html`, `sw.js`, `offline.html`, `manifest.json`, `api/*.js`, dazu live in der Datenbank: Fehlermeldungen aller Funktionen in `public` (`raise exception`), Texte und Beschreibungen in `notification_templates`. Rund 155 Kandidaten von Hand gesichtet.
+
+| Fundstelle | Text | Bereich | Entscheidung |
+|---|---|---|---|
+| `app.js`, Ruhezeiten ohne eingerichtetes Push | „Ruhezeiten gelten fuer Benachrichtigungen. Die sind auf diesem Geraet …“ | Einstellungen | **korrigiert in E5** |
+| DB `send_test_notification`, `send_preview_notification` | „Fuer dieses Konto ist noch kein Geraet angemeldet.“ (erscheint als „Fehlgeschlagen: …“) | Einstellungen | **0043** (mit P1) |
+| DB `set_notification_template` | „Titel und Text duerfen nicht leer sein.“ | Einstellungen (Push-Texte) | **0043** |
+| DB `render_vorlage` | „Kein Wert fuer {…}.“ | Einstellungen (Push-Texte) | **0043** |
+| DB `upsert_push_subscription` | „Unvollstaendige Anmeldedaten.“ (als „Einrichten fehlgeschlagen: …“) | Einstellungen (Mitteilungen) | **0043** |
+| DB `set_ical_url` | „Nur Trainer/Kassenwart/Admin duerfen die iCal-URL setzen.“ | Einstellungen (Spielplan) | **0043** |
+| DB `notify_enqueue` | „Vorschau nur fuer Admin.“ | Einstellungen (Push-Texte, praktisch nie sichtbar) | **0043** |
+| DB `create_fines_batch` | „Keine Strafen uebergeben.“ | Kasse | **Paket A** |
+| DB `report_my_payment` | „Bitte eine gueltige Zahlart angeben.“ | Konto | **Paket A** |
+| DB `set_lineup_active` | „Vorlagen koennen nicht aktiv gesetzt werden.“ | Aufstellung | **Paket A** |
+
+Kein Befund: `notification_templates` (alle Umlaute echt; `{aenderung}` ist ein interner Platzhaltername), `db.js`, `index.html`, `sw.js`, `offline.html`, `manifest.json`. Keine App-Texte und deshalb nicht geändert: Spaltenkommentare und Meldungen der Gegenproben in den Migrationen, Klassen- und Variablennamen (`rs2-fuss`, `ein-ic gruen`, `gewaehlt`), interne Schlüssel (`"pruefen"`, `"ueberweisung"`), der bewusst ASCII gehaltene Dateiname im Einzel-ICS (`api/event.js`). Neue Prüfung in `einpruef`: keine Ersatzschreibung in sichtbaren Texten von `app.js` (Gegenprobe gegen den Stand vor E5: findet genau die zwei Ruhezeiten-Texte).
+
+## E5 Ruhezeiten (04.10.2026)
+
+Messung über den Stand-in (`einv2mess.mjs mess 5`), Push „aktiv“ vorgetäuscht, Profil Admin.
+
+| Element | Soll | Ist vorher | Ist nachher |
+|---|---|---|---|
+| Aufbau | drei Karten, Hinweise darunter | Kopf „Ruhezeiten“ mit Schalter, Zeilen in einer Karte | wie Soll |
+| Karte „Nachts nicht stören“ | 171 / 50, Text ohne Kachel ab x 33 | – | 170,9 / 50, x 33..180 (Soll 33..180) |
+| Hinweis 1 | Box 228,9 | Unterzeile | 228,9 |
+| Karte Von/Bis | 285 / 106, Zeilen 52, Linie bei 338 | zwei Felder nebeneinander | 285 / 106, 52, Linie 338 |
+| Zeit-Pille | 290..359 × 294..329 (70 × 36), Radius 10, `#eef2ef`, Zeit 16/700 303..347 | natives Feld 104 px mit Rahmen | 290..359 × 294..329, Radius 10 (`--radius-btn`), `--surface-6`, 303..347 |
+| Karte „Dringendes …“ | 413 / 50 | Zeile | 413 / 50 |
+| Hinweis 2 | Glyphen 473..521 | Unterzeile | 474..521 |
+
+**Zeitfeld:** die Pille zeigt den gespeicherten Wert selbst (immer 24 Stunden), darüber liegt das native `input type="time"` unsichtbar, 70 × 44 px, Schrift 16 px (kein Zoom beim Fokus unter iOS). Geprüft im Browser (Chromium, mobil, `de-DE` und `en-US`): Tippen in die Mitte, 3 px über und 3 px unter der Pille trifft das Zeitfeld; nach einer Änderung zeigt die Pille den neuen Wert, gespeichert wird `quiet_from` über den bestehenden Weg; mit `en-US` bleibt die Anzeige „22:00“. **Nicht geprüft:** echtes iOS Safari (das Zeitrad gibt es nur auf dem Gerät; Playwright-WebKit unter Windows wäre kein Ersatz). Handtest am iPhone steht in der Übergabe.
+
+**Aufgeräumt:** alle `.pn-*`-Regeln entfernt (nach E4/E5 von nichts mehr erzeugt), `.pn-zeit` aus der gemeinsamen Regel für Eingabefelder; `prefspruef` schneidet den Schalterabschnitt jetzt an einem neuen Endanker.
+
+Neue Tokens: keine.

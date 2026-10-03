@@ -1112,6 +1112,37 @@ tbody tr:hover { background: #fbfdfc; }
 /* Mitteilungen (Vorlage einst2.png, Panel 3 und 4): einzelne Karten auf dem
    Grund, Kopf mit Sammelschalter ueber der Karte, Hinweise darunter. */
 .ein-gruppe-erste { margin-top: 0; }
+.ein-schalter.ohne-ic { padding-left: 15px; }
+
+/* Ruhezeiten (einst2.png, Panel 5): Zeilen mit Zeit-Pille. */
+.ein-gruppe-zeiten { margin-top: 21px; }
+.ein-zeitzeile {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  min-height: 52px; padding: 0 13px 0 15px; position: relative; cursor: pointer;
+}
+.ein-zeitzeile + .ein-zeitzeile::before {
+  content: ""; position: absolute; top: 0; left: 15px; right: 0; height: 1px;
+  background: var(--line);
+}
+.ein-zeitzeile-t { font-size: 16px; font-weight: 500; color: var(--ink); }
+.ein-gruppe.is-aus .ein-zeitzeile-t { color: var(--muted); }
+.ein-zeit-pille {
+  position: relative; display: inline-flex; align-items: center; justify-content: center;
+  width: 70px; height: 36px; padding: 0; box-sizing: border-box;
+  border-radius: var(--radius-btn); background: var(--surface-6);
+  font-size: 16px; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums;
+}
+/* Das native Feld liegt unsichtbar ueber der Pille: Trefferflaeche 44 px hoch. */
+.ein-zeit {
+  position: absolute; left: 0; right: 0; top: 50%; height: 44px; width: 100%;
+  transform: translateY(-50%); margin: 0; padding: 0; border: 0;
+  opacity: 0; font-size: 16px; cursor: pointer;
+  -webkit-appearance: none; appearance: none; background: transparent;
+}
+.ein-zeit:focus-visible { opacity: 0; }
+.ein-zeit-pille:has(.ein-zeit:focus-visible) { box-shadow: 0 0 0 2px var(--green-700); }
+.ein-zeit[disabled] { cursor: default; }
+.ein-gruppe.is-aus .ein-zeit-pille { color: var(--muted); }
 .ein-schalter {
   display: flex; align-items: center; gap: 12px;
   min-height: 48px; padding: 8.5px 15px 8.5px 13px; position: relative;
@@ -1260,39 +1291,8 @@ textarea.pkat-in { resize: vertical; min-height: 76px; line-height: 1.45; }
 @media (prefers-reduced-motion: reduce) { .sw::before { transition: none; } }
 
 /* ---------- Benachrichtigungen je Kategorie ---------------------------------- */
-.pn-gruppe + .pn-gruppe { margin-top: 18px; }
-.pn-kopf {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  margin-bottom: 6px;
-}
-.pn-kopf-t {
-  font-size: 11px; font-weight: 800; letter-spacing: .06em;
-  text-transform: uppercase; color: var(--green-800);
-}
-.pn-kopf-alle { display: flex; align-items: center; gap: 8px; }
-.pn-kopf-alle span { font-size: 12px; font-weight: 600; color: var(--muted); }
-.pn-liste { display: flex; flex-direction: column; }
-.pn-zeile {
-  display: flex; align-items: center; gap: 11px;
-  padding: 9px 0; border-top: 1px solid var(--line);
-}
-.pn-zeile:first-child { border-top: 0; }
-.pn-ic { flex: none; width: 22px; font-size: 17px; line-height: 1.3; text-align: center; }
-.pn-main { flex: 1 1 auto; min-width: 0; }
-.pn-t { display: block; font-size: 15px; font-weight: 600; color: var(--ink); line-height: 1.25; }
-/* Die graue Zeile kommt aus dem Katalog - hier steht kein Text doppelt. */
-.pn-s { display: block; margin-top: 1px; font-size: 12px; font-weight: 500; color: var(--muted); line-height: 1.35; }
-/* Ausgegraut: nur der Titel verliert die Tinte. Die Unterzeile bleibt auf
-   --muted, sonst faellt sie unter 4,5:1. */
-.pn-liste.is-aus .pn-t { color: var(--muted); }
-.pn-hinweis { margin: 8px 0 0; font-size: 12px; font-weight: 500; color: var(--muted); line-height: 1.45; }
-
-.pn-zeiten { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
-.pn-zeiten label { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--ink); }
-.pn-zeit {
-  width: 104px; box-sizing: border-box; padding: 8px 10px;
-  border: 1px solid var(--line); background: #fff; font: inherit;
-}
+/* Die Kategorien und Ruhezeiten stehen seit Einstellungen v2 (E4, E5) in den
+   .ein-*-Bausteinen weiter oben; die alten .pn-*-Regeln sind entfernt. */
 
 /* Anleitung, dann Schlusssatz: sonst klebt der Satz an der Liste. */
 .abo-schritte + .set-hint { margin-top: 10px; }
@@ -2996,14 +2996,14 @@ body {
 }
 
 /* --- Eingabefelder --------------------------------------------------------- */
-.kat-in, .pkat-in, .pn-zeit, .kasse-in, .bfv-url, .modal-text, .auth-field input {
+.kat-in, .pkat-in, .kasse-in, .bfv-url, .modal-text, .auth-field input {
   background-image: var(--grad-in);
   border-color: var(--line-soft-3);
   box-shadow: var(--shadow-in);
   border-radius: var(--radius-btn);
   font-size: var(--fs-input);   /* harte Regel: 16px, sonst zoomt iOS */
 }
-.kat-in, .pkat-in, .pn-zeit, .kasse-in, .bfv-url, .auth-field input { min-height: var(--h-in); }
+.kat-in, .pkat-in, .kasse-in, .bfv-url, .auth-field input { min-height: var(--h-in); }
 ::placeholder { color: var(--muted); opacity: 1; }   /* Vorlage #9aa8a0 = 2,5:1 */
 
 /* --- Untere Navigation: durchscheinend mit Weichzeichner -------------------- */
