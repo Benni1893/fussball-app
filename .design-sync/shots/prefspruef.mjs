@@ -115,8 +115,11 @@ console.log('--- Hauptschalter aus ---');
 // Seit den Unterseiten nimmt pnAbschnittHtml ein zweites Argument (welcher Teil).
 pruefe(/pnAbschnittHtml\("bereit"[,)]/.test(app), 'der Block erscheint auch im Zustand bereit');
 pruefe(/const aus = zustand !== "aktiv";/.test(app), 'dort ausgegraut');
-pruefe(/\.pn-liste\.is-aus \.pn-t \{ color: var\(--muted\)/.test(fs.readFileSync('styles.css', 'utf8')),
+// Seit E4 (Einstellungen v2) stehen die Kategorien in .ein-gruppe/.ein-schalter.
+pruefe(/\.ein-gruppe\.is-aus \.ein-schalter-t \{ color: var\(--muted\)/.test(fs.readFileSync('styles.css', 'utf8')),
   'ausgegraut färbt nur den Titel um - die Unterzeile bleibt lesbar');
+pruefe(/'<div class="ein-gruppe ein-gruppe-schalter' \+ \(aus \? " is-aus" : ""\)/.test(app),
+  'die Kategoriekarte bekommt is-aus, solange Push auf dem Gerät aus ist');
 pruefe(!/delete .*pushPrefs|pushPrefs = \{\}/.test(app),
   'die Einstellungen werden beim Ausschalten nicht verworfen');
 

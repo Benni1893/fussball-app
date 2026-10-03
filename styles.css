@@ -993,15 +993,17 @@ tbody tr:hover { background: #fbfdfc; }
   display: flex; align-items: center; gap: 8px;
   margin: -18px -16px 0;          /* bis an die Raender, trotz .view-Polsterung */
   padding: 0 16px;
-  min-height: 44px;
-  background: var(--bg);
+  min-height: 52px;
+  /* Ungescrollt ohne eigenen Streifen (Vorlage einst2.png, Panel 3): der
+     Ton des Seitengrunds oben. Kompakt heller mit Linie (Panel 4). */
+  background: var(--bg-1);
 }
-.ein-kopf.is-kompakt { box-shadow: 0 1px 0 var(--line); }
+.ein-kopf.is-kompakt { background: var(--bg); box-shadow: 0 1px 0 var(--line); }
 .ein-back {
   appearance: none; -webkit-appearance: none; border: 0; background: none;
-  display: inline-flex; align-items: center; gap: 2px;
-  min-height: 44px; padding: 0; margin-left: -4px;
-  color: var(--green-800); font: inherit; font-size: 17px; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 3px;
+  min-height: 44px; padding: 0; margin-left: 0;
+  color: var(--green-700); font: inherit; font-size: 17px; font-weight: 500;
   cursor: pointer; -webkit-tap-highlight-color: transparent;
 }
 .ein-back:active { opacity: .6; }
@@ -1015,7 +1017,8 @@ tbody tr:hover { background: #fbfdfc; }
 }
 .ein-kopf.is-kompakt .ein-kopf-t { opacity: 1; transform: none; }
 
-.ein-h1 { font-size: 1.75rem; font-weight: 800; margin: 6px 0 16px; outline: none; }
+/* 26 px wie die Uebersicht (Vorlage einst2.png bis einst4.png). */
+.ein-h1 { font-size: 26px; line-height: 1.15; font-weight: 800; letter-spacing: -.025em; margin: 7px 0 22px; outline: none; }
 
 /* Uebergang zwischen den Ebenen. Bewusst nur auf .ein-body, nicht auf einen
    Vorfahren der klebenden Leiste - eine laufende transform-Animation waere
@@ -1081,6 +1084,7 @@ tbody tr:hover { background: #fbfdfc; }
 .ein-ic.gruen       { background: var(--green-650); }
 .ein-ic.dunkelgruen { background: var(--green-900); }
 .ein-ic.gold        { background: var(--gold-chev); }
+.ein-ic.rot         { background: var(--red-700); }
 .ein-ic.grau        { background: var(--muted); }   /* Vorlage einst1.png: dasselbe Grau wie --muted */
 .ein-zeile-t { flex: 1 1 auto; min-width: 0; font-size: 16px; font-weight: 500;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -1104,6 +1108,37 @@ tbody tr:hover { background: #fbfdfc; }
 /* Ueberschrift der Uebersicht: 26 px wie die Vorlage (einst1.png). Nur hier -
    .page-head h1 bleibt fuer alle anderen Seiten bei 22 px. */
 .page-head.ein-start h1 { font-size: 26px; line-height: 1.15; margin-top: -3px; }
+
+/* Mitteilungen (Vorlage einst2.png, Panel 3 und 4): einzelne Karten auf dem
+   Grund, Kopf mit Sammelschalter ueber der Karte, Hinweise darunter. */
+.ein-gruppe-erste { margin-top: 0; }
+.ein-schalter {
+  display: flex; align-items: center; gap: 12px;
+  min-height: 48px; padding: 8.5px 15px 8.5px 13px; position: relative;
+}
+.ein-schalter + .ein-schalter::before {
+  content: ""; position: absolute; top: 0; left: 55px; right: 0; height: 1px;
+  background: var(--line);
+}
+.ein-schalter-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+/* Text bis 10 px vor den Schalter, wie in der Vorlage (Umbruch der Unterzeilen). */
+.ein-schalter > .sw { margin-left: -2px; }
+.ein-schalter-t { font-size: 16px; font-weight: 500; color: var(--ink); line-height: 1.3; }
+.ein-schalter-s { margin-top: 2px; font-size: 13px; font-weight: 400; color: var(--muted); line-height: 1.4; }
+.ein-gruppe.is-aus .ein-schalter-t { color: var(--muted); }
+.ein-gkopf {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin: 25px 0 11px; padding: 0 18px 0 15px;
+}
+.ein-gkopf-t { font-size: 11px; font-weight: 700; letter-spacing: .68px; text-transform: uppercase; color: var(--green-700); }
+.ein-gkopf-alle { display: flex; align-items: center; gap: 8px; }
+.ein-gkopf-alle span { font-size: 14px; font-weight: 600; color: var(--muted); }
+.ein-gkopf + .ein-gruppe { margin-top: 0; }
+.ein-hinweis { margin: 8px 0 0; padding: 0 15px; font-size: 13px; font-weight: 400; color: var(--muted); line-height: 1.35; }
+.ein-hinweis-oben { margin: 0 0 14px; }
+.ein-hinweis-admin { margin-top: 10px; }
+.ein-gruppe-aktion { margin-top: 19px; }
+.ein-zeile-aktion .ein-zeile-t { color: var(--green-700); font-weight: 700; }
 
 /* Mein Kalender – reduziert */
 /* Blatt „Termine abonnieren“: zwei Karten, weil iOS ein webcal-Abo systemweit
@@ -1203,12 +1238,12 @@ textarea.pkat-in { resize: vertical; min-height: 76px; line-height: 1.45; }
    Sichtbar 46x28, Trefferflaeche 44 ueber das ::after - so bleibt die Reihe
    schmal, ohne die Regel zu brechen.                                        */
 .sw {
-  position: relative; flex: none; width: 46px; height: 28px; padding: 0;
+  position: relative; flex: none; width: 51px; height: 31px; padding: 0;
   border: 1px solid var(--line); border-radius: var(--radius-pill);
   background: var(--surface-3); -webkit-tap-highlight-color: transparent;
 }
 .sw::before {
-  content: ""; position: absolute; top: 2px; left: 2px; width: 22px; height: 22px;
+  content: ""; position: absolute; top: 2px; left: 2px; width: 25px; height: 25px;
   border-radius: 50%; background: #fff; box-shadow: var(--shadow-sm);
   transition: left .16s ease;
 }
@@ -1217,10 +1252,10 @@ textarea.pkat-in { resize: vertical; min-height: 76px; line-height: 1.45; }
   width: var(--tap); height: var(--tap); transform: translate(-50%,-50%);
 }
 .sw[aria-checked="true"]  { background: var(--grad-chip-on); border-color: var(--green-900); }
-.sw[aria-checked="true"]::before  { left: 20px; }
+.sw[aria-checked="true"]::before  { left: 22px; }
 /* Gemischt: Knauf in der Mitte, Rahmen gruen - sichtbar anders als beides. */
 .sw[aria-checked="mixed"] { background: var(--grad-chip); border-color: var(--green-700); }
-.sw[aria-checked="mixed"]::before { left: 11px; }
+.sw[aria-checked="mixed"]::before { left: 12px; }
 .sw[disabled] { opacity: .45; }
 @media (prefers-reduced-motion: reduce) { .sw::before { transition: none; } }
 

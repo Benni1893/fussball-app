@@ -155,8 +155,14 @@ const PANELS = {
   '1':  { datei: 'einst1.png', x: 32,  y: 40,  name: '1-admin',              profil: 'admin',   scroll: 'oben' },
   '1b': { datei: 'einst1.png', x: 454, y: 40,  name: '1b-admin-ende',        profil: 'admin',   scroll: 'unten' },
   '2':  { datei: 'einst1.png', x: 876, y: 40,  name: '2-spieler',            profil: 'spieler', scroll: 'oben' },
-  '3':  { datei: 'einst2.png', x: 23,  y: 100, name: '3-mitteilungen' },
-  '4':  { datei: 'einst2.png', x: 445, y: 100, name: '4-mitteilungen-kompakt' },
+  '3':  { datei: 'einst2.png', x: 23,  y: 100, name: '3-mitteilungen',         profil: 'admin', seite: 'mitteilungen', push: true, scroll: 'oben' },
+  // Panel 4: so weit gescrollt, dass "Termin geändert" wie in der Vorlage
+  // steht (Glyphen oben bei 264, Element oben bei 260), Titel kompakt.
+  '4':  { datei: 'einst2.png', x: 445, y: 100, name: '4-mitteilungen-kompakt', profil: 'admin', seite: 'mitteilungen', push: true, scroll: { text: 'Termin geändert', y: 260 } },
+  // Kein eigenes Panel: Gruppen Trainer und Kasse, die die Vorlage in den
+  // Mitteilungen nicht zeigt. Links zum Vergleich Panel 8 (Quelle der
+  // Trainer-Symbole), das Soll-Bild entsteht nur unter compare/.
+  '3t': { datei: 'einst3.png', x: 856, y: 34, name: '3t-mitteilungen-trainer-kasse', profil: 'trainerkassenwart', seite: 'mitteilungen', push: true, scroll: { text: 'Kurzfristige Absagen', y: 400 }, nurVergleich: true },
   '5':  { datei: 'einst2.png', x: 867, y: 100, name: '5-ruhezeiten' },
   '6':  { datei: 'einst3.png', x: 12,  y: 34,  name: '6-kalender-abo' },
   '7':  { datei: 'einst3.png', x: 434, y: 34,  name: '7-spielplan-bfv' },
@@ -229,6 +235,29 @@ const DOM_MESSUNG = () => {
   };
 };
 
+const DOM_MITTEILUNGEN = () => {
+  const r = (el) => { if (!el) return null; const b = el.getBoundingClientRect(); return { y: Math.round(b.top * 10) / 10, h: Math.round(b.height * 10) / 10, x: Math.round(b.left * 10) / 10, w: Math.round(b.width * 10) / 10 }; };
+  const s = (el, ...k) => { if (!el) return null; const c = getComputedStyle(el); return Object.fromEntries(k.map((x) => [x, c[x]])); };
+  const q = (sel) => document.querySelector(sel);
+  const alle = (sel) => [...document.querySelectorAll(sel)];
+  return {
+    zustand: q('.ein-mitteilungen') ? 'karten' : (q('[data-push-karte]') ? 'karte' : 'fehlt'),
+    kopf: { ...r(q('.ein-kopf')), kompakt: !!q('.ein-kopf.is-kompakt') },
+    h1: { ...r(q('.ein-h1')), ...s(q('.ein-h1'), 'fontSize', 'fontWeight', 'lineHeight') },
+    gruppen: alle('.ein-mitteilungen .ein-gruppe').map((g) => ({ ...r(g), klasse: g.className })),
+    hinweise: alle('.ein-mitteilungen .ein-hinweis').map((h) => ({ ...r(h), ...s(h, 'fontSize', 'lineHeight', 'color'), text: h.textContent.slice(0, 40) })),
+    gkopf: alle('.ein-gkopf').map((k) => ({ ...r(k), t: { ...r(k.querySelector('.ein-gkopf-t')), ...s(k.querySelector('.ein-gkopf-t'), 'fontSize', 'color') },
+      alle: s(k.querySelector('.ein-gkopf-alle span'), 'fontSize', 'fontWeight', 'color'), sw: r(k.querySelector('.sw')) })),
+    zeilen: alle('.ein-schalter').map((z) => ({ text: (z.querySelector('.ein-schalter-t') || {}).textContent, ...r(z),
+      ic: r(z.querySelector('.ein-ic')), t: { ...r(z.querySelector('.ein-schalter-t')), ...s(z.querySelector('.ein-schalter-t'), 'fontSize', 'fontWeight', 'lineHeight') },
+      s: { ...r(z.querySelector('.ein-schalter-s')), ...s(z.querySelector('.ein-schalter-s'), 'fontSize', 'lineHeight') },
+      sw: r(z.querySelector('.sw')) })),
+    aktion: { ...r(q('.ein-gruppe-aktion')), t: s(q('.ein-zeile-aktion .ein-zeile-t'), 'fontSize', 'fontWeight', 'color') },
+    nav: r(q('.app-nav')),
+    scrollY: window.scrollY,
+  };
+};
+
 async function baender(page, b64, vonY, bisY) {
   return page.evaluate(async ([d, von, bis]) => {
     const img = new Image(); await new Promise((ok) => { img.onload = ok; img.src = 'data:image/png;base64,' + d; });
@@ -275,22 +304,56 @@ async function mess(ids) {
   for (const id of ids) {
     const p = PANELS[id];
     if (!p || !p.profil) { pruefe(false, 'Panel ' + id + ' hat noch keine Messvorschrift'); continue; }
-    if (!fs.existsSync(sollPfad(id))) await soll([id]);
+    if (p.nurVergleich) {
+      const b64v = fs.readFileSync(VORLAGEN + p.datei).toString('base64');
+      const png = await leinwand.evaluate(async ([d, x, y]) => {
+        const img = new Image(); await new Promise((ok) => { img.onload = ok; img.src = 'data:image/png;base64,' + d; });
+        const c = document.createElement('canvas'); c.width = 390; c.height = 844;
+        c.getContext('2d').drawImage(img, x, y, 390, 844, 0, 0, 390, 844);
+        return c.toDataURL('image/png').split(',')[1];
+      }, [b64v, p.x, p.y]);
+      fs.writeFileSync(path.join(OUT, 'einv2-soll-' + p.name + '.png'), Buffer.from(png, 'base64'));
+    } else if (!fs.existsSync(sollPfad(id))) await soll([id]);
     const ctx = await browser.newContext({ ...IPHONE, deviceScaleFactor: 1, locale: 'de-DE',
       timezoneId: 'Europe/Berlin', serviceWorkers: 'block' });
+    if (p.push) {
+      await ctx.grantPermissions(['notifications'], { origin: basis.replace(/\/$/, '') });
+      await ctx.addInitScript(PUSH_AKTIV);
+    }
     const page = await ctx.newPage();
     const inst = await installiere(page, p.profil);
+    if (p.push) {
+      // Nach dem Service-Worker-Stand-in: dessen pushManager liefert sonst null.
+      await page.addInitScript(() => {
+        const abo = { endpoint: 'https://mess.invalid/einv2', getKey: () => null,
+          toJSON: () => ({ endpoint: 'https://mess.invalid/einv2', keys: { p256dh: 'x', auth: 'x' } }),
+          unsubscribe: async () => true };
+        if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+          navigator.serviceWorker.ready.then((r) => { if (r && r.pushManager) r.pushManager.getSubscription = async () => abo; });
+        }
+      });
+    }
     await page.goto(basis, { waitUntil: 'networkidle' });
     await warteAufApp(page);
     await page.click('#hdrGear');
     await page.waitForTimeout(500);
+    if (p.seite) {
+      await page.click('[data-ein="' + p.seite + '"]');
+      await page.waitForTimeout(700);
+    }
     if (p.scroll === 'unten') {
       await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
       await page.waitForTimeout(300);
+    } else if (p.scroll && p.scroll.text) {
+      await page.evaluate((a) => {
+        const el = [...document.querySelectorAll('.ein-schalter-t, .ein-zeile-t')].find((e) => e.textContent === a.text);
+        if (el) window.scrollBy(0, el.getBoundingClientRect().top - a.y);
+      }, p.scroll);
+      await page.waitForTimeout(400);
     }
-    const dom = await page.evaluate(DOM_MESSUNG);
+    const dom = await page.evaluate(p.seite === 'mitteilungen' ? DOM_MITTEILUNGEN : DOM_MESSUNG);
     const istB64 = (await page.screenshot()).toString('base64');
-    const sollB64 = fs.readFileSync(sollPfad(id)).toString('base64');
+    const sollB64 = fs.readFileSync(p.nurVergleich ? path.join(OUT, 'einv2-soll-' + p.name + '.png') : sollPfad(id)).toString('base64');
     const navTop = dom.nav ? Math.floor(dom.nav.y) - 1 : 773;
     const sb = await baender(leinwand, sollB64, 61, 772);
     const ib = await baender(leinwand, istB64, 61, Math.min(772, navTop));

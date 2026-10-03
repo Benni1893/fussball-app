@@ -71,6 +71,7 @@ sind überholt: die Bilder liegen inzwischen in diesem Ordner, und
 - Ablauf je Commit: Dateiliste zeigen, nach OK umsetzen, Pflichtliste 18/18 grün (16/16 bis L3b) (versionierte Bilder per `git restore` zurück), Commit, Push erst nach OK. Eine Sitzung je Commit, am Ende der Startsatz für die nächste Sitzung.
 
 ### Paket A: Aufräumen (Nebenbefunde vom 02.10.2026, nicht anfassen bis dahin)
+- **Globale Entscheidung offen (04.10.2026, aus E3): Kartenschatten app-weit an die Vorlage angleichen, ja/nein.** Die Vorlagen von Claude Design zeigen einen weicheren, längeren Schatten (Auslauf rund 21 px) als `--shadow` (rund 12 px). Nicht für die Einstellungen allein angleichen. Zur Entscheidung vorbereiten: Vorher/Nachher-Ausschnitte von zwei, drei Ansichten (z. B. Einstellungen, Übersicht, Kasse) mit dem heutigen und dem angeglichenen Schatten. Seitenhintergrund (`--bg-1`) und iPhone-Rahmen der Vorlage bleiben wie besprochen.
 - Übersichtskachel `data-nav="kasse"` führt auf Konto mit Filter „offen“, nicht auf die Kasse (`app.js` Handler bei 6206). Klären, ob gewollt.
 - Toter Code: `luPanel`/`luMore` und die alte Aufstellung, seit `LINEUP_V2 = true` unerreichbar (`app.js` um 3433-3451, `confirm` bei 3324, `prompt` bei 3294).
 - Vier verwaiste Handler ohne erzeugendes Element: `data-remind`, `data-toggle-paid`, `data-del-fine`, `data-paypal` (Selektor bei `app.js` 5809).

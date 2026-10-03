@@ -573,3 +573,39 @@ Panel 1b (ans Ende gescrollt) lässt sich nicht absolut vergleichen: die Vorlage
 - Kopfleiste: in der App mit Schatten nach unten (`--shadow-hd`), in der Vorlage ohne sichtbaren Schatten.
 
 Neue Tokens: keine.
+
+---
+
+## E4 Mitteilungen (04.10.2026)
+
+Messung über den Stand-in (`einv2mess.mjs mess 3 4 3t`), Push „aktiv“ im Browser vorgetäuscht, Profil Admin (Panel 3, 4) bzw. Trainer+Kassenwart (Zusatzbild 3t). Der neue Hinweis „Automatische Nachrichten …“ steht nicht in der Vorlage; er schiebt alles darunter um 60,6 px. Werte unten ohne diesen Versatz.
+
+| Element | Soll | Ist vorher | Ist nachher |
+|---|---|---|---|
+| Aufbau | einzelne Karten auf dem Grund, Hinweise darunter | eine Karte um alles | wie Soll |
+| Zurück-Leiste | Text `--green-700`, 34..136, oben 80 | `--green-800`, 600, 4 px weiter links, Streifen `--bg` | 33..137, oben 79, ungescrollt im Ton des Grunds (`--bg-1`), kompakt `--bg` mit Linie |
+| Titel | 26 px / 800, Laufweite wie Übersicht, 16..171, oben 122 | 28 px, ohne Laufweite | 26 px, `-.025em`, 17..170, oben 122 |
+| Gerätekarte | 171 / 50, Glocke grün, Schalter 307..357 | Zeile in der großen Karte | 170,9 / 50, Schalter 307..357 |
+| Hinweis darunter | 13 px `--muted`, x 31, Box 228,9 | Unterzeile in der Karte | 13 px, x 31, Box 228,9 |
+| Gruppenkopf | Schalter oben 289, Titel grün 11 px, „Alle“ 14/600 | grau, in der Karte | 289,0, grün |
+| Kategoriekarte | oben 331, Zeilen 76 (Unterzeile 2-zeilig), 93 bis 94 (3-zeilig) | Emoji, 15/600, 12 px | 331,0, 76,2 und 94,4 |
+| Zeilentext | Titel 16/500, Unterzeile 13 px, Zeilenhöhe ≈ 1,4, Spalte bis x 297 | 15/600, 12 px | wie Soll, Umbruch gleich (72..294) |
+| Kacheln | 30 px bei x 30: Gold `--gold-chev`, Grün `--green-650`, Rot `#a5281b` = `--red-700`, Dunkelgrün `--green-900` | Emoji | wie Soll |
+| Schalter | 51 × 31 | 46 × 28 | 51 × 31 (global, nur Mitteilungen/Ruhezeiten nutzen ihn) |
+| Admin-Hinweis | Glyphen 13 px unter Kartenende | eigene Gruppe „Admin“, mit Gedankenstrich | +13, Wortlaut der Vorlage |
+| Testnachricht | weiße Kartenzeile, grüne Sende-Kachel, Text grün 16/700 72..241, Karte 64 px unter Kartenende | grüner Vollknopf | +64,2, Text 72..241 |
+| Schlusshinweis | Glyphen +124, x 31..319, Komma | Gedankenstrich, vor dem Knopf | +125, 31..319, Komma, nach dem Knopf |
+
+Panel 4 (gescrollt, kompakt): Trennlinien 157/251/346/440 gegen 156/250/343/437. Die letzte Zeile ist im Stand-in höher, weil die Beschreibung von „Monatliche Erinnerung …“ dort „… Standard AUS.“ enthält (Abweichung A10, Katalogtext).
+
+**Symbole ohne Vorlage in den Mitteilungen:** Trainer aus Panel 8 übernommen (Kurzfristige Absagen: rote Glocke, Zu wenig Zusagen: rote Personen). Frei gewählt, weil in keinem Panel: Übersicht nach Meldeschluss (Klemmbrett, dunkelgrün), Zahlung gemeldet (Börse, gold). Zusatzbild Soll | Ist: `reference/compare/einv2-mess-3t-mitteilungen-trainer-kasse.png`.
+
+**Hinweis automatische Nachrichten:** Konstante `AUTO_MITTEILUNGEN_AKTIV = false` direkt über `pnAutoHinweisHtml()` in `app.js`; mit `true` verschwindet er (einpruef prüft beides). Wortlaut wie freigegeben. Erscheint nur auf der Seite Mitteilungen in den Zuständen mit Schaltern (aktiv, bereit).
+
+**Gedankenstriche ersetzt (Mitteilungen):** Admin-Hinweis, Schlusshinweis, In-App-Browser („In Safari öffnen, über das Menü oben rechts, und …“), „… zeigt trotzdem alles an. Du verpasst nichts.“, Meldungen „Nicht bestätigt, nichts geändert“ und „Testnachricht unterwegs, sie kommt …“. **Offen (Daten, nicht Code):** die Beschreibung von „Neue Strafe“ aus `notification_templates.ausloeser_beschreibung` lautet „Eine Strafe wird verhängt - von Hand oder automatisch zum Anpfiff.“ (Bindestrich als Gedankenstrich). Ändern geht nur per Migration; vorgemerkt.
+
+**Für E8 vorgemerkt:** in Panel 8 sind die Kacheln Rot und Gold heller als in Panel 3 (Push-Texte vs. Mitteilungen). Entscheidung in E8.
+
+**Mitbetroffen, bewusst:** der Unterseiten-Kopf (Zurück-Leiste, Titel 26 px) gilt für alle Unterseiten; Ruhezeiten, Kalender-Abo und Spielplan haben ihn damit schon vor ihren Teilpaketen, passend zu ihren Vorlagen. Der Schalter `.sw` (51 × 31) erscheint auch auf der Seite Ruhezeiten. Der Kompakt-Streifen ist 52 px hoch statt 47 px wie in Panel 4; eine Höhenänderung beim Umschalten ließe die Seite springen.
+
+Neue Tokens: keine.

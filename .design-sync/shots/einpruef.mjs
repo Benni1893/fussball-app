@@ -254,6 +254,59 @@ console.log('--- Einstellungen v2: Hauptseite (E3) ---');
   E.setRollen(['admin', 'player']);
 }
 
+/* ===== 9. Paket Einstellungen v2, E4: Mitteilungen nach einst2.png ======= */
+console.log('--- Einstellungen v2: Mitteilungen (E4) ---');
+{
+  const appQ = fs.readFileSync('app.js', 'utf8');
+  const cssQ = fs.readFileSync('styles.css', 'utf8');
+  const stueckQ = (von, bis) => { const a = appQ.indexOf(von); const b = appQ.indexOf(bis, a); return a < 0 || b < 0 ? '' : appQ.slice(a, b); };
+
+  // Hinweis "automatische Nachrichten": eine Stelle, mit true weg.
+  const WORT = 'Automatische Nachrichten sind noch nicht eingeschaltet. Was du hier auswählst, wird gespeichert und gilt, sobald sie starten.';
+  const autoCode = stueckQ('  const AUTO_MITTEILUNGEN_AKTIV = false;', '  function pnAdminHtml() {');
+  pruefe(autoCode !== '', 'Konstante AUTO_MITTEILUNGEN_AKTIV und pnAutoHinweisHtml stehen beieinander');
+  const autoAus = new Function(autoCode + '\n return pnAutoHinweisHtml;')();
+  const autoAn = new Function(autoCode.replace('const AUTO_MITTEILUNGEN_AKTIV = false;', 'const AUTO_MITTEILUNGEN_AKTIV = true;') + '\n return pnAutoHinweisHtml;')();
+  pruefe(autoAus().replace(/<[^>]+>/g, '') === WORT, 'Hinweis im freigegebenen Wortlaut');
+  pruefe(autoAn() === '', 'mit AUTO_MITTEILUNGEN_AKTIV = true verschwindet der Hinweis');
+  pruefe(appQ.split('const AUTO_MITTEILUNGEN_AKTIV').length - 1 === 1, 'die Konstante gibt es genau einmal');
+  pruefe(appQ.split('pnAutoHinweisHtml()').length - 1 === 2, 'der Hinweis wird genau an einer Stelle eingebaut');
+  pruefe(appQ.split('Automatische Nachrichten sind noch nicht').length - 1 === 1, 'der Text steht nur an dieser einen Stelle');
+
+  // Texte der Vorlage, ohne Gedankenstriche
+  pruefe(appQ.includes("Keine eigenen Kategorien für Admins. Als Admin bekommst du, ' +\n      'was deine übrigen Rollen vorsehen."), 'Admin-Hinweis im Wortlaut der Vorlage');
+  pruefe(appQ.includes("Die Liste in der App zeigt alles, was du hier eingeschaltet hast, ' +\n      'auch ohne Push auf diesem Gerät."), 'Schlusshinweis mit Komma (Vorlage)');
+  const bereich = stueckQ('  const PN_GRUPPEN = [', '  function pushMeldung(txt) {')
+    .replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
+  pruefe(bereich !== '' && !bereich.includes('–'), 'keine Gedankenstriche in den Texten der Mitteilungen');
+  for (const m of ['Nicht bestätigt, nichts geändert', 'Testnachricht unterwegs, sie kommt in bis zu einer Minute']) {
+    pruefe(appQ.includes('pushMeldung("' + m + '")') || appQ.includes('pushMeldung("' + m + '"); }'), 'Meldung ohne Gedankenstrich: ' + m);
+  }
+
+  // Gliederung: Symbol und Kachelton je Kategorie
+  const pg = new Function(stueckQ('  const PN_GRUPPEN = [', '  /* Welche Gruppen sieht dieser Nutzer?') + '\n return PN_GRUPPEN;')();
+  const TOENE = ['gruen', 'dunkelgruen', 'gold', 'grau', 'rot'];
+  for (const g of pg) for (const [kat, ic, name, ton] of g.kategorien) {
+    pruefe(/^[a-z-]+$/.test(ic) && E.einIcon(ic).includes('<svg'), kat + ': Symbol "' + ic + '" (kein Emoji)');
+    pruefe(TOENE.includes(ton) && cssQ.includes('.ein-ic.' + ton + ' '), kat + ': Kachelton "' + ton + '" mit CSS-Regel');
+  }
+
+  // Aufbau: Karten auf dem Grund statt eines Rahmens um alles
+  pruefe(appQ.includes(`return '<div class="ein-mitteilungen" data-push-karte>' + inhalt + '</div>';`), 'Mitteilungen ohne Rahmen um alles (aktiv, bereit)');
+  pruefe(/'<div class="ein-gkopf"><span class="ein-gkopf-t">'/.test(appQ), 'Gruppenkopf mit Sammelschalter über der Karte');
+  pruefe(appQ.includes('einSchalterZeileHtml({ ic: "glocke", ton: "gruen", titel: "Push auf diesem Gerät"'), 'Push auf diesem Gerät als Kartenzeile mit Glocke');
+
+  // Stil
+  pruefe(/\.sw \{\s*position: relative; flex: none; width: 51px; height: 31px;/.test(cssQ), 'Schalter 51 x 31 (Vorlage)');
+  pruefe(/\.ein-h1 \{ font-size: 26px;[^}]*letter-spacing: -\.025em/.test(cssQ), 'Unterseiten-Titel 26 px mit Laufweite wie die Übersicht');
+  pruefe(/\.ein-kopf\.is-kompakt \{ background: var\(--bg\)/.test(cssQ), 'kompakte Leiste hell mit Linie');
+  for (const n of ['3-mitteilungen', '4-mitteilungen-kompakt']) {
+    const pf = '.design-sync/reference/soll/07_einstellungen-v2_' + n + '.png';
+    const b = fs.existsSync(pf) ? fs.readFileSync(pf) : null;
+    pruefe(!!b && b.readUInt32BE(16) === 390 && b.readUInt32BE(20) === 844, 'Soll-Ausschnitt ' + n + ' (390 x 844)');
+  }
+}
+
 console.log('');
 console.log(fehler ? '--- ' + fehler + ' Beanstandung(en), ' + gut + ' ok ---'
                    : '--- bestanden (' + gut + ' Pruefungen) ---');

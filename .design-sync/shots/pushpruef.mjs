@@ -133,8 +133,9 @@ pruefe(!/VAPID_PRIVATE_KEY\s*=\s*"/.test(disp), 'kein Schluessel im Quelltext');
 // (Migration 0042: send_test_notification, notification_templates).
 console.log('--- Rechte im UI ---');
 {
-  const knopf = new Function(schnitt('  function pnTestKnopfHtml(rollen) {', '  /* ---- Die Anzeige je Zustand ---- */') +
-    '\n return pnTestKnopfHtml;')();
+  // Seit E4 ist der Knopf eine Kartenzeile mit Symbol: einIcon als Platzhalter.
+  const knopf = new Function('einIcon', schnitt('  function pnTestKnopfHtml(rollen) {', '  /* ---- Die Anzeige je Zustand ---- */') +
+    '\n return pnTestKnopfHtml;')(() => '<svg></svg>');
   const ROLLEN = [
     ['Spieler',              ['player'],              false],
     ['Trainer',              ['coach'],               false],

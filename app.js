@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-04-B";
+  var APP_BUILD = "2026-10-04-C";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -1599,22 +1599,24 @@
      sobald die Rolle zurueckkommt.                                          */
   const PN_GRUPPEN = [
     { rolle: "spieler", titel: "Spieler", kategorien: [
-      ["strafe_neu",              "\u{1F4B8}", "Neue Strafe"],
-      ["zahlung_bestaetigt",      "✅",    "Zahlung bestätigt"],
-      ["zahlung_abgelehnt",       "⚠️", "Zahlung abgelehnt"],
-      ["rueckmeldung_erinnerung", "⏳",    "Erinnerung an Zu- oder Absage"],
-      ["termin_abgesagt",         "❌",    "Termin fällt aus"],
-      ["termin_geaendert",        "\u{1F4C5}", "Termin geändert"],
-      ["termin_neu",              "\u{1F4C5}", "Neue Termine"],
-      ["strafen_offen",           "\u{1F4B8}", "Monatliche Erinnerung an offene Strafen"],
+      // [Kategorie, Symbol (einIcon), Name, Kachelton]. Symbole und Toene aus
+      // der Vorlage einst2.png, Trainer aus Panel 8 (einst3.png).
+      ["strafe_neu",              "euro",        "Neue Strafe",                             "gold"],
+      ["zahlung_bestaetigt",      "haken",       "Zahlung bestätigt",                       "gruen"],
+      ["zahlung_abgelehnt",       "warnung",     "Zahlung abgelehnt",                       "rot"],
+      ["rueckmeldung_erinnerung", "uhr",         "Erinnerung an Zu- oder Absage",           "dunkelgruen"],
+      ["termin_abgesagt",         "kal-x",       "Termin fällt aus",                        "rot"],
+      ["termin_geaendert",        "kal-stift",   "Termin geändert",                         "dunkelgruen"],
+      ["termin_neu",              "kal-plus",    "Neue Termine",                            "gruen"],
+      ["strafen_offen",           "wiederholen", "Monatliche Erinnerung an offene Strafen", "gold"],
     ] },
     { rolle: "coach", titel: "Trainer", kategorien: [
-      ["absage_kurzfristig",      "\u{1F6A8}", "Kurzfristige Absagen"],
-      ["unterbesetzung",          "\u{1F6A8}", "Zu wenig Zusagen"],
-      ["meldeschluss_uebersicht", "\u{1F4CB}", "Übersicht nach Meldeschluss"],
+      ["absage_kurzfristig",      "glocke",      "Kurzfristige Absagen",                    "rot"],
+      ["unterbesetzung",          "personen",    "Zu wenig Zusagen",                        "rot"],
+      ["meldeschluss_uebersicht", "klemmbrett",  "Übersicht nach Meldeschluss",             "dunkelgruen"],
     ] },
     { rolle: "treasurer", titel: "Kasse", kategorien: [
-      ["zahlung_gemeldet",        "\u{1F4B0}", "Zahlung gemeldet"],
+      ["zahlung_gemeldet",        "boerse",      "Zahlung gemeldet",                        "gold"],
     ] },
   ];
 
@@ -1667,16 +1669,22 @@
       (aus ? " disabled" : "") + " " + attrs + ' type="button"></button>';
   }
 
-  function pnZeileHtml(k, aus, prefs) {
-    const [kat, ic, name] = k;
-    const wann = pnInfo(kat);
-    return '<div class="pn-zeile">' +
-      '<span class="pn-ic" aria-hidden="true">' + ic + '</span>' +
-      '<span class="pn-main"><span class="pn-t">' + esc(name) + '</span>' +
-      (wann ? '<span class="pn-s">' + esc(wann) + '</span>' : "") + '</span>' +
-      pnSchalterHtml('data-pn-kat="' + esc(kat) + '" aria-label="' + esc(name) + '"',
-        prefs && prefs[kat] ? "true" : "false", aus) +
+  /* Eine Schalterzeile in einer Karte: Kachel, Titel, Unterzeile, Schalter
+     (Vorlage einst2.png, Panel 3 und 4). Auch fuer "Push auf diesem Geraet". */
+  function einSchalterZeileHtml(o) {
+    return '<div class="ein-schalter">' +
+      (o.ic ? '<span class="ein-ic ' + esc(o.ton || "gruen") + '" aria-hidden="true">' + einIcon(o.ic) + '</span>' : "") +
+      '<span class="ein-schalter-main"><span class="ein-schalter-t">' + esc(o.titel) + '</span>' +
+      (o.sub ? '<span class="ein-schalter-s">' + esc(o.sub) + '</span>' : "") + '</span>' +
+      o.schalter +
       '</div>';
+  }
+
+  function pnZeileHtml(k, aus, prefs) {
+    const [kat, ic, name, ton] = k;
+    return einSchalterZeileHtml({ ic, ton, titel: name, sub: pnInfo(kat),
+      schalter: pnSchalterHtml('data-pn-kat="' + esc(kat) + '" aria-label="' + esc(name) + '"',
+        prefs && prefs[kat] ? "true" : "false", aus) });
   }
 
   function pnGruppenHtml(aus) {
@@ -1684,15 +1692,24 @@
     const hatSpieler = !!(currentProfile && currentProfile.player_id);
     return pnGruppenFuer(rollen, hatSpieler).map((g) => {
       const z = pnSammelZustand(g, pushPrefs);
-      return '<div class="pn-gruppe">' +
-        '<div class="pn-kopf"><span class="pn-kopf-t">' + esc(g.titel) + '</span>' +
-          '<span class="pn-kopf-alle"><span>Alle</span>' +
+      return '<div class="ein-gkopf"><span class="ein-gkopf-t">' + esc(g.titel) + '</span>' +
+          '<span class="ein-gkopf-alle"><span>Alle</span>' +
           pnSchalterHtml('data-pn-alle="' + esc(g.rolle) + '" aria-label="Alle ' + esc(g.titel) + '"', z, aus) +
           '</span></div>' +
-        '<div class="pn-liste' + (aus ? " is-aus" : "") + '">' +
+        '<div class="ein-gruppe ein-gruppe-schalter' + (aus ? " is-aus" : "") + '">' +
           g.kategorien.map((k) => pnZeileHtml(k, aus, pushPrefs)).join("") +
-        '</div></div>';
+        '</div>';
     }).join("");
+  }
+
+  /* Hinweis, solange es noch keine automatischen Nachrichten gibt (Paket
+     "Automatische Mitteilungen" in PLAN.md). Eine Stelle: mit dem Paket wird
+     die Konstante true, und der Hinweis ist weg. */
+  const AUTO_MITTEILUNGEN_AKTIV = false;
+  function pnAutoHinweisHtml() {
+    if (AUTO_MITTEILUNGEN_AKTIV) return "";
+    return '<p class="ein-hinweis ein-hinweis-auto">Automatische Nachrichten sind noch nicht eingeschaltet. ' +
+      'Was du hier auswählst, wird gespeichert und gilt, sobald sie starten.</p>';
   }
 
   /* Ruhezeiten. Es gibt keine eigene Ja/Nein-Spalte: gleiche Von- und
@@ -1733,10 +1750,8 @@
 
   function pnAdminHtml() {
     if (!Roles.isAdmin()) return "";
-    return '<div class="pn-gruppe">' +
-      '<div class="pn-kopf"><span class="pn-kopf-t">Admin</span></div>' +
-      '<p class="pn-hinweis">Keine eigenen Kategorien – als Admin bekommst du, was deine übrigen Rollen vorsehen.</p>' +
-      '</div>';
+    return '<p class="ein-hinweis ein-hinweis-admin">Keine eigenen Kategorien für Admins. Als Admin bekommst du, ' +
+      'was deine übrigen Rollen vorsehen.</p>';
   }
 
   /* Der ganze Block. Erscheint in "bereit" und "aktiv": ohne eingeschalteten
@@ -1751,19 +1766,24 @@
     // Vorgabewert "alles" haelt den Baustein fuer jeden anderen Aufrufer heil.
     teil = teil || "alles";
     if (teil === "ruhezeiten") return '<div class="pn-block">' + pnRuhezeitHtml(aus) + '</div>';
-    return '<div class="pn-block">' +
-      '<div class="pn-gruppe"><div class="pn-liste">' +
-        '<div class="pn-zeile">' +
-          '<span class="pn-main"><span class="pn-t">Push auf diesem Gerät</span>' +
-          '<span class="pn-s">Gilt nur hier. Die Auswahl darunter gilt für alle deine Geräte' +
-          (aus ? ' und wird erst wirksam, wenn du hier einschaltest.' : '.') + '</span></span>' +
-          pnSchalterHtml('data-pn-haupt aria-label="Push auf diesem Gerät"', aus ? "false" : "true", false) +
-        '</div>' +
-      '</div></div>' +
+    // Mitteilungen (Vorlage einst2.png, Panel 3 und 4): einzelne Karten auf
+    // dem Grund, Hinweise darunter, kein Rahmen um alles.
+    return '<div class="ein-gruppe ein-gruppe-schalter ein-gruppe-erste">' +
+        einSchalterZeileHtml({ ic: "glocke", ton: "gruen", titel: "Push auf diesem Gerät",
+          schalter: pnSchalterHtml('data-pn-haupt aria-label="Push auf diesem Gerät"', aus ? "false" : "true", false) }) +
+      '</div>' +
+      '<p class="ein-hinweis">Gilt nur hier. Die Auswahl darunter gilt für alle deine Geräte' +
+        (aus ? ' und wird erst wirksam, wenn du hier einschaltest.' : '.') + '</p>' +
+      pnAutoHinweisHtml() +
       pnGruppenHtml(aus) +
       (teil === "alles" ? pnRuhezeitHtml(aus) : "") +
-      pnAdminHtml() +
-      '<p class="pn-hinweis">Die Liste in der App zeigt alles, was du hier eingeschaltet hast – ' +
+      pnAdminHtml();
+  }
+
+  /* Schlusshinweis der Mitteilungen; steht in der Vorlage unter dem Knopf
+     "Testnachricht senden" (ohne den Knopf direkt unter den Gruppen). */
+  function pnSchlussHinweisHtml() {
+    return '<p class="ein-hinweis">Die Liste in der App zeigt alles, was du hier eingeschaltet hast, ' +
       'auch ohne Push auf diesem Gerät.</p>';
   }
 
@@ -1773,7 +1793,11 @@
      Rein rechnend, damit pushpruef.mjs es je Rolle pruefen kann. */
   function pnTestKnopfHtml(rollen) {
     if (!rollen || rollen.indexOf("admin") < 0) return "";
-    return '<button class="btn btn-primary" data-push-test type="button">Testnachricht senden</button>';
+    return '<div class="ein-gruppe ein-gruppe-aktion">' +
+      '<button class="ein-zeile ein-zeile-aktion" data-push-test type="button">' +
+        '<span class="ein-ic gruen" aria-hidden="true">' + einIcon("senden") + '</span>' +
+        '<span class="ein-zeile-t">Testnachricht senden</span>' +
+      '</button></div>';
   }
 
   /* ---- Die Anzeige je Zustand ---- */
@@ -1798,7 +1822,7 @@
       inhalt = '<p class="set-hint">Diese Seite läuft gerade im Browser einer anderen App. ' +
         'Dort lassen sich Benachrichtigungen nicht einrichten.</p>' +
         '<p class="set-hint"><b>' + (u.apple ? "In Safari öffnen" : "In Chrome öffnen") +
-        '</b> – über das Menü oben rechts – und dort noch einmal hierherkommen.</p>';
+        '</b>, über das Menü oben rechts, und dort noch einmal hierherkommen.</p>';
     } else if (z === "ios-install") {
       inhalt = '<p class="set-hint">Auf dem iPhone gibt es Benachrichtigungen nur, wenn die App ' +
         'auf dem Home-Bildschirm liegt und von dort gestartet wird.</p>' +
@@ -1809,7 +1833,7 @@
         '</ol>';
     } else if (z === "nicht-unterstuetzt") {
       inhalt = '<p class="set-hint">Dieser Browser kann keine Benachrichtigungen. ' +
-        'Die Liste in der App zeigt trotzdem alles an – du verpasst nichts.</p>';
+        'Die Liste in der App zeigt trotzdem alles an. Du verpasst nichts.</p>';
     } else if (z === "verweigert") {
       inhalt = '<p class="set-hint">Benachrichtigungen sind für diese App blockiert. ' +
         'Das lässt sich nur in den Systemeinstellungen zurücknehmen:</p>' +
@@ -1823,18 +1847,25 @@
         '<p class="set-hint">Danach hier wieder herkommen.</p>';
     } else if (z === "aktiv") {
       inhalt = pnAbschnittHtml("aktiv", teil) +
-        (teil === "ruhezeiten" ? "" : pnTestKnopfHtml(Roles.list)) +
+        (teil === "ruhezeiten" ? "" : pnTestKnopfHtml(Roles.list) + pnSchlussHinweisHtml()) +
         '<div class="cal-copied" data-push-meldung hidden></div>';
     } else {   // "bereit"
       inhalt = (teil === "ruhezeiten" ? "" :
-        '<p class="set-hint">Kurzfristige Absagen, Terminänderungen und ' +
+        '<p class="ein-hinweis ein-hinweis-oben">Kurzfristige Absagen, Terminänderungen und ' +
         'Rückmelde-Erinnerungen direkt aufs Handy.</p>') +
         pnAbschnittHtml("bereit", teil) +
+        (teil === "ruhezeiten" ? "" : pnSchlussHinweisHtml()) +
         (installPrompt && !u.standalone
           ? '<button class="btn btn-soft" data-push-install type="button">App installieren</button>' : "") +
         '<div class="cal-copied" data-push-meldung hidden></div>';
     }
 
+    // Mitteilungen mit Schaltern (aktiv, bereit): Karten direkt auf dem Grund,
+    // wie in der Vorlage. Die Hinweis-Zustaende und die Ruhezeiten (bis E5)
+    // behalten ihre Karte.
+    if (teil === "mitteilungen" && (z === "aktiv" || z === "bereit") && pushPrefs) {
+      return '<div class="ein-mitteilungen" data-push-karte>' + inhalt + '</div>';
+    }
     return '<div class="set-section">' + kopf +
       '<div class="card card-pad" data-push-karte>' + inhalt + '</div></div>';
   }
@@ -2039,6 +2070,19 @@
     if (name === "sprech")   return `<svg ${SVG}><path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg>`;
     if (name === "info")     return `<svg ${SVG}><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>`;
     if (name === "puls")     return `<svg ${SVG}><path d="M3 12h4l2.5-6 5 12 2.5-6H21"/></svg>`;
+    // Mitteilungen (einst2.png, einst3.png)
+    if (name === "euro")     return `<svg ${SVG}><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5a4 4 0 1 0 0 7M7.5 10.5h6M7.5 13.5h6"/></svg>`;
+    if (name === "haken")    return `<svg ${SVG}><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.8 2.8L16.5 9.5"/></svg>`;
+    if (name === "warnung")  return `<svg ${SVG}><path d="M12 3.5 2.8 19.5h18.4z"/><path d="M12 10v4M12 17h.01"/></svg>`;
+    if (name === "uhr")      return `<svg ${SVG}><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`;
+    if (name === "kal-x")    return `<svg ${SVG}><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M10 13.5l4 4M14 13.5l-4 4"/></svg>`;
+    if (name === "kal-stift") return `<svg ${SVG}><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M9.5 17.5l.5-2 4-4 1.5 1.5-4 4z"/></svg>`;
+    if (name === "kal-plus") return `<svg ${SVG}><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M12 13v5M9.5 15.5h5"/></svg>`;
+    if (name === "wiederholen") return `<svg ${SVG}><path d="M17 3l3 3-3 3"/><path d="M4 11V9a3 3 0 0 1 3-3h13"/><path d="M7 21l-3-3 3-3"/><path d="M20 13v2a3 3 0 0 1-3 3H4"/></svg>`;
+    if (name === "personen") return `<svg ${SVG}><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14a6.5 6.5 0 0 1 3.5 6"/></svg>`;
+    if (name === "klemmbrett") return `<svg ${SVG}><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/></svg>`;
+    if (name === "boerse")   return `<svg ${SVG}><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M16 15h2"/></svg>`;
+    if (name === "senden")   return `<svg ${SVG}><path d="M21 3 10 14"/><path d="M21 3l-7 18-4-7-7-4z"/></svg>`;
     if (name === "neu")      return `<svg ${SVG}><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/></svg>`;
     return "";
   }
@@ -5889,7 +5933,7 @@
           const r = await pushAnmelden();
           if (r === "granted") { render(); pushMeldung("Benachrichtigungen sind aktiv"); }
           else if (r === "denied") { render(); }
-          else pushMeldung("Nicht bestätigt – nichts geändert");
+          else pushMeldung("Nicht bestätigt, nichts geändert");
         } catch (err) {
           pushMeldung("Einrichten fehlgeschlagen: " + ((err && err.message) || err));
         }
@@ -5903,7 +5947,7 @@
     if (t.hasAttribute("data-push-test")) {
       if (!Roles.isAdmin()) return;   // zweite Schranke; der Server ist die erste
       (async () => {
-        try { await DB.sendTestNotification(); pushMeldung("Testnachricht unterwegs – sie kommt in bis zu einer Minute"); }
+        try { await DB.sendTestNotification(); pushMeldung("Testnachricht unterwegs, sie kommt in bis zu einer Minute"); }
         catch (err) { pushMeldung("Fehlgeschlagen: " + ((err && err.message) || err)); }
       })();
       return;
@@ -5952,7 +5996,7 @@
         try {
           const r = await pushAnmelden();
           render();
-          if (r !== "granted" && r !== "denied") pushMeldung("Nicht bestätigt – nichts geändert");
+          if (r !== "granted" && r !== "denied") pushMeldung("Nicht bestätigt, nichts geändert");
         } catch (err) { pushMeldung("Einrichten fehlgeschlagen: " + ((err && err.message) || err)); }
       })();
       return;
