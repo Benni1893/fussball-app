@@ -30,6 +30,7 @@ sind überholt: die Bilder liegen inzwischen in diesem Ordner, und
 | L3b | fertig: Zoomen/Verschieben (Mausrad, Ziehen, Pinch, Knöpfe), Stränge je Rolle (Strang = Ansicht des Zustands, Mehr-Menü eigener Strang, Zu- und Ausgänge als Stummel), „Nur diesen Weg zeigen“, Brotkrumen, Auswahl im URL (`?rolle=…&strang=…&weg=…`); gilt für `landkarte.html` und `landkarte-komplett.html` (9,6 MB) |
 | L4 | fertig: `landkartendrift.mjs` und `landkartenrauch.mjs` auf der Pflichtliste (jetzt 18), sprechender Name je Knoten (`name`, `nameQuelle`, Regeln und Liste `NAMEN` in `landkartenregeln.mjs`), `strang` in `landkarte.json`, Abschnitt „App-Landkarte“ in `NOTES.md`, `build.sh` legt Landkarte und Rollenbilder ins Bundle (`ds-bundle/landkarte/`) |
 | A | offen, Aufräumen (Nebenbefunde aus der Landkarten-Analyse, siehe unten) |
+| E1 | fertig 03.10.2026 (Paket „Einstellungen v2 + Push-Erinnerung“): Migration 0042 (Push-Rechte) und 0042b (Rechte nach Vollinventar) eingespielt, `supabase/checks/0042_rechtepruef.sql` 166/166, anon-HTTP 22/22 abgelehnt, Smoke-Test am Handy 8/8, Testnachricht angekommen. Einzelheiten: `einstellungen-v2/PHASE0.md`. |
 
 **Reihenfolge ab hier, kein Vorziehen:**
 1. ~~Migration 0041: zuerst die Gegenprobe, dann die zwei Updates.~~ erledigt 01.10.2026.
@@ -39,11 +40,15 @@ sind überholt: die Bilder liegen inzwischen in diesem Ordner, und
    - L3 Layout: `landkarte.html` (Spalte je Rolle, Ebenen, SVG-Pfeile, Klick vergrößert) plus PNG je Rolle
    - L3b Bedienung: Zoomen und Verschieben, Stränge einzeln, Weg zu einem Zustand, Auswahl im URL
    - L4 Drift-Prüfung auf die Pflichtliste, `NOTES.md`, Weg nach Claude Design über `build.sh`; dazu ein sprechender deutscher Name je Knoten (bevorzugt aus der sichtbaren Überschrift, sonst aus der Namensliste in `landkartenregeln.mjs`), die Drift-Prüfung wird rot, wenn ein Knoten keinen sprechenden Namen hat
-3. Inhaltsabgleich der vier Unterseiten gegen Panel 3 bis 7, ein Commit je Unterseite.
-4. F9.
-5. F14, erst wenn die Einstellungen komplett sind.
-6. Kader F11 bis F13.
-7. Paket A, Aufräumen (siehe unten).
+3. ~~Inhaltsabgleich der vier Unterseiten~~, ~~F9~~, ~~F14~~: ersetzt am 03.10.2026 durch das Paket
+   **„Einstellungen v2 + Push-Erinnerung“** (Vorlagen `einst1.png` bis `einst4.png`, Plan und
+   Entscheidungen in `.design-sync/reference/app/einstellungen-v2/PHASE0.md`). Reihenfolge dort:
+   E1 Rechte serverseitig (fertig), E2 UI-Rechte, E3 bis E10 je Unterseite (E7 = F9), P1
+   Erinnerungs-Push im Rückmeldungen-Blatt, F14 Design-System-Karten.
+4. Paket **„Automatische Mitteilungen“** (Erzeuger für die Push-Kategorien; heute reiht kein
+   Trigger und kein Cron-Job etwas ein, siehe PHASE0.md Abschnitt c).
+5. Kader F11 bis F13.
+6. Paket A, Aufräumen (siehe unten). `data-remind` entfällt dort, es wird in P1 entfernt.
 
 ### Paket L: Vorgaben (02.10.2026)
 - Sechs Spalten: vor der Anmeldung, Spieler, Trainer, Kassenwart, Trainer+Kassenwart, Admin.

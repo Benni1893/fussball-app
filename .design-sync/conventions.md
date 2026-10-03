@@ -404,3 +404,41 @@ waagerecht. Eine Zeile **innerhalb** einer Karte (`.ks-ein-row`) nimmt dagegen
 den Karten-Standard **16 px** — wie `.card-pad` und `.ks-card`. Der Abstand
 zwischen Avatar bzw. Symbolkreis und Text bleibt in beiden Fällen **12 px**;
 das ist das Maß aller Avatarzeilen der App.
+
+## Neue Datenbankfunktionen: ausdrückliches `grant`
+
+Seit Migration 0042 (03.10.2026) bekommt eine neue Funktion in `public`
+**kein** EXECUTE mehr von selbst: die Default Privileges für Objekte von
+`postgres` (so laufen Migrationen im SQL-Editor) sind für `PUBLIC` global und
+für `anon`/`authenticated` im Schema `public` entzogen. Deshalb steht in jeder
+Migration direkt unter der Funktion, wer sie aufrufen darf:
+
+- Ruft die App sie auf: `grant execute on function public.<name>(<argumente>) to authenticated;`
+- Braucht sie nur der Server (`api/*.js` mit Service-Key): `… to service_role;`
+- Nur Trigger, Cron oder andere Funktionen: kein `grant`.
+
+**Auch Funktionen, die niemand direkt aufruft, brauchen ein `grant`**, sobald
+sie mit den Rechten des Lesenden ausgeführt werden:
+
+- in einer **RLS-Policy** (`using (...)`, `with check (...)`, z. B. `is_admin()`, `has_role()`, `my_player_id()`),
+- in einer Sicht mit **`security_invoker = true`**,
+- in einem **Spalten-Default** (`default meine_funktion()`),
+- in einem **Check-Constraint**.
+
+Dann gilt `grant execute … to authenticated` (und `to anon`, falls die Tabelle
+ohne Anmeldung gelesen oder beschrieben wird). Fehlt es, scheitert nicht nur
+der Aufruf, sondern **jede Abfrage auf die betroffene Tabelle** mit
+`permission denied for function …` – bei einer Policy-Funktion also das
+Lesen der ganzen Tabelle.
+
+**Prüfschritt in jeder Migration mit neuer Funktion:** im SQL-Editor als
+`authenticated` (Muster: `supabase/checks/0042_rechtepruef.sql`, `set local role
+authenticated` plus `request.jwt.claims`, in einer Untertransaktion, die
+zurückgerollt wird) die neue Funktion aufrufen bzw. die betroffene Tabelle
+lesen und schreiben. Erst wenn das gelingt, gilt die Migration als fertig.
+
+`anon` bekommt nur in begründeten Ausnahmen etwas. Fehlt das `grant`, scheitert
+der Aufruf aus der App mit `permission denied` (42501) – das ist gewollt und
+fällt beim ersten Test auf, statt still offen zu stehen. Rollenprüfungen
+(`is_admin()`, `has_role(...)`) gehören zusätzlich **in** die Funktion; das
+`grant` regelt nur, wer anklopfen darf.
