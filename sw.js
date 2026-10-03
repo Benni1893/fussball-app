@@ -20,7 +20,14 @@
    verliert das Push-Abo also nicht.
    =========================================================================== */
 
-const VERSION = "fn-sw-2";     // Cache-Name; aendert sich der Wert, wird alles Alte verworfen
+/* Cache-Name = "fn-sw-" + Build-Kennung. MUSS bei jedem Deploy mit BUILD in
+   index.html und APP_BUILD in app.js hochgezogen werden (prueft
+   .design-sync/shots/buildpruef.mjs). Grund: der Browser installiert einen
+   neuen Worker nur, wenn sich sw.js selbst aendert. Ohne neue Version bliebe
+   eine geaenderte offline.html fuer immer die alte. Mit ihr holt "install"
+   die Offline-Seite frisch und "activate" wirft jeden anderen Cache weg.
+   Das Push-Abo haengt an der Registrierung und uebersteht das Update. */
+const VERSION = "fn-sw-2026-10-04-A";
 const OFFLINE = "offline.html";
 
 self.addEventListener("install", (e) => {

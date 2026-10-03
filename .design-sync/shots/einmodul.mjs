@@ -31,7 +31,7 @@ const STUETZEN = `
   function esc(s) {
     return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
-  const APP_BUILD = "2026-09-26-G";
+  const APP_BUILD = ${JSON.stringify((app.match(/var APP_BUILD = "([^"]+)"/) || [])[1] || "")};
   const ROLE_LABEL = { player: "Spieler", coach: "Trainer", treasurer: "Kassenwart", admin: "Administrator" };
   let rollen = ["admin", "player"];
   const Roles = {

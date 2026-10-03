@@ -1097,14 +1097,20 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
   Bezugsrahmen, und die Leiste wandert mit — derselbe Mechanismus, der schon
   die Kassenseite zusammengedrückt hat.
 
-## Prüfskripte: Pflichtliste und „nur mit Testkonto“ (Stand 02.10.2026)
+## Prüfskripte: Pflichtliste und „nur mit Testkonto“ (Stand 03.10.2026)
 
-- **Pflichtliste (18)** — laufen ohne Anmeldung und müssen vor jedem Push grün
-  sein: `abopruef`, `deeplinkpruef`, `einpruef`, `icspruef`, `kachelpruef`,
-  `kassepruef`, `katalogpruef`, `kopfpruef`, `meldeschlusspruef`, `p1pruef`,
-  `p3pruef`, `p4pruef`, `prefspruef`, `pushpruef`, `swpruef`, `tkicspruef`,
-  seit L4 (02.10.2026) dazu `landkartenrauch` und `landkartendrift`
-  (Abschnitt „App-Landkarte“). Am 28.09. die ersten 16 mit Rückgabewert 0
+- **Pflichtliste (19)** — laufen ohne Anmeldung und müssen vor jedem Push grün
+  sein: `abopruef`, `buildpruef`, `deeplinkpruef`, `einpruef`, `icspruef`,
+  `kachelpruef`, `kassepruef`, `katalogpruef`, `kopfpruef`, `meldeschlusspruef`,
+  `p1pruef`, `p3pruef`, `p4pruef`, `prefspruef`, `pushpruef`, `swpruef`,
+  `tkicspruef`, seit L4 (02.10.2026) dazu `landkartenrauch` und `landkartendrift`
+  (Abschnitt „App-Landkarte“), seit 03.10.2026 `buildpruef`: Build-Kennung in
+  `app.js` (`APP_BUILD`), `index.html` (`BUILD` und jede Versions-Query) und
+  `sw.js` (`VERSION = "fn-sw-" + Kennung`) gleich, keine feste Kopie in den
+  Prüfskripten, Service Worker hält nur die Offline-Seite und räumt alte
+  Caches weg, Cache-Header in `vercel.json` unverändert. Beim Hochzählen der
+  Kennung also immer **vier** Stellen: `app.js`, `index.html` (BUILD und drei
+  Queries), `sw.js`. Am 28.09. die ersten 16 mit Rückgabewert 0
   durchgelaufen. `landkartendrift` crawlt die App nur neu (rund 3,5 Minuten),
   wenn sich seit dem letzten Commit von `landkarte.json` eine
   Oberflächendatei geändert hat; sonst meldet sie „übersprungen, keine

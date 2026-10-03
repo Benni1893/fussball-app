@@ -45,8 +45,18 @@ sind überholt: die Bilder liegen inzwischen in diesem Ordner, und
    Entscheidungen in `.design-sync/reference/app/einstellungen-v2/PHASE0.md`). Reihenfolge dort:
    E1 Rechte serverseitig (fertig), E2 UI-Rechte, E3 bis E10 je Unterseite (E7 = F9), P1
    Erinnerungs-Push im Rückmeldungen-Blatt, F14 Design-System-Karten.
-4. Paket **„Automatische Mitteilungen“** (Erzeuger für die Push-Kategorien; heute reiht kein
-   Trigger und kein Cron-Job etwas ein, siehe PHASE0.md Abschnitt c).
+4. Paket **„Automatische Mitteilungen“**, direkt nach dem Einstellungs-Paket, vor Kader.
+   Trigger und Cron-Jobs, die neue Strafe, Zahlung bestätigt/abgelehnt/gemeldet, Erinnerung
+   24 h und 2 h vor Meldeschluss, kurzfristige Absage, zu wenig Zusagen, Übersicht nach
+   Meldeschluss, Termin neu/geändert/abgesagt und offene Strafen in die Outbox schreiben,
+   ausschließlich über `notify_enqueue` mit den Vorlagen aus `notification_templates`.
+   Zugestellt wird nach den Schaltern und Ruhezeiten der Seite Mitteilungen (die Sicht
+   `notification_due` prüft das bereits). Heute reiht kein Trigger und kein Cron-Job etwas
+   ein (PHASE0.md, Abschnitt c); bis dahin trägt die Seite Mitteilungen einen dezenten
+   Hinweis (E4). **Nicht bauen vor Freigabe.**
+   - **Offene Entscheidung:** Wer eine Aktion auslöst (z. B. eine Strafe verhängt, eine
+     Zahlung bestätigt, einen Termin ändert), bekommt darüber keine Nachricht, auch wenn er
+     selbst betroffen ist. Festhalten und vor dem Bau bestätigen lassen.
 5. Kader F11 bis F13.
 6. Paket A, Aufräumen (siehe unten). `data-remind` entfällt dort, es wird in P1 entfernt.
 
