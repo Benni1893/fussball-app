@@ -1224,7 +1224,7 @@
             {
               "art": "view-jump",
               "wert": "profil",
-              "text": "FO Felix Oberhaus Spieler · Trainer trainer@land",
+              "text": "FO Felix Oberhaus Trainer · Spieler trainer@land",
               "global": false
             }
           ],
@@ -1552,7 +1552,7 @@
           "von": "einstellungen",
           "art": "view-jump",
           "wert": "profil",
-          "text": "FO Felix Oberhaus Spieler · Trainer trainer@land",
+          "text": "FO Felix Oberhaus Trainer · Spieler trainer@land",
           "nach": "profil"
         },
         {
@@ -2158,7 +2158,7 @@
             {
               "art": "view-jump",
               "wert": "profil",
-              "text": "FO Felix Oberhaus Spieler · Kassenwart kassenwar",
+              "text": "FO Felix Oberhaus Kassenwart · Spieler kassenwar",
               "global": false
             }
           ],
@@ -2418,7 +2418,7 @@
           "von": "einstellungen",
           "art": "view-jump",
           "wert": "profil",
-          "text": "FO Felix Oberhaus Spieler · Kassenwart kassenwar",
+          "text": "FO Felix Oberhaus Kassenwart · Spieler kassenwar",
           "nach": "profil"
         },
         {
@@ -3796,7 +3796,7 @@
           "von": "einstellungen",
           "art": "view-jump",
           "wert": "profil",
-          "text": "FO Felix Oberhaus Spieler · Trainer · Kassenwart",
+          "text": "FO Felix Oberhaus Trainer · Kassenwart · Spieler",
           "nach": "profil"
         },
         {
@@ -5378,7 +5378,7 @@
           "von": "einstellungen",
           "art": "view-jump",
           "wert": "profil",
-          "text": "FO Felix Oberhaus Spieler · Administrator admin@",
+          "text": "FO Felix Oberhaus Administrator · Spieler admin@",
           "nach": "profil"
         },
         {

@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-04-A";
+  var APP_BUILD = "2026-10-04-B";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -2004,11 +2004,14 @@
                : opts.goto ? ' data-goto="' + esc(opts.goto) + '"'
                : opts.jump ? ' data-view-jump="' + esc(opts.jump) + '"'
                : opts.tat ? ' data-ein-tat="' + esc(opts.tat) + '"' : "";
+    // Chevron nur, wo eine Ebene dahinter liegt. Eine reine Aktion ("App neu
+    // laden") traegt keinen (Vorlage einst1.png, Panel 1 und 2).
+    const chev = opts.chev !== false;
     return '<button class="ein-zeile" type="button"' + ziel + '>' +
       '<span class="ein-ic ' + esc(opts.ton || "gruen") + '" aria-hidden="true">' + opts.ic + '</span>' +
       '<span class="ein-zeile-t">' + esc(opts.titel) + '</span>' +
       (opts.wert ? '<span class="ein-zeile-w">' + esc(opts.wert) + '</span>' : "") +
-      '<span class="ein-chev" aria-hidden="true">\u203A</span>' +
+      (chev ? '<span class="ein-chev" aria-hidden="true">\u203A</span>' : "") +
     '</button>';
   }
 
@@ -2035,6 +2038,7 @@
     if (name === "liste")    return `<svg ${SVG}><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>`;
     if (name === "sprech")   return `<svg ${SVG}><path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg>`;
     if (name === "info")     return `<svg ${SVG}><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>`;
+    if (name === "puls")     return `<svg ${SVG}><path d="M3 12h4l2.5-6 5 12 2.5-6H21"/></svg>`;
     if (name === "neu")      return `<svg ${SVG}><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/></svg>`;
     return "";
   }
@@ -2059,19 +2063,32 @@
     return von + " bis " + bis;
   }
 
+  /* Rollenzeile der Profilkarte: hoechste Rolle zuerst, unabhaengig davon, in
+     welcher Reihenfolge my_roles() sie liefert („Administrator · Spieler“,
+     Vorlage einst1.png). Unbekannte Rollen hinten, ohne Rolle „Spieler“.
+     Rein rechnend, damit einpruef.mjs es pruefen kann. */
+  const EIN_ROLLEN_FOLGE = ["admin", "coach", "treasurer", "player"];
+  function einRollenText(rollen) {
+    const r = (rollen || []).slice();
+    if (!r.length) return "Spieler";
+    const rang = (x) => { const i = EIN_ROLLEN_FOLGE.indexOf(x); return i < 0 ? 99 : i; };
+    r.sort((a, b) => rang(a) - rang(b));
+    return r.map((x) => ROLE_LABEL[x] || x).join(" · ");
+  }
+
   function renderEinUebersicht() {
     const u = currentProfile || {};
     const player = u.player_id ? playerById[u.player_id] : null;
     const name = player ? player.name : (u.email || "—");
     const email = u.email || "—";
-    const roleText = Roles.list.length ? Roles.list.map((r) => ROLE_LABEL[r] || r).join(" · ") : "Spieler";
+    const roleText = einRollenText(Roles.list);
     const verwaltung = Roles.canManageSchedule() || Roles.canEditCatalog();
     const buildTxt = "Build " + APP_BUILD +
       ((window.__HTML_BUILD && window.__HTML_BUILD !== APP_BUILD)
         ? " · HTML " + window.__HTML_BUILD + " (Versionen unterschiedlich – evtl. Cache)" : "");
 
     viewEl.innerHTML = `
-      <div class="page-head"><h1>Einstellungen</h1></div>
+      <div class="page-head ein-start"><h1>Einstellungen</h1></div>
 
       <button class="ein-profil" type="button" data-view-jump="profil">
         <span class="avatar ein-profil-av">${initials(name)}</span>
@@ -2099,8 +2116,8 @@
 
       <div class="ein-titel">Info</div>
       <div class="ein-gruppe">
-        ${einZeileHtml({ tat: "diagnose", ic: einIcon("info"), ton: "grau", titel: "Diagnose" })}
-        ${einZeileHtml({ tat: "neuladen", ic: einIcon("neu"),  ton: "grau", titel: "App neu laden" })}
+        ${einZeileHtml({ tat: "diagnose", ic: einIcon("puls"), ton: "grau", titel: "Diagnose" })}
+        ${einZeileHtml({ tat: "neuladen", ic: einIcon("neu"),  ton: "grau", titel: "App neu laden", chev: false })}
       </div>
 
       <div class="ein-gruppe ein-gruppe-abmelden">

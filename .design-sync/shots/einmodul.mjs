@@ -63,7 +63,7 @@ const RUECK = `
     EIN_SEITEN, EIN_KOMPAKT_AB, einst,
     einSeiteErlaubt, einZielAusHash,
     einKopfHtml, einZeileHtml, einIcon,
-    einMitteilungenWert, einRuhezeitWert,
+    einMitteilungenWert, einRuhezeitWert, einRollenText,
     // Die Uebersicht rendert in viewEl.innerHTML; das Markup kommt hier heraus.
     uebersichtHtml() { viewEl.innerHTML = ""; renderEinUebersicht(); return viewEl.innerHTML; },
     setRollen(r) { rollen = r; },

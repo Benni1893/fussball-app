@@ -1032,29 +1032,30 @@ tbody tr:hover { background: #fbfdfc; }
 /* Profilkarte der Uebersicht */
 .ein-profil {
   appearance: none; -webkit-appearance: none; text-align: left;
-  display: flex; align-items: center; gap: 12px; width: 100%;
-  margin-top: 14px; padding: 14px;
+  display: flex; align-items: center; gap: 13px; width: 100%;
+  margin-top: 22px; padding: 12px 14px;
   background: var(--card); border: 1px solid var(--line);
   border-radius: var(--radius); box-shadow: var(--shadow);
   font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent;
 }
 .ein-profil:active { background: var(--bg-1); }
-.ein-profil-av { flex: none; width: 48px; height: 48px; font-size: 16px; }
+/* Doppelte Klasse: .avatar steht weiter unten und setzte sonst 32 px durch. */
+.ein-profil .ein-profil-av { flex: none; width: 54px; height: 54px; font-size: 18px; }
 .ein-profil-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
-.ein-profil-name  { font-size: 17px; font-weight: 800; color: var(--ink);
+.ein-profil-name  { font-size: 18px; font-weight: 800; color: var(--ink);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ein-profil-rolle { font-size: 12px; font-weight: 600; color: var(--muted); }
-.ein-profil-mail  { font-size: 12px; font-weight: 500; color: var(--muted-2);
+.ein-profil-rolle { font-size: 13px; font-weight: 500; color: var(--muted); }
+.ein-profil-mail  { font-size: 13px; font-weight: 500; color: var(--muted);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* Gruppen und Zeilen */
 .ein-titel {
-  margin: 22px 0 8px; padding: 0 2px;
+  margin: 24px 0 8px; padding: 0 15px;
   font-size: 11px; font-weight: 700; letter-spacing: .68px;
-  text-transform: uppercase; color: var(--muted);
+  text-transform: uppercase; color: var(--green-700);
 }
 .ein-gruppe {
-  margin-top: 14px; overflow: hidden;
+  margin-top: 22px; overflow: hidden;
   background: var(--card); border: 1px solid var(--line);
   border-radius: var(--radius); box-shadow: var(--shadow);
 }
@@ -1062,14 +1063,14 @@ tbody tr:hover { background: #fbfdfc; }
 .ein-zeile {
   appearance: none; -webkit-appearance: none; text-align: left;
   display: flex; align-items: center; gap: 12px; width: 100%;
-  min-height: 49px; padding: 7px 14px; position: relative;
+  min-height: 48px; padding: 7px 19px 7px 13px; position: relative;
   background: none; border: 0; font: inherit; color: var(--ink);
   cursor: pointer; -webkit-tap-highlight-color: transparent;
 }
 .ein-zeile:active { background: var(--bg-1); }
-/* Trennlinie erst hinter der Kachel, wie in der Vorlage: 14 + 30 + 12 = 56. */
+/* Trennlinie erst hinter der Kachel, wie in der Vorlage: 13 + 30 + 12 = 55. */
 .ein-zeile + .ein-zeile::before {
-  content: ""; position: absolute; top: 0; left: 56px; right: 0; height: 1px;
+  content: ""; position: absolute; top: 0; left: 55px; right: 0; height: 1px;
   background: var(--line);
 }
 .ein-ic {
@@ -1080,12 +1081,13 @@ tbody tr:hover { background: #fbfdfc; }
 .ein-ic.gruen       { background: var(--green-650); }
 .ein-ic.dunkelgruen { background: var(--green-900); }
 .ein-ic.gold        { background: var(--gold-chev); }
-.ein-ic.grau        { background: var(--muted-2); }
-.ein-zeile-t { flex: 1 1 auto; min-width: 0; font-size: 15px; font-weight: 600;
+.ein-ic.grau        { background: var(--muted); }   /* Vorlage einst1.png: dasselbe Grau wie --muted */
+.ein-zeile-t { flex: 1 1 auto; min-width: 0; font-size: 16px; font-weight: 500;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ein-zeile-w { flex: 0 1 auto; min-width: 0; font-size: 14px; font-weight: 500; color: var(--muted);
+.ein-zeile-w { flex: 0 1 auto; min-width: 0; font-size: 15px; font-weight: 400; color: var(--muted);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ein-chev { flex: none; color: var(--gold-chev); font-size: 20px; line-height: 1; opacity: .7; }
+.ein-chev { flex: none; color: var(--muted); font-size: 20px; line-height: 1; opacity: .6; }
+.ein-zeile-w + .ein-chev { margin-left: 2px; }
 
 /* Abmelden: eigene Karte, roter Text - laut genug, ohne rote Flaeche. */
 .ein-gruppe-abmelden { margin-top: 22px; }
@@ -1093,12 +1095,15 @@ tbody tr:hover { background: #fbfdfc; }
   appearance: none; -webkit-appearance: none;
   display: block; width: 100%; min-height: 49px; padding: 12px;
   background: none; border: 0; font: inherit;
-  font-size: 15px; font-weight: 700; color: var(--red-600);
+  font-size: 16px; font-weight: 700; color: var(--red-600);
   cursor: pointer; -webkit-tap-highlight-color: transparent;
 }
 .ein-abmelden:active { background: var(--red-050); }
 
-.ein-build { margin: 18px 0 0; text-align: center; font-size: 12px; font-weight: 500; color: var(--muted); opacity: .75; }
+.ein-build { margin: 8px 0 0; text-align: center; font-size: 12px; font-weight: 500; color: var(--muted); opacity: .75; }
+/* Ueberschrift der Uebersicht: 26 px wie die Vorlage (einst1.png). Nur hier -
+   .page-head h1 bleibt fuer alle anderen Seiten bei 22 px. */
+.page-head.ein-start h1 { font-size: 26px; line-height: 1.15; margin-top: -3px; }
 
 /* Mein Kalender – reduziert */
 /* Blatt „Termine abonnieren“: zwei Karten, weil iOS ein webcal-Abo systemweit

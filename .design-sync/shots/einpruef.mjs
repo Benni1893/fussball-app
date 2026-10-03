@@ -210,6 +210,50 @@ console.log('--- Vorlagen ---');
   pruefe(konv.includes('einstellungenneu2.png'), 'conventions.md nennt den neuen Namen');
 }
 
+/* ===== 8. Paket Einstellungen v2, E3: Hauptseite nach einst1.png ========= */
+console.log('--- Einstellungen v2: Hauptseite (E3) ---');
+{
+  const T = E.einRollenText;
+  const gleich = (ist, soll, text) => pruefe(ist === soll, text, ist === soll ? undefined : ist);
+  gleich(T(['player', 'admin']), 'Administrator · Spieler', 'Rollenzeile: hoechste Rolle zuerst, auch wenn my_roles() anders sortiert');
+  gleich(T(['admin', 'player']), 'Administrator · Spieler', 'Rollenzeile: Admin + Spieler');
+  gleich(T(['player', 'treasurer', 'coach']), 'Trainer · Kassenwart · Spieler', 'Rollenzeile: Trainer vor Kassenwart vor Spieler');
+  gleich(T(['player']), 'Spieler', 'Rollenzeile: nur Spieler');
+  gleich(T([]), 'Spieler', 'Rollenzeile ohne Rolle: Spieler');
+
+  E.setRollen(['player', 'admin']);
+  const h = E.uebersichtHtml();
+  pruefe(h.includes('Administrator · Spieler'), 'Uebersicht zeigt die sortierte Rollenzeile');
+  pruefe(/class="page-head ein-start"/.test(h), 'Ueberschrift traegt ein-start (26 px nur hier)');
+  const zeilen = h.split('<button class="ein-zeile"').slice(1);
+  const zeile = (t) => zeilen.find((z) => z.includes('>' + t + '<')) || '';
+  pruefe(zeile('Diagnose').includes('M3 12h4l2.5-6'), 'Diagnose mit Puls-Symbol (Vorlage)');
+  pruefe(!zeile('Diagnose').includes('<circle'), 'Diagnose nicht mehr mit Info-Kreis');
+  pruefe(zeile('Diagnose').includes('ein-chev'), 'Diagnose behaelt den Chevron (Ebene dahinter)');
+  pruefe(zeile('App neu laden') !== '' && !zeile('App neu laden').includes('ein-chev'), 'App neu laden ohne Chevron (reine Aktion)');
+  pruefe(zeilen.filter((z) => z.includes('ein-chev')).length === zeilen.length - 1, 'alle anderen Zeilen behalten den Chevron');
+
+  const css = fs.readFileSync('styles.css', 'utf8');
+  const regel = (sel) => { const i = css.indexOf(sel + ' {'); return i < 0 ? '' : css.slice(i, css.indexOf('}', i)); };
+  pruefe(/font-size: 26px/.test(regel('.page-head.ein-start h1')), 'Ueberschrift 26 px');
+  pruefe(/width: 54px; height: 54px/.test(regel('.ein-profil .ein-profil-av')), 'Avatar 54 px, doppelte Klasse gegen .avatar');
+  pruefe(regel('.ein-titel').includes('color: var(--green-700)') && regel('.ein-titel').includes('padding: 0 15px'), 'Gruppentitel gruen und auf Kachelhoehe eingerueckt');
+  pruefe(/min-height: 48px/.test(regel('.ein-zeile')), 'Zeilen 48 px');
+  pruefe(/font-size: 16px; font-weight: 500/.test(regel('.ein-zeile-t')), 'Zeilentitel 16 px / 500');
+  pruefe(css.includes('.ein-ic.grau        { background: var(--muted); }'), 'graue Kachel --muted');
+  pruefe(regel('.ein-chev').includes('color: var(--muted)') && !regel('.ein-chev').includes('gold'), 'Chevron grau statt gold');
+
+  const v2 = '.design-sync/reference/app/einstellungen-v2';
+  for (const f of ['einst1.png', 'einst2.png', 'einst3.png', 'einst4.png']) pruefe(fs.existsSync(v2 + '/' + f), 'Vorlage ' + f + ' liegt in einstellungen-v2');
+  pruefe(!fs.readdirSync('.design-sync/reference').some((f) => /^einstd?.PNG$/.test(f)), 'keine lose Vorlage mehr in reference/');
+  for (const n of ['1-admin', '1b-admin-ende', '2-spieler']) {
+    const f = '.design-sync/reference/soll/07_einstellungen-v2_' + n + '.png';
+    const b = fs.existsSync(f) ? fs.readFileSync(f) : null;
+    pruefe(!!b && b.readUInt32BE(16) === 390 && b.readUInt32BE(20) === 844, 'Soll-Ausschnitt ' + n + ' (390 x 844)');
+  }
+  E.setRollen(['admin', 'player']);
+}
+
 console.log('');
 console.log(fehler ? '--- ' + fehler + ' Beanstandung(en), ' + gut + ' ok ---'
                    : '--- bestanden (' + gut + ' Pruefungen) ---');

@@ -509,3 +509,67 @@ Gesucht in allen versionierten Dateien außer `node_modules`, `ds-bundle`, `prev
 | Pflichtliste | 18/18 |
 
 Offen aus E1: das Anlegen eines neuen Kontos (Trigger `handle_new_user`) ist erst mit dem Testkonto ab E3 geprüft.
+
+---
+
+## Testkonto und Selbstregistrierung (04.10.2026)
+
+**Selbstregistrierung ist abgeschaltet (Befund, nichts geändert).** Die Registrierung über die Auth-Schnittstelle mit dem Publishable Key (derselbe Weg wie `DB.signUp` im Anmeldeformular der App) liefert `422 Signups not allowed for this instance`. Das ist die Projekteinstellung „Allow new users to sign up“ in Supabase (Authentication → Sign In / Providers). Folge: neue Mitglieder können sich auch in der App nicht selbst registrieren, Konten entstehen nur über das Dashboard. Ob das gewollt ist, klärt der Nutzer; bis dahin keine Änderung.
+
+**Kontoanlage nach 0042b funktioniert.** `e-testspieler@fasanerie.local`, im Dashboard mit Auto Confirm angelegt (03.10.2026 22:12 UTC). `handle_new_user` hat angelegt: Profil (mit Verein), Rolle `player`, über den Profil-Trigger `notification_prefs`. Kein Spieler verknüpft. Damit ist der offene Punkt aus E1 erledigt: Triggerfunktionen laufen ohne EXECUTE-Recht des Auslösers.
+
+**Passwort:** zufällig, 40 Zeichen, liegt nur in einer Datei außerhalb des Repos (Arbeitsverzeichnis der Sitzung). Lokal gibt es keinen Server-Schlüssel (`.env` enthält nur URL und Publishable Key), das Passwort kann deshalb nicht per Admin-Schnittstelle gesetzt werden; der Nutzer trägt es im Dashboard ein (Zwischenablage, nirgends ausgegeben).
+
+**Vorgehen E3 bis E10 (Entscheidung 04.10.2026):** Pixelmessung über den Landkarten-Stand-in (`landkartenmodul.mjs`: dasselbe `app.js`/`styles.css`, Playwright 390 px, erfundene Daten, jede Rolle, kein Request an Supabase). Grund: die App lässt ein Konto ohne verknüpften Spieler nicht über die Spielerzuordnung hinaus (`init()`), die Gruppe SPIELER in Mitteilungen hängt ebenfalls an der Verknüpfung; ein Testspieler im echten Kader über Tage kommt nicht in Frage. Das echte Testkonto dient nur zwei Belegen (Kontoanlage, Spieler-/Admin-Sicht auf Testnachricht und Push-Texte), Testspieler und Admin-Rolle jeweils nur für die Minuten des Laufs. Das Konto bleibt bis nach P1 bestehen, ohne Spieler, ohne Admin.
+
+---
+
+## E3 Hauptseite (04.10.2026)
+
+### Belege mit dem echten Testkonto
+
+Ablauf, je Schritt auf Zuruf vom Nutzer per SQL ausgeführt: Testspieler `TEST-E3` anlegen und verknüpfen → Beleg Spieler → Admin-Rolle vergeben → Beleg Admin → Admin-Rolle entziehen, Testspieler lösen und löschen → lesende Nachkontrolle. Gemessen am Arbeitsstand gegen die echte Datenbank (`einv2mess.mjs beleg`), Push „aktiv“ im Browser vorgetäuscht, jeder schreibende Aufruf abgefangen.
+
+| Beleg | Ergebnis |
+|---|---|
+| Spieler: Hauptseite ohne VERWALTUNG, ohne Push-Texte | PASS |
+| Spieler: Mitteilungen (Push aktiv) ohne „Testnachricht senden“, auch nicht ausgegraut | PASS |
+| Admin: Push-Texte vorhanden | PASS |
+| Admin: „Testnachricht senden“ vorhanden | PASS |
+| abgefangen, nicht gesendet | je Lauf genau `POST rpc/upsert_push_subscription` (das vorgetäuschte Abo) |
+| Nachkontrolle nach dem Löschen | kein Spieler `TEST-%` (16 wie vorher), Konto nur `player`, `player_id` leer, keine verwaisten Rückmeldungen/Strafen/Status, keine Abos, keine Outbox-Zeilen |
+
+Das Testkonto `e-testspieler@fasanerie.local` (zweite Anlage, `21cd32b6-…`; die erste wurde vom Nutzer gelöscht, ohne Reste) bleibt bis nach P1 bestehen, ohne Spieler, ohne Admin.
+
+### Messung über den Stand-in (Panel 1, 1b, 2)
+
+Soll = Ausschnitt aus `einst1.png` (1:1), Ist = App über `landkartenmodul.mjs` bei 390 × 844, Werte aus dem DOM bzw. Glyphen-Rahmen aus dem Bild. Alle Angaben in CSS-Pixeln.
+
+| Element | Soll | Ist vorher | Ist nachher |
+|---|---|---|---|
+| Überschrift | 26 px / 800, Glyphen 16..184, oben 79 | 22 px, 17..157, oben 82 | 26 px, 17..183, oben 79 |
+| Profilkarte oben / Höhe | 127 / 81 | 118,4 / 82 | 126,9 / 81 |
+| Avatar | 54 px, Verlauf `--av-1`→`--av-2`, Initialen 18 px | 32 px (`.avatar` überschrieb die 48 px) | 54 px |
+| Name / Rolle / Mail | 18/800, 13/500, 13/500 `--muted` | 17/800, 12/600, 12/500 `--muted-2` | wie Soll; Rolle 98..239 → 98..236 |
+| Rollenzeile | „Administrator · Spieler“ | „Spieler · Administrator“ | höchste Rolle zuerst |
+| Gruppe 1 oben / Höhe | 230 / 146 | 214,4 / 149 | 229,9 / 146 |
+| Zeile | 48 px, Text 16/500 bei x 73, Trennlinie ab x 72 | 49 px, 15/600, x 73, Linie ab 73 | 48 px, 16/500, 73..166 (Soll 73..166), Linie ab 72 |
+| Wert rechts | 15/400 `--muted`, „22:00 bis 08:00“ 220..331 | 14/500 | 15/400, 220..331 |
+| Chevron | grau (≈ `#a3b0a8`), 347..352 | gold, 352..357 | `--muted` · 0,6 (`#a4ada8`), 347..352 |
+| Kachel | 30 px bei x 30, Grau `#66756d` | x 31, `--muted-2` | x 30, `--muted` |
+| Gruppentitel | grün `--green-700`, x 31, Glyphen oben 403 | grau, x 20, 388 | grün, x 31, oben 403 |
+| Gruppe 2 / 3 oben | 422 / 614 | 407,4 / 600,4 | 421,9 / 613,9 |
+| Diagnose | Puls-Symbol, Chevron | Info-Kreis | Puls-Symbol, Chevron |
+| App neu laden | ohne Chevron | mit Chevron | ohne Chevron |
+| Abmelden (Panel 2) | Karte oben 542, Text 16/700, 155..233 | 15/700, 158..231 | 541,9, 16/700, 155..233 |
+| Build (Panel 2) | Glyphen oben 604, 12 px | 18 px Abstand | 604, 12 px |
+
+Panel 1b (ans Ende gescrollt) lässt sich nicht absolut vergleichen: die Vorlage ist weiter gescrollt, als die App-Seite lang ist (die App kann höchstens 109 px scrollen). Relativ zur Oberkante des Titels INFO: Gruppe +20 / +19,4, Abmelden +141 / +139,4, Build +202 / +203,5.
+
+**Bewusst nicht angeglichen (global, außerhalb der Einstellungen):**
+- Seitenhintergrund: die App ist eine Stufe dunkler als die Vorlage (`--bg-1`, Entscheidung aus einem früheren Paket, im Token kommentiert).
+- Kartenschatten: die Vorlage zeigt einen weicheren, längeren Schatten (Auslauf rund 21 px statt 12 px). `--shadow` gilt für alle Karten der App; ein eigener Schatten nur für die Einstellungen bräuchte ein neues Token. Abstände und Kanten stimmen, der Unterschied liegt nur im Auslauf.
+- Untere Leiste: die Vorlage zeichnet sie mit iPhone-Sicherheitsabstand (höher); in der App kommt der Abstand aus `env(safe-area-inset-bottom)` und ist im Browser 0.
+- Kopfleiste: in der App mit Schatten nach unten (`--shadow-hd`), in der Vorlage ohne sichtbaren Schatten.
+
+Neue Tokens: keine.

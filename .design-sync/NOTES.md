@@ -1115,6 +1115,16 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
   wenn sich seit dem letzten Commit von `landkarte.json` eine
   Oberflächendatei geändert hat; sonst meldet sie „übersprungen, keine
   Oberflächenänderung“ und ist grün.
+- **Paket Einstellungen v2: `einv2mess.mjs`** (seit 04.10.2026, nicht auf der
+  Pflichtliste). Drei Modi: `soll [panel …]` schneidet die Panels aus
+  `reference/app/einstellungen-v2/einst1..4.png` (Rahmen 390 × 844, Mittenabstand
+  422, Maßstab 1:1) nach `reference/soll/07_einstellungen-v2_*.png`;
+  `mess [panel …]` misst die App über den Landkarten-Stand-in (kein Supabase,
+  deviceScaleFactor 1) gegen den Soll-Ausschnitt: Bänder, DOM-Werte, Bild Soll |
+  Ist unter `reference/compare/`; `beleg <spieler|admin>` meldet sich mit dem
+  echten Testkonto an (`APP_USER`/`APP_PASS`), täuscht Push „aktiv“ vor, fängt
+  jeden schreibenden Datenbankaufruf ab und belegt, ob Push-Texte und
+  Testnachricht da sind. Nur `beleg` braucht ein Konto.
 - **Nur mit Testkonto** — melden sich an der laufenden App an und brauchen
   `APP_USER`/`APP_PASS`: `blattpruef`, `heropruef`, `pruef`. Ohne Konto
   brechen sie mit `page.fill: … got undefined` ab. Sie stehen deshalb **nicht**
