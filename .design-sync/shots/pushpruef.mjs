@@ -127,5 +127,48 @@ pruefe(!/VAPID_PRIVATE_KEY\s*=\s*"/.test(disp), 'kein Schluessel im Quelltext');
     'web-push steht in dependencies, nicht in devDependencies', JSON.stringify(p.dependencies));
 }
 
+/* ===== 6. Rechte im UI (Paket Einstellungen v2, E2) ==================== */
+// Testnachricht und Push-Texte nur fuer Admin - fuer alle anderen Rollen gar
+// nicht vorhanden, auch kein ausgegrauter Knopf. Der Server prueft selbst
+// (Migration 0042: send_test_notification, notification_templates).
+console.log('--- Rechte im UI ---');
+{
+  const knopf = new Function(schnitt('  function pnTestKnopfHtml(rollen) {', '  /* ---- Die Anzeige je Zustand ---- */') +
+    '\n return pnTestKnopfHtml;')();
+  const ROLLEN = [
+    ['Spieler',              ['player'],              false],
+    ['Trainer',              ['coach'],               false],
+    ['Kassenwart',           ['treasurer'],           false],
+    ['Trainer + Kassenwart', ['coach', 'treasurer'],  false],
+    ['ohne Rolle',           [],                      false],
+    ['Admin',                ['admin'],               true],
+    ['Admin + Spieler',      ['player', 'admin'],     true],
+  ];
+  for (const [name, rollen, soll] of ROLLEN) {
+    const html = knopf(rollen);
+    if (soll) {
+      pruefe(/data-push-test/.test(html) && /Testnachricht senden/.test(html), 'Testnachricht sichtbar: ' + name);
+      pruefe(!/disabled/.test(html), 'Testnachricht nicht ausgegraut: ' + name);
+    } else {
+      gleich(html, '', 'Testnachricht nicht vorhanden: ' + name);
+    }
+  }
+  // Der Knopf entsteht nur an dieser einen Stelle.
+  pruefe(app.split('data-push-test type=').length - 1 === 1,
+    'data-push-test wird genau einmal erzeugt (in pnTestKnopfHtml)');
+  pruefe(/pnTestKnopfHtml\(Roles\.list\)/.test(app), 'Aufruf mit den Rollen der Anzeige (Roles.list)');
+  pruefe(/hasAttribute\("data-push-test"\)\) \{\s*\n\s*if \(!Roles\.isAdmin\(\)\) return;/.test(app),
+    'Klick auf data-push-test prueft zuerst Roles.isAdmin()');
+  // Push-Texte: Einstieg und Ansicht nur fuer Admin.
+  pruefe(/Roles\.isAdmin\(\) \? einZeileHtml\(\{ goto: "pushkatalog"/.test(app), 'Zeile Push-Texte nur fuer Admin');
+  pruefe(/currentView === "pushkatalog"\) \{ if \(Roles\.isAdmin\(\)\) renderPushKatalog\(\); else renderDashboard\(\); \}/.test(app),
+    'Ansicht pushkatalog leitet Nicht-Admins auf die Uebersicht');
+  pruefe(/function renderPushKatalog\(\) \{[\s\S]{0,120}if \(!Roles\.isAdmin\(\)\) \{ renderDashboard\(\); return; \}/.test(app),
+    'renderPushKatalog prueft selbst noch einmal');
+  pruefe(app.split('goto: "pushkatalog"').length - 1 === 1, 'genau ein Einstieg in die Push-Texte');
+  const deep = schnitt('  const DEEP_ANSICHTEN = [', '];');
+  pruefe(!/pushkatalog/.test(deep), 'pushkatalog ist kein Deep-Link-Ziel');
+}
+
 console.log(fehler.length === 0 ? '\n--- bestanden ---' : '\n--- NICHT bestanden: ' + fehler.length + ' ---');
 process.exit(fehler.length === 0 ? 0 : 1);

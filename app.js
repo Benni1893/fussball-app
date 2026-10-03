@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-09-26-H";
+  var APP_BUILD = "2026-10-03-A";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -1767,6 +1767,15 @@
       'auch ohne Push auf diesem Gerät.</p>';
   }
 
+  /* „Testnachricht senden" gibt es nur fuer Admins. Fuer alle anderen Rollen
+     steht hier gar nichts, auch kein ausgegrauter Knopf. Der Server lehnt den
+     Aufruf fuer Nicht-Admins ohnehin ab (send_test_notification, 0042).
+     Rein rechnend, damit pushpruef.mjs es je Rolle pruefen kann. */
+  function pnTestKnopfHtml(rollen) {
+    if (!rollen || rollen.indexOf("admin") < 0) return "";
+    return '<button class="btn btn-primary" data-push-test type="button">Testnachricht senden</button>';
+  }
+
   /* ---- Die Anzeige je Zustand ---- */
   function pushAbschnittHtml(teil) {
     teil = teil || "alles";
@@ -1814,8 +1823,7 @@
         '<p class="set-hint">Danach hier wieder herkommen.</p>';
     } else if (z === "aktiv") {
       inhalt = pnAbschnittHtml("aktiv", teil) +
-        (teil === "ruhezeiten" ? "" :
-          '<button class="btn btn-primary" data-push-test type="button">Testnachricht senden</button>') +
+        (teil === "ruhezeiten" ? "" : pnTestKnopfHtml(Roles.list)) +
         '<div class="cal-copied" data-push-meldung hidden></div>';
     } else {   // "bereit"
       inhalt = (teil === "ruhezeiten" ? "" :
@@ -5876,6 +5884,7 @@
       return;
     }
     if (t.hasAttribute("data-push-test")) {
+      if (!Roles.isAdmin()) return;   // zweite Schranke; der Server ist die erste
       (async () => {
         try { await DB.sendTestNotification(); pushMeldung("Testnachricht unterwegs – sie kommt in bis zu einer Minute"); }
         catch (err) { pushMeldung("Fehlgeschlagen: " + ((err && err.message) || err)); }
