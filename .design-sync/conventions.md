@@ -442,3 +442,64 @@ der Aufruf aus der App mit `permission denied` (42501) – das ist gewollt und
 fällt beim ersten Test auf, statt still offen zu stehen. Rollenprüfungen
 (`is_admin()`, `has_role(...)`) gehören zusätzlich **in** die Funktion; das
 `grant` regelt nur, wer anklopfen darf.
+
+## Migrationen: ein einziger `do`-Block
+
+Der Supabase-SQL-Editor führt `begin; … commit;` **nicht verlässlich als eine
+Transaktion** aus. Jede Migration mit Gegenprobe läuft deshalb als **ein
+einziger `do`-Block** (oder anders nachweislich atomar): Änderungen und
+Gegenprobe in derselben Anweisung, neue oder geänderte Funktionen dort per
+`execute $ddl$ create or replace function … $ddl$`. Schlägt die Gegenprobe
+fehl, rollt die eine Anweisung alles zurück, egal wie der Editor sie schickt.
+
+Vorfall 0044 (05.10.2026): Die Migration bestand aus `begin`, einer temporären
+Hilfstabelle mit den Ausgangszählern, `create or replace function`, der
+Datenkorrektur, dem `do`-Block mit der Gegenprobe und `commit`. Funktion und
+Datenkorrektur wurden festgeschrieben, danach fand die Gegenprobe ihre
+Hilfstabelle nicht mehr (`42P01`) und lief nie. Das Ergebnis war zufällig
+richtig, die Absicherung hat gefehlt; nachgeholt mit
+`supabase/checks/0044_bfv_pruef.sql`.
+
+Dazu:
+
+- **Keine temporären Tabellen über Anweisungen hinweg** in Migrationen.
+  Ausgangswerte gehören in Variablen des `do`-Blocks.
+- Prüfskripte (`supabase/checks/*.sql`) ändern nichts und dürfen beim Muster
+  „temporäre Ergebnistabelle, `do`-Block, `select`“ bleiben; jeder Fall rollt
+  in einer Untertransaktion zurück.
+- `x = any((select arr from t))`: Postgres liest auch die doppelt geklammerte
+  Form als Unterabfrage und vergleicht `uuid = uuid[]`. Stattdessen
+  `x in (select unnest(arr) from t)` oder eine Array-Variable.
+- Eine Abfrage sieht nicht, was eine Funktion **in derselben Anweisung**
+  schreibt (Snapshot). In Prüffällen den Aufruf als eigene Anweisung davor
+  ausführen.
+- Nach dem Einspielen lesend nachsehen, ob der Stand der Datei entspricht;
+  ein fehlerfreier Lauf allein belegt die Gegenprobe nicht.
+
+## Erzeuger für Mitteilungen
+
+Seit 0043 gibt es die Bausteine für automatische Mitteilungen (Plan:
+`reference/app/auto-mitteilungen/PHASE0.md`). Ein Erzeuger (Trigger oder
+Cron-Funktion ab AM2) benutzt sie so und nicht anders:
+
+- **Empfänger** nur über `notify_profile_von_spieler`, `notify_profile_mit_rolle`
+  und `notify_profile_alle_spieler(true)`. `true` lässt Urlaub und verletzt
+  weg (F3, F6).
+- **Auslöser** (`auth.uid()` beim Ereignis) immer mitgeben; ob ein Profil
+  die Nachricht bekommt, entscheidet allein `notify_empfaenger_ok` (F1:
+  Auslöser bekommt nichts, außer `strafe_neu`). Keine eigene Abfrage dafür.
+- **Einzelnachricht:** `notify_enqueue(...)`. **Mehrere Ereignisse zu einer
+  Nachricht** (`{anzahl}`, `{namen}`, `{liste}`): `notify_sammeln(...)`
+  und eine Funktion `notify_flush_<kategorie>()`, die der Cron-Job
+  `notify-sammler` alle 2 Minuten findet. Das Bündeln im Dispatcher hängt nur
+  Texte aneinander und ist dafür nicht gedacht.
+- **Aus dem nächtlichen BFV-Sync** frühestens 08:00 Ortszeit:
+  `not_before = notify_nicht_vor_acht(now())` (F2, F5).
+- **Verfall:** Vorlagen mit `ttl_regel = 'bis_zeitpunkt'` bekommen `p_ttl_bis`
+  (z. B. Meldeschluss); `notification_due` lässt abgelaufene Zeilen weg.
+- **Texte** über `notify_datum_kurz`, `notify_datum_lang`, `notify_uhrzeit`,
+  `notify_termin_titel`, `notify_betrag`; keine Gedankenstriche.
+- **Rechte:** kein `grant` an `anon` oder `authenticated`; Erzeuger laufen als
+  Trigger oder Cron. Jede Erzeuger-Migration hat Prüffälle mit echten Zeilen
+  (Muster `supabase/checks/0043_auto_pruef.sql`), darunter: Auslöser bekommt
+  nichts, Urlaub bekommt nichts, nichts rückwirkend für vergangene Termine.

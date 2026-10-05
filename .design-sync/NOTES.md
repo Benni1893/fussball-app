@@ -1097,9 +1097,9 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
   Bezugsrahmen, und die Leiste wandert mit — derselbe Mechanismus, der schon
   die Kassenseite zusammengedrückt hat.
 
-## Prüfskripte: Pflichtliste und „nur mit Testkonto“ (Stand 03.10.2026)
+## Prüfskripte: Pflichtliste und „nur mit Testkonto“ (Stand 05.10.2026)
 
-- **Pflichtliste (19)** — laufen ohne Anmeldung und müssen vor jedem Push grün
+- **Pflichtliste (20)** — laufen ohne Anmeldung und müssen vor jedem Push grün
   sein: `abopruef`, `buildpruef`, `deeplinkpruef`, `einpruef`, `icspruef`,
   `kachelpruef`, `kassepruef`, `katalogpruef`, `kopfpruef`, `meldeschlusspruef`,
   `p1pruef`, `p3pruef`, `p4pruef`, `prefspruef`, `pushpruef`, `swpruef`,
@@ -1114,7 +1114,19 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
   durchgelaufen. `landkartendrift` crawlt die App nur neu (rund 3,5 Minuten),
   wenn sich seit dem letzten Commit von `landkarte.json` eine
   Oberflächendatei geändert hat; sonst meldet sie „übersprungen, keine
-  Oberflächenänderung“ und ist grün.
+  Oberflächenänderung“ und ist grün. Seit 05.10.2026 dazu `bfvpruef`: zieht
+  den Parser-Abschnitt aus `api/sync-bfv.js` und prüft ihn an Beispiel-Feeds
+  (Heim/Auswärts, „II“ und „2“ als dieselbe Mannschaft, „III“ als andere,
+  Sommer-/Winterzeit, LOCATION, gefaltete Zeilen), dazu dass Migration 0044 nur
+  künftige Termine absagt. Ohne Netz, ohne Datenbank.
+- **SQL-Prüfskripte** (`supabase/checks/*.sql`, nicht auf der Pflichtliste):
+  laufen nach dem Einspielen einer Migration im SQL-Editor und ändern nichts.
+  Jeder Fall läuft in einer Untertransaktion, die immer zurückgerollt wird;
+  Rollen über `set local role` plus `request.jwt.claims`. Ergebnis als
+  Tabelle mit PASS/FAIL und Summe. `0042_rechtepruef` (166 Fälle),
+  `0043_auto_pruef` (83), `0044_bfv_pruef` (13, mit echten Sync-Aufrufen).
+  Der Supabase-MCP ist `supabase_read_only_user` und darf die internen
+  Funktionen nicht aufrufen; diese Skripte deshalb immer im Editor.
 - **Paket Einstellungen v2: `einv2mess.mjs`** (seit 04.10.2026, nicht auf der
   Pflichtliste). Drei Modi: `soll [panel …]` schneidet die Panels aus
   `reference/app/einstellungen-v2/einst1..4.png` (Rahmen 390 × 844, Mittenabstand

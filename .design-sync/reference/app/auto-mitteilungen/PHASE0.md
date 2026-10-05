@@ -216,3 +216,153 @@ Außerdem: `.design-sync/reference/app/einstellungen-kader/PLAN.md` (Stand, Numm
 `.design-sync/NOTES.md` (Prüfskript). `api/dispatch-push.js` bleibt unverändert.
 
 Keine Migration wird von mir eingespielt; jede kommt mit Gegenprobe zur Freigabe.
+
+---
+
+## Entscheidungen (05.10.2026)
+
+| # | Entscheidung |
+|---|---|
+| F1 | Grundregel: wer eine Aktion auslöst, bekommt darüber keine Nachricht. **Ausnahme Strafen:** der betroffene Spieler bekommt immer eine Nachricht, auch wenn er sie selbst ausgelöst oder sich als Kassenwart/Admin selbst eingetragen hat; gilt für manuelle und automatische Strafen. |
+| F2 | Änderungen und neue Termine aus dem BFV-Sync: ja, frühestens 08:00 Ortszeit, auch bei „Dringendes trotzdem zustellen“. Absagen nur für künftige Termine. Zusätzlich die Ursache der Absagen gespielter Spiele klären (unten). |
+| F3 | `termin_geaendert` an alle Spieler, außer Urlaub und verletzt. |
+| F4 | `unterbesetzung` vorerst weglassen; Folgearbeit nach dem Design-Review (PLAN.md). |
+| F5 | Neue Spiele aus dem BFV-Sync melden: ja, gebündelt je Sync-Lauf, frühestens 08:00. |
+| F6 | Urlaub und verletzt bei der automatischen Erinnerung ausnehmen: ja. |
+| Reihenfolge | AM1 bis AM5, je eigene Migration, Nummern nach Einspielreihenfolge. |
+
+## BFV-Sync: warum gespielte Spiele am Morgen danach „abgesagt“ werden
+
+**Ursache: kein Datenfehler beim BFV, sondern eine falsche Annahme im Sync.**
+
+1. Der BFV-Feed (`service.bfv.de/rest/icsexport/teammatches/…`, abgerufen 05.10.2026)
+   enthält **nur künftige Spiele**: 13 Termine, der früheste am 11.10.2026. Ein Spiel
+   verschwindet nach seiner Austragung aus dem Feed.
+2. Der Feed hat **kein `STATUS`-Feld** (Felder: UID, DTSTART, DTEND, DTSTAMP, SUMMARY,
+   LOCATION). Ein abgesagtes Spiel kann er also gar nicht als abgesagt kennzeichnen; es
+   verschwindet vermutlich genauso.
+3. `sync_bfv_matches` setzt jeden BFV-Termin, dessen UID im Feed fehlt, auf `abgesagt`,
+   **ohne nach dem Datum zu fragen**. Der nächtliche Lauf nach dem Spieltag trifft deshalb
+   jedes gespielte Spiel.
+
+**Wie es sich heute zeigt:**
+- Datenbank: **alle 8 vergangenen BFV-Spiele** (09.08. bis 04.10.2026) stehen auf
+  `abgesagt`, jeweils am Morgen nach dem Spiel gesetzt (Ausnahme 09.08., gesetzt am 13.08.
+  bei einem Sync während der Entwicklung).
+- Kalender in der App: im Abschnitt „Vergangen“ erscheinen alle gespielten Spiele als
+  abgesagt.
+- **Kalender-Abo:** `api/_ical.js` schreibt für `abgesagt` `STATUS:CANCELLED`, und
+  `events_bump_ical_seq` erhöht die Sequenz. Abonnierte Handy-Kalender machen damit jedes
+  gespielte Spiel nachträglich zu einem abgesagten Termin (je nach Kalender durchgestrichen
+  oder ausgeblendet). Das betrifft alle Abonnenten.
+- Strafen: kein Einfluss (BFV-Termine haben `auto_fine = false`).
+
+**Nebenbefund Teamerkennung:** Die drei Freundschaftsspiele 2027 heißen im Feed
+„FC Fasanerie-Nord **II**-…“, der Kalendername ist „FC Fasanerie-Nord **2**“. Der Parser
+in `api/sync-bfv.js` erkennt die eigene Mannschaft dort nicht: `home` ist leer, als Gegner
+steht der ganze Text („FC Fasanerie-Nord II-TSV Schwabhausen II“), Titel „Spiel“.
+
+**Vorschlag: eigenes Teilpaket „BFV-Sync“ vor AM3** (eine Migration, ein Code-Commit):
+1. `sync_bfv_matches`: nur Termine absagen, die im Feed fehlen **und noch in der Zukunft
+   liegen** (`starts_at > now()`). Vergangene bleiben, wie sie sind. Ein künftiges Spiel,
+   das verschwindet, gilt weiter als abgesagt (die einzige Information, die der Feed gibt).
+2. Datenkorrektur in derselben Migration: die 8 vergangenen BFV-Spiele, die nach ihrem
+   Spieltag auf `abgesagt` gesetzt wurden, zurück auf `geplant`. Die Sequenz zählt dabei
+   hoch, die Abo-Kalender ziehen nach. Gegenprobe: genau diese 8 Zeilen, keine künftige.
+   **Frage:** auch das Spiel vom 09.08. (gesetzt am 13.08., nicht am Morgen danach)?
+   Vorschlag: ja, es fehlt aus demselben Grund im Feed.
+3. `api/sync-bfv.js`: Teamerkennung auch für römische Ziffern („II“ ⇔ „2“, „III“ ⇔ „3“);
+   der nächste Sync korrigiert Heim/Gegner der drei Freundschaftsspiele über den
+   bestehenden Update-Pfad.
+4. Prüfskript ohne Netz (Muster `icsstub.mjs`): Parser mit „II“-Varianten, Sync-Regel
+   (vergangen fehlt → bleibt, künftig fehlt → abgesagt) als SQL-Fall in einer
+   zurückgerollten Transaktion.
+
+---
+
+## Teilpaket „BFV-Sync“, Phase 0 (05.10.2026)
+
+Entscheidung: eigenes Teilpaket **direkt nach AM1** (nicht erst vor AM3), weil der Fehler
+seit August in allen Abo-Kalendern wirkt. Inhalt: Absagen nur für künftige Termine,
+Datenkorrektur der 8 Spiele (inkl. 09.08.), Teamerkennung „II“ ⇔ „2“, Prüfskript ohne Netz.
+
+### Löst das Zurücksetzen auf „geplant“ etwas rückwirkend aus?
+
+Geprüft am Live-Stand (nur lesend) und an den Funktionsquelltexten:
+
+| Mechanismus | Verhalten beim Zurücksetzen eines vergangenen Spiels | Ergebnis |
+|---|---|---|
+| `apply_event_fines` (pg_cron, alle 15 Min.) | wählt nur Termine mit `auto_fine = true` und `auto_fined_at is null`. Alle 8 Spiele haben `auto_fine = false` (alle BFV-Termine: 0 mit `auto_fine`). Den Status wertet die Funktion **gar nicht** aus. | keine Strafe |
+| `rsvp_late_cancel_fine` | hängt an `rsvps`, nicht an `events`; das Zurücksetzen berührt keine Rückmeldung | nichts |
+| `events_set_starts_at`, `events_set_deadline_at` (BEFORE UPDATE) | rechnen `starts_at` und `deadline_at` aus unveränderten Werten neu: gleiches Ergebnis | nichts Neues |
+| `events_bump_ical_seq` (BEFORE UPDATE) | `status` ändert sich → `ical_seq + 1`, `updated_at = now()` | **gewollt:** Abo-Kalender holen den korrigierten Stand |
+| Mitteilungen | heute kein Erzeuger; nach AM1 nur Infrastruktur, kein Trigger auf `events` | keine Outbox-, keine Sammler-Zeile |
+| spätere AM3-Erzeuger | `termin_abgesagt` und `termin_geaendert` sind nur für künftige Termine vorgesehen (`starts_at > now()`); ein Statuswechsel abgesagt → geplant ist dort keine Zeit-/Ortsänderung | Regel wird in AM3 per Prüffall abgesichert |
+
+Datenlage der 8 Spiele: keine Strafen, zusammen 5 Rückmeldungen (bleiben unverändert),
+`manuell_bearbeitet` leer.
+
+**Gegenprobe in der Migration:** Strafen gesamt vorher = nachher; Outbox- und
+Sammler-Zeilen vorher = nachher; genau 8 Zeilen geändert, alle `quelle = 'bfv'`, alle
+vergangen; keine künftige Zeile geändert; zusätzlich `apply_event_fines()` in einer
+zurückgerollten Untertransaktion: 0 neue Strafen für die 8 Spiele.
+
+### Was passiert, wenn ein künftiges Spiel verlegt wird und dabei eine neue UID bekommt?
+
+Der Feed liefert keine Verknüpfung zwischen alter und neuer UID. Bei einer Verlegung mit
+**gleicher UID** ändert der Sync Datum/Uhrzeit des bestehenden Termins über den Update-Pfad;
+das ist heute schon richtig. Ob der BFV bei Verlegungen die UID behält, lässt sich aus dem Feed
+nicht ablesen; einen Fall mit neuer UID gibt es in den Daten bisher nicht. Bei einer **neuen UID**:
+
+| | heute | nach der Korrektur | mit AM3 (Mitteilungen) |
+|---|---|---|---|
+| alter Termin (künftig, UID fehlt) | → `abgesagt`, im Kalender und Abo als abgesagt | unverändert: → `abgesagt` (künftig fehlt = einzige Information des Feeds) | eine Nachricht „fällt aus“ |
+| neuer Termin (neue UID) | wird angelegt, `geplant` | unverändert | eine Nachricht „neue Termine“ (gebündelt je Sync-Lauf, ab 08:00) |
+| Rückmeldungen | hängen am alten Termin; zum neuen muss neu zugesagt werden | unverändert | – |
+
+Die Korrektur ändert für künftige Spiele also nichts. Für AM3 bleibt zu entscheiden, ob
+„Absage + neuer Termin mit gleichem Gegner im selben Sync-Lauf“ als Verlegung erkannt und
+zu einer Nachricht zusammengefasst wird (Vorschlag dort, nicht hier).
+
+**Weiteres Risiko, unverändert:** Ein unvollständiger Feed (z. B. nur ein Teil der Saison)
+würde künftige Spiele absagen. Heute schützt nur der Fall „Feed ganz leer“ (`v_uids` leer →
+keine Absagen). Vorschlag für später: Absagen aussetzen, wenn in einem Lauf mehr als die
+Hälfte der künftigen Spiele fehlt (nicht Teil dieses Teilpakets, nur vorgemerkt).
+
+## Stand 05.10.2026: AM1 und Teilpaket BFV-Sync eingespielt
+
+**AM1 (0043):** eingespielt, `supabase/checks/0043_auto_pruef.sql` 83/83 PASS. Lesend
+nachgeprüft: 13 Funktionen, Sammler mit RLS und zwei Indizes, `gueltig_bis`, neue Fassungen
+von `notify_enqueue`, `notification_due` und `notification_outbox_cleanup`, Cron-Job
+`notify-sammler` alle 2 Minuten (bis 18:00 UTC 94 Läufe, alle erfolgreich), keine der neuen
+Funktionen von außen ausführbar.
+
+**BFV-Sync (0044):** eingespielt am 05.10.2026 um 17:52 UTC, **ohne die eingebaute
+Gegenprobe**. Versuch 1 scheiterte an `uuid = uuid[]`, Versuch 2 ebenfalls, beide ohne
+Rest. Versuch 3 schrieb Funktion und Datenkorrektur in einer Transaktion fest (gleiche
+`xmin` bei Funktion und den 8 Zeilen); danach fand die Gegenprobe ihre temporäre
+Hilfstabelle nicht mehr (`42P01`). Folge: Regel in `conventions.md` („ein einziger
+`do`-Block“), die Datei ist entsprechend umgebaut.
+
+Gegenprobe lesend nachgeholt:
+
+| Prüfung | Ergebnis |
+|---|---|
+| neue Absage-Regel in `sync_bfv_matches`, Rechte nur service_role | ja |
+| geänderte Termine | genau 8 (09.08. bis 04.10.), alle BFV und vergangen, alle `geplant`, Sequenz je +1, ein einziger Zeitpunkt |
+| künftige BFV-Termine | 13, alle `geplant`, zuletzt geändert 04:27 (Nachtlauf), unberührt |
+| neue Strafen, Outbox-Zeilen, Sammler-Zeilen | 0, 0, 0 |
+| Rückmeldungen der 8 Spiele | 5, unverändert |
+| Strafenlauf 18:00 UTC | erfolgreich, keine Strafe |
+
+Mit echten Aufrufen (zurückgerollt): `supabase/checks/0044_bfv_pruef.sql`, darunter
+vollständiger Feed (nichts abgesagt), fehlendes künftiges Spiel (genau dieses abgesagt),
+leerer Feed (nichts abgesagt), **Verlegung mit neuer UID** (altes abgesagt, neues angelegt),
+Strafen/Outbox/Sammler/Rückmeldungen unverändert, `apply_event_fines` ohne Strafe.
+
+**Teamerkennung:** `api/sync-bfv.js` erkennt „FC Fasanerie-Nord II“ und „… 2“ als dieselbe
+Mannschaft, mit Grenze nach dem Namen („III“ ist eine andere). Der alte Parser lieferte für
+„FC Fasanerie-Nord II-TSV Schwabhausen II“ genau den falschen Stand der Datenbank
+(`home` leer, ganzer Titel als Gegner). Der erste Nachtlauf nach dem Push korrigiert die drei
+Freundschaftsspiele 2027 über den Update-Pfad (Sequenz +1, gewollt). Prüfskript ohne Netz:
+`.design-sync/shots/bfvpruef.mjs`.

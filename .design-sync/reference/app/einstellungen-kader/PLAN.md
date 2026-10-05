@@ -51,7 +51,7 @@ sind überholt: die Bilder liegen inzwischen in diesem Ordner, und
      `.design-sync/concepts/IMG_*` (vom Nutzer, nicht versioniert, in `.gitignore`). In der
      Zwischenzeit: Phase 0 des Pakets „Automatische Mitteilungen“
      (`.design-sync/reference/app/auto-mitteilungen/PHASE0.md`).
-   - **Migration 0043 (mit P1) enthält außerdem die Datenbanktexte** (Entscheidung 04.10.2026, keine eigene Migration): Beschreibung „Neue Strafe“ ohne Gedankenstrich („Eine Strafe wird verhängt - von Hand …“), A10 („Höchstens einmal im Monat. Standard AUS.“) und die übrigen Text-Abweichungen aus PHASE0.md (A1 bis A11 am 05.10.2026 wie vorgeschlagen entschieden; von ihnen braucht nur A10 die Datenbank, die übrigen sind Frontend in E8/E9). Dazu die Fehlermeldungen mit ASCII-Ersatzschreibung aus dem Bereich Einstellungen (send_test_notification, send_preview_notification, set_notification_template, render_vorlage, upsert_push_subscription, set_ical_url, notify_enqueue; Liste in PHASE0.md).
+   - **Die Migration zu P1 enthält außerdem die Datenbanktexte** (Entscheidung 04.10.2026, keine eigene Migration; Nummer nach Einspielreihenfolge, 0043 ist inzwischen AM1 und 0044 der BFV-Sync): Beschreibung „Neue Strafe“ ohne Gedankenstrich („Eine Strafe wird verhängt - von Hand …“), A10 („Höchstens einmal im Monat. Standard AUS.“) und die übrigen Text-Abweichungen aus PHASE0.md (A1 bis A11 am 05.10.2026 wie vorgeschlagen entschieden; von ihnen braucht nur A10 die Datenbank, die übrigen sind Frontend in E8/E9). Dazu die Fehlermeldungen mit ASCII-Ersatzschreibung aus dem Bereich Einstellungen (send_test_notification, send_preview_notification, set_notification_template, render_vorlage, upsert_push_subscription, set_ical_url, notify_enqueue; Liste in PHASE0.md).
 4. Kleines Paket **„Anmeldung ohne Selbstregistrierung“** (Entscheidung 05.10.2026), direkt nach
    dem Einstellungs-Paket, vor „Automatische Mitteilungen“. Die Selbstregistrierung bleibt in
    Supabase abgeschaltet; die App soll das nicht mehr verschweigen:
@@ -67,10 +67,19 @@ sind überholt: die Bilder liegen inzwischen in diesem Ordner, und
    Zugestellt wird nach den Schaltern und Ruhezeiten der Seite Mitteilungen (die Sicht
    `notification_due` prüft das bereits). Heute reiht kein Trigger und kein Cron-Job etwas
    ein (PHASE0.md, Abschnitt c); bis dahin trägt die Seite Mitteilungen einen dezenten
-   Hinweis (E4). **Nicht bauen vor Freigabe.**
-   - **Offene Entscheidung:** Wer eine Aktion auslöst (z. B. eine Strafe verhängt, eine
-     Zahlung bestätigt, einen Termin ändert), bekommt darüber keine Nachricht, auch wenn er
-     selbst betroffen ist. Festhalten und vor dem Bau bestätigen lassen.
+   Hinweis (E4). Phase 0 und Entscheidungen F1 bis F6: `.design-sync/reference/app/auto-mitteilungen/PHASE0.md`.
+   - **Entschieden 05.10.2026 (F1):** Wer eine Aktion auslöst, bekommt darüber keine
+     Nachricht, außer bei Strafen (der betroffene Spieler erfährt immer davon).
+   - **AM1 Infrastruktur fertig:** Migration 0043, eingespielt 05.10.2026, Prüfskript
+     `supabase/checks/0043_auto_pruef.sql` 83/83. Erzeugt noch keine Nachricht.
+   - **Teilpaket BFV-Sync fertig (direkt nach AM1):** Migration 0044, eingespielt 05.10.2026.
+     Der Sync sagt nur noch künftige Spiele ab; die 8 gespielten Spiele (09.08. bis 04.10.)
+     stehen wieder auf „geplant“; `api/sync-bfv.js` erkennt „II“ und „2“ als dieselbe
+     Mannschaft. Prüfskripte `supabase/checks/0044_bfv_pruef.sql` und
+     `.design-sync/shots/bfvpruef.mjs` (Pflichtliste, jetzt 20).
+   - Danach AM2 bis AM5 nach PHASE0.md, je mit Freigabe.
+   - **F4, Folgearbeit nach dem Design-Review:** „Zu wenig Zusagen“ entfällt vorerst; das
+     Schema kennt keine Mindestzahl. Erst mit einer Einstellung dafür wieder aufnehmen.
 6. Kader F11 bis F13.
 7. Paket A, Aufräumen (siehe unten). `data-remind` entfällt dort, es wird in P1 entfernt.
 

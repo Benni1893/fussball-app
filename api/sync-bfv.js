@@ -37,11 +37,42 @@ function berlinLocal(dt) {
   const p = Object.fromEntries(fmt.formatToParts(d).map((x) => [x.type, x.value]));
   return { date: `${p.year}-${p.month}-${p.day}`, time: `${p.hour}:${p.minute}` };
 }
+// Der Kalendername schreibt die Mannschaftsnummer arabisch ("FC Fasanerie-Nord 2"),
+// die Spieltitel teils roemisch ("FC Fasanerie-Nord II-TSV ..."). Beide Schreibweisen
+// gelten als dieselbe Mannschaft; die laengere Variante zuerst.
+const ROEMISCH = { 1: "I", 2: "II", 3: "III", 4: "IV", 5: "V" };
+function teamVarianten(name) {
+  const m = (name || "").match(/^(.*\S)\s+(\d+|[IVX]+)$/);
+  if (!m) return name ? [name] : [];
+  const z = m[2];
+  const alt = /^\d+$/.test(z)
+    ? ROEMISCH[z]
+    : Object.keys(ROEMISCH).find((k) => ROEMISCH[k] === z);
+  const liste = alt ? [name, m[1] + " " + alt] : [name];
+  return liste.sort((a, b) => b.length - a.length);
+}
+// Nach bzw. vor dem Teamnamen muss der Text enden oder ein Leerzeichen/Bindestrich
+// stehen; sonst passte "FC Fasanerie-Nord II" auch auf "FC Fasanerie-Nord III".
+function grenze(c) { return c === undefined || /[\s-]/.test(c); }
+function erkenneTeam(teams, varianten) {
+  for (const v of varianten) {
+    if (teams.startsWith(v) && grenze(teams[v.length])) {
+      return { heim: true, gegner: teams.slice(v.length).replace(/^\s*-\s*/, "").trim() };
+    }
+  }
+  for (const v of varianten) {
+    if (teams.endsWith(v) && grenze(teams[teams.length - v.length - 1])) {
+      return { heim: false, gegner: teams.slice(0, teams.length - v.length).replace(/\s*-\s*$/, "").trim() };
+    }
+  }
+  return null;
+}
 function parseIcs(text) {
   const lines = unfold(text);
   let calname = "";
   for (const l of lines) if (propName(l) === "X-WR-CALNAME") calname = unescapeText(propValue(l));
   const ownTeam = calname.replace(/\s*\(.*\)\s*$/, "").trim();
+  const varianten = teamVarianten(ownTeam);
 
   const events = [];
   let cur = null;
@@ -66,10 +97,9 @@ function parseIcs(text) {
     const wettbewerb = parts[1] || "";
     const liga = parts.slice(2).join(", ");
     let heim = null, gegner = null;
-    if (ownTeam && teams.startsWith(ownTeam)) {
-      heim = true;  gegner = teams.slice(ownTeam.length).replace(/^\s*-\s*/, "").trim();
-    } else if (ownTeam && teams.endsWith(ownTeam)) {
-      heim = false; gegner = teams.slice(0, teams.length - ownTeam.length).replace(/\s*-\s*$/, "").trim();
+    const erkannt = erkenneTeam(teams, varianten);
+    if (erkannt) {
+      heim = erkannt.heim; gegner = erkannt.gegner;
     } else {
       heim = null; gegner = teams;
       warnings.push("Team nicht erkannt: " + JSON.stringify(g.summary || ""));
