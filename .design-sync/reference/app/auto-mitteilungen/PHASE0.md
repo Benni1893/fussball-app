@@ -384,3 +384,12 @@ erlauben `admin` ohnehin).
 
 Hinweis: Der Kopf von 0045 trägt noch „ENTWURF, nicht eingespielt“. Die Datei wird nach dem
 Einspielen nicht mehr geändert (Regel); maßgeblich ist dieser Abschnitt.
+
+## Stand 05.10.2026: AM3 Termine eingespielt
+
+Migration 0046 (Trigger `trg_events_notify` auf `events`, Zusammenfassungen `termin_neu` und
+`termin_geaendert`, `termin_abgesagt` direkt mit 2 Minuten Karenz) und 0047 (Korrektur:
+Reihenfolge zweier Änderungen in derselben Transaktion, gefunden vom Prüfskript in Runde 1).
+Prüfskript `supabase/checks/0046_termine_pruef.sql` 50/50 in Runde 2. Annahmen T1 bis T9 in
+`ANNAHMEN.md`. Ältere Prüfskripte nachgezogen (0043 zwei Fälle, 0044 ein Fall, 0045 ein Fall:
+Snapshot innerhalb einer Anweisung, `numeric(8,2)`, Annahmen von vor AM3), alle grün.

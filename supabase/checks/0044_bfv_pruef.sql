@@ -108,8 +108,10 @@ begin
          format('select public.sync_bfv_matches(%L::jsonb)', v_verlegt),
          format('select (select status from public.events where id = %L::uuid) || ''/'' || (select count(*) from public.events where bfv_uid = ''pruef0044-neue-uid'' and status = ''geplant'')::text', v_ziel),
          'wert:abgesagt/1', array['intern']),
-        ('Sync löst nichts aus: Strafen/Outbox/Sammler/Rückmeldungen unverändert',
-         format('select public.sync_bfv_matches(%L::jsonb)', v_verlegt),
+        -- Seit AM3 meldet ein Sync mit neuer UID zu Recht einen neuen Termin; "nichts
+        -- ausgelöst" gilt für den unveränderten Feed.
+        ('Sync mit unverändertem Feed löst nichts aus: Strafen/Outbox/Sammler/Rückmeldungen unverändert',
+         format('select public.sync_bfv_matches(%L::jsonb)', v_feed),
          format('select ((%s) = %L)::text', v_zaehler, v_vorher),
          'wert:true', array['intern']),
 

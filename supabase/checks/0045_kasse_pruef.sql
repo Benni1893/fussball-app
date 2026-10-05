@@ -89,11 +89,11 @@ begin
         ('Vorlagen K1: {anzahl} mit Nomen', null, null, null,
          'select (select titel_vorlage from public.notification_templates where kategorie = ''zahlung_gemeldet'') || '' / '' || (select text_vorlage from public.notification_templates where kategorie = ''zahlung_bestaetigt'') || '' / '' || public.notify_anzahl(1, ''Zahlung'', ''Zahlungen'') || '' / '' || public.notify_anzahl(3, ''Strafe'', ''Strafen'')',
          'wert:💰 {anzahl} zu prüfen / {anzahl}, {betrag} verbucht. / 1 Zahlung / 3 Strafen', array['intern']),
-        ('Betrag mit Mahnzuschlag: 5 € vor 15 Tagen angelegt = 9 €',
+        ('Betrag mit Mahnzuschlag: 5 € vor 15 Tagen angelegt = 9 € (numeric(8,2))',
          v_basis || array[format('insert into public.fines (club_id, player_id, date, offense, base_amount, status, created_at) values (%L, %L, current_date - 15, ''Prüfung Mahnung'', 5, ''offen'', now() - interval ''15 days'')', v_club, v_sp)],
          null, null,
          format('select public.notify_strafe_betrag(f)::text from public.fines f where f.player_id = %L and f.offense = ''Prüfung Mahnung''', v_sp),
-         'wert:9', array['intern']),
+         'wert:9.00', array['intern']),
 
         -- ---- 2) strafe_neu -------------------------------------------------
         ('strafe_neu: Admin trägt Spieler ein, Karenz rund 3 Minuten', v_basis,
