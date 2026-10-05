@@ -115,6 +115,7 @@ die Selbstregistrierung abgeschaltet (PHASE0.md, Abschnitt „Testkonto und Selb
 - Übersichtskachel `data-nav="kasse"` führt auf Konto mit Filter „offen“, nicht auf die Kasse (`app.js` Handler bei 6206). Klären, ob gewollt.
 - Toter Code: `luPanel`/`luMore` und die alte Aufstellung, seit `LINEUP_V2 = true` unerreichbar (`app.js` um 3433-3451, `confirm` bei 3324, `prompt` bei 3294).
 - Fehlermeldungen mit ASCII-Ersatzschreibung außerhalb der Einstellungen (04.10.2026, aus E5): `create_fines_batch` „Keine Strafen uebergeben.“, `report_my_payment` „Bitte eine gueltige Zahlart angeben.“, `set_lineup_active` „Vorlagen koennen nicht aktiv gesetzt werden.“ Braucht eine Migration; Liste in `einstellungen-v2/PHASE0.md`.
+- Wortlaut des Strafhinweises (`{strafhinweis}` in „Erinnerung an Zu- oder Absage“, Migration 0052) im Push-Texte-Editor pflegbar machen; heute steht er in `notification_templates.beispiel_daten` und lässt sich nur per Migration ändern (vorgemerkt 06.10.2026).
 - Vier verwaiste Handler ohne erzeugendes Element: `data-remind`, `data-toggle-paid`, `data-del-fine`, `data-paypal` (Selektor bei `app.js` 5809).
 - 5. Tab bei Trainer+Kassenwart (ohne Admin): Beschriftung „Trainer“ mit Platz-Symbol, öffnet aber das Mehr-Menü statt der Aufstellung (`setupPrimaryNavTab`, `app.js` 6931-6939: Beschriftung nach höchster Rolle, Ziel nach Anzahl der Spezialbereiche). Klären, ob „Mehr“ gemeint ist. Der Rauchtest `landkartenrauch.mjs` prüft das tatsächliche Verhalten. Nachgetragen am 02.10.2026.
 

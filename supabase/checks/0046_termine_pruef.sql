@@ -198,11 +198,11 @@ begin
          array[format('select public.sync_bfv_matches(%L::jsonb)::text', v_feed_ohne)], null,
          format('select count(*)::text || ''/'' || bool_and(not_before = greatest(now() + interval ''2 minutes'', public.notify_nicht_vor_acht(now())))::text from public.notification_outbox where kategorie = ''termin_abgesagt'' and profile_id = %L and dedup_key like %L', v_admin, 'termin_abgesagt:' || v_bfv_ziel || ':%'),
          'wert:1/true', array['service_role']),
-        ('Termin gelöscht: keine Nachricht, ausstehende Änderung verfällt (T5)', v_basis || array[v_termin, 'delete from public.notification_sammler where erstellt_at >= now()'],
+        ('Termin gelöscht: ausstehende Änderung verfällt, seit 0053 Absage-Nachricht statt T5', v_basis || array[v_termin, 'delete from public.notification_sammler where erstellt_at >= now()'],
          array[format('update public.events set time = ''20:00'' where id = %L', v_e1), format('delete from public.events where id = %L', v_e1)],
          array[v_faellig, 'select public.notify_flush_termin_geaendert()'],
          'select (select count(*) from public.notification_sammler where erstellt_at >= now())::text || ''/'' || (select count(*) from public.notification_outbox where created_at >= now())::text',
-         'wert:0/0', array['Trainer'])
+         'wert:0/1', array['Trainer'])
       ) as t(fall, vor, aktion, nach, pruef, erwartet, rollen)
       where r.rolle = any(t.rollen)
     loop
