@@ -393,3 +393,11 @@ Reihenfolge zweier Änderungen in derselben Transaktion, gefunden vom Prüfskrip
 Prüfskript `supabase/checks/0046_termine_pruef.sql` 50/50 in Runde 2. Annahmen T1 bis T9 in
 `ANNAHMEN.md`. Ältere Prüfskripte nachgezogen (0043 zwei Fälle, 0044 ein Fall, 0045 ein Fall:
 Snapshot innerhalb einer Anweisung, `numeric(8,2)`, Annahmen von vor AM3), alle grün.
+
+## Stand 05.10.2026: AM4 Rückmeldung eingespielt
+
+Migration 0048: Cron `notify-rueckmeldung` alle 5 Minuten (Erinnerung 24 h und 2 h vor
+Meldeschluss, Übersicht nach Meldeschluss), Trigger `trg_rsvps_notify` auf `rsvps`
+(kurzfristige Absage, 10 Minuten gesammelt). `unterbesetzung` entfällt (F4). Prüfskript
+`supabase/checks/0048_rueckmeldung_pruef.sql` 37/37 in Runde 2 (Runde 1: drei Fälle zählten den
+verknüpften Prüfspieler mit, Fehler im Prüfskript). Annahmen R1 bis R5 in `ANNAHMEN.md`.
