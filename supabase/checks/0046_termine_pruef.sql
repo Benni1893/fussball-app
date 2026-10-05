@@ -1,5 +1,6 @@
 -- ============================================================================
 -- Prüfung zu Migration 0046 und 0047 (Automatische Mitteilungen, AM3 Termine).
+-- Seit 0054 gehen Absagen über den Sammler (Fälle mit Zusammenfassen).
 -- Ändert nichts: jeder Fall läuft in einer Untertransaktion, die immer
 -- zurückgerollt wird. Muster wie 0045_kasse_pruef.sql.
 --
@@ -170,12 +171,12 @@ begin
          'select count(*)::text from public.notification_sammler where kategorie = ''termin_geaendert'' and erstellt_at >= now()', 'wert:0', array['Trainer']),
 
         -- ---- 4) termin_abgesagt --------------------------------------------
-        ('termin_abgesagt: Trainer sagt ab, Admin bekommt sie nach 2 Minuten, gültig bis Beginn', v_basis || array[v_termin, 'delete from public.notification_sammler where erstellt_at >= now()'],
-         array[format('update public.events set status = ''abgesagt'' where id = %L', v_e1)], null,
-         format('select count(*)::text || '' | '' || max(titel || '' | '' || text || '' | '' || deep_link) || '' | '' || bool_and(not_before between now() + interval ''110 seconds'' and now() + interval ''130 seconds'' and gueltig_bis = (select starts_at from public.events where id = %L) and urgency = ''high'')::text from public.notification_outbox where kategorie = ''termin_abgesagt'' and profile_id = %L and created_at >= now()', v_e1, v_admin),
+        ('termin_abgesagt: Trainer sagt ab, Admin bekommt sie (seit 0054 über den Sammler), gültig bis Beginn', v_basis || array[v_termin, 'delete from public.notification_sammler where erstellt_at >= now()'],
+         array[format('update public.events set status = ''abgesagt'' where id = %L', v_e1)], array[v_faellig, 'select public.notify_flush_termin_abgesagt()'],
+         format('select count(*)::text || '' | '' || max(titel || '' | '' || text || '' | '' || deep_link) || '' | '' || bool_and(gueltig_bis = (select starts_at from public.events where id = %L) and urgency = ''high'')::text from public.notification_outbox where kategorie = ''termin_abgesagt'' and profile_id = %L and created_at >= now()', v_e1, v_admin),
          format('wert:1 | ❌ Prüftermin fällt aus | %s 19:00 Uhr. | #ansicht=kalender | true', l1), array['Trainer']),
         ('termin_abgesagt: Admin sagt ab, bekommt selbst nichts (F1), verknüpfter Spieler schon', v_basis || array[v_termin, 'delete from public.notification_sammler where erstellt_at >= now()'],
-         array[format('update public.events set status = ''abgesagt'' where id = %L', v_e1)], null,
+         array[format('update public.events set status = ''abgesagt'' where id = %L', v_e1)], array[v_faellig, 'select public.notify_flush_termin_abgesagt()'],
          format('select (select count(*) from public.notification_outbox where kategorie = ''termin_abgesagt'' and profile_id = %L and created_at >= now())::text || ''/'' || (select count(*) from public.notification_outbox where kategorie = ''termin_abgesagt'' and profile_id = %L and created_at >= now())::text', v_admin, v_nutzer),
          'wert:0/1', array['Admin']),
         ('termin_abgesagt: Findet statt vor dem Versand, nichts (T4)', v_basis || array[v_termin, 'delete from public.notification_sammler where erstellt_at >= now()'],
@@ -185,7 +186,7 @@ begin
          'wert:0', array['Trainer']),
         ('termin_abgesagt: Findet statt nach dem Versand, "Findet doch statt" (T4)', v_basis || array[v_termin, 'delete from public.notification_sammler where erstellt_at >= now()'],
          array[format('update public.events set status = ''abgesagt'' where id = %L', v_e1)],
-         array['update public.notification_outbox set sent_at = now() where kategorie = ''termin_abgesagt'' and created_at >= now()',
+         array[v_faellig, 'select public.notify_flush_termin_abgesagt()', 'update public.notification_outbox set sent_at = now() where kategorie = ''termin_abgesagt'' and created_at >= now()',
                format('update public.events set status = ''geplant'' where id = %L', v_e1),
                v_faellig, 'select public.notify_flush_termin_geaendert()'],
          format('select max(text) from public.notification_outbox where kategorie = ''termin_geaendert'' and profile_id = %L and created_at >= now()', v_admin),
@@ -196,11 +197,11 @@ begin
          'select count(*)::text from public.notification_outbox where kategorie = ''termin_abgesagt'' and created_at >= now()', 'wert:0', array['Trainer']),
         ('termin_abgesagt: BFV-Spiel fehlt im Feed, Absage frühestens 08:00', v_basis,
          array[format('select public.sync_bfv_matches(%L::jsonb)::text', v_feed_ohne)], null,
-         format('select count(*)::text || ''/'' || bool_and(not_before = greatest(now() + interval ''2 minutes'', public.notify_nicht_vor_acht(now())))::text from public.notification_outbox where kategorie = ''termin_abgesagt'' and profile_id = %L and dedup_key like %L', v_admin, 'termin_abgesagt:' || v_bfv_ziel || ':%'),
+         format('select count(*)::text || ''/'' || bool_and(faellig_ab = greatest(now() + interval ''2 minutes'', public.notify_nicht_vor_acht(now())))::text from public.notification_sammler where kategorie = ''termin_abgesagt'' and profile_id = %L and daten->>''event_id'' = %L', v_admin, v_bfv_ziel),
          'wert:1/true', array['service_role']),
         ('Termin gelöscht: ausstehende Änderung verfällt, seit 0053 Absage-Nachricht statt T5', v_basis || array[v_termin, 'delete from public.notification_sammler where erstellt_at >= now()'],
          array[format('update public.events set time = ''20:00'' where id = %L', v_e1), format('delete from public.events where id = %L', v_e1)],
-         array[v_faellig, 'select public.notify_flush_termin_geaendert()'],
+         array[v_faellig, 'select public.notify_flush_termin_geaendert()', 'select public.notify_flush_termin_abgesagt()'],
          'select (select count(*) from public.notification_sammler where erstellt_at >= now())::text || ''/'' || (select count(*) from public.notification_outbox where created_at >= now())::text',
          'wert:0/1', array['Trainer'])
       ) as t(fall, vor, aktion, nach, pruef, erwartet, rollen)

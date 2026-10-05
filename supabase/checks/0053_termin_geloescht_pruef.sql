@@ -1,5 +1,6 @@
 -- ============================================================================
--- Prüfung zu Migration 0053 (gelöschter künftiger Termin = Absage-Nachricht).
+-- Prüfung zu Migration 0053 (gelöschter künftiger Termin = Absage-Nachricht),
+-- seit 0054/0055 über den Sammler (Fälle mit Zusammenfassen).
 -- Ändert nichts; Muster wie 0046_termine_pruef.sql. Der Trainer (Nicht-Admin,
 -- mit Prüfspieler verknüpft) löscht, der Admin empfängt.
 -- ============================================================================
@@ -80,37 +81,33 @@ begin
 
         -- ---- Löschen ------------------------------------------------------
         ('künftiger Termin gelöscht: Absage an Admin, Text, dringend, gültig bis zum geplanten Beginn', v_basis || array[v_termin, 'delete from public.notification_sammler where erstellt_at >= now()'],
-         array[format('delete from public.events where id = %L', v_e1)], null,
-         format('select count(*)::text || '' | '' || max(titel || '' | '' || text || '' | '' || deep_link) || '' | '' || bool_and(urgency = ''high'' and gueltig_bis = ((%L::date + time ''19:00'') at time zone ''Europe/Berlin'') and not_before between now() + interval ''110 seconds'' and now() + interval ''130 seconds'')::text from public.notification_outbox where kategorie = ''termin_abgesagt'' and profile_id = %L and dedup_key like %L', d1, v_admin, 'termin_abgesagt:' || v_e1 || ':%'),
+         array[format('delete from public.events where id = %L', v_e1)], array[v_faellig, 'select public.notify_flush_termin_abgesagt()'],
+         format('select count(*)::text || '' | '' || max(titel || '' | '' || text || '' | '' || deep_link) || '' | '' || bool_and(urgency = ''high'' and gueltig_bis = ((%L::date + time ''19:00'') at time zone ''Europe/Berlin''))::text from public.notification_outbox where kategorie = ''termin_abgesagt'' and profile_id = %L and created_at >= now()', d1, v_admin),
          format('wert:1 | ❌ Prüftermin fällt aus | %s 19:00 Uhr. | #ansicht=kalender | true', l1), array['Trainer']),
         ('Trainer löscht: bekommt selbst nichts (F1)', v_basis || array[v_termin, 'delete from public.notification_sammler where erstellt_at >= now()'],
-         array[format('delete from public.events where id = %L', v_e1)], null, format('select count(*)::text from public.notification_outbox where kategorie = ''termin_abgesagt'' and profile_id = %L and dedup_key like %L', v_nutzer, 'termin_abgesagt:' || v_e1 || ':%'), 'wert:0', array['Trainer']),
+         array[format('delete from public.events where id = %L', v_e1)], array[v_faellig, 'select public.notify_flush_termin_abgesagt()'], format('select count(*)::text from public.notification_outbox where kategorie = ''termin_abgesagt'' and profile_id = %L and created_at >= now()', v_nutzer), 'wert:0', array['Trainer']),
         ('mit Rückmeldungen gelöscht: Empfänger trotzdem alle, Rückmeldungen weg (Cascade)',
          v_basis || array[v_termin, 'delete from public.notification_sammler where erstellt_at >= now()',
            format('insert into public.rsvps (club_id, event_id, player_id, status) values (%L, %L, %L, ''zu''), (%L, %L, %L, ''ab'')', v_club, v_e1, v_aspieler, v_club, v_e1, v_sp)],
-         array[format('delete from public.events where id = %L', v_e1)], null,
-         format('select (select count(*) from public.notification_outbox where kategorie = ''termin_abgesagt'' and profile_id = %L and dedup_key like %L)::text || ''/'' || (select count(*) from public.rsvps where event_id = %L)::text', v_admin, 'termin_abgesagt:' || v_e1 || ':%', v_e1),
+         array[format('delete from public.events where id = %L', v_e1)], array[v_faellig, 'select public.notify_flush_termin_abgesagt()'],
+         format('select (select count(*) from public.notification_outbox where kategorie = ''termin_abgesagt'' and profile_id = %L and created_at >= now())::text || ''/'' || (select count(*) from public.rsvps where event_id = %L)::text', v_admin, v_e1),
          'wert:1/0', array['Trainer']),
         ('Urlaub am Termintag: nichts',
          v_basis || array[v_termin, 'delete from public.notification_sammler where erstellt_at >= now()', format('insert into public.player_status (player_id, status, status_until) values (%L, ''urlaub'', %L)', v_aspieler, d1)],
-         array[format('delete from public.events where id = %L', v_e1)], null, format('select count(*)::text from public.notification_outbox where kategorie = ''termin_abgesagt'' and profile_id = %L and dedup_key like %L', v_admin, 'termin_abgesagt:' || v_e1 || ':%'), 'wert:0', array['Trainer']),
+         array[format('delete from public.events where id = %L', v_e1)], array[v_faellig, 'select public.notify_flush_termin_abgesagt()'], format('select count(*)::text from public.notification_outbox where kategorie = ''termin_abgesagt'' and profile_id = %L and created_at >= now()', v_admin), 'wert:0', array['Trainer']),
         ('vergangener Termin gelöscht: still',
          v_basis || array[format('insert into public.events (id, club_id, type, title, date, time, status, quelle) values (%L, %L, ''training'', ''Prüftermin'', current_date - 2, ''19:00'', ''geplant'', ''manuell'')', v_e1, v_club)],
-         array[format('delete from public.events where id = %L', v_e1)], null, format('select count(*)::text from public.notification_outbox where kategorie = ''termin_abgesagt'' and profile_id = %L and dedup_key like %L', v_admin, 'termin_abgesagt:' || v_e1 || ':%'), 'wert:0', array['Trainer']),
-        ('schon abgesagt, dann gelöscht: keine zweite Nachricht', v_basis || array[v_termin, 'delete from public.notification_sammler where erstellt_at >= now()'],
-         array[format('update public.events set status = ''abgesagt'' where id = %L', v_e1), format('delete from public.events where id = %L', v_e1)], null, format('select count(*)::text from public.notification_outbox where kategorie = ''termin_abgesagt'' and profile_id = %L and dedup_key like %L', v_admin, 'termin_abgesagt:' || v_e1 || ':%'), 'wert:1', array['Trainer']),
+         array[format('delete from public.events where id = %L', v_e1)], array[v_faellig, 'select public.notify_flush_termin_abgesagt()'], format('select count(*)::text from public.notification_outbox where kategorie = ''termin_abgesagt'' and profile_id = %L and created_at >= now()', v_admin), 'wert:0', array['Trainer']),
+        ('schon abgesagt, dann gelöscht: genau eine Nachricht (0055)', v_basis || array[v_termin, 'delete from public.notification_sammler where erstellt_at >= now()'],
+         array[format('update public.events set status = ''abgesagt'' where id = %L', v_e1), format('delete from public.events where id = %L', v_e1)], array[v_faellig, 'select public.notify_flush_termin_abgesagt()'], format('select count(*)::text from public.notification_outbox where kategorie = ''termin_abgesagt'' and profile_id = %L and created_at >= now()', v_admin), 'wert:1', array['Trainer']),
         ('Neu-Meldung steht noch aus: still (T9)', v_basis,
-         array[v_termin, format('delete from public.events where id = %L', v_e1)], null,
+         array[v_termin, format('delete from public.events where id = %L', v_e1)], array[v_faellig, 'select public.notify_flush_termin_abgesagt()'],
          'select (select count(*) from public.notification_sammler where erstellt_at >= now())::text || ''/'' || (select count(*) from public.notification_outbox where created_at >= now())::text',
          'wert:0/0', array['Trainer']),
         ('Spiel gelöscht: Titel ist der Gegner', v_basis || array[v_termin, 'delete from public.notification_sammler where erstellt_at >= now()', format('update public.events set type = ''spiel'', opponent = ''Prüfgegner'' where id = %L', v_e1)],
-         array[format('delete from public.events where id = %L', v_e1)], null,
-         format('select max(titel) from public.notification_outbox where kategorie = ''termin_abgesagt'' and profile_id = %L and dedup_key like %L', v_admin, 'termin_abgesagt:' || v_e1 || ':%'),
-         'wert:❌ Prüfgegner fällt aus', array['Trainer']),
-        ('Serie, "diese und alle folgenden" (drei Termine): drei Nachrichten', v_basis || array[v_serie3, 'delete from public.notification_sammler where erstellt_at >= now()'],
-         array[format('delete from public.events where serie_id = %L', v_serie)], null,
-         format('select count(*)::text from public.notification_outbox where kategorie = ''termin_abgesagt'' and profile_id = %L and created_at >= now()', v_admin),
-         'wert:3', array['Trainer'])
+         array[format('delete from public.events where id = %L', v_e1)], array[v_faellig, 'select public.notify_flush_termin_abgesagt()'],
+         format('select max(titel) from public.notification_outbox where kategorie = ''termin_abgesagt'' and profile_id = %L and created_at >= now()', v_admin),
+         'wert:❌ Prüfgegner fällt aus', array['Trainer'])
       ) as t(fall, vor, aktion, nach, pruef, erwartet, rollen)
       where r.rolle = any(t.rollen)
     loop
