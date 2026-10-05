@@ -77,7 +77,14 @@ sind überholt: die Bilder liegen inzwischen in diesem Ordner, und
      stehen wieder auf „geplant“; `api/sync-bfv.js` erkennt „II“ und „2“ als dieselbe
      Mannschaft. Prüfskripte `supabase/checks/0044_bfv_pruef.sql` und
      `.design-sync/shots/bfvpruef.mjs` (Pflichtliste, jetzt 20).
-   - Danach AM2 bis AM5 nach PHASE0.md, je mit Freigabe.
+   - **AM2 Kasse fertig:** Migration 0045, eingespielt 05.10.2026, Prüfskript
+     `supabase/checks/0045_kasse_pruef.sql` 57/57. `strafe_neu` (3 Minuten Karenz, Storno
+     holt zurück), `zahlung_gemeldet` (15 Minuten), `zahlung_bestaetigt` und
+     `zahlung_abgelehnt` (je 1 Minute), ein Trigger auf `fines`. Vorlagen mit `{anzahl}`
+     samt Nomen (K1); Hinweis auf der Seite Mitteilungen umformuliert (K2, Build 2026-10-05-B).
+     Push-Test „Neue Strafe“ am Handy: nach rund 5 Minuten angekommen.
+   - Danach AM3 bis AM5 und P1 serverseitig (Auftrag 05.10.2026, eigenständig, Bericht in
+     `auto-mitteilungen/ABSCHLUSS.md`).
    - **F4, Folgearbeit nach dem Design-Review:** „Zu wenig Zusagen“ entfällt vorerst; das
      Schema kennt keine Mindestzahl. Erst mit einer Einstellung dafür wieder aufnehmen.
 6. Kader F11 bis F13.

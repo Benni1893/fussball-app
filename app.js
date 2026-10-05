@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-05-A";
+  var APP_BUILD = "2026-10-05-B";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -1708,8 +1708,8 @@
   const AUTO_MITTEILUNGEN_AKTIV = false;
   function pnAutoHinweisHtml() {
     if (AUTO_MITTEILUNGEN_AKTIV) return "";
-    return '<p class="ein-hinweis ein-hinweis-auto">Automatische Nachrichten sind noch nicht eingeschaltet. ' +
-      'Was du hier auswählst, wird gespeichert und gilt, sobald sie starten.</p>';
+    return '<p class="ein-hinweis ein-hinweis-auto">Automatisch kommen bisher nur Nachrichten zur Kasse. ' +
+      'Termine und Rückmeldungen folgen.</p>';
   }
 
   /* Ruhezeiten. Es gibt keine eigene Ja/Nein-Spalte: gleiche Von- und

@@ -262,7 +262,8 @@ console.log('--- Einstellungen v2: Mitteilungen (E4) ---');
   const stueckQ = (von, bis) => { const a = appQ.indexOf(von); const b = appQ.indexOf(bis, a); return a < 0 || b < 0 ? '' : appQ.slice(a, b); };
 
   // Hinweis "automatische Nachrichten": eine Stelle, mit true weg.
-  const WORT = 'Automatische Nachrichten sind noch nicht eingeschaltet. Was du hier auswählst, wird gespeichert und gilt, sobald sie starten.';
+  // Wortlaut seit AM2 (05.10.2026): die Kasse sendet schon automatisch.
+  const WORT = 'Automatisch kommen bisher nur Nachrichten zur Kasse. Termine und Rückmeldungen folgen.';
   const autoCode = stueckQ('  const AUTO_MITTEILUNGEN_AKTIV = false;', '  function pnAdminHtml() {');
   pruefe(autoCode !== '', 'Konstante AUTO_MITTEILUNGEN_AKTIV und pnAutoHinweisHtml stehen beieinander');
   const autoAus = new Function(autoCode + '\n return pnAutoHinweisHtml;')();
@@ -271,7 +272,8 @@ console.log('--- Einstellungen v2: Mitteilungen (E4) ---');
   pruefe(autoAn() === '', 'mit AUTO_MITTEILUNGEN_AKTIV = true verschwindet der Hinweis');
   pruefe(appQ.split('const AUTO_MITTEILUNGEN_AKTIV').length - 1 === 1, 'die Konstante gibt es genau einmal');
   pruefe(appQ.split('pnAutoHinweisHtml()').length - 1 === 2, 'der Hinweis wird genau an einer Stelle eingebaut');
-  pruefe(appQ.split('Automatische Nachrichten sind noch nicht').length - 1 === 1, 'der Text steht nur an dieser einen Stelle');
+  pruefe(appQ.split('Automatisch kommen bisher nur').length - 1 === 1, 'der Text steht nur an dieser einen Stelle');
+  pruefe(!appQ.includes('Automatische Nachrichten sind noch nicht eingeschaltet'), 'der alte Wortlaut (vor AM2) ist weg');
 
   // Texte der Vorlage, ohne Gedankenstriche
   pruefe(appQ.includes("Keine eigenen Kategorien für Admins. Als Admin bekommst du, ' +\n      'was deine übrigen Rollen vorsehen."), 'Admin-Hinweis im Wortlaut der Vorlage');

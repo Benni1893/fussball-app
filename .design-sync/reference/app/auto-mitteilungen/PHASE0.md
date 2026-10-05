@@ -366,3 +366,21 @@ Mannschaft, mit Grenze nach dem Namen („III“ ist eine andere). Der alte Pars
 (`home` leer, ganzer Titel als Gegner). Der erste Nachtlauf nach dem Push korrigiert die drei
 Freundschaftsspiele 2027 über den Update-Pfad (Sequenz +1, gewollt). Prüfskript ohne Netz:
 `.design-sync/shots/bfvpruef.mjs`.
+
+## Stand 05.10.2026: AM2 Kasse eingespielt
+
+Migration 0045, Prüfskript `supabase/checks/0045_kasse_pruef.sql` 57/57 PASS. Ein Trigger
+`trg_fines_notify` auf `fines` (statt auf `fine_status_log`: Betrag, Spieler und Aufruf
+stehen in der Zeile), alles über den Sammler. `zahlung_abgelehnt` abweichend vom Vorschlag
+1 Minute gebündelt (Ablehnen geht je Strafe). Entscheidungen K1 (`{anzahl}` mit Nomen,
+Vorlagen „💰 {anzahl} zu prüfen“ und „{anzahl}, {betrag} verbucht.“) und K2 (Hinweis „Automatisch
+kommen bisher nur Nachrichten zur Kasse. Termine und Rückmeldungen folgen.“).
+
+Push-Test am Handy (Nutzer, 05.10.2026): sich selbst als Kassenwart eine Strafe eingetragen,
+Push nach rund 5 Minuten. Outbox: angelegt 18:54:00 UTC, gesendet 18:55:03, ohne Fehler.
+Der Nutzer hat zusätzlich die Rolle Kassenwart: `kategorie_erlaubt` gibt damit
+`zahlung_gemeldet` frei, sonst ändert sich nichts (alle Kassen-Policies und -Funktionen
+erlauben `admin` ohnehin).
+
+Hinweis: Der Kopf von 0045 trägt noch „ENTWURF, nicht eingespielt“. Die Datei wird nach dem
+Einspielen nicht mehr geändert (Regel); maßgeblich ist dieser Abschnitt.

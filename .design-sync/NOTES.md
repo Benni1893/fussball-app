@@ -1124,7 +1124,8 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
   Jeder Fall läuft in einer Untertransaktion, die immer zurückgerollt wird;
   Rollen über `set local role` plus `request.jwt.claims`. Ergebnis als
   Tabelle mit PASS/FAIL und Summe. `0042_rechtepruef` (166 Fälle),
-  `0043_auto_pruef` (83), `0044_bfv_pruef` (13, mit echten Sync-Aufrufen).
+  `0043_auto_pruef` (83), `0044_bfv_pruef` (13, mit echten Sync-Aufrufen),
+  `0045_kasse_pruef` (57, mit echten Kassenaufrufen je Rolle).
   Der Supabase-MCP ist `supabase_read_only_user` und darf die internen
   Funktionen nicht aufrufen; diese Skripte deshalb immer im Editor.
 - **Paket Einstellungen v2: `einv2mess.mjs`** (seit 04.10.2026, nicht auf der
