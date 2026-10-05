@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-04-D";
+  var APP_BUILD = "2026-10-05-A";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -2046,11 +2046,14 @@
     const ziel = opts.ein ? ' data-ein="' + esc(opts.ein) + '"'
                : opts.goto ? ' data-goto="' + esc(opts.goto) + '"'
                : opts.jump ? ' data-view-jump="' + esc(opts.jump) + '"'
-               : opts.tat ? ' data-ein-tat="' + esc(opts.tat) + '"' : "";
+               : opts.tat ? ' data-ein-tat="' + esc(opts.tat) + '"'
+               // Freies Datenattribut fuer Aktionen mit eigenem Handler
+               // (Kalender-Abo: data-cal-sheet, data-cal-copy-profil).
+               : opts.attr ? ' ' + opts.attr : "";
     // Chevron nur, wo eine Ebene dahinter liegt. Eine reine Aktion ("App neu
     // laden") traegt keinen (Vorlage einst1.png, Panel 1 und 2).
     const chev = opts.chev !== false;
-    return '<button class="ein-zeile" type="button"' + ziel + '>' +
+    return '<button class="ein-zeile' + (opts.aktion ? " ein-zeile-aktion" : "") + '" type="button"' + ziel + '>' +
       '<span class="ein-ic ' + esc(opts.ton || "gruen") + '" aria-hidden="true">' + opts.ic + '</span>' +
       '<span class="ein-zeile-t">' + esc(opts.titel) + '</span>' +
       (opts.wert ? '<span class="ein-zeile-w">' + esc(opts.wert) + '</span>' : "") +
@@ -2094,6 +2097,8 @@
     if (name === "personen") return `<svg ${SVG}><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14a6.5 6.5 0 0 1 3.5 6"/></svg>`;
     if (name === "klemmbrett") return `<svg ${SVG}><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/></svg>`;
     if (name === "boerse")   return `<svg ${SVG}><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M16 15h2"/></svg>`;
+    if (name === "kal-haken") return `<svg ${SVG}><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M9 15l2 2 4-4"/></svg>`;
+    if (name === "link")     return `<svg ${SVG}><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.2 1.2"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2"/></svg>`;
     if (name === "senden")   return `<svg ${SVG}><path d="M21 3 10 14"/><path d="M21 3l-7 18-4-7-7-4z"/></svg>`;
     if (name === "neu")      return `<svg ${SVG}><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/></svg>`;
     return "";
@@ -2195,14 +2200,18 @@
     } else if (id === "ruhezeiten") {
       inhalt = pushAbschnittHtml("ruhezeiten");
     } else if (id === "kalender") {
-      inhalt = `
-        <div class="card card-pad">
-          <p class="set-hint">Alle Termine der Mannschaft landen automatisch in deinem Handy-Kalender
-          und ändern sich dort mit, wenn ein Termin verschoben oder abgesagt wird.</p>
-          <button class="btn btn-primary" data-cal-sheet type="button">Termine abonnieren</button>
-          <button class="btn btn-soft" data-cal-copy-profil type="button">Link kopieren</button>
-          <div class="cal-copied" data-cal-copied-profil hidden></div>
-        </div>`;
+      // Vorlage einst3.png, Panel 6: eine Karte mit zwei Aktionszeilen, ohne
+      // Chevron, der Hinweis darunter. Handler unveraendert.
+      inhalt =
+        '<div class="ein-gruppe ein-gruppe-erste">' +
+          einZeileHtml({ attr: "data-cal-sheet", ic: einIcon("kal-haken"), ton: "gruen",
+            titel: "Termine abonnieren", aktion: true, chev: false }) +
+          einZeileHtml({ attr: "data-cal-copy-profil", ic: einIcon("link"), ton: "grau",
+            titel: "Link kopieren", chev: false }) +
+        '</div>' +
+        '<p class="ein-hinweis">Alle Termine der Mannschaft landen automatisch in deinem ' +
+          'Handy-Kalender und ändern sich dort mit, wenn ein Termin verschoben oder abgesagt wird.</p>' +
+        '<div class="cal-copied ein-rueckmeldung" data-cal-copied-profil hidden></div>';
     } else if (id === "bfv") {
       inhalt = bfvSectionHtml();
     }

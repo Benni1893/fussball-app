@@ -650,3 +650,32 @@ Messung über den Stand-in (`einv2mess.mjs mess 5`), Push „aktiv“ vorgetäus
 **Aufgeräumt:** alle `.pn-*`-Regeln entfernt (nach E4/E5 von nichts mehr erzeugt), `.pn-zeit` aus der gemeinsamen Regel für Eingabefelder; `prefspruef` schneidet den Schalterabschnitt jetzt an einem neuen Endanker.
 
 Neue Tokens: keine.
+
+---
+
+## Entscheidungen 05.10.2026
+
+| Punkt | Entscheidung |
+|---|---|
+| A1 bis A11 | alle wie vorgeschlagen (Tabelle „Abweichungen Vorlage ↔ Katalog“). A10 und die übrigen Datenbanktexte (Gedankenstrich „Neue Strafe“, ASCII-Fehlermeldungen der Einstellungen) in 0043 mit P1; A1 bis A9 und A11 sind Frontend in E8/E9. |
+| Selbstregistrierung | bleibt abgeschaltet. Drei Folgearbeiten als kleines eigenes Paket „Anmeldung ohne Selbstregistrierung“ direkt nach diesem Paket, vor „Automatische Mitteilungen“. Paket „Aufnahme neuer Mitglieder“ (Freigabe durch Admin, Einladung) vor dem Rollout bei weiteren Vereinen vorgemerkt. |
+| Zeitrad iOS (E5) | testet der Nutzer selbst am iPhone. |
+| Nachtläufe seit 0042b | alle pg_cron-Jobs ohne Fehler (push-dispatch 2.435 Läufe, apply-event-fines 163, apply-fine-surcharges und notification-cleanup je 2), BFV-Sync am 05.10. 04:27 UTC belegt (neuer Termin, zwei aktualisiert), den Lauf vom 04.10. belegt keine Spur. |
+
+---
+
+## E6 Kalender-Abo (05.10.2026)
+
+Messung über den Stand-in (`einv2mess.mjs mess 6`), Profil Admin.
+
+| Element | Soll | Ist vorher | Ist nachher |
+|---|---|---|---|
+| Aufbau | eine Karte, zwei Zeilen ohne Chevron, Hinweis darunter | Hinweis oben in einer Karte, darunter zwei Vollknöpfe | wie Soll |
+| Karte | 171 / 98, Zeilen 48, Trennlinie bei 220 | – | 170,9 / 98, 48, Linie 220 |
+| „Termine abonnieren“ | grüne Kachel (Kalender mit Haken) bei x 30, Text grün 16/700, 72..227 | grüner Vollknopf | Kachel x 30 / y 181, Text 72..227 |
+| „Link kopieren“ | graue Kachel (Kettenglied), Text 16/500, 73..173 | weißer Knopf | Text 73..173 |
+| Hinweis | Glyphen 279..327, x 31..344 | über den Knöpfen | 280..327, x 31..344 |
+
+Funktion im Stand-in geprüft: „Link kopieren“ zeigt „Link kopiert“, „Termine abonnieren“ öffnet das Abo-Blatt (`calSheet`). `einZeileHtml` hat dafür zwei Optionen bekommen: `attr` (freies Datenattribut) und `aktion` (grüne Optik, wie „Testnachricht senden“). Die Symbole sind eigene Zeichnungen; das Kettenglied weicht in der Strichführung leicht von der Vorlage ab.
+
+Neue Tokens: keine.

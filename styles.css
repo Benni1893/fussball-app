@@ -1170,6 +1170,8 @@ tbody tr:hover { background: #fbfdfc; }
 .ein-hinweis-admin { margin-top: 10px; }
 .ein-gruppe-aktion { margin-top: 19px; }
 .ein-zeile-aktion .ein-zeile-t { color: var(--green-700); font-weight: 700; }
+/* Rueckmeldung nach einer Aktion (z. B. "Link kopiert"), unter dem Hinweis. */
+.ein-rueckmeldung { padding: 0 15px; }
 
 /* Mein Kalender – reduziert */
 /* Blatt „Termine abonnieren“: zwei Karten, weil iOS ein webcal-Abo systemweit

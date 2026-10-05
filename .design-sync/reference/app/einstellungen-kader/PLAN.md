@@ -45,8 +45,15 @@ sind überholt: die Bilder liegen inzwischen in diesem Ordner, und
    Entscheidungen in `.design-sync/reference/app/einstellungen-v2/PHASE0.md`). Reihenfolge dort:
    E1 Rechte serverseitig (fertig), E2 UI-Rechte, E3 bis E10 je Unterseite (E7 = F9), P1
    Erinnerungs-Push im Rückmeldungen-Blatt, F14 Design-System-Karten.
-   - **Migration 0043 (mit P1) enthält außerdem die Datenbanktexte** (Entscheidung 04.10.2026, keine eigene Migration): Beschreibung „Neue Strafe“ ohne Gedankenstrich („Eine Strafe wird verhängt - von Hand …“), A10 („Höchstens einmal im Monat. Standard AUS.“) und die übrigen Text-Abweichungen A1 bis A11 aus PHASE0.md, sobald der Nutzer sie entschieden hat. Dazu die Fehlermeldungen mit ASCII-Ersatzschreibung aus dem Bereich Einstellungen (send_test_notification, send_preview_notification, set_notification_template, render_vorlage, upsert_push_subscription, set_ical_url, notify_enqueue; Liste in PHASE0.md).
-4. Paket **„Automatische Mitteilungen“**, direkt nach dem Einstellungs-Paket, vor Kader.
+   - **Migration 0043 (mit P1) enthält außerdem die Datenbanktexte** (Entscheidung 04.10.2026, keine eigene Migration): Beschreibung „Neue Strafe“ ohne Gedankenstrich („Eine Strafe wird verhängt - von Hand …“), A10 („Höchstens einmal im Monat. Standard AUS.“) und die übrigen Text-Abweichungen aus PHASE0.md (A1 bis A11 am 05.10.2026 wie vorgeschlagen entschieden; von ihnen braucht nur A10 die Datenbank, die übrigen sind Frontend in E8/E9). Dazu die Fehlermeldungen mit ASCII-Ersatzschreibung aus dem Bereich Einstellungen (send_test_notification, send_preview_notification, set_notification_template, render_vorlage, upsert_push_subscription, set_ical_url, notify_enqueue; Liste in PHASE0.md).
+4. Kleines Paket **„Anmeldung ohne Selbstregistrierung“** (Entscheidung 05.10.2026), direkt nach
+   dem Einstellungs-Paket, vor „Automatische Mitteilungen“. Die Selbstregistrierung bleibt in
+   Supabase abgeschaltet; die App soll das nicht mehr verschweigen:
+   - „Noch kein Konto? Jetzt registrieren“ auf der Anmeldeseite durch „Konto beim Admin anfragen“
+     ersetzen (`app.js` `renderLogin`).
+   - Fehlermeldung „Signups not allowed for this instance“ übersetzen (`authErrorText`).
+   - Satz auf der Rollen-Seite anpassen („Neue erscheinen hier, sobald sie sich registriert haben.“).
+5. Paket **„Automatische Mitteilungen“**, direkt nach „Anmeldung ohne Selbstregistrierung“, vor Kader.
    Trigger und Cron-Jobs, die neue Strafe, Zahlung bestätigt/abgelehnt/gemeldet, Erinnerung
    24 h und 2 h vor Meldeschluss, kurzfristige Absage, zu wenig Zusagen, Übersicht nach
    Meldeschluss, Termin neu/geändert/abgesagt und offene Strafen in die Outbox schreiben,
@@ -58,8 +65,15 @@ sind überholt: die Bilder liegen inzwischen in diesem Ordner, und
    - **Offene Entscheidung:** Wer eine Aktion auslöst (z. B. eine Strafe verhängt, eine
      Zahlung bestätigt, einen Termin ändert), bekommt darüber keine Nachricht, auch wenn er
      selbst betroffen ist. Festhalten und vor dem Bau bestätigen lassen.
-5. Kader F11 bis F13.
-6. Paket A, Aufräumen (siehe unten). `data-remind` entfällt dort, es wird in P1 entfernt.
+6. Kader F11 bis F13.
+7. Paket A, Aufräumen (siehe unten). `data-remind` entfällt dort, es wird in P1 entfernt.
+
+**Vor dem Rollout bei weiteren Vereinen (nur vorgemerkt, 05.10.2026):** Paket **„Aufnahme neuer
+Mitglieder“**. Registrierung mit Freigabe durch den Admin: neue Konten sehen nichts, bis ein Admin
+sie freigibt; dazu ein Einladungslink o. ä. Grund: heute darf jedes angemeldete Konto alle Strafen
+lesen (Policy `read_fines`: `true`) und sich über `set_my_player` einen noch freien Spieler
+zuordnen. Eine offene Registrierung hieße deshalb: jeder mit dem Link sieht die Kasse. Deshalb ist
+die Selbstregistrierung abgeschaltet (PHASE0.md, Abschnitt „Testkonto und Selbstregistrierung“).
 
 ### Paket L: Vorgaben (02.10.2026)
 - Sechs Spalten: vor der Anmeldung, Spieler, Trainer, Kassenwart, Trainer+Kassenwart, Admin.

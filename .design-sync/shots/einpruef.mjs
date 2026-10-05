@@ -353,6 +353,27 @@ console.log('--- Einstellungen v2: Ruhezeiten (E5) ---');
   pruefe(!!b && b.readUInt32BE(16) === 390 && b.readUInt32BE(20) === 844, 'Soll-Ausschnitt 5-ruhezeiten (390 x 844)');
 }
 
+/* ===== 11. Paket Einstellungen v2, E6: Kalender-Abo nach einst3.png ====== */
+console.log('--- Einstellungen v2: Kalender-Abo (E6) ---');
+{
+  const appQ = fs.readFileSync('app.js', 'utf8');
+  const zweig = (() => { const a = appQ.indexOf('} else if (id === "kalender") {'); const b = appQ.indexOf('} else if (id === "bfv") {', a); return a < 0 || b < 0 ? '' : appQ.slice(a, b); })();
+  pruefe(zweig.includes('einZeileHtml({ attr: "data-cal-sheet"') && zweig.includes('titel: "Termine abonnieren", aktion: true, chev: false'),
+    'Termine abonnieren: Aktionszeile (grün), öffnet das Abo-Blatt wie bisher');
+  pruefe(zweig.includes('einZeileHtml({ attr: "data-cal-copy-profil"') && zweig.includes('titel: "Link kopieren", chev: false'),
+    'Link kopieren: Zeile mit grauer Kachel, kopiert wie bisher');
+  pruefe(zweig.indexOf('</div>') < zweig.indexOf('<p class="ein-hinweis">Alle Termine der Mannschaft'), 'Hinweis steht unter der Karte');
+  pruefe(zweig.includes('data-cal-copied-profil hidden'), 'Rückmeldung nach dem Kopieren bleibt');
+  pruefe(!zweig.includes('btn btn-primary') && !zweig.includes('btn btn-soft'), 'keine Vollknöpfe mehr');
+  // einZeileHtml: freies Attribut und Aktionsoptik
+  const z = E.einZeileHtml({ attr: 'data-cal-sheet', ic: '<svg></svg>', ton: 'gruen', titel: 'Termine abonnieren', aktion: true, chev: false });
+  pruefe(/<button class="ein-zeile ein-zeile-aktion" type="button" data-cal-sheet>/.test(z) && !z.includes('ein-chev'), 'einZeileHtml: attr und aktion, ohne Chevron');
+  pruefe(E.einIcon('kal-haken').includes('<svg') && E.einIcon('link').includes('<svg'), 'Symbole Kalender-Haken und Kettenglied');
+  const pf = '.design-sync/reference/soll/07_einstellungen-v2_6-kalender-abo.png';
+  const b = fs.existsSync(pf) ? fs.readFileSync(pf) : null;
+  pruefe(!!b && b.readUInt32BE(16) === 390 && b.readUInt32BE(20) === 844, 'Soll-Ausschnitt 6-kalender-abo (390 x 844)');
+}
+
 console.log('');
 console.log(fehler ? '--- ' + fehler + ' Beanstandung(en), ' + gut + ' ok ---'
                    : '--- bestanden (' + gut + ' Pruefungen) ---');

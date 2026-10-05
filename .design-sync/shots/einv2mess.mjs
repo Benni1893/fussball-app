@@ -164,7 +164,7 @@ const PANELS = {
   // Trainer-Symbole), das Soll-Bild entsteht nur unter compare/.
   '3t': { datei: 'einst3.png', x: 856, y: 34, name: '3t-mitteilungen-trainer-kasse', profil: 'trainerkassenwart', seite: 'mitteilungen', push: true, scroll: { text: 'Kurzfristige Absagen', y: 400 }, nurVergleich: true },
   '5':  { datei: 'einst2.png', x: 867, y: 100, name: '5-ruhezeiten',           profil: 'admin', seite: 'ruhezeiten', push: true, scroll: 'oben' },
-  '6':  { datei: 'einst3.png', x: 12,  y: 34,  name: '6-kalender-abo' },
+  '6':  { datei: 'einst3.png', x: 12,  y: 34,  name: '6-kalender-abo',           profil: 'admin', seite: 'kalender', scroll: 'oben' },
   '7':  { datei: 'einst3.png', x: 434, y: 34,  name: '7-spielplan-bfv' },
   '8':  { datei: 'einst3.png', x: 856, y: 34,  name: '8-push-texte' },
   '9':  { datei: 'einst4.png', x: 34,  y: 53,  name: '9-push-text-bearbeiten' },
@@ -249,6 +249,9 @@ const DOM_MITTEILUNGEN = () => {
     hinweise: alle('[data-push-karte] .ein-hinweis').map((h) => ({ ...r(h), ...s(h, 'fontSize', 'lineHeight', 'color'), text: h.textContent.slice(0, 40) })),
     gkopf: alle('.ein-gkopf').map((k) => ({ ...r(k), t: { ...r(k.querySelector('.ein-gkopf-t')), ...s(k.querySelector('.ein-gkopf-t'), 'fontSize', 'color') },
       alle: s(k.querySelector('.ein-gkopf-alle span'), 'fontSize', 'fontWeight', 'color'), sw: r(k.querySelector('.sw')) })),
+    aktionen: alle('[data-cal-sheet], [data-cal-copy-profil]').map((z) => ({ ...r(z), t: { ...r(z.querySelector('.ein-zeile-t')), ...s(z.querySelector('.ein-zeile-t'), 'fontSize', 'fontWeight', 'color') }, ic: r(z.querySelector('.ein-ic')), chev: !!z.querySelector('.ein-chev') })),
+    karten: alle('.ein-body .ein-gruppe').map((g) => r(g)),
+    hinweisAlle: alle('.ein-body .ein-hinweis').map((h) => r(h)),
     zeilen: alle('.ein-schalter').map((z) => ({ text: (z.querySelector('.ein-schalter-t') || {}).textContent, ...r(z),
       ic: r(z.querySelector('.ein-ic')), t: { ...r(z.querySelector('.ein-schalter-t')), ...s(z.querySelector('.ein-schalter-t'), 'fontSize', 'fontWeight', 'lineHeight') },
       s: { ...r(z.querySelector('.ein-schalter-s')), ...s(z.querySelector('.ein-schalter-s'), 'fontSize', 'lineHeight') },
