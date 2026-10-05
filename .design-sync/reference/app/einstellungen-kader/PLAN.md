@@ -83,8 +83,11 @@ sind überholt: die Bilder liegen inzwischen in diesem Ordner, und
      `zahlung_abgelehnt` (je 1 Minute), ein Trigger auf `fines`. Vorlagen mit `{anzahl}`
      samt Nomen (K1); Hinweis auf der Seite Mitteilungen umformuliert (K2, Build 2026-10-05-B).
      Push-Test „Neue Strafe“ am Handy: nach rund 5 Minuten angekommen.
-   - Danach AM3 bis AM5 und P1 serverseitig (Auftrag 05.10.2026, eigenständig, Bericht in
-     `auto-mitteilungen/ABSCHLUSS.md`).
+   - **AM3 bis AM5 und P1 serverseitig fertig** (Auftrag 05.10.2026, eigenständig):
+     Migrationen 0046 bis 0051, alle Prüfskripte grün (452 Fälle), Bericht, Testanleitung und
+     Annahmen in `auto-mitteilungen/ABSCHLUSS.md` und `ANNAHMEN.md`. Offen: Push nach OK
+     (Build 2026-10-05-C), der Knopf „Push senden“ im Rückmeldungen-Blatt mit P1-Frontend nach
+     dem Design-Review, `unterbesetzung` (F4).
    - **F4, Folgearbeit nach dem Design-Review:** „Zu wenig Zusagen“ entfällt vorerst; das
      Schema kennt keine Mindestzahl. Erst mit einer Einstellung dafür wieder aufnehmen.
 6. Kader F11 bis F13.

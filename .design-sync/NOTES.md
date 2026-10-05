@@ -1125,7 +1125,12 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
   Rollen über `set local role` plus `request.jwt.claims`. Ergebnis als
   Tabelle mit PASS/FAIL und Summe. `0042_rechtepruef` (166 Fälle),
   `0043_auto_pruef` (83), `0044_bfv_pruef` (13, mit echten Sync-Aufrufen),
-  `0045_kasse_pruef` (57, mit echten Kassenaufrufen je Rolle).
+  `0045_kasse_pruef` (57, mit echten Kassenaufrufen je Rolle), `0046_termine_pruef` (50),
+  `0048_rueckmeldung_pruef` (37), `0049_strafen_offen_pruef` (13), `0050_nachfrage_pruef` (23),
+  `0051_texte_pruef` (10). Ab 0046 mit `vor` / `aktion` / `nach` / `pruef` je Fall: was eine
+  Funktion schreibt, sieht eine Abfrage in derselben Anweisung nicht (Snapshot), deshalb liest
+  `pruef` immer in einer eigenen Anweisung. Ausführen mit
+  `node C:/Users/Benjamin/fussball-app-db/werkzeug/sql.mjs <datei>` (CLAUDE.md).
   Der Supabase-MCP ist `supabase_read_only_user` und darf die internen
   Funktionen nicht aufrufen; diese Skripte deshalb immer im Editor.
 - **Paket Einstellungen v2: `einv2mess.mjs`** (seit 04.10.2026, nicht auf der
