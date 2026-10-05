@@ -408,3 +408,12 @@ Migration 0049: Cron `notify-strafen-offen` (1. des Monats, 16:00 UTC). Prüfskr
 `supabase/checks/0049_strafen_offen_pruef.sql` 13/13. Frontend: Hinweis auf der Seite
 Mitteilungen entfällt (`AUTO_MITTEILUNGEN_AKTIV = true`, Build 2026-10-05-C, live erst mit Push).
 Annahmen S1 bis S4.
+
+## Stand 05.10.2026: P1 serverseitig und Texte eingespielt
+
+Migration 0050: Kategorie `rueckmeldung_nachfrage` (Vorlage, Rolle, Schalter „Erinnerung“), RPC
+`send_rsvp_reminder(p_event, p_nur_zaehlen)` mit 12-Stunden-Sperre, nur Trainer oder Admin,
+`grant` an authenticated (authenticated darf jetzt 27 Funktionen). Prüfskript
+`supabase/checks/0050_nachfrage_pruef.sql` 23/23. Migration 0051: Textkorrekturen (Gedankenstrich
+„Neue Strafe“, A10, sieben ASCII-Meldungen), Prüfskript `0051_texte_pruef.sql` 10/10. Der Knopf im
+Rückmeldungen-Blatt kommt nach dem Design-Review. Annahmen N1 bis N4.

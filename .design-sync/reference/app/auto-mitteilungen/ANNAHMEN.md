@@ -36,3 +36,12 @@ zurückgenommen werden.
 | S2 | Vorlage `strafen_offen`: Text „{anzahl}, älteste vom {datum}.“ mit „1 Strafe“ / „9 Strafen“. Nur ersetzt, solange der Auslieferungsstand gilt. | Wie K1. |
 | S3 | Zeitpunkt: am **1. jedes Monats um 16:00 UTC** (18:00 Sommerzeit, 17:00 Winterzeit); höchstens einmal im Monat je Spieler. Zugestellt nur mit eingeschaltetem Schalter (Standard aus). | Vorschlag aus PHASE0.md („am 1., 18:00 Ortszeit“); pg_cron rechnet in UTC. |
 | S4 | Der Hinweis auf der Seite Mitteilungen verschwindet über die vorgesehene Konstante `AUTO_MITTEILUNGEN_AKTIV = true` (Build 2026-10-05-C). Live erst mit dem Push nach deinem OK. | Vorgabe AM5. |
+
+## P1 serverseitig (Migration 0050) und Texte (0051)
+
+| # | Annahme | Grund |
+|---|---|---|
+| N1 | Wer die Nachfrage auslöst und selbst ohne Rückmeldung ist (Spielertrainer), bekommt sie nicht (F1) und zählt nur unter „offen“. | Grundregel F1. |
+| N2 | Die 12-Stunden-Sperre beginnt erst, wenn mindestens eine Nachricht eingereiht wurde. Erreicht eine Nachfrage niemanden (alle ohne Gerät), darf sofort erneut gefragt werden. | Sonst sperrt ein Versuch ohne Wirkung zwölf Stunden. |
+| N3 | Text: Datum kurz, Uhrzeit optional (ganztägig: ohne), Meldeschluss nur als optionaler Platzhalter (steht nicht im Text). Rückgabe zusätzlich `nur_zaehlen`, `letzte`. | Vorschlag aus einstellungen-v2/PHASE0.md, Abschnitt e). |
+| N4 | Die mit P1 beschlossenen Textkorrekturen stehen in einer **eigenen** Migration 0051 (aus den Live-Definitionen erzeugt, nur die Meldungstexte geändert). `set_ical_url` sagt jetzt „Nur Trainer, Kassenwart oder Admin dürfen die iCal-URL setzen.“ (Schrägstriche durch Komma und „oder“). | Kleinere, getrennt prüfbare Migration. |
