@@ -44,3 +44,6 @@ node_modules/
 # App-Landkarte: Bilder werden bei jedem Lauf neu erzeugt (versioniert sind
 # nur landkarte.json und ab L3 landkarte.html)
 .design-sync/landkarte/bilder/
+
+# Design-Review 05.10.2026: iPhone-Screenshots des Nutzers, bleiben lokal
+.design-sync/concepts/IMG_*

@@ -45,6 +45,12 @@ sind überholt: die Bilder liegen inzwischen in diesem Ordner, und
    Entscheidungen in `.design-sync/reference/app/einstellungen-v2/PHASE0.md`). Reihenfolge dort:
    E1 Rechte serverseitig (fertig), E2 UI-Rechte, E3 bis E10 je Unterseite (E7 = F9), P1
    Erinnerungs-Push im Rückmeldungen-Blatt, F14 Design-System-Karten.
+   - **Stand 05.10.2026: E1 bis E6 fertig und gepusht** (E6 = `baa09b0`). **Angehalten:** E7 bis
+     E10, P1 und F14 ruhen, bis die Bewertung der ganzen App durch Claude Design vorliegt; das
+     Ergebnis kann Vorlagen und Bausteine ändern. Die iPhone-Screenshots dafür liegen in
+     `.design-sync/concepts/IMG_*` (vom Nutzer, nicht versioniert, in `.gitignore`). In der
+     Zwischenzeit: Phase 0 des Pakets „Automatische Mitteilungen“
+     (`.design-sync/reference/app/auto-mitteilungen/PHASE0.md`).
    - **Migration 0043 (mit P1) enthält außerdem die Datenbanktexte** (Entscheidung 04.10.2026, keine eigene Migration): Beschreibung „Neue Strafe“ ohne Gedankenstrich („Eine Strafe wird verhängt - von Hand …“), A10 („Höchstens einmal im Monat. Standard AUS.“) und die übrigen Text-Abweichungen aus PHASE0.md (A1 bis A11 am 05.10.2026 wie vorgeschlagen entschieden; von ihnen braucht nur A10 die Datenbank, die übrigen sind Frontend in E8/E9). Dazu die Fehlermeldungen mit ASCII-Ersatzschreibung aus dem Bereich Einstellungen (send_test_notification, send_preview_notification, set_notification_template, render_vorlage, upsert_push_subscription, set_ical_url, notify_enqueue; Liste in PHASE0.md).
 4. Kleines Paket **„Anmeldung ohne Selbstregistrierung“** (Entscheidung 05.10.2026), direkt nach
    dem Einstellungs-Paket, vor „Automatische Mitteilungen“. Die Selbstregistrierung bleibt in
