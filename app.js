@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-05-B";
+  var APP_BUILD = "2026-10-05-C";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -1705,7 +1705,7 @@
   /* Hinweis, solange es noch keine automatischen Nachrichten gibt (Paket
      "Automatische Mitteilungen" in PLAN.md). Eine Stelle: mit dem Paket wird
      die Konstante true, und der Hinweis ist weg. */
-  const AUTO_MITTEILUNGEN_AKTIV = false;
+  const AUTO_MITTEILUNGEN_AKTIV = true;   // seit AM5 (05.10.2026): alle Erzeuger live
   function pnAutoHinweisHtml() {
     if (AUTO_MITTEILUNGEN_AKTIV) return "";
     return '<p class="ein-hinweis ein-hinweis-auto">Automatisch kommen bisher nur Nachrichten zur Kasse. ' +

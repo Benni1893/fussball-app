@@ -262,14 +262,15 @@ console.log('--- Einstellungen v2: Mitteilungen (E4) ---');
   const stueckQ = (von, bis) => { const a = appQ.indexOf(von); const b = appQ.indexOf(bis, a); return a < 0 || b < 0 ? '' : appQ.slice(a, b); };
 
   // Hinweis "automatische Nachrichten": eine Stelle, mit true weg.
-  // Wortlaut seit AM2 (05.10.2026): die Kasse sendet schon automatisch.
+  // Seit AM5 (05.10.2026) sind alle Erzeuger live: Konstante true, kein Hinweis.
+  // Der Wortlaut aus AM2 bleibt für den Fall false geprüft.
   const WORT = 'Automatisch kommen bisher nur Nachrichten zur Kasse. Termine und Rückmeldungen folgen.';
-  const autoCode = stueckQ('  const AUTO_MITTEILUNGEN_AKTIV = false;', '  function pnAdminHtml() {');
-  pruefe(autoCode !== '', 'Konstante AUTO_MITTEILUNGEN_AKTIV und pnAutoHinweisHtml stehen beieinander');
-  const autoAus = new Function(autoCode + '\n return pnAutoHinweisHtml;')();
-  const autoAn = new Function(autoCode.replace('const AUTO_MITTEILUNGEN_AKTIV = false;', 'const AUTO_MITTEILUNGEN_AKTIV = true;') + '\n return pnAutoHinweisHtml;')();
-  pruefe(autoAus().replace(/<[^>]+>/g, '') === WORT, 'Hinweis im freigegebenen Wortlaut');
-  pruefe(autoAn() === '', 'mit AUTO_MITTEILUNGEN_AKTIV = true verschwindet der Hinweis');
+  const autoCode = stueckQ('  const AUTO_MITTEILUNGEN_AKTIV = true;', '  function pnAdminHtml() {');
+  pruefe(autoCode !== '', 'Konstante AUTO_MITTEILUNGEN_AKTIV = true und pnAutoHinweisHtml stehen beieinander');
+  const autoAn = new Function(autoCode + '\n return pnAutoHinweisHtml;')();
+  const autoAus = new Function(autoCode.replace(/const AUTO_MITTEILUNGEN_AKTIV = true;[^\n]*/, 'const AUTO_MITTEILUNGEN_AKTIV = false;') + '\n return pnAutoHinweisHtml;')();
+  pruefe(autoAn() === '', 'AM5: der Hinweis ist weg (AUTO_MITTEILUNGEN_AKTIV = true)');
+  pruefe(autoAus().replace(/<[^>]+>/g, '') === WORT, 'mit false käme der Wortlaut aus AM2');
   pruefe(appQ.split('const AUTO_MITTEILUNGEN_AKTIV').length - 1 === 1, 'die Konstante gibt es genau einmal');
   pruefe(appQ.split('pnAutoHinweisHtml()').length - 1 === 2, 'der Hinweis wird genau an einer Stelle eingebaut');
   pruefe(appQ.split('Automatisch kommen bisher nur').length - 1 === 1, 'der Text steht nur an dieser einen Stelle');

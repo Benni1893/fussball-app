@@ -401,3 +401,10 @@ Meldeschluss, Übersicht nach Meldeschluss), Trigger `trg_rsvps_notify` auf `rsv
 (kurzfristige Absage, 10 Minuten gesammelt). `unterbesetzung` entfällt (F4). Prüfskript
 `supabase/checks/0048_rueckmeldung_pruef.sql` 37/37 in Runde 2 (Runde 1: drei Fälle zählten den
 verknüpften Prüfspieler mit, Fehler im Prüfskript). Annahmen R1 bis R5 in `ANNAHMEN.md`.
+
+## Stand 05.10.2026: AM5 eingespielt
+
+Migration 0049: Cron `notify-strafen-offen` (1. des Monats, 16:00 UTC). Prüfskript
+`supabase/checks/0049_strafen_offen_pruef.sql` 13/13. Frontend: Hinweis auf der Seite
+Mitteilungen entfällt (`AUTO_MITTEILUNGEN_AKTIV = true`, Build 2026-10-05-C, live erst mit Push).
+Annahmen S1 bis S4.

@@ -27,3 +27,12 @@ zurückgenommen werden.
 | R3 | Erinnerungsfenster: Meldeschluss in **22 bis 24 Stunden** bzw. in **0 bis 2 Stunden**, Cron alle 5 Minuten, je Termin, Spieler und Stufe höchstens einmal. Ein spät angelegter Termin bekommt nur die Stufen, deren Fenster noch kommt. | Vorschlag aus PHASE0.md, mit Spielraum für einen ausgefallenen Cron-Lauf. |
 | R4 | Übersicht nach Meldeschluss: einmal je Termin, wenn der Meldeschluss höchstens eine Stunde zurückliegt und der Termin noch nicht begonnen hat. „Offen“ = Spieler des Vereins ohne Rückmeldung, **ohne** Urlaub/verletzt am Termintag. | Ein Spieler im Urlaub ist nicht „offen“. |
 | R5 | Kurzfristige Absage: jede neue Absage („ab“, auch Wechsel von „zu“) zwischen Meldeschluss und Beginn; an die Trainer, 10 Minuten gesammelt; wer in der Zeit wieder zusagt, fällt aus der Liste. | Vorschlag aus PHASE0.md. |
+
+## AM5 Offene Strafen (Migration 0049) und Hinweis
+
+| # | Annahme | Grund |
+|---|---|---|
+| S1 | Auslöser: mindestens eine **offene** Strafe, die vor mehr als **28 Tagen angelegt** wurde (`created_at`, wie der Mahnzuschlag). Betrag und Anzahl über **alle** offenen Strafen des Spielers (nicht gemeldet, nicht storniert), Datum = ältestes Vergehen (`date`). | Katalog „offen älter als 4 Wochen“; die Frist der App zählt ab Anlage. |
+| S2 | Vorlage `strafen_offen`: Text „{anzahl}, älteste vom {datum}.“ mit „1 Strafe“ / „9 Strafen“. Nur ersetzt, solange der Auslieferungsstand gilt. | Wie K1. |
+| S3 | Zeitpunkt: am **1. jedes Monats um 16:00 UTC** (18:00 Sommerzeit, 17:00 Winterzeit); höchstens einmal im Monat je Spieler. Zugestellt nur mit eingeschaltetem Schalter (Standard aus). | Vorschlag aus PHASE0.md („am 1., 18:00 Ortszeit“); pg_cron rechnet in UTC. |
+| S4 | Der Hinweis auf der Seite Mitteilungen verschwindet über die vorgesehene Konstante `AUTO_MITTEILUNGEN_AKTIV = true` (Build 2026-10-05-C). Live erst mit dem Push nach deinem OK. | Vorgabe AM5. |
