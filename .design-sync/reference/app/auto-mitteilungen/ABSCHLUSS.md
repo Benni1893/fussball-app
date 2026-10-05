@@ -29,7 +29,7 @@ zustellen“ durch). „Live“ heißt: Erzeuger aktiv. Wo heute niemand die Emp
 | `termin_neu` | neuer künftiger Termin (App, Serie, BFV) | alle Spieler, außer Auslöser | 30 Min. je Auslöser; BFV je Lauf ab 08:00 | 📅 3 neue Termine · Jetzt zu- oder absagen: Training 22.09., Training 24.09., VfB Sparta München 27.09. | live (AM3) |
 | `termin_geaendert` | Datum, Uhrzeit, Ort; „Findet doch statt“ | alle Spieler ohne Urlaub/verletzt am Termintag, außer Auslöser | 10 Min. je Auslöser; BFV ab 08:00; Serie = eine | 📅 VfB Sparta München geändert · 20.09.2026: Anstoß jetzt 14:00 statt 12:30 Uhr | live |
 | `termin_abgesagt` | künftiger Termin → abgesagt | wie geändert | 2 Min. Karenz; BFV ab 08:00 | ❌ VfB Sparta München fällt aus · 20.09.2026 12:30 Uhr. | live |
-| `rueckmeldung_erinnerung` | Meldeschluss in 22 bis 24 h bzw. 0 bis 2 h | Spieler ohne Rückmeldung, ohne Urlaub/verletzt | Cron alle 5 Min. | ⏳ Bist du dabei? VfB Sparta München · 20.09. 12:30 Uhr · Meldeschluss morgen 12:30 Uhr. Ohne Antwort wird's teuer. | live (AM4) |
+| `rueckmeldung_erinnerung` | Meldeschluss in 22 bis 24 h bzw. 0 bis 2 h | Spieler ohne Rückmeldung, ohne Urlaub/verletzt | Cron alle 5 Min. | ⏳ Bist du dabei? VfB Sparta München · 20.09. 12:30 Uhr · Meldeschluss morgen 12:30 Uhr. Ohne Antwort wird's teuer. (der letzte Satz nur mit Auto-Strafe, 0052) | live (AM4) |
 | `absage_kurzfristig` | Absage nach Meldeschluss, vor Beginn | alle Trainer, außer Auslöser | 10 Min. je Termin | 🚨 2 kurzfristige Absagen · Training 22.09. 19:30 Uhr: Max Bauer, Tobias Klein | live; **heute kein Trainer** |
 | `meldeschluss_uebersicht` | Meldeschluss vorbei (erste Stunde) | alle Trainer | Cron alle 5 Min. | 📋 VfB Sparta München 20.09. · 12:30 Uhr · ✅ 12 · ❌ 3 · ❓ 4 | live; **heute kein Trainer** |
 | `unterbesetzung` | entfällt | niemand | keine | keiner | **aus** (F4) |
@@ -74,7 +74,7 @@ Echte Zustellung an dein Handy: „Neue Strafe“ am 05.10. um 18:54/18:55 UTC (
 
 - **Push vorher nötig:** Der Hinweis auf der Seite Mitteilungen verschwindet erst mit dem Push (Build 2026-10-05-C).
 - **Heute Nacht** (04:00 UTC) läuft der BFV-Sync zum ersten Mal mit AM3. Echte Änderungen, neue oder abgesagte Spiele melden sich frühestens um 08:00. Die drei Freundschaftsspiele bekommen Heim/Gegner korrigiert; das ist keine Datums-, Zeit- oder Ortsänderung und erzeugt nichts.
-- **Text „Ohne Antwort wird's teuer.“** in der Erinnerung stimmt bei BFV-Spielen nicht (dort keine Auto-Strafe). Push-Texte sind Admin-Sache, ich habe ihn nicht geändert (R2).
+- **Text „Ohne Antwort wird's teuer.“**: seit Migration 0052 (06.10.2026) über den optionalen Platzhalter `{strafhinweis}`, nur bei Terminen mit Auto-Strafe; bei BFV-Spielen fällt der Satz weg. Den Text pflegst du weiter auf der Seite Push-Texte (Baustein `{strafhinweis}` verschieben oder weglassen). Der Wortlaut des Hinweises steht in den Beispieldaten der Vorlage und gilt für Vorschau und Versand; ändern lässt er sich bisher nur per Migration. Prüfskript `0052_strafhinweis_pruef.sql` 13/13.
 - **Trainerrolle:** Solange niemand Trainer ist, kommen „Kurzfristige Absagen“ und „Übersicht nach Meldeschluss“ bei niemandem an.
 - **Kopf von 0045** trägt noch „ENTWURF, nicht eingespielt“; eingespielte Dateien ändere ich nicht mehr, maßgeblich ist PHASE0.md.
 - **Testkonto** bleibt bis nach P1-Frontend, ohne Spieler, ohne Admin (unverändert).
