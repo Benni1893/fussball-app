@@ -51,3 +51,6 @@ node_modules/
 # Paket "Final Alle Screens": Ist- und Vergleichsbilder entstehen bei jedem Messlauf neu
 .design-sync/concepts/final-2026-10/ist/
 .design-sync/concepts/final-2026-10/vergleich/
+
+# Lokale Claude-Rechte (nie committen)
+.claude/settings.local.json

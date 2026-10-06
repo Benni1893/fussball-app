@@ -17,6 +17,7 @@ import path from 'node:path';
 import { starte } from './server.mjs';
 import { installiere, warteAufApp } from './landkartenmodul.mjs';
 import { SCREENS } from './finalscreens.mjs';
+import { vorlageDaten, JETZT_VORLAGE } from './finaldaten.mjs';
 
 const BASIS = path.join(process.cwd(), '.design-sync', 'concepts', 'final-2026-10');
 const SOLL = path.join(BASIS, 'soll'), IST = path.join(BASIS, 'ist'), VGL = path.join(BASIS, 'vergleich');
@@ -35,7 +36,7 @@ function messeImBrowser(sel) {
     if (!r.width || !r.height) continue;
     const cs = getComputedStyle(e);
     if (cs.visibility === 'hidden' || cs.display === 'none' || Number(cs.opacity) === 0) continue;
-    const eigenerText = [...e.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent.trim()).join(' ').trim();
+    const eigenerText = [...e.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent.replace(/\u00a0/g, ' ').trim()).join(' ').replace(/\s+/g, ' ').trim();
     const flaeche = cs.backgroundColor !== 'rgba(0, 0, 0, 0)' || cs.backgroundImage !== 'none' || cs.borderTopWidth !== '0px';
     if (!eigenerText && !flaeche) continue;
     out.push({
@@ -50,7 +51,7 @@ function messeImBrowser(sel) {
 }
 
 // Soll-Rahmen sind 392 breit (1 px Rand je Seite): Soll-Koordinaten um 1 verschieben.
-function vergleiche(soll, ist, ausnahmen) {
+function vergleiche(soll, ist, ausnahmen, erlaubt) {
   const nachText = (liste) => {
     const m = new Map();
     for (const e of liste) { if (!e.text) continue; const k = e.text; if (!m.has(k)) m.set(k, []); m.get(k).push(e); }
@@ -68,7 +69,8 @@ function vergleiche(soll, ist, ausnahmen) {
       const d = [];
       for (const k of ['x', 'y', 'w', 'h']) if (Math.abs(s[k] - t[k]) > TOL) d.push(k + ' ' + s[k] + '→' + t[k]);
       for (const k of ['fs', 'fw', 'farbe', 'ls']) if (s[k] !== t[k]) d.push(k + ' ' + s[k] + '→' + t[k]);
-      if (d.length) befunde.push('"' + text + '": ' + d.join(', '));
+      const zeile = '"' + text + '": ' + d.join(', ');
+      if (d.length && !(erlaubt || []).some((a) => zeile.startsWith(a))) befunde.push(zeile);
     });
   }
   return { befunde, fehlend, gefunden };
@@ -88,7 +90,8 @@ for (const name of wahl) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: hoehe }, deviceScaleFactor: 1, isMobile: true, hasTouch: true,
     locale: 'de-DE', timezoneId: 'Europe/Berlin', serviceWorkers: 'block' });
   const page = await ctx.newPage();
-  const inst = await installiere(page, cfg.profil);
+  // Vorlagen-Datensatz (finaldaten.mjs), ausser der Screen verlangt die Landkarten-Daten.
+  const inst = await installiere(page, cfg.profil, cfg.landkartenDaten ? undefined : { daten: cfg.daten ? cfg.daten(vorlageDaten()) : vorlageDaten(), jetzt: JETZT_VORLAGE });
   await page.goto(basis, { waitUntil: 'networkidle' });
   await warteAufApp(page);
   if (cfg.vorbereitung) await cfg.vorbereitung(page);
@@ -96,6 +99,7 @@ for (const name of wahl) {
   const ist = await page.evaluate(messeImBrowser, cfg.wurzel || null);
   const istPng = await page.screenshot({ clip: { x: 0, y: 0, width: 390, height: hoehe } });
   fs.writeFileSync(path.join(IST, name + '.png'), istPng);
+  fs.writeFileSync(path.join(IST, name + '.json'), JSON.stringify(ist));
   const sollB64 = fs.readFileSync(path.join(SOLL, name + '.png')).toString('base64');
   const vgl = await leinwand.evaluate(async ([a, b, h]) => {
     const lade = async (d) => { const i = new Image(); await new Promise((ok) => { i.onload = ok; i.src = 'data:image/png;base64,' + d; }); return i; };
@@ -106,7 +110,7 @@ for (const name of wahl) {
     return c.toDataURL('image/png').split(',')[1];
   }, [sollB64, istPng.toString('base64'), hoehe]);
   fs.writeFileSync(path.join(VGL, name + '.png'), Buffer.from(vgl, 'base64'));
-  const v = vergleiche(soll, ist, cfg.ausnahmen);
+  const v = vergleiche(soll, ist, cfg.ausnahmen, cfg.erlaubt);
   const bericht = await inst.bericht();
   const gruen = v.befunde.length === 0 && v.fehlend.filter((t) => !(cfg.ohneText || []).includes(t)).length === 0 && bericht.verstoesse.length === 0 && bericht.fehler.length === 0;
   if (!gruen) alleGruen = false;

@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-06-C";
+  var APP_BUILD = "2026-10-06-D";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -119,9 +119,9 @@
      selbst, coach/admin alle (Migration 0026, erweitert in 0031 um "urlaub").
      -------------------------------------------------------------------------- */
   const STATUS_WAHL = [
-    ["fit", "fit"],
-    ["angeschlagen", "angeschlagen"],
-    ["verletzt", "verletzt"],
+    ["fit", "Fit"],
+    ["angeschlagen", "Angeschlagen"],
+    ["verletzt", "Verletzt"],
     ["urlaub", "Urlaub"],
   ];
   // "urlaub" zaehlt ueberall wie verletzt: nicht einsatzbereit.
@@ -133,7 +133,9 @@
     opts = opts || {};
     const st = p.status || "fit";
     const chips = STATUS_WAHL.map(([wert, label]) =>
-      `<button class="chip st-choice${st === wert ? " is-on st-" + wert : ""}" data-status-set="${p.id}" data-wert="${wert}">${label}</button>`
+      `<button class="chip st-choice st-${wert}${st === wert ? " is-on" : ""}" data-status-set="${p.id}" data-wert="${wert}" aria-pressed="${st === wert}">` +
+      (st === wert ? '<svg class="st-haken" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7"/></svg>' : '<span class="st-dot" aria-hidden="true"></span>') +
+      `${label}</button>`
     ).join("");
     const felder = istFit(p) ? "" : `
       <div class="st-felder">
@@ -348,6 +350,7 @@
         const target = new Date(el.getAttribute("data-cd-deadline")).getTime();
         if (isFinite(target) && now >= target) {
           if (currentView === "kalender") { renderKalender(); return; } // Karte schaltet auf Warnung
+          if (currentView === "dashboard") { renderDashboard(); return; }
         }
       }
     }
@@ -362,16 +365,25 @@
         } else if (info.remMs <= 0) {
           el.textContent = "Erhöhung steht an"; el.classList.add("cd-due");
         } else {
-          el.textContent = fmtRestzeit(info.remMs, compact) + (compact ? "" : " bis +2 €");
+          el.textContent = (el.getAttribute("data-cd-prefix") || "") + fmtRestzeit(info.remMs, compact) + (compact || el.hasAttribute("data-cd-prefix") ? "" : " bis +2 €");
           el.classList.add(dringlichkeitClass(info.remMs));
         }
       } else {
         const target = new Date(el.getAttribute("data-cd-deadline")).getTime();
         const rem = isFinite(target) ? target - now : 0;
         if (rem <= 0) { el.textContent = "abgelaufen"; el.classList.add("cd-due"); }
+        else if (el.getAttribute("data-cd-format") === "in") { el.textContent = (el.getAttribute("data-cd-prefix") || "") + fmtIn(rem); el.classList.add(dringlichkeitClass(rem)); }
         else { el.textContent = fmtRestzeit(rem, compact); el.classList.add(dringlichkeitClass(rem)); }
       }
     });
+  }
+  // Restzeit kurz und relativ: "in 21 h", "in 40 min", "in 3 Tagen".
+  function fmtIn(ms) {
+    const min = Math.floor(ms / 60000);
+    if (min < 60) return "in " + Math.max(1, min) + " min";
+    const h = Math.floor(min / 60);
+    if (h < 48) return "in " + h + " h";
+    return "in " + Math.floor(h / 24) + " Tagen";
   }
   function startCountdowns() {
     stopCountdowns();
@@ -505,9 +517,9 @@
   }
   // Rollen-Plakette neben der Anrede. Hoechste Rolle gewinnt, Spieler tragen keine.
   function rollenPillHtml() {
-    const r = Roles.isAdmin() ? "ADMIN"
-      : Roles.has("coach") ? "TRAINER"
-      : Roles.has("treasurer") ? "KASSENWART" : "";
+    const r = Roles.isAdmin() ? "Admin"
+      : Roles.has("coach") ? "Trainer"
+      : Roles.has("treasurer") ? "Kassenwart" : "";
     return r ? `<span class="role-pill">${r}</span>` : "";
   }
 
@@ -540,7 +552,7 @@
       const r = state.rsvp[naechstes.id + "|" + me.id] || {};
       if (!r.status) {
         zeilen.push({
-          art: "rsvp", zahl: "!", titel: "Rückmeldung fehlt",
+          art: "mine", zahl: "!", titel: "Rückmeldung fehlt",
           sub: eventKurz(naechstes), attr: 'data-task-focus="rsvp"',
         });
       }
@@ -562,38 +574,34 @@
         zeilen.push({
           art: "pay", zahl: gemeldet.length,
           titel: gemeldet.length === 1 ? "Zahlung bestätigen" : "Zahlungen bestätigen",
-          sub: "Kassenwart · " + seit, attr: "data-task-pay",
+          sub: "Kasse · " + seit, attr: "data-task-pay",
         });
       }
     }
 
-    // --- Trainer/Admin: unvollstaendige Aufstellung + fehlende Rueckmeldungen ---
+    // --- Trainer/Admin: fehlende Rueckmeldungen + Spiele ohne volle Elf ---------
     if (Roles.canManageEvents()) {
-      const spiel = DEMO.events
-        .filter((e) => e.typ === "spiel" && istOffen(e) && e.status !== "abgesagt")
-        .sort((a, b) => (eventStartMs(a) || 0) - (eventStartMs(b) || 0))[0];
-      if (spiel) {
-        const lu = (DEMO.lineups || []).find((l) => l.eventId === spiel.id && l.isActive && !l.isTemplate);
-        const slots = lu ? (FORMATIONS[lu.formation] || []) : [];
-        const gesetzt = lu ? slots.map((s) => (lu.slots || {})[s.key]).filter(Boolean).length : 0;
-        const vollstaendig = !!(lu && slots.length && gesetzt === slots.length);
-        if (!vollstaendig) {
-          zeilen.push({
-            art: "lineup", zahl: gesetzt,
-            titel: "Aufstellung " + fmtWd(spiel.datum) + " " + fmtDay(spiel.datum) + ". " + fmtMon(spiel.datum),
-            sub: gesetzt + " von " + (slots.length || 11) + " gesetzt",
-            attr: 'data-lineup-edit="' + spiel.id + '"',
-          });
-        }
-      }
       if (offenTermin) {
         const ohne = ohneRueckmeldung(naechstes).length;
         if (ohne > 0) {
           zeilen.push({
             art: "rsvp", zahl: ohne, titel: "Ohne Rückmeldung",
-            sub: "Erinnerung senden", attr: 'data-rsvp-sheet="' + naechstes.id + '"',
+            sub: (naechstes.typ === "spiel" ? "Spiel " : naechstes.typ === "training" ? "Training " : esc(naechstes.titel) + " ")
+              + fmtWd(naechstes.datum) + " · Erinnerung senden",
+            attr: 'data-rsvp-sheet="' + naechstes.id + '"',
           });
         }
+      }
+      const offeneElf = DEMO.events
+        .filter((e) => e.typ === "spiel" && istOffen(e) && e.status !== "abgesagt" && !aufstellungStand(e).steht)
+        .sort((a, b) => (eventStartMs(a) || 0) - (eventStartMs(b) || 0));
+      if (offeneElf.length) {
+        const sp = offeneElf[0];
+        zeilen.push({
+          art: "lineup", zahl: offeneElf.length, titel: "Elf aufstellen",
+          sub: fmtWd(sp.datum) + " " + fmtDay(sp.datum) + ". " + fmtMon(sp.datum) + " · " + esc(sp.gegner || sp.titel),
+          attr: 'data-lineup-edit="' + sp.id + '"',
+        });
       }
     }
 
@@ -611,7 +619,7 @@
     const zeilen = aufgabenZeilen(naechstes);
     if (!zeilen.length) return "";
     return `
-      <div class="section-title"><h2>Was heute liegt</h2></div>
+      <div class="group-head"><h2>Heute zu tun</h2></div>
       <div class="task-list">
         ${zeilen.map((z) => `
           <div class="task-row is-${z.art}"${z.attr ? " " + z.attr + ' role="button" tabindex="0"' : ""}>
@@ -640,15 +648,9 @@
     const naechstes = naechste[0];
     const trainer = Roles.canManageEvents();
 
-    // Naechstes Spiel fuer die Spieltag-Karte. Ist es bereits der Hero-Termin,
-    // entfaellt die Karte - sonst stuende derselbe Termin zweimal untereinander.
-    const spiel = naechste.find((e) => e.typ === "spiel" && e.status !== "abgesagt");
-    const spieltag = (spiel && naechstes && spiel.id === naechstes.id) ? null : spiel;
-
-    // „Danach": alles nach dem Hero, ohne den Termin der Spieltag-Karte.
-    const danach = naechste
-      .filter((e) => (!naechstes || e.id !== naechstes.id) && (!spieltag || e.id !== spieltag.id))
-      .slice(0, 3);
+    // „Danach": die naechsten drei Termine nach dem Hero (D9: keine eigene
+    // Spieltag-Karte mehr, das Spiel steht hier in der Liste).
+    const danach = naechste.filter((e) => !naechstes || e.id !== naechstes.id).slice(0, 2);
 
     const kontoVerknuepft = !!(currentProfile && currentProfile.player_id && me);
     const meinOffen  = kontoVerknuepft ? summeOffenSpieler(me.id) : 0;
@@ -666,21 +668,20 @@
     // Betrag; ist verknuepft und nichts offen, sagt das die gruene Zeile im
     // Aufgabenblock - eine Null-Zeile daneben waere leeres Gewicht.
     const eigenerBlock = (kontoVerknuepft && meinOffen > 0) ? kontoBlockHtml() : "";
+    // Mannschaftskasse (Trainer, Kassenwart): die Vorlage zeichnet sie nicht,
+    // sie bleibt als Zeile am Ende der Uebersicht.
     const teamZeile = (trainer || Roles.canManageFines())
-      ? `<div class="geld-rows">
-          ${!kontoVerknuepft ? `<button class="card geld" data-nav="meine-strafen">
-            <span class="geld-main"><span class="geld-lbl">Meine Strafen</span>
-            <span class="geld-wert num">${euro(meinOffen)}</span></span>
-            <span class="geld-chev" aria-hidden="true">›</span>
+      ? `<div class="card dn-liste geld-liste">
+          ${!kontoVerknuepft ? `<button class="row geld" data-nav="meine-strafen">
+            <span class="row-main"><span class="row-t">Meine Strafen</span></span>
+            <span class="row-end num">${euro(meinOffen)}</span><span class="row-chev" aria-hidden="true">›</span>
           </button>` : ""}
-          <button class="card geld" data-nav="kasse">
-            <span class="geld-main"><span class="geld-lbl">Mannschaftskasse</span>
-            <span class="geld-wert num${teamOffen > 0 ? " is-warn" : ""}">${euro(teamOffen)}</span></span>
-            <span class="geld-chev" aria-hidden="true">›</span>
+          <button class="row geld" data-nav="kasse">
+            <span class="row-main"><span class="row-t">Mannschaftskasse</span><span class="row-s">offen im Team</span></span>
+            <span class="row-end num${teamOffen > 0 ? " is-warn" : ""}">${euro(teamOffen)}</span><span class="row-chev" aria-hidden="true">›</span>
           </button>
         </div>`
       : "";
-    const geld = eigenerBlock + teamZeile;
 
     viewEl.innerHTML = `
       <div class="page-head h1row">
@@ -694,18 +695,16 @@
 
       ${aufgabenBlockHtml(naechstes)}
 
-      ${(!trainer && !Roles.canManageFines() && eigenerBlock)
-        ? `<div class="section-title"><h2>Mein Konto</h2><button class="link-btn" data-goto="strafen">Alle Strafen</button></div>` : ""}
-      ${geld}
+      ${eigenerBlock ? `<div class="group-head"><h2>Mein Konto</h2><button class="link-btn" data-goto="strafen">Alle Strafen ›</button></div>
+      ${eigenerBlock}` : ""}
 
-      ${spieltag ? `<div class="section-title sec-mini"><h2>Nächstes Spiel</h2><button class="link-btn" data-goto="kalender">Kalender &rsaquo;</button></div>
-      ${terminKarteHtml(spieltag, { hero: true })}` : ""}
-
-      ${danach.length ? `<div class="section-title sec-mini"><h2>Danach</h2>${spieltag ? "" : `<button class="link-btn" data-goto="kalender">Kalender &rsaquo;</button>`}</div>
+      ${danach.length ? `<div class="group-head"><h2>Danach</h2><button class="link-btn" data-goto="kalender">Kalender ›</button></div>
       <div class="card dn-liste">${danach.map(danachZeileHtml).join("")}</div>` : ""}
 
-      ${kontoVerknuepft ? `<div class="section-title sec-mini"><h2>Mein Status</h2></div>
+      ${kontoVerknuepft ? `<div class="group-head"><h2>Mein Status</h2></div>
       ${statusWahlHtml(me, { kompakt: true })}` : ""}
+
+      ${teamZeile ? `<div class="group-head"><h2>Kasse</h2></div>${teamZeile}` : ""}
     `;
 
     startCountdowns(); // Meldeschluss-Countdown im Hero und in der Spieltag-Karte
@@ -922,8 +921,17 @@
 
   // Die Kachel selbst. hinweis = true gibt ihr das X und den kuerzeren Titel.
   function aboKachelHtml(hinweis) {
-    const titel = hinweis ? "Termine im Handy-Kalender?"
-                          : "Termine im Kalender abonnieren";
+    if (hinweis) {
+      return '<div class="card kal-abo-wrap kal-abo-zeile">' +
+        '<button class="kal-abo-z" data-cal-sheet type="button">' +
+          '<span class="kal-abo-zic" aria-hidden="true">' + ICON_CAL_ADD + '</span>' +
+          '<span class="kal-abo-zt">Kalender abonnieren ›</span>' +
+        '</button>' +
+        '<button class="kal-abo-zx" data-cal-hide type="button" aria-label="Hinweis ausblenden">' +
+          '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
+        '</div>';
+    }
+    const titel = "Termine im Kalender abonnieren";
     return '<div class="kal-abo-wrap">' +
       '<button class="card kal-abo' + (hinweis ? " hat-x" : "") + '" data-cal-sheet type="button">' +
         '<span class="kal-abo-ic" aria-hidden="true">' + ICON_CAL_ADD + '</span>' +
@@ -1162,6 +1170,10 @@
       .sort((a, b) => a.datum.localeCompare(b.datum));
     const kommend = liste.filter((e) => isFuture(e.datum));
     const vergangen = liste.filter((e) => !isFuture(e.datum));
+    // Der naechste Termin (noch nicht vorbei) traegt Goldlinie und grosse Knoepfe.
+    const naechsterTermin = kommend.filter((e) => istOffen(e) && e.status !== "abgesagt")
+      .sort((a, b) => (eventStartMs(a) || 0) - (eventStartMs(b) || 0))[0];
+    const naechsterId = naechsterTermin ? naechsterTermin.id : null;
 
     // Abo-Hinweis: unter der gerade beantworteten Karte, wenn die Rueckmeldung
     // in dieser Sitzung fiel und die Karte im aktuellen Filter auch sichtbar
@@ -1172,13 +1184,12 @@
     }
 
     viewEl.innerHTML = `
-      <div class="page-head">${navBackChevronHtml()}<h1>Kalender</h1></div>
+      <div class="page-head h1row kal-kopf">${navBackChevronHtml()}<h1>Kalender</h1>${Roles.canManageSchedule() ? `<button class="link-btn kal-plus" data-termin-new type="button">+ Termin</button>` : ""}</div>
       <div class="kal-seg" role="tablist">
         ${filters.map((f) => `<button class="kal-seg-b ${kalFilter === f.k ? "is-on" : ""}" role="tab" aria-selected="${kalFilter === f.k}" data-filter="${f.k}">${f.label}</button>`).join("")}
       </div>
-      ${Roles.canManageSchedule() ? `<button class="kal-neu" data-termin-new type="button">${ICON_PLUS}<span>Termin hinzufügen</span></button>` : ""}
       ${platz && platz.ort === "liste" ? aboKachelHtml(true) : ""}
-      ${kommend.length ? `<div class="event-list">${kommend.map((e) => terminKarteHtml(e) +
+      ${kommend.length ? `<div class="event-list">${kommend.map((e) => terminKarteHtml(e, { naechster: !!naechsterId && e.id === naechsterId }) +
           ((platz && platz.ort === "karte" && platz.eventId === e.id) ? aboKachelHtml(true) : "")).join("")}</div>`
                        : `<div class="empty">Keine kommenden Termine in dieser Auswahl.</div>`}
       ${vergangen.length ? `
@@ -2344,7 +2355,7 @@
     }
     if (start != null && now < start) {
       const noResp = e.typ === "spiel" ? "25 €" : "15 €";
-      return `<div class="frist frist-warn">Meldeschluss vorbei – Rückmeldung jetzt kostet 8 €, keine Rückmeldung ${noResp}.</div>`;
+      return `<div class="frist frist-warn">Meldeschluss vorbei. Rückmeldung jetzt kostet 8 €, keine Rückmeldung ${noResp}.</div>`;
     }
     return "";
   }
@@ -2358,142 +2369,229 @@
     const query = raw || (staette && adr ? staette + ", " + adr : "");
     const name  = staette || fallback || adr;
     if (!name && !query) return null;
+    const suche = query || name;
     return {
       name: name || query,
       adresse: staette ? (adr || fallback) : "",
-      url: query ? "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(query) : "",
+      url: "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(suche),
       // Vollstaendig fuer title und Vorlesehilfe - in der Zeile steht beides gekuerzt.
       voll: [name || query, staette ? (adr || fallback) : ""].filter(Boolean).join(", "),
     };
   }
-  /* Zeile unter „Danach" (Vorlage termin-und-kalender-v2): cremefarbene
-     Datumskachel, Titel, Zeit und rechts der eigene Zustand. Alle Zeilen
-     liegen in EINER Karte mit Haarlinien dazwischen. */
+  /* Zeile unter „Danach" (Vorlage Final 01): Goldwuerfel 42 x 56 mit Monat,
+     kurzer Farbstrich links (Spiel dunkel, Training hell, Sonstiges gold),
+     Titel, Nebenzeile und rechts die eigene Rueckmeldung als Marke. Alle
+     Zeilen liegen in EINER Karte mit Trennlinien. */
   function danachZeileHtml(e) {
     const r = state.rsvp[e.id + "|" + state.currentPlayerId] || {};
-    const zustand = r.status === "zu" ? ["Zugesagt", "is-zu"]
-                  : r.status === "ab" ? ["Abgesagt", "is-ab"] : ["Offen", "is-offen"];
-    const zeit = e.zeit ? esc(e.zeit) + (e.ende ? " &#8211; " + esc(e.ende) : "") + " Uhr" : "";
-    const titel = e.typ === "spiel" ? esc(e.gegner || e.titel) : esc(e.titel);
-    const heim = (e.typ === "spiel" && e.heim != null) ? (e.heim ? "Heim" : "Auswärts") : "";
-    return `<button class="dn-zeile" data-nav-event="${e.id}">
-      <span class="tk-datum"><span class="d-wd">${fmtWd(e.datum)}</span>
-        <span class="d-day num">${fmtDay(e.datum)}</span>
-        <span class="d-mon">${fmtMon(e.datum)}</span></span>
-      <span class="dn-main"><span class="dn-t">${titel}</span>
-        <span class="dn-s num">${heim ? `<b>${heim}</b> · ` : ""}${zeit}</span></span>
-      <span class="dn-zust ${zustand[1]}">${zustand[0]}</span>
+    const zustand = r.status === "zu" ? ["Zugesagt", "is-gruen"]
+                  : r.status === "ab" ? ["Abgesagt", ""] : ["Offen", "is-rot"];
+    const spiel = e.typ === "spiel";
+    const titel = spiel ? esc(e.gegner || e.titel) : esc(e.titel);
+    const zeit = e.zeit ? esc(e.zeit) + " Uhr" : "ganztägig";
+    const neben = spiel
+      ? "Spiel · " + zeit + (e.heim != null ? " · " + (e.heim ? "Heim" : "Auswärts") : "")
+      : e.typ === "sonstiges" ? "Sonstiges · " + zeit : zeit;
+    const abgesagt = e.status === "abgesagt";
+    return `<button class="dn-zeile is-${e.typ}" data-nav-event="${e.id}">
+      <span class="dn-strich" aria-hidden="true"></span>
+      ${wuerfelHtml(e, "klein")}
+      <span class="dn-main"><span class="dn-t${spiel ? " is-spiel" : ""}">${titel}</span>
+        <span class="dn-s num">${neben}</span></span>
+      ${abgesagt ? `<span class="mark">Fällt aus</span>` : `<span class="mark ${zustand[1]}">${zustand[0]}</span>`}
     </button>`;
   }
 
+  /* Goldwuerfel: Wochentag, Tag, Monat. groesse "hero" 56 x 66, "karte" 48 x 56,
+     "klein" 42 x 56. */
+  function wuerfelHtml(e, groesse) {
+    return `<span class="wf wf-${groesse}"><span class="wf-wd">${fmtWd(e.datum)}</span>` +
+      `<span class="wf-day num">${fmtDay(e.datum)}</span><span class="wf-mon">${fmtMon(e.datum)}</span></span>`;
+  }
 
-  /* ---------- Terminkarte (Vorlage termin-und-kalender-v2.png) ---------------
-     EINE Komponente fuer Kalender und Uebersicht. Was sie zeigt, haengt an der
-     Rolle: Trainer bekommt Zaehler, Zusagen-Balken, Aufstellung und Kader-Info,
-     der Spieler seine Zu-/Absage samt Meldeschluss. Zu-/Absage steht in beiden
-     Faellen da - wer Trainer UND Spieler ist, meldet sich hier zurueck (K7 ist
-     damit ueberholt, die eigene Zeile im Hero entfaellt).
-     opts.hero = true laesst den Kalender-Werkzeugkram weg; er gehoert in den
-     Kalender, nicht auf die Uebersicht.                                       */
+  /* Relativer Tag fuer Kopfzeilen: "Heute", "Morgen", "In 3 Tagen", sonst null. */
+  function relTag(iso) {
+    const [y, m, d] = iso.split("-").map(Number);
+    const ziel = new Date(y, m - 1, d);
+    const heute = new Date(); heute.setHours(0, 0, 0, 0);
+    const tage = Math.round((ziel - heute) / 86400000);
+    if (tage === 0) return "Heute";
+    if (tage === 1) return "Morgen";
+    if (tage > 1 && tage < 7) return "In " + tage + " Tagen";
+    return null;
+  }
+  // "19:30 bis 21:00 Uhr", "13:30 Uhr · Treffen 12:45", "ganztägig"
+  function zeitText(e) {
+    if (!e.zeit) return "ganztägig";
+    const z = esc(e.zeit) + (e.ende ? " bis " + esc(e.ende) : "") + " Uhr";
+    return z + (e.treffen ? " · Treffen " + esc(e.treffen) : "");
+  }
+
+  /* Rueckmeldungen eines Termins (nur fuer Trainer lesbar, RLS). */
+  function rueckZahlen(e) {
+    const gesamt = DEMO.players.length;
+    const zu = DEMO.players.filter((p) => (state.rsvp[e.id + "|" + p.id] || {}).status === "zu").length;
+    const ab = DEMO.players.filter((p) => (state.rsvp[e.id + "|" + p.id] || {}).status === "ab").length;
+    return { gesamt, zu, ab, offen: gesamt - zu - ab };
+  }
+  function rueckZahlenHtml(z) {
+    return `<b>${z.zu}</b> zu · <b>${z.ab}</b> ab · <b>${z.offen}</b> offen`;
+  }
+  // Aufstellung eines Spiels: gesetzte Plaetze und Gesamtzahl.
+  function aufstellungStand(e) {
+    const lu = (DEMO.lineups || []).find((l) => l.eventId === e.id && l.isActive && !l.isTemplate);
+    const slots = lu ? (FORMATIONS[lu.formation] || []) : [];
+    const gesetzt = lu ? slots.map((s) => (lu.slots || {})[s.key]).filter(Boolean).length : 0;
+    return { lu, gesetzt, gesamt: slots.length || 11, steht: !!(lu && slots.length && gesetzt === slots.length) };
+  }
+  // Meldeschluss als Countdown "in 21 h" (laeuft per startCountdowns weiter).
+  function meldeschlussHtml(e) {
+    if (!isFuture(e.datum) || e.auto === false || (e.typ !== "spiel" && e.typ !== "training")) return "";
+    const dl = meldeschlussMs(e);
+    const start = eventStartMs(e);
+    const now = Date.now();
+    if (dl != null && now < dl) {
+      return `<span class="tk-ms cd" data-cd-deadline="${new Date(dl).toISOString()}" data-cd-format="in" data-cd-prefix="Meldeschluss ">Meldeschluss ${fmtIn(dl - now)}</span>`;
+    }
+    if (start != null && now < start) return `<span class="tk-ms">Meldeschluss vorbei</span>`;
+    return "";
+  }
+
+
+  /* ---------- Terminkarte (Vorlage Final 01 und 02) ----------------------------
+     EINE Komponente fuer Kalender und Uebersicht.
+     - opts.hero: Termin-Hero der Uebersicht. Dunkler Kopf mit Goldlinie, Pille
+       "Naechster Termin", Menue ···, grosser Wuerfel; darunter Ortszeile,
+       Zu-/Absage, Zeile Rueckmeldungen (oeffnet das Blatt) und fuer Trainer
+       Aufstellung und Kader.
+     - opts.naechster (Kalender): der naechste Termin traegt die Goldlinie und
+       die grossen Zu-/Absage-Knoepfe.
+     Kopf nach Art: Spiel dunkel, Training hellgruen, Sonstiges gold.
+     "In Kalender speichern", Kader-Info, Bearbeiten und Loeschen liegen im
+     Menue ··· (fuer alle Rollen geoeffnet; Pflege nur mit Recht).            */
   function terminKarteHtml(e, opts) {
     opts = opts || {};
-    const cancelled = e.typ !== "spiel" ? e.status === "abgesagt" : e.status === "abgesagt";
+    const cancelled = e.status === "abgesagt";
     const future    = isFuture(e.datum);
     const trainer   = Roles.canManageEvents();
     const spiel     = e.typ === "spiel";
+    const hero      = !!opts.hero;
+    const gross     = hero || !!opts.naechster;
     const r         = state.rsvp[e.id + "|" + state.currentPlayerId] || {};
     const verknuepft = !!(currentProfile && currentProfile.player_id && playerById[state.currentPlayerId]);
+    const art = hero ? "hero" : (spiel ? "spiel" : e.typ === "training" ? "training" : "sonstiges");
 
-    // --- Kopfband ---------------------------------------------------------
-    const zeit = e.zeit ? esc(e.zeit) + (e.ende ? " &#8211; " + esc(e.ende) : "") + " Uhr" : "";
+    // --- Kopf ------------------------------------------------------------------
     const titel = spiel ? esc(e.gegner || e.titel) : esc(e.titel);
-    const bdg = (spiel && e.heim != null) ? '<span class="tk-bdg">' + (e.heim ? "Heim" : "Auswärts") + '</span>' : "";
-
+    const heimText = (spiel && e.heim != null) ? (e.heim ? "Heim" : "Auswärts") : "";
+    const rel = relTag(e.datum);
+    let oben = "", zeile = zeitText(e);
+    if (hero) {
+      zeile = [rel, spiel && heimText ? heimText : "", zeitText(e)].filter(Boolean).join(" · ");
+    } else if (opts.naechster) {
+      oben = "Nächster Termin" + (rel ? " · " + rel.toLowerCase() : "");
+    } else if (spiel) {
+      oben = "Spiel" + (heimText ? " · " + heimText : "");
+    } else if (e.typ === "sonstiges") {
+      oben = "Sonstiges";
+    }
     const istBfv = e.quelle === "bfv";
     const mb = e.manuellBearbeitet || {}, bn = e.bfvNeu || {};
-    const tags = [];
-    if (spiel && e.wettbewerb && /freundschaft/i.test(e.wettbewerb)) tags.push('<span class="tag tag-friendly">Freundschaft</span>');
-    if (cancelled) tags.push('<span class="tag tag-cancelled">Abgesagt</span>');
-    if (istBfv && (mb.start || mb.ort)) tags.push('<span class="tag tag-manuell">manuell geändert</span>');
+    const marken = [];
+    if (cancelled) marken.push('<span class="mark is-rot">Fällt aus</span>');
+    if (spiel && e.wettbewerb && /freundschaft/i.test(e.wettbewerb)) marken.push('<span class="mark">Freundschaft</span>');
+    if (istBfv && (mb.start || mb.ort)) marken.push('<span class="mark is-amber">manuell geändert</span>');
 
-    const kopf = '<div class="tk-kopf">' +
-      '<span class="tk-datum"><span class="d-wd">' + fmtWd(e.datum) + '</span>' +
-      '<span class="d-day num">' + fmtDay(e.datum) + '</span>' +
-      '<span class="d-mon">' + fmtMon(e.datum) + '</span></span>' +
-      '<span class="tk-kopf-main">' +
-        (bdg || zeit ? '<span class="tk-oben">' + bdg + (zeit ? '<span class="tk-zeit num">' + zeit + '</span>' : "") + '</span>' : "") +
-        '<span class="tk-titel">' + titel + '</span>' +
-        (tags.length ? '<span class="tk-tags">' + tags.join("") + '</span>' : "") +
-      '</span>' +
-      ((trainer && !opts.hero) ? '<button class="tk-menue" data-tkmenu="' + e.id + '" aria-label="Mehr zu diesem Termin">⋯</button>' : "") +
+    const menue = '<button class="tk-menue" data-tkmenu="' + e.id + '" aria-label="Mehr zu diesem Termin">' +
+      '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg></button>';
+
+    const kopf = '<div class="tk-kopf is-' + art + ((gross && !cancelled) ? " is-gold" : "") + '">' +
+      (hero ? '<span class="tk-ring" aria-hidden="true"></span>' +
+        '<div class="tk-heroleiste"><span class="tk-pille">Nächster Termin</span>' + menue + '</div>' : "") +
+      '<div class="tk-kopfzeile">' +
+        wuerfelHtml(e, hero ? "hero" : "karte") +
+        '<span class="tk-kopf-main">' +
+          (oben ? '<span class="tk-oben">' + oben + '</span>' : "") +
+          '<span class="tk-titel">' + titel + '</span>' +
+          '<span class="tk-zeit num">' + zeile + '</span>' +
+        '</span>' +
+        (hero ? "" : menue) +
+      '</div>' +
       '</div>';
 
-    // --- Koerper ----------------------------------------------------------
+    // --- Koerper ---------------------------------------------------------------
     const teile = [];
-
     const ort = ortTeile(e);
-    if (ort) {
-      // Die ganze Zeile fuehrt zur Karten-App, nicht nur die Pille. 60 px hoch,
-      // damit weit ueber der 44-px-Regel.
+    if (ort && (hero || spiel)) {
       const inhalt = '<span class="tk-ort-ic" aria-hidden="true">' + VENUE_PIN + '</span>' +
-        '<span class="tk-ort-main"><span class="tk-ort-n">' + esc(ort.name) + '</span>' +
-        (ort.adresse ? '<span class="tk-ort-a">' + esc(ort.adresse) + '</span>' : "") + '</span>' +
-        (ort.url ? '<span class="tk-route" aria-hidden="true">Route</span>' : "");
+        '<span class="tk-ort-n">' + esc(ort.name) + '</span>' +
+        (ort.url ? '<span class="tk-route" aria-hidden="true">Route ›</span>' : "");
       teile.push(ort.url
-        ? '<a class="tk-feld tk-ort" href="' + ort.url + '" target="_blank" rel="noopener noreferrer"' +
+        ? '<a class="tk-ort" href="' + ort.url + '" target="_blank" rel="noopener noreferrer"' +
           ' title="' + esc(ort.voll) + '" aria-label="Route zu ' + esc(ort.voll) + '">' + inhalt + '</a>'
-        : '<div class="tk-feld tk-ort">' + inhalt + '</div>');
+        : '<div class="tk-ort">' + inhalt + '</div>');
     }
+    if (marken.length) teile.push('<div class="tk-marken">' + marken.join("") + '</div>');
 
+    const unten = [];   // Zeile unter Zu-/Absage im Kalender
     if (cancelled) {
-      teile.push('<div class="tk-abgesagt">Abgesagt</div>');
-    } else if (future && verknuepft) {
-      teile.push('<div class="tk-rsvp">' +
-        '<button class="tk-btn' + (r.status === "zu" ? " is-on" : "") + '" data-rsvp="zu" data-event="' + e.id + '">Zusage</button>' +
-        '<button class="tk-btn is-ab' + (r.status === "ab" ? " is-on" : "") + '" data-rsvp="ab" data-event="' + e.id + '">Absage</button>' +
-        '</div>');
-      if (r.status === "ab" && r.grund) teile.push('<div class="tk-grund">Grund: ' + esc(r.grund) + '</div>');
-      // Meldeschluss und die Acht-Euro-Warnung direkt unter der Knopfzeile.
-      const frist = fristBlockHtml(e);
-      if (frist) teile.push(frist.indexOf("frist-warn") >= 0
-        ? '<div class="tk-warn">' + frist.replace(/<\/?div[^>]*>/g, "") + '</div>'
-        : '<div class="tk-frist">' + frist.replace(/<\/?div[^>]*>/g, "") + '</div>');
-    }
-
-    if (trainer && !cancelled) {
-      const gesamt = DEMO.players.length;
-      const zu = DEMO.players.filter((p) => (state.rsvp[e.id + "|" + p.id] || {}).status === "zu").length;
-      const ab = DEMO.players.filter((p) => (state.rsvp[e.id + "|" + p.id] || {}).status === "ab").length;
-      const offen = gesamt - zu - ab;
-      const pz = gesamt ? (zu / gesamt) * 100 : 0;
-      const pa = gesamt ? (ab / gesamt) * 100 : 0;
-      teile.push('<button class="tk-feld tk-zusagen" data-rsvp-sheet="' + e.id + '">' +
-        '<span class="tk-z-kopf"><span class="tk-z-lbl">Zusagen</span>' +
-        '<span class="tk-z-offen num">' + offen + ' offen<span class="tk-chev">›</span></span></span>' +
-        '<span class="tk-bar" role="img" aria-label="' + zu + ' zugesagt, ' + ab + ' abgesagt, ' + offen + ' offen">' +
-          '<i class="is-zu" style="width:' + pz.toFixed(2) + '%"></i>' +
-          '<i class="is-ab" style="width:' + pa.toFixed(2) + '%"></i></span>' +
-        '<span class="tk-z-zahlen num"><b>' + zu + '</b> zugesagt · <b>' + ab + '</b> abgesagt · <b>' + offen + '</b> offen</span>' +
-        '</button>');
-
-      if (spiel) {
-        const lu = (DEMO.lineups || []).find((l) => l.eventId === e.id && l.isActive && !l.isTemplate);
-        const slots = lu ? (FORMATIONS[lu.formation] || []) : [];
-        const gesetzt = lu ? slots.map((s) => (lu.slots || {})[s.key]).filter(Boolean).length : 0;
-        teile.push('<div class="tk-kacheln">' +
-          '<button class="tk-feld tk-kachel" data-lineup-edit="' + e.id + '">' +
-            '<span class="tk-k-lbl">Aufstellung</span>' +
-            '<span class="tk-k-wert num">' + gesetzt + '/' + (slots.length || 11) + '<span class="tk-chev">›</span></span></button>' +
-          '<button class="tk-feld tk-kachel" data-kader-info="' + e.id + '">' +
-            '<span class="tk-k-lbl">Kader-Info</span>' +
-            '<span class="tk-k-wert num">' + DEMO.players.length + ' <small>Spieler</small><span class="tk-chev">›</span></span></button>' +
+      teile.push('<div class="tk-abgesagt">Dieser Termin fällt aus.</div>');
+    } else {
+      if (future && verknuepft) {
+        teile.push('<div class="tk-rsvp' + (gross ? " is-gross" : "") + '">' +
+          '<button class="tk-btn' + (r.status === "zu" ? " is-on" : "") + '" data-rsvp="zu" data-event="' + e.id + '">' + (r.status === "zu" ? "Zugesagt" : "Zusage") + '</button>' +
+          '<button class="tk-btn is-ab' + (r.status === "ab" ? " is-on" : "") + '" data-rsvp="ab" data-event="' + e.id + '">' + (r.status === "ab" ? "Abgesagt" : "Absage") + '</button>' +
           '</div>');
+        if (r.status === "ab" && r.grund) teile.push('<div class="tk-grund">Grund: ' + esc(r.grund) + '</div>');
+        // Nach dem Meldeschluss: was eine spaete Rueckmeldung kostet.
+        const frist = fristBlockHtml(e);
+        if (frist.indexOf("frist-warn") >= 0) teile.push('<div class="tk-warn">' + frist.replace(/<\/?div[^>]*>/g, "") + '</div>');
+      }
+      const ms = meldeschlussHtml(e);
+      if (hero) {
+        // Zeile Rueckmeldungen: Trainer sehen Balken und Zahlen und oeffnen das Blatt.
+        if (trainer) {
+          const z = rueckZahlen(e);
+          const pz = z.gesamt ? (z.zu / z.gesamt) * 100 : 0, pa = z.gesamt ? (z.ab / z.gesamt) * 100 : 0;
+          teile.push('<button class="tk-rueck" data-rsvp-sheet="' + e.id + '">' +
+            '<span class="tk-rueck-main"><span class="tk-rueck-kopf"><span class="tk-rueck-t">Rückmeldungen</span>' + ms + '</span>' +
+            '<span class="tk-bar" role="img" aria-label="' + z.zu + ' zugesagt, ' + z.ab + ' abgesagt, ' + z.offen + ' offen">' +
+              '<i class="is-zu" style="width:' + pz.toFixed(2) + '%"></i><i class="is-ab" style="width:' + pa.toFixed(2) + '%"></i></span>' +
+            '<span class="tk-rueck-z">' + rueckZahlenHtml(z) + '</span></span>' +
+            '<span class="tk-chev" aria-hidden="true">›</span></button>');
+        } else if (ms) {
+          teile.push('<div class="tk-rueck is-still"><span class="tk-rueck-main"><span class="tk-rueck-kopf">' +
+            '<span class="tk-rueck-t">Rückmeldung</span>' + ms + '</span></span></div>');
+        }
+        if (trainer) {
+          // Aufstellung des naechsten Spiels und fitter Kader.
+          const sp = spiel ? e : DEMO.events.filter((x) => x.typ === "spiel" && istOffen(x) && x.status !== "abgesagt")
+            .sort((a, b) => (eventStartMs(a) || 0) - (eventStartMs(b) || 0))[0];
+          const st = sp ? aufstellungStand(sp) : null;
+          const fit = DEMO.players.filter(istFit).length;
+          teile.push('<div class="tk-felder">' +
+            (st ? '<button class="tk-feld2" data-lineup-edit="' + sp.id + '"><span class="tk-f-main"><span class="tk-f-lbl">Aufstellung</span>' +
+              '<span class="tk-f-wert num is-gold">' + st.gesetzt + ' von ' + st.gesamt + '</span></span><span class="tk-chev" aria-hidden="true">›</span></button>' : "") +
+            '<button class="tk-feld2" data-nav="kader"><span class="tk-f-main"><span class="tk-f-lbl">Kader</span>' +
+              '<span class="tk-f-wert num">' + fit + ' fit</span></span><span class="tk-chev" aria-hidden="true">›</span></button>' +
+            '</div>');
+        }
+      } else {
+        if (trainer && (e.typ === "spiel" || e.typ === "training")) {
+          unten.push('<button class="tk-unten-l" data-rsvp-sheet="' + e.id + '">' + rueckZahlenHtml(rueckZahlen(e)) + ' ›</button>');
+        }
+        if (spiel && trainer) {
+          const st = aufstellungStand(e);
+          unten.push('<button class="tk-unten-r is-gold" data-lineup-edit="' + e.id + '">' + (st.steht ? "Elf steht ›" : "Elf aufstellen ›") + '</button>');
+        } else if (ms) {
+          unten.push('<span class="tk-unten-r">' + ms + '</span>');
+        }
+        if (unten.length) teile.push('<div class="tk-unten">' + unten.join("") + '</div>');
       }
     }
 
-    // BFV meldet eine Abweichung: der Hinweis steht sichtbar in der Karte, das
-    // Uebernehmen als Textlink direkt daneben - nicht erst im ⋯-Menue.
-    if (istBfv && trainer && !opts.hero) {
+    // BFV meldet eine Abweichung: Hinweis sichtbar, Uebernehmen als Textverweis.
+    if (istBfv && trainer && !hero) {
       if (bn.date || bn.time) {
         const t = bn.time || e.zeit || "";
         const dd = bn.date ? ddmm(bn.date) + " " : "";
@@ -2507,39 +2605,30 @@
     }
     if (e.note) teile.push('<div class="tk-notiz">' + esc(e.note) + '</div>');
 
-    // Einzelner Termin als .ics - fuer alle Rollen, im Kalender wie im Hero.
-    // Ergaenzt das Abo: auf Android laesst sich das Abo nur ueber die
-    // Web-Oberflaeche anlegen, eine einzelne Datei dagegen sofort speichern.
-    // Die Adresse braucht den Kalender-Token, der asynchron kommt - deshalb
-    // ein Knopf mit Kennung statt eines fertigen href, damit
-    // terminKarteHtml synchron bleibt.
-    teile.push('<div class="tk-ics"><button class="link-btn" data-ics-event="' + e.id +
-      '">In Kalender speichern</button></div>');
-
-    return '<div class="card tk' + (cancelled ? " is-cancelled" : "") + '" id="ev-' + e.id + '">' +
+    return '<div class="card tk is-' + art + (cancelled ? " is-cancelled" : "") + '" id="ev-' + e.id + '">' +
       kopf + (teile.length ? '<div class="tk-body">' + teile.join("") + '</div>' : "") + '</div>';
   }
 
-  /* ⋯-Menue der Terminkarte: die Pflegefunktionen, die die Vorlage nicht
-     zeichnet, aber ohne die der Kalender nicht pflegbar waere. */
+  /* ⋯-Menue der Terminkarte: fuer alle Rollen. "In Kalender speichern" fuer
+     jeden; Kader-Info fuer Trainer bei Spielen; Pflege nur mit Recht. */
   function closeTkMenu() {
     const ex = document.getElementById("tkMenu");
     if (ex) { ex.remove(); unlockBodyScroll(); }
   }
   function openTkMenu(eventId) {
     const e = DEMO.events.find((x) => x.id === eventId);
-    if (!e || !Roles.canManageEvents()) return;
+    if (!e) return;
     closeTkMenu();
     const darfPflegen = Roles.canManageSchedule();
     const mb = e.manuellBearbeitet || {};
-    const zeilen = [];
+    const zeilen = ['<button class="more-item" data-ics-event="' + e.id + '">In Kalender speichern</button>'];
+    if (Roles.canManageEvents() && e.typ === "spiel") zeilen.push('<button class="more-item" data-kader-info="' + e.id + '">Kader-Info teilen</button>');
     if (darfPflegen) {
       zeilen.push('<button class="more-item" data-termin-edit="' + e.id + '">Termin bearbeiten</button>');
       if (e.quelle === "bfv" && (mb.start || mb.ort))
         zeilen.push('<button class="more-item" data-bfv-reset="' + e.id + '">Zurücksetzen auf BFV-Daten</button>');
       zeilen.push('<button class="more-item is-danger" data-termin-del="' + e.id + '">Termin löschen</button>');
     }
-    if (!zeilen.length) return;
     const ov = document.createElement("div");
     ov.className = "more-sheet"; ov.id = "tkMenu";
     ov.innerHTML = '<button class="more-backdrop" data-sheet-close aria-label="Schließen"></button>' +
@@ -2550,7 +2639,17 @@
     lockBodyScroll();
     ov.addEventListener("click", (ev) => {
       if (ev.target === ov || ev.target.closest("[data-sheet-close]")) { closeTkMenu(); return; }
-      if (ev.target.closest(".more-item")) closeTkMenu();   // Aktion laeuft ueber den globalen Klickpfad weiter
+      const it = ev.target.closest(".more-item");
+      if (!it) return;
+      // Das Menue haengt am body, der Klickpfad der Ansicht aber an viewEl:
+      // die Zeile kurz in die Ansicht legen und dort ausloesen.
+      // Kopie, weil click() auf das gerade geklickte Element nicht erneut feuert.
+      closeTkMenu();
+      const kopie = it.cloneNode(true);
+      kopie.hidden = true;
+      viewEl.appendChild(kopie);
+      kopie.click();
+      kopie.remove();
     });
   }
 
@@ -4383,7 +4482,7 @@
           <span class="mb-label">Dein Konto</span>
           <span class="mb-state">Noch keinem Spieler zugeordnet</span>
         </div>
-        <div class="mb-note">Bitte einen Trainer/Admin um die Zuordnung – danach siehst du hier deine Strafen.</div>
+        <div class="mb-note">Bitte einen Trainer oder Admin um die Zuordnung. Danach siehst du hier deine Strafen.</div>
       </div>`;
     }
     const meine = aktiveStrafen().filter((s) => s.playerId === me.id);
@@ -4400,25 +4499,24 @@
       if (bannerCd === null || info.remMs < bannerCd.remMs) bannerCd = { remMs: info.remMs, createdAt: s.createdAt };
     });
 
-    // Fortschritt: welcher Anteil der eigenen Strafen ist schon erledigt?
-    const anteil = meineGesamt > 0 ? Math.round(((meineGesamt - meineOffen) / meineGesamt) * 100) : 100;
+    const meineOffenZahl = meine.filter((s) => fineStatus(s) === "offen").length;
+    const unter = [];
+    if (meineOffenZahl) unter.push(meineOffenZahl + (meineOffenZahl === 1 ? " Strafe offen" : " Strafen offen"));
+    if (meineGemeldet) unter.push('<b class="mb-gem">' + meineGemeldet + " gemeldet</b>");
 
     return `<div class="mine-banner${meineOffen > 0 ? "" : " is-clear"}">
         <div class="mb-label">Dein Konto · ${esc(me.name)}</div>
-        <div class="mb-value">${euro(meineOffen)}</div>
-        <div class="mb-sub">${meineOffen > 0
-          ? `offen von ${euro(meineGesamt)} · ${meine.length} ${meine.length === 1 ? "Strafe" : "Strafen"}`
-          : meineGemeldet > 0 ? "Zahlung gemeldet – wartet auf Bestätigung" : "Du bist schuldenfrei"}</div>
-        <div class="mb-bar" role="img" aria-label="${anteil}% erledigt"><i style="width:${anteil}%"></i></div>
+        <div class="mb-value num">${euro(meineOffen)}</div>
+        <div class="mb-sub">${meineOffen > 0 ? unter.join(" · ")
+          : meineGemeldet > 0 ? "Zahlung gemeldet, wartet auf Bestätigung" : "Du bist schuldenfrei"}</div>
         ${meinZuschlag > 0 ? `<div class="mb-note">inkl. ${euro(meinZuschlag)} Mahnzuschlag</div>` : ""}
         ${meineOffen > 0 ? `
           <a class="btn btn-primary mb-pay" href="${paypalMeLink(meineOffen)}" target="_blank" rel="noopener noreferrer">${euro(meineOffen)} jetzt bezahlen</a>
-          <div class="mb-pp"><span class="rs">über</span><span class="pp-word"><span class="pp1">Pay</span><span class="pp2">Pal</span></span><span class="rs">· Freunde &amp; Familie</span></div>
+          <div class="mb-pp">über <b class="pp-word">Pay<span>Pal</span></b> · Freunde &amp; Familie</div>
           <div class="mb-foot">
-            <button class="link-btn" data-paid-self>Zahlung melden</button>
-            ${bannerCd ? `<span class="mb-cd">Erhöhung in <span class="cd" data-cd-created="${bannerCd.createdAt}" data-cd-step="${faelligeStufen({ createdAt: bannerCd.createdAt }, Date.now())}"></span></span>` : ""}
+            <button class="link-btn" data-paid-self>Zahlung melden ›</button>
+            ${bannerCd ? `<span class="mark is-rot mb-cd cd" data-cd-prefix="Erhöhung in " data-cd-created="${bannerCd.createdAt}" data-cd-step="${faelligeStufen({ createdAt: bannerCd.createdAt }, Date.now())}">Erhöhung in ${fmtRestzeit(bannerCd.remMs, true)}</span>` : ""}
           </div>` : ""}
-        ${meineGemeldet > 0 ? `<div class="mb-note">${meineGemeldet} ${meineGemeldet === 1 ? "Strafe gemeldet" : "Strafen gemeldet"} · Kassenwart bestätigt den Eingang</div>` : ""}
       </div>`;
   }
 

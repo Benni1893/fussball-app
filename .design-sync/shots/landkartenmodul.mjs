@@ -279,9 +279,10 @@ const MITGLIEDER = [
 /* ---- Das Stand-in als Quelltext ------------------------------------------
    Wird statt db.js ausgeliefert. Die Methodenliste muss die von db.js genau
    treffen; landkartenrauch.mjs vergleicht beide.                         */
-export function stubQuelle(profilName) {
+/* opts.daten ersetzt die Testdaten (z. B. Vorlagen-Datensatz fuer finalmess.mjs). */
+export function stubQuelle(profilName, opts) {
   const D = {
-    daten: daten(),
+    daten: (opts && opts.daten) || daten(),
     profil: profilDaten(profilName),
     vorlagen: VORLAGEN,
     prefs: PREFS,
@@ -398,12 +399,13 @@ export async function neuerKontext(browser) {
 const istSupabase = (url) => { try { return /(^|\.)supabase\.co$/i.test(new URL(url).hostname); } catch (e) { return false; } };
 
 /* Richtet eine Seite fuer ein Profil ein. Vor page.goto aufrufen. */
-export async function installiere(page, profilName) {
-  const quelle = stubQuelle(profilName);
+/* opts.daten: eigene Testdaten, opts.jetzt: eigene feste Uhrzeit (ISO). Ohne opts wie bisher. */
+export async function installiere(page, profilName, opts) {
+  const quelle = stubQuelle(profilName, opts);
   const verstoesse = [], fehler = [], hinweise = [];
   let basisHost = null;
 
-  await page.clock.setFixedTime(new Date(JETZT));
+  await page.clock.setFixedTime(new Date((opts && opts.jetzt) || JETZT));
   await page.addInitScript(SW_ATTRAPPE);
 
   page.on('request', (r) => { if (istSupabase(r.url())) verstoesse.push('Request an Supabase: ' + r.method() + ' ' + r.url()); });

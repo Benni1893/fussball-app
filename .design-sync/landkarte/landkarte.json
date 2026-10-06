@@ -140,6 +140,29 @@
           "nameQuelle": "liste"
         },
         {
+          "schluessel": "dashboard+tkMenu",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "tkMenu"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "titel": "TSV Beispielstadt · 4. Okt",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "tkmenu",
+              "wert": null,
+              "text": "Mehr zu diesem Termin",
+              "global": false
+            }
+          ],
+          "bild": "bilder/spieler/dashboard--tkMenu.png",
+          "strang": "uebersicht",
+          "name": "Termin-Menü",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "dashboard+zmBl",
           "ansicht": "dashboard",
           "unter": null,
@@ -153,7 +176,7 @@
             {
               "art": "paid-self",
               "wert": null,
-              "text": "Zahlung melden",
+              "text": "Zahlung melden ›",
               "global": false
             }
           ],
@@ -404,7 +427,7 @@
             {
               "art": "cal-sheet",
               "wert": null,
-              "text": "Termine im Handy-Kalender?›",
+              "text": "Kalender abonnieren ›",
               "global": false
             }
           ],
@@ -412,6 +435,35 @@
           "strang": "kalender",
           "name": "Termine abonnieren",
           "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "kalender+tkMenu",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "tkMenu"
+          ],
+          "ueberschrift": "Kalender",
+          "titel": "TSV Beispielstadt · 4. Okt",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "tkmenu",
+              "wert": null,
+              "text": "Mehr zu diesem Termin",
+              "global": false
+            }
+          ],
+          "bild": "bilder/spieler/kalender--tkMenu.png",
+          "strang": "kalender",
+          "name": "Termin-Menü",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "profil",
@@ -460,7 +512,7 @@
             {
               "art": "paid-self",
               "wert": null,
-              "text": "Zahlung melden",
+              "text": "Zahlung melden ›",
               "global": false
             }
           ],
@@ -517,14 +569,14 @@
           "von": "dashboard",
           "art": "goto",
           "wert": "strafen",
-          "text": "Alle Strafen",
+          "text": "Alle Strafen ›",
           "nach": "strafen"
         },
         {
           "von": "dashboard",
           "art": "paid-self",
           "wert": null,
-          "text": "Zahlung melden",
+          "text": "Zahlung melden ›",
           "nach": "dashboard+zmBl"
         },
         {
@@ -547,6 +599,13 @@
           "wert": "strafen",
           "text": "Konto",
           "nach": "strafen"
+        },
+        {
+          "von": "dashboard",
+          "art": "tkmenu",
+          "wert": null,
+          "text": "Mehr zu diesem Termin",
+          "nach": "dashboard+tkMenu"
         },
         {
           "von": "dashboard",
@@ -615,14 +674,21 @@
           "von": "kalender",
           "art": "cal-sheet",
           "wert": null,
-          "text": "Termine im Handy-Kalender?›",
+          "text": "Kalender abonnieren ›",
           "nach": "kalender+calSheet"
+        },
+        {
+          "von": "kalender",
+          "art": "tkmenu",
+          "wert": null,
+          "text": "Mehr zu diesem Termin",
+          "nach": "kalender+tkMenu"
         },
         {
           "von": "strafen",
           "art": "paid-self",
           "wert": null,
-          "text": "Zahlung melden",
+          "text": "Zahlung melden ›",
           "nach": "strafen+zmBl"
         }
       ],
@@ -645,6 +711,7 @@
         "logout",
         "paid-self",
         "tab",
+        "tkmenu",
         "view-jump",
         "zahnrad"
       ],
@@ -685,7 +752,7 @@
             {
               "art": "rsvp-sheet",
               "wert": null,
-              "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+              "text": "RückmeldungenMeldeschluss in 21 h9 zu · 2 ab · 5",
               "global": false
             }
           ],
@@ -695,27 +762,27 @@
           "nameQuelle": "ueberschrift"
         },
         {
-          "schluessel": "dashboard+shareModal",
+          "schluessel": "dashboard+tkMenu",
           "ansicht": "dashboard",
           "unter": null,
           "oben": [
-            "shareModal"
+            "tkMenu"
           ],
           "ueberschrift": "Servus, Felix",
-          "titel": "Kader-Info · vs. TSV Beispielstadt",
+          "titel": "TSV Beispielstadt · 4. Okt",
           "tiefe": 1,
           "pfad": [
             {
-              "art": "kader-info",
+              "art": "tkmenu",
               "wert": null,
-              "text": "Kader-Info16 Spieler›",
+              "text": "Mehr zu diesem Termin",
               "global": false
             }
           ],
-          "bild": "bilder/trainer/dashboard--shareModal.png",
+          "bild": "bilder/trainer/dashboard--tkMenu.png",
           "strang": "uebersicht",
-          "name": "Kader-Info",
-          "nameQuelle": "ueberschrift"
+          "name": "Termin-Menü",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "dashboard+zmBl",
@@ -731,7 +798,7 @@
             {
               "art": "paid-self",
               "wert": null,
-              "text": "Zahlung melden",
+              "text": "Zahlung melden ›",
               "global": false
             }
           ],
@@ -857,7 +924,7 @@
             {
               "art": "lineup-edit",
               "wert": null,
-              "text": "Aufstellung11/11›",
+              "text": "Aufstellung11 von 11›",
               "global": false
             }
           ],
@@ -881,7 +948,7 @@
             {
               "art": "rsvp-sheet",
               "wert": null,
-              "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+              "text": "RückmeldungenMeldeschluss in 21 h9 zu · 2 ab · 5",
               "global": false
             },
             {
@@ -895,6 +962,64 @@
           "strang": "uebersicht",
           "name": "Rückmeldungen teilen",
           "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "dashboard+shareModal",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "shareModal"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "titel": "Kader-Info · vs. TSV Beispielstadt",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tkmenu",
+              "wert": null,
+              "text": "Mehr zu diesem Termin",
+              "global": false
+            },
+            {
+              "art": "kader-info",
+              "wert": null,
+              "text": "Kader-Info teilen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/dashboard--shareModal.png",
+          "strang": "uebersicht",
+          "name": "Kader-Info",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "dashboard+terminModal",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "terminModal"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "titel": "Spiel bearbeiten",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tkmenu",
+              "wert": null,
+              "text": "Mehr zu diesem Termin",
+              "global": false
+            },
+            {
+              "art": "termin-edit",
+              "wert": null,
+              "text": "Termin bearbeiten",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/dashboard--terminModal.png",
+          "strang": "uebersicht",
+          "name": "Spiel bearbeiten",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "diagnose",
@@ -1081,7 +1206,7 @@
             {
               "art": "cal-sheet",
               "wert": null,
-              "text": "Termine im Handy-Kalender?›",
+              "text": "Kalender abonnieren ›",
               "global": false
             }
           ],
@@ -1110,42 +1235,13 @@
             {
               "art": "rsvp-sheet",
               "wert": null,
-              "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+              "text": "9 zu · 2 ab · 5 offen ›",
               "global": false
             }
           ],
           "bild": "bilder/trainer/kalender--rsvpSheet.png",
           "strang": "kalender",
           "name": "Rückmeldungen",
-          "nameQuelle": "ueberschrift"
-        },
-        {
-          "schluessel": "kalender+shareModal",
-          "ansicht": "kalender",
-          "unter": null,
-          "oben": [
-            "shareModal"
-          ],
-          "ueberschrift": "Kalender",
-          "titel": "Kader-Info · vs. TSV Beispielstadt",
-          "tiefe": 2,
-          "pfad": [
-            {
-              "art": "tab",
-              "wert": "kalender",
-              "text": "Kalender",
-              "global": true
-            },
-            {
-              "art": "kader-info",
-              "wert": null,
-              "text": "Kader-Info16 Spieler›",
-              "global": false
-            }
-          ],
-          "bild": "bilder/trainer/kalender--shareModal.png",
-          "strang": "kalender",
-          "name": "Kader-Info",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -1168,7 +1264,7 @@
             {
               "art": "termin-new",
               "wert": null,
-              "text": "Termin hinzufügen",
+              "text": "+ Termin",
               "global": false
             }
           ],
@@ -1253,7 +1349,7 @@
             {
               "art": "paid-self",
               "wert": null,
-              "text": "Zahlung melden",
+              "text": "Zahlung melden ›",
               "global": false
             }
           ],
@@ -1276,7 +1372,7 @@
             {
               "art": "lineup-edit",
               "wert": null,
-              "text": "Aufstellung11/11›",
+              "text": "Aufstellung11 von 11›",
               "global": false
             },
             {
@@ -1305,7 +1401,7 @@
             {
               "art": "lineup-edit",
               "wert": null,
-              "text": "Aufstellung11/11›",
+              "text": "Aufstellung11 von 11›",
               "global": false
             },
             {
@@ -1334,7 +1430,7 @@
             {
               "art": "lineup-edit",
               "wert": null,
-              "text": "Aufstellung11/11›",
+              "text": "Aufstellung11 von 11›",
               "global": false
             },
             {
@@ -1405,7 +1501,7 @@
             {
               "art": "rsvp-sheet",
               "wert": null,
-              "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+              "text": "9 zu · 2 ab · 5 offen ›",
               "global": false
             },
             {
@@ -1419,6 +1515,41 @@
           "strang": "kalender",
           "name": "Rückmeldungen teilen",
           "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "kalender+shareModal",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "shareModal"
+          ],
+          "ueberschrift": "Kalender",
+          "titel": "Kader-Info · vs. TSV Beispielstadt",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "tkmenu",
+              "wert": null,
+              "text": "Mehr zu diesem Termin",
+              "global": false
+            },
+            {
+              "art": "kader-info",
+              "wert": null,
+              "text": "Kader-Info teilen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/kalender--shareModal.png",
+          "strang": "kalender",
+          "name": "Kader-Info",
+          "nameQuelle": "ueberschrift"
         }
       ],
       "kanten": [
@@ -1431,37 +1562,37 @@
         },
         {
           "von": "dashboard",
-          "art": "kader-info",
-          "wert": null,
-          "text": "Kader-Info16 Spieler›",
-          "nach": "dashboard+shareModal"
+          "art": "goto",
+          "wert": "strafen",
+          "text": "Alle Strafen ›",
+          "nach": "strafen"
         },
         {
           "von": "dashboard",
           "art": "lineup-edit",
           "wert": null,
-          "text": "Aufstellung11/11›",
+          "text": "Aufstellung11 von 11›",
           "nach": "trainer/spiel"
         },
         {
           "von": "dashboard",
           "art": "nav",
           "wert": "kasse",
-          "text": "Mannschaftskasse 37,00 € ›",
+          "text": "Mannschaftskasseoffen im Team 37,00 €›",
           "nach": "strafen"
         },
         {
           "von": "dashboard",
           "art": "paid-self",
           "wert": null,
-          "text": "Zahlung melden",
+          "text": "Zahlung melden ›",
           "nach": "dashboard+zmBl"
         },
         {
           "von": "dashboard",
           "art": "rsvp-sheet",
           "wert": null,
-          "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+          "text": "RückmeldungenMeldeschluss in 21 h9 zu · 2 ab · 5",
           "nach": "dashboard+rsvpSheet"
         },
         {
@@ -1494,6 +1625,13 @@
         },
         {
           "von": "dashboard",
+          "art": "tkmenu",
+          "wert": null,
+          "text": "Mehr zu diesem Termin",
+          "nach": "dashboard+tkMenu"
+        },
+        {
+          "von": "dashboard",
           "art": "zahnrad",
           "wert": null,
           "text": "Einstellungen öffnen",
@@ -1505,6 +1643,20 @@
           "wert": null,
           "text": "Teilen",
           "nach": "dashboard+rsvpSheet+shareModal"
+        },
+        {
+          "von": "dashboard+tkMenu",
+          "art": "kader-info",
+          "wert": null,
+          "text": "Kader-Info teilen",
+          "nach": "dashboard+shareModal"
+        },
+        {
+          "von": "dashboard+tkMenu",
+          "art": "termin-edit",
+          "wert": null,
+          "text": "Termin bearbeiten",
+          "nach": "dashboard+terminModal"
         },
         {
           "von": "einstellungen",
@@ -1573,35 +1725,28 @@
           "von": "kalender",
           "art": "cal-sheet",
           "wert": null,
-          "text": "Termine im Handy-Kalender?›",
+          "text": "Kalender abonnieren ›",
           "nach": "kalender+calSheet"
-        },
-        {
-          "von": "kalender",
-          "art": "kader-info",
-          "wert": null,
-          "text": "Kader-Info16 Spieler›",
-          "nach": "kalender+shareModal"
         },
         {
           "von": "kalender",
           "art": "lineup-edit",
           "wert": null,
-          "text": "Aufstellung11/11›",
+          "text": "Elf steht ›",
           "nach": "trainer/spiel"
         },
         {
           "von": "kalender",
           "art": "rsvp-sheet",
           "wert": null,
-          "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+          "text": "9 zu · 2 ab · 5 offen ›",
           "nach": "kalender+rsvpSheet"
         },
         {
           "von": "kalender",
           "art": "termin-new",
           "wert": null,
-          "text": "Termin hinzufügen",
+          "text": "+ Termin",
           "nach": "kalender+terminModal"
         },
         {
@@ -1620,16 +1765,23 @@
         },
         {
           "von": "kalender+tkMenu",
+          "art": "kader-info",
+          "wert": null,
+          "text": "Kader-Info teilen",
+          "nach": "kalender+shareModal"
+        },
+        {
+          "von": "kalender+tkMenu",
           "art": "termin-edit",
           "wert": null,
           "text": "Termin bearbeiten",
-          "nach": "kalender"
+          "nach": "kalender+terminModal"
         },
         {
           "von": "strafen",
           "art": "paid-self",
           "wert": null,
-          "text": "Zahlung melden",
+          "text": "Zahlung melden ›",
           "nach": "strafen+zmBl"
         },
         {
@@ -1670,6 +1822,12 @@
       ],
       "tiefengrenze": [],
       "ohneWirkung": [
+        {
+          "von": "dashboard",
+          "art": "nav",
+          "wert": "kader",
+          "text": "Kader13 fit›"
+        },
         {
           "von": "dashboard",
           "art": "tab",
@@ -1734,6 +1892,29 @@
           "nameQuelle": "liste"
         },
         {
+          "schluessel": "dashboard+tkMenu",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "tkMenu"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "titel": "TSV Beispielstadt · 4. Okt",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "tkmenu",
+              "wert": null,
+              "text": "Mehr zu diesem Termin",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/dashboard--tkMenu.png",
+          "strang": "uebersicht",
+          "name": "Termin-Menü",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "dashboard+zmBl",
           "ansicht": "dashboard",
           "unter": null,
@@ -1747,7 +1928,7 @@
             {
               "art": "paid-self",
               "wert": null,
-              "text": "Zahlung melden",
+              "text": "Zahlung melden ›",
               "global": false
             }
           ],
@@ -2019,7 +2200,7 @@
             {
               "art": "cal-sheet",
               "wert": null,
-              "text": "Termine im Handy-Kalender?›",
+              "text": "Kalender abonnieren ›",
               "global": false
             }
           ],
@@ -2027,6 +2208,35 @@
           "strang": "kalender",
           "name": "Termine abonnieren",
           "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "kalender+tkMenu",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "tkMenu"
+          ],
+          "ueberschrift": "Kalender",
+          "titel": "TSV Beispielstadt · 4. Okt",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "tkmenu",
+              "wert": null,
+              "text": "Mehr zu diesem Termin",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/kalender--tkMenu.png",
+          "strang": "kalender",
+          "name": "Termin-Menü",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "kasse/bezahlt",
@@ -2187,7 +2397,7 @@
             {
               "art": "paid-self",
               "wert": null,
-              "text": "Zahlung melden",
+              "text": "Zahlung melden ›",
               "global": false
             }
           ],
@@ -2318,16 +2528,23 @@
         },
         {
           "von": "dashboard",
+          "art": "goto",
+          "wert": "strafen",
+          "text": "Alle Strafen ›",
+          "nach": "strafen"
+        },
+        {
+          "von": "dashboard",
           "art": "nav",
           "wert": "kasse",
-          "text": "Mannschaftskasse 37,00 € ›",
+          "text": "Mannschaftskasseoffen im Team 37,00 €›",
           "nach": "strafen"
         },
         {
           "von": "dashboard",
           "art": "paid-self",
           "wert": null,
-          "text": "Zahlung melden",
+          "text": "Zahlung melden ›",
           "nach": "dashboard+zmBl"
         },
         {
@@ -2362,8 +2579,15 @@
           "von": "dashboard",
           "art": "task-pay",
           "wert": null,
-          "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+          "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
           "nach": "kasse/pruefen"
+        },
+        {
+          "von": "dashboard",
+          "art": "tkmenu",
+          "wert": null,
+          "text": "Mehr zu diesem Termin",
+          "nach": "dashboard+tkMenu"
         },
         {
           "von": "dashboard",
@@ -2439,8 +2663,15 @@
           "von": "kalender",
           "art": "cal-sheet",
           "wert": null,
-          "text": "Termine im Handy-Kalender?›",
+          "text": "Kalender abonnieren ›",
           "nach": "kalender+calSheet"
+        },
+        {
+          "von": "kalender",
+          "art": "tkmenu",
+          "wert": null,
+          "text": "Mehr zu diesem Termin",
+          "nach": "kalender+tkMenu"
         },
         {
           "von": "kasse/bezahlt",
@@ -2558,7 +2789,7 @@
           "von": "strafen",
           "art": "paid-self",
           "wert": null,
-          "text": "Zahlung melden",
+          "text": "Zahlung melden ›",
           "nach": "strafen+zmBl"
         }
       ],
@@ -2608,6 +2839,7 @@
         "tab",
         "tab5",
         "task-pay",
+        "tkmenu",
         "view-jump",
         "zahnrad"
       ],
@@ -2672,7 +2904,7 @@
             {
               "art": "rsvp-sheet",
               "wert": null,
-              "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+              "text": "RückmeldungenMeldeschluss in 21 h9 zu · 2 ab · 5",
               "global": false
             }
           ],
@@ -2682,27 +2914,27 @@
           "nameQuelle": "ueberschrift"
         },
         {
-          "schluessel": "dashboard+shareModal",
+          "schluessel": "dashboard+tkMenu",
           "ansicht": "dashboard",
           "unter": null,
           "oben": [
-            "shareModal"
+            "tkMenu"
           ],
           "ueberschrift": "Servus, Felix",
-          "titel": "Kader-Info · vs. TSV Beispielstadt",
+          "titel": "TSV Beispielstadt · 4. Okt",
           "tiefe": 1,
           "pfad": [
             {
-              "art": "kader-info",
+              "art": "tkmenu",
               "wert": null,
-              "text": "Kader-Info16 Spieler›",
+              "text": "Mehr zu diesem Termin",
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/dashboard--shareModal.png",
+          "bild": "bilder/trainerkassenwart/dashboard--tkMenu.png",
           "strang": "uebersicht",
-          "name": "Kader-Info",
-          "nameQuelle": "ueberschrift"
+          "name": "Termin-Menü",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "dashboard+zmBl",
@@ -2718,7 +2950,7 @@
             {
               "art": "paid-self",
               "wert": null,
-              "text": "Zahlung melden",
+              "text": "Zahlung melden ›",
               "global": false
             }
           ],
@@ -2781,7 +3013,7 @@
             {
               "art": "task-pay",
               "wert": null,
-              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
               "global": false
             }
           ],
@@ -2844,7 +3076,7 @@
             {
               "art": "lineup-edit",
               "wert": null,
-              "text": "Aufstellung11/11›",
+              "text": "Aufstellung11 von 11›",
               "global": false
             }
           ],
@@ -2868,7 +3100,7 @@
             {
               "art": "rsvp-sheet",
               "wert": null,
-              "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+              "text": "RückmeldungenMeldeschluss in 21 h9 zu · 2 ab · 5",
               "global": false
             },
             {
@@ -2882,6 +3114,64 @@
           "strang": "uebersicht",
           "name": "Rückmeldungen teilen",
           "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "dashboard+shareModal",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "shareModal"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "titel": "Kader-Info · vs. TSV Beispielstadt",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tkmenu",
+              "wert": null,
+              "text": "Mehr zu diesem Termin",
+              "global": false
+            },
+            {
+              "art": "kader-info",
+              "wert": null,
+              "text": "Kader-Info teilen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/dashboard--shareModal.png",
+          "strang": "uebersicht",
+          "name": "Kader-Info",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "dashboard+terminModal",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "terminModal"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "titel": "Spiel bearbeiten",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tkmenu",
+              "wert": null,
+              "text": "Mehr zu diesem Termin",
+              "global": false
+            },
+            {
+              "art": "termin-edit",
+              "wert": null,
+              "text": "Termin bearbeiten",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/dashboard--terminModal.png",
+          "strang": "uebersicht",
+          "name": "Spiel bearbeiten",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "diagnose",
@@ -3068,7 +3358,7 @@
             {
               "art": "cal-sheet",
               "wert": null,
-              "text": "Termine im Handy-Kalender?›",
+              "text": "Kalender abonnieren ›",
               "global": false
             }
           ],
@@ -3097,42 +3387,13 @@
             {
               "art": "rsvp-sheet",
               "wert": null,
-              "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+              "text": "9 zu · 2 ab · 5 offen ›",
               "global": false
             }
           ],
           "bild": "bilder/trainerkassenwart/kalender--rsvpSheet.png",
           "strang": "kalender",
           "name": "Rückmeldungen",
-          "nameQuelle": "ueberschrift"
-        },
-        {
-          "schluessel": "kalender+shareModal",
-          "ansicht": "kalender",
-          "unter": null,
-          "oben": [
-            "shareModal"
-          ],
-          "ueberschrift": "Kalender",
-          "titel": "Kader-Info · vs. TSV Beispielstadt",
-          "tiefe": 2,
-          "pfad": [
-            {
-              "art": "tab",
-              "wert": "kalender",
-              "text": "Kalender",
-              "global": true
-            },
-            {
-              "art": "kader-info",
-              "wert": null,
-              "text": "Kader-Info16 Spieler›",
-              "global": false
-            }
-          ],
-          "bild": "bilder/trainerkassenwart/kalender--shareModal.png",
-          "strang": "kalender",
-          "name": "Kader-Info",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -3155,7 +3416,7 @@
             {
               "art": "termin-new",
               "wert": null,
-              "text": "Termin hinzufügen",
+              "text": "+ Termin",
               "global": false
             }
           ],
@@ -3205,7 +3466,7 @@
             {
               "art": "task-pay",
               "wert": null,
-              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
               "global": false
             },
             {
@@ -3232,7 +3493,7 @@
             {
               "art": "task-pay",
               "wert": null,
-              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
               "global": false
             },
             {
@@ -3261,7 +3522,7 @@
             {
               "art": "task-pay",
               "wert": null,
-              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
               "global": false
             },
             {
@@ -3290,7 +3551,7 @@
             {
               "art": "task-pay",
               "wert": null,
-              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
               "global": false
             },
             {
@@ -3352,7 +3613,7 @@
             {
               "art": "paid-self",
               "wert": null,
-              "text": "Zahlung melden",
+              "text": "Zahlung melden ›",
               "global": false
             }
           ],
@@ -3402,7 +3663,7 @@
             {
               "art": "lineup-edit",
               "wert": null,
-              "text": "Aufstellung11/11›",
+              "text": "Aufstellung11 von 11›",
               "global": false
             },
             {
@@ -3431,7 +3692,7 @@
             {
               "art": "lineup-edit",
               "wert": null,
-              "text": "Aufstellung11/11›",
+              "text": "Aufstellung11 von 11›",
               "global": false
             },
             {
@@ -3460,7 +3721,7 @@
             {
               "art": "lineup-edit",
               "wert": null,
-              "text": "Aufstellung11/11›",
+              "text": "Aufstellung11 von 11›",
               "global": false
             },
             {
@@ -3531,7 +3792,7 @@
             {
               "art": "rsvp-sheet",
               "wert": null,
-              "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+              "text": "9 zu · 2 ab · 5 offen ›",
               "global": false
             },
             {
@@ -3547,6 +3808,41 @@
           "nameQuelle": "liste"
         },
         {
+          "schluessel": "kalender+shareModal",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "shareModal"
+          ],
+          "ueberschrift": "Kalender",
+          "titel": "Kader-Info · vs. TSV Beispielstadt",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "tkmenu",
+              "wert": null,
+              "text": "Mehr zu diesem Termin",
+              "global": false
+            },
+            {
+              "art": "kader-info",
+              "wert": null,
+              "text": "Kader-Info teilen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/kalender--shareModal.png",
+          "strang": "kalender",
+          "name": "Kader-Info",
+          "nameQuelle": "ueberschrift"
+        },
+        {
           "schluessel": "kasse+ksSheet",
           "ansicht": "kasse",
           "unter": null,
@@ -3560,7 +3856,7 @@
             {
               "art": "task-pay",
               "wert": null,
-              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
               "global": false
             },
             {
@@ -3595,7 +3891,7 @@
             {
               "art": "task-pay",
               "wert": null,
-              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
               "global": false
             },
             {
@@ -3633,37 +3929,37 @@
         },
         {
           "von": "dashboard",
-          "art": "kader-info",
-          "wert": null,
-          "text": "Kader-Info16 Spieler›",
-          "nach": "dashboard+shareModal"
+          "art": "goto",
+          "wert": "strafen",
+          "text": "Alle Strafen ›",
+          "nach": "strafen"
         },
         {
           "von": "dashboard",
           "art": "lineup-edit",
           "wert": null,
-          "text": "Aufstellung11/11›",
+          "text": "Aufstellung11 von 11›",
           "nach": "trainer/spiel"
         },
         {
           "von": "dashboard",
           "art": "nav",
           "wert": "kasse",
-          "text": "Mannschaftskasse 37,00 € ›",
+          "text": "Mannschaftskasseoffen im Team 37,00 €›",
           "nach": "strafen"
         },
         {
           "von": "dashboard",
           "art": "paid-self",
           "wert": null,
-          "text": "Zahlung melden",
+          "text": "Zahlung melden ›",
           "nach": "dashboard+zmBl"
         },
         {
           "von": "dashboard",
           "art": "rsvp-sheet",
           "wert": null,
-          "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+          "text": "RückmeldungenMeldeschluss in 21 h9 zu · 2 ab · 5",
           "nach": "dashboard+rsvpSheet"
         },
         {
@@ -3698,8 +3994,15 @@
           "von": "dashboard",
           "art": "task-pay",
           "wert": null,
-          "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+          "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
           "nach": "kasse/pruefen"
+        },
+        {
+          "von": "dashboard",
+          "art": "tkmenu",
+          "wert": null,
+          "text": "Mehr zu diesem Termin",
+          "nach": "dashboard+tkMenu"
         },
         {
           "von": "dashboard",
@@ -3749,6 +4052,20 @@
           "wert": null,
           "text": "Teilen",
           "nach": "dashboard+rsvpSheet+shareModal"
+        },
+        {
+          "von": "dashboard+tkMenu",
+          "art": "kader-info",
+          "wert": null,
+          "text": "Kader-Info teilen",
+          "nach": "dashboard+shareModal"
+        },
+        {
+          "von": "dashboard+tkMenu",
+          "art": "termin-edit",
+          "wert": null,
+          "text": "Termin bearbeiten",
+          "nach": "dashboard+terminModal"
         },
         {
           "von": "einstellungen",
@@ -3817,35 +4134,28 @@
           "von": "kalender",
           "art": "cal-sheet",
           "wert": null,
-          "text": "Termine im Handy-Kalender?›",
+          "text": "Kalender abonnieren ›",
           "nach": "kalender+calSheet"
-        },
-        {
-          "von": "kalender",
-          "art": "kader-info",
-          "wert": null,
-          "text": "Kader-Info16 Spieler›",
-          "nach": "kalender+shareModal"
         },
         {
           "von": "kalender",
           "art": "lineup-edit",
           "wert": null,
-          "text": "Aufstellung11/11›",
+          "text": "Elf steht ›",
           "nach": "trainer/spiel"
         },
         {
           "von": "kalender",
           "art": "rsvp-sheet",
           "wert": null,
-          "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+          "text": "9 zu · 2 ab · 5 offen ›",
           "nach": "kalender+rsvpSheet"
         },
         {
           "von": "kalender",
           "art": "termin-new",
           "wert": null,
-          "text": "Termin hinzufügen",
+          "text": "+ Termin",
           "nach": "kalender+terminModal"
         },
         {
@@ -3864,10 +4174,17 @@
         },
         {
           "von": "kalender+tkMenu",
+          "art": "kader-info",
+          "wert": null,
+          "text": "Kader-Info teilen",
+          "nach": "kalender+shareModal"
+        },
+        {
+          "von": "kalender+tkMenu",
           "art": "termin-edit",
           "wert": null,
           "text": "Termin bearbeiten",
-          "nach": "kalender"
+          "nach": "kalender+terminModal"
         },
         {
           "von": "kasse/bezahlt",
@@ -3985,7 +4302,7 @@
           "von": "strafen",
           "art": "paid-self",
           "wert": null,
-          "text": "Zahlung melden",
+          "text": "Zahlung melden ›",
           "nach": "strafen+zmBl"
         },
         {
@@ -4026,6 +4343,12 @@
       ],
       "tiefengrenze": [],
       "ohneWirkung": [
+        {
+          "von": "dashboard",
+          "art": "nav",
+          "wert": "kader",
+          "text": "Kader13 fit›"
+        },
         {
           "von": "dashboard",
           "art": "tab",
@@ -4152,7 +4475,7 @@
             {
               "art": "rsvp-sheet",
               "wert": null,
-              "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+              "text": "RückmeldungenMeldeschluss in 21 h9 zu · 2 ab · 5",
               "global": false
             }
           ],
@@ -4162,27 +4485,27 @@
           "nameQuelle": "ueberschrift"
         },
         {
-          "schluessel": "dashboard+shareModal",
+          "schluessel": "dashboard+tkMenu",
           "ansicht": "dashboard",
           "unter": null,
           "oben": [
-            "shareModal"
+            "tkMenu"
           ],
           "ueberschrift": "Servus, Felix",
-          "titel": "Kader-Info · vs. TSV Beispielstadt",
+          "titel": "TSV Beispielstadt · 4. Okt",
           "tiefe": 1,
           "pfad": [
             {
-              "art": "kader-info",
+              "art": "tkmenu",
               "wert": null,
-              "text": "Kader-Info16 Spieler›",
+              "text": "Mehr zu diesem Termin",
               "global": false
             }
           ],
-          "bild": "bilder/admin/dashboard--shareModal.png",
+          "bild": "bilder/admin/dashboard--tkMenu.png",
           "strang": "uebersicht",
-          "name": "Kader-Info",
-          "nameQuelle": "ueberschrift"
+          "name": "Termin-Menü",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "dashboard+zmBl",
@@ -4198,7 +4521,7 @@
             {
               "art": "paid-self",
               "wert": null,
-              "text": "Zahlung melden",
+              "text": "Zahlung melden ›",
               "global": false
             }
           ],
@@ -4261,7 +4584,7 @@
             {
               "art": "task-pay",
               "wert": null,
-              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
               "global": false
             }
           ],
@@ -4324,7 +4647,7 @@
             {
               "art": "lineup-edit",
               "wert": null,
-              "text": "Aufstellung11/11›",
+              "text": "Aufstellung11 von 11›",
               "global": false
             }
           ],
@@ -4348,7 +4671,7 @@
             {
               "art": "rsvp-sheet",
               "wert": null,
-              "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+              "text": "RückmeldungenMeldeschluss in 21 h9 zu · 2 ab · 5",
               "global": false
             },
             {
@@ -4362,6 +4685,64 @@
           "strang": "uebersicht",
           "name": "Rückmeldungen teilen",
           "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "dashboard+shareModal",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "shareModal"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "titel": "Kader-Info · vs. TSV Beispielstadt",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tkmenu",
+              "wert": null,
+              "text": "Mehr zu diesem Termin",
+              "global": false
+            },
+            {
+              "art": "kader-info",
+              "wert": null,
+              "text": "Kader-Info teilen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/dashboard--shareModal.png",
+          "strang": "uebersicht",
+          "name": "Kader-Info",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "dashboard+terminModal",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "terminModal"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "titel": "Spiel bearbeiten",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tkmenu",
+              "wert": null,
+              "text": "Mehr zu diesem Termin",
+              "global": false
+            },
+            {
+              "art": "termin-edit",
+              "wert": null,
+              "text": "Termin bearbeiten",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/dashboard--terminModal.png",
+          "strang": "uebersicht",
+          "name": "Spiel bearbeiten",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "diagnose",
@@ -4575,7 +4956,7 @@
             {
               "art": "cal-sheet",
               "wert": null,
-              "text": "Termine im Handy-Kalender?›",
+              "text": "Kalender abonnieren ›",
               "global": false
             }
           ],
@@ -4604,42 +4985,13 @@
             {
               "art": "rsvp-sheet",
               "wert": null,
-              "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+              "text": "9 zu · 2 ab · 5 offen ›",
               "global": false
             }
           ],
           "bild": "bilder/admin/kalender--rsvpSheet.png",
           "strang": "kalender",
           "name": "Rückmeldungen",
-          "nameQuelle": "ueberschrift"
-        },
-        {
-          "schluessel": "kalender+shareModal",
-          "ansicht": "kalender",
-          "unter": null,
-          "oben": [
-            "shareModal"
-          ],
-          "ueberschrift": "Kalender",
-          "titel": "Kader-Info · vs. TSV Beispielstadt",
-          "tiefe": 2,
-          "pfad": [
-            {
-              "art": "tab",
-              "wert": "kalender",
-              "text": "Kalender",
-              "global": true
-            },
-            {
-              "art": "kader-info",
-              "wert": null,
-              "text": "Kader-Info16 Spieler›",
-              "global": false
-            }
-          ],
-          "bild": "bilder/admin/kalender--shareModal.png",
-          "strang": "kalender",
-          "name": "Kader-Info",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -4662,7 +5014,7 @@
             {
               "art": "termin-new",
               "wert": null,
-              "text": "Termin hinzufügen",
+              "text": "+ Termin",
               "global": false
             }
           ],
@@ -4712,7 +5064,7 @@
             {
               "art": "task-pay",
               "wert": null,
-              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
               "global": false
             },
             {
@@ -4739,7 +5091,7 @@
             {
               "art": "task-pay",
               "wert": null,
-              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
               "global": false
             },
             {
@@ -4768,7 +5120,7 @@
             {
               "art": "task-pay",
               "wert": null,
-              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
               "global": false
             },
             {
@@ -4797,7 +5149,7 @@
             {
               "art": "task-pay",
               "wert": null,
-              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
               "global": false
             },
             {
@@ -4913,7 +5265,7 @@
             {
               "art": "paid-self",
               "wert": null,
-              "text": "Zahlung melden",
+              "text": "Zahlung melden ›",
               "global": false
             }
           ],
@@ -4963,7 +5315,7 @@
             {
               "art": "lineup-edit",
               "wert": null,
-              "text": "Aufstellung11/11›",
+              "text": "Aufstellung11 von 11›",
               "global": false
             },
             {
@@ -4992,7 +5344,7 @@
             {
               "art": "lineup-edit",
               "wert": null,
-              "text": "Aufstellung11/11›",
+              "text": "Aufstellung11 von 11›",
               "global": false
             },
             {
@@ -5021,7 +5373,7 @@
             {
               "art": "lineup-edit",
               "wert": null,
-              "text": "Aufstellung11/11›",
+              "text": "Aufstellung11 von 11›",
               "global": false
             },
             {
@@ -5092,7 +5444,7 @@
             {
               "art": "rsvp-sheet",
               "wert": null,
-              "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+              "text": "9 zu · 2 ab · 5 offen ›",
               "global": false
             },
             {
@@ -5108,6 +5460,41 @@
           "nameQuelle": "liste"
         },
         {
+          "schluessel": "kalender+shareModal",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "shareModal"
+          ],
+          "ueberschrift": "Kalender",
+          "titel": "Kader-Info · vs. TSV Beispielstadt",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "tkmenu",
+              "wert": null,
+              "text": "Mehr zu diesem Termin",
+              "global": false
+            },
+            {
+              "art": "kader-info",
+              "wert": null,
+              "text": "Kader-Info teilen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/kalender--shareModal.png",
+          "strang": "kalender",
+          "name": "Kader-Info",
+          "nameQuelle": "ueberschrift"
+        },
+        {
           "schluessel": "kasse+ksSheet",
           "ansicht": "kasse",
           "unter": null,
@@ -5121,7 +5508,7 @@
             {
               "art": "task-pay",
               "wert": null,
-              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
               "global": false
             },
             {
@@ -5156,7 +5543,7 @@
             {
               "art": "task-pay",
               "wert": null,
-              "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+              "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
               "global": false
             },
             {
@@ -5194,37 +5581,37 @@
         },
         {
           "von": "dashboard",
-          "art": "kader-info",
-          "wert": null,
-          "text": "Kader-Info16 Spieler›",
-          "nach": "dashboard+shareModal"
+          "art": "goto",
+          "wert": "strafen",
+          "text": "Alle Strafen ›",
+          "nach": "strafen"
         },
         {
           "von": "dashboard",
           "art": "lineup-edit",
           "wert": null,
-          "text": "Aufstellung11/11›",
+          "text": "Aufstellung11 von 11›",
           "nach": "trainer/spiel"
         },
         {
           "von": "dashboard",
           "art": "nav",
           "wert": "kasse",
-          "text": "Mannschaftskasse 37,00 € ›",
+          "text": "Mannschaftskasseoffen im Team 37,00 €›",
           "nach": "strafen"
         },
         {
           "von": "dashboard",
           "art": "paid-self",
           "wert": null,
-          "text": "Zahlung melden",
+          "text": "Zahlung melden ›",
           "nach": "dashboard+zmBl"
         },
         {
           "von": "dashboard",
           "art": "rsvp-sheet",
           "wert": null,
-          "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+          "text": "RückmeldungenMeldeschluss in 21 h9 zu · 2 ab · 5",
           "nach": "dashboard+rsvpSheet"
         },
         {
@@ -5259,8 +5646,15 @@
           "von": "dashboard",
           "art": "task-pay",
           "wert": null,
-          "text": "2 Zahlungen bestätigen Kassenwart · seit heute ›",
+          "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
           "nach": "kasse/pruefen"
+        },
+        {
+          "von": "dashboard",
+          "art": "tkmenu",
+          "wert": null,
+          "text": "Mehr zu diesem Termin",
+          "nach": "dashboard+tkMenu"
         },
         {
           "von": "dashboard",
@@ -5317,6 +5711,20 @@
           "wert": null,
           "text": "Teilen",
           "nach": "dashboard+rsvpSheet+shareModal"
+        },
+        {
+          "von": "dashboard+tkMenu",
+          "art": "kader-info",
+          "wert": null,
+          "text": "Kader-Info teilen",
+          "nach": "dashboard+shareModal"
+        },
+        {
+          "von": "dashboard+tkMenu",
+          "art": "termin-edit",
+          "wert": null,
+          "text": "Termin bearbeiten",
+          "nach": "dashboard+terminModal"
         },
         {
           "von": "einstellungen",
@@ -5399,35 +5807,28 @@
           "von": "kalender",
           "art": "cal-sheet",
           "wert": null,
-          "text": "Termine im Handy-Kalender?›",
+          "text": "Kalender abonnieren ›",
           "nach": "kalender+calSheet"
-        },
-        {
-          "von": "kalender",
-          "art": "kader-info",
-          "wert": null,
-          "text": "Kader-Info16 Spieler›",
-          "nach": "kalender+shareModal"
         },
         {
           "von": "kalender",
           "art": "lineup-edit",
           "wert": null,
-          "text": "Aufstellung11/11›",
+          "text": "Elf steht ›",
           "nach": "trainer/spiel"
         },
         {
           "von": "kalender",
           "art": "rsvp-sheet",
           "wert": null,
-          "text": "Zusagen5 offen›9 zugesagt · 2 abgesagt · 5 offen",
+          "text": "9 zu · 2 ab · 5 offen ›",
           "nach": "kalender+rsvpSheet"
         },
         {
           "von": "kalender",
           "art": "termin-new",
           "wert": null,
-          "text": "Termin hinzufügen",
+          "text": "+ Termin",
           "nach": "kalender+terminModal"
         },
         {
@@ -5446,10 +5847,17 @@
         },
         {
           "von": "kalender+tkMenu",
+          "art": "kader-info",
+          "wert": null,
+          "text": "Kader-Info teilen",
+          "nach": "kalender+shareModal"
+        },
+        {
+          "von": "kalender+tkMenu",
           "art": "termin-edit",
           "wert": null,
           "text": "Termin bearbeiten",
-          "nach": "kalender"
+          "nach": "kalender+terminModal"
         },
         {
           "von": "kasse/bezahlt",
@@ -5567,7 +5975,7 @@
           "von": "strafen",
           "art": "paid-self",
           "wert": null,
-          "text": "Zahlung melden",
+          "text": "Zahlung melden ›",
           "nach": "strafen+zmBl"
         },
         {
@@ -5608,6 +6016,12 @@
       ],
       "tiefengrenze": [],
       "ohneWirkung": [
+        {
+          "von": "dashboard",
+          "art": "nav",
+          "wert": "kader",
+          "text": "Kader13 fit›"
+        },
         {
           "von": "dashboard",
           "art": "tab",

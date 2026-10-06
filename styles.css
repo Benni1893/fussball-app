@@ -398,7 +398,7 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .page-head { margin-bottom: 0; }
 .page-head + .chips { margin-top: 12px; }
 /* Anrede zur ersten Kachel - dieselbe Luft wie im Kalender vom Titel zur Leiste. */
-.page-head + .tk, .page-head + .card { margin-top: 14px; }
+.page-head + .tk, .page-head + .card { margin-top: 16px; }
 .page-head h1 { font-size: 1.4rem; font-weight: 800; margin: 0; }
 .page-head p { margin: 6px 0 0; font-size: 13px; font-weight: 400; line-height: 1.45; color: var(--muted); }
 
@@ -471,26 +471,6 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 .geld-wert { display: block; margin-top: 5px; font-size: 21px; font-weight: 800; letter-spacing: -.02em; color: var(--ink); }
 .geld-wert.is-warn { color: var(--red-600); }
 .geld-chev { flex: none; font-size: 18px; font-weight: 700; color: var(--dot-off); }
-
-/* „Danach": eine Karte, Zeilen mit Haarlinie. */
-.dn-liste { overflow: hidden; }
-.dn-zeile {
-  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
-  padding: 10px 14px; min-height: 68px; background: none; border: 0; color: var(--ink);
-}
-.dn-zeile + .dn-zeile { border-top: 1px solid var(--line); }
-.dn-main { flex: 1 1 auto; min-width: 0; }
-.dn-t { display: block; font-size: 15px; font-weight: 700; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.dn-s { display: block; margin-top: 2px; font-size: 13px; font-weight: 500; color: var(--muted); line-height: 1.3; }
-.dn-s b { font-size: 12px; font-weight: 700; color: var(--green-800); text-transform: uppercase; letter-spacing: .04em; }
-.dn-zust {
-  flex: none; display: inline-flex; align-items: center; min-height: 24px; padding: 0 10px;
-  border-radius: var(--radius-pill); font-size: 11px; font-weight: 800;
-  letter-spacing: .06em; text-transform: uppercase; line-height: normal;
-}
-.dn-zust.is-zu    { background: var(--green-badge-bg); color: var(--green-700); }
-.dn-zust.is-ab    { background: var(--red-badge-bg);   color: var(--red-700); }
-.dn-zust.is-offen { background: var(--gold-badge-bg);  color: var(--gold-ink); }
 
 /* „Mein Status" auf der Uebersicht: 2x2 statt einer Reihe. */
 .st-wahl[data-kompakt] .st-chips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; flex-wrap: nowrap; }
@@ -576,151 +556,6 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 }
 .kal-abo-x::after { content: ""; position: absolute; top: 50%; left: 50%; width: var(--tap); height: var(--tap); transform: translate(-50%,-50%); }
 .kal-abo-x:active { color: var(--ink); }
-
-/* ---------- Terminkarte (Vorlage termin-und-kalender-v2.png) ----------------
-   Eine Komponente fuer Kalender und Uebersicht, rollenabhaengig gefuellt.
-   Gemessen: Karte 358 breit, Kopfband 86 hoch, Innenrand 14, Bausteine im
-   Koerper 10 auseinander. Massstab der Vorlage 0,919 (329 Bildpunkte = 358). */
-.tk { overflow: hidden; }
-
-/* ---- Kopfband ---- */
-.tk-kopf {
-  display: flex; align-items: center; gap: 12px;
-  min-height: 86px; padding: 12px 14px;
-  background: var(--grad-tk-kopf); color: #fff;
-}
-/* Datumskachel, gemessen 48x61 */
-.tk-datum {
-  flex: none; width: 48px; padding: 7px 0; border-radius: 12px;
-  background: var(--grad-gold); color: var(--green-900);
-  text-align: center; line-height: 1;
-}
-.tk-datum .d-wd  { display: block; font-size: 10px; font-weight: 700; color: var(--gold-ink-2); }
-.tk-datum .d-day { display: block; margin-top: 4px; font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
-.tk-datum .d-mon { display: block; margin-top: 4px; font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--gold-ink-2); }
-
-.tk-kopf-main { flex: 1 1 auto; min-width: 0; }
-.tk-oben { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
-.tk-zeit { font-size: 13px; font-weight: 600; color: rgba(255,255,255,.88); line-height: normal; }
-/* Heim/Auswaerts auf dem Kopfband. Sie steht hinter Datum, Gegner und
-   Uhrzeit, also traegt sie den Goldton als Tint, nicht als Vollton - so
-   auch in der Vorlage, dort Gold zu 20 %. Hoehe 18 gemessen (17 Bildpunkte
-   bei Massstab 0,919), Schriftgroesse und -gewicht unveraendert. */
-.tk-bdg {
-  flex: none; display: inline-flex; align-items: center; min-height: 18px; padding: 0 8px;
-  border-radius: var(--radius-pill);
-  background: var(--bdg-venue-bg); border: 1px solid var(--bdg-venue-line); color: var(--bdg-venue-fg);
-  font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; line-height: normal;
-}
-.tk-titel {
-  display: block; margin-top: 4px; font-size: 19px; font-weight: 800; line-height: 1.15;
-  letter-spacing: -.012em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.tk-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
-/* ⋯ oeffnet Bearbeiten, Loeschen und die BFV-Aktionen. Sichtbar 38 px,
-   Trefferflaeche 44 als ::after. */
-.tk-menue {
-  position: relative; flex: none; width: 38px; height: 38px; border: 0; border-radius: 50%;
-  background: var(--tk-menue); color: #fff; font-size: 17px; font-weight: 700; line-height: 1;
-  display: flex; align-items: center; justify-content: center;
-}
-.tk-menue::after { content: ""; position: absolute; top: 50%; left: 50%; width: var(--tap); height: var(--tap); transform: translate(-50%,-50%); }
-
-/* ---- Koerper ---- */
-/* Gemessen an den beiden Spielerkarten, die im Bild exakt gleich hoch sind:
-   Innenrand 14, Abstand 14, Ortzeile 60, Knopfzeile 46. */
-.tk-body { padding: 14px; display: flex; flex-direction: column; gap: 14px; }
-/* Eingelassene Flaeche: heller Verlauf, feine Kante, kein zweiter Schatten. */
-.tk-feld {
-  background: var(--grad-btn-sec); border: 1px solid var(--line);
-  border-radius: 12px; padding: 12px;
-}
-
-/* Ort mit Route */
-.tk-ort { display: flex; align-items: center; gap: 10px; height: 60px; padding: 0 11px; width: 100%; text-align: left; }
-.tk-ort-ic {
-  flex: none; width: 37px; height: 37px; border-radius: 10px;
-  background: var(--grad-gold); color: var(--green-800);
-  display: flex; align-items: center; justify-content: center;
-}
-.tk-ort-ic svg { width: 18px; height: 18px; }
-.tk-ort-main { flex: 1 1 auto; min-width: 0; }
-/* Beide Zeilen einzeilig - nur so bleibt die Ortzeile ueber alle Varianten
-   gleich hoch (Punkt 3 des Feinschliffs). */
-.tk-ort-n { display: block; font-size: 14px; font-weight: 700; line-height: 1.25; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tk-ort-a { display: block; margin-top: 1px; font-size: 13px; font-weight: 500; line-height: 1.3; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-/* Die ganze Zeile ist das Ziel (60 hoch, also weit ueber 44); die Pille ist
-   nur noch der Hinweis darauf, was passiert. */
-.tk-route {
-  flex: none; display: inline-flex; align-items: center;
-  min-height: 23px; padding: 0 9px; border-radius: var(--radius-pill);
-  background: var(--green-050); color: var(--green-700);
-  font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
-  line-height: normal;
-}
-a.tk-ort { text-decoration: none; }
-a.tk-ort:active { background: var(--green-050); }
-
-/* Zusage und Absage, gemessen 158x47 mit 14 Abstand */
-.tk-rsvp { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-.tk-btn {
-  min-height: 46px; border: 1px solid var(--line); border-radius: 14px;
-  background: var(--grad-btn-sec); color: var(--green-800);
-  font-size: 16px; font-weight: 800; letter-spacing: -.012em;
-}
-/* Gewaehlt heisst Tint, nicht Vollton: --grad-chip-on traegt in dieser
-   Ansicht bereits den Primaerknopf "Termin hinzufügen" und den aktiven
-   Filterchip. Zwei Dunkelgruenflaechen nebeneinander lesen sich als eine.
-   Beide Zustaende folgen derselben Regel: heller Grund, dunkle Schrift,
-   1px Rand in der Schriftfarbe. Kontrast 6,71 (Zusage) und 6,29 (Absage). */
-.tk-btn.is-on { background: var(--green-badge-bg); border-color: var(--green-700); color: var(--green-700); }
-.tk-btn.is-ab.is-on { background: var(--red-badge-bg); border-color: var(--red-700); color: var(--red-700); }
-.tk-abgesagt { font-size: 15px; font-weight: 800; color: var(--red-600); text-align: center; padding: 6px 0; }
-
-/* Zusagen-Block (nur Trainer): Marke, Zahl mit Chevron, Balken, Zaehlzeile */
-.tk-zusagen { display: block; width: 100%; text-align: left; }
-.tk-z-kopf { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.tk-z-lbl { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--green-800); }
-.tk-z-offen { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 800; color: var(--gold-ink); }
-.tk-z-offen .tk-chev { color: var(--gold-chev); font-size: 15px; font-weight: 700; }
-.tk-bar { display: flex; height: 6px; margin-top: 11px; border-radius: var(--radius-pill); background: var(--line); overflow: hidden; }
-.tk-bar i { display: block; height: 100%; }
-.tk-bar i.is-zu { background: var(--green-600); }
-.tk-bar i.is-ab { background: var(--red-600); }
-.tk-z-zahlen { margin-top: 12px; font-size: 13px;   /* gemessen 14,2 von Balkenunterkante zur Schriftoberkante */ font-weight: 500; color: var(--muted); line-height: normal; }
-.tk-z-zahlen b { font-weight: 700; color: var(--ink); }
-
-/* Aufstellung und Kader-Info nebeneinander (nur Trainer und nur beim Spiel) */
-.tk-kacheln { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.tk-kachel { display: block; width: 100%; text-align: left; }
-.tk-k-lbl { display: block; font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--green-800); }
-.tk-k-wert { display: flex; align-items: baseline; gap: 6px; margin-top: 6px; font-size: 19px; font-weight: 800; color: var(--ink); letter-spacing: -.02em; }
-.tk-k-wert small { font-size: 13px; font-weight: 500; color: var(--muted); letter-spacing: 0; }
-.tk-k-wert .tk-chev { font-size: 15px; font-weight: 700; color: var(--dot-off); }
-
-/* Meldeschluss und die Acht-Euro-Warnung stehen unter der Knopfzeile - die
-   Vorlage zeichnet sie nicht, ohne sie faehrt man aber in die Strafe. */
-.tk-frist { font-size: 13px; font-weight: 500; color: var(--muted); line-height: normal; }
-.tk-frist .frist-label { font-weight: 700; color: var(--green-800); }
-.tk-warn {
-  font-size: 13px; font-weight: 600; line-height: 1.35; color: var(--red-ink);
-  background: var(--grad-task-red); border: 1px solid var(--red-line);
-  border-radius: 10px; padding: 9px 11px;
-}
-/* Grund der eigenen Absage, BFV-Abweichung und die Marke bleiben sichtbar. */
-.tk-grund { font-size: 13px; font-weight: 500; color: var(--red-600); }
-.tk-bfv { font-size: 13px; font-weight: 500; color: var(--gold-ink-2); line-height: 1.4; }
-.tk-bfv .link-btn { font-size: 13px; }
-.tk-notiz { font-size: 13px; font-weight: 500; color: var(--amber-600); line-height: 1.35; }
-/* "In Kalender speichern" - letzte Zeile im Kartenkoerper. Nicht ins
-   Kopfband: dort haelt --green-700 auf --green-800 nur 1,32:1, und der
-   ⋯-Knopf daneben gibt es nur fuer Trainer und nie im Hero. */
-.tk-ics { display: flex; }
-.tk-ics .link-btn { font-size: 14px; }
-
-/* Abgesagter Termin: Kopfband rot statt gruen, Karte bleibt lesbar. */
-.tk.is-cancelled .tk-kopf { background: var(--grad-chip-red); }
-.tk.is-cancelled .tk-titel { text-decoration: line-through; }
 
 /* Marken am Termin: Freundschaft, Abgesagt, manuell geaendert. */
 .tag {
@@ -3293,3 +3128,319 @@ body {
   border: 1px solid var(--green-badge-line);
   color: var(--green-800);
 }
+
+/* ===========================================================================
+   FINAL TEIL A: Uebersicht (01) und Kalender (02)
+   Werte aus .design-sync/concepts/final-2026-10/soll/01 und 02 (DOM gemessen).
+   =========================================================================== */
+
+/* --- Rollen-Plakette neben der Anrede -------------------------------------- */
+.page-head.h1row { display: flex; align-items: center; gap: 10px; }
+.role-pill {
+  display: inline-flex; align-items: center; height: 23px; padding: 0 10px;
+  border-radius: var(--radius-pill); border: 1px solid var(--gold-line);
+  background: var(--grad-gold); color: var(--gold-ink);
+  font-size: var(--fs-etikett); font-weight: 700; letter-spacing: 0; text-transform: none;
+}
+
+/* --- Goldwuerfel ------------------------------------------------------------ */
+.wf {
+  flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: var(--grad-gold); color: var(--gold-ink); text-align: center;
+}
+.wf > span { display: block; line-height: 1; }
+.wf-wd, .wf-mon { font-size: 12px; font-weight: 700; line-height: 12px; }
+.wf-mon { text-transform: uppercase; letter-spacing: .04em; }
+.wf-day { font-weight: 800; color: var(--green-800); letter-spacing: -.02em; }
+.wf-hero  { width: 56px; height: 66px; border-radius: 12px; box-shadow: 0 6px 14px -6px rgba(0,0,0,.5); }
+.wf-hero  .wf-day { font-size: 26px; line-height: 26px; margin: 3px 0; }
+.wf-karte { width: 48px; height: 56px; border-radius: 10px; border: 1px solid var(--gold-line); }
+.wf-karte .wf-day { font-size: 22px; line-height: 22px; margin: 2px 0; }
+.wf-klein { width: 42px; height: 56px; border-radius: 9px; }
+.wf-klein .wf-day { font-size: 19px; line-height: 19px; margin: 2px 0; }
+
+/* --- Terminkarte ------------------------------------------------------------ */
+.card.tk { padding: 0; overflow: hidden; border-radius: var(--radius); }
+.card.tk.is-hero {
+  border-radius: 16px;
+  box-shadow: 0 1px 1px rgba(16,40,30,.05), 0 18px 34px -18px rgba(11,49,37,.55);
+}
+.tk-kopf { position: relative; display: block; padding: 12px 12px 14px 14px; overflow: hidden; }
+.tk-kopf.is-hero {
+  padding: 16px 12px 18px 16px;
+  background: linear-gradient(158deg, var(--green-750) 0%, var(--green-900) 55%, var(--green-950) 100%);
+  color: #fff;
+}
+.tk-kopf.is-gold::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
+  background: linear-gradient(90deg, var(--gold-400), var(--gold-700));
+}
+.tk-ring {
+  position: absolute; right: -40px; top: -40px; width: 160px; height: 160px;
+  border-radius: 50%; border: 1.5px solid rgba(255,255,255,.08); pointer-events: none;
+}
+.tk-heroleiste { position: relative; display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.tk-pille {
+  display: inline-flex; align-items: center; height: 23px; padding: 0 10px;
+  border-radius: var(--radius-pill); border: 1px solid rgba(227,194,92,.5);
+  background: rgba(227,194,92,.18); color: var(--gold-400);
+  font-size: var(--fs-etikett); font-weight: 700;
+}
+.tk-menue {
+  position: relative; flex: none; width: var(--tap); height: var(--tap);
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 0; border-radius: 50%; padding: 0; cursor: pointer;
+  background: rgba(255,255,255,.7); color: var(--green-task-ink);
+}
+.tk-kopf.is-hero .tk-menue, .tk-kopf.is-spiel .tk-menue { background: rgba(255,255,255,.12); color: #fff; }
+.tk-kopfzeile { position: relative; display: flex; align-items: center; gap: 14px; }
+.tk-kopf-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.tk-oben { font-size: 13px; font-weight: 700; color: var(--gold-ink); }
+.tk-titel {
+  font-size: 21px; font-weight: 800; letter-spacing: -.02em; line-height: 1.1;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--green-task-ink);
+}
+.tk-zeit { font-size: 13px; font-weight: 600; color: var(--green-task-ink-2); }
+.tk-kopf.is-hero .tk-titel { font-size: 28px; letter-spacing: -.025em; line-height: 1.05; color: #fff; }
+.tk-kopf.is-hero .tk-zeit  { font-size: 15px; color: rgba(255,255,255,.85); }
+/* Kalender: Training hellgruen, Spiel dunkel, Sonstiges gold */
+.tk-kopf.is-training { background: var(--grad-task-green); border-bottom: 1px solid var(--green-badge-line); }
+.tk-kopf.is-spiel { background: linear-gradient(158deg, var(--green-800), var(--green-900)); color: #fff; }
+.tk-kopf.is-spiel .tk-oben  { color: var(--gold-400); }
+.tk-kopf.is-spiel .tk-titel { color: #fff; }
+.tk-kopf.is-spiel .tk-zeit  { color: rgba(255,255,255,.85); }
+.tk-kopf.is-sonstiges { background: var(--grad-task-gold); border-bottom: 1px solid var(--gold-line-2); }
+.tk-kopf.is-sonstiges .tk-titel { color: var(--gold-ink-2); }
+.tk-kopf.is-sonstiges .tk-zeit  { color: var(--gold-ink); }
+.tk-kopf.is-sonstiges .wf { background: var(--card); }
+.card.tk.is-cancelled .tk-titel { text-decoration: line-through; }
+
+.tk-body { display: flex; flex-direction: column; gap: 12px; padding: 14px 16px 16px; }
+.card.tk.is-spiel .tk-body { gap: 10px; padding: 12px 16px 16px; }
+.card.tk.is-hero .tk-body { gap: 0; padding: 0; }
+
+/* Ortszeile: flach, ganze Zeile fuehrt zur Karten-App */
+.tk-ort {
+  display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 16px;
+  margin: -12px -16px 0; border-bottom: 1px solid var(--line);
+  color: var(--ink); text-decoration: none;
+}
+.card.tk.is-hero .tk-ort { min-height: 52px; margin: 0; }
+.tk-ort-ic { flex: none; width: 18px; height: 18px; color: var(--muted); display: inline-flex; }
+.tk-ort-ic svg { width: 18px; height: 18px; }
+.tk-ort-n { flex: 1 1 auto; min-width: 0; font-size: 15px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tk-route { flex: none; font-size: 15px; font-weight: 600; color: var(--green-800); }
+
+/* Zu-/Absage */
+.tk-rsvp { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.card.tk.is-hero .tk-rsvp { padding: 14px 16px 4px; }
+.tk-btn {
+  min-height: 44px; border-radius: 12px; border: 1px solid var(--line-soft-3);
+  background: var(--grad-btn-sec); color: var(--ink);
+  font-size: 15px; font-weight: 700; cursor: pointer;
+}
+.tk-rsvp.is-gross .tk-btn { min-height: 50px; font-size: 16px; }
+.tk-btn.is-on { background: var(--green-050); border: 1.5px solid var(--green-700); color: var(--green-800); }
+.tk-btn.is-ab.is-on { background: var(--red-050); border-color: var(--red-700); color: var(--red-700); }
+.tk-grund { font-size: 13px; color: var(--muted); }
+.card.tk.is-hero .tk-grund, .card.tk.is-hero .tk-warn { padding: 8px 16px 0; }
+.tk-warn { font-size: 13px; font-weight: 600; color: var(--red-700); }
+
+/* Zeile Rueckmeldungen (Hero) */
+.tk-rueck {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px;
+  margin-top: 10px; padding: 12px 16px; border: 0; border-top: 1px solid var(--line);
+  background: none; color: var(--ink); text-align: left; font: inherit; cursor: pointer;
+}
+.tk-rueck.is-still { cursor: default; }
+.tk-rueck-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 7px; }
+.tk-rueck-kopf { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; line-height: 16px; }
+.tk-rueck-t { font-weight: 700; color: var(--ink); }
+.tk-ms { font-weight: 600; color: var(--red-700); font-size: 13px; }
+.tk-ms .cd { color: inherit; font-weight: inherit; }
+.tk-bar { display: flex; height: 6px; border-radius: var(--radius-pill); overflow: hidden; background: var(--track-bar); }
+.tk-bar i { display: block; height: 100%; }
+.tk-bar i.is-zu { background: var(--green-600); }
+.tk-bar i.is-ab { background: var(--red-600); }
+.tk-rueck-z { font-size: 13px; line-height: 16px; color: var(--muted); margin-top: -1px; }
+.tk-rueck-z b, .tk-unten-l b { color: var(--ink); font-weight: 700; }
+.tk-chev { flex: none; font-size: 20px; line-height: 24px; color: var(--green-chev); }
+
+/* Aufstellung / Kader (Hero, Trainer) */
+.tk-felder { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); }
+.tk-feld2 {
+  display: flex; align-items: center; gap: 8px; min-height: 56px; padding: 0 16px;
+  border: 0; background: none; text-align: left; font: inherit; color: var(--ink); cursor: pointer;
+}
+.tk-feld2 + .tk-feld2 { border-left: 1px solid var(--line); }
+.tk-f-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.tk-f-lbl { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.tk-f-wert { font-size: 17px; font-weight: 800; color: var(--green-800); }
+.tk-f-wert.is-gold { color: var(--gold-ink); }
+.tk-feld2 .tk-chev { font-size: 18px; }
+
+/* Zeile unter der Zu-/Absage im Kalender */
+.tk-unten { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 24px; font-size: 13px; }
+.tk-unten-l, .tk-unten-r {
+  position: relative; border: 0; background: none; padding: 0; font: inherit; font-size: 13px;
+  color: var(--muted); cursor: pointer; text-align: left;
+}
+.tk-unten-l::after, .tk-unten-r::after { content: ""; position: absolute; left: -8px; right: -8px; top: 50%; height: var(--tap); transform: translateY(-50%); }
+span.tk-unten-r::after { content: none; }
+.tk-unten-r { margin-left: auto; text-align: right; }
+.tk-unten-r.is-gold { font-weight: 700; color: var(--gold-ink); }
+.tk-marken { display: flex; flex-wrap: wrap; gap: 6px; }
+.card.tk.is-hero .tk-marken { padding: 12px 16px 0; }
+.tk-abgesagt { font-size: 15px; font-weight: 700; color: var(--red-700); }
+.card.tk.is-hero .tk-abgesagt { padding: 14px 16px 16px; }
+.tk-bfv, .tk-notiz { font-size: 13px; color: var(--muted); }
+
+/* --- Aufgaben "Heute zu tun" ---------------------------------------------- */
+.task-list { gap: 8px; }
+.task-row { min-height: 64px; padding: 0 16px; gap: 12px; border-radius: 14px; }
+.task-num {
+  width: 34px; height: 34px; border-radius: 10px;
+  font-size: 15px; font-weight: 800; color: #fff;
+}
+.task-title { font-size: 16px; font-weight: 700; line-height: 20px; }
+.task-sub   { font-size: 13px; font-weight: 400; line-height: 16px; margin-top: 2px; }
+.task-go    { font-size: 20px; font-weight: 400; line-height: 24px; }
+.task-row.is-mine { background: var(--grad-task-red); border: 1px solid var(--red-line); }
+.task-row.is-mine .task-num  { background: var(--grad-chip-red); }
+.task-row.is-mine .task-title{ color: var(--red-ink); }
+.task-row.is-mine .task-sub  { color: var(--red-ink-2); }
+.task-row.is-mine .task-go   { color: var(--red-chev); }
+.task-row.is-rsvp .task-num  { background: var(--green-800); color: #fff; }
+.task-row.is-lineup .task-num { font-size: 15px; }
+.task-row.is-lineup .task-sub { color: var(--gold-ink); }
+
+/* --- Kontobanner ------------------------------------------------------------ */
+.mine-banner { padding: 20px 16px 16px; text-align: center; border-radius: var(--radius); }
+.mb-label { font-size: 12px; font-weight: 700; letter-spacing: .08em; line-height: 15px; color: var(--muted); }
+.mb-value { margin-top: 10px; font-size: 52px; font-weight: 800; letter-spacing: -.035em; line-height: 52px; color: var(--red-600); }
+.mb-sub { margin-top: 10px; font-size: 13px; font-weight: 400; line-height: 16px; color: var(--muted); }
+.mb-gem { font-weight: 700; color: var(--amber-ink); }
+.mb-note { font-size: 13px; }
+.mb-pay { display: flex; align-items: center; justify-content: center; margin: 16px 8px 0; width: auto; min-height: 52px; font-size: 17px; }
+.mb-pp { margin-top: 10px; font-size: 13px; line-height: 19px; color: var(--muted); }
+.mb-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  margin: 12px 8px 0; min-height: 49px; padding-top: 4px; border-top: 1px solid var(--line);
+}
+.mb-foot .link-btn { position: relative; font-size: 14px; font-weight: 600; padding: 0; }
+.mb-foot .link-btn::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: var(--tap); transform: translateY(-50%); }
+.mb-cd.mark { margin: 0; display: inline-flex; font-size: 12px; }
+.mb-cd .cd { font-size: inherit; color: inherit; font-weight: inherit; }
+
+/* --- Danach ----------------------------------------------------------------- */
+.dn-liste { padding: 0; overflow: hidden; }
+.dn-zeile {
+  position: relative; display: flex; align-items: center; gap: 12px; width: 100%;
+  min-height: 68px; padding: 0 16px; border: 0; background: none; text-align: left; font: inherit; color: var(--ink); cursor: pointer;
+}
+.dn-strich { position: absolute; left: 6px; top: 16px; bottom: 16px; width: 4px; border-radius: var(--radius-pill); background: var(--green-450); }
+.dn-zeile.is-spiel .dn-strich { background: var(--green-900); }
+.dn-zeile.is-sonstiges .dn-strich { background: var(--gold-700); }
+.dn-t { font-size: 16px; font-weight: 700; line-height: 20px; }
+.dn-t.is-spiel { font-weight: 800; }
+.dn-s { margin-top: 2px; font-size: 13px; font-weight: 400; line-height: 16px; color: var(--muted); }
+
+/* --- Mein Status ------------------------------------------------------------ */
+.st-wahl[data-kompakt] .st-chips { gap: 8px; }
+.st-wahl[data-kompakt] .st-choice {
+  min-height: 50px; border-radius: 12px; font-size: 16px; font-weight: 600; gap: 8px;
+  background: var(--grad-btn-sec); border: 1px solid var(--line-soft-3); color: var(--ink);
+}
+.st-wahl[data-kompakt] .st-choice.is-on { font-weight: 700; color: #fff; border: 0; box-shadow: var(--shadow-btn); }
+.st-wahl[data-kompakt] .st-choice.is-on.st-fit { background: var(--grad-btn); }
+.st-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--green-600); }
+.st-angeschlagen .st-dot { background: var(--amber-600); }
+.st-verletzt .st-dot { background: var(--red-600); }
+.st-urlaub .st-dot { background: var(--blau-600); }
+
+/* --- Mannschaftskasse-Zeile (nicht in der Vorlage, bleibt) ------------------ */
+.geld-liste .row-end.is-warn { color: var(--red-600); }
+.tk-ms.cd { display: inline; padding: 0; border-radius: 0; background: none; color: var(--red-700); font-size: 13px; font-weight: 600; letter-spacing: 0; }
+.mb-cd.cd { display: inline-flex; padding: 3px 10px; margin: 0; border-radius: var(--radius-pill); background: var(--red-050); color: var(--red-700); font-size: 12px; font-weight: 700; letter-spacing: 0; line-height: 1.25; }
+.tk-menue::after { content: ""; position: absolute; top: 50%; left: 50%; width: var(--tap); height: var(--tap); transform: translate(-50%,-50%); }
+.tk-route { padding: 0; background: none; border: 0; letter-spacing: 0; }
+.tk-btn { letter-spacing: 0; }
+.wf-day, .wf-mon { letter-spacing: normal; }
+.dn-main { flex: 1 1 auto; min-width: 0; }
+.dn-t { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dn-s { display: block; }
+.dn-zeile + .dn-zeile { border-top: 1px solid var(--line); }
+.event-list { gap: 12px; }
+.tk-warn { line-height: 1.35; }
+.card.tk.is-hero .tk-ort { min-height: 53px; }
+.tk-rueck { padding: 14px 16px; }
+.task-row { min-height: 66px; }
+.mine-banner { margin-top: 0; }
+.mb-label, .mb-value, .mb-sub { display: table; margin-left: auto; margin-right: auto; }
+.mb-value { margin-top: 11px; }
+.mb-pp .rs { font-size: 13px; font-weight: 400; line-height: 19px; }
+.mb-pp .pp1, .mb-pp .pp2 { font-size: 15px; font-weight: 800; line-height: 19px; }
+.mb-foot .link-btn { min-height: 0; line-height: 17px; }
+.dn-liste { margin-top: 0; }
+/* Untere Navigation (Final): 62 hoch plus 8 Rand unten, Schrift 11, Abstand 4 */
+.app-nav { border-top: 1px solid var(--line-soft); box-shadow: var(--shadow-nav); padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+.nav-btn { min-height: 62px; padding: 0 2px; gap: 4px; }
+.nav-label { line-height: normal; }
+.group-head { align-items: baseline; }
+.group-head h2:only-child { flex: 1 1 auto; }
+.tk-rueck-z, .wf-day, .tk-ms.cd, .mb-cd.cd { font-variant-numeric: normal; }
+.tk-f-main { align-items: flex-start; }
+.tk-feld2 .tk-chev { line-height: 21px; }
+.mb-pp { display: block; text-align: center; font-size: 13px; line-height: 19px; color: var(--muted); }
+.mb-pp .pp-word { display: inline; font-size: 15px; font-weight: 800; font-style: italic; line-height: 19px; color: var(--pp-blue); }
+.mb-pp .pp-word span { color: var(--pp-cyan); }
+.app-header { padding: calc(env(safe-area-inset-top) + 13px) 16px 13px; }
+.hdr-title { letter-spacing: normal; }
+.tk-f-main { flex: 0 1 auto; align-items: stretch; }
+.tk-feld2 .tk-chev { margin-left: auto; }
+.mb-pay { letter-spacing: normal; }
+.mb-pp { display: table; margin-left: auto; margin-right: auto; }
+.view { padding-top: 20px; }
+.hdr-title { margin-right: 8px; }   /* Logo 32, Zahnrad 24: Titel steht in der Seitenmitte */
+
+/* --- Kalender (02) ----------------------------------------------------------- */
+.kal-kopf { justify-content: space-between; }
+.kal-kopf h1 { flex: 1 1 auto; }
+.kal-plus { position: relative; min-height: var(--tap); padding: 0; font-size: 15px; font-weight: 700; color: var(--green-800); }
+.kal-seg { margin-top: 12px; gap: 2px; }
+.kal-seg-b { letter-spacing: normal; }
+.kal-abo-zeile {
+  display: flex; align-items: center; min-height: 54px; margin-top: 12px; padding: 0 4px 0 16px;
+  overflow: hidden;
+}
+.kal-abo-z {
+  flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 12px; min-height: 52px;
+  padding: 0; border: 0; background: none; font: inherit; text-align: left; cursor: pointer;
+}
+.kal-abo-zic { flex: none; width: 20px; height: 20px; color: var(--green-800); display: inline-flex; }
+.kal-abo-zic svg { width: 20px; height: 20px; }
+.kal-abo-zt { font-size: 15px; font-weight: 600; color: var(--green-800); }
+.kal-abo-zx {
+  flex: none; width: var(--tap); height: var(--tap); display: inline-flex; align-items: center; justify-content: center;
+  border: 0; background: none; color: var(--muted); cursor: pointer; padding: 0;
+}
+.kal-abo-zeile + .event-list, .kal-seg + .event-list { margin-top: 12px; }
+.event-list { margin-top: 12px; }
+/* Kopf der Kalenderkarte: Text 16/25/16 mit 2 Abstand */
+.tk-kopf:not(.is-hero) .tk-kopf-main { gap: 2px; }
+.tk-kopf:not(.is-hero) .tk-titel { line-height: normal; }
+.wf-karte { width: 48px; height: 56px; border: 0; }
+.tk-kopf.is-training .wf-karte, .tk-kopf.is-sonstiges .wf-karte { width: 50px; height: 58px; border: 1px solid var(--gold-line); }
+.tk-btn { min-height: 46px; }
+.tk-ort { min-height: 49px; }
+.card.tk.is-sonstiges .tk-body { padding: 12px 16px 16px; }
+.tk-unten-r.is-gold { font-weight: 600; }
+.kal-kopf h1 { flex: 0 1 auto; }
+.kal-abo-zt { flex: 1 1 auto; }
+.tk-kopf:not(.is-hero) .tk-kopfzeile { gap: 12px; }
+.kal-abo-zeile { margin-bottom: 0; gap: 12px; }
+.tk-unten { min-height: 16px; line-height: 16px; }
+.card.tk:not(.is-hero) .tk-ort { gap: 8px; }
+.card.tk.is-spiel .tk-ort { margin-bottom: 2px; }   /* 12 bis zur Knopfzeile, sonst 10 */
+.tk-ort-ic { color: var(--gold-ink); }
+.kal-abo-zx svg { width: 14px; height: 14px; }

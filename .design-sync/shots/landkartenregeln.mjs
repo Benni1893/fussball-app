@@ -179,6 +179,7 @@ export const NAMEN = {
   'dialog:abmelden': 'Abmelden bestätigen',                // nativer Dialog, keine Überschrift
   'trainer/spiel': 'Aufstellung',                          // Aufstellung ohne Überschrift
   'kalender+tkMenu': 'Termin-Menü',                        // Überschrift ist der Termin (Testdaten)
+  'dashboard+tkMenu': 'Termin-Menü',                       // Menü ··· am Termin-Hero (Final 01)
   'kalender+rsvpSheet+shareModal': 'Rückmeldungen teilen', // Überschrift wie das Blatt darunter
   'dashboard+rsvpSheet+shareModal': 'Rückmeldungen teilen',
   'kasse+ksBl': 'Strafe buchen',                           // Überschrift nur "Strafe"
