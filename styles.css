@@ -3076,3 +3076,220 @@ body {
   100% { box-shadow: 0 0 0 14px rgba(45,146,101,0); }
 }
 @media (prefers-reduced-motion: reduce) { .tk.is-flash { animation: none; } }
+/* ===========================================================================
+   FINAL-BAUSTEINE (Vorlage "Final Alle Screens", 06.10.2026)
+   Abschnitt "Bausteine" im PAKET-README unter .design-sync/concepts/final-2026-10/.
+   Steht bewusst zuletzt: gibt den vorhandenen Klassen die Werte der Vorlage,
+   ohne das Markup anzufassen. Neue Klassen (.group-head, .mark, .add-btn,
+   .row ...) setzen die Screens nach und nach ein.
+   =========================================================================== */
+
+/* --- Primaerknopf: einer pro Ansicht, alle Sonderstile werden .btn-primary --- */
+.btn-primary, .tv-next-btn, .rs2-btn, .tv-primary, .auth-submit, .ks-neu, .tv-kall, .abo-btn.btn-primary {
+  background: var(--grad-btn);
+  border: 0;
+  color: #fff;
+  font-size: var(--fs-zeile);
+  font-weight: 700;
+  letter-spacing: -.005em;
+  min-height: var(--h-btn);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-btn);
+}
+/* Gesperrt: Flaeche --line, Schrift --muted. Nie hellgruen, kein opacity. */
+.btn-primary:disabled, .btn-primary[aria-disabled="true"], .btn-primary.is-gesperrt,
+.tv-next-btn:disabled, .rs2-btn:disabled, .tv-primary:disabled, .auth-submit:disabled, .ks-neu:disabled {
+  background: var(--line);
+  color: var(--muted);
+  box-shadow: none;
+  opacity: 1;
+  cursor: not-allowed;
+}
+
+/* --- Sekundaerknopf; gefaehrliche Handlung gleicher Knopf, Schrift rot ------ */
+.btn, .btn-soft, .rs2-btn2 {
+  background-image: var(--grad-btn-sec);
+  border: 1px solid var(--line-soft-3);
+  color: var(--ink);
+  font-size: var(--fs-zeile);
+  font-weight: 700;
+  min-height: var(--h-btn);
+  border-radius: var(--radius-md);
+}
+.btn.btn-primary { color: #fff; border: 0; background-image: none; background: var(--grad-btn); }
+.btn-danger, .btn.is-gefahr { background: var(--grad-btn-sec); border: 1px solid var(--line-soft-3); color: var(--red-700); }
+
+/* --- Aktive Auswahl: dasselbe Gruen wie der Primaerknopf -------------------- */
+.chip {
+  font-size: 14px;
+  font-weight: 600;
+  min-height: 36px;
+  padding: 0 14px;
+}
+.chip.is-active, .tv-fpill.on, .zart.is-on, .st-choice.is-on.st-fit {
+  background: var(--grad-btn);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: var(--shadow-btn);
+}
+
+/* --- Segment: Spur --bg-2, aktiv weisse Pille ------------------------------ */
+.seg, .ks-seg, .kal-seg {
+  display: flex;
+  gap: 0;
+  padding: 3px;
+  background: var(--bg-2);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-md);
+}
+.seg-b, .ks-seg-b, .kal-seg-b {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 38px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  overflow: visible;           /* sonst schneidet es die Trefferflaeche ab */
+  box-shadow: none;
+}
+.seg-b::after, .ks-seg-b::after, .kal-seg-b::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 50%;
+  height: var(--tap); transform: translateY(-50%);
+}
+.seg-b.is-on, .ks-seg-b.is-on, .kal-seg-b.is-on {
+  background: var(--card);
+  color: var(--green-800);
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+}
+
+/* --- Hinzufuegen-Knopf "+" (Bank-Blatt, Blatt "Spieler fuer die Position") -- */
+.add-btn {
+  position: relative;
+  flex: none;
+  width: 36px; height: 36px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-soft-3);
+  background: var(--card);
+  color: var(--green-800);
+  font-size: 20px; font-weight: 600; line-height: 1;
+  cursor: pointer;
+}
+.add-btn::after {
+  content: ""; position: absolute; top: 50%; left: 50%;
+  width: var(--tap); height: var(--tap); transform: translate(-50%, -50%);
+}
+
+/* --- Gruppenkopf: ersetzt .section-title, .sec-mini, .tv-next-lbl ... ------ */
+.group-head, .section-title, .sec-mini, .tv-next-lbl, .tv-bank-h, .ein-titel, .ein-gkopf-t, .set-label, .ks-bl-lbl, .abo-k-t {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin: var(--sp-5) 0 var(--sp-2);
+  font-size: var(--fs-etikett);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--muted);
+}
+.group-head h2, .group-head h3, .section-title h2, .section-title h3 {
+  margin: 0; font: inherit; letter-spacing: inherit; color: inherit;
+}
+/* Textverweis rechts im Gruppenkopf: 15/600, ohne Unterstreichung, Flaeche 44 */
+.group-head .link-btn, .section-title .link-btn, .sec-mini .link-btn {
+  position: relative;
+  min-height: 0;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.group-head .link-btn::after, .section-title .link-btn::after, .sec-mini .link-btn::after {
+  content: ""; position: absolute; right: 0; top: 50%;
+  width: calc(100% + 16px); height: var(--tap); transform: translateY(-50%);
+}
+
+/* --- Textverweise ------------------------------------------------------------ */
+.link-btn {
+  color: var(--green-800);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* --- Karte: keine Karte in der Karte --------------------------------------- */
+.card, .ein-gruppe, .pr-list, .kat-item, .mine-banner {
+  background-image: var(--grad-card);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+}
+
+/* --- Listenzeile: eine Karte, Zeilen mit Trennlinie ------------------------- */
+.row {
+  display: flex; align-items: center; gap: var(--sp-3);
+  min-height: 56px; padding: 0 var(--sp-4);
+  border-top: 1px solid var(--line);
+  color: var(--ink); text-decoration: none; background: none; width: 100%; text-align: left;
+}
+.row:first-child { border-top: 0; }
+.row-av {
+  flex: none; width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--grad-av); color: var(--green-800); box-shadow: var(--shadow-av);
+  font-size: 13px; font-weight: 800;
+}
+.row-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.row-t { font-size: var(--fs-zeile); font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row-s { font-size: var(--fs-neben); font-weight: 500; color: var(--muted); }
+.row-end { flex: none; display: flex; align-items: center; gap: var(--sp-2); font-weight: 700; }
+.row-chev, .kal-abo-chev, .geld-chev, .tv-garrow { color: var(--green-chev); }
+
+/* --- Marke / Plakette: Satzschreibung, Bedeutungsfarbe --------------------- */
+.mark {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 10px; border-radius: var(--radius-pill);
+  font-size: var(--fs-etikett); font-weight: 700; line-height: 1.35;
+  text-transform: none; letter-spacing: 0; white-space: nowrap;
+  background: var(--line); color: var(--ink);
+}
+.mark.is-gruen   { background: var(--green-badge-bg); color: var(--green-800); }
+.mark.is-rot     { background: var(--red-050);        color: var(--red-700); }
+.mark.is-amber   { background: var(--amber-050);      color: var(--amber-ink); }
+.mark.is-urlaub  { background: var(--blau-050);       color: var(--blau-700); }
+.mark.is-gold    { background: var(--gold-badge-bg);  color: var(--gold-ink); border: 1px solid var(--gold-badge-line); }
+.mark-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
+/* Bestandsfehler: Amber-Schrift --amber-600 erreicht auf --amber-050 nur 3,35:1. */
+.tag-friendly, .tag-manuell, .cd-amber, .st-amber, .lu-ptag.ang, .tv-tag.ang { color: var(--amber-ink); }
+
+/* --- Kennzahl-Kachel: ganz getoent statt Randstreifen ---------------------- */
+.kpi.is-warn::before { content: none; }
+.kpi.is-gruen  { background: var(--grad-task-green); border-color: var(--green-badge-line); }
+.kpi.is-rot    { background: var(--grad-task-red);   border-color: var(--red-line); }
+.kpi.is-amber  { background: var(--amber-050);       border-color: var(--amber-line); }
+.kpi.is-urlaub { background: var(--blau-050);        border-color: var(--blau-line); }
+.kpi.is-gruen  .kpi-label, .kpi.is-gruen  .kpi-value { color: var(--green-task-ink); }
+.kpi.is-rot    .kpi-label, .kpi.is-rot    .kpi-value { color: var(--red-ink); }
+.kpi.is-amber  .kpi-label, .kpi.is-amber  .kpi-value { color: var(--amber-ink); }
+.kpi.is-urlaub .kpi-label, .kpi.is-urlaub .kpi-value { color: var(--blau-700); }
+.kpi-label { font-size: var(--fs-etikett); font-weight: 700; letter-spacing: .06em; }
+.kpi-value { font-size: var(--fs-kpi); font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* --- Hinweistexte: eine Zeile, 13 px, --muted ------------------------------- */
+.set-hint, .mb-note, .abo-hinweis, .tv-ro-note, .kat-sub, .ein-hinweis {
+  font-size: var(--fs-neben);
+  color: var(--muted);
+}
+.page-head p { display: none; }   /* Begleitsatz unter Seitentiteln entfaellt (Final) */
+.page-head h1 { font-size: var(--fs-titel); font-weight: 800; letter-spacing: -.02em; }
+
+/* --- Flaechensprache: Zusammenfassung in der Kasse hell --------------------- */
+.kasse-sum {
+  background: var(--green-050);
+  border: 1px solid var(--green-badge-line);
+  color: var(--green-800);
+}

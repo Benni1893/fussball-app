@@ -27,7 +27,7 @@
    eine geaenderte offline.html fuer immer die alte. Mit ihr holt "install"
    die Offline-Seite frisch und "activate" wirft jeden anderen Cache weg.
    Das Push-Abo haengt an der Registrierung und uebersteht das Update. */
-const VERSION = "fn-sw-2026-10-06-B";
+const VERSION = "fn-sw-2026-10-06-C";
 const OFFLINE = "offline.html";
 
 self.addEventListener("install", (e) => {
