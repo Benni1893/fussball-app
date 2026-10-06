@@ -133,6 +133,114 @@ Lesend geprüft um 08:54 Uhr Ortszeit.
 
 Keine Auffälligkeit, nichts geändert.
 
+
+## Abschluss 06.10.2026: Konsistenz, Robustheit, Live-Durchlauf
+
+Auftrag vom 06.10.2026 („Push-Automatik in sich schlüssig abschließen“). Sicherung vorher:
+`C:\Users\Benjamin\fussball-app-db\sicherungen\2026-10-06_vor-Abschluss` (649 KB).
+
+### Konsistenzmatrix (Endstand)
+
+U/v = Urlaub oder verletzt am Termintag. F1 = Auslöser bekommt nichts. „bis Beginn“ usw. =
+`gueltig_bis`. Prüfskript = wo die Kategorie mit echten Zeilen geprüft wird; die Matrix selbst
+prüft `0056_konsistenz_pruef.sql` (Rollen, aktive Kategorien, Erzeuger, Emoji, Deep Links,
+Dringlichkeit, Verfall, Texte, Platzhalter).
+
+| Kategorie | Erzeuger | Vorlage | Schalter (Mitteilungen) | Push-Texte | Empfänger | F1 | U/v | Ruhezeit / Dringlichkeit | 08:00 bei BFV | Wartezeit / Bündelung | Verfall | Deep Link | Prüfskript |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `strafe_neu` | Trigger `fines` | aktiv | Neue Strafe | ja | der Spieler | Ausnahme: auch an den Auslöser | nicht ausgenommen | normal, wartet Ruhezeit ab | kein BFV-Weg | 3 Min., je Aufruf eine | 7 Tage fest | `#strafen=meine` | 0045 |
+| `zahlung_gemeldet` | Trigger `fines` | aktiv | Zahlung gemeldet (Kasse) | ja | alle Kassenwarte | ja | nicht betroffen | normal | kein BFV-Weg | 15 Min. | 3 Tage fest | `#kasse=pruefen` | 0045 |
+| `zahlung_bestaetigt` | Trigger `fines` | aktiv | Zahlung bestätigt | ja | der Spieler | ja | nicht ausgenommen | normal | kein BFV-Weg | 1 Min. | 7 Tage fest | `#strafen=meine` | 0045 |
+| `zahlung_abgelehnt` | Trigger `fines` | aktiv | Zahlung abgelehnt | ja | der Spieler | ja | nicht ausgenommen | normal | kein BFV-Weg | 1 Min. | 7 Tage fest | `#strafen=meine` | 0045 |
+| `termin_neu` | Trigger `events` | aktiv | Neue Termine | ja | alle Spieler | ja | nicht ausgenommen (T3) | normal | ja | 30 Min. je Auslöser, BFV je Lauf | bis Beginn des letzten (0056) | `#ansicht=kalender` | 0046, 0056 |
+| `termin_geaendert` | Trigger `events` | aktiv | Termin geändert | ja | alle Spieler | ja | ausgenommen (F3) | zeitkritisch | ja | 10 Min. je Auslöser, Serie eine | bis Beginn | `#termin=` | 0046, 0047 |
+| `termin_abgesagt` | Trigger `events` (Status und Löschen) | aktiv | Termin fällt aus | ja | alle Spieler | ja | ausgenommen | zeitkritisch | ja | 2 Min. je Auslöser, Serie eine | bis Beginn | `#ansicht=kalender` | 0046, 0053, 0054 |
+| `rueckmeldung_erinnerung` | Cron alle 5 Min. | aktiv | Erinnerung an Zu- oder Absage | ja, mit Strafhinweis | Spieler ohne Rückmeldung | kein Auslöser | ausgenommen (F6) | zeitkritisch | kein BFV-Weg | 24 h und 2 h vor Meldeschluss | bis Meldeschluss | `#termin=` | 0048, 0052, 0056 |
+| `rueckmeldung_nachfrage` | RPC `send_rsvp_reminder` (Knopf folgt) | aktiv | bewusst kein eigener, gilt „Erinnerung“ | ja | Spieler ohne Rückmeldung mit Gerät | ja | ausgenommen | normal (Entscheidung 4) | kein BFV-Weg | sofort, Sperre 12 h | bis Beginn | `#termin=` | 0050 |
+| `absage_kurzfristig` | Trigger `rsvps` | aktiv | Kurzfristige Absagen | ja | alle Trainer | ja | nicht betroffen | zeitkritisch | kein BFV-Weg | 10 Min. je Termin | bis Beginn | `#termin=` | 0048 |
+| `meldeschluss_uebersicht` | Cron alle 5 Min. | aktiv | Übersicht nach Meldeschluss | ja | alle Trainer | kein Auslöser | „offen“ ohne U/v | normal | kein BFV-Weg | einmal, erste Stunde | bis Beginn | `#termin=` | 0048 |
+| `strafen_offen` | Cron monatlich | aktiv | Monatliche Erinnerung (Standard aus) | ja | der Spieler | kein Auslöser | nicht ausgenommen | normal | kein BFV-Weg | einmal im Monat | 7 Tage fest | `#strafen=meine` | 0049 |
+| `unterbesetzung` | keiner (F4) | **aus** | ausgeblendet (folgt) | ja, „aus“ | entfällt | entfällt | entfällt | zeitkritisch | entfällt | entfällt | bis Beginn | `#termin=` | 0056 |
+| `test` | Knopf, nur Admin | aktiv | keiner nötig | ja | nur der Auslöser | entfällt | entfällt | übergeht Ruhezeit | entfällt | sofort | fest | `#ein=mitteilungen` | 0042, 0051 |
+
+Alle Zellen sind grün oder begründet: `rueckmeldung_nachfrage` nutzt den Schalter der
+Erinnerung (Entscheidung zu P1), `unterbesetzung` ist bis F4 aus und ohne Schalter, `test`
+braucht keinen.
+
+### Befunde und Behebungen
+
+| # | Befund | Behebung |
+|---|---|---|
+| K1 | „Zu wenig Zusagen“ hatte Schalter und aktive Vorlage, aber keinen Erzeuger. | Vorlage aus (0056), Schalter auf der Seite Mitteilungen entfernt, im Ruhezeiten-Hinweis nicht mehr genannt (Build 2026-10-06-A); `prefspruef` prüft das. |
+| K2 | Seite Push-Texte: zwei Gedankenstriche in sichtbaren Texten. | Komma bzw. Doppelpunkt. |
+| K3 | Strafhinweis-Wortlaut nur per Migration änderbar. | Feld „Strafhinweis“ in der Karte der Erinnerung, RPC `set_notification_strafhinweis` (nur Admin, 80 Zeichen, nicht leer, ohne Klammern), dieselbe Quelle wie der Versand (0056). |
+| K4 | Emoji-Tabelle in `conventions.md` ohne `rueckmeldung_nachfrage`. | Ergänzt (⏳). |
+| K5 | `termin_neu` mit fester Lebensdauer von 7 Tagen. | Verfällt mit dem Beginn des letzten genannten Termins (0056). |
+| K6 | Hinweis „Automatisch kommen bisher nur …“ | War seit Build 2026-10-05-C weg und ist gepusht; geprüft von `einpruef`. |
+| K7 | Platzhalter | Alle 14 Vorlagen rendern mit ihren Beispieldaten ohne `{…}`, keine Outbox-Zeile ist je an einem Platzhalter gescheitert; die Erzeuger liefern alle Pflicht-Platzhalter (exakte Texte in den Prüfskripten). |
+
+### Robustheitsfälle
+
+| Fall | Verhalten | Beleg | Ergebnis |
+|---|---|---|---|
+| Spieler ohne Push-Abo | Zeile gilt als erledigt, bleibt als Eintrag in der App | Zustelltest 05.10. (12 Kategorien) und heute (Testkonto ohne Gerät) | ok |
+| abgelaufenes Abo (404/410) | Gerät wird entfernt | echter Lauf: ungültiger Mozilla-Endpunkt, vom Dispatcher entfernt; SQL-Fall in 0057 | ok |
+| mehrere Geräte | eine Zeile je Nachricht; Versand an jedes Gerät, eines genügt; Fehlschläge zählen je Gerät, nach 5 entfernt, ein Erfolg setzt zurück | 0057 (Zeilen, Zähler), echter Lauf mit zwei Prüfgeräten | ok |
+| **vorübergehender Zustellfehler** | **vorher endgültig verloren**; jetzt bis zu 5 Versuche (5, 10, 15, 20 Min.), nur solange gültig | 0057 (R1), echter Lauf: Versuch 1, neuer Anlauf nach 5 Minuten | **behoben (0057)** |
+| Dispatcher-Ausfall über Stunden | zeitgebundene Nachrichten fallen aus `notification_due` und werden als „verfallen“ markiert; **die Lebensdauer beim Push-Dienst wird beim Abholen auf die Restzeit gekürzt** (vorher die volle beim Einreihen); Strafen kommen noch (7 Tage) | 0057 (R2, Rückstau) | **behoben (0057)** |
+| doppelter Cron-Lauf | `dedup_key`, Sammler wird beim Zusammenfassen geleert | 0043, 0045, 0048, 0049, 0057 | ok |
+| Zeitumstellung 25.10.2026 | Ruhezeit, 08:00-Regel, Beginn und Meldeschluss in Europe/Berlin; Erinnerungsfenster in echten Stunden (25.10. 16:00 für Meldeschluss 26.10. 16:00) | 0057 (in_quiet_hours_at, nicht_vor_acht, Termine am 24./25.10.) | ok |
+
+Echter Dispatcher-Lauf (Testkonto, kein echtes Gerät, 06.10. 21:03 bis 21:10): ungültiger
+Mozilla-Endpunkt mit 404/410 entfernt, nicht erreichbarer Host `failed_count = 1`, Zeile mit
+Versuch 1 neu eingeplant (21:09:02); nach Entfernen des zweiten Prüfgeräts um 21:10:02 als
+erledigt markiert. Testzeilen und Prüfgeräte danach gelöscht, Reste lesend ausgeschlossen.
+
+### Live-Durchlauf an dein Gerät
+
+**Noch offen.** Teil 1 bis 3 waren um 21:11 fertig; der Durchlauf braucht mit den Wartezeiten
+rund 20 Minuten und hätte das Fenster bis 21:30 überschritten (ab 22:00 außerdem deine
+Ruhezeit). Er startet auf „Live-Test jetzt“ (08:00 bis 21:30). Ablauf, alles per SQL ohne
+Auslöser (sonst greift F1), nur dein Profil ist verknüpft; Testtermine ohne Auto-Strafe,
+Wartezeiten der Sammler werden für den Test verkürzt:
+
+| Schritt | erwartete Nachricht | gesendet um | Fehler | am Handy angekommen |
+|---|---|---|---|---|
+| a1 Testtermin „TEST Push“ (Training morgen 19:00) | 📅 1 neuer Termin · Jetzt zu- oder absagen: TEST Push <Datum> | | | |
+| a2 Meldeschluss in rund 2 Stunden | ⏳ Bist du dabei? TEST Push · <Datum> 19:00 Uhr · Meldeschluss heute <Zeit> Uhr. (ohne Strafhinweis) | | | |
+| b Uhrzeit 19:00 → 20:00 | 📅 TEST Push geändert · <Datum>: Beginn jetzt 20:00 statt 19:00 Uhr | | | |
+| c „Fällt aus“ | ❌ TEST Push fällt aus · <Datum> 20:00 Uhr. | | | |
+| d1 Strafe als Systemvorgang | 💸 Neue Strafe: 1,00 € · TEST Push Strafe, <Datum>. Bar, Überweisung oder PayPal. | | | |
+| d2 Zahlung gemeldet (für dich als Kassenwart) | 💰 1 Zahlung zu prüfen · Lukas Weber, 1,00 €. Jetzt bestätigen. | | | |
+| d3 als System bestätigt | ✅ Zahlung bestätigt · 1 Strafe, 1,00 € verbucht. | | | |
+| d4 zweite Strafe, gemeldet, abgelehnt | 💸 Neue Strafe … dann ⚠️ Zahlung nicht bestätigt · 1,00 €: TEST Push Ablehnung. Bitte mit dem Kassenwart klären. | | | |
+| e Serie aus 3 Testterminen gemeinsam abgesagt | genau eine: ❌ 3 Trainings ab <Datum> fallen aus | | | |
+| Aufräumen | keine Nachricht (abgesagte Testtermine und Teststrafen gelöscht) | | | |
+
+### Neue Annahmen, die Spieler merken
+
+1. **Z1:** Eine Push kann bei Störungen beim Push-Dienst bis zu rund 50 Minuten später kommen (bis zu fünf Versuche), statt verloren zu gehen.
+2. **Z2:** „Neue Termine“ kommt nach einem längeren Ausfall nicht mehr, wenn die genannten Termine schon begonnen haben.
+
+(Z3 betrifft nur den Admin: Strafhinweis höchstens 80 Zeichen.)
+
+### Nur mit weiteren Konten oder Rollen testbar
+
+- **Trainer:** „Kurzfristige Absagen“ und „Übersicht nach Meldeschluss“ (heute hat niemand die Trainerrolle; als Admin mit zusätzlicher Trainerrolle wäre die Übersicht selbst testbar).
+- **Zweiter verknüpfter Spieler:** alles, was der Auslöser nicht bekommt (F1): Zahlung gemeldet durch einen Spieler, bestätigt oder abgelehnt durch dich, Termin neu, geändert oder abgesagt durch dich, kurzfristige Absage.
+- **Nachfrage:** braucht den Knopf (nach dem Design-Review), einen Trainer oder Admin und einen anderen Spieler ohne Rückmeldung.
+
+### Commits dieses Auftrags
+
+| Commit | Inhalt |
+|---|---|
+| `53c57c4` | Morgenprüfung 06.10.2026 in ABSCHLUSS.md |
+| `b2a368d` | Konsistenz der Mitteilungen (0056, Build 2026-10-06-A) |
+| `d2c15aa` | Robustheit der Zustellung (0057) |
+| (dieser) | Abschlussbericht |
+
+Serien bündeln (Teil 1.2) war schon mit `4adaad9` (0054, 0055) erledigt.
+
 ---
 
 ## Inhalt von ANNAHMEN.md
@@ -156,7 +264,7 @@ Keine Auffälligkeit, nichts geändert.
 | # | Annahme | Grund |
 |---|---|---|
 | R1 | Vorlage `absage_kurzfristig`: Titel „🚨 {anzahl}“ mit „1 kurzfristige Absage“ / „2 kurzfristige Absagen“. Nur ersetzt, solange der Auslieferungsstand gilt. | Wie K1. |
-| R2 | Die Erinnerung gilt für **alle** Spiele und Trainings mit Meldeschluss, auch ohne Auto-Strafe (alle BFV-Spiele). Der Vorlagentext „Ohne Antwort wird's teuer.“ stimmt dort nicht; er bleibt, weil Push-Texte Admin-Sache sind (Hinweis im Abschlussbericht). | Eine Erinnerung hilft auch ohne Strafe. |
+| R2 | Die Erinnerung gilt für **alle** Spiele und Trainings mit Meldeschluss, auch ohne Auto-Strafe (alle BFV-Spiele). Der Satz „Ohne Antwort wird's teuer.“ kommt seit 0052 (Entscheidung 06.10.2026) über den Platzhalter `{strafhinweis}` nur bei Terminen mit Auto-Strafe. | Eine Erinnerung hilft auch ohne Strafe. |
 | R3 | Erinnerungsfenster: Meldeschluss in **22 bis 24 Stunden** bzw. in **0 bis 2 Stunden**, Cron alle 5 Minuten, je Termin, Spieler und Stufe höchstens einmal. Ein spät angelegter Termin bekommt nur die Stufen, deren Fenster noch kommt. | Vorschlag aus PHASE0.md, mit Spielraum für einen ausgefallenen Cron-Lauf. |
 | R4 | Übersicht nach Meldeschluss: einmal je Termin, wenn der Meldeschluss höchstens eine Stunde zurückliegt und der Termin noch nicht begonnen hat. „Offen“ = Spieler des Vereins ohne Rückmeldung, **ohne** Urlaub/verletzt am Termintag. | Ein Spieler im Urlaub ist nicht „offen“. |
 | R5 | Kurzfristige Absage: jede neue Absage („ab“, auch Wechsel von „zu“) zwischen Meldeschluss und Beginn; an die Trainer, 10 Minuten gesammelt; wer in der Zeit wieder zusagt, fällt aus der Liste. | Vorschlag aus PHASE0.md. |
@@ -178,3 +286,11 @@ Keine Auffälligkeit, nichts geändert.
 | N2 | Die 12-Stunden-Sperre beginnt erst, wenn mindestens eine Nachricht eingereiht wurde. Erreicht eine Nachfrage niemanden (alle ohne Gerät), darf sofort erneut gefragt werden. | Sonst sperrt ein Versuch ohne Wirkung zwölf Stunden. |
 | N3 | Text: Datum kurz, Uhrzeit optional (ganztägig: ohne), Meldeschluss nur als optionaler Platzhalter (steht nicht im Text). Rückgabe zusätzlich `nur_zaehlen`, `letzte`. | Vorschlag aus einstellungen-v2/PHASE0.md, Abschnitt e). |
 | N4 | Die mit P1 beschlossenen Textkorrekturen stehen in einer **eigenen** Migration 0051 (aus den Live-Definitionen erzeugt, nur die Meldungstexte geändert). `set_ical_url` sagt jetzt „Nur Trainer, Kassenwart oder Admin dürfen die iCal-URL setzen.“ (Schrägstriche durch Komma und „oder“). | Kleinere, getrennt prüfbare Migration. |
+
+### Konsistenz und Robustheit (Migrationen 0056, 0057)
+
+| # | Annahme | Grund |
+|---|---|---|
+| Z1 | Scheitert die Zustellung an allen Geräten eines Spielers vorübergehend, versucht der Versand es bis zu **fünfmal** (nach 5, 10, 15 und 20 Minuten), solange die Nachricht gültig ist; danach gilt sie als nicht zustellbar. Meldet ein Gerät „gibt es nicht mehr“ (404/410), wird es entfernt; ohne Gerät bleibt die Nachricht als Eintrag in der App. | Vorher ging eine Nachricht beim ersten Fehler endgültig verloren. |
+| Z2 | „Neue Termine“ verfällt, sobald der letzte genannte Termin begonnen hat (höchstens 7 Tage). Nach einem längeren Versandausfall kündigt keine Nachricht Vergangenes an. | Konsistent mit den übrigen zeitgebundenen Kategorien. |
+| Z3 | Der Strafhinweis ist höchstens 80 Zeichen lang, nicht leer und ohne geschweifte Klammern; wer ihn nicht will, nimmt `{strafhinweis}` aus dem Text der Erinnerung. | Er steht am Ende einer Push-Nachricht, die bei 110 Zeichen abgeschnitten wird. |
