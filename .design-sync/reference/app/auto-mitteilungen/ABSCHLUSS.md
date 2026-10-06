@@ -117,6 +117,22 @@ der BFV etwas ändert.
 
 Gepusht wird erst nach deinem OK.
 
+
+## Morgenprüfung 06.10.2026
+
+Lesend geprüft um 08:54 Uhr Ortszeit.
+
+| Prüfung | Ergebnis |
+|---|---|
+| BFV-Nachtlauf gelaufen | ja: drei BFV-Termine um 04:27 UTC (06:27 Ortszeit) aktualisiert, sonst keine Änderung |
+| vergangene BFV-Spiele auf „abgesagt“ | 0 (künftige ebenfalls 0) |
+| Freundschaftsspiele 2027 | 13.02. TSV Schwabhausen II, 21.02. ATSV Kirchseeon II, 28.02. TSG Pasing II: jeweils `home = true`, Titel „Heimspiel“, Gegner nur der Verein; Kalender-Version je +1 |
+| Termin-Nachrichten aus dem Lauf | keine: weder im Sammler noch in der Outbox seit 05.10. 22:00 UTC. Richtig so, denn geändert haben sich nur Titel, Heim und Gegner, nicht Datum, Uhrzeit oder Ort; neue oder fehlende Spiele gab es nicht. Die 08:00-Regel kam deshalb noch nicht zum Tragen. |
+| Cron-Jobs seit 05.10. 20:00 UTC | alle erfolgreich: `push-dispatch` 775, `notify-sammler` 388, `notify-rueckmeldung` 155, `apply-event-fines` 52, `apply-fine-surcharges-daily` 1, `notification-cleanup` 1; kein Lauf mit anderem Status |
+| Outbox-Fehler seit 05.10. 20:00 UTC | 0 |
+
+Keine Auffälligkeit, nichts geändert.
+
 ---
 
 ## Inhalt von ANNAHMEN.md
