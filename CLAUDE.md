@@ -1,5 +1,7 @@
 # FC Fasanerie-Nord, Mannschafts-App
 
+**Sprache:** Antworten an den Nutzer immer auf Deutsch.
+
 Projektregeln stehen in `.design-sync/conventions.md`, Arbeitsnotizen in
 `.design-sync/NOTES.md`, Pakete und Reihenfolge in
 `.design-sync/reference/app/einstellungen-kader/PLAN.md`.

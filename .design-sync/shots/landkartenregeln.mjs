@@ -45,6 +45,7 @@ export const AUSLOESER = [
   { art: 'termin-edit',  sel: '[data-termin-edit]' },
   { art: 'kader-info',   sel: '[data-kader-info]' },
   { art: 'rs-teilen',    sel: '[data-rs-teilen]' },
+  { art: 'rs-push',      sel: '[data-rs-push]' },
   // Konto
   { art: 'paid-self',    sel: '[data-paid-self]' },
   // Aufstellung
@@ -62,7 +63,7 @@ export const AUSLOESER = [
    sonst: offen, solange vorhanden, sichtbar und nicht [hidden].          */
 export const UEBERLAGERUNGEN = [
   { id: 'moreSheet' }, { id: 'calSheet' }, { id: 'rsvpSheet' }, { id: 'tkMenu' },
-  { id: 'terminModal' }, { id: 'scopeModal' }, { id: 'shareModal' }, { id: 'tvUnsaved' },
+  { id: 'terminModal' }, { id: 'scopeModal' }, { id: 'shareModal' }, { id: 'tvUnsaved' }, { id: 'pushModal' },
   { id: 'ksSeite' },
   { id: 'ksWahl', blatt: true }, { id: 'ksSheet', blatt: true }, { id: 'ksBl', blatt: true },
   { id: 'zmBl', blatt: true },
@@ -182,6 +183,8 @@ export const NAMEN = {
   'dashboard+tkMenu': 'Termin-Menü',                       // Menü ··· am Termin-Hero (Final 01)
   'kalender+rsvpSheet+shareModal': 'Rückmeldungen teilen', // Überschrift wie das Blatt darunter
   'dashboard+rsvpSheet+shareModal': 'Rückmeldungen teilen',
+  'kalender+rsvpSheet+pushModal': 'Push bestätigen',         // Bestätigung ohne eigene Überschrift (Final 04)
+  'dashboard+rsvpSheet+pushModal': 'Push bestätigen',
   'kasse+ksBl': 'Strafe buchen',                           // Überschrift nur "Strafe"
   'trainer/spiel+tvSheetMenu': 'Aufstellungs-Menü',        // Überschrift nur "Mehr"
 };

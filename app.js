@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-06-D";
+  var APP_BUILD = "2026-10-06-E";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -1087,7 +1087,7 @@
       + "\n" + fmtWd(e.datum) + " " + fmtDay(e.datum) + ". " + fmtMon(e.datum)
       + (e.zeit ? " · " + e.zeit + " Uhr" : "");
     const block = (titel, list) => "\n\n" + titel + " (" + list.length + ")"
-      + (list.length ? "\n" + list.map((x) => x.p.name + (x.grund ? " – " + x.grund : "")).join("\n") : "\n–");
+      + (list.length ? "\n" + list.map((x) => x.p.name + (x.grund ? ", " + x.grund : "")).join("\n") : "\nniemand");
     return kopf + block("Zugesagt", g.zu) + block("Abgesagt", g.ab) + block("Offen", g.offen);
   }
 
@@ -1095,15 +1095,16 @@
     const g = rsGruppen(e.id);
     const gesamt = DEMO.players.length;
     const pz = gesamt ? (g.zu.length / gesamt) * 100 : 0;
+    const pa = gesamt ? (g.ab.length / gesamt) * 100 : 0;
     const liste = rsFilter === "zu" ? g.zu : rsFilter === "ab" ? g.ab : g.offen;
 
     const kachel = (schl, label, n) =>
-      '<button class="rs2-kachel' + (rsFilter === schl ? " is-on" : "") + '" data-rsfilter="' + schl + '"' +
+      '<button class="rs2-kachel is-' + schl + (rsFilter === schl ? " is-on" : "") + '" data-rsfilter="' + schl + '"' +
       ' aria-pressed="' + (rsFilter === schl ? "true" : "false") + '">' +
-      '<span class="rs2-k-l">' + label + '</span><span class="rs2-k-z num">' + n + '</span></button>';
+      '<span class="rs2-k-l">' + label + '</span><span class="rs2-k-z">' + n + '</span></button>';
 
     const zeile = (x) => '<div class="rs2-zeile">' +
-      '<span class="rs2-av">' + initials(x.p.name) + '</span>' +
+      '<span class="rs2-av"><span>' + initials(x.p.name) + '</span></span>' +
       '<span class="rs2-n">' + esc(x.p.name) +
       (x.grund ? '<span class="rs2-grund">' + esc(x.grund) + '</span>' : "") + '</span></div>';
 
@@ -1112,23 +1113,143 @@
       '<div class="rs2-griff" aria-hidden="true"></div>' +
       '<div class="rs2-kopf"><div class="rs2-kopf-text">' +
         '<div class="rs2-titel">Rückmeldungen</div>' +
-        '<div class="rs2-sub num">' + esc(rsKopfzeile(e)) + '</div></div>' +
-        '<button class="rs2-zu" data-sheet-close aria-label="Schließen">&#10005;</button></div>' +
-      '<div class="rs2-bar" role="img" aria-label="' + g.zu.length + ' von ' + gesamt + ' zugesagt">' +
-        '<i style="width:' + pz.toFixed(2) + '%"></i></div>' +
+        '<div class="rs2-sub">' + esc(rsKopfzeile(e)) + '</div></div>' +
+        '<button class="rs2-zu" data-sheet-close aria-label="Schließen">' + ICON_X + '</button></div>' +
+      '<div class="rs2-bar" role="img" aria-label="' + g.zu.length + ' zugesagt, ' + g.ab.length + ' abgesagt, von ' + gesamt + '">' +
+        '<i class="is-zu" style="width:' + pz.toFixed(2) + '%"></i><i class="is-ab" style="width:' + pa.toFixed(2) + '%"></i></div>' +
       '<div class="rs2-kacheln">' +
-        kachel("zu", "Zugesagt", g.zu.length) +
-        kachel("ab", "Abgesagt", g.ab.length) +
+        kachel("zu", "Zu", g.zu.length) +
+        kachel("ab", "Ab", g.ab.length) +
         kachel("offen", "Offen", g.offen.length) + '</div>' +
       '<div class="rs2-liste">' +
         (liste.length ? liste.map(zeile).join("")
-                      : '<div class="rs2-leer">niemand in dieser Gruppe</div>') + '</div>' +
-      '<div class="rs2-fuss">' +
-        (g.offen.length
-          ? '<button class="rs2-btn" data-rs-erinnern="' + e.id + '">Alle ' + g.offen.length + ' erinnern</button>'
-          : "") +
-        '<button class="rs2-btn2' + (g.offen.length ? "" : " is-weit") + '" data-rs-teilen="' + e.id + '">Teilen</button>' +
-      '</div></div>';
+                      : '<div class="rs2-leer empty">Niemand in dieser Gruppe.</div>') + '</div>' +
+      '<div class="rs2-fuss">' + rsFussHtml(e, g) + '</div></div>';
+  }
+
+  /* Fuss des Blatts (verbindliche Vorgabe, Abschnitt 4 im DELTA):
+     "Push senden" (send_rsvp_reminder aus 0050, mit Empfaengerzahl,
+     Bestaetigung und sichtbarer 12-h-Sperre), darunter "Teilen" (der
+     bisherige Erinnern-Text) und "Übersicht teilen". Push nur fuer die echte
+     Rolle Trainer oder Admin, nie in der Rollenvorschau; der Server prueft
+     die Rolle ohnehin selbst.                                                */
+  let rsPush = null;   // { eventId, laden, daten, fehler, meldung }
+  function rsDarfPush(e) {
+    return !Roles.isSimulating() && (Roles.real.indexOf("coach") !== -1 || Roles.isRealAdmin()) &&
+      e.status !== "abgesagt" && (eventStartMs(e) || 0) > Date.now();
+  }
+  function rsUhr(iso) {
+    const d = new Date(iso);
+    const hm = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+    const heute = new Date(); heute.setHours(0, 0, 0, 0);
+    const tag = new Date(d); tag.setHours(0, 0, 0, 0);
+    const diff = Math.round((tag - heute) / 86400000);
+    return diff === 0 ? hm : diff === 1 ? "morgen " + hm : diff === -1 ? "gestern " + hm : WT[d.getDay()] + " " + hm;
+  }
+  function rsFussHtml(e, g) {
+    const teilen = '<button class="btn btn-soft rs2-teilen" data-rs-erinnern="' + e.id + '">Teilen</button>';
+    const uebersicht = '<button class="btn btn-soft rs2-teilen" data-rs-teilen="' + e.id + '">Übersicht teilen</button>';
+    if (!g.offen.length) return '<div class="rs2-reihe is-eins">' + uebersicht + '</div>';
+    let push = "";
+    if (rsDarfPush(e)) {
+      const p = (rsPush && rsPush.eventId === e.id) ? rsPush : { laden: true };
+      const d = p.daten;
+      let knopf, hinweis = "";
+      if (p.laden) {
+        knopf = '<button class="btn btn-primary rs2-push" disabled aria-busy="true">Push senden</button>';
+      } else if (p.fehler) {
+        knopf = '<button class="btn btn-primary rs2-push" disabled>Push senden</button>';
+        hinweis = p.fehler;
+      } else if (d && d.gesperrt) {
+        knopf = '<button class="btn btn-primary rs2-push" disabled>Push gesendet</button>';
+        hinweis = "Erinnert " + (d.letzte ? rsUhr(d.letzte) : "") + (d.naechste_moeglich ? " · wieder ab " + rsUhr(d.naechste_moeglich) : "");
+      } else if (d && !d.gesendet) {
+        knopf = '<button class="btn btn-primary rs2-push" disabled>Push senden</button>';
+        hinweis = "Niemand per Push erreichbar" + rsGruende(d, true);
+      } else {
+        knopf = '<button class="btn btn-primary rs2-push" data-rs-push="' + e.id + '">Push senden (' + d.gesendet + ')</button>';
+      }
+      push = knopf +
+        (p.meldung ? '<div class="rs2-meldung" role="status">' + esc(p.meldung) + '</div>' : "") +
+        (hinweis ? '<div class="rs2-hinweis">' + esc(hinweis) + '</div>' : "");
+    }
+    return push + '<div class="rs2-reihe">' + teilen + uebersicht + '</div>';
+  }
+  // ", 2 ohne Push-Abo, 1 ohne Konto" (nur Werte > 0)
+  function rsGruende(d, mitKomma) {
+    const t = [];
+    if (d.ohne_abo) t.push(d.ohne_abo + " ohne Push-Abo");
+    if (d.ohne_konto) t.push(d.ohne_konto + " ohne Konto");
+    if (d.abgeschaltet) t.push(d.abgeschaltet + (d.abgeschaltet === 1 ? " hat" : " haben") + " Erinnerungen abgeschaltet");
+    if (d.ausgenommen) t.push(d.ausgenommen + " im Urlaub oder verletzt, ausgenommen");
+    return t.length ? (mitKomma ? ": " : "") + t.join(", ") : "";
+  }
+  function rsFehlerText(err) {
+    if (err && err.code === "42501") return "Keine Berechtigung.";
+    return "Push nicht möglich: " + ((err && err.message) || err);
+  }
+  async function rsPushZaehlen(e, neuZeichnen) {
+    rsPush = { eventId: e.id, laden: true };
+    try {
+      const d = await DB.sendRsvpReminder(e.id, true);
+      if (!rsPush || rsPush.eventId !== e.id) return;
+      rsPush = { eventId: e.id, laden: false, daten: d };
+    } catch (err) {
+      if (!rsPush || rsPush.eventId !== e.id) return;
+      rsPush = { eventId: e.id, laden: false, fehler: rsFehlerText(err) };
+    }
+    neuZeichnen();
+  }
+  // Bestaetigung vor dem Senden (kleiner Dialog).
+  function rsPushBestaetigen(d) {
+    return new Promise((resolve) => {
+      const ov = document.createElement("div");
+      ov.className = "modal-ov"; ov.id = "pushModal";
+      const zeilen = [];
+      if (d.ohne_abo) zeilen.push(d.ohne_abo + " ohne Push-Abo");
+      if (d.ohne_konto) zeilen.push(d.ohne_konto + " ohne Konto");
+      if (d.abgeschaltet) zeilen.push(d.abgeschaltet + (d.abgeschaltet === 1 ? " hat" : " haben") + " Erinnerungen abgeschaltet");
+      if (d.ausgenommen) zeilen.push(d.ausgenommen + " im Urlaub oder verletzt, ausgenommen");
+      ov.innerHTML = `
+        <div class="modal modal-sm push-best" role="dialog" aria-modal="true" aria-label="Push senden">
+          <div class="push-best-t">An ${d.gesendet} ${d.gesendet === 1 ? "Spieler" : "Spieler"} senden?</div>
+          ${zeilen.length ? `<ul class="push-best-l">${zeilen.map((z) => `<li>${esc(z)}</li>`).join("")}</ul>` : ""}
+          <div class="push-best-k">
+            <button class="btn btn-primary" data-push-ok>Senden</button>
+            <button class="btn btn-soft" data-push-abbr>Abbrechen</button>
+          </div>
+        </div>`;
+      document.body.appendChild(ov);
+      const zu = (wert) => { ov.remove(); resolve(wert); };
+      ov.addEventListener("click", (ev) => {
+        if (ev.target.closest("[data-push-ok]")) zu(true);
+        else if (ev.target === ov || ev.target.closest("[data-push-abbr]")) zu(false);
+      });
+    });
+  }
+  async function rsPushSenden(e, neuZeichnen) {
+    const d0 = rsPush && rsPush.daten;
+    if (!d0 || !d0.gesendet || d0.gesperrt) return;
+    if (!(await rsPushBestaetigen(d0))) return;
+    rsPush = { eventId: e.id, laden: true };
+    neuZeichnen();
+    try {
+      const d = await DB.sendRsvpReminder(e.id, false);
+      let meldung;
+      if (d.gesendet > 0) {
+        meldung = "An " + d.gesendet + " gesendet";
+        if (d.ohne_abo) meldung += " · " + d.ohne_abo + " ohne Push-Abo";
+        if (d.in_ruhezeit) meldung += " · " + d.in_ruhezeit + " in der Ruhezeit, Zustellung ab " + (d.zustellung_ab || "Ende der Ruhezeit");
+      } else if (d.gesperrt) {
+        meldung = "Nicht gesendet: heute schon erinnert.";
+      } else {
+        meldung = "Nicht gesendet: niemand per Push erreichbar.";
+      }
+      rsPush = { eventId: e.id, laden: false, daten: d, meldung };
+    } catch (err) {
+      rsPush = { eventId: e.id, laden: false, fehler: rsFehlerText(err) };
+    }
+    neuZeichnen();
   }
 
   function openRsvpSheet(eventId) {
@@ -1137,6 +1258,7 @@
     if (!e) return;
     closeRsvpSheet();
     rsFilter = "offen";
+    rsPush = null;
 
     const ov = document.createElement("div");
     ov.className = "more-sheet"; ov.id = "rsvpSheet";
@@ -1145,17 +1267,24 @@
     lockBodyScroll();
 
     const neuZeichnen = () => {
+      if (!document.body.contains(ov)) return;
+      const liste = ov.querySelector(".rs2-liste");
+      const pos = liste ? liste.scrollTop : 0;
       ov.innerHTML = rsvpSheetHtml(e);
+      const neu = ov.querySelector(".rs2-liste");
+      if (neu) neu.scrollTop = pos;
       sheetSwipeToClose(ov.querySelector(".more-panel"), ov.querySelector(".rs2-liste"), closeRsvpSheet);
     };
     ov.addEventListener("click", (ev) => {
       const f = ev.target.closest("[data-rsfilter]");
       if (f) { rsFilter = f.dataset.rsfilter; neuZeichnen(); return; }
+      if (ev.target.closest("[data-rs-push]")) { rsPushSenden(e, neuZeichnen); return; }
       if (ev.target.closest("[data-rs-erinnern]")) { openShareModal("Erinnerung", erinnernText(e)); return; }
       if (ev.target.closest("[data-rs-teilen]")) { openShareModal("Rückmeldungen", rueckmeldeText(e)); return; }
       if (ev.target === ov || ev.target.closest("[data-sheet-close]")) closeRsvpSheet();
     });
     sheetSwipeToClose(ov.querySelector(".more-panel"), ov.querySelector(".rs2-liste"), closeRsvpSheet);
+    if (rsDarfPush(e) && rsGruppen(e.id).offen.length) rsPushZaehlen(e, neuZeichnen);
   }
 
   function renderKalender() {
@@ -2741,68 +2870,86 @@
   function closeTerminModal() { const ex = document.getElementById("terminModal"); if (ex) { ex.remove(); unlockBodyScroll(); } }
 
   // existing = null -> anlegen; sonst bearbeiten (Event-Objekt aus DEMO.events).
+  /* Blatt "Termin anlegen" (Vorlage Final 03): Terminart als drei Kacheln,
+     Felder als gruppierte Liste (Label links), Datum und Uhrzeiten als
+     formatierte Anzeige mit dem nativen Feld darueber, Wiederholung als
+     Segment. Ende bleibt erhalten: bei Training und Sonstiges rechts in der
+     Zeile "Beginn", bei Spielen als eigene Zeile, sobald eine Endzeit besteht.
+     Treffzeit (0058) rechts in der Zeile "Anstoss" bei Spielen.              */
+  const TF_ARTEN = [["spiel", "Spiel"], ["training", "Training"], ["sonstiges", "Sonstiges"]];
+  const TF_LABEL = { datum: "Datum", zeit: "Beginn", treffen: "Treffzeit", ende: "Ende", ende2: "Ende", bis: "Wiederholen bis" };
+  function tfDatumText(iso) {
+    if (!iso) return "";
+    const dt = parseDate(iso);
+    return WT[dt.getDay()] + ", " + dt.getDate() + ". " + MON[dt.getMonth()] + " " + dt.getFullYear();
+  }
   function openTerminModal(existing) {
     closeTerminModal();
     const isEdit = !!existing;
     const e = existing || {};
     const isBfv = isEdit && e.quelle === "bfv"; // BFV-Spiel: Gegner/Wettbewerb gesperrt
-    const typ0   = e.typ || "training";
-    const titel0 = e.titel != null ? e.titel : (typ0 === "training" ? "Training" : "");
+    let typ = e.typ || "training";
+    const titel0 = e.titel != null ? e.titel : (typ === "training" ? "Training" : "");
     const datum0 = e.datum || HEUTE;
+    const zeile = (label, inhalt, extra) =>
+      `<div class="tf-z${extra ? " " + extra : ""}"><span class="tf-l">${label}</span>${inhalt}</div>`;
+    // Anzeige plus unsichtbares natives Feld darueber (Datum, Uhrzeit).
+    const nativ = (key, type, anz) =>
+      `<span class="tf-nat"><span class="tf-anz" data-tf-anz="${key}">${anz}</span>` +
+      `<input type="${type}" data-tf="${key}" aria-label="${TF_LABEL[key]}"></span>`;
 
     const ov = document.createElement("div");
-    ov.className = "modal-ov"; ov.id = "terminModal";
+    ov.className = "modal-ov tf-ov"; ov.id = "terminModal";
     ov.innerHTML = `
-      <div class="modal" role="dialog" aria-modal="true">
-        <div class="modal-head"><strong>${isBfv ? "Spiel bearbeiten" : (isEdit ? "Termin bearbeiten" : "Termin anlegen")}</strong>
-          <button class="modal-x" aria-label="Schließen">&times;</button></div>
-        <form class="termin-form" novalidate>
-          ${isBfv ? `
-          <div class="bfv-ro">
-            <div class="bfv-ro-line">${(() => { const p = paarung(e); return `${p.home} <span class="vs">–</span> ${p.away}`; })()}</div>
-            ${e.wettbewerb ? `<div class="bfv-ro-sub">${esc(e.wettbewerb)}${e.liga ? " · " + esc(e.liga) : ""}</div>` : ""}
-            <div class="bfv-ro-hint">Gegner und Wettbewerb kommen vom BFV und sind gesperrt.</div>
-          </div>` : `
-          <label class="tf-row">Typ
-            <select data-tf="typ">
-              <option value="training">Training</option>
-              <option value="spiel">Spiel</option>
-              <option value="sonstiges">Sonstiges</option>
-            </select>
-          </label>
-          <label class="tf-row" data-tf-titelrow>Titel
-            <input type="text" data-tf="titel" placeholder="z. B. Abschlusstraining">
-          </label>
-          <div data-tf-spiel hidden>
-            <label class="tf-row">Gegner
-              <input type="text" data-tf="gegner" placeholder="Gegnerischer Verein"></label>
-            <label class="tf-row">Heim/Auswärts
-              <select data-tf="heim"><option value="true">Heimspiel</option><option value="false">Auswärtsspiel</option></select></label>
+      <div class="tf-blatt" role="dialog" aria-modal="true" aria-label="Termin">
+        <div class="tf-kopf">
+          <span class="tf-griff" aria-hidden="true"></span>
+          <div class="tf-kopfzeile">
+            <span class="tf-titel">${isBfv ? "Spiel bearbeiten" : (isEdit ? "Termin bearbeiten" : "Termin anlegen")}</span>
+            <button type="button" class="tf-x" aria-label="Schließen">${ICON_X}</button>
+          </div>
+        </div>
+        <form class="termin-form tf-koerper" novalidate>
+          ${isBfv ? "" : `
+          <div class="tf-arten" role="radiogroup" aria-label="Terminart">
+            ${TF_ARTEN.map(([k, l]) => `<button type="button" class="tf-art is-${k}" data-tf-typ="${k}" role="radio"><span class="tf-art-strich" aria-hidden="true"></span><span class="tf-art-l">${l}</span></button>`).join("")}
           </div>`}
-          <label class="tf-row">Datum<input type="date" data-tf="datum"></label>
-          <div class="tf-2col">
-            <label class="tf-row">Start<input type="time" data-tf="zeit"></label>
-            <label class="tf-row">Ende<input type="time" data-tf="ende"></label>
+          <div class="tf-liste">
+            ${isBfv ? `
+            <div class="tf-z tf-bfv">
+              <span class="tf-bfv-paar">${(() => { const p = paarung(e); return `${p.home} <span class="vs">gegen</span> ${p.away}`; })()}</span>
+              ${e.wettbewerb ? `<span class="tf-bfv-sub">${esc(e.wettbewerb)}${e.liga ? " · " + esc(e.liga) : ""}</span>` : ""}
+              <span class="tf-bfv-sub">Gegner und Wettbewerb kommen vom BFV und sind gesperrt.</span>
+            </div>` : `
+            ${zeile("Titel", `<input class="tf-in" type="text" data-tf="titel" placeholder="z. B. Abschlusstraining">`, "tf-nurtermin")}
+            ${zeile("Gegner", `<input class="tf-in" type="text" data-tf="gegner" placeholder="Gegnerischer Verein">`, "tf-nurspiel")}
+            ${zeile("Spielort", `<span class="tf-seg" role="radiogroup" aria-label="Spielort"><button type="button" class="tf-seg-b" data-tf-heim="true">Heim</button><button type="button" class="tf-seg-b" data-tf-heim="false">Auswärts</button></span>`, "tf-nurspiel")}`}
+            ${zeile("Datum", nativ("datum", "date", ""))}
+            <div class="tf-z tf-zeiten"><span class="tf-l" data-tf-beginn>Beginn</span>${nativ("zeit", "time", "")}
+              <span class="tf-rechts tf-nurspiel">${nativ("treffen", "time", "")}</span>
+              <span class="tf-rechts tf-nurtermin">${nativ("ende", "time", "")}</span></div>
+            ${zeile("Ende", nativ("ende2", "time", ""), "tf-nurspiel tf-ende-spiel")}
+            ${zeile("Ort", `<input class="tf-in" type="text" data-tf="ort" placeholder="Straße, Ort">`)}
+            ${zeile("Notiz", `<textarea class="tf-in" data-tf="notiz" rows="1" placeholder="Für die Spieler"></textarea>`)}
           </div>
-          <label class="tf-row">Ort (vollständige Adresse)
-            <input type="text" data-tf="ort" placeholder="z. B. Sportanlage Lechelstraße, Lechelstr. 35, 80997 München"></label>
-          <label class="tf-row">Notiz für die Spieler (optional)
-            <textarea data-tf="notiz" rows="2" placeholder="optional"></textarea></label>
           ${isEdit ? "" : `
-          <fieldset class="tf-wdh">
-            <legend>Wiederholung</legend>
-            <label class="tf-radio"><input type="radio" name="wdh" value="einmalig" checked> einmalig</label>
-            <label class="tf-radio"><input type="radio" name="wdh" value="woechentlich"> wöchentlich</label>
-            <label class="tf-row tf-bis" data-tf-bisrow hidden>Wiederholen bis
-              <input type="date" data-tf="bis" value="${SAISON_ENDE}"></label>
-          </fieldset>
-          <div class="tf-summary" data-tf-summary hidden></div>`}
-          <div class="modal-actions">
-            ${(isEdit && !isBfv) ? `<button type="button" class="btn btn-danger" data-tf-delete>Löschen</button>` : ""}
-            ${(isEdit && !isBfv) ? `<button type="button" class="btn" data-tf-cancel-toggle>${e.status === "abgesagt" ? "Findet statt" : "Fällt aus"}</button>` : ""}
-            <button type="submit" class="btn btn-primary">${isEdit ? "Speichern" : "Anlegen"}</button>
+          <div class="tf-gruppe">
+            <div class="group-head"><h2>Wiederholung</h2></div>
+            <div class="seg tf-wdh" role="radiogroup" aria-label="Wiederholung">
+              <button type="button" class="seg-b" data-tf-wdh="einmalig">Einmalig</button>
+              <button type="button" class="seg-b" data-tf-wdh="woechentlich">Wöchentlich</button>
+            </div>
+            <div class="tf-liste" data-tf-bisrow hidden>${zeile("Bis", nativ("bis", "date", ""))}</div>
+            <div class="tf-summary" data-tf-summary hidden></div>
+          </div>`}
+          <div class="tf-fuss">
+            <div class="tf-hint" aria-live="polite" data-tf-hint></div>
+            <button type="submit" class="btn btn-primary tf-submit">${isEdit ? "Speichern" : "Termin anlegen"}</button>
+            ${(isEdit && !isBfv) ? `<div class="tf-neben">
+              <button type="button" class="btn btn-soft" data-tf-cancel-toggle>${e.status === "abgesagt" ? "Findet statt" : "Absagen"}</button>
+              <button type="button" class="btn btn-soft btn-danger" data-tf-delete>Löschen</button>
+            </div>` : ""}
           </div>
-          <div class="modal-hint" aria-live="polite" data-tf-hint></div>
         </form>
       </div>`;
     document.body.appendChild(ov);
@@ -2810,59 +2957,99 @@
 
     const q = (sel) => ov.querySelector(sel);
     const set = (sel, val) => { const el = q(sel); if (el) el.value = val; };
-    const typSel = q('[data-tf="typ"]');
-    if (typSel) typSel.value = typ0;
+    let heim = e.heim === false ? false : true;
+    let woech = false;
     set('[data-tf="titel"]', titel0);
     set('[data-tf="datum"]', datum0);
     set('[data-tf="zeit"]', e.zeit || "");
     set('[data-tf="ende"]', e.ende || "");
+    set('[data-tf="ende2"]', e.ende || "");
+    set('[data-tf="treffen"]', e.treffen || "");
     set('[data-tf="ort"]', e.locationRaw || e.ort || "");
     set('[data-tf="notiz"]', e.note || "");
     set('[data-tf="gegner"]', e.gegner || "");
-    set('[data-tf="heim"]', e.heim === false ? "false" : "true");
+    set('[data-tf="bis"]', SAISON_ENDE);
     const hint = q('[data-tf-hint]');
+    const spielEnde0 = !!e.ende && typ === "spiel";
 
+    // Formatierte Anzeigen der nativen Felder
+    function anzeigen() {
+      const anz = (k, txt, leer) => {
+        const el = q(`[data-tf-anz="${k}"]`); if (!el) return;
+        el.textContent = txt || leer; el.classList.toggle("is-leer", !txt);
+      };
+      const v = (k) => { const el = q(`[data-tf="${k}"]`); return el ? el.value : ""; };
+      anz("datum", tfDatumText(v("datum")), "Datum wählen");
+      anz("zeit", v("zeit"), "Uhrzeit");
+      anz("treffen", v("treffen") ? "Treffen " + v("treffen") : "", "Treffen");
+      anz("ende", v("ende") ? "bis " + v("ende") : "", "Ende");
+      anz("ende2", v("ende2"), "Uhrzeit");
+      anz("bis", tfDatumText(v("bis")), "Datum wählen");
+    }
     function syncTypUI() {
-      if (!typSel) return; // BFV: keine Typ-/Titel-/Gegner-Felder
-      const typ = typSel.value;
-      q('[data-tf-spiel]').hidden = typ !== "spiel";
-      q('[data-tf-titelrow]').hidden = typ === "spiel"; // Spiel: Titel = Paarung
+      const spiel = (isBfv ? "spiel" : typ) === "spiel";
+      ov.querySelectorAll("[data-tf-typ]").forEach((b) => {
+        const an = b.dataset.tfTyp === typ;
+        b.classList.toggle("is-on", an); b.setAttribute("aria-checked", String(an));
+      });
+      ov.querySelectorAll(".tf-nurspiel").forEach((el) => { el.hidden = !spiel; });
+      ov.querySelectorAll(".tf-nurtermin").forEach((el) => { el.hidden = spiel; });
+      const ende2 = q(".tf-ende-spiel");
+      if (ende2) ende2.hidden = !(spiel && (spielEnde0 || isBfv && !!e.ende));
+      q("[data-tf-beginn]").textContent = spiel ? "Anstoß" : "Beginn";
+      ov.querySelectorAll("[data-tf-heim]").forEach((b) => {
+        const an = (b.dataset.tfHeim === "true") === heim;
+        b.classList.toggle("is-on", an); b.setAttribute("aria-checked", String(an));
+      });
       const titelEl = q('[data-tf="titel"]');
-      if (typ === "training" && !titelEl.value.trim()) titelEl.value = "Training";
+      if (titelEl && typ === "training" && !titelEl.value.trim()) titelEl.value = "Training";
+      if (!isEdit) q(".tf-submit").textContent = typ === "spiel" ? "Spiel anlegen" : typ === "training" ? "Training anlegen" : "Termin anlegen";
     }
     function summary() {
       if (isEdit) return;
+      ov.querySelectorAll("[data-tf-wdh]").forEach((b) => {
+        const an = (b.dataset.tfWdh === "woechentlich") === woech;
+        b.classList.toggle("is-on", an); b.setAttribute("aria-checked", String(an));
+      });
       const box = q('[data-tf-summary]');
-      const woech = ov.querySelector('input[name="wdh"]:checked').value === "woechentlich";
       q('[data-tf-bisrow]').hidden = !woech;
       const start = q('[data-tf="datum"]').value, bis = q('[data-tf="bis"]').value, zeit = q('[data-tf="zeit"]').value;
       if (!woech || !start || !bis || bis < start) { box.hidden = true; return; }
       const dates = weeklyDates(start, bis);
       box.hidden = false;
-      box.textContent = `Es werden ${dates.length} Termine angelegt, ${weekdayPluralOf(start)}${zeit ? " " + zeit : ""}, vom ${ddmm(start)} bis ${ddmm(bis)}.`;
+      box.textContent = `Es werden ${dates.length} Termine angelegt, ${weekdayPluralOf(start)}${zeit ? " " + zeit : ""}, vom ${ddmm(start)} bis ${ddmm(bis)}`;
     }
 
-    syncTypUI(); summary();
-    if (typSel) typSel.addEventListener("change", syncTypUI);
-    ov.querySelectorAll('input[name="wdh"]').forEach((r) => r.addEventListener("change", summary));
-    ["datum","bis","zeit"].forEach((k) => { const el = q(`[data-tf="${k}"]`); if (el) el.addEventListener("input", summary); });
-
-    ov.addEventListener("click", (ev) => { if (ev.target === ov) closeTerminModal(); });
-    q(".modal-x").addEventListener("click", closeTerminModal);
+    syncTypUI(); summary(); anzeigen();
+    ov.addEventListener("input", () => { anzeigen(); summary(); });
+    ov.addEventListener("change", () => { anzeigen(); summary(); });
+    ov.addEventListener("click", (ev) => {
+      if (ev.target === ov) { closeTerminModal(); return; }
+      const art = ev.target.closest("[data-tf-typ]");
+      if (art) { typ = art.dataset.tfTyp; syncTypUI(); return; }
+      const hb = ev.target.closest("[data-tf-heim]");
+      if (hb) { heim = hb.dataset.tfHeim === "true"; syncTypUI(); return; }
+      const wb = ev.target.closest("[data-tf-wdh]");
+      if (wb) { woech = wb.dataset.tfWdh === "woechentlich"; summary(); return; }
+    });
+    q(".tf-x").addEventListener("click", closeTerminModal);
 
     const val = (sel, dflt) => { const el = q(sel); return el ? el.value : dflt; };
     function collect() {
+      const t = isBfv ? (e.typ || "spiel") : typ;
+      const spielEndeSichtbar = !q(".tf-ende-spiel").hidden;
       return {
-        typ: typSel ? typSel.value : (e.typ || "spiel"),
+        typ: t,
         titel: val('[data-tf="titel"]', e.titel || "").trim(),
         datum: q('[data-tf="datum"]').value,
         zeit: q('[data-tf="zeit"]').value,
-        ende: q('[data-tf="ende"]').value,
+        ende: t === "spiel" ? (spielEndeSichtbar ? q('[data-tf="ende2"]').value : (isEdit ? (e.ende || "") : "")) : q('[data-tf="ende"]').value,
+        treffen: t === "spiel" ? q('[data-tf="treffen"]').value : "",
         ort: q('[data-tf="ort"]').value.trim(),
         notiz: q('[data-tf="notiz"]').value.trim(),
         gegner: val('[data-tf="gegner"]', e.gegner || "").trim(),
-        heim: q('[data-tf="heim"]') ? q('[data-tf="heim"]').value === "true" : (e.heim === true),
-        wdh: !isEdit && ov.querySelector('input[name="wdh"]:checked').value === "woechentlich",
+        heim: isBfv ? (e.heim === true) : heim,
+        wdh: !isEdit && woech,
         bis: isEdit ? "" : q('[data-tf="bis"]').value,
       };
     }
@@ -2872,7 +3059,7 @@
       const b = collect();
       const err = validateTermin(b);
       if (err) { hint.textContent = err; return; }
-      const saveBtn = q(".termin-form button[type=submit]"); saveBtn.disabled = true;
+      const saveBtn = q(".tf-submit"); saveBtn.disabled = true;
       try {
         if (!isEdit) await createTermine(b);
         else if (isBfv) await saveBfvEdit(existing, b);
@@ -2899,6 +3086,7 @@
     if (b.typ === "spiel") { if (!b.gegner) return "Bitte den Gegner angeben."; }
     else if (!b.titel) return "Bitte einen Titel angeben.";
     if (b.zeit && b.ende && b.ende <= b.zeit) return "Die Endzeit muss nach der Startzeit liegen.";
+    if (b.zeit && b.treffen && b.treffen > b.zeit) return "Die Treffzeit liegt nach dem Anstoß.";
     if (b.wdh) {
       if (!b.bis) return "Bitte ein Enddatum für die Wiederholung angeben.";
       if (b.bis < b.datum) return "Das Enddatum liegt vor dem Startdatum.";
@@ -2913,7 +3101,7 @@
       title: isSpiel ? null : (b.titel || null),
       opponent: isSpiel ? (b.gegner || null) : null,
       home: isSpiel ? b.heim : null,
-      date: dateISO, time: b.zeit || null, ende: b.ende || null,
+      date: dateISO, time: b.zeit || null, ende: b.ende || null, treffen: isSpiel ? (b.treffen || null) : null,
       location: b.ort || null, location_raw: b.ort || null, note: b.notiz || null,
       quelle: "manuell", status: "geplant",
       serie_id: serieId, serie_geaendert: false, auto_fine: false,
@@ -2938,7 +3126,7 @@
       title: isSpiel ? null : (b.titel || null),
       opponent: isSpiel ? (b.gegner || null) : null,
       home: isSpiel ? b.heim : null,
-      time: b.zeit || null, ende: b.ende || null,
+      time: b.zeit || null, ende: b.ende || null, treffen: isSpiel ? (b.treffen || null) : null,
       location: b.ort || null, location_raw: b.ort || null, note: b.notiz || null,
     };
     if (e.serieId == null) { await DB.updateEvent(e.id, Object.assign({ date: b.datum }, commonPatch)); return; }
@@ -2959,7 +3147,7 @@
     const mb = Object.assign({}, e.manuellBearbeitet || {});
     const orig = Object.assign({}, e.bfvOriginal || {});
     const neu = Object.assign({}, e.bfvNeu || {});
-    const patch = { ende: b.ende || null, note: b.notiz || null };
+    const patch = { ende: b.ende || null, note: b.notiz || null, treffen: b.treffen || null };
 
     const startChanged = (b.datum !== e.datum) || ((b.zeit || null) !== (e.zeit || null));
     if (startChanged) {
@@ -3103,6 +3291,7 @@
 
     const zeilen = [];
     zeilen.push(`Kader für ${wt}, ${e.zeit} Uhr, ${spielTyp}${ort}.`);
+    if (e.treffen) zeilen.push(`Treffen um ${e.treffen} Uhr.`);
     if (e.note) zeilen.push(e.note + (/[.!?]$/.test(e.note) ? "" : "."));
 
     const q = kaderQuelle(e);

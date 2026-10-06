@@ -332,6 +332,14 @@ window.DB = (function () {
     upsertPushSubscription: schreib("upsertPushSubscription"), deletePushSubscription: schreib("deletePushSubscription"),
     setNotificationPrefs: schreib("setNotificationPrefs"),
     sendTestNotification: schreib("sendTestNotification", 1),
+    // Nachfrage per Push (0050): Zählen liest nur, Senden wird protokolliert.
+    sendRsvpReminder: async (eventId, nurZaehlen) => {
+      const d = { offen: 7, ausgenommen: 1, ohne_konto: 3, ohne_abo: 1, abgeschaltet: 0, gesendet: 2,
+                  in_ruhezeit: 0, zustellung_ab: null, gesperrt: false, letzte: null, naechste_moeglich: null };
+      if (nurZaehlen) return d;
+      window.__dbProtokoll.push({ methode: "sendRsvpReminder", argumente: [eventId, false] });
+      return Object.assign({}, d, { gesperrt: true, letzte: new Date().toISOString(), naechste_moeglich: new Date(Date.now() + 43200000).toISOString() });
+    },
     setNotificationTemplate: schreib("setNotificationTemplate"),
     setNotificationStrafhinweis: schreib("setNotificationStrafhinweis", "Ohne Antwort wird's teuer."),
     sendPreviewNotification: schreib("sendPreviewNotification", 1),

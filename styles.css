@@ -755,32 +755,6 @@ tbody tr:hover { background: #fbfdfc; }
 .btn-danger:hover { background: #f6ddd9; border-color: var(--red-600); }
 .btn-ghost { background: transparent; border-color: transparent; color: var(--muted); }
 
-/* ---- Termin-Formular ---- */
-.page-head-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.termin-form { display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
-.tf-row { display: flex; flex-direction: column; gap: 5px; font-size: .8rem; font-weight: 600; color: var(--muted); }
-.termin-form input, .termin-form select, .termin-form textarea {
-  font: inherit; font-size: 16px;              /* 16px -> iOS zoomt nicht rein */
-  color: var(--ink); font-weight: 500;
-  padding: 11px 12px; min-height: 44px;         /* 44px Touch-Fläche */
-  border: 1px solid var(--line); border-radius: 10px; background: #fff;
-  box-sizing: border-box; width: 100%; min-width: 0;   /* darf in Grid-Spalten schrumpfen */
-}
-/* Native Datums-/Zeitfelder tragen sonst eine feste intrinsische Mindestbreite,
-   die die Grid-Spalte sprengt -> appearance zuruecksetzen. */
-.termin-form input[type="date"], .termin-form input[type="time"] { -webkit-appearance: none; appearance: none; }
-.termin-form textarea { min-height: 60px; resize: vertical; }
-/* Start/Ende nebeneinander; minmax(0,1fr) laesst die Spalten unter die
-   intrinsische Feldbreite schrumpfen. Sehr schmal -> untereinander. */
-.tf-2col { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-@media (max-width: 360px) { .tf-2col { grid-template-columns: 1fr; } }
-.tf-wdh { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; }
-.tf-wdh legend { font-size: .8rem; font-weight: 700; color: var(--muted); padding: 0 4px; }
-.tf-radio { display: inline-flex; align-items: center; gap: 6px; font-size: .95rem; font-weight: 600; color: var(--ink); min-height: 44px; }
-.tf-radio input { width: auto; min-height: 0; }
-.tf-bis { flex-basis: 100%; }
-.tf-summary { background: var(--green-050); border-radius: 10px; padding: 10px 12px; font-size: .9rem; font-weight: 600; color: var(--green-800); }
-
 /* ---- Kalender abonnieren ("In meinen Kalender") ---- */
 .cal-sub { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
 .cal-sub-title { font-size: 1.05rem; font-weight: 800; margin: 0; }
@@ -2794,7 +2768,7 @@ body {
 /* App .btn entspricht in der Vorlage .btn.sec2 (weiss mit Rand),
    App .btn-primary entspricht der Vorlage .btn (gruen). */
 .btn {
-  letter-spacing: -.005em;
+  letter-spacing: normal;
   background-image: var(--grad-btn-sec);
   border-color: var(--line-soft-3);
   box-shadow: var(--shadow-btn-sec);
@@ -2810,7 +2784,7 @@ body {
   border: 0;
   color: #fff;
   font-weight: 700;
-  letter-spacing: -.005em;
+  letter-spacing: normal;
   box-shadow: var(--shadow-btn);
 }
 .btn-primary:hover { filter: none; }
@@ -2926,7 +2900,7 @@ body {
   color: #fff;
   font-size: var(--fs-zeile);
   font-weight: 700;
-  letter-spacing: -.005em;
+  letter-spacing: normal;
   min-height: var(--h-btn);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-btn);
@@ -3444,3 +3418,116 @@ span.tk-unten-r::after { content: none; }
 .card.tk.is-spiel .tk-ort { margin-bottom: 2px; }   /* 12 bis zur Knopfzeile, sonst 10 */
 .tk-ort-ic { color: var(--gold-ink); }
 .kal-abo-zx svg { width: 14px; height: 14px; }
+
+/* --- Blatt "Termin anlegen" (03) --------------------------------------------- */
+.tf-ov { align-items: flex-end; padding: 0; bottom: var(--kb); padding-top: calc(env(safe-area-inset-top) + 16px); }
+.tf-blatt {
+  width: 100%; max-width: 560px; max-height: 100%; display: flex; flex-direction: column;
+  background: var(--bg); border-radius: 18px 18px 0 0; box-shadow: 0 -14px 40px -14px rgba(0,0,0,.5);
+  overflow: hidden;
+}
+.tf-kopf { flex: none; background: var(--card); border-radius: 18px 18px 0 0; border-bottom: 1px solid var(--line); padding: 8px 8px 10px 16px; }
+.tf-griff { display: block; width: 36px; height: 5px; margin: 0 auto 8px; border-radius: var(--radius-pill); background: var(--dot-off); }
+.tf-kopfzeile { display: flex; align-items: center; gap: 10px; }
+.tf-titel { flex: 1 1 auto; min-width: 0; font-size: 19px; font-weight: 800; letter-spacing: -.02em; line-height: 23px; }
+.tf-x {
+  flex: none; width: var(--tap); height: var(--tap); display: inline-flex; align-items: center; justify-content: center;
+  border: 0; border-radius: 50%; background: var(--surface-6); color: var(--ink); padding: 0; cursor: pointer;
+}
+.tf-koerper {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  display: flex; flex-direction: column; gap: 16px; padding: 16px 16px calc(env(safe-area-inset-bottom) + 24px);
+}
+.tf-arten { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.tf-art {
+  min-height: 58px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  border-radius: 12px; border: 1px solid var(--line-soft-3); background: var(--card); color: var(--ink);
+  font: inherit; font-size: 14px; font-weight: 600; line-height: 17px; cursor: pointer; padding: 0;
+}
+.tf-art.is-on { background: var(--green-050); border: 1.5px solid var(--green-700); color: var(--green-800); font-weight: 700; }
+.tf-art-strich { width: 22px; height: 6px; border-radius: var(--radius-pill); background: var(--green-450); }
+.tf-art.is-spiel .tf-art-strich { background: var(--green-900); }
+.tf-art.is-sonstiges .tf-art-strich { background: var(--gold-500); }
+.tf-liste { background: var(--card); border: 1px solid var(--line-soft); border-radius: 14px; overflow: hidden; }
+.tf-z { position: relative; display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 16px; }
+.tf-z:not([hidden]) ~ .tf-z:not([hidden]) { border-top: 1px solid var(--line); min-height: 53px; }
+.tf-z[hidden] { display: none; }
+.tf-l { flex: none; width: 76px; font-size: 13px; font-weight: 600; line-height: 16px; color: var(--muted); }
+.tf-in, .tf-anz {
+  flex: 1 1 auto; min-width: 0; border: 0; background: none; padding: 0; margin: 0;
+  font: inherit; font-size: 16px; font-weight: 500; line-height: 20px; color: var(--ink); outline: none;
+}
+.tf-in::placeholder, .tf-anz.is-leer { color: var(--muted); }
+textarea.tf-in { resize: none; field-sizing: content; min-height: 20px; padding: 16px 0; margin: -16px 0; }
+.tf-nat { position: relative; flex: 1 1 auto; min-width: 0; display: flex; align-items: center; align-self: stretch; }
+.tf-nat input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; border: 0; padding: 0; margin: 0; font-size: 16px; -webkit-appearance: none; appearance: none; }
+.tf-rechts { flex: none; display: flex; align-self: stretch; }
+.tf-rechts[hidden] { display: none; }
+.tf-rechts .tf-anz { font-size: 13px; font-weight: 400; line-height: 16px; color: var(--muted); text-align: right; }
+.tf-seg { flex: 1 1 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 3px; margin-right: -6px; border-radius: 10px; background: var(--bg-2); }
+.tf-seg-b {
+  position: relative; min-height: 32px; border: 0; border-radius: 8px; background: none; padding: 0;
+  font: inherit; font-size: 14px; font-weight: 600; color: var(--muted); cursor: pointer;
+}
+.tf-seg-b::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: var(--tap); transform: translateY(-50%); }
+.tf-seg-b.is-on { background: var(--card); color: var(--green-800); font-weight: 700; box-shadow: 0 1px 2px rgba(15,61,46,.08); }
+.tf-gruppe { display: flex; flex-direction: column; gap: 8px; }
+.tf-gruppe .group-head { margin: 0; }
+.tf-wdh .seg-b { min-height: 38px; }
+.tf-wdh .seg-b.is-on { box-shadow: 0 1px 2px rgba(15,61,46,.08); }
+.tf-summary { padding: 12px 14px; border-radius: 12px; background: var(--green-050); border: 1px solid var(--green-badge-line); color: var(--green-800); font-size: 13px; font-weight: 600; }
+.tf-summary[hidden], [data-tf-bisrow][hidden] { display: none; }
+.tf-fuss { display: flex; flex-direction: column; gap: 8px; }
+.tf-hint { font-size: 13px; font-weight: 600; color: var(--red-700); }
+.tf-hint:empty { display: none; }
+.tf-submit { width: 100%; min-height: 48px; }
+.tf-neben { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tf-bfv { flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; padding: 12px 16px; }
+.tf-bfv-paar { font-size: 16px; font-weight: 600; }
+.tf-bfv-paar .vs { color: var(--muted); font-weight: 500; }
+.tf-bfv-sub { font-size: 13px; color: var(--muted); }
+.tf-x svg { width: 16px; height: 16px; }
+.tf-liste .tf-in::placeholder { color: var(--muted); opacity: 1; font-weight: 500; }
+
+/* --- Rückmeldungen-Blatt (04) ------------------------------------------------ */
+.rs2-panel { padding: 8px 0 0; max-height: calc(100dvh - env(safe-area-inset-top) - 24px); border-radius: 18px 18px 0 0; box-shadow: 0 -14px 40px -14px rgba(0,0,0,.5); }
+.rs2-griff { width: 36px; height: 5px; margin: 0 auto 10px; border-radius: var(--radius-pill); background: var(--dot-off); }
+.rs2-kopf { align-items: center; gap: 10px; padding: 0 16px; }
+.rs2-titel { line-height: 23px; }
+.rs2-sub { margin-top: 4px; font-weight: 400; line-height: 16px; }
+.rs2-zu { width: var(--tap); height: var(--tap); margin: 0; background: var(--surface-6); color: var(--ink); }
+.rs2-zu svg { width: 16px; height: 16px; }
+.rs2-bar { display: flex; margin: 14px 16px 0; height: 6px; }
+.rs2-bar i.is-zu { background: var(--green-600); }
+.rs2-bar i.is-ab { background: var(--red-600); }
+.rs2-kacheln { gap: 8px; padding: 12px 16px 0; }
+.rs2-kachel {
+  justify-content: center; gap: 2px; min-height: 74px; padding: 8px 12px;
+  border: 1px solid var(--line-soft-2); border-radius: 12px; background: var(--card); cursor: pointer;
+}
+.rs2-k-l { font-size: 12px; font-weight: 700; letter-spacing: .06em; line-height: 15px; color: var(--muted); }
+.rs2-k-z { font-size: 21px; font-weight: 800; line-height: normal; color: var(--ink); }
+.rs2-kachel.is-zu .rs2-k-z { color: var(--green-800); }
+.rs2-kachel.is-ab .rs2-k-z { color: var(--red-700); }
+.rs2-kachel.is-on { border: 1.5px solid var(--amber-600); background: var(--amber-050); }
+.rs2-kachel.is-on .rs2-k-l, .rs2-kachel.is-on .rs2-k-z { color: var(--amber-ink); }
+.rs2-liste { gap: 8px; padding: 12px 16px 16px; }
+.rs2-zeile { gap: 10px; min-height: 48px; padding: 0 10px; border-radius: 12px; background: var(--surface-2); }
+.rs2-av { width: 32px; height: 32px; border-radius: 9px; background: var(--grad-av); color: var(--green-800); font-size: 12px; font-weight: 800; }
+.rs2-n { font-size: 15px; line-height: 19px; }
+.rs2-grund { font-size: 13px; line-height: 16px; }
+.rs2-leer.empty { padding: 12px 2px; text-align: left; }
+.rs2-fuss { display: flex; flex-direction: column; gap: 10px; padding: 12px 16px calc(20px + env(safe-area-inset-bottom)); }
+.rs2-push { width: 100%; min-height: 50px; }
+.rs2-reihe { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.rs2-reihe.is-eins { grid-template-columns: 1fr; }
+.rs2-teilen { min-height: 50px; padding: 0 12px; }
+.rs2-hinweis, .rs2-meldung { font-size: 13px; line-height: 16px; color: var(--muted); margin-top: -4px; }
+.rs2-meldung { color: var(--green-800); font-weight: 600; }
+/* Bestätigung "An N Spieler senden?" */
+.push-best { padding: 20px 18px 18px; }
+.push-best-t { font-size: 19px; font-weight: 800; letter-spacing: -.02em; line-height: 23px; }
+.push-best-l { margin: 10px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: var(--muted); }
+.push-best-k { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+.rs2-kachel { align-items: stretch; text-align: left; }
+.rs2-k-z { line-height: 25px; }

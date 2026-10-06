@@ -934,6 +934,36 @@
           "nameQuelle": "liste"
         },
         {
+          "schluessel": "dashboard+rsvpSheet+pushModal",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "rsvpSheet",
+            "pushModal"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "titel": null,
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "RückmeldungenMeldeschluss in 21 h9 zu · 2 ab · 5",
+              "global": false
+            },
+            {
+              "art": "rs-push",
+              "wert": null,
+              "text": "Push senden (2)",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/dashboard--rsvpSheet--pushModal.png",
+          "strang": "uebersicht",
+          "name": "Push bestätigen",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "dashboard+rsvpSheet+shareModal",
           "ansicht": "dashboard",
           "unter": null,
@@ -954,7 +984,7 @@
             {
               "art": "rs-teilen",
               "wert": null,
-              "text": "Teilen",
+              "text": "Übersicht teilen",
               "global": false
             }
           ],
@@ -1481,6 +1511,42 @@
           "nameQuelle": "ueberschrift"
         },
         {
+          "schluessel": "kalender+rsvpSheet+pushModal",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "rsvpSheet",
+            "pushModal"
+          ],
+          "ueberschrift": "Kalender",
+          "titel": null,
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "9 zu · 2 ab · 5 offen ›",
+              "global": false
+            },
+            {
+              "art": "rs-push",
+              "wert": null,
+              "text": "Push senden (2)",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/kalender--rsvpSheet--pushModal.png",
+          "strang": "kalender",
+          "name": "Push bestätigen",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "kalender+rsvpSheet+shareModal",
           "ansicht": "kalender",
           "unter": null,
@@ -1507,7 +1573,7 @@
             {
               "art": "rs-teilen",
               "wert": null,
-              "text": "Teilen",
+              "text": "Übersicht teilen",
               "global": false
             }
           ],
@@ -1639,9 +1705,16 @@
         },
         {
           "von": "dashboard+rsvpSheet",
+          "art": "rs-push",
+          "wert": null,
+          "text": "Push senden (2)",
+          "nach": "dashboard+rsvpSheet+pushModal"
+        },
+        {
+          "von": "dashboard+rsvpSheet",
           "art": "rs-teilen",
           "wert": null,
-          "text": "Teilen",
+          "text": "Übersicht teilen",
           "nach": "dashboard+rsvpSheet+shareModal"
         },
         {
@@ -1758,9 +1831,16 @@
         },
         {
           "von": "kalender+rsvpSheet",
+          "art": "rs-push",
+          "wert": null,
+          "text": "Push senden (2)",
+          "nach": "kalender+rsvpSheet+pushModal"
+        },
+        {
+          "von": "kalender+rsvpSheet",
           "art": "rs-teilen",
           "wert": null,
-          "text": "Teilen",
+          "text": "Übersicht teilen",
           "nach": "kalender+rsvpSheet+shareModal"
         },
         {
@@ -1853,6 +1933,7 @@
         "logout",
         "nav",
         "paid-self",
+        "rs-push",
         "rs-teilen",
         "rsvp-sheet",
         "tab",
@@ -3086,6 +3167,36 @@
           "nameQuelle": "liste"
         },
         {
+          "schluessel": "dashboard+rsvpSheet+pushModal",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "rsvpSheet",
+            "pushModal"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "titel": null,
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "RückmeldungenMeldeschluss in 21 h9 zu · 2 ab · 5",
+              "global": false
+            },
+            {
+              "art": "rs-push",
+              "wert": null,
+              "text": "Push senden (2)",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/dashboard--rsvpSheet--pushModal.png",
+          "strang": "uebersicht",
+          "name": "Push bestätigen",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "dashboard+rsvpSheet+shareModal",
           "ansicht": "dashboard",
           "unter": null,
@@ -3106,7 +3217,7 @@
             {
               "art": "rs-teilen",
               "wert": null,
-              "text": "Teilen",
+              "text": "Übersicht teilen",
               "global": false
             }
           ],
@@ -3772,6 +3883,42 @@
           "nameQuelle": "ueberschrift"
         },
         {
+          "schluessel": "kalender+rsvpSheet+pushModal",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "rsvpSheet",
+            "pushModal"
+          ],
+          "ueberschrift": "Kalender",
+          "titel": null,
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "9 zu · 2 ab · 5 offen ›",
+              "global": false
+            },
+            {
+              "art": "rs-push",
+              "wert": null,
+              "text": "Push senden (2)",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/kalender--rsvpSheet--pushModal.png",
+          "strang": "kalender",
+          "name": "Push bestätigen",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "kalender+rsvpSheet+shareModal",
           "ansicht": "kalender",
           "unter": null,
@@ -3798,7 +3945,7 @@
             {
               "art": "rs-teilen",
               "wert": null,
-              "text": "Teilen",
+              "text": "Übersicht teilen",
               "global": false
             }
           ],
@@ -4048,9 +4195,16 @@
         },
         {
           "von": "dashboard+rsvpSheet",
+          "art": "rs-push",
+          "wert": null,
+          "text": "Push senden (2)",
+          "nach": "dashboard+rsvpSheet+pushModal"
+        },
+        {
+          "von": "dashboard+rsvpSheet",
           "art": "rs-teilen",
           "wert": null,
-          "text": "Teilen",
+          "text": "Übersicht teilen",
           "nach": "dashboard+rsvpSheet+shareModal"
         },
         {
@@ -4167,9 +4321,16 @@
         },
         {
           "von": "kalender+rsvpSheet",
+          "art": "rs-push",
+          "wert": null,
+          "text": "Push senden (2)",
+          "nach": "kalender+rsvpSheet+pushModal"
+        },
+        {
+          "von": "kalender+rsvpSheet",
           "art": "rs-teilen",
           "wert": null,
-          "text": "Teilen",
+          "text": "Übersicht teilen",
           "nach": "kalender+rsvpSheet+shareModal"
         },
         {
@@ -4399,6 +4560,7 @@
         "mehr",
         "nav",
         "paid-self",
+        "rs-push",
         "rs-teilen",
         "rsvp-sheet",
         "tab",
@@ -4657,6 +4819,36 @@
           "nameQuelle": "liste"
         },
         {
+          "schluessel": "dashboard+rsvpSheet+pushModal",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "rsvpSheet",
+            "pushModal"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "titel": null,
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "RückmeldungenMeldeschluss in 21 h9 zu · 2 ab · 5",
+              "global": false
+            },
+            {
+              "art": "rs-push",
+              "wert": null,
+              "text": "Push senden (2)",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/dashboard--rsvpSheet--pushModal.png",
+          "strang": "uebersicht",
+          "name": "Push bestätigen",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "dashboard+rsvpSheet+shareModal",
           "ansicht": "dashboard",
           "unter": null,
@@ -4677,7 +4869,7 @@
             {
               "art": "rs-teilen",
               "wert": null,
-              "text": "Teilen",
+              "text": "Übersicht teilen",
               "global": false
             }
           ],
@@ -5424,6 +5616,42 @@
           "nameQuelle": "ueberschrift"
         },
         {
+          "schluessel": "kalender+rsvpSheet+pushModal",
+          "ansicht": "kalender",
+          "unter": null,
+          "oben": [
+            "rsvpSheet",
+            "pushModal"
+          ],
+          "ueberschrift": "Kalender",
+          "titel": null,
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab",
+              "wert": "kalender",
+              "text": "Kalender",
+              "global": true
+            },
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "9 zu · 2 ab · 5 offen ›",
+              "global": false
+            },
+            {
+              "art": "rs-push",
+              "wert": null,
+              "text": "Push senden (2)",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/kalender--rsvpSheet--pushModal.png",
+          "strang": "kalender",
+          "name": "Push bestätigen",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "kalender+rsvpSheet+shareModal",
           "ansicht": "kalender",
           "unter": null,
@@ -5450,7 +5678,7 @@
             {
               "art": "rs-teilen",
               "wert": null,
-              "text": "Teilen",
+              "text": "Übersicht teilen",
               "global": false
             }
           ],
@@ -5707,9 +5935,16 @@
         },
         {
           "von": "dashboard+rsvpSheet",
+          "art": "rs-push",
+          "wert": null,
+          "text": "Push senden (2)",
+          "nach": "dashboard+rsvpSheet+pushModal"
+        },
+        {
+          "von": "dashboard+rsvpSheet",
           "art": "rs-teilen",
           "wert": null,
-          "text": "Teilen",
+          "text": "Übersicht teilen",
           "nach": "dashboard+rsvpSheet+shareModal"
         },
         {
@@ -5840,9 +6075,16 @@
         },
         {
           "von": "kalender+rsvpSheet",
+          "art": "rs-push",
+          "wert": null,
+          "text": "Push senden (2)",
+          "nach": "kalender+rsvpSheet+pushModal"
+        },
+        {
+          "von": "kalender+rsvpSheet",
           "art": "rs-teilen",
           "wert": null,
-          "text": "Teilen",
+          "text": "Übersicht teilen",
           "nach": "kalender+rsvpSheet+shareModal"
         },
         {
@@ -6072,6 +6314,7 @@
         "mehr",
         "nav",
         "paid-self",
+        "rs-push",
         "rs-teilen",
         "rsvp-sheet",
         "tab",

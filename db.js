@@ -76,7 +76,7 @@ window.DB = (function () {
         status: e.status || "geplant", quelle: e.quelle || "manuell",
         wettbewerb: e.wettbewerb, liga: e.liga,
         spielstaette: e.spielstaette, adresse: e.adresse, locationRaw: e.location_raw,
-        ende: e.ende, serieId: e.serie_id, serieGeaendert: e.serie_geaendert,
+        ende: e.ende, treffen: e.treffen || null, serieId: e.serie_id, serieGeaendert: e.serie_geaendert,
         manuellBearbeitet: e.manuell_bearbeitet || {}, bfvOriginal: e.bfv_original || {}, bfvNeu: e.bfv_neu || {},
       })),
       sportstaetten: sportstaetten.data.map((s) => ({
@@ -361,6 +361,13 @@ window.DB = (function () {
     const { error } = await client.rpc("set_notification_prefs", { p_werte: werte });
     if (error) throw error;
   }
+  // Nachfrage per Push an Spieler ohne Rueckmeldung (Migration 0050).
+  // nurZaehlen = true liefert nur die Zahlen, ohne zu senden.
+  async function sendRsvpReminder(eventId, nurZaehlen) {
+    const { data, error } = await client.rpc("send_rsvp_reminder", { p_event: eventId, p_nur_zaehlen: !!nurZaehlen });
+    if (error) throw error;
+    return data;
+  }
   async function sendTestNotification() {
     const { data, error } = await client.rpc("send_test_notification");
     if (error) throw error;
@@ -603,7 +610,7 @@ window.DB = (function () {
   return {
     client, loadAll, setRsvp, deleteRsvp, setFinePaid, deleteFine, addFines, setCalendarHint,
     upsertPushSubscription, deletePushSubscription, pushSubscriptionBekannt,
-    loadNotificationPrefs, setNotificationPrefs, sendTestNotification, loadNotificationInfos,
+    loadNotificationPrefs, setNotificationPrefs, sendTestNotification, sendRsvpReminder, loadNotificationInfos,
     loadNotificationTemplates, setNotificationTemplate, setNotificationStrafhinweis, sendPreviewNotification,
     deletePreviewNotifications, loadPreviewOutbox,
     insertCatalog, updateCatalog, deleteCatalog,
