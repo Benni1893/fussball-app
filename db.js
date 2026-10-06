@@ -381,6 +381,11 @@ window.DB = (function () {
     });
     if (error) throw error;
   }
+  async function setNotificationStrafhinweis(text) {
+    const { data, error } = await client.rpc("set_notification_strafhinweis", { p_text: text });
+    if (error) throw error;
+    return data;
+  }
   async function sendPreviewNotification(kategorie) {
     const { data, error } = await client.rpc("send_preview_notification", { p_kategorie: kategorie });
     if (error) throw error;
@@ -599,7 +604,7 @@ window.DB = (function () {
     client, loadAll, setRsvp, deleteRsvp, setFinePaid, deleteFine, addFines, setCalendarHint,
     upsertPushSubscription, deletePushSubscription, pushSubscriptionBekannt,
     loadNotificationPrefs, setNotificationPrefs, sendTestNotification, loadNotificationInfos,
-    loadNotificationTemplates, setNotificationTemplate, sendPreviewNotification,
+    loadNotificationTemplates, setNotificationTemplate, setNotificationStrafhinweis, sendPreviewNotification,
     deletePreviewNotifications, loadPreviewOutbox,
     insertCatalog, updateCatalog, deleteCatalog,
     insertEvents, updateEvent, updateSeriesFrom, deleteEvent, deleteSeriesFrom,

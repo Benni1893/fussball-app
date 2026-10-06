@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-05-C";
+  var APP_BUILD = "2026-10-06-A";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -1351,6 +1351,7 @@
       '<label class="pkat-feld"><span class="pkat-lbl">Text ' +
         katZaehler(katLaenge(text), KAT_TEXT_MAX) + '</span>' +
         '<textarea class="pkat-in" rows="2" data-pkat-text="' + esc(v.kategorie) + '">' + esc(st.text) + '</textarea></label>' +
+      katStrafhinweisHtml(v) +
       '<p class="set-hint pkat-platz">Platzhalter: ' +
         (v.platzhalter && v.platzhalter.length
           ? v.platzhalter.map((p) => {
@@ -1370,6 +1371,17 @@
       '</div>';
   }
 
+  /* Wortlaut von {strafhinweis} (Erinnerung an Zu- oder Absage, Migration
+     0052/0056): steht in den Beispieldaten der Vorlage und gilt fuer Vorschau
+     und Versand. Nur Termine mit Auto-Strafe bekommen ihn. */
+  function katStrafhinweisHtml(v) {
+    if (v.kategorie !== "rueckmeldung_erinnerung") return "";
+    const wert = (v.beispiel_daten && v.beispiel_daten.strafhinweis) || "";
+    return '<label class="pkat-feld"><span class="pkat-lbl">Strafhinweis (nur bei Terminen mit Auto-Strafe)</span>' +
+        '<input class="pkat-in" maxlength="80" data-pkat-hinweis value="' + esc(wert) + '"></label>' +
+      '<div><button class="btn btn-soft" data-pkat-hinweis-save type="button">Strafhinweis speichern</button></div>';
+  }
+
   function renderPushKatalog() {
     document.body.classList.remove("auth-mode");
     if (!Roles.isAdmin()) { renderDashboard(); return; }
@@ -1387,7 +1399,7 @@
       '<div class="page-head">' + navBackChevronHtml() + '<h1>Push-Nachrichten</h1></div>' +
       '<div class="card card-pad">' +
         '<p class="set-hint">Jede Nachricht einmal auf dem eigenen Handy ansehen, bevor sie an die ' +
-        'Mannschaft geht. „An mich senden" schickt ausschließlich an dich – auch bei Kategorien, ' +
+        'Mannschaft geht. „An mich senden" schickt ausschließlich an dich, auch bei Kategorien, ' +
         'die sonst alle bekommen. Ruhezeiten und Schalter werden dabei übergangen.</p>' +
         '<button class="btn btn-primary" data-pkat-alle type="button">Alle an mich senden</button>' +
         '<button class="btn btn-soft" data-pkat-clear type="button">Vorschauen löschen</button>' +
@@ -1411,7 +1423,7 @@
     for (let i = 0; i < liste.length; i++) {
       try { await DB.sendPreviewNotification(liste[i].kategorie); }
       catch (e) { katSag("Fehlgeschlagen bei " + liste[i].kategorie + ": " + ((e && e.message) || e)); return; }
-      katSag((i + 1) + " von " + liste.length + " unterwegs – " + liste[i].kategorie);
+      katSag((i + 1) + " von " + liste.length + " unterwegs: " + liste[i].kategorie);
       if (i < liste.length - 1) await new Promise((r) => setTimeout(r, 5000));
     }
     katSag(liste.length + " Vorschauen unterwegs. Sie kommen im Minutentakt des Versands an.");
@@ -1612,7 +1624,8 @@
     ] },
     { rolle: "coach", titel: "Trainer", kategorien: [
       ["absage_kurzfristig",      "glocke",      "Kurzfristige Absagen",                    "rot"],
-      ["unterbesetzung",          "personen",    "Zu wenig Zusagen",                        "rot"],
+      // "Zu wenig Zusagen" (unterbesetzung) folgt erst mit einer Mindestzahl je
+      // Termintyp (F4); ohne Erzeuger kein Schalter (Konsistenzpruefung 06.10.2026).
       ["meldeschluss_uebersicht", "klemmbrett",  "Übersicht nach Meldeschluss",             "dunkelgruen"],
     ] },
     { rolle: "treasurer", titel: "Kasse", kategorien: [
@@ -1738,7 +1751,7 @@
             schalter: pnSchalterHtml('data-pn-dringend aria-label="Dringendes trotzdem zustellen"',
               (pushPrefs && pushPrefs.quiet_override_urgent) ? "true" : "false", aus) }) +
         '</div>' +
-        '<p class="ein-hinweis">Kurzfristige Absagen, zu wenig Zusagen, Terminausfall, Terminänderung ' +
+        '<p class="ein-hinweis">Kurzfristige Absagen, Terminausfall, Terminänderung ' +
           'und die Erinnerung an die Rückmeldung.</p>' : "");
   }
 
@@ -5896,7 +5909,7 @@
       // „Buchung rückgängig" steht jetzt im Detail-Blatt (ksBlattUnpay).
     }
 
-    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-cal-hide],[data-cal-copy-profil],[data-push-an],[data-push-aus],[data-push-test],[data-push-install],[data-push-hinweis-weg],[data-pn-haupt],[data-pn-kat],[data-pn-alle],[data-pn-ruhe],[data-pn-dringend],[data-pkat-save],[data-pkat-reset],[data-pkat-send],[data-pkat-alle],[data-pkat-clear],[data-ics-event],[data-koord-save],[data-status-set],[data-logout],[data-ein],[data-ein-back],[data-ein-tat]");
+    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-cal-hide],[data-cal-copy-profil],[data-push-an],[data-push-aus],[data-push-test],[data-push-install],[data-push-hinweis-weg],[data-pn-haupt],[data-pn-kat],[data-pn-alle],[data-pn-ruhe],[data-pn-dringend],[data-pkat-save],[data-pkat-reset],[data-pkat-send],[data-pkat-alle],[data-pkat-clear],[data-pkat-hinweis-save],[data-ics-event],[data-koord-save],[data-status-set],[data-logout],[data-ein],[data-ein-back],[data-ein-tat]");
     if (!t) return;
 
     // Fitnessstatus setzen. Wer das darf, entscheidet die Datenbank:
@@ -5974,6 +5987,19 @@
       return;
     }
     // Push-Katalog.
+    if (t.hasAttribute("data-pkat-hinweis-save")) {
+      const feld = document.querySelector("[data-pkat-hinweis]");
+      const text = feld ? feld.value : "";
+      DB.setNotificationStrafhinweis(text)
+        .then((neu) => {
+          const v = (katVorlagen || []).find((x) => x.kategorie === "rueckmeldung_erinnerung");
+          if (v) v.beispiel_daten = Object.assign({}, v.beispiel_daten, { strafhinweis: neu });
+          katMeldung = "Strafhinweis gespeichert.";
+          render();
+        })
+        .catch((e) => katSag("Speichern fehlgeschlagen: " + ((e && e.message) || e)));
+      return;
+    }
     if (t.dataset.pkatSave) {
       const k = t.dataset.pkatSave;
       const v = (katVorlagen || []).find((x) => x.kategorie === k);

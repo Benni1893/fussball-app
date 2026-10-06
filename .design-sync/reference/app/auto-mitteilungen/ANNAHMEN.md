@@ -45,3 +45,11 @@ zurückgenommen werden.
 | N2 | Die 12-Stunden-Sperre beginnt erst, wenn mindestens eine Nachricht eingereiht wurde. Erreicht eine Nachfrage niemanden (alle ohne Gerät), darf sofort erneut gefragt werden. | Sonst sperrt ein Versuch ohne Wirkung zwölf Stunden. |
 | N3 | Text: Datum kurz, Uhrzeit optional (ganztägig: ohne), Meldeschluss nur als optionaler Platzhalter (steht nicht im Text). Rückgabe zusätzlich `nur_zaehlen`, `letzte`. | Vorschlag aus einstellungen-v2/PHASE0.md, Abschnitt e). |
 | N4 | Die mit P1 beschlossenen Textkorrekturen stehen in einer **eigenen** Migration 0051 (aus den Live-Definitionen erzeugt, nur die Meldungstexte geändert). `set_ical_url` sagt jetzt „Nur Trainer, Kassenwart oder Admin dürfen die iCal-URL setzen.“ (Schrägstriche durch Komma und „oder“). | Kleinere, getrennt prüfbare Migration. |
+
+## Konsistenz und Robustheit (Migrationen 0056, 0057)
+
+| # | Annahme | Grund |
+|---|---|---|
+| Z1 | Scheitert die Zustellung an allen Geräten eines Spielers vorübergehend, versucht der Versand es bis zu **fünfmal** (nach 5, 10, 15 und 20 Minuten), solange die Nachricht gültig ist; danach gilt sie als nicht zustellbar. Meldet ein Gerät „gibt es nicht mehr“ (404/410), wird es entfernt; ohne Gerät bleibt die Nachricht als Eintrag in der App. | Vorher ging eine Nachricht beim ersten Fehler endgültig verloren. |
+| Z2 | „Neue Termine“ verfällt, sobald der letzte genannte Termin begonnen hat (höchstens 7 Tage). Nach einem längeren Versandausfall kündigt keine Nachricht Vergangenes an. | Konsistent mit den übrigen zeitgebundenen Kategorien. |
+| Z3 | Der Strafhinweis ist höchstens 80 Zeichen lang, nicht leer und ohne geschweifte Klammern; wer ihn nicht will, nimmt `{strafhinweis}` aus dem Text der Erinnerung. | Er steht am Ende einer Push-Nachricht, die bei 110 Zeichen abgeschnitten wird. |

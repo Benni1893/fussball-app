@@ -175,7 +175,7 @@ suchen.
 | | Bedeutung | Kategorien |
 |---|---|---|
 | 🚨 | dringend, Trainer muss reagieren | `absage_kurzfristig`, `unterbesetzung` |
-| ⏳ | Frist läuft | `rueckmeldung_erinnerung` |
+| ⏳ | Frist läuft | `rueckmeldung_erinnerung`, `rueckmeldung_nachfrage` |
 | 💸 | Spieler schuldet Geld | `strafe_neu`, `strafen_offen` |
 | 💰 | Geld zu prüfen | `zahlung_gemeldet` |
 | ✅ | erledigt | `zahlung_bestaetigt` |

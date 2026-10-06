@@ -332,6 +332,7 @@ window.DB = (function () {
     setNotificationPrefs: schreib("setNotificationPrefs"),
     sendTestNotification: schreib("sendTestNotification", 1),
     setNotificationTemplate: schreib("setNotificationTemplate"),
+    setNotificationStrafhinweis: schreib("setNotificationStrafhinweis", "Ohne Antwort wird's teuer."),
     sendPreviewNotification: schreib("sendPreviewNotification", 1),
     deletePreviewNotifications: schreib("deletePreviewNotifications", 0),
     insertCatalog: schreib("insertCatalog", (clubId, offense, amount) => ({ id: "k-neu", club_id: clubId, offense, amount })),

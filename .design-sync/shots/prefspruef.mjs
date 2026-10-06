@@ -44,15 +44,17 @@ gleich(namen(M.pnGruppenFuer(['treasurer', 'coach', 'player'], true)),
 /* ===== 2. Vollstaendigkeit =============================================== */
 console.log('--- Deckt die Gliederung alle Kategorien ab? ---');
 {
+  // unterbesetzung folgt erst mit F4 (kein Erzeuger, Vorlage aus): bewusst ohne Schalter.
   const ALLE = ['strafe_neu','zahlung_bestaetigt','zahlung_abgelehnt','zahlung_gemeldet',
     'absage_kurzfristig','termin_geaendert','termin_abgesagt','termin_neu',
-    'rueckmeldung_erinnerung','unterbesetzung','meldeschluss_uebersicht','strafen_offen'];
+    'rueckmeldung_erinnerung','meldeschluss_uebersicht','strafen_offen'];
   const gezeigt = M.PN_GRUPPEN.flatMap((g) => g.kategorien.map((k) => k[0]));
   const fehlend = ALLE.filter((k) => gezeigt.indexOf(k) < 0);
   const zuviel  = gezeigt.filter((k) => ALLE.indexOf(k) < 0);
   pruefe(fehlend.length === 0, 'jede Kategorie hat einen Schalter', fehlend.join(', ') || undefined);
   pruefe(zuviel.length === 0, 'kein Schalter ohne Kategorie', zuviel.join(', ') || undefined);
   pruefe(new Set(gezeigt).size === gezeigt.length, 'keine Kategorie zweimal');
+  pruefe(gezeigt.indexOf('unterbesetzung') < 0, '"Zu wenig Zusagen" ohne Erzeuger hat keinen Schalter (F4)');
   // Die Zuordnung muss zu kategorie_rolle() in 0039 passen, sonst zeigt die
   // App einen Schalter, den der Server nie beachtet.
   const sql = fs.readFileSync('supabase/migrations/0039_kategorie_rollen.sql', 'utf8');
@@ -68,13 +70,15 @@ console.log('--- Deckt die Gliederung alle Kategorien ab? ---');
 console.log('--- Sammelschalter ---');
 {
   const g = M.PN_GRUPPEN.find((x) => x.rolle === 'coach');
-  const alle = (v) => ({ absage_kurzfristig: v, unterbesetzung: v, meldeschluss_uebersicht: v });
+  const alle = (v) => ({ absage_kurzfristig: v, meldeschluss_uebersicht: v });
   gleich(M.pnSammelZustand(g, alle(true)), 'true', 'alle an');
   gleich(M.pnSammelZustand(g, alle(false)), 'false', 'alle aus');
-  gleich(M.pnSammelZustand(g, { absage_kurzfristig: true, unterbesetzung: false, meldeschluss_uebersicht: false }),
+  gleich(M.pnSammelZustand(g, { absage_kurzfristig: true, meldeschluss_uebersicht: false }),
     'mixed', 'einer an');
-  gleich(M.pnSammelZustand(g, { absage_kurzfristig: true, unterbesetzung: true, meldeschluss_uebersicht: false }),
-    'mixed', 'zwei an');
+  gleich(M.pnSammelZustand(g, { absage_kurzfristig: false, meldeschluss_uebersicht: true }),
+    'mixed', 'der andere an');
+  gleich(M.pnSammelZustand(g, { absage_kurzfristig: true, meldeschluss_uebersicht: true, unterbesetzung: false }),
+    'true', 'ein alter Wert für unterbesetzung zählt nicht mit');
   gleich(M.pnSammelZustand(g, {}), 'false', 'nichts gesetzt zählt als aus');
   gleich(M.pnSammelZustand(g, null), 'false', 'keine Einstellungen geladen');
   // Eine Gruppe mit nur einer Kategorie kennt kein "gemischt".
