@@ -1,0 +1,164 @@
+/* FC Fasanerie-Nord - Design-Tokens.
+   Woertlich aus styles.css (Zeilen 5-165) uebernommen.
+   Einzige Definitionsstelle: _ds_app.css enthaelt diesen Block NICHT mehr. */
+:root {
+  /* =========================================================================
+     Tokenblock. EINZIGE Quelle fuer Farbe, Material und Mass.
+     Alle Werte sind 1:1 aus der Vorlage .design-sync/concepts/
+     "App in 2a - High End.dc.html" entnommen; der Kommentar hinter jedem Wert
+     nennt die Regel, aus der er stammt. Nichts hier ist geschaetzt.
+     Achtung: build.sh schneidet genau diesen Block heraus (config.json ->
+     source.tokenBlockLines). Zeilen verschoben? Dann dort nachziehen.
+     ========================================================================= */
+
+  /* ---- Gruen ------------------------------------------------------------- */
+  --green-900: #0f3d2e;   /* Vorlage --green  */
+  --green-800: #144a37;   /* Vorlage --deep   */
+  --green-700: #1b5e3f;   /* Vorlage a:hover / .nb.on */
+  --green-600: #237a52;   /* Vorlage .btn Grundfarbe */
+  --green-500: #2e8b57;   /* Vorlage --gr     */
+  --green-050: #e9f3ee;
+  --green-750: #17573f;   /* .hd 0%, .chip.on 0%, .auth 0% */
+  --green-950: #0b3125;   /* .hd 100% */
+  --green-990: #0a2c21;   /* .auth 100% */
+  --green-650: #1f7049;   /* .btn 100%, .nb.on::before 0%, Fortschritt 100% */
+  --green-550: #2d9265;   /* .btn 0%, Fortschritt 0%, .box.on 0% */
+  --green-450: #3aa36a;   /* .ag::before 0%, Plakette gruen 0% */
+  --pitch-green: #2e7d46; /* .pitch Grundflaeche */
+
+  /* ---- Gold -------------------------------------------------------------- */
+  --gold-600: #b8902f;
+  --gold-500: #d4af37;    /* .hd Innenkante unten (32 %) */
+  --gold-050: #faf3df;    /* Vorlage --cream */
+  --gold-700: #c39a22;    /* .ay::before 100%, Plakette gold 100% */
+  --gold-400: #e3c25c;    /* .ay::before 0%,   Plakette gold 0%   */
+  --gold-100: #fdf6e4;    /* .pill 0%, .dbg 0%, Aufgabenzeile gold 0% */
+  --gold-200: #f6ebcd;    /* .pill 100%, .dbg 100% */
+  --gold-250: #f8eed3;    /* Aufgabenzeile gold 100%, Statkachel 100% */
+  --gold-ink:   #7a5a0c;  /* .bdg-rep Text, "10/11 aufgestellt" */
+  --gold-ink-2: #6b4e0a;  /* Aufgabenzeile gold Text */
+  --gold-line:   #e3d09a; /* .pill Rand */
+  --gold-line-2: #e8d9a8; /* Aufgabenzeile gold + Statkachel Rand */
+  --gold-badge-bg:   #fdf4e0;
+  --gold-badge-line: #ecdcae;
+  --gold-chev: #96772a;
+
+  /* ---- Rot --------------------------------------------------------------- */
+  --red-600: #c0392b;
+  --red-050: #fbeae8;
+  --red-700: #a5281b;     /* .ar::before 100%, .bdg-open Text */
+  --red-500: #d9543f;     /* .ar::before 0%,   Plakette rot 0%   */
+  --red-100: #fdeeeb;     /* Aufgabenzeile rot 0%   */
+  --red-200: #fbe4e0;     /* Aufgabenzeile rot 100% */
+  --red-line:     #f3c9c3;
+  --red-badge-bg: #fdecea;
+  --red-ink:   #7d1f14;   /* Aufgabenzeile rot Titel */
+  --red-ink-2: #8a3a2e;   /* Aufgabenzeile rot Untertitel */
+  --red-chev:  #a5544a;
+  --amber-600: #b9770e;
+  --amber-050: #fdf3e3;
+
+  /* ---- Neutral / Flaechen ------------------------------------------------ */
+  --ink:   #1c2620;
+  --muted: #66756d;       /* 4,7:1 auf Weiss - auch der Platzhalterton */
+  --line:  #e2e8e4;
+  --bg:    #f4f7f5;
+  --card:  #ffffff;
+  --bg-1: #eef0ef;        /* App-Grund 0%   (.ph) */
+  --bg-2: #e7eae9;        /* App-Grund 100% (.ph) */
+  --card-2:    #fcfefd;   /* .card 100% */
+  --kpi-2:     #fafdfb;   /* .kpi 100% - eigener Ton, heller als .card */
+  --surface-2: #f6faf8;   /* .btn.sec2 100% */
+  --surface-3: #f7faf8;   /* .chip 100% */
+  --surface-4: #f8fbf9;   /* .bslot 100% */
+  --surface-5: #fcfdfc;   /* .in 0% */
+  --surface-6: #eef3f0;   /* .disc 100% */
+  --av-1: #eef5f0;        /* .av 0%   */
+  --av-2: #e0ebe4;        /* .av 100% */
+  --green-badge-bg:   #e6f2ea;
+  --green-badge-line: #c8e0d2;
+  --green-task-1: #eaf5ee; /* Aufgabenzeile gruen 0%   */
+  --green-task-2: #e0efe6; /* Aufgabenzeile gruen 100% */
+  --green-task-ink:   #14503a;
+  --green-task-ink-2: #2c6349;
+  --green-chev: #4c7a64;
+  --pp-blue:  #003087;     /* PayPal-Wortmarke, Vorlage Kontoblock */
+  --pp-cyan:  #009cde;
+  --track:   #eef2ef;     /* Spur des Fortschrittsbalkens */
+  --track-bar:   #cfd8d2; /* Spur im Kartenbalken, gemessen aus trainer-sheet-v2 */
+  --track-sheet: #dfe5e1; /* Spur im Blattbalken,  gemessen aus trainer-sheet-v2 */
+  --dot-off: #c6d2cb;     /* Seitenpunkte, Rand leerer Kaestchen */
+  --blau-700: #1d5a8a;    /* Urlaub: Marke und Rand */
+  --blau-600: #2e7bb5;
+  --blau-050: #e7f0f7;
+  --blau-line: #c3dbea;
+
+  /* ---- Verlaeufe --------------------------------------------------------- */
+  --grad-app:      linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+  --grad-hd:       linear-gradient(158deg, var(--green-750) 0%, var(--green-900) 52%, var(--green-950) 100%);
+  --grad-hd-light: linear-gradient(90deg, transparent, rgba(255,255,255,.26), transparent); /* @kind color */
+  --grad-card:     linear-gradient(180deg, var(--card) 0%, var(--card-2) 100%);
+  --grad-kpi:      linear-gradient(180deg, var(--card) 0%, var(--kpi-2) 100%);
+  --grad-btn:      linear-gradient(180deg, var(--green-550) 0%, var(--green-650) 100%);
+  --grad-btn-sec:  linear-gradient(180deg, var(--card) 0%, var(--surface-2) 100%);
+  --grad-chip:     linear-gradient(180deg, var(--card) 0%, var(--surface-3) 100%);
+  --grad-chip-on:  linear-gradient(180deg, var(--green-750), var(--green-900));
+  --grad-gold:     linear-gradient(180deg, var(--gold-100), var(--gold-200));
+  --grad-in:       linear-gradient(180deg, var(--surface-5), var(--card));
+  --grad-av:       linear-gradient(180deg, var(--av-1), var(--av-2));
+  --grad-auth:     linear-gradient(168deg, var(--green-750) 0%, var(--green-900) 55%, var(--green-990) 100%);
+  --grad-bar:      linear-gradient(90deg, var(--green-550), var(--green-650));
+  --grad-navbar:   linear-gradient(90deg, var(--green-650), var(--green-500));
+  --grad-disc:     linear-gradient(180deg, var(--card), var(--surface-6));
+  --grad-bslot:    linear-gradient(180deg, var(--card), var(--surface-4));
+  --grad-edge-green: linear-gradient(180deg, var(--green-450), var(--green-650));
+  --grad-edge-gold:  linear-gradient(180deg, var(--gold-400),  var(--gold-700));
+  --grad-edge-red:   linear-gradient(180deg, var(--red-500),   var(--red-700));
+  --grad-urlaub:     linear-gradient(180deg, var(--blau-600),  var(--blau-700));
+  --grad-task-red:   linear-gradient(180deg, var(--red-100),      var(--red-200));
+  --grad-task-gold:  linear-gradient(180deg, var(--gold-100),     var(--gold-250));
+  --grad-task-green: linear-gradient(180deg, var(--green-task-1), var(--green-task-2));
+
+  /* ---- Schatten ---------------------------------------------------------- */
+  --shadow-card:    0 1px 1px rgba(16,40,30,.04), 0 8px 20px -14px rgba(16,40,30,.45);
+  --shadow-hair:    0 1px 1px rgba(16,40,30,.04);
+  --shadow-btn:     inset 0 1px 0 rgba(255,255,255,.24), 0 1px 2px rgba(16,40,30,.14), 0 10px 20px -12px rgba(31,112,73,.85);
+  --shadow-btn-sec: 0 1px 1px rgba(16,40,30,.05), 0 6px 14px -12px rgba(16,40,30,.6);
+  --shadow-chip-on: inset 0 1px 0 rgba(255,255,255,.18), 0 4px 10px -6px rgba(15,61,46,.8);
+  --shadow-hd:      inset 0 -1px 0 rgba(212,175,55,.32), 0 6px 18px -10px rgba(11,49,37,.7);
+  --shadow-nav:     0 -8px 22px -16px rgba(16,40,30,.55);
+  --shadow-navbar:  0 1px 6px rgba(31,112,73,.55);
+  --shadow-sheet:   0 -14px 40px -14px rgba(0,0,0,.5);
+  --shadow-auth:    0 2px 4px rgba(0,0,0,.1), 0 22px 50px -18px rgba(0,0,0,.55);
+  --shadow-pitch:   inset 0 0 0 1px rgba(255,255,255,.14), 0 10px 28px -14px rgba(11,49,37,.8);
+  --shadow-disc:    inset 0 1px 0 #fff, 0 2px 8px rgba(0,0,0,.38);
+  --shadow-av:      inset 0 1px 0 #fff, 0 1px 2px rgba(16,40,30,.1);
+  --shadow-dbg:     inset 0 1px 0 rgba(255,255,255,.7), 0 1px 2px rgba(122,90,12,.1);
+  --shadow-in:      inset 0 1px 2px rgba(16,40,30,.05);
+  --shadow-sm:      0 1px 2px rgba(15,61,46,.08);
+  --shadow:         0 1px 1px rgba(16,40,30,.04), 0 8px 20px -14px rgba(16,40,30,.45);
+  --ov-sheet: rgba(10,28,21,.5);   /* .sheet Abdunklung */
+
+  /* ---- Randfarben mit Alpha (Vorlage: rgba(16,40,30,a)) ------------------- */
+  --line-soft:   rgba(16,40,30,.1);    /* .card, .list, .kpi, .nav */
+  --line-soft-2: rgba(16,40,30,.12);   /* .chip, .bslot */
+  --line-soft-3: rgba(16,40,30,.14);   /* .btn.sec2, .in */
+
+  /* ---- Masse ------------------------------------------------------------- */
+  --radius:        14px;   /* .card, .list, .kpi, .pitch */
+  --radius-btn:    10px;   /* .btn, .in, Plakette */
+  --radius-md:     12px;   /* Knopf, Kachel, Namenszeile - trainer-sheet-v2 */
+  --radius-sheet:  18px;   /* .panel, .auth-card */
+  --radius-pill:  999px;
+  --radius-box:     6px;   /* .box */
+  --tap:           44px;   /* harte Regel, schlaegt die Vorlage */
+  --h-btn:         46px;   /* .btn */
+  --h-btn-lg:      48px;   /* "Aufstellung bearbeiten", "Eingang bestaetigen" */
+  --h-btn-xl:      52px;   /* "10,00 EUR jetzt bezahlen" */
+  --h-in:          46px;   /* .in */
+  --h-row:         52px;   /* .row, .kat */
+  --h-nav:         52px;   /* .nb */
+  --h-bslot:       54px;   /* .bslot */
+  --fs-input:      16px;   /* harte Regel: iOS zoomt sonst beim Fokus */
+
+}

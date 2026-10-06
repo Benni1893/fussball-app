@@ -47,3 +47,7 @@ node_modules/
 
 # Design-Review 05.10.2026: iPhone-Screenshots des Nutzers, bleiben lokal
 .design-sync/concepts/IMG_*
+
+# Paket "Final Alle Screens": Ist- und Vergleichsbilder entstehen bei jedem Messlauf neu
+.design-sync/concepts/final-2026-10/ist/
+.design-sync/concepts/final-2026-10/vergleich/

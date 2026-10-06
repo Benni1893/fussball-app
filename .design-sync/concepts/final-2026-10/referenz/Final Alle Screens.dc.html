@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/fc-fasanerie-nord-app-7e48a82b-b7ba-40ea-9e6b-30040a24c0d8/fonts/inter.css">
+<link rel="stylesheet" href="_ds/fc-fasanerie-nord-app-7e48a82b-b7ba-40ea-9e6b-30040a24c0d8/tokens/tokens.css">
+<script src="_ds/fc-fasanerie-nord-app-7e48a82b-b7ba-40ea-9e6b-30040a24c0d8/_ds_bundle.js"></script>
+<style>body{margin:0;background:var(--bg);color:var(--ink);font-family:"Inter",system-ui,-apple-system,sans-serif}a{color:var(--green-800)}a:hover{color:var(--green-700)}</style>
+</helmet>
+<div style="max-width:1400px;margin:0 auto;padding:40px 16px 80px;display:flex;flex-direction:column;gap:32px">
+  <header style="display:flex;flex-direction:column;gap:12px;padding:0 16px">
+    <h1 style="margin:0;font-size:36px;font-weight:800;letter-spacing:-.025em">FC Fasanerie-Nord · Alle Screens</h1>
+    <p style="margin:0;font-size:16px;line-height:1.55;color:#5c6a63;max-width:760px">Finale Fassung, 28 Screens (05 Mehr-Blatt und 26 Rollen gestrichen, folgen nach Beta-Kontext) in fünf Teilen. Neu in dieser Runde: 07b Platz mit freier Position, 07c Blatt zum Besetzen, Konto-Kachel schlanker, Kader-Kacheln mit Statusfarben, Katalog als Einzelkacheln, große Kacheln ganz farbig getönt, Listenzeilen mit Goldwürfel samt Monat und kurzem Farbstrich, ein Grün für alle Primärknöpfe und aktiven Auswahlen, Position statt Rückennummer im Profil.</p>
+    <nav style="display:flex;gap:8px;flex-wrap:wrap">
+      <sc-for list="{{ parts }}" as="p" hint-placeholder-count="5"><a href="#{{ p.id }}" style="min-height:36px;padding:0 14px;border-radius:999px;background:var(--grad-chip);border:1px solid var(--line-soft-2);font-size:14px;font-weight:600;display:flex;align-items:center;text-decoration:none;color:var(--ink)">{{ p.short }}</a></sc-for>
+    </nav>
+  </header>
+  <sc-for list="{{ parts }}" as="p" hint-placeholder-count="5">
+    <section id="{{ p.id }}" style="display:flex;flex-direction:column;gap:4px;border-top:1px solid var(--line);padding-top:16px">
+      <h2 style="margin:0 16px;font-size:22px;font-weight:800;letter-spacing:-.015em">{{ p.label }}</h2>
+      <iframe src="{{ p.src }}" title="{{ p.label }}" scrolling="no" onLoad="{{ fit }}" style="width:100%;height:1600px;border:0;display:block;background:var(--bg)"></iframe>
+    </section>
+  </sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  fitFrame(f) {
+    try {
+      const d = f.contentDocument; if (!d) return;
+      const h = d.querySelector('header'); if (h) h.style.display = 'none';
+      const root = d.documentElement;
+      const px = Math.max(root.scrollHeight, d.body ? d.body.scrollHeight : 0);
+      if (px < 200 || d.URL === 'about:blank') return;
+      f.style.height = px + 'px';
+      if (!f._ro && window.ResizeObserver && d.body) {
+        f._ro = new ResizeObserver(() => this.fitFrame(f));
+        f._ro.observe(d.body);
+      }
+    } catch (e) {}
+  }
+  componentDidMount() {
+    this._t = setInterval(() => document.querySelectorAll('iframe').forEach(f => this.fitFrame(f)), 800);
+    this._r = () => document.querySelectorAll('iframe').forEach(f => { f.style.height = '400px'; this.fitFrame(f); });
+    window.addEventListener('resize', this._r);
+  }
+  componentWillUnmount() { clearInterval(this._t); window.removeEventListener('resize', this._r); }
+  renderVals() {
+    return {
+      fit: e => { const f = e.target; [100, 600, 1500, 3000].forEach(ms => setTimeout(() => this.fitFrame(f), ms)); },
+      parts: this._parts || (this._parts = [
+        { id: 'a', short: 'Übersicht, Kalender', label: 'A · Übersicht, Kalender, Termin anlegen, Rückmeldungen', src: 'Final A Übersicht und Kalender.dc.html' },
+        { id: 'b', short: 'Trainer, Kader', label: 'B · Trainer, Platz, Position besetzen, Bank, Kader', src: 'Final B Trainer und Kader.dc.html' },
+        { id: 'c', short: 'Konto, Kasse, Katalog', label: 'C · Konto, Kasse, Strafe verhängen, Katalog', src: 'Final C Konto Kasse Katalog.dc.html' },
+        { id: 'd', short: 'Einstellungen, Anmeldung', label: 'D · Einstellungen, Mitteilungen, Kalender-Abo, Profil, Anmeldung', src: 'Final D Einstellungen und Anmeldung.dc.html' },
+        { id: 'e', short: 'Unterseiten', label: 'E · Ruhezeiten, Spielplan BFV, Push-Texte, Diagnose, Google-Anleitung', src: 'Final E Unterseiten.dc.html' },
+      ].map(p => ({ ...p, src: p.src + '?v=' + Date.now() }))),
+    };
+  }
+}
+</script>
+</body>
+</html>

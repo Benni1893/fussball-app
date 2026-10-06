@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/fc-fasanerie-nord-app-7e48a82b-b7ba-40ea-9e6b-30040a24c0d8/fonts/inter.css">
+<link rel="stylesheet" href="_ds/fc-fasanerie-nord-app-7e48a82b-b7ba-40ea-9e6b-30040a24c0d8/tokens/tokens.css">
+<script src="_ds/fc-fasanerie-nord-app-7e48a82b-b7ba-40ea-9e6b-30040a24c0d8/_ds_bundle.js"></script>
+<style>body{margin:0;background:var(--bg);color:var(--ink);font-family:"Inter",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}a{color:var(--green-800)}a:hover{color:var(--green-700)}</style>
+</helmet>
+<div style="padding:40px 32px 80px;display:flex;flex-direction:column;gap:32px">
+<header style="display:flex;flex-direction:column;gap:10px;max-width:900px">
+  <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:14px;font-weight:600"><span style="color:#5c6a63">Finale Fassung:</span><a href="Final Alle Screens.dc.html">Alle</a><a href="Final A Übersicht und Kalender.dc.html">A</a><a href="Final B Trainer und Kader.dc.html">B</a><a href="Final C Konto Kasse Katalog.dc.html">C</a><a href="Final D Einstellungen und Anmeldung.dc.html">D</a><b>E Unterseiten</b></div>
+  <h1 style="margin:0;font-size:34px;font-weight:800;letter-spacing:-.025em">Final · Unterseiten der Einstellungen</h1>
+</header>
+<div style="display:flex;flex-wrap:wrap;gap:40px;align-items:flex-start">
+<sc-for list="{{ screens }}" as="s" hint-placeholder-count="6">
+<sc-if value="{{ s.show }}" hint-placeholder-val="{{ true }}"><figure style="margin:0;display:flex;flex-direction:column;gap:10px;width:390px"><figcaption style="font-size:14px;font-weight:700">{{ s.cap }}</figcaption>
+<div style="width:390px;border-radius:28px;overflow:hidden;border:1px solid var(--line-soft);background:var(--grad-app);box-shadow:0 20px 40px -24px rgba(16,40,30,.4)">
+  <div style="background:var(--grad-hd);box-shadow:var(--shadow-hd);height:58px;display:flex;align-items:center;gap:10px;padding:0 14px;color:#fff"><img src="assets/logo.png" alt="" style="width:34px;height:34px;border-radius:50%"><span style="flex:1;text-align:center;font-size:15px;font-weight:700">FC Fasanerie-Nord 2</span><img src="assets/ic-gear.svg" alt="" style="width:24px;height:24px;margin-left:10px"></div>
+  <div style="padding:12px 16px 24px;display:flex;flex-direction:column">
+    <span style="min-height:44px;display:flex;align-items:center;font-size:15px;font-weight:600;color:var(--green-800)">‹ Einstellungen</span>
+    <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:26px;font-weight:800;letter-spacing:-.02em">{{ s.title }}</span><sc-if value="{{ s.action }}" hint-placeholder-val="{{ false }}"><span style="min-height:44px;display:flex;align-items:center;font-size:15px;font-weight:700;color:var(--green-800)">{{ s.action }}</span></sc-if></div>
+    <sc-if value="{{ s.status }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:16px;background:var(--grad-card);border:1px solid var(--line-soft);border-radius:14px;box-shadow:var(--shadow-card);padding:16px;display:flex;flex-direction:column;gap:8px"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:16px;font-weight:700">{{ s.status.t }}</span><span style="padding:3px 10px;border-radius:999px;background:var(--green-badge-bg);color:var(--green-800);font-size:12px;font-weight:700">{{ s.status.tag }}</span></div><span style="font-size:13px;color:#5c6a63">{{ s.status.sub }}</span></div>
+    </sc-if>
+    <sc-for list="{{ s.groups }}" as="g" hint-placeholder-count="2">
+      <div style="margin:24px 0 8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">{{ g.name }}</div>
+      <div style="background:var(--grad-card);border:1px solid var(--line-soft);border-radius:14px;box-shadow:var(--shadow-card)">
+        <sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 16px;border-top:{{ r.bt }}">
+            <sc-if value="{{ r.ini }}" hint-placeholder-val="{{ false }}"><span style="flex:none;width:36px;height:36px;border-radius:999px;background:var(--grad-av);box-shadow:var(--shadow-av);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--green-800)">{{ r.ini }}</span></sc-if>
+            <sc-if value="{{ r.num }}" hint-placeholder-val="{{ false }}"><span style="flex:none;width:28px;height:28px;border-radius:999px;background:var(--green-050);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--green-800)">{{ r.num }}</span></sc-if>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;font-weight:600;color:{{ r.color }}">{{ r.label }}</span><sc-if value="{{ r.sub }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;color:#5c6a63;line-height:1.4">{{ r.sub }}</span></sc-if></div>
+            <sc-for list="{{ r.tags }}" as="t" hint-placeholder-count="1"><span style="flex:none;padding:3px 10px;border-radius:999px;background:{{ t.bg }};color:{{ t.fg }};font-size:12px;font-weight:700">{{ t.l }}</span></sc-for>
+            <sc-if value="{{ r.val }}" hint-placeholder-val="{{ false }}"><span style="font-size:15px;font-weight:500;color:#5c6a63;white-space:nowrap">{{ r.val }}</span></sc-if>
+            <sc-if value="{{ r.on }}" hint-placeholder-val="{{ false }}"><span style="flex:none;width:51px;height:31px;border-radius:999px;background:var(--green-700);position:relative"><span style="position:absolute;right:2px;top:2px;width:27px;height:27px;border-radius:999px;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2)"></span></span></sc-if>
+            <sc-if value="{{ r.chev }}" hint-placeholder-val="{{ false }}"><span style="color:var(--green-chev);font-size:18px">›</span></sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </sc-for>
+    <sc-if value="{{ s.prim }}" hint-placeholder-val="{{ false }}"><div style="margin-top:20px;min-height:48px;border-radius:12px;background:linear-gradient(180deg,var(--green-600),var(--green-700));color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;box-shadow:var(--shadow-btn)">{{ s.prim }}</div></sc-if>
+    <sc-if value="{{ s.sec }}" hint-placeholder-val="{{ false }}"><div style="margin-top:10px;min-height:48px;border-radius:12px;background:var(--grad-btn-sec);border:1px solid var(--line-soft-3);box-shadow:var(--shadow-btn-sec);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700">{{ s.sec }}</div></sc-if>
+    <sc-if value="{{ s.hint }}" hint-placeholder-val="{{ false }}"><span style="margin-top:10px;font-size:13px;color:#5c6a63;text-align:center">{{ s.hint }}</span></sc-if>
+  </div>
+</div></figure></sc-if>
+</sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const T = { admin: ['Admin', 'var(--grad-gold)', 'var(--gold-ink)'], trainer: ['Trainer', 'var(--green-badge-bg)', 'var(--green-800)'], kasse: ['Kasse', 'var(--amber-050)', '#8a5a08'], spieler: ['Spieler', 'var(--line)', 'var(--ink)'] };
+    const tags = ks => (ks || []).map(k => ({ l: T[k][0], bg: T[k][1], fg: T[k][2] }));
+    const row = (o, i) => ({ label: o.l, sub: o.s || '', val: o.v || '', ini: o.ini || '', num: o.n || '', on: !!o.on, chev: !!o.c, color: o.red ? 'var(--red-700)' : 'var(--ink)', tags: tags(o.t), bt: i ? '1px solid var(--line)' : '0' });
+    const grp = (name, rows) => ({ name, rows: rows.map(row) });
+    const scr = o => ({ show: !o.cap.startsWith('26'), cap: o.cap, title: o.title, action: o.action || '', status: o.status || null, groups: o.groups, prim: o.prim || '', sec: o.sec || '', hint: o.hint || '' });
+    return {
+      screens: [
+        scr({ cap: '23 Ruhezeiten', title: 'Ruhezeiten', groups: [
+          grp('Nachts stumm', [{ l: 'Ruhezeiten aktiv', on: true }, { l: 'Von', v: '22:00', c: true }, { l: 'Bis', v: '08:00', c: true }]),
+          grp('Ausnahmen', [{ l: 'Spieltag', s: 'Am Spieltag immer zustellen', on: true }]),
+        ] }),
+        scr({ cap: '24 Spielplan BFV', title: 'Spielplan BFV', status: { t: 'Verbindung', tag: 'Verbunden', sub: 'Zuletzt abgeglichen heute, 14:30' }, groups: [
+          grp('Mannschaft', [{ l: 'Verein', v: 'FC Fasanerie-Nord' }, { l: 'Mannschaft', v: 'Herren 2', c: true }, { l: 'Saison', v: '2026/27' }]),
+          grp('Verbindung', [{ l: 'Verbindung trennen', s: 'Bereits übernommene Spiele bleiben.', red: true, c: true }]),
+        ], prim: 'Jetzt abgleichen' }),
+        scr({ cap: '25 Push-Texte', title: 'Push-Texte', groups: [
+          grp('Termine', [{ l: 'Neuer Termin', s: 'Neu: {Termin} am {Datum}', c: true }, { l: 'Erinnerung', s: 'Noch {Stunden} h bis Meldeschluss', c: true }, { l: 'Aufstellung', s: 'Die Elf für {Gegner} steht', c: true }]),
+          grp('Strafen', [{ l: 'Neue Strafe', s: '{Strafe} · {Betrag}', c: true }, { l: 'Zahlung bestätigt', s: '{Betrag} ist eingegangen', c: true }]),
+        ] }),
+        scr({ cap: '26 Rollen', title: 'Rollen', action: '+ Einladen', groups: [
+          grp('Mannschaft · 16', [
+            { l: 'Lukas Weber', ini: 'LW', t: ['admin', 'kasse'], c: true },
+            { l: 'Felix Oberhaus', ini: 'FO', t: ['trainer'], c: true },
+            { l: 'Max Bauer', ini: 'MB', t: ['spieler'], c: true },
+            { l: 'Jonas Becker', ini: 'JB', t: ['spieler'], c: true },
+            { l: 'Niklas Fischer', ini: 'NF', t: ['spieler'], c: true },
+          ]),
+        ] }),
+        scr({ cap: '27 Diagnose', title: 'Diagnose', groups: [
+          grp('App', [{ l: 'Version', v: '2.14.0' }, { l: 'Zuletzt geladen', v: 'heute, 14:58' }, { l: 'Offline-Speicher', v: 'Aktiv' }]),
+          grp('Gerät', [{ l: 'Mitteilungen', v: 'Erlaubt' }, { l: 'Als App installiert', v: 'Ja' }]),
+        ], sec: 'Bericht kopieren', hint: 'Für Rückfragen an den Admin.' }),
+        scr({ cap: '28 Blatt · Anleitung Google', title: 'Für Google', groups: [
+          grp('In drei Schritten', [
+            { n: '1', l: 'Link kopieren', s: 'Mit dem Knopf unten.' },
+            { n: '2', l: 'calendar.google.com öffnen', s: 'Im Browser, links bei „Weitere Kalender" auf Plus, dann „Per URL".' },
+            { n: '3', l: 'Link einfügen', s: 'Mit „Kalender hinzufügen" bestätigen.' },
+          ]),
+        ], prim: 'calendar.google.com öffnen', sec: 'Link kopieren', hint: 'Google übernimmt Änderungen bis zu 24 h später.' }),
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

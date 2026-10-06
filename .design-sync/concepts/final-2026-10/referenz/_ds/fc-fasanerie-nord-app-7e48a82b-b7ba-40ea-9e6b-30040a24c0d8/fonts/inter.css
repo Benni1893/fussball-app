@@ -1,0 +1,4 @@
+/* Inter - genau die Schnitte, die die App in index.html laedt (400-800).
+   Faellt das CDN aus, greift der Fallback-Stack aus der body-Regel:
+   system-ui, -apple-system, Segoe UI, Roboto, sans-serif. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');

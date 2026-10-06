@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/fc-fasanerie-nord-app-7e48a82b-b7ba-40ea-9e6b-30040a24c0d8/fonts/inter.css">
+<link rel="stylesheet" href="_ds/fc-fasanerie-nord-app-7e48a82b-b7ba-40ea-9e6b-30040a24c0d8/tokens/tokens.css">
+<script src="_ds/fc-fasanerie-nord-app-7e48a82b-b7ba-40ea-9e6b-30040a24c0d8/_ds_bundle.js"></script>
+<style>body{margin:0;background:var(--bg);color:var(--ink);font-family:"Inter",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}a{color:var(--green-800)}a:hover{color:var(--green-700)}</style>
+</helmet>
+<div style="padding:40px 32px 80px;display:flex;flex-direction:column;gap:32px">
+<header style="display:flex;flex-direction:column;gap:10px;max-width:900px">
+  <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:14px;font-weight:600"><span style="color:#5c6a63">Finale Fassung:</span><a href="Final A Übersicht und Kalender.dc.html">A Übersicht, Kalender</a><a href="Final B Trainer und Kader.dc.html">B Trainer, Kader</a><a href="Final C Konto Kasse Katalog.dc.html">C Konto, Kasse, Katalog</a><b>D Einstellungen, Anmeldung</b></div>
+  <h1 style="margin:0;font-size:34px;font-weight:800;letter-spacing:-.025em">Final · Einstellungen, Profil und Anmeldung</h1>
+</header>
+<div style="display:flex;flex-wrap:wrap;gap:40px;align-items:flex-start">
+
+<figure style="margin:0;display:flex;flex-direction:column;gap:10px;width:390px"><figcaption style="font-size:14px;font-weight:700">18 Einstellungen</figcaption>
+<div data-screen-label="18 Einstellungen" style="width:390px;border-radius:28px;overflow:hidden;border:1px solid var(--line-soft);background:var(--grad-app);box-shadow:0 20px 40px -24px rgba(16,40,30,.4)">
+  <div style="background:var(--grad-hd);box-shadow:var(--shadow-hd);height:58px;display:flex;align-items:center;gap:10px;padding:0 14px;color:#fff"><img src="assets/logo.png" alt="" style="width:34px;height:34px;border-radius:50%"><span style="flex:1;text-align:center;font-size:15px;font-weight:700">FC Fasanerie-Nord 2</span><img src="assets/ic-gear.svg" alt="" style="width:24px;height:24px;margin-left:10px"></div>
+  <div style="padding:20px 16px 24px;display:flex;flex-direction:column">
+    <span style="font-size:26px;font-weight:800;letter-spacing:-.02em">Einstellungen</span>
+    <div style="margin-top:16px;background:var(--grad-card);border:1px solid var(--line-soft);border-radius:14px;box-shadow:var(--shadow-card);display:flex;align-items:center;gap:12px;min-height:72px;padding:0 16px"><span style="width:44px;height:44px;border-radius:999px;background:var(--grad-av);box-shadow:var(--shadow-av);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:var(--green-800)">LW</span><div style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;font-weight:700">Lukas Weber</span><span style="font-size:13px;color:#5c6a63">Admin · Spieler · Profil ansehen</span></div><span style="color:var(--green-chev);font-size:18px">›</span></div>
+    <sc-for list="{{ gruppen }}" as="g" hint-placeholder-count="3">
+      <div style="margin:24px 0 8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">{{ g.name }}</div>
+      <div style="background:var(--grad-card);border:1px solid var(--line-soft);border-radius:14px;box-shadow:var(--shadow-card)">
+        <sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border-top:{{ r.bt }}"><span style="width:32px;height:32px;border-radius:9px;background:var(--green-050);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green-800)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ r.icon }}"></path></svg></span><span style="flex:1;font-size:16px;font-weight:600">{{ r.label }}</span><span style="font-size:13px;color:#5c6a63">{{ r.val }}</span><span style="color:var(--green-chev);font-size:18px">›</span></div></sc-for>
+      </div>
+    </sc-for>
+  </div>
+  <div style="background:#fff;border-top:1px solid var(--line-soft);box-shadow:var(--shadow-nav);display:grid;grid-template-columns:repeat(5,1fr);height:62px;padding-bottom:8px"><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><img src="assets/ic-home.svg" alt="" style="width:23px;height:23px"><span style="font-size:11px;font-weight:600;color:#5c6a63">Übersicht</span></div><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><img src="assets/ic-kal.svg" alt="" style="width:23px;height:23px"><span style="font-size:11px;font-weight:600;color:#5c6a63">Kalender</span></div><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><img src="assets/ic-kat.svg" alt="" style="width:23px;height:23px"><span style="font-size:11px;font-weight:600;color:#5c6a63">Katalog</span></div><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><img src="assets/ic-konto.svg" alt="" style="width:23px;height:23px"><span style="font-size:11px;font-weight:600;color:#5c6a63">Konto</span></div><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><img src="assets/ic-mehr.svg" alt="" style="width:23px;height:23px"><span style="font-size:11px;font-weight:600;color:#5c6a63">Mehr</span></div></div>
+</div></figure>
+
+<figure style="margin:0;display:flex;flex-direction:column;gap:10px;width:390px"><figcaption style="font-size:14px;font-weight:700">19 Mitteilungen</figcaption>
+<div data-screen-label="19 Mitteilungen" style="width:390px;border-radius:28px;overflow:hidden;border:1px solid var(--line-soft);background:var(--grad-app);box-shadow:0 20px 40px -24px rgba(16,40,30,.4)">
+  <div style="background:var(--grad-hd);box-shadow:var(--shadow-hd);height:58px;display:flex;align-items:center;gap:10px;padding:0 14px;color:#fff"><img src="assets/logo.png" alt="" style="width:34px;height:34px;border-radius:50%"><span style="flex:1;text-align:center;font-size:15px;font-weight:700">FC Fasanerie-Nord 2</span><img src="assets/ic-gear.svg" alt="" style="width:24px;height:24px;margin-left:10px"></div>
+  <div style="padding:12px 16px 24px;display:flex;flex-direction:column">
+    <span style="min-height:44px;display:flex;align-items:center;font-size:15px;font-weight:600;color:var(--green-800)">‹ Einstellungen</span>
+    <span style="font-size:26px;font-weight:800;letter-spacing:-.02em">Mitteilungen</span>
+    <div style="margin-top:16px;background:var(--grad-card);border:1px solid var(--line-soft);border-radius:14px;box-shadow:var(--shadow-card);display:flex;align-items:center;gap:12px;min-height:60px;padding:0 16px"><div style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;font-weight:700">Mitteilungen erlauben</span><span style="font-size:13px;color:#5c6a63">Auf diesem iPhone aktiv</span></div><span style="width:51px;height:31px;border-radius:999px;background:var(--green-700);position:relative"><span style="position:absolute;right:2px;top:2px;width:27px;height:27px;border-radius:999px;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2)"></span></span></div>
+    <sc-for list="{{ pushGruppen }}" as="g" hint-placeholder-count="2">
+      <div style="margin:24px 0 8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">{{ g.name }}</div>
+      <div style="background:var(--grad-card);border:1px solid var(--line-soft);border-radius:14px;box-shadow:var(--shadow-card)">
+        <sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border-top:{{ r.bt }}"><span style="flex:1;font-size:16px;font-weight:600">{{ r.label }}</span>
+          <sc-if value="{{ r.on }}" hint-placeholder-val="{{ true }}"><span style="flex:none;width:51px;height:31px;border-radius:999px;background:var(--green-700);position:relative"><span style="position:absolute;right:2px;top:2px;width:27px;height:27px;border-radius:999px;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2)"></span></span></sc-if>
+          <sc-if value="{{ r.off }}" hint-placeholder-val="{{ false }}"><span style="flex:none;width:51px;height:31px;border-radius:999px;background:var(--line);position:relative"><span style="position:absolute;left:2px;top:2px;width:27px;height:27px;border-radius:999px;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2)"></span></span></sc-if>
+        </div></sc-for>
+      </div>
+    </sc-for>
+  </div>
+</div></figure>
+
+<figure style="margin:0;display:flex;flex-direction:column;gap:10px;width:390px"><figcaption style="font-size:14px;font-weight:700">20 Kalender abonnieren</figcaption>
+<div data-screen-label="20 Kalender-Abo" style="width:390px;border-radius:28px;overflow:hidden;border:1px solid var(--line-soft);background:var(--grad-app);box-shadow:0 20px 40px -24px rgba(16,40,30,.4)">
+  <div style="background:var(--grad-hd);box-shadow:var(--shadow-hd);height:58px;display:flex;align-items:center;gap:10px;padding:0 14px;color:#fff"><img src="assets/logo.png" alt="" style="width:34px;height:34px;border-radius:50%"><span style="flex:1;text-align:center;font-size:15px;font-weight:700">FC Fasanerie-Nord 2</span><img src="assets/ic-gear.svg" alt="" style="width:24px;height:24px;margin-left:10px"></div>
+  <div style="padding:12px 16px 24px;display:flex;flex-direction:column">
+    <span style="min-height:44px;display:flex;align-items:center;font-size:15px;font-weight:600;color:var(--green-800)">‹ Einstellungen</span>
+    <span style="font-size:26px;font-weight:800;letter-spacing:-.02em">Kalender abonnieren</span>
+    <div style="margin-top:16px;background:var(--grad-card);border:1px solid var(--line-soft);border-radius:14px;box-shadow:var(--shadow-card);padding:16px;display:flex;flex-direction:column;gap:10px"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:16px;font-weight:700">Status</span><span style="padding:3px 10px;border-radius:999px;background:var(--line);color:var(--ink);font-size:12px;font-weight:700">Nicht eingerichtet</span></div><span style="font-size:13px;color:#5c6a63">Termine erscheinen im Handy-Kalender und bleiben aktuell.</span></div>
+    <div style="margin:24px 0 8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">iPhone und iPad</div>
+    <div style="min-height:48px;border-radius:12px;background:linear-gradient(180deg,var(--green-600),var(--green-700));color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;box-shadow:var(--shadow-btn)">Im iPhone-Kalender abonnieren</div>
+    <div style="margin:24px 0 8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">Android und Google</div>
+    <div style="min-height:48px;border-radius:12px;background:var(--grad-btn-sec);border:1px solid var(--line-soft-3);box-shadow:var(--shadow-btn-sec);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700">Link kopieren</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;min-height:44px;margin-top:4px"><span style="font-size:13px;color:#5c6a63">Google übernimmt Änderungen bis zu 24 h später.</span><span style="font-size:15px;font-weight:600;color:var(--green-800);white-space:nowrap">Anleitung ›</span></div>
+    <div style="margin-top:20px;background:var(--grad-card);border:1px solid var(--line-soft);border-radius:14px;box-shadow:var(--shadow-card);display:flex;align-items:center;gap:12px;min-height:60px;padding:0 16px"><div style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;font-weight:700;color:var(--red-700)">Link zurücksetzen</span><span style="font-size:13px;color:#5c6a63">Der alte Link funktioniert danach nicht mehr.</span></div><span style="color:var(--red-chev);font-size:18px">›</span></div>
+  </div>
+</div></figure>
+
+<figure style="margin:0;display:flex;flex-direction:column;gap:10px;width:390px"><figcaption style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap">21 Profil<span style="padding:2px 9px;border-radius:999px;background:var(--gold-500);color:var(--ink);font-size:12px;font-weight:800">Geändert</span><span style="font-size:13px;font-weight:500;color:#5c6a63">Position statt Rückennummer</span></figcaption>
+<div data-screen-label="21 Profil" style="width:390px;border-radius:28px;overflow:hidden;border:1px solid var(--line-soft);background:var(--grad-app);box-shadow:0 20px 40px -24px rgba(16,40,30,.4)">
+  <div style="background:var(--grad-hd);box-shadow:var(--shadow-hd);height:58px;display:flex;align-items:center;gap:10px;padding:0 14px;color:#fff"><img src="assets/logo.png" alt="" style="width:34px;height:34px;border-radius:50%"><span style="flex:1;text-align:center;font-size:15px;font-weight:700">FC Fasanerie-Nord 2</span><img src="assets/ic-gear.svg" alt="" style="width:24px;height:24px;margin-left:10px"></div>
+  <div style="padding:12px 16px 24px;display:flex;flex-direction:column">
+    <span style="min-height:44px;display:flex;align-items:center;font-size:15px;font-weight:600;color:var(--green-800)">‹ Einstellungen</span>
+    <div style="margin-top:8px;display:flex;flex-direction:column;align-items:center;gap:8px"><span style="width:76px;height:76px;border-radius:999px;background:var(--grad-av);box-shadow:var(--shadow-av);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:var(--green-800)">LW</span><span style="font-size:22px;font-weight:800;letter-spacing:-.02em">Lukas Weber</span><div style="display:flex;gap:6px"><span style="padding:3px 10px;border-radius:999px;background:var(--grad-gold);border:1px solid var(--gold-line);color:var(--gold-ink);font-size:12px;font-weight:700">Admin</span><span style="padding:3px 10px;border-radius:999px;background:var(--line);color:var(--ink);font-size:12px;font-weight:700">Spieler</span></div></div>
+    <div style="margin:24px 0 8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">Konto</div>
+    <div style="background:var(--grad-card);border:1px solid var(--line-soft);border-radius:14px;box-shadow:var(--shadow-card)">
+      <div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px"><span style="width:84px;font-size:13px;font-weight:600;color:#5c6a63">E-Mail</span><span style="flex:1;min-width:0;font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">bennilauck@gmail.com</span></div>
+      <div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border-top:1px solid var(--line)"><span style="width:84px;font-size:13px;font-weight:600;color:#5c6a63">Position</span><span style="flex:1;font-size:15px;font-weight:500">Innenverteidiger</span><span style="color:var(--green-chev);font-size:18px">›</span></div>
+      <div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border-top:1px solid var(--line)"><span style="width:84px;font-size:13px;font-weight:600;color:#5c6a63">Passwort</span><span style="flex:1;font-size:15px;font-weight:500">Ändern</span><span style="color:var(--green-chev);font-size:18px">›</span></div>
+    </div>
+    <div style="margin-top:24px;min-height:48px;border-radius:12px;background:var(--grad-btn-sec);border:1px solid var(--red-line);box-shadow:var(--shadow-btn-sec);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--red-700)">Abmelden</div>
+  </div>
+</div></figure>
+
+<figure style="margin:0;display:flex;flex-direction:column;gap:10px;width:390px"><figcaption style="font-size:14px;font-weight:700">22 Anmeldung</figcaption>
+<div data-screen-label="22 Anmeldung" style="width:390px;height:760px;border-radius:28px;overflow:hidden;border:1px solid var(--line-soft);background:var(--grad-auth);display:flex;flex-direction:column;justify-content:center;padding:0 20px;box-sizing:border-box">
+  <div style="background:#fff;border-radius:18px;box-shadow:var(--shadow-auth);padding:28px 20px 22px;display:flex;flex-direction:column;align-items:center;gap:6px">
+    <img src="assets/logo.png" alt="" style="width:76px;height:76px;border-radius:50%;box-shadow:0 6px 16px -8px rgba(0,0,0,.5)">
+    <span style="margin-top:10px;font-size:22px;font-weight:800;letter-spacing:-.02em">FC Fasanerie-Nord</span><span style="font-size:13px;color:#5c6a63">Mannschafts-App</span>
+    <div style="width:100%;margin-top:18px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#5c6a63">E-Mail</span><div style="min-height:48px;border-radius:12px;background:var(--grad-in);border:1px solid var(--line-soft-3);box-shadow:var(--shadow-in);display:flex;align-items:center;padding:0 14px;font-size:16px">lukas@beispiel.de</div></div>
+      <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:#5c6a63">Passwort</span><div style="min-height:48px;border-radius:12px;background:var(--grad-in);border:1px solid var(--line-soft-3);box-shadow:var(--shadow-in);display:flex;align-items:center;padding:0 14px;font-size:16px;letter-spacing:.2em">••••••••</div></div>
+      <div style="margin-top:6px;min-height:48px;border-radius:12px;background:linear-gradient(180deg,var(--green-600),var(--green-700));color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;box-shadow:var(--shadow-btn)">Anmelden</div>
+      <div style="display:flex;justify-content:space-between;min-height:44px;align-items:center"><span style="font-size:15px;font-weight:600;color:var(--green-800)">Passwort vergessen?</span><span style="font-size:15px;font-weight:600;color:var(--green-800)">Registrieren ›</span></div>
+    </div>
+  </div>
+</div></figure>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const I = {
+      bell: 'M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20.5h4', moon: 'M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z',
+      cal: 'M5 4.5h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-12a2 2 0 0 1 2-2zM3 9h18M8 2.5v4M16 2.5v4',
+      list: 'M4 5h16v14H4zM4 10h16M9 5v14', book: 'M5 4h14v16H7a2 2 0 0 1-2-2zM5 18a2 2 0 0 1 2-2h12M9 8h6M9 11h4',
+      msg: 'M4 5h16v11H9l-5 4zM8 9h8M8 12h5', user: 'M12 12a4 4 0 1 0 0-8a4 4 0 0 0 0 8zM4 20a8 8 0 0 1 16 0',
+      pulse: 'M3 12h4l2-5 4 10 2-5h6', reload: 'M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5',
+    };
+    const bt = i => (i ? '1px solid var(--line)' : '0');
+    const g = (name, rows) => ({ name, rows: rows.map(([label, val, icon], i) => ({ label, val, icon, bt: bt(i) })) });
+    const p = (name, rows) => ({ name, rows: rows.map(([label, on], i) => ({ label, on, off: !on, bt: bt(i) })) });
+    return {
+      gruppen: [
+        g('Für mich', [['Mitteilungen', 'An', I.bell], ['Ruhezeiten', '22 bis 8 Uhr', I.moon], ['Kalender abonnieren', 'Aus', I.cal]]),
+        g('Verwaltung', [['Spielplan BFV', 'Verbunden', I.list], ['Strafenkatalog', '', I.book], ['Push-Texte', '', I.msg], ['Rollen', '16', I.user]]),
+        g('Info', [['Diagnose', '', I.pulse], ['App neu laden', '', I.reload]]),
+      ],
+      pushGruppen: [
+        p('Termine', [['Neuer oder geänderter Termin', true], ['Erinnerung vor Meldeschluss', true], ['Aufstellung veröffentlicht', true]]),
+        p('Strafen', [['Neue Strafe', true], ['Zahlung bestätigt', false]]),
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

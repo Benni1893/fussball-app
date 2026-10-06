@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/fc-fasanerie-nord-app-7e48a82b-b7ba-40ea-9e6b-30040a24c0d8/fonts/inter.css">
+<link rel="stylesheet" href="_ds/fc-fasanerie-nord-app-7e48a82b-b7ba-40ea-9e6b-30040a24c0d8/tokens/tokens.css">
+<script src="_ds/fc-fasanerie-nord-app-7e48a82b-b7ba-40ea-9e6b-30040a24c0d8/_ds_bundle.js"></script>
+<style>
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Inter",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--green-800)}a:hover{color:var(--green-700)}
+</style>
+</helmet>
+<div style="max-width:1080px;margin:0 auto;padding:40px 24px 80px;display:flex;flex-direction:column;gap:48px">
+
+<header style="display:flex;flex-direction:column;gap:10px">
+  <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green-800)">FC Fasanerie-Nord · Design-Review · Schritt 1 und 2</div>
+  <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:14px;font-weight:600"><b>Finale Fassung:</b><a href="Final A Übersicht und Kalender.dc.html">A</a><a href="Final B Trainer und Kader.dc.html">B</a><a href="Final C Konto Kasse Katalog.dc.html">C</a><a href="Final D Einstellungen und Anmeldung.dc.html">D</a><span style="color:#5c6a63">·</span><span>Schritt 3 und 4:</span><a href="Soll 1 Übersicht und Kalender.dc.html">1 Übersicht, Kalender</a><a href="Soll 2 Trainer.dc.html">2 Trainer</a><a href="Soll 3 Konto Kasse Katalog.dc.html">3 Konto, Kasse, Katalog</a><a href="Soll 4 Einstellungen und Umsetzung.dc.html">4 Einstellungen, Umsetzung</a></div>
+  <h1 style="margin:0;font-size:34px;font-weight:800;letter-spacing:-.025em;line-height:1.1">Bewertung und Gesamtkonzept</h1>
+  <p style="margin:0;max-width:720px;font-size:16px;line-height:1.55;color:#5c6a63;text-wrap:pretty">Grundlage: 23 iPhone-Screenshots aus <code>concepts/</code> (Rolle Admin mit Spieler, Trainer und Kasse) plus Landkarten-Bilder für Platz, Bank-Blatt, Termin anlegen, Strafe verhängen, Kalender-Abo-Blatt und Mehr-Blatt. Kontraste sind aus den Tokens gerechnet.</p>
+</header>
+
+<section style="display:flex;flex-direction:column;gap:16px">
+  <h2 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-.015em">Gesamturteil</h2>
+  <div style="background:var(--card);border:1px solid var(--line-soft);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:24px;display:flex;flex-direction:column;gap:12px;max-width:820px">
+    <p style="margin:0;font-size:16px;line-height:1.6;text-wrap:pretty">Die App trägt sich über einen starken Rahmen: Vereinsgrün, Goldwürfel fürs Datum, weiche helle Karten und ein klarer Ablauf von Termin über Zusage bis Strafe. Die Trainer-Ansicht und das Rückmeldungen-Blatt sind im aktuellen Stand bereits hell; das eigentliche Dunkel-Problem sitzt im Termin-Kopf, der auf jeder Kalenderkarte wiederkehrt und dort seine Auszeichnung verliert.</p>
+    <p style="margin:0;font-size:16px;line-height:1.6;text-wrap:pretty">Am stärksten bricht die Einheit an den Bausteinen: zwei Primärknöpfe, vier Gruppenkopf-Stile, drei Auswahlmuster, Listen mal als Einzelkarten und mal gruppiert, Marken in Versalien und in Kleinschrift. Dazu kommen Kontrastlücken (Primärknopf 3,88:1, Nebentext auf dem App-Grund 4,0:1). Konto und Kasse wirken voll, weil Mannschaftszahlen, persönlicher Stand und zwei Filterachsen auf einer Seite liegen.</p>
+  </div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:12px">
+    <h2 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-.015em">Befundliste</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:13px;font-weight:700">
+      <span style="padding:4px 10px;border-radius:999px;background:var(--red-050);color:var(--red-700)">{{ cntHoch }} hoch</span>
+      <span style="padding:4px 10px;border-radius:999px;background:var(--amber-050);color:#8a5a08">{{ cntMittel }} mittel</span>
+      <span style="padding:4px 10px;border-radius:999px;background:var(--line);color:var(--ink)">{{ cntGering }} gering</span>
+    </div>
+  </div>
+
+  <sc-for list="{{ groups }}" as="g" hint-placeholder-count="4">
+    <div style="background:var(--card);border:1px solid var(--line-soft);border-radius:var(--radius);box-shadow:var(--shadow-card);overflow:hidden">
+      <div style="padding:16px 20px;display:flex;flex-direction:column;gap:12px;border-bottom:1px solid var(--line)">
+        <div style="font-size:17px;font-weight:800;letter-spacing:-.01em">{{ g.name }}</div>
+        <sc-if value="{{ g.hasShots }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <sc-for list="{{ g.shots }}" as="s" hint-placeholder-count="3">
+              <a href="{{ s.src }}" target="_blank" style="display:flex;flex-direction:column;gap:4px;text-decoration:none;width:92px">
+                <img src="{{ s.src }}" alt="" style="width:92px;aspect-ratio:1170/2532;object-fit:cover;object-position:top;border-radius:10px;border:1px solid var(--line);display:block;background:var(--bg-2)">
+                <span style="font-size:12px;font-weight:600;color:#5c6a63;line-height:1.3">{{ s.label }}</span>
+              </a>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+      <div style="display:grid;grid-template-columns:44px minmax(90px,130px) minmax(0,1fr) minmax(110px,170px) 72px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63;padding:10px 20px 6px;column-gap:14px">
+        <span>#</span><span>Ansicht</span><span>Befund</span><span>Kategorie</span><span>Schwere</span>
+      </div>
+      <sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="3">
+        <div style="display:grid;grid-template-columns:44px minmax(90px,130px) minmax(0,1fr) minmax(110px,170px) 72px;column-gap:14px;padding:12px 20px;border-top:1px solid var(--line);align-items:start;font-size:14px;line-height:1.5">
+          <span style="font-weight:800;color:var(--green-800);font-variant-numeric:tabular-nums">{{ r.n }}</span>
+          <span style="font-weight:600">{{ r.view }}</span>
+          <span style="text-wrap:pretty">{{ r.text }}</span>
+          <span style="color:#5c6a63">{{ r.cat }}</span>
+          <span>
+            <sc-if value="{{ r.isHoch }}" hint-placeholder-val="{{ false }}"><span style="display:inline-block;padding:2px 9px;border-radius:999px;background:var(--red-050);color:var(--red-700);font-size:12px;font-weight:700">hoch</span></sc-if>
+            <sc-if value="{{ r.isMittel }}" hint-placeholder-val="{{ false }}"><span style="display:inline-block;padding:2px 9px;border-radius:999px;background:var(--amber-050);color:#8a5a08;font-size:12px;font-weight:700">mittel</span></sc-if>
+            <sc-if value="{{ r.isGering }}" hint-placeholder-val="{{ false }}"><span style="display:inline-block;padding:2px 9px;border-radius:999px;background:var(--line);color:var(--ink);font-size:12px;font-weight:700">gering</span></sc-if>
+          </span>
+        </div>
+      </sc-for>
+    </div>
+  </sc-for>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;flex-direction:column;gap:6px">
+    <h2 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-.015em">Gesamtkonzept</h2>
+    <p style="margin:0;font-size:16px;line-height:1.55;color:#5c6a63;max-width:720px">Sieben Regeln. Jede Ansicht in Schritt 3 wird nur gegen diese Regeln geprüft.</p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:16px">
+
+    <article style="background:var(--card);border:1px solid var(--line-soft);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:22px;display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;gap:10px;align-items:baseline"><span style="font-size:13px;font-weight:800;color:var(--green-800)">R1</span><h3 style="margin:0;font-size:18px;font-weight:800">Eine Flächensprache</h3></div>
+      <p style="margin:0;font-size:15px;line-height:1.55;text-wrap:pretty">Hell ist der Normalfall. Dunkelgrün ist eine Fläche mit Bedeutung und kommt nur dreimal vor:</p>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;gap:12px;align-items:center"><span style="flex:none;width:44px;height:28px;border-radius:6px;background:var(--grad-hd)"></span><span style="font-size:15px"><b>Kopfzeile.</b> Rahmen der App, unverändert.</span></div>
+        <div style="display:flex;gap:12px;align-items:center"><span style="flex:none;width:44px;height:28px;border-radius:6px;background:var(--pitch-green)"></span><span style="font-size:15px"><b>Spielfeld.</b> Abbild eines Gegenstands, kein Schmuck.</span></div>
+        <div style="display:flex;gap:12px;align-items:center"><span style="flex:none;width:44px;height:28px;border-radius:6px;background:var(--green-800)"></span><span style="font-size:15px"><b>Kopf des nächsten Termins.</b> Genau einmal pro Ansicht.</span></div>
+      </div>
+      <p style="margin:0;font-size:15px;line-height:1.55;color:#5c6a63;text-wrap:pretty">Begründung: Dunkel zieht am stärksten. Steht es auf jeder Kalenderkarte, zeigt es nichts mehr an. Gebunden an „der nächste Termin" beantwortet es die Frage, für die man die App am Spielfeldrand öffnet. Alles andere (Kassen-Zusammenfassung, Blätter, Kennzahlen) ist hell. Ausgewählte Zustände (aktiver Chip, Primärknopf) tragen Grün als Farbe, nicht als Fläche.</p>
+    </article>
+
+    <article style="background:var(--card);border:1px solid var(--line-soft);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:22px;display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;gap:10px;align-items:baseline"><span style="font-size:13px;font-weight:800;color:var(--green-800)">R2</span><h3 style="margin:0;font-size:18px;font-weight:800">Sechs Schriftstufen</h3></div>
+      <div style="display:flex;flex-direction:column;border-top:1px solid var(--line)">
+        <div style="display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line)"><span style="font-size:13px;color:#5c6a63">Betrag 40/800</span><span style="font-size:40px;font-weight:800;letter-spacing:-.03em;line-height:1.1;color:var(--red-600);font-variant-numeric:tabular-nums">30,00 €</span></div>
+        <div style="display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line)"><span style="font-size:13px;color:#5c6a63">Titel 26/800</span><span style="font-size:26px;font-weight:800;letter-spacing:-.02em">Kalender</span></div>
+        <div style="display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line)"><span style="font-size:13px;color:#5c6a63">Kennzahl 21/800</span><span style="font-size:21px;font-weight:800;color:var(--green-800);font-variant-numeric:tabular-nums">4.586,00 €</span></div>
+        <div style="display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line)"><span style="font-size:13px;color:#5c6a63">Zeile 16/700</span><span style="font-size:16px;font-weight:700">FC Teutonia Mün. 2</span></div>
+        <div style="display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line)"><span style="font-size:13px;color:#5c6a63">Neben 13/500</span><span style="font-size:13px;font-weight:500;color:#5c6a63">13:30 Uhr · Auswärts</span></div>
+        <div style="display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line)"><span style="font-size:13px;color:#5c6a63">Etikett 12/700</span><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">Weitere Spiele</span></div>
+      </div>
+      <p style="margin:0;font-size:15px;line-height:1.55;text-wrap:pretty"><b>Mindestgröße 13 px</b> für Fließ- und Hinweistext. 12 px nur für Versal-Etiketten. Einzige Ausnahme: Beschriftung der Navigation (11 px, Rahmen bleibt). Der Betrag in 40 px steht höchstens einmal pro Ansicht.</p>
+    </article>
+
+    <article style="background:var(--card);border:1px solid var(--line-soft);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:22px;display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;gap:10px;align-items:baseline"><span style="font-size:13px;font-weight:800;color:var(--green-800)">R3</span><h3 style="margin:0;font-size:18px;font-weight:800">Hinweistexte</h3></div>
+      <div style="display:flex;flex-direction:column;gap:10px;font-size:15px;line-height:1.55">
+        <div><b>Wann.</b> Nur wenn eine Folge nicht sichtbar ist (Frist, Erhöhung, Verzögerung bei Google) oder ein Knopf fehlt bzw. gesperrt ist und der Grund nicht offensichtlich ist.</div>
+        <div><b>Wie lang.</b> Eine Zeile, höchstens rund 50 Zeichen. Anleitungen mit Schritten gehören in ein eigenes Blatt, das man bewusst öffnet.</div>
+        <div><b>Wo.</b> Direkt unter dem Element, auf das er sich bezieht, in 13 px Nebenfarbe. Keine Begleitsätze unter Seitentiteln. Erklärungen für den ersten Besuch stehen im Leerzustand.</div>
+        <div><b>Nie.</b> Bedienanleitungen wie „antippen zum Auswählen", Wiederholungen einer Zahl, die schon dasteht.</div>
+      </div>
+    </article>
+
+    <article style="background:var(--card);border:1px solid var(--line-soft);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:22px;display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;gap:10px;align-items:baseline"><span style="font-size:13px;font-weight:800;color:var(--green-800)">R4</span><h3 style="margin:0;font-size:18px;font-weight:800">Knöpfe und Verweise</h3></div>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px">
+        <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">Ist</span>
+          <div style="min-height:48px;border-radius:12px;background:var(--grad-btn);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;box-shadow:var(--shadow-btn)">Bezahlen</div>
+          <span style="font-size:13px;color:var(--red-700);font-weight:600">3,88:1</span>
+          <div style="min-height:48px;border-radius:12px;background:var(--green-700);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px">Elf aufstellen</div>
+          <span style="font-size:13px;color:#5c6a63">zweiter, flacher Primärstil</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--green-800)">Soll</span>
+          <div style="min-height:48px;border-radius:12px;background:linear-gradient(180deg,var(--green-600),var(--green-700));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;box-shadow:var(--shadow-btn)">Primär</div>
+          <span style="font-size:13px;color:var(--green-800);font-weight:600">5,3:1 bis 7,7:1</span>
+          <div style="min-height:48px;border-radius:12px;background:var(--grad-btn-sec);border:1px solid var(--line-soft-3);color:var(--ink);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;box-shadow:var(--shadow-btn-sec)">Sekundär</div>
+          <span style="font-size:15px;font-weight:600;color:var(--green-800);padding-top:6px">Textverweis ›</span>
+        </div>
+      </div>
+      <p style="margin:0;font-size:15px;line-height:1.55;text-wrap:pretty">Ein Primärstil, ein Primärknopf pro Ansicht oder Blatt, Höhe 48 px. Gefährliche Handlungen als Sekundärknopf mit roter Schrift. Gesperrt heißt: Fläche <code>--line</code>, Schrift Nebenfarbe, nie hellgrün. Textverweise in <code>--green-800</code> ohne Unterstreichung, mit Pfeil wenn sie wegführen; unterstrichen nur im Fließtext.</p>
+    </article>
+
+    <article style="background:var(--card);border:1px solid var(--line-soft);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:22px;display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;gap:10px;align-items:baseline"><span style="font-size:13px;font-weight:800;color:var(--green-800)">R5</span><h3 style="margin:0;font-size:18px;font-weight:800">Karte, Zeile, Kachel, Gruppenkopf</h3></div>
+      <div style="display:flex;flex-direction:column;gap:10px;font-size:15px;line-height:1.55">
+        <div><b>Karte.</b> Weiß, Radius 14, <code>--shadow-card</code>, Innenabstand 16. Keine Karte in der Karte: Unterbereiche trennt eine Linie oder 12 px Abstand, kein zweiter Rahmen.</div>
+        <div><b>Zeile.</b> Mindestens 52 px, links Avatar oder Symbol 36 px, Titel 16/700, Unterzeile 13, rechts Wert oder Marke, Pfeil nur wenn die Zeile wegführt. Mehrere Zeilen bilden eine Karte mit Trennlinien. Eigene Karten bekommen nur Dinge mit eigener Handlung (Termin, Zahlung prüfen).</div>
+        <div><b>Kachel.</b> Etikett 12 Versal, Wert 21/800 in gleicher Ziffernbreite, höchstens eine Unterzeile. Beträge höchstens zwei nebeneinander, damit „€" nie umbricht. Farbkante nur für einen Warnzustand.</div>
+        <div><b>Gruppenkopf.</b> Ein Stil überall: Etikett 12/700 Versal in Nebenfarbe, 24 px darüber, 8 darunter, rechts optional ein Textverweis. Gilt auch innerhalb von Karten.</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;padding-top:6px;border-top:1px solid var(--line)"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">Weitere Spiele</span><span style="font-size:15px;font-weight:600;color:var(--green-800)">Alle ›</span></div>
+    </article>
+
+    <article style="background:var(--card);border:1px solid var(--line-soft);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:22px;display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;gap:10px;align-items:baseline"><span style="font-size:13px;font-weight:800;color:var(--green-800)">R6</span><h3 style="margin:0;font-size:18px;font-weight:800">Auswahl, Marke, Leerzustand</h3></div>
+      <div style="display:flex;flex-direction:column;gap:10px;font-size:15px;line-height:1.55">
+        <div><b>Segment</b> für den Wechsel zwischen 2 bis 4 Ansichten (Kalender-Filter, Kasse, Konto Ich/Mannschaft): weiße Pille auf grauer Spur, wie heute in der Kasse.</div>
+        <div><b>Chips</b> nur für Filter und Auswahl auf einer Ansicht (Formation, Status); aktiv in <code>--green-700</code>.</div>
+        <div><b>Marke</b> als Pille 12/700 in Satzschreibung, Farbe nach Bedeutung: Grün erledigt, Rot offen oder abgesagt, Amber wartet, Blau nur Urlaub, sonst neutral. Heim und Auswärts überall gleich, neutral.</div>
+        <div><b>Aufgabenzeile</b> Rot, wenn eine Frist läuft; Amber, wenn sie auf andere wartet. Keine grüne Aufgabe.</div>
+        <div><b>Leerzustand.</b> Liniensymbol 24 px, ein Satz 15/600, optional ein Knopf.</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <span style="padding:3px 10px;border-radius:999px;background:var(--green-badge-bg);color:var(--green-800);font-size:12px;font-weight:700">Zugesagt</span>
+        <span style="padding:3px 10px;border-radius:999px;background:var(--red-050);color:var(--red-700);font-size:12px;font-weight:700">Offen</span>
+        <span style="padding:3px 10px;border-radius:999px;background:var(--amber-050);color:#8a5a08;font-size:12px;font-weight:700">Gemeldet</span>
+        <span style="padding:3px 10px;border-radius:999px;background:var(--blau-050);color:var(--blau-700);font-size:12px;font-weight:700">Urlaub</span>
+        <span style="padding:3px 10px;border-radius:999px;background:var(--line);color:var(--ink);font-size:12px;font-weight:700">Auswärts</span>
+      </div>
+    </article>
+
+    <article style="background:var(--card);border:1px solid var(--line-soft);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:22px;display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;gap:10px;align-items:baseline"><span style="font-size:13px;font-weight:800;color:var(--green-800)">R7</span><h3 style="margin:0;font-size:18px;font-weight:800">Abstände und Kontrast</h3></div>
+      <div style="display:flex;flex-direction:column;gap:10px;font-size:15px;line-height:1.55">
+        <div><b>Raster 4.</b> Erlaubt sind 4, 8, 12, 16, 24, 32. Seitenrand 16, zwischen Karten 12, zwischen Gruppen 24.</div>
+        <div><b>Nebenfarbe dunkler.</b> <code>--muted</code> von #66756d auf #5c6a63: 5,7:1 auf Weiß und 4,7:1 auf dem App-Grund (heute 4,0:1). Damit reicht eine Nebenfarbe für Karte und Grund.</div>
+        <div><b>Amber-Schrift</b> unter 18 px nur in einem dunkleren Ton (#8a5a08, 5,9:1 auf <code>--amber-050</code>); heute 3,4:1.</div>
+      </div>
+      <div style="display:flex;gap:4px;align-items:flex-end">
+        <span style="width:4px;height:4px;background:var(--green-700)"></span><span style="width:8px;height:8px;background:var(--green-700)"></span><span style="width:12px;height:12px;background:var(--green-700)"></span><span style="width:16px;height:16px;background:var(--green-700)"></span><span style="width:24px;height:24px;background:var(--green-700)"></span><span style="width:32px;height:32px;background:var(--green-700)"></span>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:16px">
+  <div style="display:flex;flex-direction:column;gap:6px">
+    <h2 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-.015em">Zur Freigabe</h2>
+    <p style="margin:0;font-size:16px;line-height:1.55;color:#5c6a63;max-width:720px">Diese Punkte kippen frühere Entscheidungen oder verschieben Funktionen. Keine Funktion fällt weg; der neue Ort steht jeweils dabei.</p>
+  </div>
+  <div style="background:var(--card);border:1px solid var(--line-soft);border-radius:var(--radius);box-shadow:var(--shadow-card);overflow:hidden">
+    <sc-for list="{{ decisions }}" as="d" hint-placeholder-count="5">
+      <div style="display:grid;grid-template-columns:52px minmax(0,1fr);gap:14px;padding:16px 20px;border-top:1px solid var(--line)">
+        <span style="font-size:15px;font-weight:800;color:var(--green-800)">{{ d.id }}</span>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <sc-if value="{{ d.kippen }}" hint-placeholder-val="{{ false }}"><span style="padding:2px 9px;border-radius:999px;background:var(--red-050);color:var(--red-700);font-size:12px;font-weight:700">Entscheidung kippen</span></sc-if>
+            <span style="font-size:16px;font-weight:700">{{ d.title }}</span>
+          </div>
+          <span style="font-size:15px;line-height:1.55;color:var(--ink);text-wrap:pretty">{{ d.text }}</span>
+          <span style="font-size:14px;line-height:1.5;color:#5c6a63">Befunde {{ d.refs }}</span>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const S = (src, label) => ({ src, label });
+    const raw = [
+      { name: 'Ansichtsübergreifend', shots: [], rows: [
+        ['Alle', 'Zwei Primärknöpfe: heller Verlauf bei Bezahlen, Strafe verhängen, Bestätigen, Termine abonnieren, Anlegen; flaches Dunkelgrün bei Elf aufstellen, Alle erinnern, Termin hinzufügen, Zum Kalender hinzufügen.', 'Komponente uneinheitlich', 'h'],
+        ['Alle', 'Weiße Schrift auf --grad-btn erreicht am hellen Ende nur 3,88:1.', 'Kontrast', 'h'],
+        ['Alle', '--muted auf dem App-Grund (--bg-2) erreicht nur 4,0:1. Betrifft Begleitsätze unter Seitentiteln und Gruppenköpfe wie „Weitere Spiele", „Danach", „Mein Status".', 'Kontrast', 'h'],
+        ['Alle', 'Vier Gruppenkopf-Stile: „Was heute liegt" und „Kader-Status" (15 px fett), „Danach" (Versal grau), „Verwaltung" (Versal grün), „Zusagen" (Versal grün, breit gesperrt, in der Karte).', 'Komponente uneinheitlich', 'h'],
+        ['Alle', 'Rund 15 Schriftgrößen im CSS (9 bis 22 px plus rem-Werte). Monat im Datumswürfel 9 px, Wochentag 10 px.', 'Typografie', 'h'],
+        ['Alle', 'Listen mal als Einzelkarten je Eintrag (Konto, Katalog, Kasse Offen, Kader, Katalogauswahl), mal als gruppierte Liste mit Trennlinien (Danach, Weitere Spiele, Eingegangen, Einstellungen).', 'Komponente uneinheitlich', 'h'],
+        ['Alle', 'Drei Muster für eins aus mehreren: Segment mit dunkler Pille (Kalender), Segment mit weißer Pille (Kasse), freistehende Chips (Konto, Formation).', 'Komponente uneinheitlich', 'm'],
+        ['Alle', 'Marken mischen Versalien (ZUGESAGT, ROUTE, HEIM) und Kleinschrift (offen, Elf steht, vergeben). Heim/Auswärts erscheint gold auf dunkel, grün auf hell oder als Text.', 'Komponente uneinheitlich', 'm'],
+        ['Alle', 'Textverweise mal unterstrichen (Zahlung melden, In Kalender speichern, Neu laden), mal nicht (Alle ›, Neu ›, Alle bestätigen, Auch individuelle Strafe).', 'Komponente uneinheitlich', 'm'],
+        ['Alle', 'Karte in Karte: Der Termin-Hero enthält umrandete Unterkacheln (Ort, Zusagen, Aufstellung, Kader-Info). Drei Rahmenebenen übereinander.', 'Flächensprache', 'm'],
+        ['Alle', '„Neu laden" am Fuß jeder Seite, dazu „App neu laden" in den Einstellungen und Ziehen zum Aktualisieren.', 'Kleingedrucktes', 'g'],
+      ]},
+      { name: 'Übersicht mit Termin-Hero', shots: [S('ist/img/0660.png','Admin oben'), S('ist/img/0661.png','Konto'), S('ist/img/0662.png','2. Hero'), S('ist/img/0664.png','Ende'), S('ist/dashboard-tk.png','Trainer')], rows: [
+        ['Übersicht', 'Hero sehr hoch (Trainer rund 500 px): Ort, Zu/Absage, Meldeschluss, Zusagenbox, zwei Kacheln, Kalenderverweis. „Was heute liegt" rutscht unter die Falz.', 'Dichte', 'h'],
+        ['Übersicht', 'Admin sieht zwei Heros: nächster Termin (Training) und weiter unten „Nächstes Spiel" in voller Größe.', 'Hierarchie', 'h'],
+        ['Übersicht', 'Kontoblock in voller Größe (Betrag 52 px, Bezahlknopf, PayPal, Countdown, Hinweis) plus Karte Mannschaftskasse. Die Übersicht wird zur zweiten Kontoseite.', 'Dichte', 'm'],
+        ['Übersicht', 'Aufgabe „Ohne Rückmeldung" grün getönt mit dunklem Zähler, „Zahlungen bestätigen" rot. Grün steht sonst für erledigt.', 'Hierarchie', 'm'],
+        ['Übersicht', 'Zusagenbox nennt „15 offen" zweimal, im Kopf und in der Zeile darunter.', 'Kleingedrucktes', 'g'],
+        ['Übersicht', '„Mein Status" als vier große Knöpfe; dieselbe Wahl im Kader als Chipreihe.', 'Komponente uneinheitlich', 'g'],
+      ]},
+      { name: 'Kalender', shots: [S('ist/img/0665.png','Liste'), S('ist/img/0666.png','Liste 2'), S('ist/termin-modal.png','Termin anlegen')], rows: [
+        ['Kalender', 'Jede Terminkarte trägt den dunklen Kopf. Bei einer Trainingswoche stapeln sich dunkle Bänder; Dunkel verliert seine Auszeichnung.', 'Flächensprache', 'h'],
+        ['Kalender', 'Jede Karte wiederholt die volle Zusagenbox und „In Kalender speichern". Pro Bildschirm passt gut ein Termin.', 'Dichte', 'm'],
+        ['Kalender', 'Hinweiskarte „Termine im Handy-Kalender?" mit Pfeil und Kreuz. Dieselbe Funktion heißt anderswo Kalender-Abo, Termine abonnieren, Zum Kalender hinzufügen.', 'Kleingedrucktes', 'm'],
+        ['Termin anlegen', 'Systemblaue Radioknöpfe, Fieldset-Rahmen, kleiner linksbündiger Knopf „Anlegen", Platzhalter „optional" doppelt zum Label.', 'Komponente uneinheitlich', 'm'],
+      ]},
+      { name: 'Trainer: Spielauswahl, Platz und Bank', shots: [S('ist/img/0659.png','Spielauswahl'), S('ist/img/0675.png','Vorlagen'), S('ist/trainer-spiel.png','Platz'), S('ist/trainer-kader-sheet.png','Bank-Blatt')], rows: [
+        ['Spielauswahl', 'Begleitsatz „Spiel wählen, danach baust du die Elf auf dem Platz." beschreibt, was die Seite ohnehin zeigt.', 'Kleingedrucktes', 'g'],
+        ['Spielauswahl', 'Datum ohne Goldwürfel, Heim/Auswärts als grüne Pille, Primärknopf flach. Weicht vom Termin-Hero ab, obwohl es derselbe Termin ist.', 'Komponente uneinheitlich', 'm'],
+        ['Spielauswahl', 'Dieselben Zusagen in drei Darstellungen: Dreier mit Trennlinien (hier), Balken mit Satz (Hero), Kacheln (Blatt).', 'Komponente uneinheitlich', 'm'],
+        ['Spielauswahl', 'Vorlage „4-3-3 Standard" mit Chip „4-3-3" doppelt; Mülleimer frei stehend.', 'Kleingedrucktes', 'g'],
+        ['Platz', 'Spielfeld dunkel ist berechtigt. Bankplätze gestrichelt mit kleinem „frei", Formation „Weitere" gestrichelt als eigener dritter Stil.', 'Typografie', 'g'],
+        ['Bank-Blatt', '„vergeben" weiß auf Graugrün (rund 2,5:1), ganze Zeilen ausgegraut; rosa Zeilen ohne erkennbare Bedeutung; „Urlaub" grau statt blau; gesperrter Knopf plus Erklärzeile.', 'Kontrast', 'h'],
+      ]},
+      { name: 'Rückmeldungen-Blatt', shots: [S('ist/img/0667.png','Blatt')], rows: [
+        ['Blatt', 'Das Blatt ist bereits hell. Etikett „Offen" in Amber auf Amber-Grund erreicht bei 11 px nur rund 3,4:1.', 'Kontrast', 'm'],
+        ['Blatt', 'Balken zeigt nur Zusagen, keine Absagen (der Hero zeigt beide). Primärknopf flach dunkel.', 'Komponente uneinheitlich', 'g'],
+      ]},
+      { name: 'Konto (Strafen-Konto)', shots: [S('ist/img/0656.png','Oben'), S('ist/img/0657.png','Liste'), S('ist/konto-spieler.png','Spieler')], rows: [
+        ['Konto', 'Kontoblock mit neun Teilen: Kicker, Betrag, Unterzeile, Balken, Knopf, PayPal-Zeile, Trennlinie, Zahlung melden mit Countdown, Hinweiszeile.', 'Dichte', 'h'],
+        ['Konto', 'Mannschaftszahlen (Summe offen, Kontostand) und Liste aller Spieler auf der persönlichen Seite; bei Kassenrolle doppelt zur Kasse.', 'Hierarchie', 'h'],
+        ['Konto', 'Fünf Filterchips mischen zwei Achsen: Status (Offen, Gemeldet, Eingegangen) und Person (Meine, Alle). Die Reihe stößt an den Rand.', 'Hierarchie', 'm'],
+        ['Konto', 'Balken „bezahlt von 620 €" über die ganze Saison sagt wenig; die Unterzeile mischt offen und gesamt.', 'Hierarchie', 'm'],
+        ['Konto', 'Jede Strafe als eigene Karte mit Marke „offen", obwohl der Filter „Offen" aktiv ist.', 'Kleingedrucktes', 'm'],
+        ['Konto', '„Kontostand · Gesamtvolumen Saison": unklar, ob Bestand oder Summe gemeint ist.', 'Hierarchie', 'g'],
+      ]},
+      { name: 'Kasse', shots: [S('ist/img/0671.png','Zu prüfen'), S('ist/img/0672.png','Offen'), S('ist/img/0673.png','Eingegangen'), S('ist/kasse-strafe.png','Verhängen')], rows: [
+        ['Kasse', 'Kennzahl-Dreier bricht „4.586,00 / €" um; Unterzeilen wiederholen die Zahlen der Reiter (238, 8, 58).', 'Typografie', 'h'],
+        ['Kasse', 'Offen: jede Strafe als Karte mit zwei großen Knöpfen und dritter Datumszeile. Bei 238 Einträgen kaum zu überblicken.', 'Dichte', 'h'],
+        ['Kasse', '„Gemeldet" in der Kachel, „Zu prüfen" im Reiter: zwei Namen für dieselbe Menge.', 'Hierarchie', 'm'],
+        ['Kasse', 'Gruppenkopf „Prüfen und verbuchen" über einem Reiter, der sich selbst benennt.', 'Kleingedrucktes', 'g'],
+        ['Strafe verhängen', '„antippen zum Auswählen" am Gruppenkopf; gesperrter Speichern-Knopf hellgrün, wirkt wie Erfolg; Zusammenfassung auf Dunkelgrün als vierte dunkle Fläche.', 'Flächensprache', 'm'],
+      ]},
+      { name: 'Katalog', shots: [S('ist/img/0668.png','Katalog')], rows: [
+        ['Katalog', 'Zweizeiliger Begleitsatz; jede Strafe als eigene Karte, Namen brechen um, Zeilen rund 70 statt 52 px; Stift und Mülleimer in jeder Zeile.', 'Dichte', 'm'],
+      ]},
+      { name: 'Kader', shots: [S('ist/img/0658.png','Kader')], rows: [
+        ['Kader', 'Kachel „Nicht fit" mit dreizeiliger Unterzeile; 16 Karten mit je vier Chips, vier Spieler pro Bildschirm.', 'Dichte', 'm'],
+      ]},
+      { name: 'Einstellungen und Kalender-Abo', shots: [S('ist/img/0676.png','Einstellungen'), S('ist/img/0677.png','Kalender-Abo'), S('ist/einst-kalender-sheet.png','Abo-Blatt')], rows: [
+        ['Einstellungen', 'Symbolkacheln in vier Farben ohne Bedeutung; „Spielplan (B…" und Wert abgeschnitten; erste Gruppe ohne Kopf.', 'Komponente uneinheitlich', 'm'],
+        ['Kalender-Abo', 'Zwei Ebenen für eine Aufgabe: Seite mit Erklärtext und zwei ungleich breiten Knöpfen, dann Blatt mit iPhone-Teil, Android-Anleitung in drei Schritten, zwei weiteren Knöpfen, Hinweis und „Link zurücksetzen". „Link kopieren" gibt es auf beiden Ebenen.', 'Dichte', 'h'],
+        ['Kalender-Abo', 'Der Zustand fehlt: Man sieht nicht, ob das Abo schon eingerichtet ist. Rest der Seite leer.', 'Hierarchie', 'm'],
+      ]},
+      { name: 'Navigation', shots: [S('ist/more-sheet.png','Mehr-Blatt')], rows: [
+        ['Navigation', 'Kombinierte Rollen bekommen „Mehr" statt Trainer oder Kasse. Das Mehr-Blatt führt Einstellungen und Profil, die schon über das Zahnrad erreichbar sind.', 'Hierarchie', 'g'],
+      ]},
+    ];
+    let n = 0; const cnt = { h: 0, m: 0, g: 0 };
+    const groups = raw.map(g => ({
+      name: g.name, shots: g.shots, hasShots: g.shots.length > 0,
+      rows: g.rows.map(([view, text, cat, s]) => { n++; cnt[s]++; return { n, view, text, cat, isHoch: s === 'h', isMittel: s === 'm', isGering: s === 'g' }; })
+    }));
+    const decisions = [
+      { id: 'E1', kippen: true, title: 'Termin-Kopf dunkel nur für den nächsten Termin', text: 'Heute trägt jede Kalenderkarte den dunklen Kopf. Künftig nur der erste kommende Termin der Ansicht; alle weiteren Karten hell mit Goldwürfel. Auf der Übersicht bleibt der Hero dunkel.', refs: '18, 19' },
+      { id: 'E2', kippen: true, title: 'Kassen-Zusammenfassung hell', text: 'Die dunkelgrüne Zusammenfassung vor dem Speichern wird eine helle Karte mit Summe in --green-800. Der verbindliche Moment wird durch den Primärknopf direkt darunter markiert, nicht durch eine vierte dunkle Fläche.', refs: '40' },
+      { id: 'E3', kippen: true, title: 'Ein Primärknopf statt zwei', text: 'Der helle Verlauf und der flache dunkle Knopf werden zu einem Verlauf von --green-600 nach --green-700 (5,3:1 bis 7,7:1). Elf aufstellen, Alle erinnern und Termin hinzufügen verlieren ihren Sonderstil.', refs: '1, 2, 23, 29' },
+      { id: 'E4', kippen: false, title: 'Konto trennt Ich und Mannschaft', text: 'Oben im Konto ein Segment Ich / Mannschaft, darunter nur Statuschips (Offen, Gemeldet, Bezahlt). Die Mannschaftszahlen wandern in den Reiter Mannschaft; die Liste aller Strafen bleibt dort für jeden sichtbar. Kassenwart-Handlungen bleiben in der Kasse.', refs: '30, 31, 32, 34, 35' },
+      { id: 'E5', kippen: false, title: 'Übersicht zeigt das Konto als eine Zeile', text: 'Statt des vollen Kontoblocks eine Zeile „Mein Konto 30,00 € offen ›" mit Bezahlen im Konto. Der zweite Hero „Nächstes Spiel" wird eine normale Terminzeile unter „Danach". Mannschaftskasse wandert in die Aufgaben, sofern dort etwas zu tun ist, sonst in die Kasse.', refs: '12, 13, 14' },
+      { id: 'E6', kippen: false, title: 'Kalender-Abo auf eine Ebene', text: 'Die Seite zeigt Zustand und genau einen Weg je Gerät: iPhone ein Knopf, Android ein Knopf „Link kopieren" plus Verweis „Anleitung ›" in ein Blatt. Hinweiskarte im Kalender und „In Kalender speichern" bleiben als Einstieg, heißen aber einheitlich.', refs: '20, 44, 45' },
+    ];
+    return { groups, decisions, cntHoch: cnt.h, cntMittel: cnt.m, cntGering: cnt.g };
+  }
+}
+</script>
+</body>
+</html>
