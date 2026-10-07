@@ -41,6 +41,7 @@ const STUETZEN = `
   }
   function euro(n) { return n.toLocaleString("de-DE", { style: "currency", currency: "EUR" }); }
   function navBackChevronHtml() { return ""; }
+  function tfDatumText(iso) { if (!iso) return ""; const d = parseDate(iso); return WT[d.getDay()] + ", " + d.getDate() + ". " + MON[d.getMonth()] + " " + d.getFullYear(); }
   function vergehenName(s) { return s.vergehen || ""; }
   function fmtLong(iso) { const d = parseDate(iso); return d.getDate() + ". " + MON_LANG[d.getMonth()] + " " + d.getFullYear(); }
   function fmtTsStub() { return ""; }
@@ -52,13 +53,13 @@ const STUETZEN = `
 
 const RUECK = `
   return {
-    kasse, kasseHtml, krowHtml, ksSagtHtml,
+    kasse, kasseHtml, ksSagtHtml,
     renderKassePruefen, renderKasseOffen, renderKasseEing,
     kasseBuild, kasseSummaryHtml, zartIconHtml,
     fmtPunkt, fmtKurz, fmtGemeldet,
     KASSE_ZAHLARTEN, ZAHLART_LABEL,
     // Reihenfolge und Suche
-    ksSortieren, ksBezugsdatum, KS_REIHENFOLGE,
+    ksSortieren, ksBezugsdatum, KS_REIHENFOLGE, ksOffenNachSpieler,
     ksNorm, ksSucheTrifft, ksSpielerSuchen,
     // Seite „Strafe verhängen"
     ksSeiteHtml, ksSeiteBeruehrt, KS_SEITE_TITEL,

@@ -31,11 +31,12 @@ export const AUSLOESER = [
   // Kasse
   { art: 'kstab',        sel: '[data-kstab]', attr: 'data-kstab' },
   { art: 'ks-wahl',      sel: '[data-ks-wahl]' },
-  { art: 'ks-modus',     sel: '[data-ks-modus]', attr: 'data-ks-modus' },
+  { art: 'ks-spieler-w', sel: '[data-ks-open-players]' },
   // "Weiter" ist gesperrt, bis ein Spieler gewählt ist: vorher den ersten
   // Spieler antippen (Formularschritt, kein eigener Knoten).
   { art: 'ks-weiter',    sel: '[data-ks-weiter]', vorher: '[data-ks-player]' },
-  { art: 'ks-buchen',    sel: '[data-ks-buchen]' },
+  { art: 'ks-spieler',   sel: '[data-ks-spieler]' },
+  { art: 'ks-zmenu',     sel: '[data-ks-zmenu]' },
   { art: 'ks-det',       sel: '[data-ks-det]' },
   // Termine und Rückmeldungen
   { art: 'cal-sheet',    sel: '[data-cal-sheet]' },
@@ -51,6 +52,10 @@ export const AUSLOESER = [
   { art: 'tvfill',       sel: '[data-tvfill]' },
   // Konto
   { art: 'paid-self',    sel: '[data-paid-self]' },
+  { art: 'kseg',         sel: '[data-kseg]', attr: 'data-kseg' },
+  // Katalog
+  { art: 'kat-edit',     sel: '[data-kat-edit]' },
+  { art: 'kat-add',      sel: '[data-kat-add]' },
   // Aufstellung
   { art: 'tvgame',       sel: '[data-tvgame]' },
   { art: 'tvslot',       sel: '[data-tvslot]' },
@@ -66,7 +71,7 @@ export const AUSLOESER = [
    sonst: offen, solange vorhanden, sichtbar und nicht [hidden].          */
 export const UEBERLAGERUNGEN = [
   { id: 'moreSheet' }, { id: 'calSheet' }, { id: 'rsvpSheet' }, { id: 'tkMenu' },
-  { id: 'terminModal' }, { id: 'scopeModal' }, { id: 'shareModal' }, { id: 'tvUnsaved' }, { id: 'pushModal' }, { id: 'statusBlatt' }, { id: 'tvTplMenu' },
+  { id: 'terminModal' }, { id: 'scopeModal' }, { id: 'shareModal' }, { id: 'tvUnsaved' }, { id: 'pushModal' }, { id: 'statusBlatt' }, { id: 'tvTplMenu' }, { id: 'katBlatt' }, { id: 'ksZMenu' },
   { id: 'ksSeite' },
   { id: 'ksWahl', blatt: true }, { id: 'ksSheet', blatt: true }, { id: 'ksBl', blatt: true },
   { id: 'zmBl', blatt: true },

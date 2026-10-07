@@ -699,6 +699,18 @@
           "art": "tab",
           "wert": "dashboard",
           "text": "Übersicht"
+        },
+        {
+          "von": "strafen",
+          "art": "kseg",
+          "wert": "ich",
+          "text": "Ich"
+        },
+        {
+          "von": "strafen",
+          "art": "kseg",
+          "wert": "team",
+          "text": "Mannschaft"
         }
       ],
       "unbekannt": [],
@@ -708,6 +720,7 @@
         "ein",
         "ein-tat",
         "goto",
+        "kseg",
         "logout",
         "paid-self",
         "tab",
@@ -2115,6 +2128,18 @@
           "text": "Übersicht"
         },
         {
+          "von": "strafen",
+          "art": "kseg",
+          "wert": "ich",
+          "text": "Ich"
+        },
+        {
+          "von": "strafen",
+          "art": "kseg",
+          "wert": "team",
+          "text": "Mannschaft"
+        },
+        {
           "von": "trainer/spiel",
           "art": "tvslot",
           "wert": null,
@@ -2129,6 +2154,7 @@
         "ein-tat",
         "goto",
         "kader-info",
+        "kseg",
         "lineup-edit",
         "logout",
         "nav",
@@ -2268,7 +2294,7 @@
           "unter": "pruefen",
           "oben": [],
           "ueberschrift": "Kasse",
-          "titel": "Kasse · Zu prüfen 2",
+          "titel": "Kasse · Gemeldet 2",
           "tiefe": 1,
           "pfad": [
             {
@@ -2280,7 +2306,7 @@
           ],
           "bild": "bilder/kassenwart/kasse__pruefen.png",
           "strang": "kasse",
-          "name": "Kasse · Zu prüfen",
+          "name": "Kasse · Gemeldet",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -2527,7 +2553,7 @@
           "unter": "bezahlt",
           "oben": [],
           "ueberschrift": "Kasse",
-          "titel": "Kasse · Eingegangen 2",
+          "titel": "Kasse · Bezahlt",
           "tiefe": 2,
           "pfad": [
             {
@@ -2539,13 +2565,13 @@
             {
               "art": "kstab",
               "wert": "bezahlt",
-              "text": "Eingegangen 6,00 € 2 Zahlungen",
+              "text": "Bezahlt",
               "global": false
             }
           ],
           "bild": "bilder/kassenwart/kasse__bezahlt.png",
           "strang": "kasse",
-          "name": "Kasse · Eingegangen",
+          "name": "Kasse · Bezahlt",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -2554,7 +2580,7 @@
           "unter": "offen",
           "oben": [],
           "ueberschrift": "Kasse",
-          "titel": "Kasse · Offen 4",
+          "titel": "Kasse · Offen",
           "tiefe": 2,
           "pfad": [
             {
@@ -2566,13 +2592,42 @@
             {
               "art": "kstab",
               "wert": "offen",
-              "text": "Offen 37,00 € 4 Strafen",
+              "text": "Offen",
               "global": false
             }
           ],
           "bild": "bilder/kassenwart/kasse__offen.png",
           "strang": "kasse",
           "name": "Kasse · Offen",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "kasse/strafe-katalog+ksSeite",
+          "ansicht": "kasse",
+          "unter": "strafe-katalog",
+          "oben": [
+            "ksSeite"
+          ],
+          "ueberschrift": "Kasse",
+          "titel": "Strafe verhängen",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Kasse",
+              "global": true
+            },
+            {
+              "art": "ks-wahl",
+              "wert": null,
+              "text": "+ Strafe verhängen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/kasse__strafe-katalog--ksSeite.png",
+          "strang": "kasse",
+          "name": "Strafe verhängen",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -2605,32 +2660,32 @@
           "nameQuelle": "liste"
         },
         {
-          "schluessel": "kasse+ksWahl",
-          "ansicht": "kasse",
+          "schluessel": "katalog+katBlatt",
+          "ansicht": "katalog",
           "unter": null,
           "oben": [
-            "ksWahl"
+            "katBlatt"
           ],
-          "ueberschrift": "Kasse",
-          "titel": "Strafe verhängen",
+          "ueberschrift": "Strafenkatalog",
+          "titel": "Strafe bearbeiten",
           "tiefe": 2,
           "pfad": [
             {
-              "art": "tab5",
-              "wert": null,
-              "text": "Kasse",
+              "art": "tab",
+              "wert": "katalog",
+              "text": "Katalog",
               "global": true
             },
             {
-              "art": "ks-wahl",
+              "art": "kat-edit",
               "wert": null,
-              "text": "Strafe verhängen",
+              "text": "Verspätete Rückmeldung bearbeiten",
               "global": false
             }
           ],
-          "bild": "bilder/kassenwart/kasse--ksWahl.png",
-          "strang": "kasse",
-          "name": "Strafe verhängen",
+          "bild": "bilder/kassenwart/katalog--katBlatt.png",
+          "strang": "katalog",
+          "name": "Strafe bearbeiten",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -2725,10 +2780,11 @@
           "nameQuelle": "ueberschrift"
         },
         {
-          "schluessel": "kasse+ksSheet",
+          "schluessel": "kasse/strafe-katalog+ksSeite+ksSheet",
           "ansicht": "kasse",
-          "unter": null,
+          "unter": "strafe-katalog",
           "oben": [
+            "ksSeite",
             "ksSheet"
           ],
           "ueberschrift": "Kasse",
@@ -2744,60 +2800,19 @@
             {
               "art": "ks-wahl",
               "wert": null,
-              "text": "Strafe verhängen",
+              "text": "+ Strafe verhängen",
               "global": false
             },
             {
-              "art": "ks-modus",
-              "wert": "katalog",
-              "text": "Strafe aus Katalog hinzufügenAus dem Strafenkata",
+              "art": "ks-spieler-w",
+              "wert": null,
+              "text": "Auswählen ›",
               "global": false
             }
           ],
-          "bild": "bilder/kassenwart/kasse--ksSheet.png",
+          "bild": "bilder/kassenwart/kasse__strafe-katalog--ksSeite--ksSheet.png",
           "strang": "kasse",
           "name": "Spieler auswählen",
-          "nameQuelle": "ueberschrift"
-        },
-        {
-          "schluessel": "kasse/strafe-katalog+ksSeite",
-          "ansicht": "kasse",
-          "unter": "strafe-katalog",
-          "oben": [
-            "ksSeite"
-          ],
-          "ueberschrift": "Kasse",
-          "titel": "Strafe aus Katalog",
-          "tiefe": 4,
-          "pfad": [
-            {
-              "art": "tab5",
-              "wert": null,
-              "text": "Kasse",
-              "global": true
-            },
-            {
-              "art": "ks-wahl",
-              "wert": null,
-              "text": "Strafe verhängen",
-              "global": false
-            },
-            {
-              "art": "ks-modus",
-              "wert": "katalog",
-              "text": "Strafe aus Katalog hinzufügenAus dem Strafenkata",
-              "global": false
-            },
-            {
-              "art": "ks-weiter",
-              "wert": null,
-              "text": "Weiter",
-              "global": false
-            }
-          ],
-          "bild": "bilder/kassenwart/kasse__strafe-katalog--ksSeite.png",
-          "strang": "kasse",
-          "name": "Strafe aus Katalog",
           "nameQuelle": "ueberschrift"
         }
       ],
@@ -2960,63 +2975,56 @@
           "von": "kasse/bezahlt",
           "art": "ks-det",
           "wert": null,
-          "text": "Felix Oberhaus bar · 13.09. 3,00 €",
+          "text": "FO Felix Oberhaus bar · 13.09. 3,00 €",
           "nach": "kasse+ksBl"
         },
         {
           "von": "kasse/bezahlt",
           "art": "ks-wahl",
           "wert": null,
-          "text": "Strafe verhängen",
-          "nach": "kasse+ksWahl"
+          "text": "+ Strafe verhängen",
+          "nach": "kasse/strafe-katalog+ksSeite"
         },
         {
           "von": "kasse/bezahlt",
           "art": "kstab",
           "wert": "offen",
-          "text": "Offen 37,00 € 4 Strafen",
+          "text": "Offen",
           "nach": "kasse/offen"
         },
         {
           "von": "kasse/bezahlt",
           "art": "kstab",
           "wert": "pruefen",
-          "text": "Gemeldet 15,00 € 2 zu prüfen",
+          "text": "Gemeldet 2",
           "nach": "kasse/pruefen"
         },
         {
           "von": "kasse/offen",
-          "art": "ks-buchen",
+          "art": "ks-spieler",
           "wert": null,
-          "text": "Als bezahlt buchen",
-          "nach": "kasse+ksBl"
-        },
-        {
-          "von": "kasse/offen",
-          "art": "ks-det",
-          "wert": null,
-          "text": "Ilja Rennert im Detail",
+          "text": "Ilja Rennert buchen",
           "nach": "kasse+ksBl"
         },
         {
           "von": "kasse/offen",
           "art": "ks-wahl",
           "wert": null,
-          "text": "Strafe verhängen",
-          "nach": "kasse+ksWahl"
+          "text": "+ Strafe verhängen",
+          "nach": "kasse/strafe-katalog+ksSeite"
         },
         {
           "von": "kasse/offen",
           "art": "kstab",
           "wert": "bezahlt",
-          "text": "Eingegangen 6,00 € 2 Zahlungen",
+          "text": "Bezahlt",
           "nach": "kasse/bezahlt"
         },
         {
           "von": "kasse/offen",
           "art": "kstab",
           "wert": "pruefen",
-          "text": "Gemeldet 15,00 € 2 zu prüfen",
+          "text": "Gemeldet 2",
           "nach": "kasse/pruefen"
         },
         {
@@ -3030,43 +3038,50 @@
           "von": "kasse/pruefen",
           "art": "ks-wahl",
           "wert": null,
-          "text": "Strafe verhängen",
-          "nach": "kasse+ksWahl"
+          "text": "+ Strafe verhängen",
+          "nach": "kasse/strafe-katalog+ksSeite"
         },
         {
           "von": "kasse/pruefen",
           "art": "kstab",
           "wert": "bezahlt",
-          "text": "Eingegangen 6,00 € 2 Zahlungen",
+          "text": "Bezahlt",
           "nach": "kasse/bezahlt"
         },
         {
           "von": "kasse/pruefen",
           "art": "kstab",
           "wert": "offen",
-          "text": "Offen 37,00 € 4 Strafen",
+          "text": "Offen",
           "nach": "kasse/offen"
         },
         {
-          "von": "kasse+ksSheet",
+          "von": "kasse/strafe-katalog+ksSeite",
+          "art": "ks-spieler-w",
+          "wert": null,
+          "text": "Auswählen ›",
+          "nach": "kasse/strafe-katalog+ksSeite+ksSheet"
+        },
+        {
+          "von": "kasse/strafe-katalog+ksSeite+ksSheet",
           "art": "ks-weiter",
           "wert": null,
           "text": "Weiter",
           "nach": "kasse/strafe-katalog+ksSeite"
         },
         {
-          "von": "kasse+ksWahl",
-          "art": "ks-modus",
-          "wert": "indiv",
-          "text": "Individuelle StrafeFreier Grund und freier Betra",
-          "nach": "kasse+ksSheet"
+          "von": "katalog",
+          "art": "kat-add",
+          "wert": null,
+          "text": "+ Strafe",
+          "nach": "katalog+katBlatt"
         },
         {
-          "von": "kasse+ksWahl",
-          "art": "ks-modus",
-          "wert": "katalog",
-          "text": "Strafe aus Katalog hinzufügenAus dem Strafenkata",
-          "nach": "kasse+ksSheet"
+          "von": "katalog",
+          "art": "kat-edit",
+          "wert": null,
+          "text": "Verspätete Rückmeldung bearbeiten",
+          "nach": "katalog+katBlatt"
         },
         {
           "von": "strafen",
@@ -3088,19 +3103,31 @@
           "von": "kasse/bezahlt",
           "art": "kstab",
           "wert": "bezahlt",
-          "text": "Eingegangen 6,00 € 2 Zahlungen"
+          "text": "Bezahlt"
         },
         {
           "von": "kasse/offen",
           "art": "kstab",
           "wert": "offen",
-          "text": "Offen 37,00 € 4 Strafen"
+          "text": "Offen"
         },
         {
           "von": "kasse/pruefen",
           "art": "kstab",
           "wert": "pruefen",
-          "text": "Gemeldet 15,00 € 2 zu prüfen"
+          "text": "Gemeldet 2"
+        },
+        {
+          "von": "strafen",
+          "art": "kseg",
+          "wert": "ich",
+          "text": "Ich"
+        },
+        {
+          "von": "strafen",
+          "art": "kseg",
+          "wert": "team",
+          "text": "Mannschaft"
         }
       ],
       "unbekannt": [],
@@ -3110,11 +3137,14 @@
         "ein",
         "ein-tat",
         "goto",
-        "ks-buchen",
+        "kat-add",
+        "kat-edit",
         "ks-det",
-        "ks-modus",
+        "ks-spieler",
+        "ks-spieler-w",
         "ks-wahl",
         "ks-weiter",
+        "kseg",
         "kstab",
         "logout",
         "nav",
@@ -3290,7 +3320,7 @@
           "unter": "pruefen",
           "oben": [],
           "ueberschrift": "Kasse",
-          "titel": "Kasse · Zu prüfen 2",
+          "titel": "Kasse · Gemeldet 2",
           "tiefe": 1,
           "pfad": [
             {
@@ -3302,7 +3332,7 @@
           ],
           "bild": "bilder/trainerkassenwart/kasse__pruefen.png",
           "strang": "kasse",
-          "name": "Kasse · Zu prüfen",
+          "name": "Kasse · Gemeldet",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -3773,7 +3803,7 @@
           "unter": "bezahlt",
           "oben": [],
           "ueberschrift": "Kasse",
-          "titel": "Kasse · Eingegangen 2",
+          "titel": "Kasse · Bezahlt",
           "tiefe": 2,
           "pfad": [
             {
@@ -3785,13 +3815,13 @@
             {
               "art": "kstab",
               "wert": "bezahlt",
-              "text": "Eingegangen 6,00 € 2 Zahlungen",
+              "text": "Bezahlt",
               "global": false
             }
           ],
           "bild": "bilder/trainerkassenwart/kasse__bezahlt.png",
           "strang": "kasse",
-          "name": "Kasse · Eingegangen",
+          "name": "Kasse · Bezahlt",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -3800,7 +3830,7 @@
           "unter": "offen",
           "oben": [],
           "ueberschrift": "Kasse",
-          "titel": "Kasse · Offen 4",
+          "titel": "Kasse · Offen",
           "tiefe": 2,
           "pfad": [
             {
@@ -3812,13 +3842,42 @@
             {
               "art": "kstab",
               "wert": "offen",
-              "text": "Offen 37,00 € 4 Strafen",
+              "text": "Offen",
               "global": false
             }
           ],
           "bild": "bilder/trainerkassenwart/kasse__offen.png",
           "strang": "kasse",
           "name": "Kasse · Offen",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "kasse/strafe-katalog+ksSeite",
+          "ansicht": "kasse",
+          "unter": "strafe-katalog",
+          "oben": [
+            "ksSeite"
+          ],
+          "ueberschrift": "Kasse",
+          "titel": "Strafe verhängen",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "task-pay",
+              "wert": null,
+              "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
+              "global": false
+            },
+            {
+              "art": "ks-wahl",
+              "wert": null,
+              "text": "+ Strafe verhängen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/kasse__strafe-katalog--ksSeite.png",
+          "strang": "kasse",
+          "name": "Strafe verhängen",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -3851,32 +3910,32 @@
           "nameQuelle": "liste"
         },
         {
-          "schluessel": "kasse+ksWahl",
-          "ansicht": "kasse",
+          "schluessel": "katalog+katBlatt",
+          "ansicht": "katalog",
           "unter": null,
           "oben": [
-            "ksWahl"
+            "katBlatt"
           ],
-          "ueberschrift": "Kasse",
-          "titel": "Strafe verhängen",
+          "ueberschrift": "Strafenkatalog",
+          "titel": "Strafe bearbeiten",
           "tiefe": 2,
           "pfad": [
             {
-              "art": "task-pay",
-              "wert": null,
-              "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
-              "global": false
+              "art": "tab",
+              "wert": "katalog",
+              "text": "Katalog",
+              "global": true
             },
             {
-              "art": "ks-wahl",
+              "art": "kat-edit",
               "wert": null,
-              "text": "Strafe verhängen",
+              "text": "Verspätete Rückmeldung bearbeiten",
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/kasse--ksWahl.png",
-          "strang": "kasse",
-          "name": "Strafe verhängen",
+          "bild": "bilder/trainerkassenwart/katalog--katBlatt.png",
+          "strang": "katalog",
+          "name": "Strafe bearbeiten",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -4227,10 +4286,11 @@
           "nameQuelle": "ueberschrift"
         },
         {
-          "schluessel": "kasse+ksSheet",
+          "schluessel": "kasse/strafe-katalog+ksSeite+ksSheet",
           "ansicht": "kasse",
-          "unter": null,
+          "unter": "strafe-katalog",
           "oben": [
+            "ksSeite",
             "ksSheet"
           ],
           "ueberschrift": "Kasse",
@@ -4246,17 +4306,17 @@
             {
               "art": "ks-wahl",
               "wert": null,
-              "text": "Strafe verhängen",
+              "text": "+ Strafe verhängen",
               "global": false
             },
             {
-              "art": "ks-modus",
-              "wert": "katalog",
-              "text": "Strafe aus Katalog hinzufügenAus dem Strafenkata",
+              "art": "ks-spieler-w",
+              "wert": null,
+              "text": "Auswählen ›",
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/kasse--ksSheet.png",
+          "bild": "bilder/trainerkassenwart/kasse__strafe-katalog--ksSeite--ksSheet.png",
           "strang": "kasse",
           "name": "Spieler auswählen",
           "nameQuelle": "ueberschrift"
@@ -4330,47 +4390,6 @@
           "strang": "trainer",
           "name": "Vorlagen-Menü",
           "nameQuelle": "liste"
-        },
-        {
-          "schluessel": "kasse/strafe-katalog+ksSeite",
-          "ansicht": "kasse",
-          "unter": "strafe-katalog",
-          "oben": [
-            "ksSeite"
-          ],
-          "ueberschrift": "Kasse",
-          "titel": "Strafe aus Katalog",
-          "tiefe": 4,
-          "pfad": [
-            {
-              "art": "task-pay",
-              "wert": null,
-              "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
-              "global": false
-            },
-            {
-              "art": "ks-wahl",
-              "wert": null,
-              "text": "Strafe verhängen",
-              "global": false
-            },
-            {
-              "art": "ks-modus",
-              "wert": "katalog",
-              "text": "Strafe aus Katalog hinzufügenAus dem Strafenkata",
-              "global": false
-            },
-            {
-              "art": "ks-weiter",
-              "wert": null,
-              "text": "Weiter",
-              "global": false
-            }
-          ],
-          "bild": "bilder/trainerkassenwart/kasse__strafe-katalog--ksSeite.png",
-          "strang": "kasse",
-          "name": "Strafe aus Katalog",
-          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "trainer+rsvpSheet+pushModal",
@@ -4749,63 +4768,56 @@
           "von": "kasse/bezahlt",
           "art": "ks-det",
           "wert": null,
-          "text": "Felix Oberhaus bar · 13.09. 3,00 €",
+          "text": "FO Felix Oberhaus bar · 13.09. 3,00 €",
           "nach": "kasse+ksBl"
         },
         {
           "von": "kasse/bezahlt",
           "art": "ks-wahl",
           "wert": null,
-          "text": "Strafe verhängen",
-          "nach": "kasse+ksWahl"
+          "text": "+ Strafe verhängen",
+          "nach": "kasse/strafe-katalog+ksSeite"
         },
         {
           "von": "kasse/bezahlt",
           "art": "kstab",
           "wert": "offen",
-          "text": "Offen 37,00 € 4 Strafen",
+          "text": "Offen",
           "nach": "kasse/offen"
         },
         {
           "von": "kasse/bezahlt",
           "art": "kstab",
           "wert": "pruefen",
-          "text": "Gemeldet 15,00 € 2 zu prüfen",
+          "text": "Gemeldet 2",
           "nach": "kasse/pruefen"
         },
         {
           "von": "kasse/offen",
-          "art": "ks-buchen",
+          "art": "ks-spieler",
           "wert": null,
-          "text": "Als bezahlt buchen",
-          "nach": "kasse+ksBl"
-        },
-        {
-          "von": "kasse/offen",
-          "art": "ks-det",
-          "wert": null,
-          "text": "Ilja Rennert im Detail",
+          "text": "Ilja Rennert buchen",
           "nach": "kasse+ksBl"
         },
         {
           "von": "kasse/offen",
           "art": "ks-wahl",
           "wert": null,
-          "text": "Strafe verhängen",
-          "nach": "kasse+ksWahl"
+          "text": "+ Strafe verhängen",
+          "nach": "kasse/strafe-katalog+ksSeite"
         },
         {
           "von": "kasse/offen",
           "art": "kstab",
           "wert": "bezahlt",
-          "text": "Eingegangen 6,00 € 2 Zahlungen",
+          "text": "Bezahlt",
           "nach": "kasse/bezahlt"
         },
         {
           "von": "kasse/offen",
           "art": "kstab",
           "wert": "pruefen",
-          "text": "Gemeldet 15,00 € 2 zu prüfen",
+          "text": "Gemeldet 2",
           "nach": "kasse/pruefen"
         },
         {
@@ -4819,43 +4831,50 @@
           "von": "kasse/pruefen",
           "art": "ks-wahl",
           "wert": null,
-          "text": "Strafe verhängen",
-          "nach": "kasse+ksWahl"
+          "text": "+ Strafe verhängen",
+          "nach": "kasse/strafe-katalog+ksSeite"
         },
         {
           "von": "kasse/pruefen",
           "art": "kstab",
           "wert": "bezahlt",
-          "text": "Eingegangen 6,00 € 2 Zahlungen",
+          "text": "Bezahlt",
           "nach": "kasse/bezahlt"
         },
         {
           "von": "kasse/pruefen",
           "art": "kstab",
           "wert": "offen",
-          "text": "Offen 37,00 € 4 Strafen",
+          "text": "Offen",
           "nach": "kasse/offen"
         },
         {
-          "von": "kasse+ksSheet",
+          "von": "kasse/strafe-katalog+ksSeite",
+          "art": "ks-spieler-w",
+          "wert": null,
+          "text": "Auswählen ›",
+          "nach": "kasse/strafe-katalog+ksSeite+ksSheet"
+        },
+        {
+          "von": "kasse/strafe-katalog+ksSeite+ksSheet",
           "art": "ks-weiter",
           "wert": null,
           "text": "Weiter",
           "nach": "kasse/strafe-katalog+ksSeite"
         },
         {
-          "von": "kasse+ksWahl",
-          "art": "ks-modus",
-          "wert": "indiv",
-          "text": "Individuelle StrafeFreier Grund und freier Betra",
-          "nach": "kasse+ksSheet"
+          "von": "katalog",
+          "art": "kat-add",
+          "wert": null,
+          "text": "+ Strafe",
+          "nach": "katalog+katBlatt"
         },
         {
-          "von": "kasse+ksWahl",
-          "art": "ks-modus",
-          "wert": "katalog",
-          "text": "Strafe aus Katalog hinzufügenAus dem Strafenkata",
-          "nach": "kasse+ksSheet"
+          "von": "katalog",
+          "art": "kat-edit",
+          "wert": null,
+          "text": "Verspätete Rückmeldung bearbeiten",
+          "nach": "katalog+katBlatt"
         },
         {
           "von": "strafen",
@@ -4946,19 +4965,31 @@
           "von": "kasse/bezahlt",
           "art": "kstab",
           "wert": "bezahlt",
-          "text": "Eingegangen 6,00 € 2 Zahlungen"
+          "text": "Bezahlt"
         },
         {
           "von": "kasse/offen",
           "art": "kstab",
           "wert": "offen",
-          "text": "Offen 37,00 € 4 Strafen"
+          "text": "Offen"
         },
         {
           "von": "kasse/pruefen",
           "art": "kstab",
           "wert": "pruefen",
-          "text": "Gemeldet 15,00 € 2 zu prüfen"
+          "text": "Gemeldet 2"
+        },
+        {
+          "von": "strafen",
+          "art": "kseg",
+          "wert": "ich",
+          "text": "Ich"
+        },
+        {
+          "von": "strafen",
+          "art": "kseg",
+          "wert": "team",
+          "text": "Mannschaft"
         },
         {
           "von": "trainer/spiel",
@@ -4975,11 +5006,14 @@
         "ein-tat",
         "goto",
         "kader-info",
-        "ks-buchen",
+        "kat-add",
+        "kat-edit",
         "ks-det",
-        "ks-modus",
+        "ks-spieler",
+        "ks-spieler-w",
         "ks-wahl",
         "ks-weiter",
+        "kseg",
         "kstab",
         "lineup-edit",
         "logout",
@@ -5168,7 +5202,7 @@
           "unter": "pruefen",
           "oben": [],
           "ueberschrift": "Kasse",
-          "titel": "Kasse · Zu prüfen 2",
+          "titel": "Kasse · Gemeldet 2",
           "tiefe": 1,
           "pfad": [
             {
@@ -5180,7 +5214,7 @@
           ],
           "bild": "bilder/admin/kasse__pruefen.png",
           "strang": "kasse",
-          "name": "Kasse · Zu prüfen",
+          "name": "Kasse · Gemeldet",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -5678,7 +5712,7 @@
           "unter": "bezahlt",
           "oben": [],
           "ueberschrift": "Kasse",
-          "titel": "Kasse · Eingegangen 2",
+          "titel": "Kasse · Bezahlt",
           "tiefe": 2,
           "pfad": [
             {
@@ -5690,13 +5724,13 @@
             {
               "art": "kstab",
               "wert": "bezahlt",
-              "text": "Eingegangen 6,00 € 2 Zahlungen",
+              "text": "Bezahlt",
               "global": false
             }
           ],
           "bild": "bilder/admin/kasse__bezahlt.png",
           "strang": "kasse",
-          "name": "Kasse · Eingegangen",
+          "name": "Kasse · Bezahlt",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -5705,7 +5739,7 @@
           "unter": "offen",
           "oben": [],
           "ueberschrift": "Kasse",
-          "titel": "Kasse · Offen 4",
+          "titel": "Kasse · Offen",
           "tiefe": 2,
           "pfad": [
             {
@@ -5717,13 +5751,42 @@
             {
               "art": "kstab",
               "wert": "offen",
-              "text": "Offen 37,00 € 4 Strafen",
+              "text": "Offen",
               "global": false
             }
           ],
           "bild": "bilder/admin/kasse__offen.png",
           "strang": "kasse",
           "name": "Kasse · Offen",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "kasse/strafe-katalog+ksSeite",
+          "ansicht": "kasse",
+          "unter": "strafe-katalog",
+          "oben": [
+            "ksSeite"
+          ],
+          "ueberschrift": "Kasse",
+          "titel": "Strafe verhängen",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "task-pay",
+              "wert": null,
+              "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
+              "global": false
+            },
+            {
+              "art": "ks-wahl",
+              "wert": null,
+              "text": "+ Strafe verhängen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/kasse__strafe-katalog--ksSeite.png",
+          "strang": "kasse",
+          "name": "Strafe verhängen",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -5756,32 +5819,32 @@
           "nameQuelle": "liste"
         },
         {
-          "schluessel": "kasse+ksWahl",
-          "ansicht": "kasse",
+          "schluessel": "katalog+katBlatt",
+          "ansicht": "katalog",
           "unter": null,
           "oben": [
-            "ksWahl"
+            "katBlatt"
           ],
-          "ueberschrift": "Kasse",
-          "titel": "Strafe verhängen",
+          "ueberschrift": "Strafenkatalog",
+          "titel": "Strafe bearbeiten",
           "tiefe": 2,
           "pfad": [
             {
-              "art": "task-pay",
-              "wert": null,
-              "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
-              "global": false
+              "art": "tab",
+              "wert": "katalog",
+              "text": "Katalog",
+              "global": true
             },
             {
-              "art": "ks-wahl",
+              "art": "kat-edit",
               "wert": null,
-              "text": "Strafe verhängen",
+              "text": "Verspätete Rückmeldung bearbeiten",
               "global": false
             }
           ],
-          "bild": "bilder/admin/kasse--ksWahl.png",
-          "strang": "kasse",
-          "name": "Strafe verhängen",
+          "bild": "bilder/admin/katalog--katBlatt.png",
+          "strang": "katalog",
+          "name": "Strafe bearbeiten",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -6186,10 +6249,11 @@
           "nameQuelle": "ueberschrift"
         },
         {
-          "schluessel": "kasse+ksSheet",
+          "schluessel": "kasse/strafe-katalog+ksSeite+ksSheet",
           "ansicht": "kasse",
-          "unter": null,
+          "unter": "strafe-katalog",
           "oben": [
+            "ksSeite",
             "ksSheet"
           ],
           "ueberschrift": "Kasse",
@@ -6205,17 +6269,17 @@
             {
               "art": "ks-wahl",
               "wert": null,
-              "text": "Strafe verhängen",
+              "text": "+ Strafe verhängen",
               "global": false
             },
             {
-              "art": "ks-modus",
-              "wert": "katalog",
-              "text": "Strafe aus Katalog hinzufügenAus dem Strafenkata",
+              "art": "ks-spieler-w",
+              "wert": null,
+              "text": "Auswählen ›",
               "global": false
             }
           ],
-          "bild": "bilder/admin/kasse--ksSheet.png",
+          "bild": "bilder/admin/kasse__strafe-katalog--ksSeite--ksSheet.png",
           "strang": "kasse",
           "name": "Spieler auswählen",
           "nameQuelle": "ueberschrift"
@@ -6289,47 +6353,6 @@
           "strang": "trainer",
           "name": "Vorlagen-Menü",
           "nameQuelle": "liste"
-        },
-        {
-          "schluessel": "kasse/strafe-katalog+ksSeite",
-          "ansicht": "kasse",
-          "unter": "strafe-katalog",
-          "oben": [
-            "ksSeite"
-          ],
-          "ueberschrift": "Kasse",
-          "titel": "Strafe aus Katalog",
-          "tiefe": 4,
-          "pfad": [
-            {
-              "art": "task-pay",
-              "wert": null,
-              "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
-              "global": false
-            },
-            {
-              "art": "ks-wahl",
-              "wert": null,
-              "text": "Strafe verhängen",
-              "global": false
-            },
-            {
-              "art": "ks-modus",
-              "wert": "katalog",
-              "text": "Strafe aus Katalog hinzufügenAus dem Strafenkata",
-              "global": false
-            },
-            {
-              "art": "ks-weiter",
-              "wert": null,
-              "text": "Weiter",
-              "global": false
-            }
-          ],
-          "bild": "bilder/admin/kasse__strafe-katalog--ksSeite.png",
-          "strang": "kasse",
-          "name": "Strafe aus Katalog",
-          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "trainer+rsvpSheet+pushModal",
@@ -6729,63 +6752,56 @@
           "von": "kasse/bezahlt",
           "art": "ks-det",
           "wert": null,
-          "text": "Felix Oberhaus bar · 13.09. 3,00 €",
+          "text": "FO Felix Oberhaus bar · 13.09. 3,00 €",
           "nach": "kasse+ksBl"
         },
         {
           "von": "kasse/bezahlt",
           "art": "ks-wahl",
           "wert": null,
-          "text": "Strafe verhängen",
-          "nach": "kasse+ksWahl"
+          "text": "+ Strafe verhängen",
+          "nach": "kasse/strafe-katalog+ksSeite"
         },
         {
           "von": "kasse/bezahlt",
           "art": "kstab",
           "wert": "offen",
-          "text": "Offen 37,00 € 4 Strafen",
+          "text": "Offen",
           "nach": "kasse/offen"
         },
         {
           "von": "kasse/bezahlt",
           "art": "kstab",
           "wert": "pruefen",
-          "text": "Gemeldet 15,00 € 2 zu prüfen",
+          "text": "Gemeldet 2",
           "nach": "kasse/pruefen"
         },
         {
           "von": "kasse/offen",
-          "art": "ks-buchen",
+          "art": "ks-spieler",
           "wert": null,
-          "text": "Als bezahlt buchen",
-          "nach": "kasse+ksBl"
-        },
-        {
-          "von": "kasse/offen",
-          "art": "ks-det",
-          "wert": null,
-          "text": "Ilja Rennert im Detail",
+          "text": "Ilja Rennert buchen",
           "nach": "kasse+ksBl"
         },
         {
           "von": "kasse/offen",
           "art": "ks-wahl",
           "wert": null,
-          "text": "Strafe verhängen",
-          "nach": "kasse+ksWahl"
+          "text": "+ Strafe verhängen",
+          "nach": "kasse/strafe-katalog+ksSeite"
         },
         {
           "von": "kasse/offen",
           "art": "kstab",
           "wert": "bezahlt",
-          "text": "Eingegangen 6,00 € 2 Zahlungen",
+          "text": "Bezahlt",
           "nach": "kasse/bezahlt"
         },
         {
           "von": "kasse/offen",
           "art": "kstab",
           "wert": "pruefen",
-          "text": "Gemeldet 15,00 € 2 zu prüfen",
+          "text": "Gemeldet 2",
           "nach": "kasse/pruefen"
         },
         {
@@ -6799,43 +6815,50 @@
           "von": "kasse/pruefen",
           "art": "ks-wahl",
           "wert": null,
-          "text": "Strafe verhängen",
-          "nach": "kasse+ksWahl"
+          "text": "+ Strafe verhängen",
+          "nach": "kasse/strafe-katalog+ksSeite"
         },
         {
           "von": "kasse/pruefen",
           "art": "kstab",
           "wert": "bezahlt",
-          "text": "Eingegangen 6,00 € 2 Zahlungen",
+          "text": "Bezahlt",
           "nach": "kasse/bezahlt"
         },
         {
           "von": "kasse/pruefen",
           "art": "kstab",
           "wert": "offen",
-          "text": "Offen 37,00 € 4 Strafen",
+          "text": "Offen",
           "nach": "kasse/offen"
         },
         {
-          "von": "kasse+ksSheet",
+          "von": "kasse/strafe-katalog+ksSeite",
+          "art": "ks-spieler-w",
+          "wert": null,
+          "text": "Auswählen ›",
+          "nach": "kasse/strafe-katalog+ksSeite+ksSheet"
+        },
+        {
+          "von": "kasse/strafe-katalog+ksSeite+ksSheet",
           "art": "ks-weiter",
           "wert": null,
           "text": "Weiter",
           "nach": "kasse/strafe-katalog+ksSeite"
         },
         {
-          "von": "kasse+ksWahl",
-          "art": "ks-modus",
-          "wert": "indiv",
-          "text": "Individuelle StrafeFreier Grund und freier Betra",
-          "nach": "kasse+ksSheet"
+          "von": "katalog",
+          "art": "kat-add",
+          "wert": null,
+          "text": "+ Strafe",
+          "nach": "katalog+katBlatt"
         },
         {
-          "von": "kasse+ksWahl",
-          "art": "ks-modus",
-          "wert": "katalog",
-          "text": "Strafe aus Katalog hinzufügenAus dem Strafenkata",
-          "nach": "kasse+ksSheet"
+          "von": "katalog",
+          "art": "kat-edit",
+          "wert": null,
+          "text": "Verspätete Rückmeldung bearbeiten",
+          "nach": "katalog+katBlatt"
         },
         {
           "von": "strafen",
@@ -6926,19 +6949,31 @@
           "von": "kasse/bezahlt",
           "art": "kstab",
           "wert": "bezahlt",
-          "text": "Eingegangen 6,00 € 2 Zahlungen"
+          "text": "Bezahlt"
         },
         {
           "von": "kasse/offen",
           "art": "kstab",
           "wert": "offen",
-          "text": "Offen 37,00 € 4 Strafen"
+          "text": "Offen"
         },
         {
           "von": "kasse/pruefen",
           "art": "kstab",
           "wert": "pruefen",
-          "text": "Gemeldet 15,00 € 2 zu prüfen"
+          "text": "Gemeldet 2"
+        },
+        {
+          "von": "strafen",
+          "art": "kseg",
+          "wert": "ich",
+          "text": "Ich"
+        },
+        {
+          "von": "strafen",
+          "art": "kseg",
+          "wert": "team",
+          "text": "Mannschaft"
         },
         {
           "von": "trainer/spiel",
@@ -6955,11 +6990,14 @@
         "ein-tat",
         "goto",
         "kader-info",
-        "ks-buchen",
+        "kat-add",
+        "kat-edit",
         "ks-det",
-        "ks-modus",
+        "ks-spieler",
+        "ks-spieler-w",
         "ks-wahl",
         "ks-weiter",
+        "kseg",
         "kstab",
         "lineup-edit",
         "logout",
@@ -6989,6 +7027,7 @@
     }
   },
   "nichtErreichteAusloeser": [
+    "ks-zmenu",
     "tvfill"
   ]
 }

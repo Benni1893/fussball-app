@@ -59,7 +59,7 @@ function vergleiche(soll, ist, ausnahmen, erlaubt, versatz) {
   };
   // versatz: [{ ab, dy }] - bewusst eingefügte Zeilen (z. B. Formationschips über dem Hinweis in 07b):
   // Soll-Elemente ab y (Soll-Koordinate) werden um dy verschoben erwartet.
-  const verschiebe = (y) => (versatz || []).reduce((acc, v) => (y >= v.ab ? acc + v.dy : acc), y);
+  const verschiebe = (y) => (versatz || []).reduce((acc, v) => (y >= v.ab && (v.bis == null || y < v.bis) ? acc + v.dy : acc), y);
   const S = nachText(soll.elemente.map((e) => ({ ...e, x: e.x - 1, y: verschiebe(e.y - 1) }))), I = nachText(ist.elemente);
   const befunde = [], fehlend = [], gefunden = [];
   for (const [text, liste] of S) {

@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-07-A";
+  var APP_BUILD = "2026-10-07-B";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -425,7 +425,7 @@
   // Ansichten, die im „Mehr"-Menü liegen: dort bleibt der Mehr-Tab aktiv markiert.
   // EINE Liste für beide Stellen (tvSetNavActive und switchView) – vorher standen
   // hier zwei Kopien, was bei jeder neuen Ansicht still auseinanderlaufen konnte.
-  const SHEET_VIEWS = ["admin", "einstellungen", "lineup", "kader", "pushkatalog"];
+  const SHEET_VIEWS = ["admin", "einstellungen", "lineup", "kader", "pushkatalog", "kasse"];
 
   // Fallback-Ansicht statt weißem Bildschirm, wenn beim Rendern etwas wirft.
   function renderErrorBoundary(err) {
@@ -4752,26 +4752,18 @@
 
   let katEdit = null; // null | Katalog-id (Bearbeiten) | "new" (Hinzufügen)
 
+  /* Katalogkachel (Vorlage Final 17): Name links (zweizeilig erlaubt), bei
+     Staffel "je 5 Minuten · max 10,00 €" darunter; Betrag rechts, "›" fuer
+     Bearbeitende (ganze Kachel oeffnet das Blatt). Spieler: nur Ansicht. */
   function katRowView(k, canEdit) {
-    // Vorlage 3b: Bezeichnung links, darunter die Kategorie (K5) und bei
-    // Staffelstrafen der Deckel in derselben Zeile; Betrag rechts.
     const staffel = k.typ === "staffel";
-    const amt = staffel
-      ? `${euro(k.proEinheit || 0).replace(/\s/g, " ")} / ${k.schritt || 1} ${esc(k.einheit || "")}`
-      : euro(k.betrag).replace(/\s/g, " ");
-    // K5 endgueltig: keine Kategorie in der Anzeige. Die Spalte bleibt in der
-    // Datenbank, wird aber weder gelesen noch geschrieben. Als Unterzeile steht
-    // nur der Deckel einer Staffelstrafe.
-    const unten = (staffel && k.maxBetrag != null)
-      ? "max " + euro(k.maxBetrag).replace(/\s/g, " ") : "";
-    return `<div class="kat-item">
-      <span class="kat-name">${esc(k.vergehen)}${staffel ? ` <span class="badge badge-self">gestaffelt</span>` : ""}${unten ? `<span class="kat-sub">${unten}</span>` : ""}</span>
-      <span class="kat-amount${staffel ? " is-staffel" : ""}">${amt}</span>
-      ${canEdit ? `<div class="kat-actions">
-        <button class="icon-btn" data-kat-edit="${k.id}" aria-label="Bearbeiten">${ICON_EDIT}</button>
-        <button class="icon-btn" data-kat-del="${k.id}" aria-label="Löschen">${ICON_TRASH}</button>
-      </div>` : ""}
-    </div>`;
+    const amt = euro(staffel ? (k.proEinheit || 0) : k.betrag).replace(/\s/g, " ");
+    const unten = staffel ? ["je " + (k.schritt || 1) + " " + esc(k.einheit || ""), k.maxBetrag != null ? "max " + euro(k.maxBetrag).replace(/\s/g, " ") : ""].filter(Boolean).join(" · ") : "";
+    const inhalt = '<span class="kat-main"><span class="kat-name">' + esc(k.vergehen) + '</span>' + (unten ? '<span class="kat-sub">' + unten + '</span>' : "") + '</span>' +
+      '<span class="kat-amount">' + amt + '</span>';
+    return canEdit
+      ? '<button type="button" class="kat-item is-tap" data-kat-edit="' + k.id + '" aria-label="' + esc(k.vergehen) + ' bearbeiten">' + inhalt + '<span class="row-chev" aria-hidden="true">›</span></button>'
+      : '<div class="kat-item">' + inhalt + '</div>';
   }
   function katRowEdit(k) {
     const id = k ? k.id : "new";
@@ -4793,31 +4785,38 @@
         <input class="kat-in" data-kat-input="einheit" type="text" placeholder="Einheit (z. B. Minuten)" value="${esc(k ? (k.einheit || "") : "")}">
         <input class="kat-in" data-kat-input="maxBetrag" inputmode="decimal" placeholder="Höchstbetrag € (optional)" value="${esc(nm(k ? k.maxBetrag : null))}">
       </div>
-      <div class="kat-edit-actions">
-        <button class="icon-btn icon-ok" data-kat-save="${id}" aria-label="Speichern">${ICON_CHECK}</button>
-        <button class="icon-btn" data-kat-cancel aria-label="Abbrechen">${ICON_X}</button>
-      </div>
     </div>`;
   }
   function renderKatalog() {
     const canEdit = Roles.canEditCatalog();
+    const blatt = canEdit && katEdit != null;
+    const k = blatt && katEdit !== "new" ? DEMO.katalog.find((x) => x.id === katEdit) : null;
     viewEl.innerHTML = `
-      <div class="page-head"><h1>Strafenkatalog</h1>
-        <p>Beträge gelten für die ganze Mannschaft. Änderungen wirken ab sofort.</p></div>
+      <div class="page-head h1row kal-kopf"><h1>Strafenkatalog</h1>${canEdit ? `<button class="link-btn kal-plus" data-kat-add type="button">+ Strafe</button>` : ""}</div>
       <div class="kat-list">
-        ${DEMO.katalog.map((k) => katEdit === k.id
-          ? katRowEdit(k)
-          : katRowView(k, canEdit)).join("")}
-        ${katEdit === "new" ? katRowEdit(null) : ""}
+        ${DEMO.katalog.map((x) => katRowView(x, canEdit)).join("")}
       </div>
-      ${canEdit && katEdit !== "new" ? `<button class="kat-add" data-kat-add>${ICON_PLUS}<span>Strafe hinzufügen</span></button>` : ""}
+      ${blatt ? `
+      <div class="kat-blatt-ov" id="katBlatt">
+        <button class="kat-blatt-hg" data-kat-cancel aria-label="Schließen"></button>
+        <div class="kat-blatt" role="dialog" aria-modal="true" aria-label="${k ? "Strafe bearbeiten" : "Strafe hinzufügen"}">
+          <div class="tf-kopf"><span class="tf-griff" aria-hidden="true"></span>
+            <div class="tf-kopfzeile"><span class="tf-titel">${k ? "Strafe bearbeiten" : "Strafe hinzufügen"}</span>
+              <button type="button" class="tf-x" data-kat-cancel aria-label="Schließen">${ICON_X}</button></div></div>
+          <div class="kat-blatt-body">
+            ${katRowEdit(k)}
+            <button class="btn btn-primary kat-speichern" data-kat-save="${k ? k.id : "new"}">Speichern</button>
+            ${k ? `<button class="btn btn-soft btn-danger kat-del-btn" data-kat-del="${k.id}">Löschen</button>` : ""}
+          </div>
+        </div>
+      </div>` : ""}
     `;
-    const nameInput = viewEl.querySelector(".kat-in-name");
-    if (nameInput) nameInput.focus();
+    // Kein Autofokus beim Oeffnen (Konvention: keine Tastatur ohne Tipp).
   }
 
   /* ---------- Strafen-Konto ------------------------------------------------- */
-  let strafenFilter = "offen"; // offen | bezahlt | alle | meine
+  let strafenFilter = "offen"; // offen | gemeldet | bezahlt | alle (alle Status)
+  let kontoSeg = null;          // "ich" | "team"; null = nach Verknuepfung (Final 11/12)
 
   /* Kontoblock „Dein Konto" – gemeinsam von der Konto-Ansicht und der Übersicht
      genutzt. Rechnet sich selbst aus den geladenen Strafen aus, damit beide Orte
@@ -4961,85 +4960,60 @@
     }
   }
 
+  /* Strafen-Konto (Vorlage Final 11 und 12): Segment Ich / Mannschaft.
+     Ich: Kontobanner, Chips Offen / Gemeldet / Bezahlt mit Anzahl, eigene
+     Strafen in einer Karte. Mannschaft: Kacheln "Offen" und "In der Kasse",
+     dieselben Chips ueber das ganze Team, Liste mit Avatar. Ein erneuter Tipp
+     auf den aktiven Chip zeigt alle Status (bisher Chip "Alle"). */
   function renderStrafen() {
     const me = playerById[state.currentPlayerId];
-    // Ist das eingeloggte Konto wirklich mit einem Spieler verknüpft?
-    // Nur dann zeigen wir „Dein Konto" + die Bezahl-/Selbstmeldungs-Buttons –
-    // sonst würde ein Fallback-Spieler fälschlich als „du" erscheinen.
     const linked = !!(currentProfile && currentProfile.player_id && me);
-    // „Als bezahlt" nur für Kassenwart/Admin (UI-Komfort; echte Sperre = RLS)
-    const canPay = Roles.canManageFines();
+    // Altlast der Sprungziele: "meine" heisst Segment Ich mit Chip Offen.
+    if (strafenFilter === "meine") { kontoSeg = "ich"; strafenFilter = "offen"; }
+    const seg = kontoSeg || (linked ? "ich" : "team");
 
-    const alle = aktiveStrafen().map((s) => ({
-      ...s,
-      betrag: strafeBetrag(s),
-      bezahlt: istBezahlt(s),
-      st: fineStatus(s),
-      player: playerById[s.playerId],
-      kat: katById[s.katalogId],
-    }));
-
-    const offenGesamt   = alle.filter((s) => s.st === "offen").reduce((a, s) => a + s.betrag, 0);
-    const bezahltGesamt = alle.filter((s) => s.st === "bestätigt").reduce((a, s) => a + s.betrag, 0);
-
-    let gefiltert = alle;
-    if (strafenFilter === "offen")    gefiltert = alle.filter((s) => s.st === "offen");
-    if (strafenFilter === "gemeldet") gefiltert = alle.filter((s) => s.st === "gemeldet");
-    if (strafenFilter === "bezahlt")  gefiltert = alle.filter((s) => s.st === "bestätigt");
-    if (strafenFilter === "meine")    gefiltert = linked ? alle.filter((s) => s.playerId === me.id) : [];
+    const alle = aktiveStrafen().map((x) => ({
+      ...x, betrag: strafeBetrag(x), st: fineStatus(x), player: playerById[x.playerId],
+    })).filter((x) => x.player);
+    const imSeg = seg === "ich" ? (linked ? alle.filter((x) => x.playerId === me.id) : []) : alle;
+    const anz = (st) => imSeg.filter((x) => x.st === st).length;
+    const stKey = { offen: "offen", gemeldet: "gemeldet", bezahlt: "bestätigt" };
+    const gefiltert = (strafenFilter === "alle" ? imSeg.slice() : imSeg.filter((x) => x.st === stKey[strafenFilter]));
     const stRank = { offen: 0, gemeldet: 1, "bestätigt": 2 };
     gefiltert.sort((a, b) => (stRank[a.st] - stRank[b.st]) || b.datum.localeCompare(a.datum));
 
-    const filters = [
-      { k: "offen",    label: "Offen" },
-      { k: "gemeldet", label: "Gemeldet" },
-      { k: "bezahlt",  label: "Eingegangen" },
-      { k: "meine",    label: "Meine" },   // kurz, damit die Reihe in eine Zeile passt
-      { k: "alle",     label: "Alle" },
-    ];
+    const summe = (st) => alle.filter((x) => x.st === st).reduce((a, x) => a + x.betrag, 0);
+    const chips = [["offen", "Offen"], ["gemeldet", "Gemeldet"], ["bezahlt", "Bezahlt"]];
+    const betragKl = (x) => x.st === "offen" ? "is-rot" : x.st === "gemeldet" ? "is-amber" : "is-gruen";
+    const zeile = (x) => {
+      const datum = fmtDay(x.datum) + ". " + fmtMon(x.datum) + (x.auto ? " · automatisch" : "");
+      const grund = x.st === "offen" && x.ablehnGrund ? '<span class="row-s is-rot">Abgelehnt: ' + esc(x.ablehnGrund) + '</span>' : "";
+      return seg === "ich"
+        ? '<div class="row kt-row"><span class="row-main"><span class="row-t">' + esc(vergehenName(x)) + '</span>' +
+            '<span class="row-s">' + datum + '</span>' + grund + '</span>' +
+            '<span class="row-end kt-betrag ' + betragKl(x) + '">' + euro(x.betrag).replace(/s/g, " ") + '</span></div>'
+        : '<div class="row kt-row"><span class="row-av"><span>' + esc(initials(x.player.name)) + '</span></span>' +
+            '<span class="row-main"><span class="row-t">' + esc(x.player.name) + '</span>' +
+            '<span class="row-s">' + esc(vergehenName(x)) + ' · ' + datum + '</span>' + grund + '</span>' +
+            '<span class="row-end kt-betrag ' + betragKl(x) + '">' + euro(x.betrag).replace(/s/g, " ") + '</span></div>';
+    };
 
-    /* --- Daten für die Diagramme ------------------------------------------ */
-    // Diagramme entfernt (Entscheidung): Konto zeigt nur Kontostand, Summe offen und die Liste.
     viewEl.innerHTML = `
-      <div class="page-head">
-        ${navBackChevronHtml()}<h1>Strafen-Konto</h1>
+      <div class="page-head">${navBackChevronHtml()}<h1>Strafen-Konto</h1></div>
+      <div class="seg kt-seg" role="tablist">
+        <button class="seg-b${seg === "ich" ? " is-on" : ""}" role="tab" aria-selected="${seg === "ich"}" data-kseg="ich">Ich</button>
+        <button class="seg-b${seg === "team" ? " is-on" : ""}" role="tab" aria-selected="${seg === "team"}" data-kseg="team">Mannschaft</button>
       </div>
-
-      ${kontoBlockHtml()}
-
-      <div class="kpi-grid">
-        <div class="kpi is-warn">
-          <div class="kpi-label">Summe offen</div>
-          <div class="kpi-value kpi-amt">${euro(offenGesamt).replace(/\s/g, " ")}</div>
-          <div class="kpi-sub">${alle.filter((s)=>s.st==="offen").length} offene Strafen</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-label">Kontostand</div>
-          <div class="kpi-value kpi-amt">${euro(offenGesamt + bezahltGesamt).replace(/\s/g, " ")}</div>
-          <div class="kpi-sub">Gesamtvolumen Saison</div>
-        </div>
+      ${seg === "ich" ? kontoBlockHtml() : `
+      <div class="kt-kacheln">
+        <div class="kpi kt-kpi is-rot"><span class="kpi-label">Offen</span><span class="kpi-value">${euro(summe("offen")).replace(/\s/g, " ")}</span></div>
+        <div class="kpi kt-kpi is-gruen"><span class="kpi-label">In der Kasse</span><span class="kpi-value">${euro(summe("bestätigt")).replace(/\s/g, " ")}</span></div>
+      </div>`}
+      <div class="kt-chips">
+        ${chips.map(([k, l]) => `<button class="chip kt-chip${strafenFilter === k ? " is-active" : ""}" data-sfilter="${k}" aria-pressed="${strafenFilter === k}">${l} ${anz(stKey[k])}</button>`).join("")}
       </div>
-
-      <div class="chips" style="margin-bottom:12px">
-        ${filters.map((f) => `<button class="chip ${strafenFilter === f.k ? "is-active" : ""}" data-sfilter="${f.k}">${f.label}</button>`).join("")}
-      </div>
-
-      ${gefiltert.length ? `
-      <div class="fine-list">
-        ${gefiltert.map((s) => `
-          <div class="fine-row">
-            <span class="avatar">${initials(s.player.name)}</span>
-            <div class="fine-main">
-              <div class="fine-name">${esc(s.player.name)}</div>
-              <div class="fine-desc">${esc(vergehenName(s))} · ${fmtDay(s.datum)}. ${fmtMon(s.datum)}${s.auto ? " · automatisch" : ""}</div>
-              ${s.st === "offen" && s.ablehnGrund ? `<div class="fine-reason">Abgelehnt: ${esc(s.ablehnGrund)}</div>` : ""}
-            </div>
-            <div class="fine-right">
-              <div class="fine-amt${s.st === "offen" ? " is-warn" : ""}">${euro(s.betrag).replace(/\s/g, " ")}</div>
-              ${statusBadgeHtml(s)}
-            </div>
-          </div>`).join("")}
-      </div>` : `<div class="empty">Keine Strafen in dieser Auswahl.</div>`}
+      ${gefiltert.length ? `<div class="card kt-liste">${gefiltert.map(zeile).join("")}</div>`
+        : `<div class="empty">${seg === "ich" && !linked ? "Dein Konto ist noch keinem Spieler zugeordnet." : "Keine Strafen in dieser Auswahl."}</div>`}
     `;
 
     startCountdowns(); // Live-Timer für alle Countdown-Felder dieser Ansicht
@@ -5126,13 +5100,11 @@
     if (!nSp) return `<div class="kasse-sum-empty">Erst Spieler auswählen.</div>`;
     if (!b.lines.length && !b.incomplete) return `<div class="kasse-sum-empty">${nSp} Spieler · Strafe(n) auswählen</div>`;
     if (b.incomplete) return `<div class="kasse-sum-empty">${nSp} Spieler · Bezugsgröße bei gestaffelten Strafen eingeben</div>`;
-    return `<div class="kasse-sum">
-        <div class="kasse-sum-row"><span>Vorgang</span><b>${nSp} Spieler × ${b.lines.length} ${b.lines.length === 1 ? "Strafe" : "Strafen"} = ${b.entries} ${b.entries === 1 ? "Eintrag" : "Einträge"}</b></div>
-        <div class="kasse-sum-row"><span>Betrag je Spieler</span><b>${euro(b.proSpieler).replace(/\s/g, " ")}</b></div>
-        <div class="kasse-sum-row"><span>Datum</span><b>${fmtLong(kasse.date)}</b></div>
-        ${kasse.comment.trim() ? `<div class="kasse-sum-row"><span>Kommentar</span><b>${esc(kasse.comment.trim())}</b></div>` : ""}
-        <div class="kasse-sum-row kasse-sum-total"><span>Summe gesamt</span><b>${euro(b.total).replace(/\s/g, " ")}</b></div>
-      </div>`;
+    const namen = kasse.players.map((id) => playerById[id] && playerById[id].name).filter(Boolean);
+    const wer = nSp === 1 ? namen[0] : nSp + " Spieler";
+    const n = b.entries;
+    return `<div class="kasse-sum ks-sum"><span>${n === 1 ? "1 Strafe" : n + " Strafen"} für ${esc(wer)}</span>
+        <b>${euro(b.total).replace(/\s/g, " ")}</b></div>`;
   }
 
   /* Eine Zeile des Audit-Verlaufs. Der Verlauf selbst steht seit dem neuen
@@ -5156,58 +5128,35 @@
     return `<div class="ks-sag">${zartIconHtml(s.sagtZahlart)}<span>${text}</span></div>`;
   }
 
-  /* Eine Zeile im Reiter „Offen" (Vorlage 5B). Kein Avatar, keine Zustands-
-     marke: in diesem Reiter ist der Zustand immer derselbe, eine Marke daneben
-     traegt nichts bei. Die Karte selbst ist antippbar und oeffnet das Blatt
-     mit Verlauf; die beiden Knoepfe darin fangen den Tipp vorher ab. */
-  function krowHtml(s) {
-    return `<div class="krow" data-ks-det="${s.id}" role="button" tabindex="0" aria-label="${esc(s.player.name)} im Detail">
-      <div class="krow-top">
-        <span class="krow-title">${esc(s.player.name)}</span>
-        <span class="krow-amt num">${euro(s.betrag).replace(/\s/g, " ")}</span>
-      </div>
-      <div class="krow-strafe">${esc(vergehenName(s))}${s.auto ? " · automatisch" : ""}</div>
-      <div class="krow-verh">verhängt ${fmtPunkt(s.datum)}</div>
-      ${ksSagtHtml(s)}
-      ${s.ablehnGrund ? `<div class="fine-reason">Abgelehnt: ${esc(s.ablehnGrund)}</div>` : ""}
-      <div class="krow-actions">
-        ${s.auto
-          ? `<button class="btn ks-storno" data-kasse-del="${s.id}">Entfernen</button>`
-          : `<button class="btn ks-storno" data-kasse-cancel="${s.id}">Storno</button>`}
-        <button class="btn btn-primary ks-buchen" data-ks-buchen="${s.id}">Als bezahlt buchen</button>
-      </div>
-    </div>`;
-  }
-
   /* „Prüfen & verbuchen" als Kartenstapel (Vorlage 3c): immer genau EINE
      Meldung im Blick, dahinter zwei Geisterkarten als Stapeltiefe. Nach jeder
      Entscheidung wird die Liste kuerzer, der Index bleibt stehen - dadurch
      rueckt die naechste Meldung von selbst nach. */
   function renderKassePruefen(list) {
-    if (!list.length) return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Nichts zu prüfen</div><div class="rs">Sobald jemand eine Zahlung meldet, liegt sie hier.</div></div>`;
+    if (!list.length) return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Nichts gemeldet</div><div class="rs">Sobald jemand eine Zahlung meldet, liegt sie hier.</div></div>`;
     const sorted = list.slice().sort((a, b) => a.player.name.localeCompare(b.player.name));
     if (kasse.pruefIdx >= sorted.length || kasse.pruefIdx < 0) kasse.pruefIdx = 0;
     const i = kasse.pruefIdx, s = sorted[i];
+    const summe = sorted.reduce((a, x) => a + x.betrag, 0);
     // Zahlart und Zeitpunkt der Meldung in einer Zeile. Die Zahlart ist die
     // Angabe des Spielers (0040), der Zeitpunkt kommt aus fine_status_log.
     const art = s.sagtZahlart ? (ZAHLART_LABEL[s.sagtZahlart] || s.sagtZahlart) : "";
     const wann = s.gemeldetAm ? fmtGemeldet(s.gemeldetAm) : "";
     const meta = [art, wann ? "gemeldet " + wann : ""].filter(Boolean).join(" · ");
     return `
-      <div class="ks-deck">
+      <div class="group-head ks-stapelkopf"><h2>${i + 1} von ${sorted.length} · ${euro(summe).replace(/\s/g, " ")}</h2>
+        ${sorted.length > 1 ? `<button class="link-btn" data-kasse-confirm-all>Alle bestätigen</button>` : ""}</div>
+      <div class="ks-deck${sorted.length > 1 ? " is-stapel" : ""}">
+        ${sorted.length > 2 ? '<div class="ks-geist is-2" aria-hidden="true"></div>' : ""}${sorted.length > 1 ? '<div class="ks-geist is-1" aria-hidden="true"></div>' : ""}
         <div class="card ks-card" data-ks-det="${s.id}" role="button" tabindex="0" aria-label="Meldung von ${esc(s.player.name)} im Detail">
-          <div class="ks-kopf">
-            <span class="lbl">${i + 1} von ${sorted.length}</span>
-            ${sorted.length > 1 ? `<button class="link-btn" data-kasse-confirm-all>Alle bestätigen</button>` : ""}
-          </div>
           <span class="avatar ks-av">${initials(s.player.name)}</span>
           <div class="ks-name">${esc(s.player.name)}</div>
-          <div class="rs">${esc(vergehenName(s))}</div>
-          <div class="ks-amt num">${euro(s.betrag).replace(/\s/g, " ")}</div>
+          <div class="ks-grund">${esc(vergehenName(s))}</div>
+          <div class="ks-amt">${euro(s.betrag).replace(/\s/g, " ")}</div>
           ${meta ? `<div class="ks-meta">${zartIconHtml(s.sagtZahlart)}<span>${esc(meta)}</span></div>` : ""}
           ${s.sagtNote ? `<div class="ks-zitat">„${esc(s.sagtNote)}"</div>` : ""}
           <div class="ks-actions">
-            <button class="btn" data-kasse-reject="${s.id}">Ablehnen</button>
+            <button class="btn btn-soft btn-danger" data-kasse-reject="${s.id}">Ablehnen</button>
             <button class="btn btn-primary" data-kasse-confirm="${s.id}">Bestätigen</button>
           </div>
         </div>
@@ -5221,28 +5170,47 @@
      dafür gibt es ZAHLART_LABEL. */
   const KASSE_ZAHLARTEN = [["paypal", "PayPal"], ["bar", "Bar"], ["ueberweisung", "Überweisung"]];
 
-  /* Reiter „Offen" (Vorlage 5B): eine Karte je Strafe, gebucht wird ueber das
-     Blatt - die drei Zahlart-Chips sind aus der Zeile dorthin gewandert. */
+  /* Offen je Spieler (Vorlage Final 14): rein rechnend, ohne DOM (pruefbar).
+     Summe ueber strafeBetrag (mit Mahnzuschlag), Anzahl, aelteste Strafe;
+     sortiert nach Betrag absteigend, bei Gleichstand nach Name. */
+  function ksOffenNachSpieler(liste) {
+    const m = new Map();
+    liste.forEach((x) => {
+      const g = m.get(x.playerId) || { player: x.player, playerId: x.playerId, summe: 0, anzahl: 0, aelteste: x.datum };
+      g.summe += x.betrag; g.anzahl += 1; if (x.datum < g.aelteste) g.aelteste = x.datum;
+      m.set(x.playerId, g);
+    });
+    return [...m.values()].sort((a, b) => (b.summe - a.summe) || a.player.name.localeCompare(b.player.name, "de"));
+  }
   function renderKasseOffen(list) {
     if (!list.length) return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Keine offenen Posten</div><div class="rs">Alles verbucht.</div></div>`;
-    // Die Reihenfolge kommt schon sortiert an (älteste zuerst).
-    return `<div class="krow-list">${list.map(krowHtml).join("")}</div>`;
+    const gruppen = ksOffenNachSpieler(list);
+    const summe = list.reduce((a, x) => a + x.betrag, 0);
+    return `<div class="ks-summe"><span class="ks-summe-l">${list.length} ${list.length === 1 ? "Strafe" : "Strafen"} · ${gruppen.length} Spieler</span>
+        <span class="ks-summe-b is-rot">${euro(summe).replace(/\s/g, " ")}</span></div>
+      <div class="card ks-liste">${gruppen.map((g) => `<button type="button" class="row ks-zeile" data-ks-spieler="${g.playerId}" aria-label="${esc(g.player.name)} buchen">
+          <span class="row-av"><span>${esc(initials(g.player.name))}</span></span>
+          <span class="row-main"><span class="row-t">${esc(g.player.name)}</span>
+            <span class="row-s">${g.anzahl === 1 ? "1 Strafe · " + fmtDay(g.aelteste) + ". " + fmtMon(g.aelteste) : g.anzahl + " Strafen · älteste " + fmtDay(g.aelteste) + ". " + fmtMon(g.aelteste)}</span></span>
+          <span class="row-end ks-betrag is-rot">${euro(g.summe).replace(/\s/g, " ")}</span>
+          <span class="row-chev" aria-hidden="true">›</span></button>`).join("")}</div>`;
   }
 
-  /* Reiter „Eingegangen" (Vorlage 4A): EINE Karte mit Zeilen, nicht je Eintrag
-     eine eigene Karte. Antippen oeffnet das Blatt mit Verlauf und Rueckgaengig. */
+  /* Reiter „Bezahlt": eine Karte mit Zeilen (Stil wie Offen), neueste Buchung
+     zuerst. Antippen oeffnet das Blatt mit Verlauf und Rueckgaengig. */
   function renderKasseEing(list) {
-    if (!list.length) return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Noch keine Zahlungen</div><div class="rs">Bestätigte Eingänge stehen hier.</div></div>`;
-    return `<div class="card ks-ein">${list.map((s) => {
-      const art = s.zahlart ? (ZAHLART_LABEL[s.zahlart] || s.zahlart) : "";
-      const wann = s.paidAt ? fmtKurz(String(s.paidAt).slice(0, 10)) : fmtKurz(s.datum);
-      return `<button type="button" class="ks-ein-row" data-ks-det="${s.id}">
-        <span class="ks-ok" aria-hidden="true">${ICON_CHECK}</span>
-        <span class="ks-ein-main">
-          <span class="ks-ein-n">${esc(s.player.name)}</span>
-          <span class="ks-ein-m">${zartIconHtml(s.zahlart)}<span>${[esc(art), wann].filter(Boolean).join(" · ")}</span></span>
-        </span>
-        <span class="ks-ein-b num">${euro(s.betrag).replace(/\s/g, " ")}</span>
+    if (!list.length) return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Noch keine Zahlungen</div><div class="rs">Bezahlte Strafen stehen hier.</div></div>`;
+    const summe = list.reduce((a, x) => a + x.betrag, 0);
+    return `<div class="ks-summe"><span class="ks-summe-l">${list.length} ${list.length === 1 ? "Zahlung" : "Zahlungen"}</span>
+        <span class="ks-summe-b is-gruen">${euro(summe).replace(/\s/g, " ")}</span></div>
+      <div class="card ks-liste ks-ein">${list.map((x) => {
+      const art = x.zahlart ? (ZAHLART_LABEL[x.zahlart] || x.zahlart) : "";
+      const wann = x.paidAt ? fmtKurz(String(x.paidAt).slice(0, 10)) : fmtKurz(x.datum);
+      return `<button type="button" class="row ks-zeile ks-ein-row" data-ks-det="${x.id}">
+        <span class="row-av"><span>${esc(initials(x.player.name))}</span></span>
+        <span class="row-main"><span class="row-t">${esc(x.player.name)}</span>
+          <span class="row-s">${[esc(art), wann].filter(Boolean).join(" · ")}</span></span>
+        <span class="row-end ks-betrag is-gruen">${euro(x.betrag).replace(/\s/g, " ")}</span>
       </button>`;
     }).join("")}</div>`;
   }
@@ -5321,14 +5289,15 @@
   function ksKatalogZeileHtml(k) {
     const on = !!kasse.items[k.id];
     const menge = (kasse.items[k.id] && kasse.items[k.id].menge) || 1;
-    const preis = k.typ === "staffel"
-      ? euro(k.proEinheit || 0).replace(/\s/g, " ") + " / " + (k.schritt || 1) + " " + esc(k.einheit || "")
-      : euro(k.betrag).replace(/\s/g, " ");
-    return `<div class="kasse-catrow${on ? " is-sel" : ""}" data-kat-zeile="${k.id}">
-      <button type="button" class="kasse-catpick" data-kasse-catrow="${k.id}">
-        <span class="ks-check" aria-hidden="true">${on ? ICON_CHECK : ""}</span>
-        <span class="kat-name">${esc(k.vergehen)}${k.typ === "staffel" ? ` <span class="badge badge-auto">gestaffelt</span>` : ""}</span>
-        <span class="kat-amount">${preis}</span>
+    const preis = euro(k.typ === "staffel" ? (k.proEinheit || 0) : k.betrag).replace(/\s/g, " ");
+    const neben = k.typ === "staffel"
+      ? ["je " + (k.schritt || 1) + " " + esc(k.einheit || ""), k.maxBetrag != null ? "max " + euro(k.maxBetrag).replace(/\s/g, " ") : ""].filter(Boolean).join(" · ")
+      : "";
+    return `<div class="kasse-catrow ks-katzeile${on ? " is-sel" : ""}" data-kat-zeile="${k.id}">
+      <button type="button" class="kasse-catpick" data-kasse-catrow="${k.id}" role="checkbox" aria-checked="${on}">
+        <span class="ks-box${on ? " is-an" : ""}" aria-hidden="true">${on ? ICON_CHECK : ""}</span>
+        <span class="row-main"><span class="ks-kat-n">${esc(k.vergehen)}</span>${neben ? `<span class="row-s">${neben}</span>` : ""}</span>
+        <span class="ks-kat-b">${preis}</span>
       </button>
       ${on && k.typ === "staffel" ? `<div class="kasse-bezugwrap">
         <input class="kasse-in kasse-bezug" data-kasse-bezug="${k.id}" inputmode="decimal" placeholder="${esc(k.einheit || "Menge")}" value="${esc(kasse.bezug[k.id] || "")}">
@@ -5344,8 +5313,8 @@
 
   function ksKatalogBlockHtml() {
     return `
-      <div class="kasse-sub">Aus dem Katalog <span class="kasse-sub-hint">antippen zum Auswählen</span></div>
-      <div class="kat-list kasse-catlist">
+      <div class="group-head"><h2>Aus dem Katalog</h2><button type="button" class="link-btn" data-ks-auch="indiv">${kasse.bloecke.indiv ? "Individuell ausblenden" : "Individuell ›"}</button></div>
+      <div class="card ks-katliste">
         ${DEMO.katalog.map(ksKatalogZeileHtml).join("")}
       </div>`;
   }
@@ -5401,64 +5370,54 @@
     const namen = kasse.players.map((id) => playerById[id] && playerById[id].name).filter(Boolean);
     const txt = host.querySelector(".kasse-picker-txt");
     if (txt) txt.textContent = namen.length ? namen.length + " Spieler gewählt" : "Spieler auswählen";
-    ksChipsAktualisieren(host, kasse.players, "data-ks-seite-sp-weg");
+    const sh = host.querySelector(".ks-spieler-host");
+    if (sh) sh.innerHTML = ksGewaehltChipsHtml(kasse.players, "data-ks-seite-sp-weg") || '<div class="ks-keiner">Noch niemand ausgewählt.</div>';
+    else ksChipsAktualisieren(host, kasse.players, "data-ks-seite-sp-weg");
     ksSeiteSummeAktualisieren();
   }
 
   function ksIndivBlockHtml() {
     return `
-      <div class="kasse-sub">Individuelle Strafe</div>
-      <input class="kasse-in" data-kasse-input="betrag" inputmode="decimal" placeholder="Betrag €" value="${esc(kasse.indivBetrag)}">
-      <input class="kasse-in" data-kasse-input="grund" type="text" placeholder="Grund" value="${esc(kasse.indivGrund)}">
-      <button type="button" class="btn kasse-addbtn" data-kasse-indiv-add>Hinzufügen</button>
+      <div class="group-head"><h2>Individuell</h2></div>
+      <div class="card tf-liste ks-indiv">
+        <label class="tf-z"><span class="tf-l">Betrag</span><input class="tf-in" data-kasse-input="betrag" inputmode="decimal" placeholder="0,00 €" value="${esc(kasse.indivBetrag)}"></label>
+        <label class="tf-z"><span class="tf-l">Grund</span><input class="tf-in" data-kasse-input="grund" type="text" placeholder="Wofür?" value="${esc(kasse.indivGrund)}"></label>
+      </div>
+      <button type="button" class="btn btn-soft kasse-addbtn" data-kasse-indiv-add>Hinzufügen</button>
       ${ksIndivChipsHtml()}`;
   }
 
   function ksSeiteHtml() {
-    const modus = kasse.seite;
-    const chosen = kasse.players.map((id) => playerById[id] && playerById[id].name).filter(Boolean);
     const build = kasseBuild();
-    /* Die Reihenfolge folgt dem gewählten Weg: der Block, für den man sich
-       entschieden hat, steht oben. */
-    const bloecke = modus === "katalog"
-      ? [kasse.bloecke.katalog ? ksKatalogBlockHtml() : "", kasse.bloecke.indiv ? ksIndivBlockHtml() : ""]
-      : [kasse.bloecke.indiv ? ksIndivBlockHtml() : "", kasse.bloecke.katalog ? ksKatalogBlockHtml() : ""];
-    const fehlt = modus === "katalog"
-      ? (kasse.bloecke.indiv ? null : ["indiv", "Auch individuelle Strafe"])
-      : (kasse.bloecke.katalog ? null : ["katalog", "Auch aus dem Katalog"]);
-    const knopf = build.valid
-      ? `${build.entries} ${build.entries === 1 ? "Strafe" : "Strafen"} · ${euro(build.total).replace(/\s/g, " ")} speichern`
-      : "Strafe speichern";
-
+    // Katalog steht immer da; "Individuell ›" holt den Freitext-Block dazu.
+    const bloecke = [ksKatalogBlockHtml(), kasse.bloecke.indiv ? ksIndivBlockHtml() : ""];
     return `
-      <div class="ks-seite">
+      <button type="button" class="ks-seite-ov" data-ks-seite-zu aria-label="Schließen"></button>
+      <div class="ks-seite" role="dialog" aria-modal="true" aria-label="Strafe verhängen">
         <div class="ks-seite-kopf">
-          <button type="button" class="ks-seite-zur" data-ks-seite-zurueck>
-            <span aria-hidden="true">‹</span><span>Zurück</span>
-          </button>
-          <strong class="ks-seite-t">${esc(KS_SEITE_TITEL[modus] || "Strafe verhängen")}</strong>
-          <button type="button" class="tv-shx ks-seite-x" data-ks-seite-zu aria-label="Schließen">&times;</button>
+          <span class="tf-griff" aria-hidden="true"></span>
+          <div class="tf-kopfzeile">
+            <strong class="tf-titel ks-seite-t">Strafe verhängen</strong>
+            <button type="button" class="tf-x ks-seite-x" data-ks-seite-zu aria-label="Schließen">${ICON_X}</button>
+          </div>
         </div>
 
         <div class="ks-seite-body" data-scroll="ksSeiteBody">
-          <button type="button" class="kasse-picker" data-ks-open-players>
-            <span class="kasse-picker-txt">${chosen.length ? chosen.length + " Spieler gewählt" : "Spieler auswählen"}</span>
-            <span class="kasse-picker-arrow" aria-hidden="true">›</span>
-          </button>
-          ${ksGewaehltChipsHtml(kasse.players, "data-ks-seite-sp-weg")}
+          <div class="group-head"><h2>Spieler</h2><button type="button" class="link-btn" data-ks-open-players>Auswählen ›</button></div>
+          <div class="ks-spieler-host">${ksGewaehltChipsHtml(kasse.players, "data-ks-seite-sp-weg") || '<div class="ks-keiner">Noch niemand ausgewählt.</div>'}</div>
 
           ${bloecke.join("")}
-          ${fehlt ? `<button type="button" class="link-btn ks-auch" data-ks-auch="${fehlt[0]}">${fehlt[1]}</button>` : ""}
 
-          <div class="kasse-sub">Datum &amp; Kommentar</div>
-          <input class="kasse-in" type="date" data-kasse-date value="${kasse.date}" aria-label="Datum">
-          <textarea class="kasse-in kasse-comment" data-kasse-input="comment" rows="2" placeholder="Kommentar (optional)" aria-label="Kommentar">${esc(kasse.comment)}</textarea>
+          <div class="group-head"><h2>Datum und Kommentar</h2></div>
+          <div class="card tf-liste ks-dk">
+            <label class="tf-z"><span class="tf-l">Datum</span><span class="tf-nat"><span class="tf-anz" data-ks-datum-anz>${tfDatumText(kasse.date)}</span><input type="date" data-kasse-date value="${kasse.date}" aria-label="Datum"></span></label>
+            <label class="tf-z"><span class="tf-l">Kommentar</span><input class="tf-in" data-kasse-input="comment" type="text" placeholder="Optional" value="${esc(kasse.comment)}" aria-label="Kommentar"></label>
+          </div>
 
           <div id="kasseSummary">${kasseSummaryHtml()}</div>
-        </div>
-
-        <div class="ks-fuss">
-          <button class="btn btn-primary ks-fuss-btn" data-kasse-add${build.valid ? "" : " disabled"}>${knopf}</button>
+          <div class="ks-fuss">
+            <button class="btn btn-primary ks-fuss-btn" data-kasse-add${build.valid ? "" : " disabled"}>Strafe speichern</button>
+          </div>
         </div>
       </div>`;
   }
@@ -5467,47 +5426,20 @@
     const offen    = alle.filter((s) => s.st === "offen");
     const gemeldet = alle.filter((s) => s.st === "gemeldet");
     const bezahlt  = alle.filter((s) => s.st === "bestätigt");
-    const offenGesamt    = offen.reduce((a, s) => a + s.betrag, 0);
-    const gemeldetGesamt = gemeldet.reduce((a, s) => a + s.betrag, 0);
-    const bezahltGesamt  = bezahlt.reduce((a, s) => a + s.betrag, 0);
     /* Gefiltert wird nur die Liste. Die Reiterzahlen und die Kennzahlen oben
        bleiben die Gesamtzahlen - sonst wüsste man nicht mehr, wovon man einen
        Ausschnitt sieht. */
     const offenSort   = ksSortieren(offen,   KS_REIHENFOLGE.offen,   "offen");
     const bezahltSort = ksSortieren(bezahlt, KS_REIHENFOLGE.bezahlt, "bezahlt");
-    const zaehler = { pruefen: gemeldet.length, offen: offen.length, bezahlt: bezahlt.length };
-    const REITER = [["pruefen", "Zu prüfen"], ["offen", "Offen"], ["bezahlt", "Eingegangen"]];
+    const REITER = [["pruefen", "Gemeldet"], ["offen", "Offen"], ["bezahlt", "Bezahlt"]];
 
     return `
       <div class="page-head">${navBackChevronHtml()}<h1>Kasse</h1></div>
-
-      <div class="kpi-grid kpi-3">
-        <button type="button" class="kpi kpi-tapbar" data-kstab="offen">
-          <div class="kpi-label">Offen</div>
-          <div class="kpi-value kpi-amt is-rot">${euro(offenGesamt).replace(/\s/g, " ")}</div>
-          <div class="kpi-sub">${offen.length} ${offen.length === 1 ? "Strafe" : "Strafen"}</div>
-        </button>
-        <button type="button" class="kpi kpi-tapbar" data-kstab="pruefen">
-          <div class="kpi-label">Gemeldet</div>
-          <div class="kpi-value kpi-amt is-gold">${euro(gemeldetGesamt).replace(/\s/g, " ")}</div>
-          <div class="kpi-sub">${gemeldet.length} zu prüfen</div>
-        </button>
-        <button type="button" class="kpi kpi-tapbar" data-kstab="bezahlt">
-          <div class="kpi-label">Eingegangen</div>
-          <div class="kpi-value kpi-amt">${euro(bezahltGesamt).replace(/\s/g, " ")}</div>
-          <div class="kpi-sub">${bezahlt.length} ${bezahlt.length === 1 ? "Zahlung" : "Zahlungen"}</div>
-        </button>
-      </div>
-
-      <button type="button" class="ks-neu" data-ks-wahl>
-        ${ICON_PLUS}<span>Strafe verhängen</span>
-      </button>
-
-      <div class="section-title kasse-verbuchen"><h2>Prüfen und verbuchen</h2></div>
+      <button type="button" class="btn btn-primary ks-neu" data-ks-wahl>+ Strafe verhängen</button>
       <div class="ks-pane">
-        <div class="ks-seg" role="tablist">
-          ${REITER.map(([k, label]) => `<button class="ks-seg-b${kasse.tab === k ? " is-on" : ""}" role="tab"
-            aria-selected="${kasse.tab === k}" data-kstab="${k}">${label} <span class="ks-seg-n">${zaehler[k]}</span></button>`).join("")}
+        <div class="seg ks-seg" role="tablist">
+          ${REITER.map(([k, label]) => `<button class="seg-b ks-seg-b${kasse.tab === k ? " is-on" : ""}" role="tab"
+            aria-selected="${kasse.tab === k}" data-kstab="${k}">${label}${k === "pruefen" && gemeldet.length ? ` <b class="ks-seg-n">${gemeldet.length}</b>` : ""}</button>`).join("")}
         </div>
         ${kasse.tab === "pruefen" ? renderKassePruefen(gemeldet) : ""}
         ${kasse.tab === "offen" ? renderKasseOffen(offenSort) : ""}
@@ -5543,6 +5475,8 @@
     host.addEventListener("change", (ev) => {
       if (!ev.target.matches("[data-kasse-date]")) return;
       kasse.date = ev.target.value || new Date().toISOString().slice(0, 10);
+      const anz = document.querySelector("#ksSeite [data-ks-datum-anz]");
+      if (anz) anz.textContent = tfDatumText(kasse.date);
       const sum = document.getElementById("kasseSummary");
       if (sum) sum.innerHTML = kasseSummaryHtml();
       ksSeiteKnopf();
@@ -5597,9 +5531,7 @@
     if (!btn) return;
     const b = kasseBuild();
     btn.disabled = !b.valid;
-    btn.textContent = b.valid
-      ? b.entries + (b.entries === 1 ? " Strafe · " : " Strafen · ") + euro(b.total).replace(/\s/g, " ") + " speichern"
-      : "Strafe speichern";
+    btn.textContent = "Strafe speichern";
   }
 
   function ksSeiteEingabe(ev) {
@@ -5631,7 +5563,7 @@
     // Blöcke
     const auch = ev.target.closest("[data-ks-auch]");
     if (auch) {
-      kasse.bloecke[auch.dataset.ksAuch] = true;
+      kasse.bloecke[auch.dataset.ksAuch] = !kasse.bloecke[auch.dataset.ksAuch];
       // Ein ganzer Block kommt dazu - hier muss die Seite neu, aber die
       // Scrollposition bleibt.
       mitScroll(document.getElementById("ksSeite"), ksSeiteZeichnen);
@@ -5678,6 +5610,13 @@
 
   /* Die Seite verlassen: Eingaben und Blockwahl fallen zurueck, damit der
      naechste Vorgang wieder sauber ueber den Waehler geht. */
+  // "+ Strafe verhaengen": direkt in das Blatt (der Waehler zweier Wege entfaellt).
+  function ksSeiteNeu(modus) {
+    ksSeiteLeeren();
+    kasse.bloecke = { katalog: true, indiv: modus === "indiv" };
+    kasse.seite = modus === "indiv" ? "indiv" : "katalog";
+    ksSeiteSync();
+  }
   function ksSeiteLeeren() {
     kasse.seite = null; kasse.wartet = null;
     kasse.bloecke = { katalog: false, indiv: false };
@@ -6087,7 +6026,7 @@
      Ein Blatt, zwei Inhalte. „buchen" ist die Vorlage 3 (Zahlart waehlen und
      buchen), „detail" traegt Verlauf und Rueckgaengig - beides hing frueher
      als Zusatzzeile unter jeder Karte und macht die Liste unruhig. */
-  const ksBlatt = { art: null, id: null };
+  const ksBlatt = { art: null, id: null, auswahl: null, zahlart: null };
 
   function ksBlattEnsure() {
     if (document.getElementById("ksBl")) return;
@@ -6101,7 +6040,15 @@
     sheet.addEventListener("click", async (ev) => {
       if (ev.target.closest("[data-ks-bl-close]")) { ksBlattClose(); return; }
       const z = ev.target.closest("[data-ks-zart]");
-      if (z) { kasse.zahlart[ksBlatt.id] = z.dataset.ksZart; ksBlattRender(); return; }
+      if (z) { ksBlatt.zahlart = z.dataset.ksZart; ksBlattRender(); return; }
+      const m = ev.target.closest("[data-ks-zmenu]");
+      if (m) { ksZeilenMenue(m.dataset.ksZmenu); return; }
+      const w = ev.target.closest("[data-ks-wahl-id]");
+      if (w) {
+        const id = w.dataset.ksWahlId;
+        if (ksBlatt.auswahl.has(id)) ksBlatt.auswahl.delete(id); else ksBlatt.auswahl.add(id);
+        ksBlattRender(); return;
+      }
       if (ev.target.closest("[data-ks-bl-buchen]")) { await ksBlattBuchen(); return; }
       if (ev.target.closest("[data-ks-bl-unpay]")) { await ksBlattUnpay(); return; }
     });
@@ -6115,41 +6062,91 @@
     return { ...s, betrag: strafeBetrag(s), st: fineStatus(s), player: player };
   }
 
+  /* Blatt "Buchen" (Vorlage Final 15): alle offenen Strafen eines Spielers,
+     vorausgewaehlt; Kaestchen schaltet, Menue ··· je Zeile (Storno bzw.
+     Entfernen, Verlauf); Zahlart als Segment Bar / PayPal / Ueberweisung;
+     Zusammenfassung und "Als bezahlt buchen" (ein Aufruf mark_fines_paid). */
+  function ksSpielerOffen(pid) {
+    return aktiveStrafen().filter((x) => x.playerId === pid && fineStatus(x) === "offen")
+      .map((x) => ({ ...x, betrag: strafeBetrag(x), st: "offen", player: playerById[x.playerId] }))
+      .sort((a, b) => a.datum.localeCompare(b.datum));
+  }
+  const KS_BUCH_ARTEN = [["bar", "Bar"], ["paypal", "PayPal"], ["ueberweisung", "Überweisung"]];
+  function ksBlattSpielerHtml() {
+    const p = playerById[ksBlatt.id];
+    const liste = ksSpielerOffen(ksBlatt.id);
+    if (!p) return "";
+    // Auswahl nur auf Strafen, die es noch gibt (nach Storno faellt eine weg).
+    ksBlatt.auswahl = new Set([...ksBlatt.auswahl].filter((id) => liste.some((x) => x.id === id)));
+    const gewaehlt = liste.filter((x) => ksBlatt.auswahl.has(x.id));
+    const summe = gewaehlt.reduce((a, x) => a + x.betrag, 0);
+    const gesamt = liste.reduce((a, x) => a + x.betrag, 0);
+    const art = ksBlatt.zahlart;
+    const zeilen = liste.map((x) => {
+      const an = ksBlatt.auswahl.has(x.id);
+      const neben = [fmtDay(x.datum) + ". " + fmtMon(x.datum), x.auto ? "automatisch" : "",
+        x.sagtZahlart ? "Spieler: " + esc(ZAHLART_LABEL[x.sagtZahlart] || x.sagtZahlart) : ""].filter(Boolean).join(" · ");
+      return '<div class="row ks-bz" data-ks-wahl-id="' + x.id + '" role="checkbox" aria-checked="' + an + '" tabindex="0">' +
+        '<span class="ks-box' + (an ? " is-an" : "") + '" aria-hidden="true">' + (an ? ICON_CHECK : "") + '</span>' +
+        '<span class="row-main"><span class="row-t">' + esc(vergehenName(x)) + '</span><span class="row-s">' + neben + '</span>' +
+          (x.ablehnGrund ? '<span class="row-s is-rot">Abgelehnt: ' + esc(x.ablehnGrund) + '</span>' : "") + '</span>' +
+        '<span class="row-end ks-bz-b">' + euro(x.betrag).replace(/\s/g, " ") + '</span>' +
+        '<button type="button" class="tk-menue ks-bz-menue" data-ks-zmenu="' + x.id + '" aria-label="Mehr zu ' + esc(vergehenName(x)) + '">' +
+          '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg></button></div>';
+    }).join("");
+    return '<span class="tv-grip ks-grip"></span>' +
+      '<div class="tv-sh ks-bl-kopf"><span class="row-av ks-bl-av">' + esc(initials(p.name)) + '</span>' +
+        '<div class="tv-sh-text"><strong>' + esc(p.name) + '</strong><div class="tv-shsub">' +
+          (liste.length === 1 ? "1 offene Strafe" : liste.length + " offene Strafen") + ' · ' + euro(gesamt).replace(/\s/g, " ") + '</div></div>' +
+        '<button class="tv-shx" data-ks-bl-close aria-label="Schließen">' + ICON_X + '</button></div>' +
+      '<div class="tv-shbody ks-bl-body">' +
+        (liste.length ? '<div class="card ks-bz-liste">' + zeilen + '</div>' : '<div class="empty">Keine offenen Strafen mehr.</div>') +
+        '<div class="group-head"><h2>Zahlart</h2></div>' +
+        '<div class="seg ks-buchart-seg" role="radiogroup" aria-label="Zahlart">' + KS_BUCH_ARTEN.map(([k, l]) =>
+          '<button type="button" class="seg-b' + (art === k ? " is-on" : "") + '" data-ks-zart="' + k + '" aria-checked="' + (art === k) + '" role="radio">' + l + '</button>').join("") + '</div>' +
+        (gewaehlt.length ? '<div class="ks-bz-sum"><span>' + (gewaehlt.length === 1 ? "1 Strafe" : gewaehlt.length + " Strafen") + ', ' +
+          esc((ZAHLART_LABEL[art] || art).replace(/^./, (c) => c.toLowerCase())) + '</span><b>' + euro(summe).replace(/\s/g, " ") + '</b></div>' : "") +
+        '<button class="btn btn-primary ks-bl-cta" data-ks-bl-buchen' + (gewaehlt.length ? "" : " disabled") + '>Als bezahlt buchen</button>' +
+      '</div>';
+  }
+  // Menue ··· einer Zeile im Buchen-Blatt.
+  function ksZeilenMenue(id) {
+    const x = (DEMO.strafen || []).find((f) => f.id === id);
+    if (!x) return;
+    openZeilenMenue("ksZMenu", vergehenName(x), [
+      x.auto ? '<button class="more-item is-danger" data-kasse-del="' + id + '">Entfernen</button>'
+             : '<button class="more-item is-danger" data-kasse-cancel="' + id + '">Storno</button>',
+      '<button class="more-item" data-ks-det="' + id + '">Verlauf</button>']);
+  }
   function ksBlattRender() {
     const sheet = document.getElementById("ksBl");
+    if (!sheet) return;
+    if (ksBlatt.art === "spieler") {
+      sheet.classList.add("ks-bl-spieler");
+      sheet.innerHTML = ksBlattSpielerHtml();
+      sheet.setAttribute("aria-label", "Als bezahlt buchen");
+      return;
+    }
+    sheet.classList.remove("ks-bl-spieler");
     const s = ksStrafeById(ksBlatt.id);
-    if (!sheet || !s) return;
-    const kopf = ksBlatt.art === "buchen" ? "Als bezahlt buchen" : "Strafe";
+    if (!s) return;
+    const kopf = "Strafe";
     const summe = `<div class="ks-bl-sum">
         <div class="ks-bl-top"><span class="ks-bl-n">${esc(s.player.name)}</span><span class="ks-bl-b num">${euro(s.betrag).replace(/\s/g, " ")}</span></div>
         <div class="ks-bl-s">${esc(vergehenName(s))} · ${fmtKurz(s.datum)}</div>
       </div>`;
-    let body;
-    if (ksBlatt.art === "buchen") {
-      /* Vorbelegung: was der Spieler angegeben hat, sonst PayPal - so kommt
-         das Geld in dieser Mannschaft ueberwiegend an. */
-      const gewaehlt = kasse.zahlart[s.id] || s.sagtZahlart || "paypal";
-      const chips = KASSE_ZAHLARTEN.map(([k, label]) =>
-        `<button type="button" class="zart${gewaehlt === k ? " is-on" : ""}" data-ks-zart="${k}">${zartIconHtml(k)}<span>${label}</span></button>`).join("");
-      body = summe +
-        `<div class="lbl ks-bl-lbl">Zahlart</div>
-         <div class="zart-row">${chips}</div>
-         ${s.sagtZahlart ? `<div class="ks-bl-h">Vorausgewählt nach Angabe des Spielers.</div>` : ""}
-         <button class="btn btn-primary ks-bl-cta" data-ks-bl-buchen>${euro(s.betrag).replace(/\s/g, " ")} ${esc(ZAHLART_LABEL[gewaehlt] || gewaehlt)} buchen</button>`;
-    } else {
-      body = summe +
+    const body = summe +
         ksSagtHtml(s) +
         (s.ablehnGrund ? `<div class="fine-reason">Abgelehnt: ${esc(s.ablehnGrund)}</div>` : "") +
         `<div class="lbl ks-bl-lbl">Verlauf</div>
          <div class="fine-hist-body" id="ksBlHist"><div class="hist-line">lädt…</div></div>` +
         (s.st === "bestätigt" ? `<button class="btn ks-bl-cta" data-ks-bl-unpay>Buchung rückgängig</button>` : "");
-    }
     sheet.innerHTML =
       '<div class="tv-sh"><span class="tv-grip"></span><strong>' + esc(kopf) + '</strong>' +
       '<button class="tv-shx" data-ks-bl-close aria-label="Schließen">&times;</button></div>' +
       '<div class="tv-shbody">' + body + '</div>';
     sheet.setAttribute("aria-label", kopf);
-    if (ksBlatt.art === "detail") ksBlattVerlauf(s.id);
+    ksBlattVerlauf(s.id);
   }
 
   async function ksBlattVerlauf(id) {
@@ -6169,6 +6166,13 @@
   function ksBlattOpen(art, id) {
     ksBlattEnsure();
     ksBlatt.art = art; ksBlatt.id = id;
+    if (art === "spieler") {
+      const liste = ksSpielerOffen(id);
+      ksBlatt.auswahl = new Set(liste.map((x) => x.id));   // alle vorausgewaehlt
+      // Zahlart: gemeinsame Angabe der Spieler-Meldungen, sonst Bar (Vorlage).
+      const angaben = [...new Set(liste.map((x) => x.sagtZahlart).filter(Boolean))];
+      ksBlatt.zahlart = angaben.length === 1 ? angaben[0] : "bar";
+    }
     ksBlattRender();
     blattAuf("ksBlScrim", "ksBl");
   }
@@ -6178,15 +6182,17 @@
   }
 
   async function ksBlattBuchen() {
-    const s = ksStrafeById(ksBlatt.id);
-    if (!s) return;
-    const method = kasse.zahlart[s.id] || s.sagtZahlart || "paypal";
+    if (ksBlatt.art !== "spieler") return;
+    const ids = [...(ksBlatt.auswahl || [])];
+    if (!ids.length) return;
+    const method = ksBlatt.zahlart || "bar";
     const btn = document.querySelector("[data-ks-bl-buchen]"); if (btn) btn.disabled = true;
     try {
-      await DB.markFinesPaid([s.id], method);
+      const n = await DB.markFinesPaid(ids, method);
       ksBlattClose();
       await reloadData();
-      tvToast("Als bezahlt gebucht");
+      if (typeof n === "number" && n !== ids.length) tvToast(n + " von " + ids.length + " gebucht, der Rest war nicht mehr offen");
+      else tvToast(ids.length === 1 ? "1 Strafe gebucht" : ids.length + " Strafen gebucht");
     } catch (e) {
       if (btn) btn.disabled = false;
       window.alert("Buchen fehlgeschlagen: " + ((e && e.message) || e));
@@ -6297,15 +6303,15 @@
     if (currentView === "kasse") {
       // --- „Strafe verhängen" öffnet den Vollbild-Wähler. Alles Weitere
       //     passiert auf der Seite, die an <body> hängt (ksSeiteKlick). ---
-      if (ev.target.closest("[data-ks-wahl]")) { ksWahlOpen(); return; }
+      if (ev.target.closest("[data-ks-wahl]")) { ksSeiteNeu("katalog"); return; }
 
       // --- Reiter ---
       const tab = ev.target.closest("[data-kstab]");
       if (tab) { kasse.tab = tab.dataset.kstab; renderKasse(); return; }
 
       // --- Blatt: buchen (aus der Zeile) bzw. Detail mit Verlauf (Tipp auf die Karte) ---
-      const buch = ev.target.closest("[data-ks-buchen]");
-      if (buch) { ksBlattOpen("buchen", buch.dataset.ksBuchen); return; }
+      const sp = ev.target.closest("[data-ks-spieler]");
+      if (sp) { ksBlattOpen("spieler", sp.dataset.ksSpieler); return; }
       const det = ev.target.closest("[data-ks-det]");
       if (det && !ev.target.closest("button:not([data-ks-det])")) { ksBlattOpen("detail", det.dataset.ksDet); return; }
 
@@ -6348,15 +6354,15 @@
       const canc = ev.target.closest("[data-kasse-cancel]");
       if (canc) {
         if (!window.confirm("Diese Strafe stornieren? Sie zählt dann nicht mehr.")) return;
-        try { await DB.cancelFine(canc.dataset.kasseCancel); await reloadData(); tvToast("Storniert"); } catch (e) { window.alert("Stornieren fehlgeschlagen: " + ((e && e.message) || e)); }
+        try { await DB.cancelFine(canc.dataset.kasseCancel); await reloadData(); if (ksBlatt.art === "spieler") ksBlattRender(); tvToast("Storniert"); } catch (e) { window.alert("Stornieren fehlgeschlagen: " + ((e && e.message) || e)); }
         return;
       }
       const del = ev.target.closest("[data-kasse-del]");
-      if (del) { if (window.confirm("Diese automatische Strafe wirklich entfernen?")) { try { await DB.deleteFine(del.dataset.kasseDel); await reloadData(); tvToast("Entfernt"); } catch (e) { window.alert("Löschen fehlgeschlagen: " + ((e && e.message) || e)); } } return; }
+      if (del) { if (window.confirm("Diese automatische Strafe wirklich entfernen?")) { try { await DB.deleteFine(del.dataset.kasseDel); await reloadData(); if (ksBlatt.art === "spieler") ksBlattRender(); tvToast("Entfernt"); } catch (e) { window.alert("Löschen fehlgeschlagen: " + ((e && e.message) || e)); } } return; }
       // „Buchung rückgängig" steht jetzt im Detail-Blatt (ksBlattUnpay).
     }
 
-    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-cal-hide],[data-cal-copy-profil],[data-push-an],[data-push-aus],[data-push-test],[data-push-install],[data-push-hinweis-weg],[data-pn-haupt],[data-pn-kat],[data-pn-alle],[data-pn-ruhe],[data-pn-dringend],[data-pkat-save],[data-pkat-reset],[data-pkat-send],[data-pkat-alle],[data-pkat-clear],[data-pkat-hinweis-save],[data-ics-event],[data-koord-save],[data-status-set],[data-status-blatt],[data-logout],[data-ein],[data-ein-back],[data-ein-tat]");
+    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-kseg],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-cal-hide],[data-cal-copy-profil],[data-push-an],[data-push-aus],[data-push-test],[data-push-install],[data-push-hinweis-weg],[data-pn-haupt],[data-pn-kat],[data-pn-alle],[data-pn-ruhe],[data-pn-dringend],[data-pkat-save],[data-pkat-reset],[data-pkat-send],[data-pkat-alle],[data-pkat-clear],[data-pkat-hinweis-save],[data-ics-event],[data-koord-save],[data-status-set],[data-status-blatt],[data-logout],[data-ein],[data-ein-back],[data-ein-tat]");
     if (!t) return;
 
     // Fitnessstatus setzen. Wer das darf, entscheidet die Datenbank:
@@ -6769,7 +6775,7 @@
       } else if (kind === "meine-strafen") {
         navJumpTo("strafen", { strafenFilter: "meine" });
       } else if (kind === "kasse") {
-        navJumpTo("strafen", { strafenFilter: "offen" });
+        navJumpTo("strafen", { strafenFilter: "offen", kontoSeg: "team" });
       }
       return;
     }
@@ -6785,7 +6791,8 @@
     if (t.dataset.filter) { kalFilter = t.dataset.filter; renderKalender(); return; }
 
     // Strafenfilter
-    if (t.dataset.sfilter) { strafenFilter = t.dataset.sfilter; renderStrafen(); return; }
+    if (t.dataset.sfilter) { strafenFilter = (strafenFilter === t.dataset.sfilter) ? "alle" : t.dataset.sfilter; renderStrafen(); return; }
+    if (t.dataset.kseg) { kontoSeg = t.dataset.kseg; renderStrafen(); return; }
 
     // Ab-/Zusage -> nach Supabase schreiben
     if (t.dataset.rsvp) {
@@ -6907,6 +6914,7 @@
     navReturn = { view: currentView, scroll: window.scrollY || window.pageYOffset || 0 };
     // Reiter/Filter VOR dem Render setzen -> steht beim ERSTEN Rendern korrekt, kein sichtbarer Sprung.
     if (opts.strafenFilter) strafenFilter = opts.strafenFilter;
+    if (opts.strafenFilter) kontoSeg = opts.kontoSeg || (opts.strafenFilter === "alle" ? "team" : (opts.strafenFilter === "meine" ? "ich" : null));
     if (opts.kalFilter) kalFilter = opts.kalFilter;
     try { history.pushState({ navJump: true }, ""); } catch (e) {}
     currentView = target; tvSetNavActive(target);

@@ -54,6 +54,8 @@ const vogler = (d) => {
 };
 const spielOeffnen = (id, danach) => async (page) => { await zuTrainer(page); await page.click('[data-tvgame="' + id + '"]'); await page.waitForTimeout(500); if (danach) await danach(page); };
 
+const zuKasse = async (page) => { await page.click('#navMore'); await page.waitForTimeout(300); await page.click('#moreKasse'); await page.waitForTimeout(400); };
+
 export const SCREENS = {
   // D3: Zähler „Elf aufstellen“ weiß auf --grad-chip-gold (Vorlage: dunkle Schrift auf Gold, 2,9:1).
   '01 Übersicht': { profil: 'admin', erlaubt: ['"1": farbe'] },
@@ -100,4 +102,60 @@ export const SCREENS = {
     vorbereitung: async (page) => { await zuTrainer(page); await page.click('[data-goto="kader"]'); await page.waitForTimeout(400);
       await page.click('[data-status-blatt="p05"]'); await page.waitForTimeout(400); },
     ohneText: ['Knie'] },
+  // 11: Liste der Vorlage mit zwei offenen Strafen (Banner sagt 3, Vorlage in sich uneinig).
+  '11 Konto Ich': { profil: 'admin', vorbereitung: klick('[data-view="strafen"]'),
+    daten: (d) => { d.strafen = d.strafen.filter((x) => x.id !== 'f03'); d.strafen.forEach((x) => { if (x.id === 'f01') { x.betrag = 10; x.grundbetrag = 10; x.vergehen = 'Zu spät zum Spiel'; } }); return d; },
+    ohneText: ['3 Strafen offen ·', 'Offen 3', 'Bezahlt 24'],
+    // Der Kontobanner ist in 11 einen Pixel niedriger gezeichnet als in 01; die App nutzt einen Baustein (01 maßgeblich).
+    versatz: [{ ab: 220, dy: 1, bis: 680 }, { ab: 420, dy: 1, bis: 680 }], erlaubt: ['"Vergessene Zahlung Mannschaftskasse": w', '"Gemeldet 8": x'] },
+  // 12: Ausschnitt der Vorlage (ohne die eigenen offenen Strafen, Gründe wie in der Vorlage).
+  '12 Konto Mannschaft': { profil: 'admin', vorbereitung: async (page) => { await page.click('[data-view="strafen"]'); await page.waitForTimeout(300); await page.click('[data-kseg="team"]'); await page.waitForTimeout(300); },
+    daten: (d) => { d.strafen = d.strafen.filter((x) => !(x.playerId === 'p06' && x.status === 'offen'));
+      d.strafen.forEach((x) => { if (x.id === 'f12') Object.assign(x, { datum: '2026-09-26', vergehen: 'Gelb-Rote Karte', katalogId: null, betrag: 12, grundbetrag: 12 });
+        if (x.id === 'f14') Object.assign(x, { vergehen: 'Wer', katalogId: null }); if (x.id === 'f16') Object.assign(x, { vergehen: 'Verspätete Absage', katalogId: null });
+        if (x.id === 'f15') Object.assign(x, { vergehen: 'Vergessene Zahlung' }); if (x.id === 'f11') Object.assign(x, { vergehen: 'Duschen mit Socken' });
+        if (['f11', 'f12', 'f14', 'f16'].includes(x.id)) x.createdAt = '2026-10-01T12:00:00Z'; });   // ohne Mahnzuschlag wie in der Vorlage
+      return d; },
+    ohneText: ['4.586,00 €', '1.058,00 €', 'Offen 238', 'Bezahlt 58'], erlaubt: ['"Gemeldet 8": x', '"12,00 €":'] },
+  // Kasse: Daten je Screen aus der Vorlage nur teilweise nachgebildet (Summen, Anzahlen).
+  // Zahlart-Symbol vor der Meta-Zeile bleibt (Konvention), Text daher 12 px weiter rechts.
+  '13 Kasse Gemeldet': { profil: 'admin', vorbereitung: zuKasse, erlaubt: ['"PayPal · gemeldet 28.09., 16:42": x', '"8": x'],
+    daten: (d) => { d.strafen.forEach((x) => { if (x.status === 'gemeldet') { x.gemeldetAm = '2026-09-28T14:42:00Z'; x.createdAt = '2026-10-01T12:00:00Z'; } }); return d; } },
+  // 14: offene Strafen je Spieler wie in der Vorlage (Summen, Anzahl, älteste); Gesamtzahl der Vorlage 238/41.
+  '14 Kasse Offen': { profil: 'admin', vorbereitung: async (page) => { await zuKasse(page); await page.click('[data-kstab="offen"]'); await page.waitForTimeout(300); },
+    daten: (d) => {
+      const neu = (id, p, betrag, datum) => ({ id, playerId: p, katalogId: null, datum, bezahlt: false, note: null, selfReported: false, paidAt: null, status: 'offen',
+        batchId: null, zahlart: null, ablehnGrund: null, sagtZahlart: null, sagtNote: null, gemeldetAm: null, grundbetrag: betrag, zuschlag: 0, zuschlagAt: null,
+        createdAt: '2026-10-04T12:00:00Z', eventId: null, auto: false, vergehen: 'Strafe', betrag });
+      const plan = [['p10', [20, 12, 10, 10, 10, 10], '2026-05-10'], ['p15', [25, 13, 10, 10], '2026-05-10'], ['p11', [22, 12, 10], '2026-09-26'], ['p06', [10, 10, 10], '2026-10-01'], ['p07', [20], '2026-10-01']];
+      d.strafen = d.strafen.filter((x) => x.status !== 'offen');
+      plan.forEach(([p, betraege, aelteste]) => betraege.forEach((b, i) => d.strafen.push(neu('o-' + p + i, p, b, i === 0 ? aelteste : '2026-10-02'))));
+      return d; },
+    ohneText: ['238 Strafen · 41 Spieler', '4.586,00 €'], erlaubt: ['"8": x'] },
+  '15 Buchen': { profil: 'admin', wurzel: '#ksBl',
+    vorbereitung: async (page) => { await zuKasse(page); await page.click('[data-kstab="offen"]'); await page.waitForTimeout(300);
+      await page.click('[data-ks-spieler="p10"]'); await page.waitForTimeout(500);
+      await page.click('#ksBl .row.ks-bz:nth-child(2) .row-main'); await page.waitForTimeout(300); },
+    // Reihenfolge nach Datum (Vorlage: 10. Mai, 26. Sep, 22. Sep); Zahlart dreiteilig (Überweisung bleibt).
+    daten: (d) => { d.strafen.forEach((x) => { if (['f10', 'f11', 'f12'].includes(x.id)) x.createdAt = '2026-10-04T12:00:00Z'; if (x.id === 'f10') x.vergehen = 'Gelb-Rote Karte (Meckern)'; }); return d; },
+    ohneText: ['6 offene Strafen · 72,00 €', '25,00 €'],
+    erlaubt: ['"Duschen mit Socken": y', '"26. Sep": y', '"Zu spät zum Training": y', '"22. Sep": y', '"Bar": w', '"PayPal": x', '"5,00 €": y', '"12,00 €": y'] },
+  // 16: Katalog der Vorlage (vier Einträge), Paul Ebert gewählt, Handy in der Kabine angehakt, Datum 2. Okt.
+  // Menge (−, 1×, +) unter der gewählten Zeile bleibt (Funktion, nicht in der Vorlage): Blatt 56 höher.
+  '16 Strafe verhängen': { profil: 'admin', wurzel: '#ksSeite', hoehe: 874, versatz: [{ ab: 440, dy: 56 }],
+    daten: (d) => { d.katalog = [
+      { id: 'k1', vergehen: 'Verspätete Rückmeldung', betrag: 8, typ: 'fixed' },
+      { id: 'k2', vergehen: 'Zu spät zum Training', betrag: 0, typ: 'staffel', einheit: 'Minuten', proEinheit: 1, schritt: 5, maxBetrag: null },
+      { id: 'k3', vergehen: 'Handy in der Kabine', betrag: 5, typ: 'fixed' },
+      { id: 'k4', vergehen: 'Trikot vergessen', betrag: 3, typ: 'fixed' }].map((k) => Object.assign({ kategorie: null, einheit: null, proEinheit: null, schritt: null, maxBetrag: null }, k)); return d; },
+    vorbereitung: async (page) => { await zuKasse(page); await page.click('[data-ks-wahl]'); await page.waitForTimeout(400);
+      await page.click('[data-ks-open-players]'); await page.waitForTimeout(400);
+      await page.click('[data-ks-player="p16"]'); await page.waitForTimeout(200);
+      await page.click('[data-ks-weiter]').catch(() => {}); await page.waitForTimeout(400);
+      await page.click('[data-kasse-catrow="k3"]'); await page.waitForTimeout(200);
+      await page.evaluate(() => { const el = document.querySelector('[data-kasse-date]'); el.value = '2026-10-02'; el.dispatchEvent(new Event('change', { bubbles: true })); });
+      await page.waitForTimeout(300); },
+    ohneText: ['Optional'], erlaubt: ['"Fr, 2. Okt 2026": w', '"5,00 €": x 291'] },
+  '17 Katalog': { profil: 'admin', vorbereitung: klick('[data-view="katalog"]'),
+    daten: (d) => { d.katalog.forEach((k) => { if (k.id === 'k5') k.maxBetrag = null; if (k.id === 'k7') k.betrag = 10; }); return d; } },
 };

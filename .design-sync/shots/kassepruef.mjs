@@ -33,48 +33,49 @@ const frisch = () => {
   M.kasse.indivBetrag = ''; M.kasse.indivGrund = ''; M.kasse.comment = '';
 };
 
-/* ===== 1. Kennzahlen und Summen ========================================= */
-console.log('--- Kennzahlen ---');
+/* ===== 1. Summen (Vorlage Final 13 und 14) ============================= */
+console.log('--- Summen ---');
 {
+  // Final 13/14: keine Kennzahl-Kacheln mehr; die Summen stehen ueber dem
+  // Stapel ("1 von 3 · 36,00 €"), in der Summenzeile von Offen und Bezahlt.
   frisch();
   const h = M.kasseHtml(DATEN);
-  // Die Betraege der Vorlage _neukasse.png. Weichen sie ab, rechnet die
-  // Kasse anders als der Entwurf - dann stimmt eine der beiden Seiten nicht.
-  pruefe(h.includes('3.090,00 €'), 'Offen: 3.090,00 € wie in der Vorlage');
-  pruefe(h.includes('36,00 €'),    'Gemeldet: 36,00 €');
-  pruefe(h.includes('548,00 €'),   'Eingegangen: 548,00 €');
-  pruefe(h.includes('>140 Strafen<'),  'Offen: 140 Strafen');
-  pruefe(h.includes('>3 zu prüfen<'),  'Gemeldet: 3 zu prüfen');
-  pruefe(h.includes('>31 Zahlungen<'), 'Eingegangen: 31 Zahlungen');
-  // Die Kachel „Eingegangen" trug frueher „Saison" statt einer Zahl.
-  pruefe(!h.includes('Saison'), 'keine Ersatzzeile „Saison" mehr');
+  pruefe(!h.includes('kpi-grid'), 'keine Kennzahl-Kacheln oben');
+  pruefe(h.includes('1 von 3 · 36,00 €'), 'Gemeldet: Stapelkopf mit Summe 36,00 €');
+  M.kasse.tab = 'offen';
+  const o = M.kasseHtml(DATEN);
+  pruefe(o.includes('3.090,00 €'), 'Offen: 3.090,00 € in der Summenzeile');
+  pruefe(o.includes('140 Strafen · '), 'Offen: 140 Strafen');
+  M.kasse.tab = 'bezahlt';
+  const b = M.kasseHtml(DATEN);
+  pruefe(b.includes('548,00 €'), 'Bezahlt: 548,00 €');
+  pruefe(b.includes('31 Zahlungen'), 'Bezahlt: 31 Zahlungen');
   // Stornierte Strafen zaehlen nirgends mit.
+  M.kasse.tab = 'offen';
   const mitStorno = DATEN.concat([{ ...DATEN[3], id: 'x1', st: 'storniert', betrag: 999 }]);
   pruefe(M.kasseHtml(mitStorno).includes('3.090,00 €'), 'storniert erhöht die Offen-Summe nicht');
 }
 
 console.log('--- Einzahl und Mehrzahl ---');
 {
-  frisch();
+  frisch(); M.kasse.tab = 'offen';
   const eine = DATEN.filter((s) => s.st === 'offen').slice(0, 1);
   const h1 = M.kasseHtml(eine);
-  pruefe(h1.includes('>1 Strafe<'), 'eine Strafe, nicht „1 Strafen"');
-  pruefe(h1.includes('>0 Zahlungen<'), 'null Zahlungen im Plural');
+  pruefe(h1.includes('1 Strafe · 1 Spieler'), 'eine Strafe, nicht „1 Strafen"');
+  M.kasse.tab = 'bezahlt';
   const eineZ = DATEN.filter((s) => s.st === 'bestätigt').slice(0, 1);
-  pruefe(M.kasseHtml(eineZ).includes('>1 Zahlung<'), 'eine Zahlung, nicht „1 Zahlungen"');
+  pruefe(M.kasseHtml(eineZ).includes('1 Zahlung<'), 'eine Zahlung, nicht „1 Zahlungen"');
 }
 
 /* ===== 2. Reiter ======================================================== */
-console.log('--- Reiterzählungen ---');
+console.log('--- Reiter ---');
 {
   frisch();
   const h = M.kasseHtml(DATEN);
-  pruefe(/Zu prüfen <span class="ks-seg-n">3<\/span>/.test(h), 'Reiter „Zu prüfen" trägt 3');
-  pruefe(/Offen <span class="ks-seg-n">140<\/span>/.test(h),    'Reiter „Offen" trägt 140');
-  pruefe(/Eingegangen <span class="ks-seg-n">31<\/span>/.test(h), 'Reiter „Eingegangen" trägt 31');
-  pruefe(!/\(\d+\)/.test(h.slice(h.indexOf('ks-seg'), h.indexOf('</div>', h.indexOf('ks-seg')))),
-    'die Zahlen stehen ohne Klammern, wie in der Vorlage');
-  // Der gewaehlte Reiter ist genau einer.
+  pruefe(/>Gemeldet <b class="ks-seg-n">3<\/b>/.test(h), 'Reiter „Gemeldet" trägt die Plakette 3');
+  pruefe(/>Offen<\/button>/.test(h), 'Reiter „Offen" ohne Zähler');
+  pruefe(/>Bezahlt<\/button>/.test(h), 'Reiter „Bezahlt" ohne Zähler');
+  pruefe(!h.includes('Zu prüfen') && !h.includes('Eingegangen'), 'alte Reiternamen sind weg');
   const an = (h.match(/ks-seg-b is-on/g) || []).length;
   gleich(an, 1, 'genau ein Reiter ist gewählt');
   pruefe(h.includes('aria-selected="true"'), 'der gewählte Reiter meldet sich als gewählt');
@@ -83,9 +84,9 @@ console.log('--- Reiterzählungen ---');
 console.log('--- Der Reiter entscheidet, was gezeigt wird ---');
 {
   for (const [tab, drin, draussen] of [
-    ['pruefen', 'ks-card', 'krow-list'],
-    ['offen',   'krow-list', 'ks-card'],
-    ['bezahlt', 'ks-ein-row', 'krow-list'],
+    ['pruefen', 'ks-card', 'data-ks-spieler'],
+    ['offen',   'data-ks-spieler', 'ks-card'],
+    ['bezahlt', 'ks-ein-row', 'data-ks-spieler'],
   ]) {
     frisch(); M.kasse.tab = tab;
     const h = M.kasseHtml(DATEN);
@@ -155,13 +156,14 @@ console.log('--- Feste Reihenfolge ---');
   gleich(M.ksBezugsdatum({ datum: '2026-01-01', paidAt: null }, 'bezahlt'),
     '2026-01-01', 'ohne Buchungsdatum fällt es auf das Strafendatum zurück');
 
-  // Und die Liste in der Ansicht kommt in dieser Reihenfolge an.
+  // Final 14: Offen steht je Spieler, nach Betrag absteigend.
   frisch(); M.kasse.tab = 'offen';
+  const g = M.ksOffenNachSpieler(offen);
+  pruefe(g.length > 1 && g.every((x, i) => i === 0 || g[i - 1].summe >= x.summe), 'Offen je Spieler nach Betrag absteigend');
+  gleich(g.reduce((a, x) => a + x.anzahl, 0), offen.length, 'jede offene Strafe zählt genau einmal');
   const h = M.kasseHtml(DATEN);
-  const daten = [...h.matchAll(/verhängt (\d{2})\.(\d{2})\.(\d{4})/g)]
-    .map((m) => m[3] + m[2] + m[1]);
-  pruefe(daten.length > 1 && daten[0] <= daten[1] && daten[0] <= daten[daten.length - 1],
-    'die gerenderte Liste beginnt mit der ältesten Strafe', daten[0] + ' … ' + daten[daten.length - 1]);
+  const erste = (h.match(/data-ks-spieler="([^"]+)"/) || [])[1];
+  gleich(erste, g[0].playerId, 'die gerenderte Liste beginnt mit dem höchsten Betrag');
   frisch();
 }
 
@@ -231,7 +233,7 @@ console.log('--- Spielerliste im Blatt ---');
 /* ===== 4. Leerzustaende ================================================= */
 console.log('--- Leerzustände ---');
 {
-  for (const [tab, text] of [['pruefen', 'Nichts zu prüfen'], ['offen', 'Keine offenen Posten'],
+  for (const [tab, text] of [['pruefen', 'Nichts gemeldet'], ['offen', 'Keine offenen Posten'],
                              ['bezahlt', 'Noch keine Zahlungen']]) {
     frisch(); M.kasse.tab = tab;
     const h = M.kasseHtml([]);
@@ -269,35 +271,34 @@ console.log('--- Angabe des Spielers ---');
   const ohne = DATEN.filter((x) => x.st === 'gemeldet').map((x) => ({ ...x, sagtZahlart: null, sagtNote: null, gemeldetAm: null }));
   pruefe(!M.kasseHtml(ohne).includes('ks-meta'), 'ohne Angabe keine leere Zeile');
 
-  // In „Offen" haengt der Balken an der Karte.
-  frisch(); M.kasse.tab = 'offen';
-  pruefe(M.kasseHtml(DATEN).includes('ks-sag'), 'Offen: Balken an der Karte');
+  // Final 15: die Angabe steht im Buchen-Blatt je Zeile ("Spieler: bar").
+  const blatt = app.slice(app.indexOf('function ksBlattSpielerHtml()'), app.indexOf('function ksZeilenMenue('));
+  pruefe(blatt.includes('"Spieler: "'), 'Buchen-Blatt: Angabe des Spielers je Zeile');
+  pruefe(blatt.includes('Abgelehnt: '), 'Buchen-Blatt: Ablehnungsgrund je Zeile');
   frisch();
 }
 
-/* ===== 6. Die Zeile im Reiter „Offen" =================================== */
-console.log('--- Zeile „Offen" ---');
+/* ===== 6. Offen je Spieler und das Buchen-Blatt (Final 14, 15) ========== */
+console.log('--- Offen und Buchen ---');
 {
-  const s = { id: 'o9', betrag: 10, st: 'offen', datum: '2026-09-16',
-              vergehen: 'Zu spät zum Training', player: { name: 'Daniel Koch' } };
-  const h = M.krowHtml(s);
-  pruefe(h.includes('verhängt 16.09.2026'), 'Datum mit Jahr, Wort „verhängt"');
-  pruefe(h.includes('Als bezahlt buchen'), 'Knopf heißt „Als bezahlt buchen"');
-  pruefe(h.includes('data-kasse-cancel="o9"'), 'Storno ist da');
-  pruefe(!h.includes('data-kasse-del'), 'kein Entfernen bei einer normalen Strafe');
-  pruefe(!h.includes('avatar'), 'kein Avatar - die Vorlage zeigt keinen');
-  pruefe(!h.includes('badge'), 'keine Zustandsmarke');
-  pruefe(h.includes('data-ks-det="o9"'), 'die Karte öffnet das Detail-Blatt');
+  const s = (o) => ({ id: 'o', betrag: 10, st: 'offen', datum: '2026-09-16', vergehen: 'X', playerId: 'p2', player: { name: 'Daniel Koch' }, ...o });
+  const g = M.ksOffenNachSpieler([s({ id: 'a', datum: '2026-05-10' }), s({ id: 'b', betrag: 12 }), s({ id: 'c', playerId: 'p1', player: { name: 'Lukas Weber' }, betrag: 30 })]);
+  gleich(g.map((x) => x.playerId), ['p1', 'p2'], 'höchster Betrag zuerst');
+  gleich(g[1].anzahl, 2, 'Anzahl je Spieler');
+  gleich(g[1].summe, 22, 'Summe je Spieler');
+  gleich(g[1].aelteste, '2026-05-10', 'älteste Strafe je Spieler');
+  M.kasse.tab = 'offen';
+  const h = M.renderKasseOffen([s({ id: 'a', datum: '2026-05-10' }), s({ id: 'b' })]);
+  pruefe(h.includes('2 Strafen · älteste 10. Mai'), 'Nebenzeile "2 Strafen · älteste 10. Mai"');
+  pruefe(M.renderKasseOffen([s({})]).includes('1 Strafe · 16. Sep'), 'eine Strafe: "1 Strafe · 16. Sep"');
   pruefe(!h.includes('data-kasse-pay'), 'gebucht wird über das Blatt, nicht aus der Zeile');
-  pruefe(!h.includes('zart-row'), 'keine Zahlart-Chips mehr in der Zeile');
-
-  const auto = M.krowHtml({ ...s, auto: true });
-  pruefe(auto.includes('data-kasse-del="o9"'), 'automatische Strafe: Entfernen statt Storno');
-  pruefe(!auto.includes('data-kasse-cancel'), 'automatische Strafe: kein Storno');
-  pruefe(auto.includes('· automatisch'), 'automatische Strafe ist als solche erkennbar');
-
-  const abgelehnt = M.krowHtml({ ...s, ablehnGrund: 'Kein Eingang gefunden' });
-  pruefe(abgelehnt.includes('Abgelehnt: Kein Eingang gefunden'), 'Ablehnungsgrund bleibt sichtbar');
+  // Storno, Entfernen und Verlauf liegen im Menü ··· je Zeile des Blatts.
+  const menue = app.slice(app.indexOf('function ksZeilenMenue('), app.indexOf('function ksBlattRender()'));
+  pruefe(menue.includes('data-kasse-cancel'), 'Menü: Storno');
+  pruefe(menue.includes('data-kasse-del'), 'Menü: Entfernen bei automatischer Strafe');
+  pruefe(menue.includes('Verlauf'), 'Menü: Verlauf');
+  const buchen = app.slice(app.indexOf('async function ksBlattBuchen()'), app.indexOf('async function ksBlattUnpay()'));
+  pruefe(buchen.includes('DB.markFinesPaid(ids, method)'), 'Buchen: alle gewählten in einem Aufruf');
 }
 
 /* ===== 7. „Strafe verhaengen": Waehler, Spielerauswahl, zwei Seiten ===== */
@@ -311,7 +312,7 @@ console.log('--- Strafe verhängen: der Weg dorthin ---');
   // Die Seite haengt nicht mehr im Feed - kasseHtml zeigt immer die Liste.
   M.kasse.seite = 'katalog';
   pruefe(!M.kasseHtml(DATEN).includes('ks-seite'), 'auch mit offener Seite rendert kasseHtml den Feed');
-  pruefe(M.kasseHtml(DATEN).includes('kpi-grid'), 'der Feed bleibt vollständig, er liegt nur darunter');
+  pruefe(M.kasseHtml(DATEN).includes('ks-seg'), 'der Feed bleibt vollständig, er liegt nur darunter');
   frisch();
 }
 
@@ -394,7 +395,7 @@ console.log('--- Die Seite: was NICHT mehr drauf ist ---');
     pruefe(!h.includes('ks-seg-b'), modus + ': keine Reiterleiste');
     pruefe(!h.includes('data-ks-fl-auf'), modus + ': keine Filterleiste');
     pruefe(!h.includes('krow-list') && !h.includes('ks-ein-row'), modus + ': keine Liste');
-    pruefe(h.includes('data-ks-seite-zurueck'), modus + ': Zurück zur Auswahl');
+    pruefe(!h.includes('data-ks-seite-zurueck'), modus + ': ein Blatt ohne Zurück zum Wähler (Final 16)');
     pruefe(h.includes('data-ks-seite-zu'), modus + ': Schließen zur Kasse');
     pruefe(h.includes('class="ks-fuss"'), modus + ': Speichern im gemeinsamen Fuß');
   }
@@ -406,8 +407,8 @@ console.log('--- Aufbau je Seite ---');
   frisch();
   M.kasse.seite = 'katalog'; M.kasse.bloecke = { katalog: true, indiv: false };
   const k = M.ksSeiteHtml();
-  pruefe(k.includes('Strafe aus Katalog'), 'Katalog-Seite trägt ihren Titel');
-  pruefe(k.includes('kasse-catlist'), 'Katalog-Seite: Katalogliste');
+  pruefe(k.includes('>Strafe verhängen<'), 'das Blatt trägt den Titel „Strafe verhängen"');
+  pruefe(k.includes('ks-katliste'), 'Katalog-Seite: Katalogliste');
   pruefe(k.includes('data-kasse-catrow'), 'Katalog-Seite: Katalogzeilen zum Antippen');
   M.kasse.items = { k1: { menge: 2 } };
   const kMenge = M.ksSeiteHtml();
@@ -415,22 +416,22 @@ console.log('--- Aufbau je Seite ---');
   pruefe(kMenge.includes('>2×<'), 'Katalog-Seite: die Menge steht daneben');
   M.kasse.items = {};
   pruefe(!k.includes('data-kasse-indiv-add'), 'Katalog-Seite: kein Individuell-Block');
-  pruefe(k.includes('data-ks-auch="indiv"'), 'Katalog-Seite: Link „Auch individuelle Strafe"');
+  pruefe(k.includes('data-ks-auch="indiv"') && k.includes('Individuell ›'), 'Katalog-Seite: Verweis „Individuell ›"');
 
   frisch();
   M.kasse.seite = 'indiv'; M.kasse.bloecke = { katalog: false, indiv: true };
   const i = M.ksSeiteHtml();
-  pruefe(i.includes('Individuelle Strafe'), 'Individuell-Seite trägt ihren Titel');
+  pruefe(i.includes('>Strafe verhängen<'), 'Individuell: derselbe Titel');
   pruefe(i.includes('data-kasse-indiv-add'), 'Individuell-Seite: Betrag und Grund');
-  pruefe(!i.includes('kasse-catlist'), 'Individuell-Seite: keine Katalogliste');
-  pruefe(i.includes('data-ks-auch="katalog"'), 'Individuell-Seite: Link „Auch aus dem Katalog"');
+  pruefe(i.includes('ks-katliste'), 'Individuell: der Katalog steht trotzdem da');
+  pruefe(i.includes('Individuell ausblenden'), 'Individuell: der Verweis blendet den Block wieder aus');
 
   frisch();
   M.kasse.seite = 'indiv'; M.kasse.bloecke = { katalog: true, indiv: true };
   const b = M.ksSeiteHtml();
-  pruefe(b.indexOf('Individuelle Strafe<') < b.indexOf('Aus dem Katalog'),
-    'auf der Individuell-Seite steht der individuelle Block oben');
-  pruefe(!b.includes('data-ks-auch'), 'sind beide Blöcke da, verschwindet der Link');
+  pruefe(b.indexOf('Aus dem Katalog') < b.indexOf('>Individuell</h2>'),
+    'der Katalog steht oben, der Freitext darunter');
+  pruefe(b.includes('data-ks-auch="indiv"'), 'der Verweis bleibt zum Ausblenden');
 
   for (const [name, h] of [['Katalog', k], ['Individuell', i]]) {
     pruefe(h.includes('data-ks-open-players'), name + ': Spieler ändern');
@@ -446,7 +447,7 @@ console.log('--- Aufbau je Seite ---');
   const mitSpielern = M.ksSeiteHtml();
   pruefe(mitSpielern.includes('ks-gchip'), 'gewählte Spieler stehen als Chips');
   pruefe(mitSpielern.includes('Lukas Weber') && mitSpielern.includes('Daniel Koch'), 'mit Namen');
-  pruefe(mitSpielern.includes('2 Spieler gewählt'), 'die Zeile darüber nennt die Zahl');
+  gleich((mitSpielern.match(/ks-gchip/g) || []).length, 2, 'je gewähltem Spieler ein Chip');
   frisch();
 }
 
@@ -467,13 +468,14 @@ console.log('--- Der Speichern-Knopf ---');
   M.kasse.players = ['p1', 'p2', 'p3'];
   h = M.ksSeiteHtml();
   pruefe(!/data-kasse-add disabled/.test(h), 'Spieler und Strafe: aktiv');
-  pruefe(h.includes('3 Strafen · 15,00 € speichern'), 'Knopf nennt Anzahl und Summe');
+  pruefe(h.includes('>Strafe speichern<'), 'der Knopf trägt nur das Verb (Final 16)');
+  pruefe(h.includes('3 Strafen für 3 Spieler') && h.includes('15,00 €'), 'die Zusammenfassung nennt Anzahl und Summe');
 
   M.kasse.items = { k1: { menge: 1 }, k2: { menge: 1 } };
-  pruefe(M.ksSeiteHtml().includes('6 Strafen · 45,00 € speichern'), '3 Spieler × 2 Strafen = 6 Einträge');
+  pruefe(M.ksSeiteHtml().includes('6 Strafen für 3 Spieler') && M.ksSeiteHtml().includes('45,00 €'), '3 Spieler × 2 Strafen = 6 Einträge');
 
   M.kasse.players = ['p1']; M.kasse.items = { k1: { menge: 1 } };
-  pruefe(M.ksSeiteHtml().includes('1 Strafe · 5,00 € speichern'), 'eine Strafe im Singular');
+  pruefe(M.ksSeiteHtml().includes('1 Strafe für Lukas Weber'), 'eine Strafe im Singular, mit Namen');
   frisch();
 }
 
