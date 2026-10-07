@@ -152,7 +152,10 @@ console.log('--- Verdrahtung ---');
   pruefe((app.match(/goto: "pushkatalog"/g) || []).length === 1, 'genau ein Weg zu den Push-Texten');
 
   // Der Baustein der Statuschips bleibt fuer Uebersicht und Profil unangetastet.
-  pruefe((app.match(/statusWahlHtml\(/g) || []).length >= 4, 'statusWahlHtml ist unveraendert in Gebrauch');
+  // Seit Final 09/10 setzt der Kader den Status ueber das Blatt "Status aendern"
+  // (openStatusBlatt); Uebersicht und Profil nutzen den Baustein weiter.
+  pruefe((app.match(/statusWahlHtml\(/g) || []).length >= 3, 'statusWahlHtml ist unveraendert in Gebrauch');
+  pruefe(app.includes('function openStatusBlatt('), 'der Kader setzt den Status ueber das Blatt');
 }
 
 /* ===== 5. Stil ========================================================= */

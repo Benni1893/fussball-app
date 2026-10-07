@@ -1207,7 +1207,7 @@
             {
               "art": "goto",
               "wert": "kader",
-              "text": "Kader16 Spieler›13fit1angeschlagen1verletzt1Urla",
+              "text": "Kader16 Spieler ›13 fit · 1 angeschlagen · 1 ver",
               "global": false
             }
           ],
@@ -1408,7 +1408,7 @@
             {
               "art": "tvmoreform",
               "wert": null,
-              "text": "Weitere ›",
+              "text": "Weitere",
               "global": false
             }
           ],
@@ -1437,7 +1437,7 @@
             {
               "art": "tvbankadd",
               "wert": null,
-              "text": "Bankspieler hinzufügen",
+              "text": "Spieler wählen ›",
               "global": false
             }
           ],
@@ -1476,6 +1476,64 @@
           "nameQuelle": "liste"
         },
         {
+          "schluessel": "trainer+rsvpSheet",
+          "ansicht": "trainer",
+          "unter": null,
+          "oben": [
+            "rsvpSheet"
+          ],
+          "ueberschrift": "Trainer",
+          "titel": "Rückmeldungen",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Trainer",
+              "global": true
+            },
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "Rückmeldungen9 zu · 2 ab · 5 offen›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/trainer--rsvpSheet.png",
+          "strang": "trainer",
+          "name": "Rückmeldungen",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "trainer+tvTplMenu",
+          "ansicht": "trainer",
+          "unter": null,
+          "oben": [
+            "tvTplMenu"
+          ],
+          "ueberschrift": "Trainer",
+          "titel": "Vorlage Grundelf",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Trainer",
+              "global": true
+            },
+            {
+              "art": "tvtplmenu",
+              "wert": null,
+              "text": "Mehr zur Vorlage Grundelf",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/trainer--tvTplMenu.png",
+          "strang": "trainer",
+          "name": "Vorlagen-Menü",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "einstellungen/kalender+calSheet",
           "ansicht": "einstellungen",
           "unter": "kalender",
@@ -1509,6 +1567,41 @@
           "strang": "einstellungen",
           "name": "Termine abonnieren",
           "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "kader+statusBlatt",
+          "ansicht": "kader",
+          "unter": null,
+          "oben": [
+            "statusBlatt"
+          ],
+          "ueberschrift": "Kader",
+          "titel": null,
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Trainer",
+              "global": true
+            },
+            {
+              "art": "goto",
+              "wert": "kader",
+              "text": "Kader16 Spieler ›13 fit · 1 angeschlagen · 1 ver",
+              "global": false
+            },
+            {
+              "art": "status-blatt",
+              "wert": null,
+              "text": "Status von Moritz Vogler ändern",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/kader--statusBlatt.png",
+          "strang": "kader",
+          "name": "Status ändern",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "kalender+rsvpSheet+pushModal",
@@ -1616,6 +1709,78 @@
           "strang": "kalender",
           "name": "Kader-Info",
           "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "trainer+rsvpSheet+pushModal",
+          "ansicht": "trainer",
+          "unter": null,
+          "oben": [
+            "rsvpSheet",
+            "pushModal"
+          ],
+          "ueberschrift": "Trainer",
+          "titel": null,
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Trainer",
+              "global": true
+            },
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "Rückmeldungen9 zu · 2 ab · 5 offen›",
+              "global": false
+            },
+            {
+              "art": "rs-push",
+              "wert": null,
+              "text": "Push senden (2)",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/trainer--rsvpSheet--pushModal.png",
+          "strang": "trainer",
+          "name": "Push bestätigen",
+          "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "trainer+rsvpSheet+shareModal",
+          "ansicht": "trainer",
+          "unter": null,
+          "oben": [
+            "rsvpSheet",
+            "shareModal"
+          ],
+          "ueberschrift": "Trainer",
+          "titel": "Rückmeldungen",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Trainer",
+              "global": true
+            },
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "Rückmeldungen9 zu · 2 ab · 5 offen›",
+              "global": false
+            },
+            {
+              "art": "rs-teilen",
+              "wert": null,
+              "text": "Übersicht teilen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/trainer--rsvpSheet--shareModal.png",
+          "strang": "trainer",
+          "name": "Rückmeldungen teilen",
+          "nameQuelle": "liste"
         }
       ],
       "kanten": [
@@ -1795,6 +1960,13 @@
           "nach": "einstellungen/mitteilungen"
         },
         {
+          "von": "kader",
+          "art": "status-blatt",
+          "wert": null,
+          "text": "Status von Moritz Vogler ändern",
+          "nach": "kader+statusBlatt"
+        },
+        {
           "von": "kalender",
           "art": "cal-sheet",
           "wert": null,
@@ -1868,8 +2040,15 @@
           "von": "trainer",
           "art": "goto",
           "wert": "kader",
-          "text": "Kader16 Spieler›13fit1angeschlagen1verletzt1Urla",
+          "text": "Kader16 Spieler ›13 fit · 1 angeschlagen · 1 ver",
           "nach": "kader"
+        },
+        {
+          "von": "trainer",
+          "art": "rsvp-sheet",
+          "wert": null,
+          "text": "Rückmeldungen9 zu · 2 ab · 5 offen›",
+          "nach": "trainer+rsvpSheet"
         },
         {
           "von": "trainer",
@@ -1879,10 +2058,17 @@
           "nach": "trainer/spiel"
         },
         {
+          "von": "trainer",
+          "art": "tvtplmenu",
+          "wert": null,
+          "text": "Mehr zur Vorlage Grundelf",
+          "nach": "trainer+tvTplMenu"
+        },
+        {
           "von": "trainer/spiel",
           "art": "tvbankadd",
           "wert": null,
-          "text": "Bankspieler hinzufügen",
+          "text": "Spieler wählen ›",
           "nach": "trainer/spiel+tvSheetKader"
         },
         {
@@ -1896,8 +2082,22 @@
           "von": "trainer/spiel",
           "art": "tvmoreform",
           "wert": null,
-          "text": "Weitere ›",
+          "text": "Weitere",
           "nach": "trainer/spiel+tvSheetForm"
+        },
+        {
+          "von": "trainer+rsvpSheet",
+          "art": "rs-push",
+          "wert": null,
+          "text": "Push senden (2)",
+          "nach": "trainer+rsvpSheet+pushModal"
+        },
+        {
+          "von": "trainer+rsvpSheet",
+          "art": "rs-teilen",
+          "wert": null,
+          "text": "Übersicht teilen",
+          "nach": "trainer+rsvpSheet+shareModal"
         }
       ],
       "tiefengrenze": [],
@@ -1936,6 +2136,7 @@
         "rs-push",
         "rs-teilen",
         "rsvp-sheet",
+        "status-blatt",
         "tab",
         "tab5",
         "termin-edit",
@@ -1946,6 +2147,7 @@
         "tvmenu",
         "tvmoreform",
         "tvslot",
+        "tvtplmenu",
         "view-jump",
         "zahnrad"
       ],
@@ -3780,7 +3982,7 @@
             {
               "art": "tvmoreform",
               "wert": null,
-              "text": "Weitere ›",
+              "text": "Weitere",
               "global": false
             }
           ],
@@ -3809,7 +4011,7 @@
             {
               "art": "tvbankadd",
               "wert": null,
-              "text": "Bankspieler hinzufügen",
+              "text": "Spieler wählen ›",
               "global": false
             }
           ],
@@ -3881,6 +4083,41 @@
           "strang": "einstellungen",
           "name": "Termine abonnieren",
           "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "kader+statusBlatt",
+          "ansicht": "kader",
+          "unter": null,
+          "oben": [
+            "statusBlatt"
+          ],
+          "ueberschrift": "Kader",
+          "titel": null,
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Trainer",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "kader",
+              "text": "Kader",
+              "global": false
+            },
+            {
+              "art": "status-blatt",
+              "wert": null,
+              "text": "Status von Moritz Vogler ändern",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/kader--statusBlatt.png",
+          "strang": "kader",
+          "name": "Status ändern",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "kalender+rsvpSheet+pushModal",
@@ -4025,6 +4262,76 @@
           "nameQuelle": "ueberschrift"
         },
         {
+          "schluessel": "trainer+rsvpSheet",
+          "ansicht": "trainer",
+          "unter": null,
+          "oben": [
+            "rsvpSheet"
+          ],
+          "ueberschrift": "Trainer",
+          "titel": "Rückmeldungen",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Trainer",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "lineup",
+              "text": "Trainer",
+              "global": false
+            },
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "Rückmeldungen9 zu · 2 ab · 5 offen›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/trainer--rsvpSheet.png",
+          "strang": "trainer",
+          "name": "Rückmeldungen",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "trainer+tvTplMenu",
+          "ansicht": "trainer",
+          "unter": null,
+          "oben": [
+            "tvTplMenu"
+          ],
+          "ueberschrift": "Trainer",
+          "titel": "Vorlage Grundelf",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Trainer",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "lineup",
+              "text": "Trainer",
+              "global": false
+            },
+            {
+              "art": "tvtplmenu",
+              "wert": null,
+              "text": "Mehr zur Vorlage Grundelf",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/trainer--tvTplMenu.png",
+          "strang": "trainer",
+          "name": "Vorlagen-Menü",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "kasse/strafe-katalog+ksSeite",
           "ansicht": "kasse",
           "unter": "strafe-katalog",
@@ -4064,6 +4371,90 @@
           "strang": "kasse",
           "name": "Strafe aus Katalog",
           "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "trainer+rsvpSheet+pushModal",
+          "ansicht": "trainer",
+          "unter": null,
+          "oben": [
+            "rsvpSheet",
+            "pushModal"
+          ],
+          "ueberschrift": "Trainer",
+          "titel": null,
+          "tiefe": 4,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Trainer",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "lineup",
+              "text": "Trainer",
+              "global": false
+            },
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "Rückmeldungen9 zu · 2 ab · 5 offen›",
+              "global": false
+            },
+            {
+              "art": "rs-push",
+              "wert": null,
+              "text": "Push senden (2)",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/trainer--rsvpSheet--pushModal.png",
+          "strang": "trainer",
+          "name": "Push bestätigen",
+          "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "trainer+rsvpSheet+shareModal",
+          "ansicht": "trainer",
+          "unter": null,
+          "oben": [
+            "rsvpSheet",
+            "shareModal"
+          ],
+          "ueberschrift": "Trainer",
+          "titel": "Rückmeldungen",
+          "tiefe": 4,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Trainer",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "lineup",
+              "text": "Trainer",
+              "global": false
+            },
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "Rückmeldungen9 zu · 2 ab · 5 offen›",
+              "global": false
+            },
+            {
+              "art": "rs-teilen",
+              "wert": null,
+              "text": "Übersicht teilen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/trainer--rsvpSheet--shareModal.png",
+          "strang": "trainer",
+          "name": "Rückmeldungen teilen",
+          "nameQuelle": "liste"
         }
       ],
       "kanten": [
@@ -4285,6 +4676,13 @@
           "nach": "einstellungen/mitteilungen"
         },
         {
+          "von": "kader",
+          "art": "status-blatt",
+          "wert": null,
+          "text": "Status von Moritz Vogler ändern",
+          "nach": "kader+statusBlatt"
+        },
+        {
           "von": "kalender",
           "art": "cal-sheet",
           "wert": null,
@@ -4470,8 +4868,15 @@
           "von": "trainer",
           "art": "goto",
           "wert": "kader",
-          "text": "Kader16 Spieler›13fit1angeschlagen1verletzt1Urla",
+          "text": "Kader16 Spieler ›13 fit · 1 angeschlagen · 1 ver",
           "nach": "kader"
+        },
+        {
+          "von": "trainer",
+          "art": "rsvp-sheet",
+          "wert": null,
+          "text": "Rückmeldungen9 zu · 2 ab · 5 offen›",
+          "nach": "trainer+rsvpSheet"
         },
         {
           "von": "trainer",
@@ -4481,10 +4886,17 @@
           "nach": "trainer/spiel"
         },
         {
+          "von": "trainer",
+          "art": "tvtplmenu",
+          "wert": null,
+          "text": "Mehr zur Vorlage Grundelf",
+          "nach": "trainer+tvTplMenu"
+        },
+        {
           "von": "trainer/spiel",
           "art": "tvbankadd",
           "wert": null,
-          "text": "Bankspieler hinzufügen",
+          "text": "Spieler wählen ›",
           "nach": "trainer/spiel+tvSheetKader"
         },
         {
@@ -4498,8 +4910,22 @@
           "von": "trainer/spiel",
           "art": "tvmoreform",
           "wert": null,
-          "text": "Weitere ›",
+          "text": "Weitere",
           "nach": "trainer/spiel+tvSheetForm"
+        },
+        {
+          "von": "trainer+rsvpSheet",
+          "art": "rs-push",
+          "wert": null,
+          "text": "Push senden (2)",
+          "nach": "trainer+rsvpSheet+pushModal"
+        },
+        {
+          "von": "trainer+rsvpSheet",
+          "art": "rs-teilen",
+          "wert": null,
+          "text": "Übersicht teilen",
+          "nach": "trainer+rsvpSheet+shareModal"
         }
       ],
       "tiefengrenze": [],
@@ -4563,6 +4989,7 @@
         "rs-push",
         "rs-teilen",
         "rsvp-sheet",
+        "status-blatt",
         "tab",
         "tab5",
         "task-pay",
@@ -4574,6 +5001,7 @@
         "tvmenu",
         "tvmoreform",
         "tvslot",
+        "tvtplmenu",
         "view-jump",
         "zahnrad"
       ],
@@ -5513,7 +5941,7 @@
             {
               "art": "tvmoreform",
               "wert": null,
-              "text": "Weitere ›",
+              "text": "Weitere",
               "global": false
             }
           ],
@@ -5542,7 +5970,7 @@
             {
               "art": "tvbankadd",
               "wert": null,
-              "text": "Bankspieler hinzufügen",
+              "text": "Spieler wählen ›",
               "global": false
             }
           ],
@@ -5614,6 +6042,41 @@
           "strang": "einstellungen",
           "name": "Termine abonnieren",
           "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "kader+statusBlatt",
+          "ansicht": "kader",
+          "unter": null,
+          "oben": [
+            "statusBlatt"
+          ],
+          "ueberschrift": "Kader",
+          "titel": null,
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Mehr",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "kader",
+              "text": "Kader",
+              "global": false
+            },
+            {
+              "art": "status-blatt",
+              "wert": null,
+              "text": "Status von Moritz Vogler ändern",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/kader--statusBlatt.png",
+          "strang": "kader",
+          "name": "Status ändern",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "kalender+rsvpSheet+pushModal",
@@ -5758,6 +6221,76 @@
           "nameQuelle": "ueberschrift"
         },
         {
+          "schluessel": "trainer+rsvpSheet",
+          "ansicht": "trainer",
+          "unter": null,
+          "oben": [
+            "rsvpSheet"
+          ],
+          "ueberschrift": "Trainer",
+          "titel": "Rückmeldungen",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Mehr",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "lineup",
+              "text": "Trainer",
+              "global": false
+            },
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "Rückmeldungen9 zu · 2 ab · 5 offen›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/trainer--rsvpSheet.png",
+          "strang": "trainer",
+          "name": "Rückmeldungen",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "trainer+tvTplMenu",
+          "ansicht": "trainer",
+          "unter": null,
+          "oben": [
+            "tvTplMenu"
+          ],
+          "ueberschrift": "Trainer",
+          "titel": "Vorlage Grundelf",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Mehr",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "lineup",
+              "text": "Trainer",
+              "global": false
+            },
+            {
+              "art": "tvtplmenu",
+              "wert": null,
+              "text": "Mehr zur Vorlage Grundelf",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/trainer--tvTplMenu.png",
+          "strang": "trainer",
+          "name": "Vorlagen-Menü",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "kasse/strafe-katalog+ksSeite",
           "ansicht": "kasse",
           "unter": "strafe-katalog",
@@ -5797,6 +6330,90 @@
           "strang": "kasse",
           "name": "Strafe aus Katalog",
           "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "trainer+rsvpSheet+pushModal",
+          "ansicht": "trainer",
+          "unter": null,
+          "oben": [
+            "rsvpSheet",
+            "pushModal"
+          ],
+          "ueberschrift": "Trainer",
+          "titel": null,
+          "tiefe": 4,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Mehr",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "lineup",
+              "text": "Trainer",
+              "global": false
+            },
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "Rückmeldungen9 zu · 2 ab · 5 offen›",
+              "global": false
+            },
+            {
+              "art": "rs-push",
+              "wert": null,
+              "text": "Push senden (2)",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/trainer--rsvpSheet--pushModal.png",
+          "strang": "trainer",
+          "name": "Push bestätigen",
+          "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "trainer+rsvpSheet+shareModal",
+          "ansicht": "trainer",
+          "unter": null,
+          "oben": [
+            "rsvpSheet",
+            "shareModal"
+          ],
+          "ueberschrift": "Trainer",
+          "titel": "Rückmeldungen",
+          "tiefe": 4,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Mehr",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "lineup",
+              "text": "Trainer",
+              "global": false
+            },
+            {
+              "art": "rsvp-sheet",
+              "wert": null,
+              "text": "Rückmeldungen9 zu · 2 ab · 5 offen›",
+              "global": false
+            },
+            {
+              "art": "rs-teilen",
+              "wert": null,
+              "text": "Übersicht teilen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/trainer--rsvpSheet--shareModal.png",
+          "strang": "trainer",
+          "name": "Rückmeldungen teilen",
+          "nameQuelle": "liste"
         }
       ],
       "kanten": [
@@ -6039,6 +6656,13 @@
           "nach": "einstellungen/mitteilungen"
         },
         {
+          "von": "kader",
+          "art": "status-blatt",
+          "wert": null,
+          "text": "Status von Moritz Vogler ändern",
+          "nach": "kader+statusBlatt"
+        },
+        {
           "von": "kalender",
           "art": "cal-sheet",
           "wert": null,
@@ -6224,8 +6848,15 @@
           "von": "trainer",
           "art": "goto",
           "wert": "kader",
-          "text": "Kader16 Spieler›13fit1angeschlagen1verletzt1Urla",
+          "text": "Kader16 Spieler ›13 fit · 1 angeschlagen · 1 ver",
           "nach": "kader"
+        },
+        {
+          "von": "trainer",
+          "art": "rsvp-sheet",
+          "wert": null,
+          "text": "Rückmeldungen9 zu · 2 ab · 5 offen›",
+          "nach": "trainer+rsvpSheet"
         },
         {
           "von": "trainer",
@@ -6235,10 +6866,17 @@
           "nach": "trainer/spiel"
         },
         {
+          "von": "trainer",
+          "art": "tvtplmenu",
+          "wert": null,
+          "text": "Mehr zur Vorlage Grundelf",
+          "nach": "trainer+tvTplMenu"
+        },
+        {
           "von": "trainer/spiel",
           "art": "tvbankadd",
           "wert": null,
-          "text": "Bankspieler hinzufügen",
+          "text": "Spieler wählen ›",
           "nach": "trainer/spiel+tvSheetKader"
         },
         {
@@ -6252,8 +6890,22 @@
           "von": "trainer/spiel",
           "art": "tvmoreform",
           "wert": null,
-          "text": "Weitere ›",
+          "text": "Weitere",
           "nach": "trainer/spiel+tvSheetForm"
+        },
+        {
+          "von": "trainer+rsvpSheet",
+          "art": "rs-push",
+          "wert": null,
+          "text": "Push senden (2)",
+          "nach": "trainer+rsvpSheet+pushModal"
+        },
+        {
+          "von": "trainer+rsvpSheet",
+          "art": "rs-teilen",
+          "wert": null,
+          "text": "Übersicht teilen",
+          "nach": "trainer+rsvpSheet+shareModal"
         }
       ],
       "tiefengrenze": [],
@@ -6317,6 +6969,7 @@
         "rs-push",
         "rs-teilen",
         "rsvp-sheet",
+        "status-blatt",
         "tab",
         "tab5",
         "task-pay",
@@ -6328,11 +6981,14 @@
         "tvmenu",
         "tvmoreform",
         "tvslot",
+        "tvtplmenu",
         "view-jump",
         "zahnrad"
       ],
       "schreibaufrufe": []
     }
   },
-  "nichtErreichteAusloeser": []
+  "nichtErreichteAusloeser": [
+    "tvfill"
+  ]
 }

@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-06-E";
+  var APP_BUILD = "2026-10-07-A";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -716,71 +716,95 @@
      Notiz inline unter der Zeile und speichern beim Verlassen des Feldes.
      Schranke ist die Datenbank: player_status liest nur coach/admin
      vollstaendig, geschrieben wird ausschliesslich ueber set_player_status(). */
+  /* Kader (Vorlage Final 09): vier getoente Kennzahlen, Gruppe "Faellt aus"
+     oben (Nebenzeile Grund, seit, bis), darunter "Einsatzbereit". Jede Zeile
+     oeffnet das Blatt "Status aendern" (10). */
+  const STATUS_PILLE = {
+    fit: ["Fit", "is-gruen"], angeschlagen: ["Angeschlagen", "is-amber"],
+    verletzt: ["Verletzt", "is-rot"], urlaub: ["Urlaub", "is-urlaub"],
+  };
+  function statusPilleHtml(p) {
+    const st = STATUS_PILLE[p.status || "fit"] || STATUS_PILLE.fit;
+    return '<span class="mark kad-pille ' + st[1] + '"><span class="mark-dot" aria-hidden="true"></span>' + st[0] + ' ▾</span>';
+  }
   function renderKader() {
-    const kaderSort = [...DEMO.players].sort((a, b) => nachname(a.name).localeCompare(nachname(b.name), "de"));
-    // Lazarett: alle nicht Fitten - Urlaub eingeschlossen. Sortiert nach
-    // Rueckkehrdatum; wer keines hat, steht hinten.
-    const lazarett = DEMO.players
-      .filter((p) => !istFit(p))
-      .sort((a, b) => {
-        const x = a.statusUntil || "9999-12-31", y = b.statusUntil || "9999-12-31";
-        return x.localeCompare(y) || nachname(a.name).localeCompare(nachname(b.name), "de");
-      });
-    const fit = DEMO.players.filter(istFit).length;
-
+    const zahl = { fit: 0, angeschlagen: 0, verletzt: 0, urlaub: 0 };
+    DEMO.players.forEach((p) => { const st = zahl[p.status] !== undefined ? p.status : "fit"; zahl[st]++; });
+    // Faellt aus: alle nicht Fitten, Urlaub eingeschlossen; nach Rueckkehrdatum.
+    const raus = DEMO.players.filter((p) => !istFit(p)).sort((a, b) => {
+      const x = a.statusUntil || "9999-12-31", y = b.statusUntil || "9999-12-31";
+      return x.localeCompare(y) || nachname(a.name).localeCompare(nachname(b.name), "de");
+    });
+    const fit = DEMO.players.filter(istFit).sort((a, b) => nachname(a.name).localeCompare(nachname(b.name), "de"));
+    const kpi = (k, label, cls) => '<div class="kpi kad-kpi ' + cls + '"><span class="kpi-label">' + label + '</span><span class="kpi-value">' + zahl[k] + '</span></div>';
+    const zeile = (p) => {
+      const neben = istFit(p) ? "" : [p.statusNote ? esc(p.statusNote) : "",
+        p.statusSince ? "seit " + fmtDay(p.statusSince) + ". " + fmtMon(p.statusSince) : "",
+        p.statusUntil ? "bis " + fmtDay(p.statusUntil) + ". " + fmtMon(p.statusUntil) : ""].filter(Boolean).join(" · ");
+      return '<button class="row kad-row' + (neben ? " is-zwei" : "") + '" data-status-blatt="' + p.id + '" aria-label="Status von ' + esc(p.name) + ' ändern">' +
+        '<span class="row-av">' + (neben ? esc(initials(p.name)) : '<span>' + esc(initials(p.name)) + '</span>') + '</span>' +
+        '<span class="row-main"><span class="row-t">' + esc(p.name) + '</span>' + (neben ? '<span class="row-s">' + neben + '</span>' : "") + '</span>' +
+        '<span class="row-end">' + statusPilleHtml(p) + '</span></button>';
+    };
     viewEl.innerHTML = `
       <div class="page-head">${navBackChevronHtml()}<h1>Kader</h1></div>
-
-      <div class="kpi-grid kpi-3">
-        <div class="kpi">
-          <div class="kpi-label">Spieler</div>
-          <div class="kpi-value">${DEMO.players.length}</div>
-          <div class="kpi-sub">im Kader</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-label">Fit</div>
-          <div class="kpi-value">${fit}</div>
-          <div class="kpi-sub">einsatzbereit</div>
-        </div>
-        <div class="kpi ${lazarett.length ? "is-warn" : ""}">
-          <div class="kpi-label">Nicht fit</div>
-          <div class="kpi-value">${lazarett.length}</div>
-          <div class="kpi-sub">angeschlagen, verletzt oder im Urlaub</div>
-        </div>
+      <div class="kad-kpis">
+        ${kpi("fit", "Fit", "is-gruen")}${kpi("angeschlagen", "Angeschlagen", "is-amber")}
+        ${kpi("verletzt", "Verletzt", "is-rot")}${kpi("urlaub", "Urlaub", "is-urlaub")}
       </div>
-
-      <div class="section-title"><h2>Kader-Status</h2></div>
-      <div class="kad-list">
-        ${kaderSort.map((p) => `
-          <div class="card kad-row${istFit(p) ? "" : " is-raus"}">
-            <div class="kad-kopf">
-              <span class="avatar">${initials(p.name)}</span>
-              <span class="kad-name">${esc(p.name)}${statusBadge(p)}</span>
-            </div>
-            ${statusWahlHtml(p)}
-          </div>`).join("")}
-      </div>
-
-      <div class="section-title"><h2>Lazarett</h2></div>
-      ${lazarett.length ? `<div class="laz-list">
-        ${lazarett.map((p) => {
-          const i = statusInfo(p.status);
-          const zeilen = [
-            p.statusSince ? "seit " + fmtDay(p.statusSince) + ". " + fmtMon(p.statusSince) : "",
-            p.statusUntil ? "zurück " + fmtDay(p.statusUntil) + ". " + fmtMon(p.statusUntil) : "offenes Ende",
-          ].filter(Boolean).join(" · ");
-          return `<div class="card laz-row">
-            <span class="avatar">${initials(p.name)}</span>
-            <div class="laz-main">
-              <div class="laz-name">${esc(p.name)}</div>
-              <div class="rs">${zeilen}</div>
-              ${p.statusNote ? `<div class="laz-note">${esc(p.statusNote)}</div>` : ""}
-            </div>
-            ${i ? `<span class="st-badge ${i.cls}">${i.label}</span>` : ""}
-          </div>`;
-        }).join("")}
-      </div>` : `<div class="card card-pad"><div class="empty">Alle fit – kein Eintrag</div></div>`}
+      ${raus.length ? `<div class="group-head"><h2>Fällt aus</h2></div><div class="card kad-liste">${raus.map(zeile).join("")}</div>` : ""}
+      <div class="group-head"><h2>Einsatzbereit · ${fit.length}</h2></div>
+      ${fit.length ? `<div class="card kad-liste">${fit.map(zeile).join("")}</div>` : '<div class="empty">Gerade ist niemand einsatzbereit.</div>'}
     `;
+  }
+
+  /* Blatt "Status aendern" (Vorlage Final 10): Kopf mit Avatar, Name und
+     "IV · Nr. 5", vier Statusknoepfe (gewaehlt getoent mit Rand), Grund und
+     voraussichtliches Ende (nicht in der Vorlage, bleibt), Speichern. */
+  function openStatusBlatt(playerId) {
+    const p = playerById[playerId];
+    if (!p) return;
+    const ex = document.getElementById("statusBlatt"); if (ex) { ex.remove(); unlockBodyScroll(); }
+    let wahl = p.status || "fit";
+    const ov = document.createElement("div");
+    ov.className = "more-sheet"; ov.id = "statusBlatt";
+    const knoepfe = () => STATUS_WAHL.map(([wert, label]) =>
+      '<button type="button" class="sb-k st-' + wert + (wahl === wert ? " is-on" : "") + '" data-sb-wert="' + wert + '" aria-pressed="' + (wahl === wert) + '">' +
+      '<span class="st-dot" aria-hidden="true"></span>' + label + '</button>').join("");
+    ov.innerHTML = '<button class="more-backdrop" data-sheet-close aria-label="Schließen"></button>' +
+      '<div class="more-panel sb-panel" role="dialog" aria-modal="true" aria-label="Status ändern">' +
+        '<span class="sb-griff" aria-hidden="true"></span>' +
+        '<div class="sb-kopf"><span class="row-av sb-av">' + esc(initials(p.name)) + '</span>' +
+          '<span class="sb-kopf-t"><span class="sb-name">' + esc(p.name) + '</span>' +
+          '<span class="sb-sub">' + [p.pos ? esc(p.pos) : "", p.nr != null ? "Nr. " + p.nr : ""].filter(Boolean).join(" · ") + '</span></span></div>' +
+        '<div class="sb-knoepfe">' + knoepfe() + '</div>' +
+        '<div class="sb-felder">' +
+          '<input class="sb-feld" type="text" data-sb-note value="' + esc(p.statusNote || "") + '" placeholder="Grund (optional)" aria-label="Grund">' +
+          '<label class="sb-feld sb-datum"><span class="sb-datum-l">Voraussichtlich bis</span>' +
+            '<input type="date" data-sb-until value="' + esc(p.statusUntil || "") + '" aria-label="Voraussichtlich bis"></label>' +
+        '</div>' +
+        '<button class="btn btn-primary sb-speichern" data-sb-speichern>Speichern</button>' +
+      '</div>';
+    document.body.appendChild(ov);
+    lockBodyScroll();
+    const felder = ov.querySelector(".sb-felder");
+    const sync = () => {
+      ov.querySelector(".sb-knoepfe").innerHTML = knoepfe();
+      felder.hidden = wahl === "fit";
+    };
+    sync();
+    const zu = () => { if (ov.parentNode) { ov.remove(); unlockBodyScroll(); } };
+    ov.addEventListener("click", async (ev) => {
+      if (ev.target === ov || ev.target.closest("[data-sheet-close]")) { zu(); return; }
+      const k = ev.target.closest("[data-sb-wert]");
+      if (k) { wahl = k.dataset.sbWert; sync(); return; }
+      if (ev.target.closest("[data-sb-speichern]")) {
+        const note = ov.querySelector("[data-sb-note]").value.trim();
+        const until = ov.querySelector("[data-sb-until]").value || null;
+        zu();
+        await statusSpeichern(p.id, wahl, { note: wahl === "fit" ? null : (note || null), until: wahl === "fit" ? null : until });
+      }
+    });
   }
 
   // Adress-Bereinigung + Norm-Schlüssel – IDENTISCH zur Feed-Funktion in api/calendar.js,
@@ -2738,6 +2762,32 @@
       kopf + (teile.length ? '<div class="tk-body">' + teile.join("") + '</div>' : "") + '</div>';
   }
 
+  /* Kleines Aktionsblatt fuer Zeilen mit Menue ··· (Vorlagen). Die Zeilen
+     tragen dieselben data-Attribute wie frueher die Knoepfe in der Zeile und
+     laufen ueber den Klickpfad der Ansicht (Kopie, siehe openTkMenu). */
+  function openZeilenMenue(id, titel, zeilen) {
+    const ex = document.getElementById(id); if (ex) { ex.remove(); unlockBodyScroll(); }
+    const ov = document.createElement("div");
+    ov.className = "more-sheet"; ov.id = id;
+    ov.innerHTML = '<button class="more-backdrop" data-sheet-close aria-label="Schließen"></button>' +
+      '<div class="more-panel" role="dialog" aria-modal="true" aria-label="' + esc(titel) + '">' +
+      '<div class="more-title">' + esc(titel) + '</div>' + zeilen.join("") + '</div>';
+    document.body.appendChild(ov);
+    lockBodyScroll();
+    const zu = () => { if (ov.parentNode) { ov.remove(); unlockBodyScroll(); } };
+    ov.addEventListener("click", (ev) => {
+      if (ev.target === ov || ev.target.closest("[data-sheet-close]")) { zu(); return; }
+      const it = ev.target.closest(".more-item");
+      if (!it) return;
+      zu();
+      const kopie = it.cloneNode(true);
+      kopie.hidden = true;
+      viewEl.appendChild(kopie);
+      kopie.click();
+      kopie.remove();
+    });
+  }
+
   /* ⋯-Menue der Terminkarte: fuer alle Rollen. "In Kalender speichern" fuer
      jeden; Kader-Info fuer Trainer bei Spielen; Pflege nur mit Recht. */
   function closeTkMenu() {
@@ -3375,7 +3425,7 @@
       { key:"TW", role:"TW", x:50, y:88 },
       { key:"LV", role:"AV", x:10, y:66 }, { key:"LIV", role:"IV", x:37, y:66 }, { key:"RIV", role:"IV", x:63, y:66 }, { key:"RV", role:"AV", x:90, y:66 },
       { key:"LM", role:"ZM", x:10, y:44 }, { key:"LZM", role:"ZM", x:37, y:44 }, { key:"RZM", role:"ZM", x:63, y:44 }, { key:"RM", role:"ZM", x:90, y:44 },
-      { key:"LST", role:"ST", x:37, y:22 }, { key:"RST", role:"ST", x:63, y:22 },
+      { key:"LST", role:"ST", x:34.8, y:22 }, { key:"RST", role:"ST", x:65.2, y:22 },
     ],
     "4-3-3": [
       { key:"TW", role:"TW", x:50, y:88 },
@@ -3902,59 +3952,54 @@
     const naechstes = up[0];
     const weitere = up.slice(1);
     viewEl.innerHTML =
-      '<div class="page-head tv-head"><h1>Trainer</h1>' +
-      '<p>Spiel wählen, danach baust du die Elf auf dem Platz.</p></div>' +
+      '<div class="page-head tv-head"><h1>Trainer</h1></div>' +
       (naechstes ? tvNextHtml(naechstes)
-                 : '<div class="card card-pad"><div class="empty">Kein anstehendes Spiel. Sobald im Kalender ein Spiel angelegt ist, kannst du hier die Aufstellung bauen.</div></div>') +
+                 : '<div class="empty">Kein anstehendes Spiel. Sobald im Kalender ein Spiel angelegt ist, baust du hier die Elf.</div>') +
       // K3: Der Kader steht als eigene Karte unter dem naechsten Spiel. Ein
       // reiner Trainer kommt ueber den 5. Tab direkt hierher und haette sonst
       // keinen Weg dorthin.
       tvKaderKarteHtml() +
       (weitere.length
-        ? '<div class="section-title sec-mini"><h2>Weitere Spiele</h2>' +
+        ? '<div class="group-head"><h2>Weitere Spiele</h2>' +
           (weitere.length > 2
             ? '<button class="link-btn" data-tvallgames>' + (tv.alleSpiele ? "Weniger" : "Alle") + ' &rsaquo;</button>'
             : "") +
-          '</div><div class="card tv-glist">' +
+          '</div><div class="card dn-liste tv-glist">' +
           (tv.alleSpiele ? weitere : weitere.slice(0, 2)).map(tvGameRow).join("") + '</div>'
         : "") +
       tvTemplatesHtml();
   }
 
-  // „Anpfiff in 3 Tagen" - die Vorlage nennt den Abstand, nicht das Datum;
-  // das steht im Datumsblock links daneben.
+  // "in 6 Tagen" - die Vorlage nennt den Abstand, nicht das Datum;
+  // das steht im Goldwuerfel links daneben.
   function anpfiffText(iso) {
     const tage = Math.round((parseDate(iso) - parseDate(HEUTE)) / 86400000);
-    if (tage <= 0) return "Anpfiff heute";
-    if (tage === 1) return "Anpfiff morgen";
-    return "Anpfiff in " + tage + " Tagen";
+    if (tage <= 0) return "heute";
+    if (tage === 1) return "morgen";
+    return "in " + tage + " Tagen";
   }
-  /* Karte „Nächstes Spiel" (Vorlage trainer-kacheln-v2.png): Marke und
-     Plakette, Datumsblock mit Gegner, drei Kennzahlen aus den Rückmeldungen
-     und der Knopf in die Platzansicht. Der Aufstellungsstand steht nicht mehr
-     hier - er bleibt als Plakette „Elf steht" / „offen" in der Spielliste. */
+  /* Karte "Naechstes Spiel" (Vorlage Final 06): dunkler Kopf mit Goldwuerfel
+     und Goldlinie, darunter die Zeile Rueckmeldungen (oeffnet das Blatt 04)
+     und der eine Primaerknopf "Elf aufstellen". */
   function tvNextHtml(e) {
-    const gesamt = DEMO.players.length;
-    const zu = DEMO.players.filter((p) => (state.rsvp[e.id + "|" + p.id] || {}).status === "zu").length;
-    const ab = DEMO.players.filter((p) => (state.rsvp[e.id + "|" + p.id] || {}).status === "ab").length;
-    const offen = gesamt - zu - ab;
+    const z = rueckZahlen(e);
+    const pz = z.gesamt ? (z.zu / z.gesamt) * 100 : 0, pa = z.gesamt ? (z.ab / z.gesamt) * 100 : 0;
     const meta = (e.zeit ? esc(e.zeit) + " Uhr · " : "") + anpfiffText(e.datum);
-
+    const oben = "Nächstes Spiel" + (e.heim == null ? "" : " · " + (e.heim ? "Heim" : "Auswärts"));
     return '<div class="card tv-next">' +
-      '<div class="tv-next-kopf"><span class="tv-next-lbl">Nächstes Spiel</span>' +
-      (e.heim == null ? "" : '<span class="tv-next-bdg">' + (e.heim ? "Heim" : "Auswärts") + '</span>') +
-      '</div>' +
-      '<div class="tv-next-zeile">' +
-        '<span class="tv-next-datum"><b class="num">' + fmtDay(e.datum) + '</b><i>' + fmtMon(e.datum) + '</i></span>' +
-        '<span class="tv-next-main"><span class="tv-next-t">' + esc(e.gegner || e.titel) + '</span>' +
-        '<span class="tv-next-m num">' + meta + '</span></span>' +
-      '</div>' +
-      '<div class="tv-next-zahlen">' +
-        '<div class="tv-nz"><b class="num is-zu">' + zu + '</b><span>Zugesagt</span></div>' +
-        '<div class="tv-nz"><b class="num is-ab">' + ab + '</b><span>Abgesagt</span></div>' +
-        '<div class="tv-nz"><b class="num is-of">' + offen + '</b><span>Offen</span></div>' +
-      '</div>' +
-      '<div class="tv-next-fuss"><button class="tv-next-btn" data-tvgame="' + e.id + '">Elf aufstellen</button></div>' +
+      '<div class="tk-kopf is-hero is-gold tv-next-kopf"><div class="tk-kopfzeile">' +
+        wuerfelHtml(e, "hero") +
+        '<span class="tk-kopf-main"><span class="tk-oben">' + oben + '</span>' +
+        '<span class="tk-titel">' + esc(e.gegner || e.titel) + '</span>' +
+        '<span class="tk-zeit">' + meta + '</span></span>' +
+      '</div></div>' +
+      '<button class="tk-rueck tv-rueck" data-rsvp-sheet="' + e.id + '">' +
+        '<span class="tk-rueck-main"><span class="tk-rueck-kopf"><span class="tk-rueck-t">Rückmeldungen</span></span>' +
+        '<span class="tk-bar" role="img" aria-label="' + z.zu + ' zugesagt, ' + z.ab + ' abgesagt, ' + z.offen + ' offen">' +
+          '<i class="is-zu" style="width:' + pz.toFixed(2) + '%"></i><i class="is-ab" style="width:' + pa.toFixed(2) + '%"></i></span>' +
+        '<span class="tk-rueck-z">' + rueckZahlenHtml(z) + '</span></span>' +
+        '<span class="tk-chev" aria-hidden="true">›</span></button>' +
+      '<div class="tv-next-fuss"><button class="btn btn-primary tv-next-btn" data-tvgame="' + e.id + '">Elf aufstellen</button></div>' +
       '</div>';
   }
 
@@ -3980,34 +4025,30 @@
     const balken = KADER_STATUS.map(([wert, cls]) =>
       zahl[wert] ? '<i class="' + cls + '" style="width:' + anteil(zahl[wert]).toFixed(2) + '%"></i>' : ""
     ).join("");
-    const legende = KADER_STATUS.map(([wert, cls, label]) =>
-      '<span class="tv-kstat"><i class="' + cls + '"></i><b class="num">' + zahl[wert] + '</b><span>' + label + '</span></span>'
-    ).join("");
+    const legende = KADER_STATUS.filter(([wert]) => zahl[wert] > 0).map(([wert, cls, label]) =>
+      '<span class="tv-kstat ' + cls + '"><b>' + zahl[wert] + '</b> ' + label + '</span>'
+    ).join('<span class="tv-ksep" aria-hidden="true"> · </span>');
     const gelesen = KADER_STATUS.map(([wert, , label]) => zahl[wert] + " " + label).join(", ");
 
     return '<button class="card tv-kader" data-goto="kader">' +
       '<span class="tv-kader-kopf"><span class="tv-kader-t">Kader</span>' +
-      '<span class="tv-kader-n num">' + gesamt + ' Spieler</span>' +
-      '<span class="tv-garrow">›</span></span>' +
+      '<span class="tv-kader-n">' + gesamt + ' Spieler ›</span></span>' +
       '<span class="tv-kbar" role="img" aria-label="' + esc(gelesen) + '">' + balken + '</span>' +
       '<span class="tv-kleg">' + legende + '</span>' +
       '</button>';
   }
 
 
-  /* Zeile in „Weitere Spiele": Datum, Gegner, Zeit und Ort, Plakette, Chevron. */
+  /* Zeile in "Weitere Spiele" (Final 06): Strich, Goldwuerfel, Gegner,
+     Zeit und Ort, Marke "Elf steht" / "Elf offen", Pfeil. */
   function tvGameRow(e) {
-    const lu = (DEMO.lineups || []).find((l) => l.eventId === e.id && l.isActive && !l.isTemplate);
-    const slots = lu ? (FORMATIONS[lu.formation] || []) : [];
-    const gesetzt = lu ? slots.map((s) => (lu.slots || {})[s.key]).filter(Boolean).length : 0;
-    const steht = !!(lu && slots.length && gesetzt === slots.length);
-    return '<button class="tv-grow" data-tvgame="' + e.id + '">' +
-      '<span class="tv-gdate"><span class="d-day num">' + fmtDay(e.datum) + '</span>' +
-        '<span class="d-mon">' + fmtMon(e.datum) + '</span></span>' +
-      '<span class="tv-gmain"><span class="tv-gopp">' + esc(e.gegner || e.titel) + '</span>' +
-        '<span class="tv-gmeta num">' + (e.zeit ? esc(e.zeit) + " · " : "") + (e.heim ? "Heim" : "Auswärts") + '</span></span>' +
-      '<span class="tv-gchip' + (steht ? "" : " is-offen") + '">' + (steht ? "Elf steht" : "offen") + '</span>' +
-      '<span class="tv-garrow">›</span></button>';
+    const steht = aufstellungStand(e).steht;
+    return '<button class="dn-zeile is-spiel tv-grow" data-tvgame="' + e.id + '">' +
+      '<span class="dn-strich" aria-hidden="true"></span>' + wuerfelHtml(e, "klein") +
+      '<span class="dn-main"><span class="dn-t">' + esc(e.gegner || e.titel) + '</span>' +
+        '<span class="dn-s">' + (e.zeit ? esc(e.zeit) + " Uhr · " : "") + (e.heim ? "Heim" : "Auswärts") + '</span></span>' +
+      '<span class="mark ' + (steht ? "is-gruen" : "is-amber") + '">' + (steht ? "Elf steht" : "Elf offen") + '</span>' +
+      '<span class="row-chev tv-chev" aria-hidden="true">›</span></button>';
   }
 
   /* Vorlagen (K1). Gespeichert werden sie in der Platzansicht ueber das
@@ -4021,20 +4062,19 @@
     const tpl = (DEMO.lineups || []).filter(l => l.isTemplate);
     const naechstes = DEMO.events.filter(e => e.typ === "spiel" && isFuture(e.datum))
       .sort((a, b) => a.datum.localeCompare(b.datum))[0];
-    const kopf = '<div class="section-title sec-mini"><h2>Vorlagen</h2>' +
-      (naechstes ? '<button class="link-btn" data-tvtplnew="' + naechstes.id + '">Neu &rsaquo;</button>' : "") +
+    const kopf = '<div class="group-head"><h2>Vorlagen</h2>' +
+      (naechstes ? '<button class="link-btn" data-tvtplnew="' + naechstes.id + '">+ Neu</button>' : "") +
       '</div>';
     // A6: Der Abschnitt steht immer da. Ohne Vorlage sagt er, wie man eine anlegt -
     // sonst sucht man den Weg vergeblich.
     if (!tpl.length) {
-      return kopf + '<div class="card card-pad tv-tpl-leer"><p class="rs">Noch keine Vorlage. ' +
-        'Speichere eine Aufstellung über das Menü ⋯ als Vorlage.</p></div>';
+      return kopf + '<div class="empty tv-tpl-leer">Noch keine Vorlage. Speichere eine Aufstellung über das Menü ··· als Vorlage.</div>';
     }
     return kopf + '<div class="card tv-tpls">' + tpl.map(l =>
       '<div class="tv-tpl"><span class="tv-tpl-main"><span class="tv-tpl-n">' + esc(l.name) + '</span>' +
-      '<span class="rs">' + tvTplStand(l) + '</span></span>' +
-      '<span class="tv-tpl-chip num">' + esc(l.formation) + '</span>' +
-      '<button class="icon-btn" data-tvtpldel="' + l.id + '" title="Vorlage löschen" aria-label="Vorlage ' + esc(l.name) + ' löschen">' + ICON_TRASH + '</button></div>'
+      '<span class="tv-tpl-s">' + esc(l.formation) + ' · ' + tvTplStand(l) + '</span></span>' +
+      '<button class="tk-menue tv-tpl-menue" data-tvtplmenu="' + l.id + '" aria-label="Mehr zur Vorlage ' + esc(l.name) + '">' +
+        '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg></button></div>'
     ).join("") + '</div>';
   }
   // Die Vorlage schreibt „zuletzt genutzt"; die Tabelle kennt nur updated_at,
@@ -4043,7 +4083,7 @@
     if (!l.updatedAt) return "Vorlage";
     const d = new Date(l.updatedAt);
     if (isNaN(d)) return "Vorlage";
-    return "geändert am " + d.getDate() + ". " + MON[d.getMonth()];
+    return "geändert " + d.getDate() + ". " + MON[d.getMonth()];
   }
   async function tvSaveTemplate() {
     const nm = window.prompt("Name der Vorlage:", tv.formation + " Standard");
@@ -4079,7 +4119,7 @@
     tv.formation = tpl.formation; tv.assign = a; tv.bank = []; tv.sel = null;
     tv.dirty = true; tv.hideCta = true;
     renderLineupV2();
-    tvToast(weg ? ((weg === 1 ? "1 Platz" : weg + " Plätze") + " leer – ohne Zusage oder verletzt") : "Vorlage angewendet");
+    tvToast(weg ? ((weg === 1 ? "1 Platz" : weg + " Plätze") + " leer, ohne Zusage oder verletzt") : "Vorlage angewendet");
   }
 
   function tvOpenGame(eventId) {
@@ -4093,76 +4133,116 @@
       tv.bank = (Array.isArray(lu.bank) ? lu.bank : []).filter(id => playerById[id] && !placed.has(id)).slice(0, TV_BANK_MAX);
     } else { tv.formation = tvFav[0] || "4-4-2"; tv.assign = {}; tv.bank = []; }
     tv.view = "lineup"; renderLineupV2();
+    window.scrollTo(0, 0);   // die Platzansicht beginnt oben, egal wo die Spielzeile stand
   }
   function tvPlacedAll() { return new Set([].concat(Object.values(tv.assign).filter(Boolean), tv.bank)); }
 
   /* ---- Zustand 2: Aufstellung ---- */
   function tvPitchBg() {
-    return '<svg class="tv-pitch-bg" viewBox="0 0 68 105" preserveAspectRatio="none" aria-hidden="true"><rect width="68" height="105" fill="#2e7d46"/><g fill="none" stroke="rgba(255,255,255,.3)" stroke-width="0.3"><rect x="2" y="2" width="64" height="101"/><line x1="2" y1="52.5" x2="66" y2="52.5"/><circle cx="34" cy="52.5" r="9"/><rect x="14" y="2" width="40" height="16"/><rect x="24" y="2" width="20" height="6"/><rect x="14" y="87" width="40" height="16"/><rect x="24" y="97" width="20" height="6"/></g><circle cx="34" cy="52.5" r="0.7" fill="rgba(255,255,255,.35)"/></svg>';
+    return '<div class="tv-pitch-bg" aria-hidden="true"><i class="tv-pl-rand"></i><i class="tv-pl-mitte"></i><i class="tv-pl-kreis"></i>' +
+      '<i class="tv-pl-raum is-oben"></i><i class="tv-pl-raum is-unten"></i></div>';
   }
-  function tvPitchHtml() {
+  // Anzeigeposition: die Vorlage staffelt die Reihen weiter (Abstand 24 %),
+  // der Torwart bleibt bei 88 %; Seitenspieler 8 % weiter innen.
+  function tvSlotPos(sl) {
+    const x = 50 + (sl.x - 50) * 0.92;
+    const y = sl.key === "TW" ? sl.y : 19.8 + (sl.y - 22) * (24.1 / 22);
+    return 'left:' + x.toFixed(2) + '%;top:' + y.toFixed(2) + '%';
+  }
+  function tvPitchHtml(n) {
     const slots = FORMATIONS[tv.formation]; let h = tvPitchBg();
-    slots.forEach(s => {
-      const pid = tv.assign[s.key], p = pid ? playerById[pid] : null;
-      const sel = ((tv.sel && tv.sel.key === s.key) || (tv.mark && tv.mark.art === 'feld' && tv.mark.key === s.key)) ? " sel" : "";
-      h += '<div class="tv-slot' + (p ? " filled" : "") + sel + '" data-tvslot="' + s.key + '" style="left:' + s.x + '%;top:' + s.y + '%">' +
-        '<div class="tv-disc">' + (p ? ('<span>' + (p.nr != null ? p.nr : "") + '</span>') : ('<span class="tv-role">' + s.role + '</span>')) + '</div>' +
-        (p ? ('<span class="tv-pn">' + esc(tvLastName(p.name)) + '</span>') : '') + '</div>';
+    slots.forEach(sl => {
+      const pid = tv.assign[sl.key], p = pid ? playerById[pid] : null;
+      const sel = ((tv.sel && tv.sel.key === sl.key) || (tv.mark && tv.mark.art === 'feld' && tv.mark.key === sl.key)) ? " sel" : "";
+      h += '<div class="tv-slot' + (p ? " filled" : " is-frei") + sel + '" data-tvslot="' + sl.key + '" style="' + tvSlotPos(sl) + '"' +
+        (p ? "" : ' role="button" aria-label="' + esc(posLang(sl.key)) + ' besetzen"') + '>' +
+        (p ? '<div class="tv-disc"><span>' + (p.nr != null ? p.nr : "") + '</span></div><span class="tv-pn">' + esc(tvLastName(p.name)) + '</span>'
+           : '<span class="tv-ring">+</span>' + (n ? '<span class="tv-frei-l">' + esc(sl.key) + ' frei</span>' : '')) + '</div>';
     });
     return h;
   }
   function tvFormbarHtml() {
     // Die Vorlage zeichnet die Formationspille als reinen Text. Das
     // Mini-Diagramm steht weiter in der Formationsauswahl im Blatt.
-    return tvFav.map(f => '<button class="tv-fpill' + (f === tv.formation ? " on" : "") + '" data-tvform="' + f + '"><span>' + f + '</span></button>').join("") +
-      '<button class="tv-fmore" data-tvmoreform>Weitere ›</button>';
+    return tvFav.map(f => '<button class="tv-fpill' + (f === tv.formation ? " on" : "") + '" data-tvform="' + f + '">' + f + '</button>').join("") +
+      '<button class="tv-fpill tv-fmore" data-tvmoreform>Weitere</button>';
   }
+  /* Langname einer Position (Blatt 07c, Hinweis 07b). */
+  const POS_LANG = {
+    TW: "Torwart", LV: "Linksverteidiger", RV: "Rechtsverteidiger",
+    LIV: "Innenverteidiger links", RIV: "Innenverteidiger rechts", CIV: "Innenverteidiger zentral",
+    LWB: "Linker Schienenspieler", RWB: "Rechter Schienenspieler",
+    DM: "Defensives Mittelfeld", LDM: "Defensives Mittelfeld links", RDM: "Defensives Mittelfeld rechts",
+    ZM: "Zentrales Mittelfeld", LZM: "Zentrales Mittelfeld links", RZM: "Zentrales Mittelfeld rechts",
+    LM: "Linkes Mittelfeld", RM: "Rechtes Mittelfeld",
+    OM: "Offensives Mittelfeld", LOM: "Offensives Mittelfeld links", ROM: "Offensives Mittelfeld rechts", ZOM: "Offensives Mittelfeld zentral",
+    LA: "Linksaußen", RA: "Rechtsaußen", ST: "Stürmer", LST: "Stürmer links", RST: "Stürmer rechts",
+  };
+  const posLang = (key) => POS_LANG[key] || key;
+  // Freie Positionen der offenen Aufstellung in Reihenfolge der Formation.
+  function tvFreieKeys() { return (FORMATIONS[tv.formation] || []).filter((x) => !tv.assign[x.key]).map((x) => x.key); }
+  const ICON_ZURUECK = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>';
+  const ICON_PUNKTE = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg>';
+
+  /* Platzansicht (Vorlage Final 07 und 07b): Unterkopf, Formationschips,
+     Hinweis auf freie Positionen (1 bis 10 gesetzt), Platz 358 x 440, Bank im
+     4er-Raster, darunter der eine Primaerknopf "Aufstellung speichern". */
   function tvViewLineup() {
     const e = DEMO.events.find(x => x.id === tv.eventId);
     if (!e) { tvViewGames(); return; }
     const n = tvPlaced().size, last = tvLastLineup(), ro = tv.readonly;
     const backLbl = tv.origin != null ? "Zurück" : "Zurück zur Spielauswahl";
+    const frei = tvFreieKeys();
+    const stand = n < 11 ? '<b class="tv-stand is-offen">' + n + ' von 11</b>' : n + " von 11";
+    const hinweis = (!ro && n >= 1 && frei.length >= 1)
+      ? '<button class="tv-frei-hinweis" data-tvfill>' +
+          '<span class="tv-frei-dot" aria-hidden="true"></span>' +
+          '<span class="tv-frei-t">' + (frei.length === 1 ? "1 Position frei: " + esc(posLang(frei[0])) : frei.length + " Positionen frei") + '</span>' +
+          '<span class="tv-frei-go">' + (frei.length === 1 ? "Besetzen ›" : "Nächste besetzen ›") + '</span></button>'
+      : "";
     viewEl.innerHTML =
       '<div class="tv-lu' + (ro ? " tv-ro" : "") + '">' +
         '<div class="tv-top">' +
-          '<button class="tv-ic" data-tvback aria-label="' + backLbl + '">‹</button>' +
-          '<div class="tv-hi"><div class="tv-game">' + (e.heim ? "vs. " : "@ ") + esc(e.gegner || e.titel) + '</div>' +
-            '<div class="tv-sub">' + fmtDay(e.datum) + '. ' + fmtMon(e.datum) + (e.zeit ? " · " + e.zeit : "") + ' · ' + tv.formation + ' · ' + n + '/11' + (ro ? ' · nur ansehen' : '') + '</div></div>' +
-          (ro ? '<span class="tv-ic" aria-hidden="true"></span>' : '<button class="tv-ic" data-tvmenu aria-label="Mehr">⋯</button>') +
+          '<button class="tv-ic" data-tvback aria-label="' + backLbl + '">' + ICON_ZURUECK + '</button>' +
+          '<div class="tv-hi"><div class="tv-game">vs. ' + esc(e.gegner || e.titel) + '</div>' +
+            '<div class="tv-sub">' + fmtWd(e.datum) + ' ' + fmtDay(e.datum) + '. ' + fmtMon(e.datum) + (e.zeit ? " · " + e.zeit : "") + ' · ' + stand + (ro ? ' · nur ansehen' : '') + '</div></div>' +
+          (ro ? '<span class="tv-ic" aria-hidden="true"></span>' : '<button class="tv-ic" data-tvmenu aria-label="Mehr">' + ICON_PUNKTE + '</button>') +
         '</div>' +
         '<div class="tv-formbar">' + tvFormbarHtml() + '</div>' +
-        '<div class="tv-field"><div class="tv-pitch">' + tvPitchHtml() +
+        hinweis +
+        '<div class="tv-field"><div class="tv-pitch">' + tvPitchHtml(n) +
           ((!ro && n === 0 && last && !tv.hideCta) ? '<div class="tv-cta-ov">' + tvEmptyCta(last) + '</div>' : "") +
           '</div></div>' +
         tvBankHtml() +
         (ro
-          ? '<div class="tv-actions"><div class="tv-ro-note">Vergangenes Spiel – nur ansehen, nicht bearbeiten</div></div>'
-          : '<div class="tv-actions"><button class="tv-primary" data-tvsave><span>Aufstellung speichern</span><small>' + n + '/11 gesetzt</small></button></div>') +
+          ? '<div class="tv-actions"><div class="tv-ro-note">Vergangenes Spiel. Nur ansehen.</div></div>'
+          : '<div class="tv-actions"><button class="btn btn-primary tv-save" data-tvsave>Aufstellung speichern</button></div>') +
       '</div>';
   }
   function tvEmptyCta(last) {
-    return '<div class="tv-cta"><p>Vom letzten Spiel übernehmen<br><b>' + esc((last.event.heim ? "vs. " : "@ ") + (last.event.gegner || last.event.titel)) + '</b> – fehlende Spieler werden automatisch durch verfügbare ersetzt.</p>' +
-      '<button class="tv-primary" data-tvadopt><span>Übernehmen &amp; anpassen</span></button>' +
+    return '<div class="tv-cta"><p>Vom letzten Spiel übernehmen<br><b>' + esc("vs. " + (last.event.gegner || last.event.titel)) + '</b>. Fehlende Spieler werden automatisch durch verfügbare ersetzt.</p>' +
+      '<button class="btn btn-primary" data-tvadopt>Übernehmen &amp; anpassen</button>' +
       '<button class="tv-ghost" data-tvfresh>Leer starten</button></div>';
   }
-  // Auswechselbank: 7 kompakte Slots. Optional, unabhaengig von der Startelf.
+  // Auswechselbank (Final 07): Gruppenkopf mit Verweis, 4er-Raster, 7 Plaetze.
   function tvBankHtml() {
     const ro = tv.readonly;
-    let h = '<div class="tv-bank"><div class="tv-bank-h">Bank<span>' + tv.bank.length + '/' + TV_BANK_MAX + '</span></div><div class="tv-bank-row">';
+    let h = '<div class="tv-bank"><div class="group-head tv-bank-kopf"><h2>Bank · ' + tv.bank.length + ' von ' + TV_BANK_MAX + '</h2>' +
+      (ro ? "" : '<button class="link-btn" data-tvbankadd>Spieler wählen ›</button>') + '</div><div class="tv-bank-row">';
     const slots = ro ? tv.bank.length : TV_BANK_MAX;   // nur ansehen: keine Leer-Slots
     for (let i = 0; i < slots; i++) {
       const pid = tv.bank[i], p = pid ? playerById[pid] : null;
       if (p && ro) {
-        h += '<span class="tv-bslot filled"><span class="tv-bnr">' + (p.nr != null ? p.nr : "") + '</span><span class="tv-bn">' + esc(tvLastName(p.name)) + '</span></span>';
+        h += '<span class="tv-bslot filled"><b class="tv-bnr">' + (p.nr != null ? p.nr : "") + '</b><span class="tv-bn">' + esc(tvLastName(p.name)) + '</span></span>';
       } else if (p) {
-        // C2: Tap markiert oder tauscht; das Kreuz nimmt von der Bank.
+        // Tippen markiert oder tauscht; das Kreuz nimmt von der Bank (nicht in der Vorlage, bleibt).
         const markiert = (tv.mark && tv.mark.art === 'bank' && tv.mark.idx === i) ? ' sel' : '';
         h += '<button class="tv-bslot filled' + markiert + '" data-tvbanktap="' + i + '" aria-label="' + esc(p.name) + ' tauschen">' +
-             '<span class="tv-bnr">' + (p.nr != null ? p.nr : "") + '</span><span class="tv-bn">' + esc(tvLastName(p.name)) + '</span>' +
-             '<span class="tv-bx" data-tvbankdel="' + pid + '" role="button" aria-label="' + esc(p.name) + ' von der Bank nehmen">&times;</span></button>';
+             '<b class="tv-bnr">' + (p.nr != null ? p.nr : "") + '</b><span class="tv-bn">' + esc(tvLastName(p.name)) + '</span>' +
+             '<span class="tv-bx" data-tvbankdel="' + pid + '" role="button" aria-label="' + esc(p.name) + ' von der Bank nehmen">' +
+             '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>';
       } else {
-        h += '<button class="tv-bslot" data-tvbankadd aria-label="Bankspieler hinzufügen">' +
-             '<span class="tv-bplus">+</span><span class="tv-bfrei">frei</span></button>';
+        h += '<button class="tv-bslot is-frei" data-tvbankadd aria-label="Bankspieler hinzufügen">+ frei</button>';
       }
     }
     if (ro && !tv.bank.length) h += '<div class="tv-bank-empty">Keine Bank hinterlegt</div>';
@@ -4347,7 +4427,7 @@
     const w = document.createElement("div"); w.id = "tvPanels";
     w.innerHTML =
       '<div class="tv-scrim" id="tvScrimKader" data-tvclose="kader"></div>' +
-      '<div class="tv-sheet tv-kfull" id="tvSheetKader" role="dialog" aria-modal="true" aria-label="Spieler wählen"><div class="tv-sh"><span class="tv-grip"></span><div><strong id="tvKaderTitle">Spieler wählen</strong><div class="tv-shsub" id="tvKaderSub"></div></div><button class="tv-shx" data-tvclose="kader" aria-label="Schließen">&times;</button></div><div class="tv-kaction" id="tvKaderAction"></div><div class="tv-shbody" id="tvKaderBody"></div></div>' +
+      '<div class="tv-sheet tv-ksheet" id="tvSheetKader" role="dialog" aria-modal="true" aria-label="Spieler wählen"><span class="tv-grip"></span><div class="tv-sh"><div class="tv-sh-text"><strong id="tvKaderTitle">Spieler wählen</strong><div class="tv-shsub" id="tvKaderSub"></div></div><button class="tv-shx" data-tvclose="kader" aria-label="Schließen">' + ICON_X + '</button></div><div class="tv-shbody" id="tvKaderBody"></div><div class="tv-kfuss" id="tvKaderFuss"></div></div>' +
       '<div class="tv-scrim" id="tvScrimForm" data-tvclose="form"></div>' +
       '<div class="tv-sheet" id="tvSheetForm" role="dialog" aria-modal="true" aria-label="Formationen"><div class="tv-sh"><span class="tv-grip"></span><div><strong id="tvFormTitle">Formation wechseln</strong><div class="tv-shsub" id="tvFormSub"></div></div><button class="tv-shx" data-tvclose="form" aria-label="Schließen">&times;</button></div><div class="tv-shbody"><div class="tv-fgrid" id="tvFgrid"></div></div><div class="tv-shactions" id="tvFormActions"></div></div>' +
       '<div class="tv-scrim" id="tvScrimMenu" data-tvclose="menu"></div>' +
@@ -4412,7 +4492,7 @@
     }
 
     if (belegt) { tv.mark = { art: "feld", key: key }; tvViewLineup(); return; }
-    tvOpenKader(key);                            // leer und nichts markiert
+    tv.fillQueue = null; tvOpenKader(key);       // leer und nichts markiert
   }
 
   // Tap auf einen besetzten Bankplatz: markieren bzw. mit der Markierung tauschen.
@@ -4429,46 +4509,41 @@
     tv.mark = { art: "bank", idx: idx }; tvViewLineup();
   }
 
+  /* Blatt 07c "Spieler fuer die Position": gruppiert nach Eignung.
+     Laeuft bei mehreren freien Positionen der Reihe nach (tv.fillQueue). */
   function tvOpenKader(key) {
     tv.sel = { key: key }; tvViewLineup();
-    const slot = FORMATIONS[tv.formation].find(s => s.key === key);
-    document.getElementById("tvKaderTitle").textContent = "Spieler für " + (slot ? slot.role : "Position");
-    document.getElementById("tvKaderSub").textContent = tv.assign[key] ? "Ersetzen oder Position leeren" : "Passenden Spieler antippen";
-    document.getElementById("tvKaderAction").innerHTML = "";   // Sammel-Button nur im Bank-Modus
+    const g = tvPosGruppen(key);
+    document.getElementById("tvKaderTitle").textContent = posLang(key);
+    const passen = g.passt.length;
+    document.getElementById("tvKaderSub").textContent = (tv.assign[key] ? "Belegt" : "Position frei") + " · " +
+      (passen === 1 ? "1 Zugesagter passt" : passen + " Zugesagte passen");
     tvRenderKaderBody(key);
+    document.getElementById("tvKaderFuss").innerHTML = '<button class="btn btn-soft tv-leer" data-tvempty>' +
+      (tv.assign[key] ? "Position leeren" : "Position leer lassen") + '</button>';
     blattAuf("tvScrimKader", "tvSheetKader");
-    const grp = slot ? lbTeamPart(slot.role) : null;
-    if (grp) { const el = document.querySelector('#tvKaderBody [data-tvgrp="' + grp + '"]'); if (el) el.scrollIntoView({ block: "start" }); }
+    const b = document.getElementById("tvKaderBody"); if (b) b.scrollTop = 0;
   }
-  // Kader-Auswahl fuer die BANK: alle Spieler, keine Positions-Vorfilterung.
+  // Kader-Auswahl fuer die BANK (Blatt 08): nach Mannschaftsteil.
   function tvOpenBank() {
     if (tv.bank.length >= TV_BANK_MAX) { tvToast("Bank ist voll (" + TV_BANK_MAX + ")"); return; }
-    tv.sel = { bank: true }; tvViewLineup();
+    tv.sel = { bank: true }; tv.fillQueue = null; tvViewLineup();
     document.getElementById("tvKaderTitle").textContent = "Spieler für die Bank";
-    document.getElementById("tvKaderSub").textContent = "Ersatzspieler antippen (" + tv.bank.length + "/" + TV_BANK_MAX + ")";
-    tvRenderKaderAction();
+    document.getElementById("tvKaderSub").textContent = tv.bank.length + " von " + TV_BANK_MAX + " belegt";
+    document.getElementById("tvKaderFuss").innerHTML = "";
     tvRenderKaderBody(null);
     blattAuf("tvScrimKader", "tvSheetKader");
+    const b = document.getElementById("tvKaderBody"); if (b) b.scrollTop = 0;
   }
-  // Sammel-Button „Alle Zugesagten auf die Bank" (nur Bank-Modus, fest über der Liste).
+  // Kandidaten fuer "Alle freien Zugesagten setzen": zugesagt und fit, nicht vergeben.
   function tvBankCandidates() {
     const placed = tvPlacedAll();
     const list = [];
     LB_GROUPS.forEach(([gk]) => {
       DEMO.players.filter(p => lbTeamPart(p.pos) === gk && tvAvail(p) === null && !placed.has(p.id))
-        .sort(byName).forEach(p => list.push(p));   // zugesagt+fit, nicht vergeben; nach Mannschaftsteil
+        .sort(byName).forEach(p => list.push(p));
     });
     return list;
-  }
-  function tvRenderKaderAction() {
-    const el = document.getElementById("tvKaderAction"); if (!el) return;
-    const free = TV_BANK_MAX - tv.bank.length;
-    const cand = tvBankCandidates();
-    const n = Math.min(free, cand.length);
-    const disabled = free <= 0 || cand.length === 0;
-    const reason = free <= 0 ? "Bank ist voll" : (cand.length === 0 ? "Keine zugesagten Spieler frei" : "");
-    el.innerHTML = '<button class="tv-kall" data-tvbankall' + (disabled ? " disabled" : "") + '>Alle Zugesagten auf die Bank' + (n > 0 ? " (" + n + ")" : "") + '</button>' +
-      (disabled ? '<div class="tv-kall-reason">' + reason + '</div>' : '');
   }
   function tvBankFillAll() {
     const free = TV_BANK_MAX - tv.bank.length; if (free <= 0) return;
@@ -4480,27 +4555,80 @@
     tvToast(left > 0 ? (take.length + " gesetzt · " + left + " passten nicht mehr") : (take.length + " Zugesagte auf die Bank"));
   }
   function tvCloseKader() { tv.sel = null; blattZu("tvScrimKader", "tvSheetKader"); }
+
+  // Gruppen fuer eine Position: passt, weitere Zugesagte, ohne Rueckmeldung, nicht verfuegbar.
+  function tvPosGruppen(key) {
+    const slot = FORMATIONS[tv.formation].find(x => x.key === key);
+    const imFeld = tvPlaced(), bank = new Set(tv.bank);
+    const g = { passt: [], weitere: [], ohne: [], weg: [] };
+    DEMO.players.forEach(p => {
+      if (imFeld.has(p.id)) return;                       // steht schon auf dem Platz
+      const av = tvAvail(p);
+      if (av && av.rank >= 3) { g.weg.push(p); return; }   // abgesagt, verletzt, Urlaub
+      if (av && av.rank === 2) { g.ohne.push(p); return; } // ohne Rueckmeldung
+      const r = slot ? lbAffRank(p.pos, slot.role) : -1;
+      if (!bank.has(p.id) && r >= 0 && r <= 1) g.passt.push({ p, r }); else g.weitere.push(p);
+    });
+    g.passt = g.passt.sort((a, b) => (a.r - b.r) || byName(a.p, b.p)).map(x => x.p);
+    g.weitere.sort((a, b) => ((bank.has(b.id) ? 1 : 0) - (bank.has(a.id) ? 1 : 0)) || byName(a, b));
+    g.ohne.sort(byName); g.weg.sort(byName);
+    return g;
+  }
+  // Nebenzeile: "AV · zugesagt" (angeschlagen dazu), sonst nur die Position.
+  function tvNeben(p) {
+    const r = tvRsvp(p.id), teile = [];
+    if (p.pos) teile.push(esc(p.pos));
+    if (tv.bank.indexOf(p.id) !== -1 || tvPlaced().has(p.id)) return teile.join("");   // vergeben: nur die Position
+    const av = tvAvail(p);
+    if (r === "zu" && (!av || av.rank <= 1)) teile.push("zugesagt");
+    else if (!r && (!av || av.rank === 2)) teile.push("keine Rückmeldung");
+    if (p.status === "angeschlagen") teile.push("angeschlagen");
+    return teile.join(" · ");
+  }
+  function tvMarke(p) {
+    if (tvPlaced().has(p.id)) return '<span class="mark"><span>Auf dem Platz</span></span>';
+    if (tv.bank.indexOf(p.id) !== -1) return '<span class="mark is-gruen"><span>Auf der Bank</span></span>';
+    if (p.status === "verletzt") return '<span class="mark is-rot"><span>Verletzt</span></span>';
+    if (p.status === "urlaub") return '<span class="mark is-urlaub"><span>Urlaub</span></span>';
+    if (tvRsvp(p.id) === "ab") return '<span class="mark"><span>Abgesagt</span></span>';
+    return "";
+  }
+  /* Zeile im Blatt. links: Avatar (07c) oder Rueckennummer (08). Waehlbar:
+     "+"; vergeben: Marke ohne Aktion; nicht verfuegbar: Marke, antippbar mit
+     Rueckfrage (keine Funktion faellt weg). */
+  function tvZeile(p, mitAvatar) {
+    const vergeben = tvPlacedAll().has(p.id) && !(tv.sel && tv.sel.key && tv.bank.indexOf(p.id) !== -1);
+    const marke = tvMarke(p);
+    const av = tvAvail(p), gesperrt = av && av.rank >= 3;
+    const links = mitAvatar ? '<span class="row-av"><span>' + esc(initials(p.name)) + '</span></span>'
+                            : '<span class="tv-knr"><span>' + (p.nr != null ? p.nr : "") + '</span></span>';
+    const rechts = vergeben ? marke : (marke || '<span class="add-btn" aria-hidden="true">+</span>');
+    const attr = vergeben ? "" : ' data-tvplayer="' + p.id + '"' + (gesperrt ? ' data-tvtrotzdem=""' : "") + ' role="button" tabindex="0"';
+    return '<div class="row tv-krow' + (mitAvatar ? "" : " is-bank") + (vergeben ? " is-vergeben" : "") + '"' + attr + '>' + links +
+      '<span class="row-main"><span class="row-t">' + esc(p.name) + '</span><span class="row-s">' + tvNeben(p) + '</span></span>' +
+      '<span class="row-end">' + rechts + '</span></div>';
+  }
   function tvRenderKaderBody(key) {
     const body = document.getElementById("tvKaderBody"); if (!body) return;
-    const placed = tvPlacedAll();                                      // Startelf UND Bank = vergeben
-    const slot = key ? FORMATIONS[tv.formation].find(s => s.key === key) : null;
+    if (!DEMO.players.length) { body.innerHTML = '<div class="empty">Kein Kader vorhanden.</div>'; return; }
+    const gruppe = (titel, list, avatar) => list.length
+      ? '<div class="group-head"><h2>' + titel + '</h2></div><div class="card tv-kcard">' + list.map(p => tvZeile(p, avatar)).join("") + '</div>' : "";
     let h = "";
-    if (key && tv.assign[key]) h += '<button class="tv-emptybtn" data-tvempty>Position „' + (slot ? slot.role : "") + '" leeren</button>';
-    if (!DEMO.players.length) { body.innerHTML = h + '<div class="empty">Kein Kader vorhanden.</div>'; return; }
-    LB_GROUPS.forEach(([gk, label]) => {
-      const list = DEMO.players.filter(p => lbTeamPart(p.pos) === gk).sort((a, b) => ((tvAvail(a) || { rank: 0 }).rank - (tvAvail(b) || { rank: 0 }).rank) || byName(a, b));
-      if (!list.length) return;
-      h += '<div class="tv-kg" data-tvgrp="' + gk + '"><h4>' + label + ' <span>' + list.length + '</span></h4><div class="tv-kl">';
-      list.forEach(p => {
-        const isPl = placed.has(p.id), av = tvAvail(p), tap = !isPl;
-        // Dezente Status-Zeilenfarbe. Farbe ist nie die einzige Info -> Badge bleibt.
-        const scls = av ? (av.rank === 4 ? " s-verl" : av.rank === 3 ? " s-abw" : av.rank === 2 ? " s-none" : " s-ang") : " s-zu";
-        const tag = isPl ? '<span class="tv-tag placed">vergeben</span>' : (av ? '<span class="tv-tag ' + av.cls + '">' + av.label + '</span>' : '<span class="tv-tag ok">verfügbar</span>');
-        h += '<div class="tv-pchip' + scls + (isPl ? " placed" : "") + '"' + (tap ? ' data-tvplayer="' + p.id + '"' : "") + '>' +
-          '<span class="tv-pnr">' + (p.nr != null ? p.nr : "–") + '</span><span class="tv-pw"><span class="tv-pnm">' + esc(p.name) + '</span><span class="tv-pmeta">' + esc(p.pos || "") + '</span></span>' + tag + '</div>';
+    if (key) {
+      const g = tvPosGruppen(key);
+      h = gruppe("Passt zur Position", g.passt, true) + gruppe("Weitere Zugesagte", g.weitere, true) +
+          gruppe("Ohne Rückmeldung", g.ohne, true) + gruppe("Nicht verfügbar", g.weg, true);
+      if (!h) h = '<div class="empty">Kein Spieler frei.</div>';
+    } else {
+      const frei = TV_BANK_MAX - tv.bank.length, n = Math.min(frei, tvBankCandidates().length);
+      if (n > 0) h += '<button class="btn btn-soft tv-kall" data-tvbankall>Alle ' + n + ' freien Zugesagten setzen</button>';
+      const placed = tvPlacedAll();
+      const rang = (p) => placed.has(p.id) ? 2 : ((tvAvail(p) || { rank: 0 }).rank >= 3 ? 1 : 0);
+      LB_GROUPS.forEach(([gk, label]) => {
+        const list = DEMO.players.filter(p => lbTeamPart(p.pos) === gk).sort((a, b) => (rang(a) - rang(b)) || byName(a, b));
+        h += gruppe(label + " · " + list.length, list, false);
       });
-      h += '</div></div>';
-    });
+    }
     body.innerHTML = h;
   }
 
@@ -4545,9 +4673,27 @@
   function tvPanelClick(ev) {
     const t = ev.target;
     const cl = t.closest("[data-tvclose]"); if (cl) { const w = cl.dataset.tvclose; if (w === "kader") { tvCloseKader(); tvViewLineup(); } else if (w === "form") tvCloseForm(); else tvCloseMenu(); return; }
-    if (t.closest("[data-tvempty]")) { if (tv.sel) { delete tv.assign[tv.sel.key]; tv.dirty = true; } tvCloseKader(); tvViewLineup(); return; }
+    if (t.closest("[data-tvempty]")) {
+      if (tv.sel && tv.sel.key && tv.assign[tv.sel.key]) { delete tv.assign[tv.sel.key]; tv.dirty = true; }
+      const naechste = tvNaechsteFreie(tv.sel && tv.sel.key);
+      tvCloseKader();
+      if (naechste) tvOpenKader(naechste); else tvViewLineup();
+      return;
+    }
     if (t.closest("[data-tvbankall]")) { tvBankFillAll(); return; }
-    const pl = t.closest("[data-tvplayer]"); if (pl) { if (tv.sel && tv.sel.bank) tvAddBank(pl.dataset.tvplayer); else if (tv.sel) tvAssign(tv.sel.key, pl.dataset.tvplayer); tvCloseKader(); tvViewLineup(); return; }
+    const pl = t.closest("[data-tvplayer]");
+    if (pl) {
+      if (pl.hasAttribute("data-tvtrotzdem")) {
+        const p = playerById[pl.dataset.tvplayer];
+        if (!window.confirm((p ? p.name : "Spieler") + " ist nicht verfügbar. Trotzdem aufstellen?")) return;
+      }
+      const key = tv.sel && tv.sel.key;
+      if (tv.sel && tv.sel.bank) tvAddBank(pl.dataset.tvplayer); else if (key) tvAssign(key, pl.dataset.tvplayer);
+      const naechste = key ? tvNaechsteFreie(key) : null;
+      tvCloseKader();
+      if (naechste) tvOpenKader(naechste); else { tv.fillQueue = null; tvViewLineup(); }
+      return;
+    }
     const star = t.closest("[data-tvstar]"); if (star) { ev.stopPropagation(); tvToggleFav(star.dataset.tvstar); tvRenderFgrid(); tvRenderFormActions(); return; }
     const fc = t.closest("[data-tvfcard]"); if (fc) { const f = fc.dataset.tvfcard; if (tvFavMode) { tvToggleFav(f); tvRenderFgrid(); tvRenderFormActions(); } else { tvSwitchFormation(f); tvCloseForm(); tvViewLineup(); } return; }
     if (t.closest("[data-tvfavdone]")) { if (tvFav.length < 2) return; if (!tvFav.includes(tv.formation)) tv.formation = tvFav[0]; tvCloseForm(); tvViewLineup(); return; }
@@ -4557,14 +4703,28 @@
     const ta = t.closest("[data-tvtplapply]"); if (ta) { tvApplyTemplate(ta.dataset.tvtplapply); return; }
     if (t.closest("[data-tvclear]")) { tvCloseMenu(); tv.assign = {}; tv.sel = null; tv.dirty = true; tvViewLineup(); return; }
   }
+  // Naechste freie Position der Warteschlange (Hinweis 07b), sonst null.
+  function tvNaechsteFreie(aktuell) {
+    if (!tv.fillQueue) return null;
+    tv.fillQueue = tv.fillQueue.filter(k => k !== aktuell && !tv.assign[k]);
+    if (!tv.fillQueue.length) { tv.fillQueue = null; return null; }
+    return tv.fillQueue[0];
+  }
   function tvViewClick(ev) {
     const t = ev.target;
+    if (t.closest("[data-tvfill]")) { tv.fillQueue = tvFreieKeys(); if (tv.fillQueue.length) tvOpenKader(tv.fillQueue[0]); return true; }
     if (t.closest("[data-tvallgames]")) { tv.alleSpiele = !tv.alleSpiele; tvViewGames(); return true; }
     const td = t.closest("[data-tvtpldel]"); if (td) { tvDeleteTemplate(td.dataset.tvtpldel); return true; }
+    const tm = t.closest("[data-tvtplmenu]");
+    if (tm) {
+      const l = (DEMO.lineups || []).find((x) => x.id === tm.dataset.tvtplmenu);
+      if (l) openZeilenMenue("tvTplMenu", "Vorlage " + l.name, ['<button class="more-item is-danger" data-tvtpldel="' + l.id + '">Vorlage löschen</button>']);
+      return true;
+    }
     // „Neu" bei den Vorlagen: eine Vorlage entsteht nur aus einer offenen
     // Aufstellung, also geht es in die Platzansicht des naechsten Spiels.
     const tn = t.closest("[data-tvtplnew]");
-    if (tn) { tvOpenGame(tn.dataset.tvtplnew); tvToast("Elf bauen, dann im Menü ⋯ als Vorlage speichern"); return true; }
+    if (tn) { tvOpenGame(tn.dataset.tvtplnew); tvToast("Elf bauen, dann im Menü ··· als Vorlage speichern"); return true; }
     const g = t.closest("[data-tvgame]"); if (g) { tvOpenGame(g.dataset.tvgame); return true; }
     if (t.closest("[data-tvback]")) { tvBack(); return true; }
     if (tv.readonly) return true;   // vergangenes Spiel: nur ansehen, keine Bearbeitung
@@ -6196,11 +6356,12 @@
       // „Buchung rückgängig" steht jetzt im Detail-Blatt (ksBlattUnpay).
     }
 
-    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-cal-hide],[data-cal-copy-profil],[data-push-an],[data-push-aus],[data-push-test],[data-push-install],[data-push-hinweis-weg],[data-pn-haupt],[data-pn-kat],[data-pn-alle],[data-pn-ruhe],[data-pn-dringend],[data-pkat-save],[data-pkat-reset],[data-pkat-send],[data-pkat-alle],[data-pkat-clear],[data-pkat-hinweis-save],[data-ics-event],[data-koord-save],[data-status-set],[data-logout],[data-ein],[data-ein-back],[data-ein-tat]");
+    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-cal-hide],[data-cal-copy-profil],[data-push-an],[data-push-aus],[data-push-test],[data-push-install],[data-push-hinweis-weg],[data-pn-haupt],[data-pn-kat],[data-pn-alle],[data-pn-ruhe],[data-pn-dringend],[data-pkat-save],[data-pkat-reset],[data-pkat-send],[data-pkat-alle],[data-pkat-clear],[data-pkat-hinweis-save],[data-ics-event],[data-koord-save],[data-status-set],[data-status-blatt],[data-logout],[data-ein],[data-ein-back],[data-ein-tat]");
     if (!t) return;
 
     // Fitnessstatus setzen. Wer das darf, entscheidet die Datenbank:
     // Spieler nur sich selbst, coach/admin alle (set_player_status).
+    if (t.dataset.statusBlatt) { openStatusBlatt(t.dataset.statusBlatt); return; }
     if (t.dataset.statusSet) {
       await statusSpeichern(t.dataset.statusSet, t.dataset.wert);
       return;

@@ -51,13 +51,16 @@ function messeImBrowser(sel) {
 }
 
 // Soll-Rahmen sind 392 breit (1 px Rand je Seite): Soll-Koordinaten um 1 verschieben.
-function vergleiche(soll, ist, ausnahmen, erlaubt) {
+function vergleiche(soll, ist, ausnahmen, erlaubt, versatz) {
   const nachText = (liste) => {
     const m = new Map();
     for (const e of liste) { if (!e.text) continue; const k = e.text; if (!m.has(k)) m.set(k, []); m.get(k).push(e); }
     return m;
   };
-  const S = nachText(soll.elemente.map((e) => ({ ...e, x: e.x - 1, y: e.y - 1 }))), I = nachText(ist.elemente);
+  // versatz: [{ ab, dy }] - bewusst eingefügte Zeilen (z. B. Formationschips über dem Hinweis in 07b):
+  // Soll-Elemente ab y (Soll-Koordinate) werden um dy verschoben erwartet.
+  const verschiebe = (y) => (versatz || []).reduce((acc, v) => (y >= v.ab ? acc + v.dy : acc), y);
+  const S = nachText(soll.elemente.map((e) => ({ ...e, x: e.x - 1, y: verschiebe(e.y - 1) }))), I = nachText(ist.elemente);
   const befunde = [], fehlend = [], gefunden = [];
   for (const [text, liste] of S) {
     const il = I.get(text) || [];
@@ -110,7 +113,7 @@ for (const name of wahl) {
     return c.toDataURL('image/png').split(',')[1];
   }, [sollB64, istPng.toString('base64'), hoehe]);
   fs.writeFileSync(path.join(VGL, name + '.png'), Buffer.from(vgl, 'base64'));
-  const v = vergleiche(soll, ist, cfg.ausnahmen, cfg.erlaubt);
+  const v = vergleiche(soll, ist, cfg.ausnahmen, cfg.erlaubt, cfg.versatz);
   const bericht = await inst.bericht();
   const gruen = v.befunde.length === 0 && v.fehlend.filter((t) => !(cfg.ohneText || []).includes(t)).length === 0 && bericht.verstoesse.length === 0 && bericht.fehler.length === 0;
   if (!gruen) alleGruen = false;

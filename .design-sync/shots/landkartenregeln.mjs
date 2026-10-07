@@ -46,6 +46,9 @@ export const AUSLOESER = [
   { art: 'kader-info',   sel: '[data-kader-info]' },
   { art: 'rs-teilen',    sel: '[data-rs-teilen]' },
   { art: 'rs-push',      sel: '[data-rs-push]' },
+  { art: 'status-blatt', sel: '[data-status-blatt]' },
+  { art: 'tvtplmenu',    sel: '[data-tvtplmenu]' },
+  { art: 'tvfill',       sel: '[data-tvfill]' },
   // Konto
   { art: 'paid-self',    sel: '[data-paid-self]' },
   // Aufstellung
@@ -63,7 +66,7 @@ export const AUSLOESER = [
    sonst: offen, solange vorhanden, sichtbar und nicht [hidden].          */
 export const UEBERLAGERUNGEN = [
   { id: 'moreSheet' }, { id: 'calSheet' }, { id: 'rsvpSheet' }, { id: 'tkMenu' },
-  { id: 'terminModal' }, { id: 'scopeModal' }, { id: 'shareModal' }, { id: 'tvUnsaved' }, { id: 'pushModal' },
+  { id: 'terminModal' }, { id: 'scopeModal' }, { id: 'shareModal' }, { id: 'tvUnsaved' }, { id: 'pushModal' }, { id: 'statusBlatt' }, { id: 'tvTplMenu' },
   { id: 'ksSeite' },
   { id: 'ksWahl', blatt: true }, { id: 'ksSheet', blatt: true }, { id: 'ksBl', blatt: true },
   { id: 'zmBl', blatt: true },
@@ -185,6 +188,10 @@ export const NAMEN = {
   'dashboard+rsvpSheet+shareModal': 'Rückmeldungen teilen',
   'kalender+rsvpSheet+pushModal': 'Push bestätigen',         // Bestätigung ohne eigene Überschrift (Final 04)
   'dashboard+rsvpSheet+pushModal': 'Push bestätigen',
+  'kader+statusBlatt': 'Status ändern',                     // Überschrift ist der Spielername (Testdaten)
+  'trainer+rsvpSheet+pushModal': 'Push bestätigen',
+  'trainer+rsvpSheet+shareModal': 'Rückmeldungen teilen',
+  'trainer+tvTplMenu': 'Vorlagen-Menü',                     // Überschrift ist der Vorlagenname (Testdaten)
   'kasse+ksBl': 'Strafe buchen',                           // Überschrift nur "Strafe"
   'trainer/spiel+tvSheetMenu': 'Aufstellungs-Menü',        // Überschrift nur "Mehr"
 };

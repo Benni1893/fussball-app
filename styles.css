@@ -3531,3 +3531,214 @@ textarea.tf-in { resize: none; field-sizing: content; min-height: 20px; padding:
 .push-best-k { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
 .rs2-kachel { align-items: stretch; text-align: left; }
 .rs2-k-z { line-height: 25px; }
+
+/* --- Trainer · Spielauswahl (06) ------------------------------------------- */
+.card.tv-next {
+  padding: 0; overflow: hidden; border-radius: 16px;
+  box-shadow: 0 1px 1px rgba(16,40,30,.05), 0 18px 34px -18px rgba(11,49,37,.55);
+}
+.tv-next-kopf.tk-kopf { padding: 16px; display: block; min-height: 0; }
+.tv-next-kopf .tk-kopf-main { gap: 3px; }
+.tv-next-kopf .tk-oben { color: var(--gold-400); font-size: 13px; font-weight: 700; line-height: 16px; }
+.tv-next-kopf .tk-titel { font-size: 22px; line-height: 26px; letter-spacing: -.02em; }
+.tv-next-kopf .tk-zeit { font-size: 14px; font-weight: 600; line-height: 17px; }
+.tk-rueck.tv-rueck { margin: 0; border-top: 0; border-bottom: 1px solid var(--line); padding: 14px 16px; }
+.tv-next-fuss { padding: 14px 16px 16px; border: 0; margin: 0; }
+.tv-next-btn.btn-primary { width: 100%; min-height: 48px; border-radius: 12px; }
+.card.tv-kader {
+  display: flex; flex-direction: column; gap: 10px; width: 100%; padding: 14px 16px; margin-top: 12px;
+  border-radius: 14px; text-align: left; font: inherit; color: var(--ink); cursor: pointer;
+}
+.tv-kader-kopf { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 0; }
+.tv-kader-t { font-size: 16px; font-weight: 700; line-height: 20px; }
+.tv-kader-n { font-size: 15px; font-weight: 600; line-height: 19px; color: var(--green-800); }
+.tv-kbar { display: flex; height: 6px; margin: 0; border-radius: var(--radius-pill); overflow: hidden; background: var(--track-bar); }
+.tv-kbar i { display: block; height: 100%; }
+.tv-kbar i.is-fit  { background: var(--green-600); }
+.tv-kbar i.is-ang  { background: var(--amber-600); }
+.tv-kbar i.is-verl { background: var(--red-600); }
+.tv-kbar i.is-url  { background: var(--blau-600); }
+.tv-kleg { display: block; margin: 0; font-size: 13px; line-height: 16px; color: var(--muted); }
+.tv-kstat { display: inline; }
+.tv-kstat b { font-weight: 700; color: var(--ink); }
+.tv-kstat.is-verl b { color: var(--red-700); }
+.tv-glist.dn-liste { padding: 0; }
+.tv-grow .dn-t { font-weight: 700; }
+.tv-chev { flex: none; font-size: 18px; line-height: 21px; }
+.card.tv-tpls { padding: 0; overflow: hidden; }
+.tv-tpl { display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 0 6px 0 16px; border: 0; }
+.tv-tpl + .tv-tpl { border-top: 1px solid var(--line); min-height: 61px; }
+.tv-tpl-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.tv-tpl-n { font-size: 16px; font-weight: 700; line-height: 20px; }
+.tv-tpl-s { font-size: 13px; line-height: 16px; color: var(--muted); }
+.tv-tpl-menue.tk-menue { background: none; color: var(--muted); }
+.card.tv-kader { min-height: 0; }
+.tv-kader-t { flex: none; }
+.tv-kleg, .tv-kstat { font-weight: 400; line-height: 16px; }
+.tv-ksep { padding: 0 2.5px; }
+.tk-kopf.is-hero.tv-next-kopf .tk-titel { font-size: 22px; line-height: 26px; letter-spacing: -.02em; }
+.tk-kopf.is-hero.tv-next-kopf .tk-zeit { font-size: 14px; line-height: 17px; }
+.tv-rueck .tk-rueck-t { flex: 1 1 auto; }
+.dn-zeile + .dn-zeile { min-height: 69px; }
+.tv-tpl { padding-right: 4px; }
+.tv-grow .mark { margin-top: 4px; }
+
+/* --- Platz und Bank (07, 07b) ------------------------------------------------ */
+.tv-top { padding: 9px 16px 10px; gap: 12px; border-bottom: 0; }
+.tv-ic { width: 24px; height: 24px; color: var(--ink); }
+.tv-ic svg { display: block; }
+.tv-game { font-size: 16px; font-weight: 700; line-height: 20px; }
+.tv-sub { margin-top: 2px; font-size: 13px; font-weight: 400; line-height: 16px; font-variant-numeric: normal; }
+.tv-stand.is-offen { font-weight: 700; color: var(--gold-ink); }
+.tv-formbar { gap: 8px; margin: 14px 0 12px; }
+.tv-fpill, .tv-fmore {
+  min-height: 38px; padding: 0 16px; border-radius: var(--radius-pill); border: 1px solid var(--line-soft-2);
+  background: var(--grad-chip); color: var(--ink); font-size: 14px; font-weight: 600; box-shadow: none;
+}
+.tv-fpill.on { background: var(--grad-btn); border-color: transparent; color: #fff; font-weight: 700; box-shadow: var(--shadow-btn); }
+.tv-frei-hinweis {
+  display: flex; align-items: center; gap: 10px; width: calc(100% - 32px); min-height: 46px; margin: 0 16px 12px; padding: 0 14px;
+  border-radius: 12px; border: 1px solid var(--gold-line-2); background: var(--grad-task-gold);
+  font: inherit; font-size: 14px; color: var(--gold-ink-2); text-align: left; cursor: pointer;
+}
+.tv-frei-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--gold-700); }
+.tv-frei-t { flex: 1 1 auto; min-width: 0; font-weight: 600; line-height: 17px; }
+.tv-frei-go { flex: none; font-weight: 700; line-height: 17px; }
+.tv-pitch {
+  aspect-ratio: auto; height: 440px; border-radius: 14px; box-shadow: var(--shadow-card);
+  background: repeating-linear-gradient(180deg, var(--pitch-green) 0 44px, var(--pitch-green-2) 44px 88px);
+}
+.tv-pitch::after { content: none; }
+.tv-pitch-bg { position: absolute; inset: 0; pointer-events: none; }
+.tv-pitch-bg i { position: absolute; display: block; border: 1px solid rgba(255,255,255,.35); }
+.tv-pl-rand  { inset: 10px; border-radius: 4px; }
+.tv-pl-mitte { left: 10px; right: 10px; top: 220px; height: 0; border-width: 1px 0 0 0 !important; }
+.tv-pl-kreis { left: 50%; top: 50%; width: 92px; height: 92px; margin: -46px 0 0 -46px; border-radius: 50%; }
+.tv-pl-raum  { left: 50%; width: 172px; height: 71px; margin-left: -86px; }
+.tv-pl-raum.is-oben { top: 10px; }
+.tv-pl-raum.is-unten { bottom: 10px; }
+.tv-disc { width: 40px; height: 40px; background: var(--grad-disc); color: var(--green-800); font-size: 15px; font-weight: 800; border: 0; }
+.tv-pn { top: calc(100% + 3px); max-width: 80px; font-size: 13px; font-weight: 700; line-height: 16px; text-shadow: none; }
+.tv-slot.sel .tv-disc { box-shadow: 0 0 0 3px #fff, var(--shadow-disc); transform: scale(1.08); }   /* Markierung weiss, Gold heisst "frei" */
+.tv-ring {
+  width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; box-sizing: border-box;
+  border-radius: 50%; border: 2px solid var(--gold-400); background: rgba(227,194,92,.22);
+  box-shadow: 0 0 0 6px rgba(227,194,92,.14); color: #fff; font-size: 22px; font-weight: 600; line-height: 1;
+}
+.tv-frei-l {
+  position: absolute; top: calc(100% + 3px); left: 50%; transform: translateX(-50%); white-space: nowrap;
+  padding: 0 6px; border-radius: var(--radius-pill); background: var(--green-900); color: var(--gold-400);
+  font-size: 13px; font-weight: 700; line-height: 16px;
+}
+.tv-bank { margin-top: 0; padding: 0 16px; }
+.tv-bank-kopf { margin-top: 24px; }
+.tv-bank-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 4px; }
+.tv-bslot {
+  position: relative; min-width: 0; min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+  padding: 0 4px; border-radius: 12px; border: 1px solid var(--line-soft-2); background: #f8fbf9; box-shadow: none;
+  font: inherit; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer;
+}
+.tv-bslot.filled { border-style: solid; background: linear-gradient(180deg, #fff, #f8fbf9); }
+.tv-bnr { font-size: 15px; font-weight: 700; line-height: 19px; color: var(--green-800); }
+.tv-bn { max-width: 100%; font-size: 13px; font-weight: 400; line-height: 16px; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tv-bslot.sel { border-color: var(--green-700); box-shadow: 0 0 0 2px var(--green-700); }
+.tv-bx {
+  position: absolute; top: 4px; right: 4px; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; background: none; color: var(--muted); font-size: 0;
+}
+.tv-bx::after { content: ""; position: absolute; top: 50%; left: 50%; width: var(--tap); height: var(--tap); transform: translate(-50%, -50%); }
+.tv-actions { padding: 16px 16px 24px; }
+.tv-save { width: 100%; min-height: 48px; }
+.tv-cta .btn-primary { width: 100%; margin-bottom: 8px; }
+
+/* --- Spieler-Blaetter 07c und 08 ------------------------------------------- */
+.tv-sheet.tv-ksheet { padding-top: 8px; max-height: calc(100dvh - env(safe-area-inset-top) - 24px); box-shadow: 0 -14px 40px -14px rgba(0,0,0,.5); }
+.tv-ksheet .tv-grip { position: static; transform: none; display: block; flex: none; width: 36px; height: 5px; margin: 0 auto 10px; background: var(--dot-off); }
+.tv-ksheet .tv-sh { flex: none; padding: 0 16px; align-items: center; }
+.tv-sh-text { flex: 1 1 auto; min-width: 0; }
+.tv-ksheet .tv-sh strong { display: block; font-size: 19px; font-weight: 800; letter-spacing: -.02em; line-height: 23px; }
+.tv-ksheet .tv-shsub { margin-top: 4px; font-size: 13px; font-weight: 400; line-height: 16px; }
+.tv-ksheet .tv-shx { display: flex; align-items: center; justify-content: center; background: var(--surface-6); color: var(--ink); }
+.tv-ksheet .tv-shx svg { width: 16px; height: 16px; }
+.tv-ksheet .tv-shbody { flex: 1 1 auto; min-height: 0; padding: 0 16px 16px; }
+.tv-ksheet .tv-shbody > .group-head:first-child { margin-top: 24px; }
+.tv-kall { width: 100%; min-height: 50px; margin-top: 12px; }
+.tv-kfuss { flex: none; padding: 0 16px calc(20px + env(safe-area-inset-bottom)); }
+.tv-kfuss:empty { display: none; }
+.tv-leer { width: 100%; min-height: 50px; }
+.card.tv-kcard { padding: 0; overflow: hidden; border-radius: 14px; box-shadow: none; }
+.tv-krow { min-height: 56px; padding: 0 10px 0 14px; cursor: pointer; }
+.tv-krow + .tv-krow { min-height: 57px; }
+.tv-krow.is-vergeben { cursor: default; }
+.tv-krow .row-av { font-size: 13px; }
+.tv-knr { flex: none; width: 32px; text-align: center; font-size: 15px; font-weight: 800; line-height: 19px; color: var(--green-800); }
+.tv-krow .add-btn { width: 38px; height: 38px; }
+.tv-krow .row-end { gap: 0; }
+.tv-bank-row { margin-top: 8px; }
+.tv-bank-row { margin-top: 12px; }
+.tv-fpill, .tv-fmore { padding: 0 17px; letter-spacing: normal; }
+.tv-sheet.tv-ksheet, .rs2-panel { max-height: calc(100dvh - env(safe-area-inset-top) - 40px); }
+.tv-kall.btn-soft { background: var(--grad-btn-sec); border: 1px solid var(--line-soft-3); color: var(--ink); font-size: 16px; font-weight: 700; border-radius: 12px; }
+.tv-ksheet .group-head h2 { flex: none; }
+.row-s { font-weight: 400; }
+.tv-krow .row-main { align-items: flex-start; }
+.tv-krow.is-bank { padding: 0 14px; }
+.tv-knr span { display: inline; }
+
+/* --- Kader (09) ---------------------------------------------------------------- */
+.kad-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+.kpi.kad-kpi {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 51px; padding: 0 14px;
+  border-radius: 14px; border: 1px solid; box-shadow: none;
+}
+.kad-kpi .kpi-label { font-size: 15px; font-weight: 700; letter-spacing: 0; text-transform: none; line-height: 19px; flex: 1 1 auto; }
+.kad-kpi .kpi-value { font-size: 21px; font-weight: 800; line-height: 25px; }
+.kpi.kad-kpi.is-gruen .kpi-value { color: var(--green-800); }
+.card.kad-liste { padding: 0; overflow: hidden; border-radius: 14px; }
+.row.kad-row { min-height: 56px; padding: 0 16px; border: 0; font: inherit; cursor: pointer; }
+.row.kad-row + .row.kad-row { border-top: 1px solid var(--line); min-height: 57px; }
+.row.kad-row.is-zwei { min-height: 60px; }
+.kad-row .row-main { align-items: flex-start; }
+.kad-row .row-av { font-size: 13px; }
+.mark.kad-pille { height: 22px; padding: 0 10px; gap: 6px; }
+.mark.kad-pille .mark-dot { width: 7px; height: 7px; }
+.mark.kad-pille.is-gruen .mark-dot { background: var(--green-600); }
+.mark.kad-pille.is-rot .mark-dot { background: var(--red-600); }
+.mark.kad-pille.is-amber .mark-dot { background: var(--amber-600); }
+.mark.kad-pille.is-urlaub .mark-dot { background: var(--blau-600); }
+
+/* --- Blatt "Status ändern" (10) ------------------------------------------------ */
+.sb-panel { padding: 8px 16px calc(24px + env(safe-area-inset-bottom)); border-radius: 18px 18px 0 0; }
+.sb-griff { display: block; width: 36px; height: 5px; margin: 0 auto 14px; border-radius: var(--radius-pill); background: var(--dot-off); }
+.sb-kopf { display: flex; align-items: center; gap: 12px; }
+.row-av.sb-av { width: 40px; height: 40px; font-size: 14px; }
+.sb-kopf-t { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.sb-name { font-size: 19px; font-weight: 800; letter-spacing: -.02em; line-height: 23px; }
+.sb-sub { font-size: 13px; line-height: 16px; color: var(--muted); }
+.sb-knoepfe { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+.sb-k {
+  min-height: 50px; display: flex; align-items: center; justify-content: center; gap: 8px;
+  border-radius: 12px; border: 1px solid var(--line-soft-3); background: var(--grad-btn-sec);
+  font: inherit; font-size: 16px; font-weight: 600; color: var(--ink); cursor: pointer;
+}
+.sb-k.is-on { font-weight: 700; }
+.sb-k.is-on.st-fit { background: var(--green-050); border-color: var(--green-600); color: var(--green-800); }
+.sb-k.is-on.st-angeschlagen { background: var(--amber-050); border-color: var(--amber-600); color: var(--amber-ink); }
+.sb-k.is-on.st-verletzt { background: var(--red-050); border-color: var(--red-600); color: var(--red-700); }
+.sb-k.is-on.st-urlaub { background: var(--blau-050); border-color: var(--blau-600); color: var(--blau-700); }
+.sb-felder { display: flex; flex-direction: column; gap: 14px; margin-top: 14px; }
+.sb-felder[hidden] { display: none; }
+.sb-feld {
+  width: 100%; min-height: 50px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--line-soft-3);
+  background: #fcfdfc; font: inherit; font-size: 16px; color: var(--ink); box-sizing: border-box;
+}
+.sb-datum { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.sb-datum-l { font-size: 16px; color: var(--muted); }
+.sb-datum input { border: 0; background: none; font: inherit; font-size: 16px; color: var(--ink); min-width: 0; text-align: right; }
+.sb-speichern { width: 100%; min-height: 48px; margin-top: 14px; }
+.kad-kpi .kpi-value { display: block; letter-spacing: normal; font-variant-numeric: normal; }
+.kpi.kad-kpi { gap: 10px; }
+.kad-row .row-main { align-items: stretch; }
+.kad-kpi .kpi-value { margin-top: -4px; }
+.kad-row:not(.is-zwei) .row-main { align-items: flex-start; }
+.kad-kpi .kpi-value { margin-top: 0; }

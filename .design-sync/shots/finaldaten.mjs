@@ -116,7 +116,10 @@ const AUFSTELLUNGEN = [
 
 export function vorlageDaten() {
   const d = landkarte();
-  return Object.assign(d, {
+  // Tiefe Kopie: Anpassungen je Screen (finalscreens.mjs, daten) dürfen den
+  // Datensatz der übrigen Screens nicht verändern.
+  const kopie = (x) => JSON.parse(JSON.stringify(x));
+  return Object.assign(d, kopie({
     teamName: 'FC Fasanerie-Nord 2',
     icalUrl: 'https://example.invalid/spielplan/fc-fasanerie-nord-2.ics',
     verein: { name: 'FC Fasanerie-Nord e.V.', team: '2. Herrenmannschaft', saison: 'Saison 2026/27', gegruendet: 1968 },
@@ -127,5 +130,5 @@ export function vorlageDaten() {
     strafen: STRAFEN,
     rsvps: RUECK.map(([eventId, playerId, status, grund]) => ({ eventId, playerId, status, grund })),
     lineups: AUFSTELLUNGEN,
-  });
+  }));
 }
