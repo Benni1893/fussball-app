@@ -93,6 +93,7 @@ for (const name of wahl) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: hoehe }, deviceScaleFactor: 1, isMobile: true, hasTouch: true,
     locale: 'de-DE', timezoneId: 'Europe/Berlin', serviceWorkers: 'block' });
   const page = await ctx.newPage();
+  if (cfg.vorStart) await cfg.vorStart(page);
   // Vorlagen-Datensatz (finaldaten.mjs), ausser der Screen verlangt die Landkarten-Daten.
   const inst = await installiere(page, cfg.profil, cfg.landkartenDaten ? undefined : { daten: cfg.daten ? cfg.daten(vorlageDaten()) : vorlageDaten(), jetzt: JETZT_VORLAGE });
   await page.goto(basis, { waitUntil: 'networkidle' });

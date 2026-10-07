@@ -22,7 +22,7 @@ const TEILE = [
   stueck('  const SVG = ', '  const ICON_EDIT'),
   // Das Geruest der Unterseiten und die Bausteine der Uebersicht.
   stueck('  const EIN_SEITEN = {', '  function einScrollBeobachter()'),
-  stueck('  function einKopfHtml(titel) {', '\n  /* ---------- Einstellungen (Tab'),
+  stueck('  function einKopfHtml(titel, zurueck) {', '\n  /* ---------- Einstellungen (Tab'),
   stueck('  function einIcon(name) {', '  function renderEinUnterseite(id)'),
 ];
 
@@ -56,6 +56,8 @@ const STUETZEN = `
   const document = { querySelector: () => null };
   function requestAnimationFrame() {}
   function render() {}
+  const DB = {};
+  function istAppleGeraet() { return false; }
 `;
 
 const RUECK = `

@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-07-B";
+  var APP_BUILD = "2026-10-07-C";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -1357,29 +1357,50 @@
   // + Zeitstempel + Aktualisieren) oder Eingabe (bfv.de-Adresse einfügen).
   function bfvSectionHtml() {
     const configured = DEMO.icalUrl && !bfvEditing;
-    const syncTxt = DEMO.icalSyncedAt ? fmtTs(DEMO.icalSyncedAt) + " Uhr" : "noch nie";
-    const msg = bfvMsg ? `<div class="bfv-msg">${esc(bfvMsg)}</div>` : "";
-    const body = configured ? `
-        <div class="bfv-team">
-          <div><span class="set-label">Mannschaft</span><div class="bfv-team-name">${esc(DEMO.teamName || "—")}</div></div>
-          <button class="link-btn bfv-change" data-bfv-change>Ändern</button>
-        </div>
-        <div class="bfv-hint">Zuletzt aktualisiert: ${esc(syncTxt)}. Läuft zusätzlich täglich automatisch.</div>
-        ${msg}
-        <div class="bfv-actions"><button class="btn btn-primary" data-bfv-sync>Jetzt aktualisieren</button></div>
-      ` : `
-        <label class="bfv-label" for="bfvUrl">Adresse der Mannschaftsseite von bfv.de hier einfügen</label>
-        <input id="bfvUrl" class="bfv-url" data-ical-input type="url" inputmode="url" autocapitalize="off" spellcheck="false"
-               placeholder="https://www.bfv.de/mannschaften/…">
-        ${msg}
-        <div class="bfv-actions">
-          <button class="btn btn-primary" data-bfv-connect>Speichern</button>
-          ${DEMO.icalUrl ? `<button class="btn" data-bfv-cancel>Abbrechen</button>` : ""}
-        </div>
-      `;
-    return `
-      <div class="section-title set-sub"><h3>Spielplan (BFV)</h3></div>
-      <div class="card card-pad bfv-card">${body}</div>`;
+    const msg = bfvMsg ? `<p class="ein-hinweis bfv-msg">${esc(bfvMsg)}</p>` : "";
+    // Zeitpunkt relativ: "heute, 14:30", "gestern, 08:27", sonst "02.10., 08:27".
+    const wann = (() => {
+      if (!DEMO.icalSyncedAt) return "noch nie";
+      const d = new Date(DEMO.icalSyncedAt); if (isNaN(d)) return "noch nie";
+      const hm = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+      const heute = new Date(); heute.setHours(0, 0, 0, 0);
+      const tag = new Date(d); tag.setHours(0, 0, 0, 0);
+      const diff = Math.round((heute - tag) / 86400000);
+      return (diff === 0 ? "heute" : diff === 1 ? "gestern" : String(d.getDate()).padStart(2, "0") + "." + String(d.getMonth() + 1).padStart(2, "0") + ".") + ", " + hm;
+    })();
+    const status = (an) => '<div class="card ein-status ein-status-eng">' +
+      '<div class="ein-status-kopf"><span class="ein-status-t">Verbindung</span>' +
+        '<span class="mark ' + (an ? "is-gruen" : "") + '"><span>' + (an ? "Verbunden" : "Nicht verbunden") + '</span></span></div>' +
+      (an ? '<p class="ein-status-s">Zuletzt abgeglichen ' + esc(wann) + '</p>' : "") + '</div>';
+    if (configured) {
+      const team = (DEMO.teamName || "").trim();
+      const verein = team.replace(/\s+\d+$/, "") || team;
+      const jetzt = new Date();
+      const startJahr = jetzt.getMonth() >= 6 ? jetzt.getFullYear() : jetzt.getFullYear() - 1;   // Saison Juli bis Juni
+      const saison = startJahr + "/" + String((startJahr + 1) % 100).padStart(2, "0");
+      const wert = (titel, w, attr) => '<' + (attr ? 'button type="button" ' + attr : 'div') + ' class="ein-schalter ein-wertzeile">' +
+        '<span class="ein-schalter-main"><span class="ein-schalter-t">' + titel + '</span></span>' +
+        '<span class="ein-zeit-wert">' + esc(w) + '</span>' +
+        (attr ? '<span class="ein-chev" aria-hidden="true">\u203A</span>' : "") + '</' + (attr ? 'button' : 'div') + '>';
+      return status(true) +
+        '<div class="group-head"><h2>Mannschaft</h2></div>' +
+        '<div class="ein-gruppe ein-gruppe-gross">' +
+          wert("Verein", verein) + wert("Mannschaft", team || "Ohne Namen", "data-bfv-change") + wert("Saison", saison) +
+        '</div>' +
+        '<div class="group-head"><h2>Verbindung</h2></div>' +
+        '<button class="card ein-gefahr ein-gefahr-gross" data-bfv-trennen type="button">' +
+          '<span class="ein-gefahr-main"><span class="ein-gefahr-t">Verbindung trennen</span>' +
+          '<span class="ein-gefahr-s">Bereits übernommene Spiele bleiben.</span></span>' +
+          '<span class="ein-chev is-rot" aria-hidden="true">›</span></button>' +
+        '<button class="btn btn-primary ein-voll bfv-abgleich" data-bfv-sync type="button"><span>Jetzt abgleichen</span></button>' +
+        '<p class="ein-hinweis">Läuft zusätzlich täglich automatisch.</p>' + msg;
+    }
+    return status(false) +
+      '<div class="group-head"><h2>Adresse</h2></div>' +
+      '<input id="bfvUrl" class="sb-feld bfv-url" data-ical-input type="url" inputmode="url" autocapitalize="off" spellcheck="false" placeholder="https://www.bfv.de/mannschaften/…" aria-label="Adresse der Mannschaftsseite von bfv.de">' +
+      '<p class="ein-hinweis">Adresse der Mannschaftsseite von bfv.de hier einfügen.</p>' + msg +
+      '<button class="btn btn-primary ein-voll bfv-abgleich" data-bfv-connect type="button">Verbinden</button>' +
+      (DEMO.icalUrl ? '<button class="btn btn-soft ein-voll bfv-abbr" data-bfv-cancel type="button">Abbrechen</button>' : "");
   }
 
   /* ---------- Push-Katalog (nur Admin) ---------------------------------------
@@ -1546,33 +1567,62 @@
       '<div><button class="btn btn-soft" data-pkat-hinweis-save type="button">Strafhinweis speichern</button></div>';
   }
 
-  function renderPushKatalog() {
-    document.body.classList.remove("auth-mode");
-    if (!Roles.isAdmin()) { renderDashboard(); return; }
-
+  /* Push-Texte als Unterseite (Vorlage Final 25): Gruppen nach Thema wie in
+     den Mitteilungen, Zeile mit sichtbarem Namen und Textvorlage, Marken
+     "zeitkritisch"/"aus"; Tippen oeffnet die dritte Ebene mit Vorschau,
+     Feldern, Strafhinweis und Senden. "Alle senden" und "Vorschauen loeschen"
+     bleiben. "Zu wenig Zusagen" bleibt ausgeblendet (kein Erzeuger). */
+  const KAT_NAME = {
+    termin_neu: "Neuer Termin", termin_geaendert: "Termin geändert", rueckmeldung_erinnerung: "Erinnerung vor Meldeschluss",
+    rueckmeldung_nachfrage: "Nachfrage per Push", termin_abgesagt: "Termin fällt aus",
+    strafe_neu: "Neue Strafe", zahlung_bestaetigt: "Zahlung bestätigt", zahlung_abgelehnt: "Zahlung abgelehnt",
+    strafen_offen: "Monatliche Erinnerung an offene Strafen", absage_kurzfristig: "Kurzfristige Absagen",
+    meldeschluss_uebersicht: "Übersicht nach Meldeschluss", zahlung_gemeldet: "Zahlung gemeldet", test: "Testnachricht",
+  };
+  const KAT_THEMEN = [
+    ["Termine", ["termin_neu", "termin_geaendert", "rueckmeldung_erinnerung", "rueckmeldung_nachfrage", "termin_abgesagt"]],
+    ["Strafen", ["strafe_neu", "zahlung_bestaetigt", "zahlung_abgelehnt", "strafen_offen"]],
+    ["Für Trainer", ["absage_kurzfristig", "meldeschluss_uebersicht"]],
+    ["Für die Kasse", ["zahlung_gemeldet"]],
+  ];
+  function pushTexteHtml() {
     if (katVorlagen === null) {
-      viewEl.innerHTML = '<div class="page-head">' + navBackChevronHtml() + '<h1>Push-Nachrichten</h1></div>' +
-        '<div class="card card-pad"><p class="set-hint">Vorlagen werden geladen …</p></div>';
       DB.loadNotificationTemplates()
         .then((v) => { katVorlagen = v; render(); })
         .catch((e) => { katVorlagen = []; katMeldung = "Laden fehlgeschlagen: " + ((e && e.message) || e); render(); });
-      return;
+      return '<p class="ein-hinweis">Vorlagen werden geladen …</p>';
     }
-
-    viewEl.innerHTML =
-      '<div class="page-head">' + navBackChevronHtml() + '<h1>Push-Nachrichten</h1></div>' +
-      '<div class="card card-pad">' +
-        '<p class="set-hint">Jede Nachricht einmal auf dem eigenen Handy ansehen, bevor sie an die ' +
-        'Mannschaft geht. „An mich senden" schickt ausschließlich an dich, auch bei Kategorien, ' +
-        'die sonst alle bekommen. Ruhezeiten und Schalter werden dabei übergangen.</p>' +
-        '<button class="btn btn-primary" data-pkat-alle type="button">Alle an mich senden</button>' +
-        '<button class="btn btn-soft" data-pkat-clear type="button">Vorschauen löschen</button>' +
-        '<div class="cal-copied" data-pkat-meldung' + (katMeldung ? "" : " hidden") + '>' + esc(katMeldung) + '</div>' +
-      '</div>' +
-      '<div class="pkat-liste">' + katVorlagen.map(katZeileHtml).join("") + '</div>';
-    katMeldung = "";
+    const vorh = katVorlagen.filter((v) => v.kategorie !== "unterbesetzung");
+    const bekannt = new Set(KAT_THEMEN.flatMap(([, ks]) => ks));
+    const themen = KAT_THEMEN.concat([["System", vorh.map((v) => v.kategorie).filter((k) => !bekannt.has(k))]]);
+    const zeile = (v) => '<button class="ein-schalter ein-wertzeile pkat-zeile" type="button" data-ein="pushtext" data-ein-param="' + esc(v.kategorie) + '">' +
+      '<span class="ein-schalter-main"><span class="ein-schalter-t">' + esc(KAT_NAME[v.kategorie] || v.kategorie) + '</span>' +
+      '<span class="ein-schalter-s pkat-vorlage">' + esc(v.text_vorlage || "") + '</span></span>' +
+      (v.urgency === "high" ? '<span class="mark is-rot">zeitkritisch</span>' : "") +
+      (v.aktiv ? "" : '<span class="mark">aus</span>') +
+      '<span class="ein-chev" aria-hidden="true">\u203A</span></button>';
+    return themen.map(([titel, ks]) => {
+      const liste = ks.map((k) => vorh.find((v) => v.kategorie === k)).filter(Boolean);
+      return liste.length ? '<div class="group-head"><h2>' + esc(titel) + '</h2></div><div class="ein-gruppe ein-gruppe-gross">' + liste.map(zeile).join("") + '</div>' : "";
+    }).join("") +
+      '<div class="group-head"><h2>Vorschauen</h2></div>' +
+      '<div class="ein-gruppe">' + einZeileHtml({ attr: "data-pkat-clear", titel: "Vorschauen löschen", chev: false }) + '</div>' +
+      '<p class="ein-hinweis">„Alle senden“ und „An mich senden“ gehen nur an dich, ohne Ruhezeit.</p>' +
+      '<div class="cal-copied" data-pkat-meldung' + (katMeldung ? "" : " hidden") + '>' + esc(katMeldung) + '</div>';
+  }
+  function pushTextHtml(kat) {
+    if (katVorlagen === null) return pushTexteHtml();
+    const v = katVorlagen.find((x) => x.kategorie === kat);
+    if (!v) return '<p class="ein-hinweis">Diese Vorlage gibt es nicht.</p>';
+    return katZeileHtml(v) + '<div class="cal-copied" data-pkat-meldung' + (katMeldung ? "" : " hidden") + '>' + esc(katMeldung) + '</div>';
   }
 
+  function renderPushKatalog() {
+    // Alte Ansicht "Push-Nachrichten": leitet auf die Unterseite der Einstellungen um.
+    if (Roles.isAdmin()) { switchView("einstellungen"); einOeffnen("pushtexte"); return; }
+    renderDashboard();
+    return;
+  }
   function katSag(txt) {
     const el = document.querySelector("[data-pkat-meldung]");
     if (!el) return;
@@ -1857,24 +1907,53 @@
       '</div>';
   }
 
-  function pnZeileHtml(k, aus, prefs) {
-    const [kat, ic, name, ton] = k;
-    return einSchalterZeileHtml({ ic, ton, titel: name, sub: pnInfo(kat),
-      schalter: pnSchalterHtml('data-pn-kat="' + esc(kat) + '" aria-label="' + esc(name) + '"',
-        prefs && prefs[kat] ? "true" : "false", aus) });
+  /* Anzeige nach Thema (Vorlage Final 19). Eine Zeile kann mehrere
+     Kategorien schalten ("Neuer oder geänderter Termin"). Gezeigt wird eine
+     Zeile nur, wenn alle ihre Kategorien zu den Rollen des Nutzers passen. */
+  const PN_THEMEN = [
+    { id: "termine", titel: "Termine", zeilen: [
+      [["termin_neu", "termin_geaendert"], "Neuer oder geänderter Termin"],
+      [["rueckmeldung_erinnerung"], "Erinnerung vor Meldeschluss"],
+      [["termin_abgesagt"], "Termin fällt aus"],
+    ] },
+    { id: "strafen", titel: "Strafen", zeilen: [
+      [["strafe_neu"], "Neue Strafe"],
+      [["zahlung_bestaetigt"], "Zahlung bestätigt"],
+      [["zahlung_abgelehnt"], "Zahlung abgelehnt"],
+      [["strafen_offen"], "Monatliche Erinnerung an offene Strafen"],
+    ] },
+    { id: "trainer", titel: "Für Trainer", zeilen: [
+      [["absage_kurzfristig"], "Kurzfristige Absagen"],
+      [["meldeschluss_uebersicht"], "Übersicht nach Meldeschluss"],
+    ] },
+    { id: "kasse", titel: "Für die Kasse", zeilen: [
+      [["zahlung_gemeldet"], "Zahlung gemeldet"],
+    ] },
+  ];
+  function pnThemenFuer(rollen, hatSpieler) {
+    const erlaubt = new Set(pnGruppenFuer(rollen, hatSpieler).flatMap((g) => g.kategorien.map((k) => k[0])));
+    return PN_THEMEN.map((t) => ({ ...t, zeilen: t.zeilen.filter(([ks]) => ks.every((k) => erlaubt.has(k))) }))
+      .filter((t) => t.zeilen.length);
+  }
+  function pnZeileHtml(z, aus, prefs) {
+    const [ks, name] = z;
+    const an = !!prefs && ks.every((k) => prefs[k]);
+    return einSchalterZeileHtml({ titel: name,
+      schalter: pnSchalterHtml('data-pn-kat="' + esc(ks.join(",")) + '" aria-label="' + esc(name) + '"', an ? "true" : "false", aus) });
   }
 
   function pnGruppenHtml(aus) {
     const rollen = (Roles.list || []);
     const hatSpieler = !!(currentProfile && currentProfile.player_id);
-    return pnGruppenFuer(rollen, hatSpieler).map((g) => {
-      const z = pnSammelZustand(g, pushPrefs);
-      return '<div class="ein-gkopf"><span class="ein-gkopf-t">' + esc(g.titel) + '</span>' +
-          '<span class="ein-gkopf-alle"><span>Alle</span>' +
-          pnSchalterHtml('data-pn-alle="' + esc(g.rolle) + '" aria-label="Alle ' + esc(g.titel) + '"', z, aus) +
-          '</span></div>' +
+    return pnThemenFuer(rollen, hatSpieler).map((t) => {
+      const ks = t.zeilen.flatMap(([k]) => k);
+      const alleAn = !!pushPrefs && ks.every((k) => pushPrefs[k]);
+      // Sammelschalter als Textverweis rechts im Gruppenkopf (bleibt aus der Vorversion).
+      return '<div class="group-head ein-themenkopf"><h2>' + esc(t.titel) + '</h2>' +
+          (aus || t.zeilen.length < 2 ? "" : '<button class="link-btn ein-alle" data-pn-thema="' + t.id + '" type="button">' + (alleAn ? "Alle aus" : "Alle an") + '</button>') +
+        '</div>' +
         '<div class="ein-gruppe ein-gruppe-schalter' + (aus ? " is-aus" : "") + '">' +
-          g.kategorien.map((k) => pnZeileHtml(k, aus, pushPrefs)).join("") +
+          t.zeilen.map((z) => pnZeileHtml(z, aus, pushPrefs)).join("") +
         '</div>';
     }).join("");
   }
@@ -1900,23 +1979,22 @@
     const bis = (p.quiet_to   || "08:00").slice(0, 5);
     const an  = von !== bis;
     const istAus = aus ? " is-aus" : "";
-    // Vorlage einst2.png, Panel 5: drei Karten, Hinweise darunter.
-    return '<div class="ein-gruppe ein-gruppe-schalter ein-gruppe-erste' + istAus + '">' +
-        einSchalterZeileHtml({ titel: "Nachts nicht stören",
-          schalter: pnSchalterHtml('data-pn-ruhe aria-label="Nachts nicht stören"', an ? "true" : "false", aus) }) +
+    // Vorlage Final 23: Gruppe "Nachts stumm" (Schalter, Von, Bis), darunter der
+    // Hinweis (Folge nicht sichtbar), Gruppe "Ausnahmen" mit "Dringendes zustellen"
+    // (bestehender Schalter quiet_override_urgent; "Spieltag" gibt es nicht).
+    return '<div class="group-head"><h2>Nachts stumm</h2></div>' +
+      '<div class="ein-gruppe ein-gruppe-schalter ein-gruppe-gross' + istAus + '">' +
+        einSchalterZeileHtml({ titel: "Ruhezeiten aktiv",
+          schalter: pnSchalterHtml('data-pn-ruhe aria-label="Ruhezeiten aktiv"', an ? "true" : "false", aus) }) +
+        (an ? pnZeitZeileHtml("Von", "data-pn-von", von, aus) + pnZeitZeileHtml("Bis", "data-pn-bis", bis, aus) : "") +
       '</div>' +
       '<p class="ein-hinweis">In diesem Zeitraum kommt nichts an. Was liegen bleibt, wird danach zugestellt.</p>' +
-      (an ? '<div class="ein-gruppe ein-gruppe-zeiten' + istAus + '">' +
-          pnZeitZeileHtml("Von", "data-pn-von", von, aus) +
-          pnZeitZeileHtml("Bis", "data-pn-bis", bis, aus) +
-        '</div>' +
-        '<div class="ein-gruppe ein-gruppe-schalter' + istAus + '">' +
-          einSchalterZeileHtml({ titel: "Dringendes trotzdem zustellen",
+      (an ? '<div class="group-head"><h2>Ausnahmen</h2></div>' +
+        '<div class="ein-gruppe ein-gruppe-schalter ein-gruppe-gross' + istAus + '">' +
+          einSchalterZeileHtml({ titel: "Dringendes zustellen", sub: "Absagen, Ausfall, Änderung, Erinnerung",
             schalter: pnSchalterHtml('data-pn-dringend aria-label="Dringendes trotzdem zustellen"',
               (pushPrefs && pushPrefs.quiet_override_urgent) ? "true" : "false", aus) }) +
-        '</div>' +
-        '<p class="ein-hinweis">Kurzfristige Absagen, Terminausfall, Terminänderung ' +
-          'und die Erinnerung an die Rückmeldung.</p>' : "");
+        '</div>' : "");
   }
 
   /* Zeile mit Zeit-Pille. Die Pille zeigt den gespeicherten Wert selbst an,
@@ -1925,13 +2003,15 @@
      ein "10:00 PM" auf einem englisch eingestellten iPhone kann die Pille
      nicht sprengen. 16 px Schrift, sonst zoomt iOS beim Fokus. */
   function pnZeitZeileHtml(titel, attr, wert, aus) {
-    return '<label class="ein-zeitzeile">' +
-      '<span class="ein-zeitzeile-t">' + esc(titel) + '</span>' +
-      '<span class="ein-zeit-pille">' +
-        '<span class="ein-zeit-wert" aria-hidden="true">' + esc(wert) + '</span>' +
-        '<input class="ein-zeit" type="time" ' + attr + ' value="' + esc(wert) + '"' +
-          ' aria-label="Ruhezeit ' + esc(titel.toLowerCase()) + '"' + (aus ? " disabled" : "") + '>' +
-      '</span></label>';
+    // Final 23: Zeile mit Wert rechts und Chevron; das native Zeitfeld liegt
+    // unsichtbar ueber der ganzen Zeile (16 px, sonst zoomt iOS).
+    return '<label class="ein-schalter ein-zeitzeile">' +
+      '<span class="ein-schalter-main"><span class="ein-schalter-t">' + esc(titel) + '</span></span>' +
+      '<span class="ein-zeit-wert" aria-hidden="true">' + esc(wert) + '</span>' +
+      '<span class="ein-chev" aria-hidden="true">\u203A</span>' +
+      '<input class="ein-zeit" type="time" ' + attr + ' value="' + esc(wert) + '"' +
+        ' aria-label="Ruhezeit ' + esc(titel.toLowerCase()) + '"' + (aus ? " disabled" : "") + '>' +
+    '</label>';
   }
 
   function pnAdminHtml() {
@@ -1954,12 +2034,11 @@
     if (teil === "ruhezeiten") return pnRuhezeitHtml(aus);
     // Mitteilungen (Vorlage einst2.png, Panel 3 und 4): einzelne Karten auf
     // dem Grund, Hinweise darunter, kein Rahmen um alles.
-    return '<div class="ein-gruppe ein-gruppe-schalter ein-gruppe-erste">' +
-        einSchalterZeileHtml({ ic: "glocke", ton: "gruen", titel: "Push auf diesem Gerät",
-          schalter: pnSchalterHtml('data-pn-haupt aria-label="Push auf diesem Gerät"', aus ? "false" : "true", false) }) +
+    const geraet = istAppleGeraet() ? "iPhone" : "Gerät";
+    return '<div class="ein-gruppe ein-gruppe-schalter ein-gruppe-erste ein-haupt">' +
+        einSchalterZeileHtml({ titel: "Mitteilungen erlauben", sub: "Auf diesem " + geraet + (aus ? " aus" : " aktiv"),
+          schalter: pnSchalterHtml('data-ein-haupt aria-label="Mitteilungen auf diesem ' + geraet + ' erlauben"', aus ? "false" : "true", false) }) +
       '</div>' +
-      '<p class="ein-hinweis">Gilt nur hier. Die Auswahl darunter gilt für alle deine Geräte' +
-        (aus ? ' und wird erst wirksam, wenn du hier einschaltest.' : '.') + '</p>' +
       pnAutoHinweisHtml() +
       pnGruppenHtml(aus) +
       (teil === "alles" ? pnRuhezeitHtml(aus) : "") +
@@ -1979,9 +2058,9 @@
      Rein rechnend, damit pushpruef.mjs es je Rolle pruefen kann. */
   function pnTestKnopfHtml(rollen) {
     if (!rollen || rollen.indexOf("admin") < 0) return "";
-    return '<div class="ein-gruppe ein-gruppe-aktion">' +
+    return '<div class="group-head"><h2>Test</h2></div><div class="ein-gruppe ein-gruppe-aktion">' +
       '<button class="ein-zeile ein-zeile-aktion" data-push-test type="button">' +
-        '<span class="ein-ic gruen" aria-hidden="true">' + einIcon("senden") + '</span>' +
+        '<span class="ein-ic" aria-hidden="true">' + einIcon("senden") + '</span>' +
         '<span class="ein-zeile-t">Testnachricht senden</span>' +
       '</button></div>';
   }
@@ -2104,8 +2183,15 @@
   const EIN_SEITEN = {
     mitteilungen: { titel: "Mitteilungen",     darf: () => true },
     ruhezeiten:   { titel: "Ruhezeiten",       darf: () => true },
-    kalender:     { titel: "Kalender-Abo",     darf: () => true },
-    bfv:          { titel: "Spielplan (BFV)",  darf: () => Roles.isAdmin() },
+    kalender:     { titel: "Kalender abonnieren", darf: () => true },
+    bfv:          { titel: "Spielplan BFV",    darf: () => Roles.isAdmin() },
+    // Final 21, 25, 27: Profil, Push-Texte und Diagnose als Unterseiten.
+    profil:       { titel: "Profil",           darf: () => true, ohneTitel: true },
+    pushtexte:    { titel: "Push-Texte",       darf: () => Roles.isAdmin() },
+    pushtext:     { titel: "Push-Text",        darf: () => Roles.isAdmin(), zurueck: "Push-Texte", mitParam: true },
+    diagnose:     { titel: "Diagnose",         darf: () => true },
+    // Final 28: Anleitung fuer Google, eine Ebene unter "Kalender abonnieren".
+    google:       { titel: "Für Google",       darf: () => true, zurueck: "Kalender abonnieren" },
   };
   // Ab dieser Scrollhoehe klappt die grosse Ueberschrift in die Zurueck-Leiste
   // (Vorlage einstellungenneu2.png, Panel 4). Gemessen am Abstand von der
@@ -2114,6 +2200,7 @@
 
   const einst = {
     seite:   null,   // null = Uebersicht, sonst Schluessel aus EIN_SEITEN
+    param:   null,   // Zusatz der dritten Ebene (Kategorie bei "pushtext")
     scroll:  0,      // Scrollposition der Uebersicht, solange eine Unterseite offen ist
     kompakt: false,  // Titel steckt in der Zurueck-Leiste
     richtung: "rein",// fuer die Richtung des Uebergangs
@@ -2127,7 +2214,7 @@
   /* Zerlegt einen Hash zu einer Unterseite. Rein rechnend, damit pruefbar. */
   function einZielAusHash(roh) {
     const h = String(roh == null ? (location.hash || "") : roh);
-    const m = /^#?ein=([a-z]+)$/.exec(h);
+    const m = /^#?ein=([a-z]+)(?:\/([a-z_]+))?$/.exec(h);
     if (!m) return null;
     return einSeiteErlaubt(m[1]) ? m[1] : null;
   }
@@ -2135,12 +2222,17 @@
   /* Eine Unterseite oeffnen. Merkt die Scrollposition der Uebersicht, setzt
      einen Verlaufseintrag (damit Zurueck und Wischen funktionieren) und
      rendert. */
-  function einOeffnen(id) {
-    if (!einSeiteErlaubt(id) || einst.seite === id) return;
-    einst.scroll = window.scrollY || window.pageYOffset || 0;
+  function einParamAusHash() {
+    const m = /^#?ein=[a-z]+\/([a-z_]+)$/.exec(location.hash || "");
+    return m ? m[1] : null;
+  }
+  function einOeffnen(id, param) {
+    if (!einSeiteErlaubt(id) || (einst.seite === id && einst.param === (param || null))) return;
+    if (!einst.seite) einst.scroll = window.scrollY || window.pageYOffset || 0;
     einst.richtung = "rein";
-    try { history.pushState({ einSeite: id }, "", "#ein=" + id); } catch (e) {}
+    try { history.pushState({ einSeite: id }, "", "#ein=" + id + (param ? "/" + param : "")); } catch (e) {}
     einst.seite = id;
+    einst.param = param || null;
     einst.kompakt = false;
     render();
     window.scrollTo(0, 0);
@@ -2159,6 +2251,7 @@
 
   function einVerlassen() {
     einst.seite = null;
+    einst.param = null;
     einst.kompakt = false;
     einst.richtung = "zurueck";
     render();
@@ -2170,10 +2263,12 @@
   function einSyncAusHash() {
     if (currentView !== "einstellungen") return false;
     const soll = einZielAusHash();
-    if (soll === einst.seite) return false;
+    const param = einParamAusHash();
+    if (soll === einst.seite && param === einst.param) return false;
     if (!soll) { einVerlassen(); return true; }
     einst.richtung = "rein";
     einst.seite = soll;
+    einst.param = param;
     einst.kompakt = false;
     render();
     window.scrollTo(0, 0);
@@ -2207,12 +2302,9 @@
   /* Kopf einer Unterseite: Zurueck-Leiste mit dem Namen der VORIGEN Ebene,
      darunter die grosse Ueberschrift. Beim Scrollen wandert der Titel in die
      Leiste (.is-kompakt). */
-  function einKopfHtml(titel) {
+  function einKopfHtml(titel, zurueck) {
     return '<div class="ein-kopf">' +
-      '<button class="ein-back" data-ein-back type="button">' +
-        '<span class="ein-back-chev" aria-hidden="true">\u2039</span>' +
-        '<span class="ein-back-t">Einstellungen</span>' +
-      '</button>' +
+      '<button class="ein-back" data-ein-back type="button">\u2039 ' + esc(zurueck || "Einstellungen") + '</button>' +
       '<span class="ein-kopf-t" aria-hidden="true">' + esc(titel) + '</span>' +
     '</div>';
   }
@@ -2228,16 +2320,15 @@
                // (Kalender-Abo: data-cal-sheet, data-cal-copy-profil).
                : opts.attr ? ' ' + opts.attr : "";
     // Chevron nur, wo eine Ebene dahinter liegt. Eine reine Aktion ("App neu
-    // laden") traegt keinen (Vorlage einst1.png, Panel 1 und 2).
+    // laden") traegt keinen (README der Vorlage: "› nur, wenn die Zeile wegfuehrt").
     const chev = opts.chev !== false;
-    return '<button class="ein-zeile' + (opts.aktion ? " ein-zeile-aktion" : "") + '" type="button"' + ziel + '>' +
-      '<span class="ein-ic ' + esc(opts.ton || "gruen") + '" aria-hidden="true">' + opts.ic + '</span>' +
+    return '<button class="ein-zeile' + (opts.aktion ? " ein-zeile-aktion" : "") + (opts.ic ? "" : " ohne-ic") + '" type="button"' + ziel + '>' +
+      (opts.ic ? '<span class="ein-ic" aria-hidden="true">' + opts.ic + '</span>' : "") +
       '<span class="ein-zeile-t">' + esc(opts.titel) + '</span>' +
-      (opts.wert ? '<span class="ein-zeile-w">' + esc(opts.wert) + '</span>' : "") +
+      (opts.wert != null && opts.wert !== "" ? '<span class="ein-zeile-w"' + (opts.wertAttr ? " " + opts.wertAttr : "") + '>' + esc(opts.wert) + '</span>' : "") +
       (chev ? '<span class="ein-chev" aria-hidden="true">\u203A</span>' : "") +
     '</button>';
   }
-
 
   /* ---------- Einstellungen (Tab „Mehr") ------------------------------------
      Zwei Ebenen: Uebersicht aus Zeilen, dahinter die Unterseiten. Welche
@@ -2254,7 +2345,9 @@
   /* Symbole der Uebersichtszeilen. Als Funktion, nicht als Konstante: SVG
      steht weiter unten in der Datei und waere beim Auswerten noch nicht da. */
   function einIcon(name) {
-    if (name === "glocke")   return `<svg ${SVG}><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>`;
+    if (name === "glocke")   return `<svg ${SVG}><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20.5h4"/></svg>`;
+    if (name === "buch")     return `<svg ${SVG}><path d="M5 4h14v16H7a2 2 0 0 1-2-2zM5 18a2 2 0 0 1 2-2h12M9 8h6M9 11h4"/></svg>`;
+    if (name === "person")   return `<svg ${SVG}><path d="M12 12a4 4 0 1 0 0-8a4 4 0 0 0 0 8zM4 20a8 8 0 0 1 16 0"/></svg>`;
     if (name === "mond")     return `<svg ${SVG}><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8"/></svg>`;
     if (name === "kalender") return `<svg ${SVG}><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>`;
     if (name === "tabelle")  return `<svg ${SVG}><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M8 4v16"/></svg>`;
@@ -2298,7 +2391,9 @@
     const von = (p.quiet_from || "22:00").slice(0, 5);
     const bis = (p.quiet_to   || "08:00").slice(0, 5);
     if (!pushPrefs || von === bis) return "Aus";
-    return von + " bis " + bis;
+    // "22:00" -> "22", "08:30" -> "8:30" (Vorlage "22 bis 8 Uhr")
+    const kurz = (t) => { const [h, m] = t.split(":"); return String(parseInt(h, 10)) + (m === "00" ? "" : ":" + m); };
+    return kurz(von) + " bis " + kurz(bis) + " Uhr";
   }
 
   /* Rollenzeile der Profilkarte: hoechste Rolle zuerst, unabhaengig davon, in
@@ -2313,57 +2408,72 @@
     r.sort((a, b) => rang(a) - rang(b));
     return r.map((x) => ROLE_LABEL[x] || x).join(" · ");
   }
+  const ROLLE_KURZ = { admin: "Admin", coach: "Trainer", treasurer: "Kassenwart", player: "Spieler" };
+  function einRollenKurz(rollen) {
+    const r = (rollen || []).slice();
+    if (!r.length) return "Spieler";
+    const rang = (x) => { const i = EIN_ROLLEN_FOLGE.indexOf(x); return i < 0 ? 99 : i; };
+    r.sort((a, b) => rang(a) - rang(b));
+    return r.map((x) => ROLLE_KURZ[x] || x).join(" · ");
+  }
+  // Mitgliederzahl fuer die Zeile "Rollen": erst nach dem Laden, kein Warten beim Oeffnen.
+  let einMitglieder = null;
+  function einMitgliederLaden() {
+    if (!Roles.isAdmin() || einMitglieder != null || !DB.listMembers) return;
+    DB.listMembers().then((m) => {
+      einMitglieder = Array.isArray(m) ? m.length : null;
+      const el = viewEl.querySelector("[data-ein-rollen]");
+      if (el && einMitglieder != null) el.textContent = String(einMitglieder);
+    }).catch(() => {});
+  }
 
+  /* Einstellungen (Vorlage Final 18): Profilzeile, "Für mich", "Verwaltung"
+     (nur mit Recht), "Info". Abmelden steht im Profil, die Build-Kennung in
+     der Diagnose. */
   function renderEinUebersicht() {
     const u = currentProfile || {};
     const player = u.player_id ? playerById[u.player_id] : null;
-    const name = player ? player.name : (u.email || "—");
-    const email = u.email || "—";
-    const roleText = einRollenText(Roles.list);
+    const name = player ? player.name : (u.email || "Ohne Namen");
     const verwaltung = Roles.canManageSchedule() || Roles.canEditCatalog();
-    const buildTxt = "Build " + APP_BUILD +
-      ((window.__HTML_BUILD && window.__HTML_BUILD !== APP_BUILD)
-        ? " · HTML " + window.__HTML_BUILD + " (Versionen unterschiedlich – evtl. Cache)" : "");
+    const aboAn = !!(u.calendar_subscribe_started_at);
+    einMitgliederLaden();
 
     viewEl.innerHTML = `
       <div class="page-head ein-start"><h1>Einstellungen</h1></div>
 
-      <button class="ein-profil" type="button" data-view-jump="profil">
+      <button class="ein-profil" type="button" data-ein="profil">
         <span class="avatar ein-profil-av">${initials(name)}</span>
         <span class="ein-profil-main">
           <span class="ein-profil-name">${esc(name)}</span>
-          <span class="ein-profil-rolle">${esc(roleText)}</span>
-          <span class="ein-profil-mail">${esc(email)}</span>
+          <span class="ein-profil-rolle">${esc(einRollenKurz(Roles.list))} · Profil ansehen</span>
         </span>
         <span class="ein-chev" aria-hidden="true">\u203A</span>
       </button>
 
+      <div class="group-head"><h2>Für mich</h2></div>
       <div class="ein-gruppe">
-        ${einZeileHtml({ ein: "mitteilungen", ic: einIcon("glocke"),   ton: "gruen",      titel: "Mitteilungen", wert: einMitteilungenWert() })}
-        ${einZeileHtml({ ein: "ruhezeiten",   ic: einIcon("mond"),     ton: "dunkelgruen", titel: "Ruhezeiten",  wert: einRuhezeitWert() })}
-        ${einZeileHtml({ ein: "kalender",     ic: einIcon("kalender"), ton: "gruen",      titel: "Kalender-Abo" })}
+        ${einZeileHtml({ ein: "mitteilungen", ic: einIcon("glocke"),   titel: "Mitteilungen", wert: einMitteilungenWert() })}
+        ${einZeileHtml({ ein: "ruhezeiten",   ic: einIcon("mond"),     titel: "Ruhezeiten",  wert: einRuhezeitWert() })}
+        ${einZeileHtml({ ein: "kalender",     ic: einIcon("kalender"), titel: "Kalender abonnieren", wert: aboAn ? "An" : "Aus" })}
       </div>
 
       ${verwaltung ? `
-      <div class="ein-titel">Verwaltung</div>
+      <div class="group-head"><h2>Verwaltung</h2></div>
       <div class="ein-gruppe">
-        ${Roles.isAdmin() ? einZeileHtml({ ein: "bfv", ic: einIcon("tabelle"), ton: "dunkelgruen", titel: "Spielplan (BFV)", wert: (DEMO && DEMO.teamName) || "—" }) : ""}
-        ${einZeileHtml({ goto: "katalog", ic: einIcon("liste"), ton: "gold", titel: "Strafenkatalog" })}
-        ${Roles.isAdmin() ? einZeileHtml({ goto: "pushkatalog", ic: einIcon("sprech"), ton: "gruen", titel: "Push-Texte" }) : ""}
+        ${Roles.isAdmin() ? einZeileHtml({ ein: "bfv", ic: einIcon("tabelle"), titel: "Spielplan BFV", wert: (DEMO && DEMO.icalUrl) ? "Verbunden" : "Nicht verbunden" }) : ""}
+        ${einZeileHtml({ goto: "katalog", ic: einIcon("buch"), titel: "Strafenkatalog" })}
+        ${Roles.isAdmin() ? einZeileHtml({ ein: "pushtexte", ic: einIcon("sprech"), titel: "Push-Texte" }) : ""}
+        ${Roles.isAdmin() ? einZeileHtml({ goto: "admin", ic: einIcon("person"), titel: "Rollen", wert: einMitglieder != null ? String(einMitglieder) : "", wertAttr: "data-ein-rollen" }) : ""}
       </div>` : ""}
 
-      <div class="ein-titel">Info</div>
+      <div class="group-head"><h2>Info</h2></div>
       <div class="ein-gruppe">
-        ${einZeileHtml({ tat: "diagnose", ic: einIcon("puls"), ton: "grau", titel: "Diagnose" })}
-        ${einZeileHtml({ tat: "neuladen", ic: einIcon("neu"),  ton: "grau", titel: "App neu laden", chev: false })}
+        ${einZeileHtml({ ein: "diagnose", ic: einIcon("puls"), titel: "Diagnose" })}
+        ${einZeileHtml({ tat: "neuladen", ic: einIcon("neu"),  titel: "App neu laden", chev: false })}
       </div>
-
-      <div class="ein-gruppe ein-gruppe-abmelden">
-        <button class="ein-abmelden" type="button" data-logout>Abmelden</button>
-      </div>
-
-      <p class="ein-build">${esc(buildTxt)}</p>
     `;
+    // Rollen-Wert nachtragen, falls die Zahl schon da ist, aber das Element leer gerendert wurde
+    if (einMitglieder != null) { const el = viewEl.querySelector("[data-ein-rollen]"); if (el) el.textContent = String(einMitglieder); }
   }
 
   /* Eine Unterseite. Kopf immer gleich, Inhalt je Seite - der Inhalt selbst
@@ -2377,86 +2487,210 @@
     } else if (id === "ruhezeiten") {
       inhalt = pushAbschnittHtml("ruhezeiten");
     } else if (id === "kalender") {
-      // Vorlage einst3.png, Panel 6: eine Karte mit zwei Aktionszeilen, ohne
-      // Chevron, der Hinweis darunter. Handler unveraendert.
+      // Final 20: eine Ebene. Statuskarte, iPhone-Abo direkt, Link kopieren,
+      // Anleitung fuer Google, Link zuruecksetzen.
+      const an = !!(currentProfile && currentProfile.calendar_subscribe_started_at);
       inhalt =
-        '<div class="ein-gruppe ein-gruppe-erste">' +
-          einZeileHtml({ attr: "data-cal-sheet", ic: einIcon("kal-haken"), ton: "gruen",
-            titel: "Termine abonnieren", aktion: true, chev: false }) +
-          einZeileHtml({ attr: "data-cal-copy-profil", ic: einIcon("link"), ton: "grau",
-            titel: "Link kopieren", chev: false }) +
+        '<div class="card ein-status">' +
+          '<div class="ein-status-kopf"><span class="ein-status-t">Status</span>' +
+            '<span class="mark ' + (an ? "is-gruen" : "") + '">' + (an ? "Eingerichtet" : "Nicht eingerichtet") + '</span></div>' +
+          '<p class="ein-status-s">Termine erscheinen im Handy-Kalender und bleiben aktuell.</p>' +
         '</div>' +
-        '<p class="ein-hinweis">Alle Termine der Mannschaft landen automatisch in deinem ' +
-          'Handy-Kalender und ändern sich dort mit, wenn ein Termin verschoben oder abgesagt wird.</p>' +
-        '<div class="cal-copied ein-rueckmeldung" data-cal-copied-profil hidden></div>';
+        '<div class="group-head"><h2>iPhone und iPad</h2></div>' +
+        '<a class="btn btn-primary ein-voll" data-cal-open-ein href="#" aria-disabled="true">Im iPhone-Kalender abonnieren</a>' +
+        '<div class="group-head"><h2>Android und Google</h2></div>' +
+        '<button class="btn btn-soft ein-voll" data-cal-copy-profil type="button">Link kopieren</button>' +
+        '<div class="cal-copied ein-rueckmeldung" data-cal-copied-profil hidden></div>' +
+        '<div class="ein-fusszeile"><span>Google übernimmt Änderungen bis zu 24 h später.</span>' +
+          '<button class="link-btn" data-ein="google" type="button">Anleitung ›</button></div>' +
+        '<button class="card ein-gefahr" data-cal-regen-ein type="button">' +
+          '<span class="ein-gefahr-main"><span class="ein-gefahr-t">Link zurücksetzen</span>' +
+          '<span class="ein-gefahr-s">Der alte Link funktioniert danach nicht mehr.</span></span>' +
+          '<span class="ein-chev is-rot" aria-hidden="true">›</span></button>';
+    } else if (id === "google") {
+      const schritt = (n, t, sub) => '<div class="ein-schritt"><span class="ein-schritt-n"><span>' + n + '</span></span>' +
+        '<span class="ein-schritt-main"><span class="ein-schritt-t">' + t + '</span><span class="ein-schritt-s">' + sub + '</span></span></div>';
+      inhalt =
+        '<div class="group-head"><h2>In drei Schritten</h2></div>' +
+        '<div class="ein-gruppe ein-schritte">' +
+          schritt(1, "Link kopieren", "Mit dem Knopf unten.") +
+          schritt(2, "calendar.google.com öffnen", "Im Browser, links bei „Weitere Kalender“ auf Plus, dann „Per URL“.") +
+          schritt(3, "Link einfügen", "Mit „Kalender hinzufügen“ bestätigen.") +
+        '</div>' +
+        '<a class="btn btn-primary ein-voll" data-cal-google-ein href="' + GOOGLE_ADD_URL + '" target="_blank" rel="noopener noreferrer"><span>calendar.google.com öffnen</span></a>' +
+        '<button class="btn btn-soft ein-voll" data-cal-copy-profil type="button"><span>Link kopieren</span></button>' +
+        '<div class="cal-copied ein-rueckmeldung" data-cal-copied-profil hidden></div>' +
+        '<p class="ein-fuss-mitte"><span>Google übernimmt Änderungen bis zu 24 h später.</span></p>' +
+        '<p class="ein-hinweis ein-hinweis-mitte">Am Handy ggf. „Desktop-Version“ wählen. Das Abo lässt sich nur einmalig über die Web-Oberfläche anlegen, danach erscheint der Kalender in deiner Kalender-App.</p>';
+    } else if (id === "diagnose") {
+      inhalt = diagnoseHtml();
+    } else if (id === "pushtexte") {
+      inhalt = pushTexteHtml();
+    } else if (id === "pushtext") {
+      inhalt = pushTextHtml(einst.param);
+    } else if (id === "profil") {
+      inhalt = profilInhaltHtml();
     } else if (id === "bfv") {
       inhalt = bfvSectionHtml();
     }
 
     viewEl.innerHTML =
-      einKopfHtml(s.titel) +
+      einKopfHtml(s.titel, s.zurueck) +
       '<div class="ein-body ' + (einst.richtung === "zurueck" ? "ein-anim-zurueck" : "ein-anim-rein") + '">' +
-        '<h1 class="ein-h1" tabindex="-1">' + esc(s.titel) + '</h1>' +
+        (s.ohneTitel ? "" : (id === "pushtexte"
+          ? '<div class="ein-h1-zeile"><h1 class="ein-h1" tabindex="-1">' + esc(s.titel) + '</h1><button class="link-btn kal-plus" data-pkat-alle type="button">Alle senden</button></div>'
+          : '<h1 class="ein-h1" tabindex="-1">' + esc(id === "pushtext" ? (KAT_NAME[einst.param] || s.titel) : s.titel) + '</h1>')) +
         inhalt +
       '</div>';
+    if (id === "kalender") einAboAdresseNachtragen();
+  }
+
+  /* Diagnose als Unterseite (Vorlage Final 27): App (Version, Zuletzt geladen,
+     Offline-Speicher), Gerät (Mitteilungen, Als App installiert), "Bericht
+     kopieren". Darunter bleibt "Hilfe": Online, Letzter Fehler, Cache leeren
+     und neu laden, Protokoll (die vollständige Diagnose aus index.html, die
+     auch ohne app.js da ist). */
+  function diagnoseHtml() {
+    const L = window.__bootL || { phases: [], errors: [] };
+    const wert = (titel, w, sub, attr, chev) => '<' + (attr ? 'button type="button" ' + attr : 'div') + ' class="ein-schalter ein-wertzeile">' +
+      '<span class="ein-schalter-main"><span class="ein-schalter-t">' + titel + '</span>' + (sub ? '<span class="ein-schalter-s is-rot">' + sub + '</span>' : "") + '</span>' +
+      (w != null ? '<span class="ein-zeit-wert">' + esc(w) + '</span>' : "") +
+      (chev ? '<span class="ein-chev" aria-hidden="true">\u203A</span>' : "") + '</' + (attr ? 'button' : 'div') + '>';
+    const html = window.__HTML_BUILD;
+    const geladen = (() => {
+      const d = new Date(L.at || Date.now()); if (isNaN(d)) return "unbekannt";
+      const hm = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+      const heute = new Date(); heute.setHours(0, 0, 0, 0); const tag = new Date(d); tag.setHours(0, 0, 0, 0);
+      const diff = Math.round((heute - tag) / 86400000);
+      return (diff === 0 ? "heute" : diff === 1 ? "gestern" : d.getDate() + "." + (d.getMonth() + 1) + ".") + ", " + hm;
+    })();
+    const offline = (navigator.serviceWorker && navigator.serviceWorker.controller) ? "Aktiv" : "Aus";
+    const erlaubnis = !("Notification" in window) ? "Nicht möglich"
+      : Notification.permission === "granted" ? "Erlaubt" : Notification.permission === "denied" ? "Blockiert" : "Nicht gefragt";
+    const fehler = (L.errors && L.errors.length) ? String(L.errors[L.errors.length - 1]).slice(0, 40) : "Keiner";
+    return '<div class="group-head"><h2>App</h2></div>' +
+      '<div class="ein-gruppe ein-gruppe-gross">' +
+        wert("Version", APP_BUILD, (html && html !== APP_BUILD) ? "HTML " + esc(html) + ", Cache prüfen" : "") +
+        wert("Zuletzt geladen", geladen) +
+        wert("Offline-Speicher", offline) +
+      '</div>' +
+      '<div class="group-head"><h2>Gerät</h2></div>' +
+      '<div class="ein-gruppe ein-gruppe-gross">' +
+        wert("Mitteilungen", erlaubnis) +
+        wert("Als App installiert", istStandalone() ? "Ja" : "Nein") +
+      '</div>' +
+      '<button class="btn btn-soft ein-voll diag-bericht" data-diag-bericht type="button"><span>Bericht kopieren</span></button>' +
+      '<p class="ein-fuss-mitte"><span>Für Rückfragen an den Admin.</span></p>' +
+      '<div class="cal-copied ein-rueckmeldung" data-diag-meldung hidden></div>' +
+      '<div class="group-head"><h2>Hilfe</h2></div>' +
+      '<div class="ein-gruppe">' +
+        wert("Online", navigator.onLine === false ? "Nein" : "Ja") +
+        wert("Letzter Fehler", fehler) +
+        wert("Cache leeren und neu laden", null, "", "data-diag-cache") +
+        wert("Protokoll dieses Starts", null, "", 'data-ein-tat="diagnose"', true) +
+      '</div>';
+  }
+  async function diagBerichtKopieren() {
+    let prev = null; try { prev = localStorage.getItem("fnboot_prev"); } catch (e) {}
+    const bericht = JSON.stringify({ app: APP_BUILD, html: window.__HTML_BUILD || null, aktuell: window.__bootL || null,
+      vorher: prev, online: navigator.onLine, standalone: istStandalone(), ua: navigator.userAgent }, null, 2);
+    const ok = await copyText(bericht);
+    const el = document.querySelector("[data-diag-meldung]");
+    if (el) { el.textContent = ok ? "Bericht kopiert" : "Kopieren nicht möglich"; el.hidden = false; setTimeout(() => { el.hidden = true; }, 1800); }
+  }
+
+  // Abo-Adresse kommt asynchron (Kalender-Token): Knopf freischalten, sobald da.
+  function einAboAdresseNachtragen() {
+    ensureCalendarToken().then(() => {
+      const url = calendarSubscribeUrl();
+      const a = viewEl.querySelector("[data-cal-open-ein]");
+      if (a && url) { a.setAttribute("href", url.replace(/^https?:/i, "webcal:")); a.removeAttribute("aria-disabled"); }
+    }).catch(() => {});
   }
 
   /* ---------- Profil (Spieler-Tab): eigener Fitnessstatus ------------------- */
   /* ---------- Profil (Vorlage 4b) -------------------------------------------
      Kopfkarte mit Avatar und Rueckennummer, eigener Fitnessstatus, darunter die
      eigenen Rueckmeldungen zu den naechsten Terminen. */
-  function renderProfil() {
-    document.body.classList.remove("auth-mode");
+  /* Profil (Vorlage Final 21): zentrierter Kopf mit Avatar, Name und
+     Rollenpillen, Gruppe "Konto" (E-Mail, Rückennummer, Passwort ändern).
+     Darunter bleiben "Mein Status" und "Meine Rückmeldungen"; Abmelden ganz
+     unten. Als Unterseite #ein=profil und als Ansicht "profil" (Mehr). */
+  const ROLLE_PILLE = { admin: ["Admin", "is-gold"], coach: ["Trainer", "is-gruen"], treasurer: ["Kassenwart", "is-amber"], player: ["Spieler", ""] };
+  function profilInhaltHtml() {
     const u = currentProfile || {};
     const player = u.player_id ? playerById[u.player_id] : null;
-    const name = player ? player.name : (u.email || "—");
-    const roleText = Roles.list.length ? Roles.list.map((r) => ROLE_LABEL[r] || r).join(" · ") : "Spieler";
-    const nr = player && player.nr != null ? " · Nr. " + player.nr : "";
+    const name = player ? player.name : (u.email || "Ohne Namen");
+    const rollen = (Roles.list && Roles.list.length ? Roles.list.slice() : ["player"]);
+    if (player && rollen.indexOf("player") < 0) rollen.push("player");
+    const rang = (x) => { const i = EIN_ROLLEN_FOLGE.indexOf(x); return i < 0 ? 99 : i; };
+    rollen.sort((a, b) => rang(a) - rang(b));
+    const pillen = rollen.map((r) => { const p = ROLLE_PILLE[r] || [r, ""]; return '<span class="mark ' + p[1] + '">' + esc(p[0]) + '</span>'; }).join("");
 
-    // Eigene Rueckmeldungen zu den naechsten Terminen. Zugesagt gruen,
-    // abgesagt rot, ohne Antwort gold - dieselben Toene wie ueberall sonst.
     let rueck = "";
     if (player) {
       const kommend = DEMO.events.filter((e) => isFuture(e.datum))
         .sort((a, b) => a.datum.localeCompare(b.datum)).slice(0, 5);
       if (kommend.length) {
-        rueck = `
-          <div class="section-title"><h2>Meine Rückmeldungen</h2></div>
-          <div class="pr-list">
-            ${kommend.map((e) => {
-              const r = state.rsvp[e.id + "|" + player.id] || {};
-              const art = r.status === "zu" ? "zu" : r.status === "ab" ? "ab" : "offen";
-              const badge = art === "zu" ? `<span class="badge badge-paid">Zusage</span>`
-                : art === "ab" ? `<span class="badge badge-open">Absage</span>`
-                : `<span class="badge badge-self">offen</span>`;
-              const titel = (e.typ === "spiel" ? "Spiel " : e.typ === "training" ? "Training " : "")
-                + fmtWd(e.datum) + " " + fmtDay(e.datum) + ". " + fmtMon(e.datum);
-              const sub = art === "offen" ? "Noch keine Rückmeldung"
-                : (art === "zu" ? "Zugesagt" : "Abgesagt") + (r.grund ? " · " + esc(r.grund) : "");
-              return `<div class="pr-row">
-                <span class="pr-bar is-${art}" aria-hidden="true"></span>
-                <div class="pr-main"><div class="pr-t">${esc(titel)}</div><div class="rs">${sub}</div></div>
-                ${badge}
-              </div>`;
-            }).join("")}
-          </div>`;
+        rueck = '<div class="group-head"><h2>Meine Rückmeldungen</h2></div><div class="card dn-liste">' +
+          kommend.map(danachZeileHtml).join("") + '</div>';
       }
     }
-
-    viewEl.innerHTML = `
-      <div class="page-head"><h1>Profil</h1></div>
-      <div class="card pr-head">
+    const zeile = (l, w, attr) => '<' + (attr ? 'button type="button" ' + attr : 'div') + ' class="pr-zeile"><span class="pr-l">' + l + '</span>' +
+      '<span class="pr-w">' + w + '</span>' + (attr ? '<span class="ein-chev" aria-hidden="true">›</span>' : "") + '</' + (attr ? 'button' : 'div') + '>';
+    return `
+      <div class="pr-kopf">
         <span class="avatar pr-av">${initials(name)}</span>
-        <div><div class="pr-name">${esc(name)}</div><div class="rs">${esc(roleText)}${nr}</div></div>
+        <div class="pr-name">${esc(name)}</div>
+        <div class="pr-rollen">${pillen}</div>
+      </div>
+      <div class="group-head"><h2>Konto</h2></div>
+      <div class="ein-gruppe pr-konto">
+        ${zeile("E-Mail", esc(u.email || "Keine E-Mail"))}
+        ${player ? zeile("Rückennummer", player.nr != null ? String(player.nr) : "Keine") : ""}
+        ${zeile("Passwort", "Ändern", 'data-pw-aendern')}
       </div>
       ${player ? `
-      <div class="section-title"><h2>Mein Fitnessstatus</h2></div>
-      <div class="card card-pad">
-        <p class="rs">Sag dem Trainerteam, wie es dir geht.</p>
-        ${statusWahlHtml(player)}
-      </div>
+      <div class="group-head"><h2>Mein Status</h2></div>
+      ${statusWahlHtml(player, { kompakt: true })}
       ${rueck}` : `<div class="empty" style="padding:24px 0">Dein Konto ist noch keinem Spieler zugeordnet. Melde dich beim Trainerteam.</div>`}
+      <button class="btn btn-soft pr-abmelden" data-logout type="button">Abmelden</button>
     `;
+  }
+  function renderProfil() {
+    document.body.classList.remove("auth-mode");
+    viewEl.innerHTML = '<div class="page-head"><h1>Profil</h1></div>' + profilInhaltHtml();
+  }
+
+  /* Blatt "Neues Passwort" (Profil › Passwort ändern). */
+  function openPasswortBlatt() {
+    const ex = document.getElementById("pwBlatt"); if (ex) { ex.remove(); unlockBodyScroll(); }
+    const ov = document.createElement("div");
+    ov.className = "more-sheet"; ov.id = "pwBlatt";
+    ov.innerHTML = '<button class="more-backdrop" data-sheet-close aria-label="Schließen"></button>' +
+      '<div class="more-panel sb-panel" role="dialog" aria-modal="true" aria-label="Neues Passwort">' +
+        '<span class="sb-griff" aria-hidden="true"></span>' +
+        '<div class="sb-name">Neues Passwort</div>' +
+        '<div class="sb-felder">' +
+          '<input class="sb-feld" type="password" autocomplete="new-password" data-pw-neu placeholder="Neues Passwort (mindestens 6 Zeichen)" aria-label="Neues Passwort">' +
+          '<input class="sb-feld" type="password" autocomplete="new-password" data-pw-wdh placeholder="Wiederholen" aria-label="Passwort wiederholen">' +
+        '</div>' +
+        '<div class="tf-hint" data-pw-hint></div>' +
+        '<button class="btn btn-primary sb-speichern" data-pw-speichern type="button">Passwort speichern</button>' +
+      '</div>';
+    document.body.appendChild(ov);
+    lockBodyScroll();
+    const zu = () => { if (ov.parentNode) { ov.remove(); unlockBodyScroll(); } };
+    const hint = ov.querySelector("[data-pw-hint]");
+    ov.addEventListener("click", async (ev) => {
+      if (ev.target === ov || ev.target.closest("[data-sheet-close]")) { zu(); return; }
+      if (!ev.target.closest("[data-pw-speichern]")) return;
+      const a = ov.querySelector("[data-pw-neu]").value, b = ov.querySelector("[data-pw-wdh]").value;
+      if (a.length < 6) { hint.textContent = "Mindestens 6 Zeichen."; return; }
+      if (a !== b) { hint.textContent = "Die beiden Eingaben stimmen nicht überein."; return; }
+      try { await DB.updatePassword(a); zu(); tvToast("Passwort geändert"); }
+      catch (e) { hint.textContent = "Nicht gespeichert: " + ((e && e.message) || e); }
+    });
   }
 
   // Eigener Teamname aus den Einstellungen (Fallback, falls noch nicht gesynct).
@@ -6362,12 +6596,13 @@
       // „Buchung rückgängig" steht jetzt im Detail-Blatt (ksBlattUnpay).
     }
 
-    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-kseg],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-cal-hide],[data-cal-copy-profil],[data-push-an],[data-push-aus],[data-push-test],[data-push-install],[data-push-hinweis-weg],[data-pn-haupt],[data-pn-kat],[data-pn-alle],[data-pn-ruhe],[data-pn-dringend],[data-pkat-save],[data-pkat-reset],[data-pkat-send],[data-pkat-alle],[data-pkat-clear],[data-pkat-hinweis-save],[data-ics-event],[data-koord-save],[data-status-set],[data-status-blatt],[data-logout],[data-ein],[data-ein-back],[data-ein-tat]");
+    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-kseg],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-trennen],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-cal-hide],[data-cal-copy-profil],[data-cal-open-ein],[data-cal-google-ein],[data-cal-regen-ein],[data-push-an],[data-push-aus],[data-push-test],[data-push-install],[data-push-hinweis-weg],[data-ein-haupt],[data-pn-kat],[data-ein-alle],[data-pn-thema],[data-pn-ruhe],[data-pn-dringend],[data-pkat-save],[data-pkat-reset],[data-pkat-send],[data-pkat-alle],[data-pkat-clear],[data-pkat-hinweis-save],[data-ics-event],[data-koord-save],[data-status-set],[data-status-blatt],[data-pw-aendern],[data-logout],[data-ein],[data-ein-back],[data-ein-tat],[data-diag-bericht],[data-diag-cache]");
     if (!t) return;
 
     // Fitnessstatus setzen. Wer das darf, entscheidet die Datenbank:
     // Spieler nur sich selbst, coach/admin alle (set_player_status).
     if (t.dataset.statusBlatt) { openStatusBlatt(t.dataset.statusBlatt); return; }
+    if (t.hasAttribute("data-pw-aendern")) { openPasswortBlatt(); return; }
     if (t.dataset.statusSet) {
       await statusSpeichern(t.dataset.statusSet, t.dataset.wert);
       return;
@@ -6375,7 +6610,7 @@
 
     /* Einstellungen: eine Ebene tiefer, eine Ebene zurueck, oder eine der
        beiden Aktionen aus dem Info-Block. */
-    if (t.dataset.ein) { einOeffnen(t.dataset.ein); return; }
+    if (t.dataset.ein) { einOeffnen(t.dataset.ein, t.dataset.einParam); return; }
     if (t.hasAttribute("data-ein-back")) { einZurueck(); return; }
     if (t.dataset.einTat === "diagnose") {
       // Die Diagnoseseite liegt inline in index.html und ist auch dann da,
@@ -6386,6 +6621,13 @@
       return;
     }
     if (t.dataset.einTat === "neuladen") { location.reload(); return; }
+    if (t.hasAttribute("data-diag-bericht")) { diagBerichtKopieren(); return; }
+    if (t.hasAttribute("data-diag-cache")) {
+      // wie in der Diagnose aus index.html: Caches leeren, den Service Worker aber behalten (Push-Abo)
+      try { if (window.caches && caches.keys) caches.keys().then((ks) => ks.forEach((k) => { if (k.indexOf("fn-sw-") !== 0) caches.delete(k); })); } catch (e) {}
+      setTimeout(() => location.reload(), 400);
+      return;
+    }
 
     // Abmelden (in den Einstellungen) – prominent platziert, daher mit Rückfrage.
     if (t.hasAttribute("data-logout")) {
@@ -6490,7 +6732,7 @@
     }
 
     // Schalter der Benachrichtigungen.
-    if (t.hasAttribute("data-pn-haupt")) {
+    if (t.hasAttribute("data-ein-haupt")) {
       // Der Hauptschalter ist geraetebezogen: an heisst anmelden, aus heisst abmelden.
       (async () => {
         if (t.getAttribute("aria-checked") === "true") { await pushAbmelden(); render(); return; }
@@ -6503,9 +6745,20 @@
       return;
     }
     if (t.dataset.pnKat) {
-      const k = t.dataset.pnKat;
-      const f = {}; f[k] = !(pushPrefs && pushPrefs[k]);
+      const ks = t.dataset.pnKat.split(",");
+      const neu = !(pushPrefs && ks.every((k) => pushPrefs[k]));
+      const f = {}; ks.forEach((k) => { f[k] = neu; });
       pnSetzen(f);
+      return;
+    }
+    if (t.dataset.pnThema) {
+      const th = PN_THEMEN.find((x) => x.id === t.dataset.pnThema);
+      if (th) {
+        const ks = th.zeilen.flatMap(([k]) => k).filter((k) => pushPrefs && k in pushPrefs);
+        const neu = !(pushPrefs && ks.every((k) => pushPrefs[k]));
+        const f = {}; ks.forEach((k) => { f[k] = neu; });
+        pnSetzen(f);
+      }
       return;
     }
     if (t.dataset.pnAlle) {
@@ -6559,6 +6812,22 @@
     }
 
     // "Link kopieren" im Einstellungs-Abschnitt (im Blatt haengt es am Blatt).
+    if (t.hasAttribute("data-cal-open-ein")) {
+      if (t.getAttribute("aria-disabled") === "true") { ev.preventDefault(); return; }
+      hinweisMerken(false, true);
+      return;   // der Link selbst oeffnet den Kalender (webcal:)
+    }
+    if (t.hasAttribute("data-cal-google-ein")) { hinweisMerken(false, true); return; }
+    if (t.hasAttribute("data-cal-regen-ein")) {
+      if (!window.confirm("Der alte Link funktioniert danach nicht mehr. Wirklich zurücksetzen?")) return;
+      try {
+        calendarToken = await DB.regenerateCalendarToken();
+        einAboAdresseNachtragen();
+        const fb = document.querySelector("[data-cal-copied-profil]");
+        if (fb) { fb.textContent = "Neuer Link erstellt"; fb.hidden = false; setTimeout(() => { fb.hidden = true; }, 1800); }
+      } catch (err) { window.alert("Fehlgeschlagen: " + ((err && err.message) || err)); }
+      return;
+    }
     if (t.hasAttribute("data-cal-copy-profil")) {
       (async () => {
         const fb = document.querySelector("[data-cal-copied-profil]");
@@ -6614,7 +6883,7 @@
       try {
         await DB.setIcalUrl(bfvIcalUrl(id));
         const rr = await DB.syncNow();
-        bfvMsg = `Verbunden – ${rr.parsed} Spiele gefunden.`;
+        bfvMsg = `Verbunden, ${rr.parsed} Spiele gefunden.`;
         bfvEditing = false;
         await reloadData();
       } catch (err) {
@@ -6627,6 +6896,13 @@
     // Spielplan (BFV): Eingabefeld öffnen / schließen
     if (t.hasAttribute("data-bfv-change")) { bfvEditing = true; bfvMsg = ""; render(); return; }
     if (t.hasAttribute("data-bfv-cancel")) { bfvEditing = false; bfvMsg = ""; render(); return; }
+    // Final 24: Verbindung trennen. Uebernommene Spiele bleiben (der Abgleich laeuft ohne Adresse nicht).
+    if (t.hasAttribute("data-bfv-trennen")) {
+      if (!window.confirm("Verbindung zum BFV trennen? Bereits übernommene Spiele bleiben erhalten.")) return;
+      try { await DB.setIcalUrl(""); bfvMsg = "Verbindung getrennt."; await reloadData(); }
+      catch (err) { window.alert("Trennen fehlgeschlagen: " + ((err && err.message) || err)); }
+      return;
+    }
     // Spielplan (BFV): jetzt aktualisieren
     if (t.hasAttribute("data-bfv-sync")) {
       const el = viewEl.querySelector("[data-ical-input]");

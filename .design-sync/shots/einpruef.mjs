@@ -60,9 +60,11 @@ console.log('--- Werte in der Uebersicht ---');
   E.setPush('aktiv');
 
   E.setPrefs({ quiet_from: '22:00', quiet_to: '08:00' });
-  gleich(E.einRuhezeitWert(), '22:00 bis 08:00', 'Zeitspanne');
+  gleich(E.einRuhezeitWert(), '22 bis 8 Uhr', 'Zeitspanne (Final 18: volle Stunden kurz)');
   E.setPrefs({ quiet_from: '22:00:00', quiet_to: '08:00:00' });
-  gleich(E.einRuhezeitWert(), '22:00 bis 08:00', 'Sekunden werden abgeschnitten');
+  gleich(E.einRuhezeitWert(), '22 bis 8 Uhr', 'Sekunden werden abgeschnitten');
+  E.setPrefs({ quiet_from: '22:30', quiet_to: '07:15' });
+  gleich(E.einRuhezeitWert(), '22:30 bis 7:15 Uhr', 'halbe Stunden bleiben stehen');
   // Gleiche Von- und Bis-Zeit heisst "keine Ruhezeit" - so rechnet in_quiet_hours().
   E.setPrefs({ quiet_from: '00:00', quiet_to: '00:00' });
   gleich(E.einRuhezeitWert(), 'Aus', 'gleiche Zeiten heissen Aus');
@@ -71,39 +73,41 @@ console.log('--- Werte in der Uebersicht ---');
   E.setPrefs({ quiet_from: '22:00', quiet_to: '08:00' });
 }
 
-/* ===== 3. Die Uebersicht selbst ======================================== */
+/* ===== 3. Die Uebersicht selbst (Vorlage Final 18) ==================== */
 console.log('--- Aufbau der Uebersicht ---');
 {
   E.setRollen(['admin', 'player']);
   const h = E.uebersichtHtml();
 
-  for (const z of ['Mitteilungen', 'Ruhezeiten', 'Kalender-Abo', 'Spielplan (BFV)',
-                   'Strafenkatalog', 'Push-Texte', 'Diagnose', 'App neu laden']) {
+  for (const z of ['Mitteilungen', 'Ruhezeiten', 'Kalender abonnieren', 'Spielplan BFV',
+                   'Strafenkatalog', 'Push-Texte', 'Rollen', 'Diagnose', 'App neu laden']) {
     pruefe(h.includes('>' + z + '<'), 'Zeile "' + z + '" steht da');
   }
-  pruefe((h.match(/class="ein-zeile"/g) || []).length === 8, 'acht Zeilen, nicht mehr');
-  pruefe((h.match(/data-logout/g) || []).length === 1, 'genau ein Abmelden');
-  pruefe(h.includes('data-view-jump="profil"'), 'die Profilkarte fuehrt ins Profil');
+  pruefe((h.match(/class="ein-zeile"/g) || []).length === 9, 'neun Zeilen (Admin)');
+  pruefe(!h.includes('data-logout'), 'Abmelden steht im Profil, nicht hier');
+  pruefe(h.includes('data-ein="profil"'), 'die Profilzeile führt ins Profil (Unterseite)');
   pruefe(!h.includes('Profil öffnen'), 'der alte Knopf "Profil öffnen" ist weg');
   pruefe(!h.includes('?debug=1'), 'die Diagnose haengt nicht mehr am Neustart-Link');
-  pruefe(h.includes('data-ein-tat="diagnose"'), 'Diagnose ist eine eigene Zeile');
-  pruefe(h.includes('Build '), 'die Build-Nummer steht im Fuss');
+  pruefe(h.includes('data-ein="diagnose"'), 'Diagnose ist eine eigene Unterseite');
+  pruefe(!h.includes('Build '), 'die Build-Nummer steht in der Diagnose, nicht hier');
+  for (const g of ['Für mich', 'Verwaltung', 'Info']) pruefe(h.includes('<h2>' + g + '</h2>'), 'Gruppe "' + g + '"');
 
   // Spielersicht
   E.setRollen(['player']);
   const s = E.uebersichtHtml();
   pruefe(!s.includes('Verwaltung'), 'Spieler sieht keine Verwaltung');
-  for (const z of ['Spielplan (BFV)', 'Strafenkatalog', 'Push-Texte']) {
+  for (const z of ['Spielplan BFV', 'Strafenkatalog', 'Push-Texte', 'Rollen']) {
     pruefe(!s.includes('>' + z + '<'), 'Spieler sieht "' + z + '" nicht');
   }
   pruefe((s.match(/class="ein-zeile"/g) || []).length === 5, 'Spieler hat fuenf Zeilen');
 
-  // Trainer: Verwaltung ja, aber kein Spielplan und keine Push-Texte (beides Admin).
+  // Trainer: Verwaltung ja, aber kein Spielplan, keine Push-Texte, keine Rollen (Admin).
   E.setRollen(['coach']);
   const c = E.uebersichtHtml();
   pruefe(c.includes('Strafenkatalog'), 'Trainer kommt an den Strafenkatalog');
-  pruefe(!c.includes('Spielplan (BFV)'), 'Trainer sieht den Spielplan nicht');
+  pruefe(!c.includes('Spielplan BFV'), 'Trainer sieht den Spielplan nicht');
   pruefe(!c.includes('Push-Texte'), 'Trainer sieht die Push-Texte nicht');
+  pruefe(!c.includes('>Rollen<'), 'Trainer sieht die Rollen nicht');
   E.setRollen(['admin', 'player']);
 }
 
@@ -149,7 +153,7 @@ console.log('--- Verdrahtung ---');
   pruefe(!app.includes('Push-Nachrichten verwalten'), 'kein zweiter Einstieg im Mitteilungsblock');
   pruefe(!app.includes('Push-Nachrichten öffnen'), 'kein dritter Einstieg in der Verwaltung');
   // Die Zeile baut data-goto erst zur Laufzeit; im Quelltext steht der Schluessel.
-  pruefe((app.match(/goto: "pushkatalog"/g) || []).length === 1, 'genau ein Weg zu den Push-Texten');
+  pruefe((app.match(/ein: "pushtexte"/g) || []).length === 1, 'genau ein Weg zu den Push-Texten');
 
   // Der Baustein der Statuschips bleibt fuer Uebersicht und Profil unangetastet.
   // Seit Final 09/10 setzt der Kader den Status ueber das Blatt "Status aendern"
@@ -226,7 +230,7 @@ console.log('--- Einstellungen v2: Hauptseite (E3) ---');
 
   E.setRollen(['player', 'admin']);
   const h = E.uebersichtHtml();
-  pruefe(h.includes('Administrator · Spieler'), 'Uebersicht zeigt die sortierte Rollenzeile');
+  pruefe(h.includes('Admin · Spieler · Profil ansehen'), 'Uebersicht zeigt die sortierte Rollenzeile (Kurzform, Final 18)');
   pruefe(/class="page-head ein-start"/.test(h), 'Ueberschrift traegt ein-start (26 px nur hier)');
   const zeilen = h.split('<button class="ein-zeile"').slice(1);
   const zeile = (t) => zeilen.find((z) => z.includes('>' + t + '<')) || '';
@@ -299,8 +303,8 @@ console.log('--- Einstellungen v2: Mitteilungen (E4) ---');
 
   // Aufbau: Karten auf dem Grund statt eines Rahmens um alles
   pruefe(appQ.includes(`return '<div class="ein-mitteilungen" data-push-karte>' + inhalt + '</div>';`), 'Mitteilungen ohne Rahmen um alles (aktiv, bereit)');
-  pruefe(/'<div class="ein-gkopf"><span class="ein-gkopf-t">'/.test(appQ), 'Gruppenkopf mit Sammelschalter über der Karte');
-  pruefe(appQ.includes('einSchalterZeileHtml({ ic: "glocke", ton: "gruen", titel: "Push auf diesem Gerät"'), 'Push auf diesem Gerät als Kartenzeile mit Glocke');
+  pruefe(appQ.includes("'<div class=\"group-head ein-themenkopf\"><h2>'"), 'Gruppenkopf nach Thema mit Sammelverweis (Final 19)');
+  pruefe(appQ.includes('einSchalterZeileHtml({ titel: "Mitteilungen erlauben", sub: "Auf diesem " + geraet'), 'Hauptschalter "Mitteilungen erlauben" mit Gerät (Final 19)');
 
   // Stil
   pruefe(/\.sw \{\s*position: relative; flex: none; width: 51px; height: 31px;/.test(cssQ), 'Schalter 51 x 31 (Vorlage)');
@@ -325,8 +329,8 @@ console.log('--- Einstellungen v2: Ruhezeiten (E5) ---');
     'Von und Bis als Zeitzeilen mit data-pn-von / data-pn-bis');
   pruefe(appQ.includes(`'<input class="ein-zeit" type="time" ' + attr`), 'natives Zeitfeld (type="time") bleibt');
   pruefe(appQ.includes(`'<span class="ein-zeit-wert" aria-hidden="true">' + esc(wert) + '</span>'`), 'Pille zeigt den gespeicherten Wert (24 Stunden)');
-  pruefe(appQ.includes('einSchalterZeileHtml({ titel: "Nachts nicht stören"') && appQ.includes('einSchalterZeileHtml({ titel: "Dringendes trotzdem zustellen"'),
-    'Nachts nicht stören und Dringendes als Schalterkarten');
+  pruefe(appQ.includes('einSchalterZeileHtml({ titel: "Ruhezeiten aktiv"') && appQ.includes('einSchalterZeileHtml({ titel: "Dringendes zustellen"'),
+    'Ruhezeiten aktiv und Dringendes zustellen als Schalterzeilen (Final 23)');
   pruefe(appQ.includes(`return '<div class="ein-ruhezeiten" data-push-karte>' + inhalt + '</div>';`), 'Ruhezeiten ohne Rahmen um alles');
   pruefe(/viewEl\.addEventListener\("change"[\s\S]{0,200}data-pn-von"\)\) pnSetzen\(\{ quiet_from/.test(appQ), 'Speichern über den bestehenden change-Weg');
 
@@ -364,13 +368,12 @@ console.log('--- Einstellungen v2: Kalender-Abo (E6) ---');
 {
   const appQ = fs.readFileSync('app.js', 'utf8');
   const zweig = (() => { const a = appQ.indexOf('} else if (id === "kalender") {'); const b = appQ.indexOf('} else if (id === "bfv") {', a); return a < 0 || b < 0 ? '' : appQ.slice(a, b); })();
-  pruefe(zweig.includes('einZeileHtml({ attr: "data-cal-sheet"') && zweig.includes('titel: "Termine abonnieren", aktion: true, chev: false'),
-    'Termine abonnieren: Aktionszeile (grün), öffnet das Abo-Blatt wie bisher');
-  pruefe(zweig.includes('einZeileHtml({ attr: "data-cal-copy-profil"') && zweig.includes('titel: "Link kopieren", chev: false'),
-    'Link kopieren: Zeile mit grauer Kachel, kopiert wie bisher');
-  pruefe(zweig.indexOf('</div>') < zweig.indexOf('<p class="ein-hinweis">Alle Termine der Mannschaft'), 'Hinweis steht unter der Karte');
+  pruefe(zweig.includes('data-cal-open-ein') && zweig.includes('Im iPhone-Kalender abonnieren'), 'iPhone: Abo direkt (webcal), Final 20');
+  pruefe(zweig.includes('data-cal-copy-profil') && zweig.includes('Link kopieren'), 'Link kopieren wie bisher');
+  pruefe(zweig.includes('data-ein="google"') && zweig.includes('data-cal-regen-ein'), 'Anleitung für Google und Link zurücksetzen');
+  pruefe(zweig.includes('Termine erscheinen im Handy-Kalender und bleiben aktuell.'), 'Statuskarte mit Satz');
   pruefe(zweig.includes('data-cal-copied-profil hidden'), 'Rückmeldung nach dem Kopieren bleibt');
-  pruefe(!zweig.includes('btn btn-primary') && !zweig.includes('btn btn-soft'), 'keine Vollknöpfe mehr');
+  pruefe(zweig.includes('btn btn-primary') && zweig.includes('btn btn-soft'), 'Primär- und Sekundärknopf wie in der Vorlage');
   // einZeileHtml: freies Attribut und Aktionsoptik
   const z = E.einZeileHtml({ attr: 'data-cal-sheet', ic: '<svg></svg>', ton: 'gruen', titel: 'Termine abonnieren', aktion: true, chev: false });
   pruefe(/<button class="ein-zeile ein-zeile-aktion" type="button" data-cal-sheet>/.test(z) && !z.includes('ein-chev'), 'einZeileHtml: attr und aktion, ohne Chevron');

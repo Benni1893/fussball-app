@@ -161,12 +161,16 @@ console.log('--- Rechte im UI ---');
   pruefe(/hasAttribute\("data-push-test"\)\) \{\s*\n\s*if \(!Roles\.isAdmin\(\)\) return;/.test(app),
     'Klick auf data-push-test prueft zuerst Roles.isAdmin()');
   // Push-Texte: Einstieg und Ansicht nur fuer Admin.
-  pruefe(/Roles\.isAdmin\(\) \? einZeileHtml\(\{ goto: "pushkatalog"/.test(app), 'Zeile Push-Texte nur fuer Admin');
+  // Seit Final 25: Push-Texte sind eine Unterseite der Einstellungen (#ein=pushtexte, dritte Ebene pushtext).
+  pruefe(/Roles\.isAdmin\(\) \? einZeileHtml\(\{ ein: "pushtexte"/.test(app), 'Zeile Push-Texte nur fuer Admin');
   pruefe(/currentView === "pushkatalog"\) \{ if \(Roles\.isAdmin\(\)\) renderPushKatalog\(\); else renderDashboard\(\); \}/.test(app),
     'Ansicht pushkatalog leitet Nicht-Admins auf die Uebersicht');
-  pruefe(/function renderPushKatalog\(\) \{[\s\S]{0,120}if \(!Roles\.isAdmin\(\)\) \{ renderDashboard\(\); return; \}/.test(app),
-    'renderPushKatalog prueft selbst noch einmal');
-  pruefe(app.split('goto: "pushkatalog"').length - 1 === 1, 'genau ein Einstieg in die Push-Texte');
+  pruefe(/pushtexte:\s+\{ titel: "Push-Texte",\s+darf: \(\) => Roles\.isAdmin\(\) \}/.test(app)
+      && /pushtext:\s+\{ titel: "Push-Text",\s+darf: \(\) => Roles\.isAdmin\(\)/.test(app),
+    'Unterseiten Push-Texte und Push-Text nur fuer Admin (einSeiteErlaubt)');
+  pruefe(/function renderPushKatalog\(\) \{[\s\S]{0,200}if \(Roles\.isAdmin\(\)\) \{ switchView\("einstellungen"\); einOeffnen\("pushtexte"\); return; \}\s*renderDashboard\(\);/.test(app),
+    'alte Ansicht pushkatalog: Admin auf die Unterseite, sonst Uebersicht');
+  pruefe(app.split('ein: "pushtexte"').length - 1 === 1, 'genau ein Einstieg in die Push-Texte');
   const deep = schnitt('  const DEEP_ANSICHTEN = [', '];');
   pruefe(!/pushkatalog/.test(deep), 'pushkatalog ist kein Deep-Link-Ziel');
 }

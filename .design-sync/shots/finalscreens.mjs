@@ -56,6 +56,23 @@ const spielOeffnen = (id, danach) => async (page) => { await zuTrainer(page); aw
 
 const zuKasse = async (page) => { await page.click('#navMore'); await page.waitForTimeout(300); await page.click('#moreKasse'); await page.waitForTimeout(400); };
 
+const zuEinst = async (page) => { await page.click('#navMore'); await page.waitForTimeout(300); await page.click('#moreEinstellungen'); await page.waitForTimeout(400); };
+
+/* Push "aktiv" auf einem iPhone als installierte App nachstellen (nur für die
+   Messung): Berechtigung erteilt, ein Abo vorhanden, Standalone, iPhone-Kennung. */
+const pushAktiv = async (page) => {
+  await page.context().grantPermissions(['notifications']).catch(() => {});
+  await page.addInitScript(() => {
+    const abo = { endpoint: 'https://push.invalid/x', toJSON() { return { endpoint: this.endpoint, keys: { p256dh: 'x', auth: 'y' } }; }, unsubscribe: async () => true };
+    const reg = { pushManager: { getSubscription: async () => abo, subscribe: async () => abo }, showNotification: async () => {} };
+    Object.defineProperty(navigator, 'serviceWorker', { configurable: true, value: { ready: Promise.resolve(reg), register: async () => reg, getRegistration: async () => reg, controller: null, addEventListener() {}, removeEventListener() {} } });
+    window.PushManager = window.PushManager || function () {};
+    Object.defineProperty(navigator, 'standalone', { configurable: true, value: true });
+    Object.defineProperty(navigator, 'userAgent', { configurable: true, value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1' });
+    try { Object.defineProperty(Notification, 'permission', { configurable: true, get: () => 'granted' }); } catch (e) {}
+  });
+};
+
 export const SCREENS = {
   // D3: Zähler „Elf aufstellen“ weiß auf --grad-chip-gold (Vorlage: dunkle Schrift auf Gold, 2,9:1).
   '01 Übersicht': { profil: 'admin', erlaubt: ['"1": farbe'] },
@@ -158,4 +175,38 @@ export const SCREENS = {
     ohneText: ['Optional'], erlaubt: ['"Fr, 2. Okt 2026": w', '"5,00 €": x 291'] },
   '17 Katalog': { profil: 'admin', vorbereitung: klick('[data-view="katalog"]'),
     daten: (d) => { d.katalog.forEach((k) => { if (k.id === 'k5') k.maxBetrag = null; if (k.id === 'k7') k.betrag = 10; }); return d; } },
+  // "App neu laden" ohne Chevron (README der Vorlage: › nur, wenn die Zeile wegführt). Mitgliederzahl aus dem Stand-in.
+  '18 Einstellungen': { profil: 'admin', vorbereitung: zuEinst, ohneText: ['16', 'An', '›'], erlaubt: ['"Aus":', '"Mehr":'],
+    daten: (d) => Object.assign(d, { icalUrl: d.icalUrl || 'https://example.invalid/x.ics' }) },
+  // Push im Stand-in aktiv schalten (Zustand "aktiv"), damit die Schalter erscheinen.
+  // "Aufstellung veröffentlicht" gibt es erst mit eigenem Paket (D6); weitere Kategorien bleiben.
+  '19 Mitteilungen': { profil: 'admin', vorStart: pushAktiv, ohneText: ['Aufstellung veröffentlicht'], vorbereitung: async (page) => { await zuEinst(page); await page.click('[data-ein="mitteilungen"]'); await page.waitForTimeout(500); } },
+  '20 Kalender-Abo': { profil: 'admin', erlaubt: ['"Google übernimmt Änderungen bis zu 24 h später.": w'], vorbereitung: async (page) => { await zuEinst(page); await page.click('[data-ein="kalender"]'); await page.waitForTimeout(500); } },
+  // 28 als Unterseite unter "Kalender abonnieren" (Zurück nennt diese Ebene); Hinweis zur Web-Oberfläche bleibt.
+  // Vorlage setzt gerade Anführungszeichen; die App typografische.
+  'E 28 Blatt · Anleitung Google': { profil: 'admin', ohneText: ['‹ Einstellungen', 'Im Browser, links bei „Weitere Kalender" auf Plus, dann „Per', 'Mit „Kalender hinzufügen" bestätigen.'],
+    erlaubt: ['"Für Google": w', '"In drei Schritten": w'],
+    vorbereitung: async (page) => { await zuEinst(page); await page.click('[data-ein="kalender"]'); await page.waitForTimeout(400); await page.click('[data-ein="google"]'); await page.waitForTimeout(500); } },
+  // Rückennummer statt Position (ausgenommen, Folgepaket); Status und Rückmeldungen bleiben, Abmelden ganz unten.
+  '21 Profil': { profil: 'admin', hoehe: 568, ohneText: ['Position', 'Innenverteidiger', 'bennilauck@gmail.com', '›'], erlaubt: ['"›": y', '"Abmelden": y'],
+    vorbereitung: async (page) => { await zuEinst(page); await page.click('[data-ein="profil"]'); await page.waitForTimeout(500); } },
+  // Ausnahme "Spieltag" gibt es nicht; gezeigt wird der bestehende Schalter "Dringendes zustellen".
+  // Hinweis unter "Nachts stumm" bleibt (Folge nicht sichtbar): Ausnahmen 33 px tiefer.
+  'E 23 Ruhezeiten': { profil: 'admin', vorStart: pushAktiv, ohneText: ['Spieltag', 'Am Spieltag immer zustellen'], versatz: [{ ab: 425, dy: 43 }],
+    erlaubt: ['"Ruhezeiten": w', '"Nachts stumm": w', '"Ausnahmen": w'],
+    vorbereitung: async (page) => { await zuEinst(page); await page.click('[data-ein="ruhezeiten"]'); await page.waitForTimeout(500); } },
+  // Mannschaft = Teamname (eine "Herren 2"-Bezeichnung gibt es nicht); letzter Abgleich aus den Daten.
+  'E 24 Spielplan BFV': { profil: 'admin', ohneText: ['Herren 2'],
+    erlaubt: ['"Spielplan BFV": w', '"Mannschaft": w', '"Verbindung": w', '"Zuletzt abgeglichen heute, 14:30": w'],
+    daten: (d) => Object.assign(d, { icalUrl: 'https://example.invalid/x.ics', icalSyncedAt: '2026-10-05T12:30:00Z' }),
+    vorbereitung: async (page) => { await zuEinst(page); await page.click('[data-ein="bfv"]'); await page.waitForTimeout(500); } },
+  // Namen wie in den Mitteilungen, echte Textvorlagen mit echten Platzhaltern; "Aufstellung" erst mit Paket D6.
+  // "Alle senden" rechts im Titel (bleibt aus der Vorversion).
+  'E 25 Push-Texte': { profil: 'admin', ohneText: ['Neu: {Termin} am {Datum}', 'Erinnerung', 'Noch {Stunden} h bis Meldeschluss', 'Aufstellung', 'Die Elf für {Gegner} steht', '{Strafe} · {Betrag}', '{Betrag} ist eingegangen', '›'],
+    erlaubt: ['"Push-Texte": w', '"Termine": w', '"Strafen": y', '"Neue Strafe": y', '"Zahlung bestätigt": y', '"›": y'],
+    vorbereitung: async (page) => { await zuEinst(page); await page.click('[data-ein="pushtexte"]'); await page.waitForTimeout(700); } },
+  // Version = Build-Kennung (keine Semver); Zeit und Zustände aus dem Messlauf. Gruppe "Hilfe" darunter bleibt.
+  'E 27 Diagnose': { profil: 'admin', vorStart: pushAktiv, ohneText: ['2.14.0', 'heute, 14:58', 'Aktiv'],
+    erlaubt: ['"Diagnose": w', '"App": w', '"Gerät": w'],
+    vorbereitung: async (page) => { await zuEinst(page); await page.click('[data-ein="diagnose"]'); await page.waitForTimeout(500); } },
 };

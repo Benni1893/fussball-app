@@ -285,7 +285,7 @@
               "global": true
             },
             {
-              "art": "ein-tat",
+              "art": "ein",
               "wert": "diagnose",
               "text": "Diagnose›",
               "global": false
@@ -297,42 +297,12 @@
           "nameQuelle": "ueberschrift"
         },
         {
-          "schluessel": "dialog:abmelden",
-          "ansicht": "dialog",
-          "unter": null,
-          "oben": [],
-          "ueberschrift": null,
-          "dialog": {
-            "typ": "confirm",
-            "text": "Abmelden?\n\nDu wirst auf diesem Gerät abgemeldet."
-          },
-          "tiefe": 2,
-          "pfad": [
-            {
-              "art": "zahnrad",
-              "wert": null,
-              "text": "Einstellungen öffnen",
-              "global": true
-            },
-            {
-              "art": "logout",
-              "wert": null,
-              "text": "Abmelden",
-              "global": false
-            }
-          ],
-          "bild": null,
-          "strang": "einstellungen",
-          "name": "Abmelden bestätigen",
-          "nameQuelle": "liste"
-        },
-        {
           "schluessel": "einstellungen/kalender",
           "ansicht": "einstellungen",
           "unter": "kalender",
           "oben": [],
-          "ueberschrift": "Kalender-Abo",
-          "titel": "Kalender-Abo",
+          "ueberschrift": "Kalender abonnieren",
+          "titel": "Kalender abonnieren",
           "tiefe": 2,
           "pfad": [
             {
@@ -344,13 +314,13 @@
             {
               "art": "ein",
               "wert": "kalender",
-              "text": "Kalender-Abo›",
+              "text": "Kalender abonnierenAus›",
               "global": false
             }
           ],
           "bild": "bilder/spieler/einstellungen__kalender.png",
           "strang": "einstellungen",
-          "name": "Kalender-Abo",
+          "name": "Kalender abonnieren",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -381,6 +351,33 @@
           "nameQuelle": "ueberschrift"
         },
         {
+          "schluessel": "einstellungen/profil",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [],
+          "ueberschrift": null,
+          "titel": null,
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Spieler · Profil ansehen ›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/spieler/einstellungen__profil.png",
+          "strang": "einstellungen",
+          "name": "Profil",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "einstellungen/ruhezeiten",
           "ansicht": "einstellungen",
           "unter": "ruhezeiten",
@@ -398,7 +395,7 @@
             {
               "art": "ein",
               "wert": "ruhezeiten",
-              "text": "Ruhezeiten22:00 bis 08:00›",
+              "text": "Ruhezeiten22 bis 8 Uhr›",
               "global": false
             }
           ],
@@ -466,33 +463,6 @@
           "nameQuelle": "liste"
         },
         {
-          "schluessel": "profil",
-          "ansicht": "profil",
-          "unter": null,
-          "oben": [],
-          "ueberschrift": "Profil",
-          "titel": "Profil",
-          "tiefe": 2,
-          "pfad": [
-            {
-              "art": "zahnrad",
-              "wert": null,
-              "text": "Einstellungen öffnen",
-              "global": true
-            },
-            {
-              "art": "view-jump",
-              "wert": "profil",
-              "text": "FO Felix Oberhaus Spieler spieler@landkarte.exam",
-              "global": false
-            }
-          ],
-          "bild": "bilder/spieler/profil.png",
-          "strang": "profil",
-          "name": "Profil",
-          "nameQuelle": "ueberschrift"
-        },
-        {
           "schluessel": "strafen+zmBl",
           "ansicht": "strafen",
           "unter": null,
@@ -522,14 +492,48 @@
           "nameQuelle": "ueberschrift"
         },
         {
-          "schluessel": "einstellungen/kalender+calSheet",
-          "ansicht": "einstellungen",
-          "unter": "kalender",
-          "oben": [
-            "calSheet"
+          "schluessel": "dialog:abmelden",
+          "ansicht": "dialog",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": null,
+          "dialog": {
+            "typ": "confirm",
+            "text": "Abmelden?\n\nDu wirst auf diesem Gerät abgemeldet."
+          },
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Spieler · Profil ansehen ›",
+              "global": false
+            },
+            {
+              "art": "logout",
+              "wert": null,
+              "text": "Abmelden",
+              "global": false
+            }
           ],
-          "ueberschrift": "Kalender-Abo",
-          "titel": "Termine abonnieren",
+          "bild": null,
+          "strang": "einstellungen",
+          "name": "Abmelden bestätigen",
+          "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "einstellungen/google",
+          "ansicht": "einstellungen",
+          "unter": "google",
+          "oben": [],
+          "ueberschrift": "Für Google",
+          "titel": "Für Google",
           "tiefe": 3,
           "pfad": [
             {
@@ -541,20 +545,55 @@
             {
               "art": "ein",
               "wert": "kalender",
-              "text": "Kalender-Abo›",
+              "text": "Kalender abonnierenAus›",
               "global": false
             },
             {
-              "art": "cal-sheet",
-              "wert": null,
-              "text": "Termine abonnieren",
+              "art": "ein",
+              "wert": "google",
+              "text": "Anleitung ›",
               "global": false
             }
           ],
-          "bild": "bilder/spieler/einstellungen__kalender--calSheet.png",
+          "bild": "bilder/spieler/einstellungen__google.png",
           "strang": "einstellungen",
-          "name": "Termine abonnieren",
+          "name": "Für Google",
           "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "einstellungen/profil+pwBlatt",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [
+            "pwBlatt"
+          ],
+          "ueberschrift": null,
+          "titel": null,
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Spieler · Profil ansehen ›",
+              "global": false
+            },
+            {
+              "art": "pw-aendern",
+              "wert": null,
+              "text": "PasswortÄndern›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/spieler/einstellungen__profil--pwBlatt.png",
+          "strang": "einstellungen",
+          "name": "Neues Passwort",
+          "nameQuelle": "liste"
         }
       ],
       "kanten": [
@@ -616,7 +655,7 @@
         },
         {
           "von": "einstellungen",
-          "art": "ein-tat",
+          "art": "ein",
           "wert": "diagnose",
           "text": "Diagnose›",
           "nach": "diagnose"
@@ -625,7 +664,7 @@
           "von": "einstellungen",
           "art": "ein",
           "wert": "kalender",
-          "text": "Kalender-Abo›",
+          "text": "Kalender abonnierenAus›",
           "nach": "einstellungen/kalender"
         },
         {
@@ -638,30 +677,37 @@
         {
           "von": "einstellungen",
           "art": "ein",
-          "wert": "ruhezeiten",
-          "text": "Ruhezeiten22:00 bis 08:00›",
-          "nach": "einstellungen/ruhezeiten"
+          "wert": "profil",
+          "text": "FO Felix Oberhaus Spieler · Profil ansehen ›",
+          "nach": "einstellungen/profil"
         },
         {
           "von": "einstellungen",
+          "art": "ein",
+          "wert": "ruhezeiten",
+          "text": "Ruhezeiten22 bis 8 Uhr›",
+          "nach": "einstellungen/ruhezeiten"
+        },
+        {
+          "von": "einstellungen/kalender",
+          "art": "ein",
+          "wert": "google",
+          "text": "Anleitung ›",
+          "nach": "einstellungen/google"
+        },
+        {
+          "von": "einstellungen/profil",
           "art": "logout",
           "wert": null,
           "text": "Abmelden",
           "nach": "dialog:abmelden"
         },
         {
-          "von": "einstellungen",
-          "art": "view-jump",
-          "wert": "profil",
-          "text": "FO Felix Oberhaus Spieler spieler@landkarte.exam",
-          "nach": "profil"
-        },
-        {
-          "von": "einstellungen/kalender",
-          "art": "cal-sheet",
+          "von": "einstellungen/profil",
+          "art": "pw-aendern",
           "wert": null,
-          "text": "Termine abonnieren",
-          "nach": "einstellungen/kalender+calSheet"
+          "text": "PasswortÄndern›",
+          "nach": "einstellungen/profil+pwBlatt"
         },
         {
           "von": "einstellungen/ruhezeiten",
@@ -701,6 +747,12 @@
           "text": "Übersicht"
         },
         {
+          "von": "diagnose",
+          "art": "ein-tat",
+          "wert": "diagnose",
+          "text": "Protokoll dieses Starts›"
+        },
+        {
           "von": "strafen",
           "art": "kseg",
           "wert": "ich",
@@ -723,9 +775,9 @@
         "kseg",
         "logout",
         "paid-self",
+        "pw-aendern",
         "tab",
         "tkmenu",
-        "view-jump",
         "zahnrad"
       ],
       "schreibaufrufe": []
@@ -1080,7 +1132,7 @@
               "global": true
             },
             {
-              "art": "ein-tat",
+              "art": "ein",
               "wert": "diagnose",
               "text": "Diagnose›",
               "global": false
@@ -1092,42 +1144,12 @@
           "nameQuelle": "ueberschrift"
         },
         {
-          "schluessel": "dialog:abmelden",
-          "ansicht": "dialog",
-          "unter": null,
-          "oben": [],
-          "ueberschrift": null,
-          "dialog": {
-            "typ": "confirm",
-            "text": "Abmelden?\n\nDu wirst auf diesem Gerät abgemeldet."
-          },
-          "tiefe": 2,
-          "pfad": [
-            {
-              "art": "zahnrad",
-              "wert": null,
-              "text": "Einstellungen öffnen",
-              "global": true
-            },
-            {
-              "art": "logout",
-              "wert": null,
-              "text": "Abmelden",
-              "global": false
-            }
-          ],
-          "bild": null,
-          "strang": "einstellungen",
-          "name": "Abmelden bestätigen",
-          "nameQuelle": "liste"
-        },
-        {
           "schluessel": "einstellungen/kalender",
           "ansicht": "einstellungen",
           "unter": "kalender",
           "oben": [],
-          "ueberschrift": "Kalender-Abo",
-          "titel": "Kalender-Abo",
+          "ueberschrift": "Kalender abonnieren",
+          "titel": "Kalender abonnieren",
           "tiefe": 2,
           "pfad": [
             {
@@ -1139,13 +1161,13 @@
             {
               "art": "ein",
               "wert": "kalender",
-              "text": "Kalender-Abo›",
+              "text": "Kalender abonnierenAus›",
               "global": false
             }
           ],
           "bild": "bilder/trainer/einstellungen__kalender.png",
           "strang": "einstellungen",
-          "name": "Kalender-Abo",
+          "name": "Kalender abonnieren",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -1176,6 +1198,33 @@
           "nameQuelle": "ueberschrift"
         },
         {
+          "schluessel": "einstellungen/profil",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [],
+          "ueberschrift": null,
+          "titel": null,
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Trainer · Spieler · Profil ans",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/einstellungen__profil.png",
+          "strang": "einstellungen",
+          "name": "Profil",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "einstellungen/ruhezeiten",
           "ansicht": "einstellungen",
           "unter": "ruhezeiten",
@@ -1193,7 +1242,7 @@
             {
               "art": "ein",
               "wert": "ruhezeiten",
-              "text": "Ruhezeiten22:00 bis 08:00›",
+              "text": "Ruhezeiten22 bis 8 Uhr›",
               "global": false
             }
           ],
@@ -1344,33 +1393,6 @@
           "strang": "kalender",
           "name": "Termin-Menü",
           "nameQuelle": "liste"
-        },
-        {
-          "schluessel": "profil",
-          "ansicht": "profil",
-          "unter": null,
-          "oben": [],
-          "ueberschrift": "Profil",
-          "titel": "Profil",
-          "tiefe": 2,
-          "pfad": [
-            {
-              "art": "zahnrad",
-              "wert": null,
-              "text": "Einstellungen öffnen",
-              "global": true
-            },
-            {
-              "art": "view-jump",
-              "wert": "profil",
-              "text": "FO Felix Oberhaus Trainer · Spieler trainer@land",
-              "global": false
-            }
-          ],
-          "bild": "bilder/trainer/profil.png",
-          "strang": "profil",
-          "name": "Profil",
-          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "strafen+zmBl",
@@ -1547,14 +1569,48 @@
           "nameQuelle": "liste"
         },
         {
-          "schluessel": "einstellungen/kalender+calSheet",
-          "ansicht": "einstellungen",
-          "unter": "kalender",
-          "oben": [
-            "calSheet"
+          "schluessel": "dialog:abmelden",
+          "ansicht": "dialog",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": null,
+          "dialog": {
+            "typ": "confirm",
+            "text": "Abmelden?\n\nDu wirst auf diesem Gerät abgemeldet."
+          },
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Trainer · Spieler · Profil ans",
+              "global": false
+            },
+            {
+              "art": "logout",
+              "wert": null,
+              "text": "Abmelden",
+              "global": false
+            }
           ],
-          "ueberschrift": "Kalender-Abo",
-          "titel": "Termine abonnieren",
+          "bild": null,
+          "strang": "einstellungen",
+          "name": "Abmelden bestätigen",
+          "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "einstellungen/google",
+          "ansicht": "einstellungen",
+          "unter": "google",
+          "oben": [],
+          "ueberschrift": "Für Google",
+          "titel": "Für Google",
           "tiefe": 3,
           "pfad": [
             {
@@ -1566,20 +1622,55 @@
             {
               "art": "ein",
               "wert": "kalender",
-              "text": "Kalender-Abo›",
+              "text": "Kalender abonnierenAus›",
               "global": false
             },
             {
-              "art": "cal-sheet",
-              "wert": null,
-              "text": "Termine abonnieren",
+              "art": "ein",
+              "wert": "google",
+              "text": "Anleitung ›",
               "global": false
             }
           ],
-          "bild": "bilder/trainer/einstellungen__kalender--calSheet.png",
+          "bild": "bilder/trainer/einstellungen__google.png",
           "strang": "einstellungen",
-          "name": "Termine abonnieren",
+          "name": "Für Google",
           "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "einstellungen/profil+pwBlatt",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [
+            "pwBlatt"
+          ],
+          "ueberschrift": null,
+          "titel": null,
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Trainer · Spieler · Profil ans",
+              "global": false
+            },
+            {
+              "art": "pw-aendern",
+              "wert": null,
+              "text": "PasswortÄndern›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/einstellungen__profil--pwBlatt.png",
+          "strang": "einstellungen",
+          "name": "Neues Passwort",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "kader+statusBlatt",
@@ -1911,7 +2002,7 @@
         },
         {
           "von": "einstellungen",
-          "art": "ein-tat",
+          "art": "ein",
           "wert": "diagnose",
           "text": "Diagnose›",
           "nach": "diagnose"
@@ -1920,7 +2011,7 @@
           "von": "einstellungen",
           "art": "ein",
           "wert": "kalender",
-          "text": "Kalender-Abo›",
+          "text": "Kalender abonnierenAus›",
           "nach": "einstellungen/kalender"
         },
         {
@@ -1933,8 +2024,15 @@
         {
           "von": "einstellungen",
           "art": "ein",
+          "wert": "profil",
+          "text": "FO Felix Oberhaus Trainer · Spieler · Profil ans",
+          "nach": "einstellungen/profil"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
           "wert": "ruhezeiten",
-          "text": "Ruhezeiten22:00 bis 08:00›",
+          "text": "Ruhezeiten22 bis 8 Uhr›",
           "nach": "einstellungen/ruhezeiten"
         },
         {
@@ -1945,25 +2043,25 @@
           "nach": "katalog"
         },
         {
-          "von": "einstellungen",
+          "von": "einstellungen/kalender",
+          "art": "ein",
+          "wert": "google",
+          "text": "Anleitung ›",
+          "nach": "einstellungen/google"
+        },
+        {
+          "von": "einstellungen/profil",
           "art": "logout",
           "wert": null,
           "text": "Abmelden",
           "nach": "dialog:abmelden"
         },
         {
-          "von": "einstellungen",
-          "art": "view-jump",
-          "wert": "profil",
-          "text": "FO Felix Oberhaus Trainer · Spieler trainer@land",
-          "nach": "profil"
-        },
-        {
-          "von": "einstellungen/kalender",
-          "art": "cal-sheet",
+          "von": "einstellungen/profil",
+          "art": "pw-aendern",
           "wert": null,
-          "text": "Termine abonnieren",
-          "nach": "einstellungen/kalender+calSheet"
+          "text": "PasswortÄndern›",
+          "nach": "einstellungen/profil+pwBlatt"
         },
         {
           "von": "einstellungen/ruhezeiten",
@@ -2128,6 +2226,12 @@
           "text": "Übersicht"
         },
         {
+          "von": "diagnose",
+          "art": "ein-tat",
+          "wert": "diagnose",
+          "text": "Protokoll dieses Starts›"
+        },
+        {
           "von": "strafen",
           "art": "kseg",
           "wert": "ich",
@@ -2159,6 +2263,7 @@
         "logout",
         "nav",
         "paid-self",
+        "pw-aendern",
         "rs-push",
         "rs-teilen",
         "rsvp-sheet",
@@ -2174,7 +2279,6 @@
         "tvmoreform",
         "tvslot",
         "tvtplmenu",
-        "view-jump",
         "zahnrad"
       ],
       "schreibaufrufe": []
@@ -2367,7 +2471,7 @@
               "global": true
             },
             {
-              "art": "ein-tat",
+              "art": "ein",
               "wert": "diagnose",
               "text": "Diagnose›",
               "global": false
@@ -2379,42 +2483,12 @@
           "nameQuelle": "ueberschrift"
         },
         {
-          "schluessel": "dialog:abmelden",
-          "ansicht": "dialog",
-          "unter": null,
-          "oben": [],
-          "ueberschrift": null,
-          "dialog": {
-            "typ": "confirm",
-            "text": "Abmelden?\n\nDu wirst auf diesem Gerät abgemeldet."
-          },
-          "tiefe": 2,
-          "pfad": [
-            {
-              "art": "zahnrad",
-              "wert": null,
-              "text": "Einstellungen öffnen",
-              "global": true
-            },
-            {
-              "art": "logout",
-              "wert": null,
-              "text": "Abmelden",
-              "global": false
-            }
-          ],
-          "bild": null,
-          "strang": "einstellungen",
-          "name": "Abmelden bestätigen",
-          "nameQuelle": "liste"
-        },
-        {
           "schluessel": "einstellungen/kalender",
           "ansicht": "einstellungen",
           "unter": "kalender",
           "oben": [],
-          "ueberschrift": "Kalender-Abo",
-          "titel": "Kalender-Abo",
+          "ueberschrift": "Kalender abonnieren",
+          "titel": "Kalender abonnieren",
           "tiefe": 2,
           "pfad": [
             {
@@ -2426,13 +2500,13 @@
             {
               "art": "ein",
               "wert": "kalender",
-              "text": "Kalender-Abo›",
+              "text": "Kalender abonnierenAus›",
               "global": false
             }
           ],
           "bild": "bilder/kassenwart/einstellungen__kalender.png",
           "strang": "einstellungen",
-          "name": "Kalender-Abo",
+          "name": "Kalender abonnieren",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -2463,6 +2537,33 @@
           "nameQuelle": "ueberschrift"
         },
         {
+          "schluessel": "einstellungen/profil",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [],
+          "ueberschrift": null,
+          "titel": null,
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Kassenwart · Spieler · Profil ",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/einstellungen__profil.png",
+          "strang": "einstellungen",
+          "name": "Profil",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "einstellungen/ruhezeiten",
           "ansicht": "einstellungen",
           "unter": "ruhezeiten",
@@ -2480,7 +2581,7 @@
             {
               "art": "ein",
               "wert": "ruhezeiten",
-              "text": "Ruhezeiten22:00 bis 08:00›",
+              "text": "Ruhezeiten22 bis 8 Uhr›",
               "global": false
             }
           ],
@@ -2689,33 +2790,6 @@
           "nameQuelle": "ueberschrift"
         },
         {
-          "schluessel": "profil",
-          "ansicht": "profil",
-          "unter": null,
-          "oben": [],
-          "ueberschrift": "Profil",
-          "titel": "Profil",
-          "tiefe": 2,
-          "pfad": [
-            {
-              "art": "zahnrad",
-              "wert": null,
-              "text": "Einstellungen öffnen",
-              "global": true
-            },
-            {
-              "art": "view-jump",
-              "wert": "profil",
-              "text": "FO Felix Oberhaus Kassenwart · Spieler kassenwar",
-              "global": false
-            }
-          ],
-          "bild": "bilder/kassenwart/profil.png",
-          "strang": "profil",
-          "name": "Profil",
-          "nameQuelle": "ueberschrift"
-        },
-        {
           "schluessel": "strafen+zmBl",
           "ansicht": "strafen",
           "unter": null,
@@ -2745,14 +2819,48 @@
           "nameQuelle": "ueberschrift"
         },
         {
-          "schluessel": "einstellungen/kalender+calSheet",
-          "ansicht": "einstellungen",
-          "unter": "kalender",
-          "oben": [
-            "calSheet"
+          "schluessel": "dialog:abmelden",
+          "ansicht": "dialog",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": null,
+          "dialog": {
+            "typ": "confirm",
+            "text": "Abmelden?\n\nDu wirst auf diesem Gerät abgemeldet."
+          },
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Kassenwart · Spieler · Profil ",
+              "global": false
+            },
+            {
+              "art": "logout",
+              "wert": null,
+              "text": "Abmelden",
+              "global": false
+            }
           ],
-          "ueberschrift": "Kalender-Abo",
-          "titel": "Termine abonnieren",
+          "bild": null,
+          "strang": "einstellungen",
+          "name": "Abmelden bestätigen",
+          "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "einstellungen/google",
+          "ansicht": "einstellungen",
+          "unter": "google",
+          "oben": [],
+          "ueberschrift": "Für Google",
+          "titel": "Für Google",
           "tiefe": 3,
           "pfad": [
             {
@@ -2764,20 +2872,55 @@
             {
               "art": "ein",
               "wert": "kalender",
-              "text": "Kalender-Abo›",
+              "text": "Kalender abonnierenAus›",
               "global": false
             },
             {
-              "art": "cal-sheet",
-              "wert": null,
-              "text": "Termine abonnieren",
+              "art": "ein",
+              "wert": "google",
+              "text": "Anleitung ›",
               "global": false
             }
           ],
-          "bild": "bilder/kassenwart/einstellungen__kalender--calSheet.png",
+          "bild": "bilder/kassenwart/einstellungen__google.png",
           "strang": "einstellungen",
-          "name": "Termine abonnieren",
+          "name": "Für Google",
           "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "einstellungen/profil+pwBlatt",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [
+            "pwBlatt"
+          ],
+          "ueberschrift": null,
+          "titel": null,
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Kassenwart · Spieler · Profil ",
+              "global": false
+            },
+            {
+              "art": "pw-aendern",
+              "wert": null,
+              "text": "PasswortÄndern›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/einstellungen__profil--pwBlatt.png",
+          "strang": "einstellungen",
+          "name": "Neues Passwort",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "kasse/strafe-katalog+ksSeite+ksSheet",
@@ -2896,7 +3039,7 @@
         },
         {
           "von": "einstellungen",
-          "art": "ein-tat",
+          "art": "ein",
           "wert": "diagnose",
           "text": "Diagnose›",
           "nach": "diagnose"
@@ -2905,7 +3048,7 @@
           "von": "einstellungen",
           "art": "ein",
           "wert": "kalender",
-          "text": "Kalender-Abo›",
+          "text": "Kalender abonnierenAus›",
           "nach": "einstellungen/kalender"
         },
         {
@@ -2918,8 +3061,15 @@
         {
           "von": "einstellungen",
           "art": "ein",
+          "wert": "profil",
+          "text": "FO Felix Oberhaus Kassenwart · Spieler · Profil ",
+          "nach": "einstellungen/profil"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
           "wert": "ruhezeiten",
-          "text": "Ruhezeiten22:00 bis 08:00›",
+          "text": "Ruhezeiten22 bis 8 Uhr›",
           "nach": "einstellungen/ruhezeiten"
         },
         {
@@ -2930,25 +3080,25 @@
           "nach": "katalog"
         },
         {
-          "von": "einstellungen",
+          "von": "einstellungen/kalender",
+          "art": "ein",
+          "wert": "google",
+          "text": "Anleitung ›",
+          "nach": "einstellungen/google"
+        },
+        {
+          "von": "einstellungen/profil",
           "art": "logout",
           "wert": null,
           "text": "Abmelden",
           "nach": "dialog:abmelden"
         },
         {
-          "von": "einstellungen",
-          "art": "view-jump",
-          "wert": "profil",
-          "text": "FO Felix Oberhaus Kassenwart · Spieler kassenwar",
-          "nach": "profil"
-        },
-        {
-          "von": "einstellungen/kalender",
-          "art": "cal-sheet",
+          "von": "einstellungen/profil",
+          "art": "pw-aendern",
           "wert": null,
-          "text": "Termine abonnieren",
-          "nach": "einstellungen/kalender+calSheet"
+          "text": "PasswortÄndern›",
+          "nach": "einstellungen/profil+pwBlatt"
         },
         {
           "von": "einstellungen/ruhezeiten",
@@ -3100,6 +3250,12 @@
           "text": "Übersicht"
         },
         {
+          "von": "diagnose",
+          "art": "ein-tat",
+          "wert": "diagnose",
+          "text": "Protokoll dieses Starts›"
+        },
+        {
           "von": "kasse/bezahlt",
           "art": "kstab",
           "wert": "bezahlt",
@@ -3149,11 +3305,11 @@
         "logout",
         "nav",
         "paid-self",
+        "pw-aendern",
         "tab",
         "tab5",
         "task-pay",
         "tkmenu",
-        "view-jump",
         "zahnrad"
       ],
       "schreibaufrufe": []
@@ -3532,7 +3688,7 @@
               "global": true
             },
             {
-              "art": "ein-tat",
+              "art": "ein",
               "wert": "diagnose",
               "text": "Diagnose›",
               "global": false
@@ -3544,42 +3700,12 @@
           "nameQuelle": "ueberschrift"
         },
         {
-          "schluessel": "dialog:abmelden",
-          "ansicht": "dialog",
-          "unter": null,
-          "oben": [],
-          "ueberschrift": null,
-          "dialog": {
-            "typ": "confirm",
-            "text": "Abmelden?\n\nDu wirst auf diesem Gerät abgemeldet."
-          },
-          "tiefe": 2,
-          "pfad": [
-            {
-              "art": "zahnrad",
-              "wert": null,
-              "text": "Einstellungen öffnen",
-              "global": true
-            },
-            {
-              "art": "logout",
-              "wert": null,
-              "text": "Abmelden",
-              "global": false
-            }
-          ],
-          "bild": null,
-          "strang": "einstellungen",
-          "name": "Abmelden bestätigen",
-          "nameQuelle": "liste"
-        },
-        {
           "schluessel": "einstellungen/kalender",
           "ansicht": "einstellungen",
           "unter": "kalender",
           "oben": [],
-          "ueberschrift": "Kalender-Abo",
-          "titel": "Kalender-Abo",
+          "ueberschrift": "Kalender abonnieren",
+          "titel": "Kalender abonnieren",
           "tiefe": 2,
           "pfad": [
             {
@@ -3591,13 +3717,13 @@
             {
               "art": "ein",
               "wert": "kalender",
-              "text": "Kalender-Abo›",
+              "text": "Kalender abonnierenAus›",
               "global": false
             }
           ],
           "bild": "bilder/trainerkassenwart/einstellungen__kalender.png",
           "strang": "einstellungen",
-          "name": "Kalender-Abo",
+          "name": "Kalender abonnieren",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -3628,6 +3754,33 @@
           "nameQuelle": "ueberschrift"
         },
         {
+          "schluessel": "einstellungen/profil",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [],
+          "ueberschrift": null,
+          "titel": null,
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Trainer · Kassenwart · Spieler",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/einstellungen__profil.png",
+          "strang": "einstellungen",
+          "name": "Profil",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "einstellungen/ruhezeiten",
           "ansicht": "einstellungen",
           "unter": "ruhezeiten",
@@ -3645,7 +3798,7 @@
             {
               "art": "ein",
               "wert": "ruhezeiten",
-              "text": "Ruhezeiten22:00 bis 08:00›",
+              "text": "Ruhezeiten22 bis 8 Uhr›",
               "global": false
             }
           ],
@@ -4109,14 +4262,48 @@
           "nameQuelle": "liste"
         },
         {
-          "schluessel": "einstellungen/kalender+calSheet",
-          "ansicht": "einstellungen",
-          "unter": "kalender",
-          "oben": [
-            "calSheet"
+          "schluessel": "dialog:abmelden",
+          "ansicht": "dialog",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": null,
+          "dialog": {
+            "typ": "confirm",
+            "text": "Abmelden?\n\nDu wirst auf diesem Gerät abgemeldet."
+          },
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Trainer",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "profil",
+              "text": "Profil",
+              "global": false
+            },
+            {
+              "art": "logout",
+              "wert": null,
+              "text": "Abmelden",
+              "global": false
+            }
           ],
-          "ueberschrift": "Kalender-Abo",
-          "titel": "Termine abonnieren",
+          "bild": null,
+          "strang": "profil",
+          "name": "Abmelden bestätigen",
+          "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "einstellungen/google",
+          "ansicht": "einstellungen",
+          "unter": "google",
+          "oben": [],
+          "ueberschrift": "Für Google",
+          "titel": "Für Google",
           "tiefe": 3,
           "pfad": [
             {
@@ -4128,20 +4315,55 @@
             {
               "art": "ein",
               "wert": "kalender",
-              "text": "Kalender-Abo›",
+              "text": "Kalender abonnierenAus›",
               "global": false
             },
             {
-              "art": "cal-sheet",
-              "wert": null,
-              "text": "Termine abonnieren",
+              "art": "ein",
+              "wert": "google",
+              "text": "Anleitung ›",
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/einstellungen__kalender--calSheet.png",
+          "bild": "bilder/trainerkassenwart/einstellungen__google.png",
           "strang": "einstellungen",
-          "name": "Termine abonnieren",
+          "name": "Für Google",
           "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "einstellungen/profil+pwBlatt",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [
+            "pwBlatt"
+          ],
+          "ueberschrift": null,
+          "titel": null,
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Trainer · Kassenwart · Spieler",
+              "global": false
+            },
+            {
+              "art": "pw-aendern",
+              "wert": null,
+              "text": "PasswortÄndern›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/einstellungen__profil--pwBlatt.png",
+          "strang": "einstellungen",
+          "name": "Neues Passwort",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "kader+statusBlatt",
@@ -4320,6 +4542,41 @@
           "strang": "kasse",
           "name": "Spieler auswählen",
           "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "profil+pwBlatt",
+          "ansicht": "profil",
+          "unter": null,
+          "oben": [
+            "pwBlatt"
+          ],
+          "ueberschrift": "Profil",
+          "titel": null,
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Trainer",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "profil",
+              "text": "Profil",
+              "global": false
+            },
+            {
+              "art": "pw-aendern",
+              "wert": null,
+              "text": "PasswortÄndern›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/profil--pwBlatt.png",
+          "strang": "profil",
+          "name": "Neues Passwort",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "trainer+rsvpSheet",
@@ -4633,7 +4890,7 @@
         },
         {
           "von": "einstellungen",
-          "art": "ein-tat",
+          "art": "ein",
           "wert": "diagnose",
           "text": "Diagnose›",
           "nach": "diagnose"
@@ -4642,7 +4899,7 @@
           "von": "einstellungen",
           "art": "ein",
           "wert": "kalender",
-          "text": "Kalender-Abo›",
+          "text": "Kalender abonnierenAus›",
           "nach": "einstellungen/kalender"
         },
         {
@@ -4655,8 +4912,15 @@
         {
           "von": "einstellungen",
           "art": "ein",
+          "wert": "profil",
+          "text": "FO Felix Oberhaus Trainer · Kassenwart · Spieler",
+          "nach": "einstellungen/profil"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
           "wert": "ruhezeiten",
-          "text": "Ruhezeiten22:00 bis 08:00›",
+          "text": "Ruhezeiten22 bis 8 Uhr›",
           "nach": "einstellungen/ruhezeiten"
         },
         {
@@ -4667,25 +4931,25 @@
           "nach": "katalog"
         },
         {
-          "von": "einstellungen",
+          "von": "einstellungen/kalender",
+          "art": "ein",
+          "wert": "google",
+          "text": "Anleitung ›",
+          "nach": "einstellungen/google"
+        },
+        {
+          "von": "einstellungen/profil",
           "art": "logout",
           "wert": null,
           "text": "Abmelden",
           "nach": "dialog:abmelden"
         },
         {
-          "von": "einstellungen",
-          "art": "view-jump",
-          "wert": "profil",
-          "text": "FO Felix Oberhaus Trainer · Kassenwart · Spieler",
-          "nach": "profil"
-        },
-        {
-          "von": "einstellungen/kalender",
-          "art": "cal-sheet",
+          "von": "einstellungen/profil",
+          "art": "pw-aendern",
           "wert": null,
-          "text": "Termine abonnieren",
-          "nach": "einstellungen/kalender+calSheet"
+          "text": "PasswortÄndern›",
+          "nach": "einstellungen/profil+pwBlatt"
         },
         {
           "von": "einstellungen/ruhezeiten",
@@ -4877,6 +5141,20 @@
           "nach": "katalog+katBlatt"
         },
         {
+          "von": "profil",
+          "art": "logout",
+          "wert": null,
+          "text": "Abmelden",
+          "nach": "dialog:abmelden"
+        },
+        {
+          "von": "profil",
+          "art": "pw-aendern",
+          "wert": null,
+          "text": "PasswortÄndern›",
+          "nach": "profil+pwBlatt"
+        },
+        {
           "von": "strafen",
           "art": "paid-self",
           "wert": null,
@@ -4962,6 +5240,12 @@
           "text": "Übersicht"
         },
         {
+          "von": "diagnose",
+          "art": "ein-tat",
+          "wert": "diagnose",
+          "text": "Protokoll dieses Starts›"
+        },
+        {
           "von": "kasse/bezahlt",
           "art": "kstab",
           "wert": "bezahlt",
@@ -5020,6 +5304,7 @@
         "mehr",
         "nav",
         "paid-self",
+        "pw-aendern",
         "rs-push",
         "rs-teilen",
         "rsvp-sheet",
@@ -5036,7 +5321,6 @@
         "tvmoreform",
         "tvslot",
         "tvtplmenu",
-        "view-jump",
         "zahnrad"
       ],
       "schreibaufrufe": []
@@ -5414,7 +5698,7 @@
               "global": true
             },
             {
-              "art": "ein-tat",
+              "art": "ein",
               "wert": "diagnose",
               "text": "Diagnose›",
               "global": false
@@ -5426,42 +5710,12 @@
           "nameQuelle": "ueberschrift"
         },
         {
-          "schluessel": "dialog:abmelden",
-          "ansicht": "dialog",
-          "unter": null,
-          "oben": [],
-          "ueberschrift": null,
-          "dialog": {
-            "typ": "confirm",
-            "text": "Abmelden?\n\nDu wirst auf diesem Gerät abgemeldet."
-          },
-          "tiefe": 2,
-          "pfad": [
-            {
-              "art": "zahnrad",
-              "wert": null,
-              "text": "Einstellungen öffnen",
-              "global": true
-            },
-            {
-              "art": "logout",
-              "wert": null,
-              "text": "Abmelden",
-              "global": false
-            }
-          ],
-          "bild": null,
-          "strang": "einstellungen",
-          "name": "Abmelden bestätigen",
-          "nameQuelle": "liste"
-        },
-        {
           "schluessel": "einstellungen/bfv",
           "ansicht": "einstellungen",
           "unter": "bfv",
           "oben": [],
-          "ueberschrift": "Spielplan (BFV)",
-          "titel": "Spielplan (BFV)",
+          "ueberschrift": "Spielplan BFV",
+          "titel": "Spielplan BFV",
           "tiefe": 2,
           "pfad": [
             {
@@ -5473,13 +5727,13 @@
             {
               "art": "ein",
               "wert": "bfv",
-              "text": "Spielplan (BFV)SV Musterhausen 2›",
+              "text": "Spielplan BFVVerbunden›",
               "global": false
             }
           ],
           "bild": "bilder/admin/einstellungen__bfv.png",
           "strang": "einstellungen",
-          "name": "Spielplan (BFV)",
+          "name": "Spielplan BFV",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -5487,8 +5741,8 @@
           "ansicht": "einstellungen",
           "unter": "kalender",
           "oben": [],
-          "ueberschrift": "Kalender-Abo",
-          "titel": "Kalender-Abo",
+          "ueberschrift": "Kalender abonnieren",
+          "titel": "Kalender abonnieren",
           "tiefe": 2,
           "pfad": [
             {
@@ -5500,13 +5754,13 @@
             {
               "art": "ein",
               "wert": "kalender",
-              "text": "Kalender-Abo›",
+              "text": "Kalender abonnierenAus›",
               "global": false
             }
           ],
           "bild": "bilder/admin/einstellungen__kalender.png",
           "strang": "einstellungen",
-          "name": "Kalender-Abo",
+          "name": "Kalender abonnieren",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -5537,6 +5791,60 @@
           "nameQuelle": "ueberschrift"
         },
         {
+          "schluessel": "einstellungen/profil",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [],
+          "ueberschrift": null,
+          "titel": null,
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Admin · Spieler · Profil anseh",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/einstellungen__profil.png",
+          "strang": "einstellungen",
+          "name": "Profil",
+          "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "einstellungen/pushtexte",
+          "ansicht": "einstellungen",
+          "unter": "pushtexte",
+          "oben": [],
+          "ueberschrift": "Push-Texte",
+          "titel": "Push-Texte",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "pushtexte",
+              "text": "Push-Texte›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/einstellungen__pushtexte.png",
+          "strang": "einstellungen",
+          "name": "Push-Texte",
+          "nameQuelle": "ueberschrift"
+        },
+        {
           "schluessel": "einstellungen/ruhezeiten",
           "ansicht": "einstellungen",
           "unter": "ruhezeiten",
@@ -5554,7 +5862,7 @@
             {
               "art": "ein",
               "wert": "ruhezeiten",
-              "text": "Ruhezeiten22:00 bis 08:00›",
+              "text": "Ruhezeiten22 bis 8 Uhr›",
               "global": false
             }
           ],
@@ -5875,33 +6183,6 @@
           "nameQuelle": "ueberschrift"
         },
         {
-          "schluessel": "push-nachrichten",
-          "ansicht": "push-nachrichten",
-          "unter": null,
-          "oben": [],
-          "ueberschrift": "Push-Nachrichten",
-          "titel": "Push-Nachrichten",
-          "tiefe": 2,
-          "pfad": [
-            {
-              "art": "zahnrad",
-              "wert": null,
-              "text": "Einstellungen öffnen",
-              "global": true
-            },
-            {
-              "art": "goto",
-              "wert": "pushkatalog",
-              "text": "Push-Texte›",
-              "global": false
-            }
-          ],
-          "bild": "bilder/admin/push-nachrichten.png",
-          "strang": "push-nachrichten",
-          "name": "Push-Nachrichten",
-          "nameQuelle": "ueberschrift"
-        },
-        {
           "schluessel": "rollen-verwalten",
           "ansicht": "rollen-verwalten",
           "unter": null,
@@ -6072,14 +6353,48 @@
           "nameQuelle": "liste"
         },
         {
-          "schluessel": "einstellungen/kalender+calSheet",
-          "ansicht": "einstellungen",
-          "unter": "kalender",
-          "oben": [
-            "calSheet"
+          "schluessel": "dialog:abmelden",
+          "ansicht": "dialog",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": null,
+          "dialog": {
+            "typ": "confirm",
+            "text": "Abmelden?\n\nDu wirst auf diesem Gerät abgemeldet."
+          },
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Mehr",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "profil",
+              "text": "Profil",
+              "global": false
+            },
+            {
+              "art": "logout",
+              "wert": null,
+              "text": "Abmelden",
+              "global": false
+            }
           ],
-          "ueberschrift": "Kalender-Abo",
-          "titel": "Termine abonnieren",
+          "bild": null,
+          "strang": "profil",
+          "name": "Abmelden bestätigen",
+          "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "einstellungen/google",
+          "ansicht": "einstellungen",
+          "unter": "google",
+          "oben": [],
+          "ueberschrift": "Für Google",
+          "titel": "Für Google",
           "tiefe": 3,
           "pfad": [
             {
@@ -6091,19 +6406,87 @@
             {
               "art": "ein",
               "wert": "kalender",
-              "text": "Kalender-Abo›",
+              "text": "Kalender abonnierenAus›",
               "global": false
             },
             {
-              "art": "cal-sheet",
-              "wert": null,
-              "text": "Termine abonnieren",
+              "art": "ein",
+              "wert": "google",
+              "text": "Anleitung ›",
               "global": false
             }
           ],
-          "bild": "bilder/admin/einstellungen__kalender--calSheet.png",
+          "bild": "bilder/admin/einstellungen__google.png",
           "strang": "einstellungen",
-          "name": "Termine abonnieren",
+          "name": "Für Google",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "einstellungen/profil+pwBlatt",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [
+            "pwBlatt"
+          ],
+          "ueberschrift": null,
+          "titel": null,
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Admin · Spieler · Profil anseh",
+              "global": false
+            },
+            {
+              "art": "pw-aendern",
+              "wert": null,
+              "text": "PasswortÄndern›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/einstellungen__profil--pwBlatt.png",
+          "strang": "einstellungen",
+          "name": "Neues Passwort",
+          "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "einstellungen/pushtext/termin_neu",
+          "ansicht": "einstellungen",
+          "unter": "pushtext/termin_neu",
+          "oben": [],
+          "ueberschrift": "Neuer Termin",
+          "titel": "Neuer Termin",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "pushtexte",
+              "text": "Push-Texte›",
+              "global": false
+            },
+            {
+              "art": "ein",
+              "wert": "pushtext",
+              "text": "Neuer Termin{liste}. Jetzt zu- oder absagen.›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/einstellungen__pushtext__termin_neu.png",
+          "strang": "einstellungen",
+          "name": "Neuer Termin",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -6283,6 +6666,41 @@
           "strang": "kasse",
           "name": "Spieler auswählen",
           "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "profil+pwBlatt",
+          "ansicht": "profil",
+          "unter": null,
+          "oben": [
+            "pwBlatt"
+          ],
+          "ueberschrift": "Profil",
+          "titel": null,
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Mehr",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "profil",
+              "text": "Profil",
+              "global": false
+            },
+            {
+              "art": "pw-aendern",
+              "wert": null,
+              "text": "PasswortÄndern›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/profil--pwBlatt.png",
+          "strang": "profil",
+          "name": "Neues Passwort",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "trainer+rsvpSheet",
@@ -6603,7 +7021,14 @@
         },
         {
           "von": "einstellungen",
-          "art": "ein-tat",
+          "art": "ein",
+          "wert": "bfv",
+          "text": "Spielplan BFVVerbunden›",
+          "nach": "einstellungen/bfv"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
           "wert": "diagnose",
           "text": "Diagnose›",
           "nach": "diagnose"
@@ -6611,15 +7036,8 @@
         {
           "von": "einstellungen",
           "art": "ein",
-          "wert": "bfv",
-          "text": "Spielplan (BFV)SV Musterhausen 2›",
-          "nach": "einstellungen/bfv"
-        },
-        {
-          "von": "einstellungen",
-          "art": "ein",
           "wert": "kalender",
-          "text": "Kalender-Abo›",
+          "text": "Kalender abonnierenAus›",
           "nach": "einstellungen/kalender"
         },
         {
@@ -6632,9 +7050,30 @@
         {
           "von": "einstellungen",
           "art": "ein",
+          "wert": "profil",
+          "text": "FO Felix Oberhaus Admin · Spieler · Profil anseh",
+          "nach": "einstellungen/profil"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
+          "wert": "pushtexte",
+          "text": "Push-Texte›",
+          "nach": "einstellungen/pushtexte"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
           "wert": "ruhezeiten",
-          "text": "Ruhezeiten22:00 bis 08:00›",
+          "text": "Ruhezeiten22 bis 8 Uhr›",
           "nach": "einstellungen/ruhezeiten"
+        },
+        {
+          "von": "einstellungen",
+          "art": "goto",
+          "wert": "admin",
+          "text": "Rollen›",
+          "nach": "rollen-verwalten"
         },
         {
           "von": "einstellungen",
@@ -6644,32 +7083,32 @@
           "nach": "katalog"
         },
         {
-          "von": "einstellungen",
-          "art": "goto",
-          "wert": "pushkatalog",
-          "text": "Push-Texte›",
-          "nach": "push-nachrichten"
+          "von": "einstellungen/kalender",
+          "art": "ein",
+          "wert": "google",
+          "text": "Anleitung ›",
+          "nach": "einstellungen/google"
         },
         {
-          "von": "einstellungen",
+          "von": "einstellungen/profil",
           "art": "logout",
           "wert": null,
           "text": "Abmelden",
           "nach": "dialog:abmelden"
         },
         {
-          "von": "einstellungen",
-          "art": "view-jump",
-          "wert": "profil",
-          "text": "FO Felix Oberhaus Administrator · Spieler admin@",
-          "nach": "profil"
+          "von": "einstellungen/profil",
+          "art": "pw-aendern",
+          "wert": null,
+          "text": "PasswortÄndern›",
+          "nach": "einstellungen/profil+pwBlatt"
         },
         {
-          "von": "einstellungen/kalender",
-          "art": "cal-sheet",
-          "wert": null,
-          "text": "Termine abonnieren",
-          "nach": "einstellungen/kalender+calSheet"
+          "von": "einstellungen/pushtexte",
+          "art": "ein",
+          "wert": "pushtext",
+          "text": "Neuer Termin{liste}. Jetzt zu- oder absagen.›",
+          "nach": "einstellungen/pushtext/termin_neu"
         },
         {
           "von": "einstellungen/ruhezeiten",
@@ -6861,6 +7300,20 @@
           "nach": "katalog+katBlatt"
         },
         {
+          "von": "profil",
+          "art": "logout",
+          "wert": null,
+          "text": "Abmelden",
+          "nach": "dialog:abmelden"
+        },
+        {
+          "von": "profil",
+          "art": "pw-aendern",
+          "wert": null,
+          "text": "PasswortÄndern›",
+          "nach": "profil+pwBlatt"
+        },
+        {
           "von": "strafen",
           "art": "paid-self",
           "wert": null,
@@ -6946,6 +7399,12 @@
           "text": "Übersicht"
         },
         {
+          "von": "diagnose",
+          "art": "ein-tat",
+          "wert": "diagnose",
+          "text": "Protokoll dieses Starts›"
+        },
+        {
           "von": "kasse/bezahlt",
           "art": "kstab",
           "wert": "bezahlt",
@@ -7004,6 +7463,7 @@
         "mehr",
         "nav",
         "paid-self",
+        "pw-aendern",
         "rs-push",
         "rs-teilen",
         "rsvp-sheet",
@@ -7020,13 +7480,13 @@
         "tvmoreform",
         "tvslot",
         "tvtplmenu",
-        "view-jump",
         "zahnrad"
       ],
       "schreibaufrufe": []
     }
   },
   "nichtErreichteAusloeser": [
+    "view-jump",
     "ks-zmenu",
     "tvfill"
   ]

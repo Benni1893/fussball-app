@@ -53,6 +53,7 @@ export const AUSLOESER = [
   // Konto
   { art: 'paid-self',    sel: '[data-paid-self]' },
   { art: 'kseg',         sel: '[data-kseg]', attr: 'data-kseg' },
+  { art: 'pw-aendern',   sel: '[data-pw-aendern]' },
   // Katalog
   { art: 'kat-edit',     sel: '[data-kat-edit]' },
   { art: 'kat-add',      sel: '[data-kat-add]' },
@@ -71,7 +72,7 @@ export const AUSLOESER = [
    sonst: offen, solange vorhanden, sichtbar und nicht [hidden].          */
 export const UEBERLAGERUNGEN = [
   { id: 'moreSheet' }, { id: 'calSheet' }, { id: 'rsvpSheet' }, { id: 'tkMenu' },
-  { id: 'terminModal' }, { id: 'scopeModal' }, { id: 'shareModal' }, { id: 'tvUnsaved' }, { id: 'pushModal' }, { id: 'statusBlatt' }, { id: 'tvTplMenu' }, { id: 'katBlatt' }, { id: 'ksZMenu' },
+  { id: 'terminModal' }, { id: 'scopeModal' }, { id: 'shareModal' }, { id: 'tvUnsaved' }, { id: 'pushModal' }, { id: 'statusBlatt' }, { id: 'tvTplMenu' }, { id: 'katBlatt' }, { id: 'ksZMenu' }, { id: 'pwBlatt' },
   { id: 'ksSeite' },
   { id: 'ksWahl', blatt: true }, { id: 'ksSheet', blatt: true }, { id: 'ksBl', blatt: true },
   { id: 'zmBl', blatt: true },
@@ -196,7 +197,10 @@ export const NAMEN = {
   'kader+statusBlatt': 'Status ändern',                     // Überschrift ist der Spielername (Testdaten)
   'trainer+rsvpSheet+pushModal': 'Push bestätigen',
   'trainer+rsvpSheet+shareModal': 'Rückmeldungen teilen',
-  'trainer+tvTplMenu': 'Vorlagen-Menü',                     // Überschrift ist der Vorlagenname (Testdaten)
+  'trainer+tvTplMenu': 'Vorlagen-Menü',
+  'einstellungen/profil': 'Profil',                         // Final 21: Unterseite ohne Seitentitel
+  'einstellungen/profil+pwBlatt': 'Neues Passwort',
+  'profil+pwBlatt': 'Neues Passwort',                     // Überschrift ist der Vorlagenname (Testdaten)
   'kasse+ksBl': 'Strafe buchen',                           // Überschrift nur "Strafe"
   'trainer/spiel+tvSheetMenu': 'Aufstellungs-Menü',        // Überschrift nur "Mehr"
 };

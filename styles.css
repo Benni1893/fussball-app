@@ -3928,3 +3928,157 @@ body:has(.kat-blatt-ov) .app-nav { visibility: hidden; }
 .kat-item .kat-sub { display: block; margin-top: 2px; font-weight: 400; }
 .kat-item .kat-sub { display: table; }
 #ksZMenu, #tvTplMenu { z-index: 100; }   /* Menü ··· über einem offenen Blatt */
+
+/* --- Einstellungen (18) und gemeinsame Unterseiten-Bausteine ----------------- */
+.page-head.ein-start h1 { margin-top: 0; }
+.ein-profil {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 74px; margin-top: 16px; padding: 0 16px;
+  border-radius: 14px; border: 1px solid var(--line-soft); background-image: var(--grad-card); box-shadow: var(--shadow-card);
+  font: inherit; color: var(--ink); text-align: left; cursor: pointer;
+}
+.avatar.ein-profil-av { width: 44px; height: 44px; flex: none; background: var(--grad-av); color: var(--green-800); box-shadow: var(--shadow-av); font-size: 15px; font-weight: 800; }
+.ein-profil-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ein-profil-name { font-size: 16px; font-weight: 700; line-height: 20px; }
+.ein-profil-rolle { font-size: 13px; font-weight: 400; line-height: 16px; color: var(--muted); }
+.ein-gruppe { margin-top: 0; padding: 0; overflow: hidden; border-radius: 14px; border: 1px solid var(--line-soft); background-image: var(--grad-card); box-shadow: var(--shadow-card); }
+.ein-zeile {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 0 16px; border: 0; border-radius: 0;
+  background: none; font: inherit; color: var(--ink); text-align: left; cursor: pointer;
+}
+.ein-zeile + .ein-zeile, .ein-gruppe > * + * { border-top: 1px solid var(--line); }
+.ein-zeile + .ein-zeile { min-height: 53px; }
+.ein-zeile::before { content: none; }
+.ein-ic { flex: none; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 9px; background: var(--green-050); color: var(--green-800); }
+.ein-ic svg { width: 18px; height: 18px; stroke-width: 1.8; }
+.ein-zeile-t { flex: 1 1 auto; min-width: 0; font-size: 16px; font-weight: 600; line-height: 20px; color: var(--ink); }
+.ein-zeile-w { flex: none; font-size: 13px; font-weight: 400; line-height: 16px; color: var(--muted); max-width: 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ein-chev { flex: none; font-size: 18px; line-height: 21px; color: var(--green-chev); opacity: 1; }
+.ein-zeile-t { flex: 0 1 auto; margin-right: auto; }
+.ein-chev { position: relative; top: 2px; }
+.ein-gruppe + .group-head h2, .ein-profil + .group-head h2 { flex: none; }
+.ein-zeile-w { margin-right: -2px; }
+
+/* --- Unterseiten (19 ff.): Zurück-Verweis, Titel, Schalterzeilen, Schalter --- */
+.ein-kopf { margin: -8px -16px 0; min-height: 44px; background: transparent; gap: 8px; }
+.ein-kopf.is-kompakt { background: var(--bg-1); }
+.ein-back { min-height: 44px; color: var(--green-800); font-size: 15px; font-weight: 600; gap: 0; }
+.ein-back-t { line-height: 19px; }
+.ein-h1 { margin: 0 0 16px; letter-spacing: -.02em; line-height: 31px; }
+.ein-body > .ein-gruppe:first-of-type, .ein-gruppe.ein-gruppe-erste { margin-top: 0; }
+.ein-schalter { gap: 12px; min-height: 52px; padding: 0 16px; }
+.ein-schalter + .ein-schalter { border-top: 1px solid var(--line); min-height: 53px; }
+.ein-schalter + .ein-schalter::before { content: none; }
+.ein-schalter.ohne-ic { padding-left: 16px; }
+.ein-schalter > .sw { margin-left: 0; }
+.ein-schalter-t { font-size: 16px; font-weight: 600; line-height: 20px; }
+.ein-schalter-s { margin-top: 2px; font-size: 13px; line-height: 16px; }
+.ein-haupt .ein-schalter { min-height: 60px; }
+.ein-haupt .ein-schalter-t { font-weight: 700; }
+.sw { width: 51px; height: 31px; border: 0; background: var(--line); }
+.sw::before { top: 2px; left: 2px; width: 27px; height: 27px; box-shadow: 0 2px 4px rgba(0,0,0,.2); }
+.sw[aria-checked="true"] { background: var(--green-700); border: 0; }
+.sw[aria-checked="true"]::before { left: 22px; }
+.sw[aria-checked="mixed"] { background: var(--line); box-shadow: inset 0 0 0 1.5px var(--green-700); }
+.ein-body .ein-hinweis { margin: 8px 2px 0; font-size: 13px; color: var(--muted); }
+.ein-mitteilungen > .ein-gruppe + .group-head, .ein-mitteilungen .group-head { margin: 24px 0 8px; }
+.ein-themenkopf h2 { flex: none; }
+.ein-back { flex: 1 1 auto; justify-content: flex-start; line-height: 19px; }
+.ein-kopf { position: sticky; }
+.ein-kopf-t { position: absolute; left: 50%; transform: translateX(-50%); pointer-events: none; }
+.ein-kopf.is-kompakt .ein-kopf-t { transform: translateX(-50%); }
+.group-head.ein-themenkopf { position: relative; }
+.ein-themenkopf .ein-alle { position: absolute; right: 0; bottom: -2px; }
+.ein-schalter-main { align-items: flex-start; }
+.ein-haupt .ein-schalter-main { align-items: stretch; }
+
+/* --- Kalender abonnieren (20), Für Google (28), Statuskarte ------------------- */
+.card.ein-status { display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 14px; }
+.ein-status-kopf { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.ein-status-t { font-size: 16px; font-weight: 700; line-height: 20px; }
+.ein-status .mark { flex: none; }
+.ein-status-s { margin: 0; font-size: 13px; line-height: 16px; color: var(--muted); }
+.btn.ein-voll { display: flex; align-items: center; justify-content: center; width: 100%; text-decoration: none; }
+.btn-primary.ein-voll { min-height: 48px; }
+.btn-soft.ein-voll { min-height: 50px; }
+.btn-primary.ein-voll[aria-disabled="true"] { background: var(--line); color: var(--muted); box-shadow: none; }
+.ein-fusszeile { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; margin-top: 10px; }
+.ein-fusszeile span { font-size: 13px; line-height: 16px; color: var(--muted); }
+.ein-fusszeile .link-btn { position: relative; flex: none; padding: 0; }
+.ein-fusszeile .link-btn::after { content: ""; position: absolute; left: -8px; right: -8px; top: 50%; height: var(--tap); transform: translateY(-50%); }
+.card.ein-gefahr { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 62px; margin-top: 24px; padding: 0 16px; border-radius: 14px; font: inherit; text-align: left; cursor: pointer; }
+.ein-gefahr-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ein-gefahr-t { font-size: 16px; font-weight: 700; line-height: 20px; color: var(--red-700); }
+.ein-gefahr-s { font-size: 13px; line-height: 16px; color: var(--muted); }
+.ein-chev.is-rot { color: var(--red-chev); top: 0; }
+.ein-schritte .ein-schritt { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px 16px; }
+.ein-schritt + .ein-schritt { border-top: 1px solid var(--line); }
+.ein-schritt-n { flex: none; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--green-050); color: var(--green-800); font-size: 13px; font-weight: 800; }
+.ein-schritt-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 3px; align-items: flex-start; }
+.ein-schritt-t { font-size: 16px; font-weight: 600; line-height: 20px; }
+.ein-schritt-s { font-size: 13px; line-height: 1.4; color: var(--muted); }
+.ein-body .btn-primary.ein-voll + .btn-soft.ein-voll { margin-top: 10px; }
+.ein-fuss-mitte { margin: 10px 0 0; text-align: center; font-size: 13px; line-height: 16px; color: var(--muted); }
+.ein-fusszeile { gap: 0; }
+.ein-fusszeile span { flex: 1 1 auto; }
+.ein-fusszeile .link-btn { min-height: 0; line-height: 19px; }
+.card.ein-gefahr { margin-top: 20px; }
+.ein-schritte .ein-schritt { min-height: 72px; padding: 16px; }
+.ein-schritt + .ein-schritt { min-height: 73px; }
+.ein-fuss-mitte span { display: inline; }
+.ein-fusszeile { min-height: 0; }
+.ein-fusszeile span { max-width: 250px; }
+.card.ein-gefahr { margin-top: 26px; }
+.ein-schritt-s { line-height: 17px; }
+.ein-schritte .ein-schritt { box-sizing: content-box; min-height: 56px; padding: 8px 16px; }
+.ein-schritt + .ein-schritt { min-height: 56px; }
+.ein-schritte + .btn-primary.ein-voll { margin-top: 20px; }
+.ein-hinweis-mitte { text-align: center; }
+
+/* --- Profil (21) ---------------------------------------------------------------- */
+.pr-kopf { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 8px; }
+.avatar.pr-av { width: 76px; height: 76px; background: var(--grad-av); color: var(--green-800); box-shadow: var(--shadow-av); font-size: 26px; font-weight: 800; }
+.pr-name { font-size: 22px; font-weight: 800; letter-spacing: -.02em; line-height: 26px; }
+.pr-rollen { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.pr-zeile { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 0 16px; border: 0; background: none; font: inherit; color: var(--ink); text-align: left; }
+button.pr-zeile { cursor: pointer; }
+.pr-zeile + .pr-zeile { border-top: 1px solid var(--line); min-height: 53px; }
+.pr-l { flex: none; width: 84px; font-size: 13px; font-weight: 600; line-height: 16px; color: var(--muted); }
+.pr-w { flex: 1 1 auto; min-width: 0; font-size: 15px; font-weight: 500; line-height: 19px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pr-abmelden { width: 100%; min-height: 50px; margin-top: 24px; border-color: var(--red-line); color: var(--red-700); }
+
+/* --- Ruhezeiten (23) ------------------------------------------------------------ */
+.ein-gruppe-gross > .ein-schalter { box-sizing: content-box; min-height: 56px; padding: 8px 16px; }
+.ein-gruppe-gross > .ein-schalter + .ein-schalter { min-height: 56px; }
+.ein-zeitzeile { position: relative; cursor: pointer; display: flex; align-items: center; gap: 12px; }
+.ein-zeitzeile .ein-zeit-wert { flex: none; font-size: 15px; font-weight: 500; line-height: 19px; color: var(--muted); background: none; padding: 0; min-width: 0; height: auto; }
+.ein-zeitzeile .ein-chev { top: 0; }
+.ein-zeitzeile .ein-zeit { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; border: 0; padding: 0; margin: 0; font-size: 16px; -webkit-appearance: none; appearance: none; cursor: pointer; }
+.ein-ruhezeiten > .group-head:first-child { margin-top: 8px; }
+.ein-ruhezeiten > .group-head:first-child { margin-top: 24px; }
+
+/* --- Spielplan BFV (24) -------------------------------------------------------- */
+.ein-wertzeile { display: flex; align-items: center; gap: 12px; width: 100%; border: 0; background: none; font: inherit; color: var(--ink); text-align: left; }
+button.ein-wertzeile { cursor: pointer; }
+.ein-wertzeile .ein-zeit-wert { flex: none; font-size: 15px; font-weight: 500; line-height: 19px; color: var(--muted); }
+.ein-wertzeile .ein-chev { top: 0; }
+.card.ein-gefahr-gross { min-height: 72px; margin-top: 0; }
+.ein-gefahr-gross .ein-gefahr-t { font-weight: 600; }
+.ein-gefahr-gross .ein-chev { color: var(--green-chev); }
+.btn.bfv-abgleich { margin-top: 20px; }
+.bfv-abbr { margin-top: 10px; }
+.ein-body .bfv-url { margin-top: 0; }
+.ein-gruppe-gross > .ein-wertzeile { width: calc(100% - 32px); }
+.card.ein-status.ein-status-eng { gap: 8px; }
+.ein-gefahr-gross .ein-gefahr-main { align-items: flex-start; }
+
+/* --- Push-Texte (25) ------------------------------------------------------------ */
+.ein-h1-zeile { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.ein-h1-zeile .ein-h1 { margin: 0; }
+.pkat-zeile .mark { flex: none; }
+.pkat-vorlage { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pkat-zeile .ein-schalter-main { min-width: 0; }
+.ein-h1-zeile { position: relative; display: block; }
+.ein-h1-zeile .link-btn { position: absolute; right: 0; top: 50%; transform: translateY(-50%); }
+.ein-schalter-s.is-rot { color: var(--red-700); }
+.btn.diag-bericht { margin-top: 10px; }
+.ein-fuss-mitte span { display: inline; }
