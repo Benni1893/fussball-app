@@ -4,139 +4,49 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Platzansicht</title>
+<title>Platz und Bank</title>
 <link rel="stylesheet" href="../../../styles.css">
 <style>
   /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
-  body { padding: 0; min-height: 0; }
+  body { padding: 0; min-height: 0; background: var(--bg-1); }
   .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
   .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
   .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; line-height: 1.6; }
-  .frame { width: 390px; max-width: 100%; background: var(--green-900); border-radius: 12px; overflow: hidden; }
+  .frame { width: 390px; max-width: 100%; padding: 20px 16px; background: var(--grad-app); border-radius: 12px; }
+  /* Blaetter liegen in der App fest am Bildschirmrand; transform macht den Rahmen zum Bezug. */
+  .frame-blatt { position: relative; padding: 0; overflow: hidden; transform: translateZ(0); }
 </style>
 </head>
 <body>
 <div class="sp">
-
-  <div>
-    <div class="sp-h">Die ganze Ansicht — Variante B, formatfüllendes Feld</div>
-    <div class="frame">
-      <div class="tv-lu">
-        <div class="tv-top">
-          <button class="tv-ic" type="button" aria-label="Zurück">&lsaquo;</button>
-          <div class="tv-hi">
-            <div class="tv-game">vs. VfB Sparta München</div>
-            <div class="tv-sub">20. Sep · 12:30 · 4-3-3 · 9/11</div>
-          </div>
-          <button class="tv-ic" type="button" aria-label="Mehr">⋯</button>
-        </div>
-
-        <div class="tv-formbar">
-          <button class="tv-fpill on" type="button"><span>4-3-3</span></button>
-          <button class="tv-fpill" type="button"><span>4-4-2</span></button>
-          <button class="tv-fpill" type="button"><span>3-5-2</span></button>
-          <button class="tv-fmore" type="button">Weitere ›</button>
-        </div>
-
-        <div class="tv-field">
-          <div class="tv-pitch">
-            <svg class="tv-pitch-bg" viewBox="0 0 68 105" preserveAspectRatio="none" aria-hidden="true">
-              <rect width="68" height="105" fill="#2e7d46"/>
-              <g fill="none" stroke="rgba(255,255,255,.3)" stroke-width="0.3">
-                <rect x="2" y="2" width="64" height="101"/><line x1="2" y1="52.5" x2="66" y2="52.5"/>
-                <circle cx="34" cy="52.5" r="9"/><rect x="14" y="2" width="40" height="16"/>
-                <rect x="24" y="2" width="20" height="6"/><rect x="14" y="87" width="40" height="16"/>
-                <rect x="24" y="97" width="20" height="6"/>
-              </g>
-              <circle cx="34" cy="52.5" r="0.7" fill="rgba(255,255,255,.35)"/>
-            </svg>
-            <div class="tv-slot filled" style="left:50%;top:88%"><div class="tv-disc"><span>1</span></div><span class="tv-pn">Zimmer</span></div>
-            <div class="tv-slot filled" style="left:18%;top:70%"><div class="tv-disc"><span>2</span></div><span class="tv-pn">Koch</span></div>
-            <div class="tv-slot filled sel" style="left:40%;top:72%"><div class="tv-disc"><span>4</span></div><span class="tv-pn">Huber</span></div>
-            <div class="tv-slot filled" style="left:60%;top:72%"><div class="tv-disc"><span>5</span></div><span class="tv-pn">Fischer</span></div>
-            <div class="tv-slot" style="left:82%;top:70%"><div class="tv-disc"><span class="tv-role">RV</span></div></div>
-            <div class="tv-slot filled" style="left:30%;top:50%"><div class="tv-disc"><span>6</span></div><span class="tv-pn">Krüger</span></div>
-            <div class="tv-slot filled" style="left:50%;top:46%"><div class="tv-disc"><span>8</span></div><span class="tv-pn">Lang</span></div>
-            <div class="tv-slot filled" style="left:70%;top:50%"><div class="tv-disc"><span>10</span></div><span class="tv-pn">Mayer</span></div>
-            <div class="tv-slot filled" style="left:22%;top:24%"><div class="tv-disc"><span>7</span></div><span class="tv-pn">Müller</span></div>
-            <div class="tv-slot filled" style="left:50%;top:18%"><div class="tv-disc"><span>9</span></div><span class="tv-pn">Schmid</span></div>
-            <div class="tv-slot" style="left:78%;top:24%"><div class="tv-disc"><span class="tv-role">LA</span></div></div>
-          </div>
-        </div>
-
-        <div class="tv-bank">
-          <div class="tv-bank-h">Bank<span>2/7</span></div>
-          <div class="tv-bank-row">
-            <button class="tv-bslot filled" type="button">
-              <span class="tv-bnr">12</span><span class="tv-bn">Wagner</span>
-              <span class="tv-bx" role="button" aria-label="Wagner von der Bank nehmen">×</span>
-            </button>
-            <button class="tv-bslot filled sel" type="button">
-              <span class="tv-bnr">14</span><span class="tv-bn">Wolf</span>
-              <span class="tv-bx" role="button" aria-label="Wolf von der Bank nehmen">×</span>
-            </button>
-            <button class="tv-bslot" type="button" aria-label="Bankspieler hinzufügen">
-              <span class="tv-bplus">+</span><span class="tv-bfrei">frei</span>
-            </button>
-            <button class="tv-bslot" type="button" aria-label="Bankspieler hinzufügen">
-              <span class="tv-bplus">+</span><span class="tv-bfrei">frei</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="tv-actions">
-          <button class="tv-primary" type="button"><span>Aufstellung speichern</span><small>9/11 gesetzt</small></button>
-        </div>
-      </div>
-    </div>
-    <div class="meta">.tv-lu &gt; .tv-top (.tv-ic, .tv-hi mit .tv-game/.tv-sub) · .tv-formbar · .tv-field &gt; .tv-pitch · .tv-bank · .tv-actions &gt; .tv-primary</div>
-  </div>
-
-  <div>
-    <div class="sp-h">Die Spielzeile bleibt hell — bewusste Abweichung</div>
-    <div class="card card-pad">
-      <p class="rs">Die Vorlage zeichnet die Zeile mit Gegner, Datum und Formation im dunkelgrünen
-      Verlauf. Dort gibt es keine App-Kopfzeile; in der App ist die feste Kopfzeile mit Wappen
-      und Zahnrad ein Fixpunkt. Zwei grüne Leisten übereinander wären eine Doppelung, also
-      bleibt .tv-top hell mit grauer Trennlinie. Die Maße der Vorlage gelten weiter.</p>
-    </div>
-  </div>
-
   <div>
     <div class="sp-h">Platz und Bank</div>
-    <div class="card card-pad">
-      <p class="rs">Das Feld füllt die volle Breite mit dem Seitenverhältnis 68:95 — nie an die
-      Fensterhöhe gebunden, sonst schrumpft es auf kleinen Geräten. Jeder Platz ist sichtbar
-      34px, die Trefferfläche liegt als ::before mit 44px darüber.</p>
-      <p class="rs" style="margin-top:8px">Antippen markiert, ein zweites Antippen tauscht —
-      Feld gegen Feld, Feld gegen Bank, Bank gegen Bank. Das Kreuz in .tv-bx nimmt einen
-      Spieler von der Bank und wird deshalb vor dem Tausch geprüft.</p>
-    </div>
-    <div class="meta">.tv-slot (+ .filled, + .sel) &gt; .tv-disc mit Nummer oder .tv-role, darunter .tv-pn · .tv-bslot (+ .filled, + .sel) &gt; .tv-bnr/.tv-bn/.tv-bx oder .tv-bplus/.tv-bfrei</div>
+    <p class="meta">Platz, freie Position, Blätter „Spieler für die Position“ und „Spieler für die Bank“ (Final 07 bis 08). Erzeugt aus dem Markup der App (kartenbau.mjs).</p>
   </div>
-
   <div>
-    <div class="sp-h">Leerer Platz — Angebot statt leerer Fläche</div>
-    <div class="frame" style="padding:16px">
-      <div class="tv-cta">
-        <p>Vom letzten Spiel übernehmen<br><b>vs. FT München-Gern 2</b> – fehlende Spieler werden automatisch durch verfügbare ersetzt.</p>
-        <button class="tv-primary" type="button"><span>Übernehmen &amp; anpassen</span></button>
-        <button class="tv-ghost" type="button">Leer starten</button>
-      </div>
+    <div class="sp-h">07 Platz</div>
+    <div class="frame">
+<div class="tv-lu"><div class="tv-top"><button class="tv-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></button><div class="tv-hi"><div class="tv-game">vs. FC Teutonia Mün. 2</div><div class="tv-sub">So 11. Okt · 13:30 · 11 von 11</div></div><button class="tv-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><circle cx="5" cy="12" r="1.9"></circle><circle cx="12" cy="12" r="1.9"></circle><circle cx="19" cy="12" r="1.9"></circle></svg></button></div><div class="tv-formbar"><button class="tv-fpill on">4-4-2</button><button class="tv-fpill">4-2-3-1</button><button class="tv-fpill">4-3-3</button><button class="tv-fpill tv-fmore">Weitere</button></div><div class="tv-field"><div class="tv-pitch"><div class="tv-pitch-bg"><i class="tv-pl-rand"></i><i class="tv-pl-mitte"></i><i class="tv-pl-kreis"></i><i class="tv-pl-raum is-oben"></i><i class="tv-pl-raum is-unten"></i></div><div class="tv-slot filled" style="left:50.00%;top:88.00%"><div class="tv-disc"><span>1</span></div><span class="tv-pn">Feldmann</span></div><div class="tv-slot filled" style="left:13.20%;top:68.00%"><div class="tv-disc"><span>2</span></div><span class="tv-pn">Kessler</span></div><div class="tv-slot filled" style="left:38.04%;top:68.00%"><div class="tv-disc"><span>4</span></div><span class="tv-pn">Morawe</span></div><div class="tv-slot filled" style="left:61.96%;top:68.00%"><div class="tv-disc"><span>13</span></div><span class="tv-pn">Ulbrich</span></div><div class="tv-slot filled" style="left:86.80%;top:68.00%"><div class="tv-disc"><span>3</span></div><span class="tv-pn">Lindner</span></div><div class="tv-slot filled" style="left:13.20%;top:43.90%"><div class="tv-disc"><span>7</span></div><span class="tv-pn">Thamm</span></div><div class="tv-slot filled" style="left:38.04%;top:43.90%"><div class="tv-disc"><span>8</span></div><span class="tv-pn">Pallas</span></div><div class="tv-slot filled" style="left:61.96%;top:43.90%"><div class="tv-disc"><span>10</span></div><span class="tv-pn">Quast</span></div><div class="tv-slot filled" style="left:86.80%;top:43.90%"><div class="tv-disc"><span>17</span></div><span class="tv-pn">Wendt</span></div><div class="tv-slot filled" style="left:36.02%;top:19.80%"><div class="tv-disc"><span>9</span></div><span class="tv-pn">Rennert</span></div><div class="tv-slot filled" style="left:63.98%;top:19.80%"><div class="tv-disc"><span>11</span></div><span class="tv-pn">Sauter</span></div></div></div><div class="tv-bank"><div class="group-head tv-bank-kopf"><h2>Bank · 1 von 7</h2><button class="link-btn">Spieler wählen ›</button></div><div class="tv-bank-row"><button class="tv-bslot filled"><b class="tv-bnr">12</b><span class="tv-bn">Zierer</span><span class="tv-bx"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></span></button><button class="tv-bslot">+ frei</button><button class="tv-bslot">+ frei</button><button class="tv-bslot">+ frei</button><button class="tv-bslot">+ frei</button><button class="tv-bslot">+ frei</button><button class="tv-bslot">+ frei</button></div></div><div class="tv-actions"><button class="btn btn-primary tv-save">Aufstellung speichern</button></div></div>
     </div>
-    <div class="meta">.tv-cta liegt als .tv-cta-ov über dem leeren Feld, solange keine Elf steht und ein letztes Spiel existiert.</div>
   </div>
-
   <div>
-    <div class="sp-h">Vergangenes Spiel — nur ansehen</div>
-    <div class="frame" style="padding:14px 16px 16px">
-      <div class="tv-actions" style="padding:0">
-        <div class="tv-ro-note">Vergangenes Spiel – nur ansehen, nicht bearbeiten</div>
-      </div>
+    <div class="sp-h">07b Platz frei</div>
+    <div class="frame">
+<div class="tv-lu"><div class="tv-top"><button class="tv-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></button><div class="tv-hi"><div class="tv-game">vs. SV Am Hart Mün.</div><div class="tv-sub">So 25. Okt · 12:45 · <b class="tv-stand is-offen">10 von 11</b></div></div><button class="tv-ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><circle cx="5" cy="12" r="1.9"></circle><circle cx="12" cy="12" r="1.9"></circle><circle cx="19" cy="12" r="1.9"></circle></svg></button></div><div class="tv-formbar"><button class="tv-fpill on">4-4-2</button><button class="tv-fpill">4-2-3-1</button><button class="tv-fpill">4-3-3</button><button class="tv-fpill tv-fmore">Weitere</button></div><button class="tv-frei-hinweis"><span class="tv-frei-dot"></span><span class="tv-frei-t">1 Position frei: Linksverteidiger</span><span class="tv-frei-go">Besetzen ›</span></button><div class="tv-field"><div class="tv-pitch"><div class="tv-pitch-bg"><i class="tv-pl-rand"></i><i class="tv-pl-mitte"></i><i class="tv-pl-kreis"></i><i class="tv-pl-raum is-oben"></i><i class="tv-pl-raum is-unten"></i></div><div class="tv-slot filled" style="left:50.00%;top:88.00%"><div class="tv-disc"><span>1</span></div><span class="tv-pn">Feldmann</span></div><div class="tv-slot" style="left:13.20%;top:68.00%"><span class="tv-ring">+</span><span class="tv-frei-l">LV frei</span></div><div class="tv-slot filled" style="left:38.04%;top:68.00%"><div class="tv-disc"><span>4</span></div><span class="tv-pn">Morawe</span></div><div class="tv-slot filled" style="left:61.96%;top:68.00%"><div class="tv-disc"><span>13</span></div><span class="tv-pn">Ulbrich</span></div><div class="tv-slot filled" style="left:86.80%;top:68.00%"><div class="tv-disc"><span>3</span></div><span class="tv-pn">Lindner</span></div><div class="tv-slot filled" style="left:13.20%;top:43.90%"><div class="tv-disc"><span>7</span></div><span class="tv-pn">Thamm</span></div><div class="tv-slot filled" style="left:38.04%;top:43.90%"><div class="tv-disc"><span>8</span></div><span class="tv-pn">Pallas</span></div><div class="tv-slot filled" style="left:61.96%;top:43.90%"><div class="tv-disc"><span>10</span></div><span class="tv-pn">Quast</span></div><div class="tv-slot filled" style="left:86.80%;top:43.90%"><div class="tv-disc"><span>17</span></div><span class="tv-pn">Wendt</span></div><div class="tv-slot filled" style="left:36.02%;top:19.80%"><div class="tv-disc"><span>9</span></div><span class="tv-pn">Rennert</span></div><div class="tv-slot filled" style="left:63.98%;top:19.80%"><div class="tv-disc"><span>11</span></div><span class="tv-pn">Sauter</span></div></div></div><div class="tv-bank"><div class="group-head tv-bank-kopf"><h2>Bank · 0 von 7</h2><button class="link-btn">Spieler wählen ›</button></div><div class="tv-bank-row"><button class="tv-bslot">+ frei</button><button class="tv-bslot">+ frei</button><button class="tv-bslot">+ frei</button><button class="tv-bslot">+ frei</button><button class="tv-bslot">+ frei</button><button class="tv-bslot">+ frei</button><button class="tv-bslot">+ frei</button></div></div><div class="tv-actions"><button class="btn btn-primary tv-save">Aufstellung speichern</button></div></div>
     </div>
-    <div class="meta">.tv-lu.tv-ro schaltet die ganze Ansicht schreibgeschützt: keine Leer-Slots auf der Bank, kein Menü, kein Speichern.</div>
   </div>
-
+  <div>
+    <div class="sp-h">07c Position besetzen</div>
+    <div class="frame frame-blatt" style="height:736px">
+<div class="tv-sheet tv-ksheet open"><span class="tv-grip"></span><div class="tv-sh"><div class="tv-sh-text"><strong>Linksverteidiger</strong><div class="tv-shsub">Position frei · 3 Zugesagte passen</div></div><button class="tv-shx"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></button></div><div class="tv-shbody"><div class="group-head"><h2>Passt zur Position</h2></div><div class="card tv-kcard"><div class="row tv-krow"><span class="row-av"><span>BK</span></span><span class="row-main"><span class="row-t">Bruno Kessler</span><span class="row-s">AV · zugesagt</span></span><span class="row-end"><span class="add-btn">+</span></span></div><div class="row tv-krow"><span class="row-av"><span>CL</span></span><span class="row-main"><span class="row-t">Carl Lindner</span><span class="row-s">AV · zugesagt</span></span><span class="row-end"><span class="add-btn">+</span></span></div><div class="row tv-krow"><span class="row-av"><span>JR</span></span><span class="row-main"><span class="row-t">Jonas Reich</span><span class="row-s">IV · zugesagt</span></span><span class="row-end"><span class="add-btn">+</span></span></div></div><div class="group-head"><h2>Weitere Zugesagte</h2></div><div class="card tv-kcard"><div class="row tv-krow"><span class="row-av"><span>OZ</span></span><span class="row-main"><span class="row-t">Oskar Zierer</span><span class="row-s">TW</span></span><span class="row-end"><span class="mark is-gruen"><span>Auf der Bank</span></span></span></div><div class="row tv-krow"><span class="row-av"><span>MB</span></span><span class="row-main"><span class="row-t">Max Bauer</span><span class="row-s">ZM · zugesagt</span></span><span class="row-end"><span class="add-btn">+</span></span></div></div><div class="group-head"><h2>Nicht verfügbar</h2></div><div class="card tv-kcard"><div class="row tv-krow"><span class="row-av"><span>EN</span></span><span class="row-main"><span class="row-t">Emil Nordhoff</span><span class="row-s">IV</span></span><span class="row-end"><span class="mark is-rot"><span>Verletzt</span></span></span></div><div class="row tv-krow"><span class="row-av"><span>MV</span></span><span class="row-main"><span class="row-t">Moritz Vogler</span><span class="row-s">IV</span></span><span class="row-end"><span class="mark is-urlaub"><span>Urlaub</span></span></span></div></div></div><div class="tv-kfuss"><button class="btn btn-soft tv-leer">Position leer lassen</button></div></div>
+    </div>
+  </div>
+  <div>
+    <div class="sp-h">08 Bank-Blatt</div>
+    <div class="frame frame-blatt" style="height:627px">
+<div class="tv-sheet tv-ksheet open"><span class="tv-grip"></span><div class="tv-sh"><div class="tv-sh-text"><strong>Spieler für die Bank</strong><div class="tv-shsub">1 von 7 belegt</div></div><button class="tv-shx"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></button></div><div class="tv-shbody"><button class="btn btn-soft tv-kall">Alle 3 freien Zugesagten setzen</button><div class="group-head"><h2>Tor · 2</h2></div><div class="card tv-kcard"><div class="row tv-krow is-bank is-vergeben"><span class="tv-knr"><span>1</span></span><span class="row-main"><span class="row-t">Anton Feldmann</span><span class="row-s">TW</span></span><span class="row-end"><span class="mark"><span>Auf dem Platz</span></span></span></div><div class="row tv-krow is-bank is-vergeben"><span class="tv-knr"><span>12</span></span><span class="row-main"><span class="row-t">Oskar Zierer</span><span class="row-s">TW</span></span><span class="row-end"><span class="mark is-gruen"><span>Auf der Bank</span></span></span></div></div><div class="group-head"><h2>Abwehr · 7</h2></div><div class="card tv-kcard"><div class="row tv-krow is-bank"><span class="tv-knr"><span>6</span></span><span class="row-main"><span class="row-t">Jonas Reich</span><span class="row-s">IV · zugesagt</span></span><span class="row-end"><span class="add-btn">+</span></span></div><div class="row tv-krow is-bank"><span class="tv-knr"><span>5</span></span><span class="row-main"><span class="row-t">Emil Nordhoff</span><span class="row-s">IV</span></span><span class="row-end"><span class="mark is-rot"><span>Verletzt</span></span></span></div><div class="row tv-krow is-bank"><span class="tv-knr"><span>14</span></span><span class="row-main"><span class="row-t">Moritz Vogler</span><span class="row-s">IV</span></span><span class="row-end"><span class="mark is-urlaub"><span>Urlaub</span></span></span></div><div class="row tv-krow is-bank is-vergeben"><span class="tv-knr"><span>2</span></span><span class="row-main"><span class="row-t">Bruno Kessler</span><span class="row-s">AV</span></span><span class="row-end"><span class="mark"><span>Auf dem Platz</span></span></span></div><div class="row tv-krow is-bank is-vergeben"><span class="tv-knr"><span>4</span></span><span class="row-main"><span class="row-t">Daniel Koch</span><span class="row-s">IV</span></span><span class="row-end"><span class="mark"><span>Auf dem Platz</span></span></span></div><div class="row tv-krow is-bank is-vergeben"><span class="tv-knr"><span>13</span></span><span class="row-main"><span class="row-t">Simon Lang</span><span class="row-s">AV</span></span><span class="row-end"><span class="mark"><span>Auf dem Platz</span></span></span></div><div class="row tv-krow is-bank is-vergeben"><span class="tv-knr"><span>3</span></span><span class="row-main"><span class="row-t">Carl Lindner</span><span class="row-s">AV</span></span><span class="row-end"><span class="mark"><span>Auf dem Platz</span></span></span></div></div><div class="group-head"><h2>Mittelfeld · 5</h2></div><div class="card tv-kcard"><div class="row tv-krow is-bank"><span class="tv-knr"><span>7</span></span><span class="row-main"><span class="row-t">Max Bauer</span><span class="row-s">ZM · zugesagt</span></span><span class="row-end"><span class="add-btn">+</span></span></div><div class="row tv-krow is-bank is-vergeben"><span class="tv-knr"><span>10</span></span><span class="row-main"><span class="row-t">Jonas Becker</span><span class="row-s">ZM</span></span><span class="row-end"><span class="mark"><span>Auf dem Platz</span></span></span></div><div class="row tv-krow is-bank is-vergeben"><span class="tv-knr"><span>11</span></span><span class="row-main"><span class="row-t">Felix Hofmann</span><span class="row-s">OM</span></span><span class="row-end"><span class="mark"><span>Auf dem Platz</span></span></span></div><div class="row tv-krow is-bank is-vergeben"><span class="tv-knr"><span>17</span></span><span class="row-main"><span class="row-t">Tim Richter</span><span class="row-s">OM</span></span><span class="row-end"><span class="mark"><span>Auf dem Platz</span></span></span></div><div class="row tv-krow is-bank is-vergeben"><span class="tv-knr"><span>8</span></span><span class="row-main"><span class="row-t">Lukas Weber</span><span class="row-s">ZM</span></span><span class="row-end"><span class="mark"><span>Auf dem Platz</span></span></span></div></div><div class="group-head"><h2>Angriff · 2</h2></div><div class="card tv-kcard"><div class="row tv-krow is-bank"><span class="tv-knr"><span>19</span></span><span class="row-main"><span class="row-t">Paul Ebert</span><span class="row-s">ST · zugesagt</span></span><span class="row-end"><span class="add-btn">+</span></span></div><div class="row tv-krow is-bank is-vergeben"><span class="tv-knr"><span>9</span></span><span class="row-main"><span class="row-t">Niklas Fischer</span><span class="row-s">ST</span></span><span class="row-end"><span class="mark"><span>Auf dem Platz</span></span></span></div></div></div><div class="tv-kfuss"></div></div>
+    </div>
+  </div>
 </div>
 </body>
 </html>

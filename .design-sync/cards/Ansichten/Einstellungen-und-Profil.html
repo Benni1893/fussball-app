@@ -8,100 +8,133 @@
 <link rel="stylesheet" href="../../../styles.css">
 <style>
   /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
-  body { padding: 0; min-height: 0; }
+  body { padding: 0; min-height: 0; background: var(--bg-1); }
   .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
   .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
   .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; line-height: 1.6; }
-  .frame { width: 390px; max-width: 100%; padding: 0 16px 16px; background: var(--bg); border: 1px dashed var(--line); border-radius: 12px; }
+  .frame { width: 390px; max-width: 100%; padding: 20px 16px; background: var(--grad-app); border-radius: 12px; }
+  /* Blaetter liegen in der App fest am Bildschirmrand; transform macht den Rahmen zum Bezug. */
+  .frame-blatt { position: relative; padding: 0; overflow: hidden; transform: translateZ(0); }
 </style>
 </head>
 <body>
 <div class="sp">
-
   <div>
-    <div class="sp-h">Einstellungen — hinter dem Zahnrad</div>
+    <div class="sp-h">Einstellungen und Profil</div>
+    <p class="meta">Übersicht, Kalender abonnieren, Für Google, Profil, Spielplan BFV, Diagnose (Final 18, 20, 21, 24, 27, 28). Erzeugt aus dem Markup der App (kartenbau.mjs).</p>
+  </div>
+  <div>
+    <div class="sp-h">18 Einstellungen</div>
     <div class="frame">
-      <div class="page-head" style="padding-top:14px"><h1>Einstellungen</h1></div>
-      <div class="set-section">
-        <div class="card card-pad set-profile">
-          <div class="set-greet-name">Angemeldet als Tobias Wagner</div>
-          <div class="set-greet-role">Trainer · Admin</div>
-          <div class="set-row"><span class="set-label">E-Mail</span><span class="set-val">tobias@example.org</span></div>
-          <div class="set-row"><span class="set-label">Spieler</span><span class="set-val">Tobias Wagner · #14</span></div>
-        </div>
-      </div>
-      <div class="set-verwaltung">
-        <div class="section-title"><h2>Verwaltung</h2></div>
-        <div class="section-title set-sub"><h3>Strafenkatalog</h3></div>
-        <div class="card card-pad">
-          <p class="set-hint">Vergehen und Beträge werden im Katalog gepflegt.</p>
-          <button class="btn" type="button">Strafenkatalog öffnen</button>
-        </div>
-      </div>
-      <p class="set-hint" style="text-align:center;margin-top:22px;opacity:.6">Build 2026-09-18-A · Diagnose</p>
-    </div>
-    <div class="meta">.set-section &gt; .card.card-pad.set-profile mit .set-greet-name/.set-greet-role und .set-row (.set-label, .set-val) · .set-verwaltung &gt; .section-title.set-sub / .set-hint. Der Block erscheint nur fuer Trainer, Kassenwart und Admin.</div>
-  </div>
 
+      <div class="page-head ein-start"><h1>Einstellungen</h1></div>
+      <button class="ein-profil" type="button">
+        <span class="avatar ein-profil-av">LW</span>
+        <span class="ein-profil-main">
+          <span class="ein-profil-name">Lukas Weber</span>
+          <span class="ein-profil-rolle">Admin · Spieler · Profil ansehen</span>
+        </span>
+        <span class="ein-chev">›</span>
+      </button>
+      <div class="group-head"><h2>Für mich</h2></div>
+      <div class="ein-gruppe">
+        <button class="ein-zeile" type="button"><span class="ein-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20.5h4"></path></svg></span><span class="ein-zeile-t">Mitteilungen</span><span class="ein-zeile-w">Aus</span><span class="ein-chev">›</span></button>
+        <button class="ein-zeile" type="button"><span class="ein-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8"></path></svg></span><span class="ein-zeile-t">Ruhezeiten</span><span class="ein-zeile-w">22 bis 8 Uhr</span><span class="ein-chev">›</span></button>
+        <button class="ein-zeile" type="button"><span class="ein-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 11h18"></path></svg></span><span class="ein-zeile-t">Kalender abonnieren</span><span class="ein-zeile-w">Aus</span><span class="ein-chev">›</span></button>
+      </div>
+      <div class="group-head"><h2>Verwaltung</h2></div>
+      <div class="ein-gruppe">
+        <button class="ein-zeile" type="button"><span class="ein-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M3 9h18M3 14h18M8 4v16"></path></svg></span><span class="ein-zeile-t">Spielplan BFV</span><span class="ein-zeile-w">Verbunden</span><span class="ein-chev">›</span></button>
+        <button class="ein-zeile" type="button"><span class="ein-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h14v16H7a2 2 0 0 1-2-2zM5 18a2 2 0 0 1 2-2h12M9 8h6M9 11h4"></path></svg></span><span class="ein-zeile-t">Strafenkatalog</span><span class="ein-chev">›</span></button>
+        <button class="ein-zeile" type="button"><span class="ein-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z"></path><path d="M8 9h8M8 13h5"></path></svg></span><span class="ein-zeile-t">Push-Texte</span><span class="ein-chev">›</span></button>
+        <button class="ein-zeile" type="button"><span class="ein-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12a4 4 0 1 0 0-8a4 4 0 0 0 0 8zM4 20a8 8 0 0 1 16 0"></path></svg></span><span class="ein-zeile-t">Rollen</span><span class="ein-chev">›</span></button>
+      </div>
+      <div class="group-head"><h2>Info</h2></div>
+      <div class="ein-gruppe">
+        <button class="ein-zeile" type="button"><span class="ein-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2.5-6 5 12 2.5-6H21"></path></svg></span><span class="ein-zeile-t">Diagnose</span><span class="ein-chev">›</span></button>
+        <button class="ein-zeile" type="button"><span class="ein-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4"></path><path d="M21 3v6h-6"></path></svg></span><span class="ein-zeile-t">App neu laden</span></button>
+      </div>
+    
+    </div>
+  </div>
   <div>
-    <div class="sp-h">Profil</div>
-    <div class="card pr-head">
-      <span class="avatar pr-av">TW</span>
-      <div><div class="pr-name">Tobias Wagner</div><div class="rs">Trainer · Admin · #14</div></div>
+    <div class="sp-h">20 Kalender-Abo</div>
+    <div class="frame">
+<div class="ein-kopf"><button class="ein-back" type="button">‹ Einstellungen</button><span class="ein-kopf-t">Kalender abonnieren</span></div><div class="ein-body ein-anim-rein"><h1 class="ein-h1">Kalender abonnieren</h1><div class="card ein-status"><div class="ein-status-kopf"><span class="ein-status-t">Status</span><span class="mark">Nicht eingerichtet</span></div><p class="ein-status-s">Termine erscheinen im Handy-Kalender und bleiben aktuell.</p></div><div class="group-head"><h2>iPhone und iPad</h2></div><a class="btn btn-primary ein-voll" href="webcal://127.0.0.1:49790/api/calendar/landkarte-token.ics">Im iPhone-Kalender abonnieren</a><div class="group-head"><h2>Android und Google</h2></div><button class="btn btn-soft ein-voll" type="button">Link kopieren</button><div class="cal-copied ein-rueckmeldung" hidden=""></div><div class="ein-fusszeile"><span>Google übernimmt Änderungen bis zu 24 h später.</span><button class="link-btn" type="button">Anleitung ›</button></div><button class="card ein-gefahr" type="button"><span class="ein-gefahr-main"><span class="ein-gefahr-t">Link zurücksetzen</span><span class="ein-gefahr-s">Der alte Link funktioniert danach nicht mehr.</span></span><span class="ein-chev is-rot">›</span></button></div>
     </div>
-    <div class="pr-list" style="margin-top:12px">
-      <div class="pr-row">
-        <span class="pr-bar is-zu" aria-hidden="true"></span>
-        <div class="pr-main"><div class="pr-t">Zusagen</div><div class="rs">14 von 18 Terminen</div></div>
-      </div>
-      <div class="pr-row">
-        <span class="pr-bar is-ab" aria-hidden="true"></span>
-        <div class="pr-main"><div class="pr-t">Absagen</div><div class="rs">3 Termine</div></div>
-      </div>
-      <div class="pr-row">
-        <span class="pr-bar is-offen" aria-hidden="true"></span>
-        <div class="pr-main"><div class="pr-t">Ohne Rückmeldung</div><div class="rs">1 Termin</div></div>
-      </div>
-    </div>
-    <div class="meta">.card.pr-head (.avatar.pr-av, .pr-name) · .pr-list &gt; .pr-row mit .pr-bar.is-&lt;art&gt; und .pr-main (.pr-t, .rs)</div>
   </div>
-
   <div>
-    <div class="sp-h">Rollen verwalten — Vorschau einer fremden Rolle</div>
-    <div class="card card-pad">
-      <div class="chips">
-        <button class="chip is-active" type="button">Meine Sicht</button>
-        <button class="chip" type="button">Spieler</button>
-        <button class="chip" type="button">Trainer</button>
-        <button class="chip" type="button">Kassenwart</button>
-        <button class="chip" type="button">Admin</button>
+    <div class="sp-h">28 Blatt · Anleitung Google</div>
+    <div class="frame">
+<div class="ein-kopf"><button class="ein-back" type="button">‹ Kalender abonnieren</button><span class="ein-kopf-t">Für Google</span></div><div class="ein-body ein-anim-rein"><h1 class="ein-h1">Für Google</h1><div class="group-head"><h2>In drei Schritten</h2></div><div class="ein-gruppe ein-schritte"><div class="ein-schritt"><span class="ein-schritt-n"><span>1</span></span><span class="ein-schritt-main"><span class="ein-schritt-t">Link kopieren</span><span class="ein-schritt-s">Mit dem Knopf unten.</span></span></div><div class="ein-schritt"><span class="ein-schritt-n"><span>2</span></span><span class="ein-schritt-main"><span class="ein-schritt-t">calendar.google.com öffnen</span><span class="ein-schritt-s">Im Browser, links bei „Weitere Kalender“ auf Plus, dann „Per URL“.</span></span></div><div class="ein-schritt"><span class="ein-schritt-n"><span>3</span></span><span class="ein-schritt-main"><span class="ein-schritt-t">Link einfügen</span><span class="ein-schritt-s">Mit „Kalender hinzufügen“ bestätigen.</span></span></div></div><a class="btn btn-primary ein-voll" href="https://calendar.google.com/calendar/u/0/r/settings/addbyurl" target="_blank" rel="noopener noreferrer"><span>calendar.google.com öffnen</span></a><button class="btn btn-soft ein-voll" type="button"><span>Link kopieren</span></button><div class="cal-copied ein-rueckmeldung" hidden=""></div><p class="ein-fuss-mitte"><span>Google übernimmt Änderungen bis zu 24 h später.</span></p><p class="ein-hinweis ein-hinweis-mitte">Am Handy ggf. „Desktop-Version“ wählen. Das Abo lässt sich nur einmalig über die Web-Oberfläche anlegen, danach erscheint der Kalender in deiner Kalender-App.</p></div>
+    </div>
+  </div>
+  <div>
+    <div class="sp-h">21 Profil</div>
+    <div class="frame">
+<div class="ein-kopf"><button class="ein-back" type="button">‹ Einstellungen</button><span class="ein-kopf-t">Profil</span></div><div class="ein-body ein-anim-rein">
+      <div class="pr-kopf">
+        <span class="avatar pr-av">LW</span>
+        <div class="pr-name">Lukas Weber</div>
+        <div class="pr-rollen"><span class="mark is-gold">Admin</span><span class="mark">Spieler</span></div>
       </div>
-      <div class="sim-switch-hint">Reine Anzeige-Vorschau – ändert nichts an deinen Rechten oder Daten. Alle Zugriffe bleiben serverseitig abgesichert.</div>
+      <div class="group-head"><h2>Konto</h2></div>
+      <div class="ein-gruppe">
+        <div class="pr-zeile"><span class="pr-l">E-Mail</span><span class="pr-w">admin@landkarte.example.invalid</span></div>
+        <div class="pr-zeile"><span class="pr-l">Rückennummer</span><span class="pr-w">8</span></div>
+        <button type="button" class="pr-zeile"><span class="pr-l">Passwort</span><span class="pr-w">Ändern</span><span class="ein-chev">›</span></button>
+      </div>
+      <div class="group-head"><h2>Mein Status</h2></div>
+      <div class="st-wahl">
+      <div class="chips st-chips"><button class="chip st-choice st-fit is-on"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"></path></svg>Fit</button><button class="chip st-choice st-angeschlagen"><span class="st-dot"></span>Angeschlagen</button><button class="chip st-choice st-verletzt"><span class="st-dot"></span>Verletzt</button><button class="chip st-choice st-urlaub"><span class="st-dot"></span>Urlaub</button></div>
     </div>
-    <div class="meta">.sim-switch-hint sagt ausdrücklich, dass die Vorschau nichts ändert — sonst hielte man sie für einen Rollenwechsel.</div>
+      <div class="group-head"><h2>Meine Rückmeldungen</h2></div><div class="card dn-liste"><button class="dn-zeile is-training">
+      <span class="dn-strich"></span>
+      <span class="wf wf-klein"><span class="wf-wd">Di</span><span class="wf-day num">6</span><span class="wf-mon">Okt</span></span>
+      <span class="dn-main"><span class="dn-t">Training</span>
+        <span class="dn-s num">19:30 Uhr</span></span>
+      <span class="mark is-gruen">Zugesagt</span>
+    </button><button class="dn-zeile is-training">
+      <span class="dn-strich"></span>
+      <span class="wf wf-klein"><span class="wf-wd">Do</span><span class="wf-day num">8</span><span class="wf-mon">Okt</span></span>
+      <span class="dn-main"><span class="dn-t">Training</span>
+        <span class="dn-s num">19:30 Uhr</span></span>
+      <span class="mark is-gruen">Zugesagt</span>
+    </button><button class="dn-zeile is-spiel">
+      <span class="dn-strich"></span>
+      <span class="wf wf-klein"><span class="wf-wd">So</span><span class="wf-day num">11</span><span class="wf-mon">Okt</span></span>
+      <span class="dn-main"><span class="dn-t is-spiel">FC Teutonia Mün. 2</span>
+        <span class="dn-s num">Spiel · 13:30 Uhr · Auswärts</span></span>
+      <span class="mark is-rot">Offen</span>
+    </button><button class="dn-zeile is-sonstiges">
+      <span class="dn-strich"></span>
+      <span class="wf wf-klein"><span class="wf-wd">Fr</span><span class="wf-day num">16</span><span class="wf-mon">Okt</span></span>
+      <span class="dn-main"><span class="dn-t">Mannschaftsabend</span>
+        <span class="dn-s num">Sonstiges · 20:00 Uhr</span></span>
+      <span class="mark is-rot">Offen</span>
+    </button><button class="dn-zeile is-spiel">
+      <span class="dn-strich"></span>
+      <span class="wf wf-klein"><span class="wf-wd">So</span><span class="wf-day num">18</span><span class="wf-mon">Okt</span></span>
+      <span class="dn-main"><span class="dn-t is-spiel">SC Grüne Heide 2</span>
+        <span class="dn-s num">Spiel · 12:30 Uhr · Heim</span></span>
+      <span class="mark is-rot">Offen</span>
+    </button></div>
+      <button class="btn btn-soft pr-abmelden" type="button">Abmelden</button>
+    </div>
+    </div>
   </div>
-
   <div>
-    <div class="sp-h">Laufende Vorschau</div>
-    <div class="sim-bar">
-      <span class="sim-text">Vorschau als Spieler</span>
-      <button class="sim-exit" type="button">Beenden</button>
+    <div class="sp-h">24 Spielplan BFV</div>
+    <div class="frame">
+<div class="ein-kopf"><button class="ein-back" type="button">‹ Einstellungen</button><span class="ein-kopf-t">Spielplan BFV</span></div><div class="ein-body ein-anim-rein"><h1 class="ein-h1">Spielplan BFV</h1><div class="card ein-status ein-status-eng"><div class="ein-status-kopf"><span class="ein-status-t">Verbindung</span><span class="mark is-gruen"><span>Verbunden</span></span></div><p class="ein-status-s">Zuletzt abgeglichen heute, 14:30</p></div><div class="group-head"><h2>Mannschaft</h2></div><div class="ein-gruppe ein-gruppe-gross"><div class="ein-schalter ein-wertzeile"><span class="ein-schalter-main"><span class="ein-schalter-t">Verein</span></span><span class="ein-zeit-wert">FC Fasanerie-Nord</span></div><button type="button" class="ein-schalter ein-wertzeile"><span class="ein-schalter-main"><span class="ein-schalter-t">Mannschaft</span></span><span class="ein-zeit-wert">FC Fasanerie-Nord 2</span><span class="ein-chev">›</span></button><div class="ein-schalter ein-wertzeile"><span class="ein-schalter-main"><span class="ein-schalter-t">Saison</span></span><span class="ein-zeit-wert">2026/27</span></div></div><div class="group-head"><h2>Verbindung</h2></div><button class="card ein-gefahr ein-gefahr-gross" type="button"><span class="ein-gefahr-main"><span class="ein-gefahr-t">Verbindung trennen</span><span class="ein-gefahr-s">Bereits übernommene Spiele bleiben.</span></span><span class="ein-chev is-rot">›</span></button><button class="btn btn-primary ein-voll bfv-abgleich" type="button"><span>Jetzt abgleichen</span></button><p class="ein-hinweis">Läuft zusätzlich täglich automatisch.</p></div>
     </div>
-    <div class="meta">.sim-bar liegt über der ganzen App, solange eine Rollen-Vorschau läuft. .sim-text hat bewusst keine eigene Regel und erbt von .sim-bar.</div>
   </div>
-
   <div>
-    <div class="sp-h">Mehr-Menü im fünften Tab</div>
-    <div class="card" style="overflow:hidden">
-      <div class="more-title">Mehr</div>
-      <button class="more-item" type="button">Trainer</button>
-      <button class="more-item" type="button">Kader</button>
-      <button class="more-item" type="button">Kasse</button>
-      <button class="more-item" type="button">Rollen verwalten</button>
+    <div class="sp-h">27 Diagnose</div>
+    <div class="frame">
+<div class="ein-kopf"><button class="ein-back" type="button">‹ Einstellungen</button><span class="ein-kopf-t">Diagnose</span></div><div class="ein-body ein-anim-rein"><h1 class="ein-h1">Diagnose</h1><div class="group-head"><h2>App</h2></div><div class="ein-gruppe ein-gruppe-gross"><div class="ein-schalter ein-wertzeile"><span class="ein-schalter-main"><span class="ein-schalter-t">Version</span></span><span class="ein-zeit-wert">2026-10-07-C</span></div><div class="ein-schalter ein-wertzeile"><span class="ein-schalter-main"><span class="ein-schalter-t">Zuletzt geladen</span></span><span class="ein-zeit-wert">heute, 19:30</span></div><div class="ein-schalter ein-wertzeile"><span class="ein-schalter-main"><span class="ein-schalter-t">Offline-Speicher</span></span><span class="ein-zeit-wert">Aus</span></div></div><div class="group-head"><h2>Gerät</h2></div><div class="ein-gruppe ein-gruppe-gross"><div class="ein-schalter ein-wertzeile"><span class="ein-schalter-main"><span class="ein-schalter-t">Mitteilungen</span></span><span class="ein-zeit-wert">Erlaubt</span></div><div class="ein-schalter ein-wertzeile"><span class="ein-schalter-main"><span class="ein-schalter-t">Als App installiert</span></span><span class="ein-zeit-wert">Ja</span></div></div><button class="btn btn-soft ein-voll diag-bericht" type="button"><span>Bericht kopieren</span></button><p class="ein-fuss-mitte"><span>Für Rückfragen an den Admin.</span></p><div class="cal-copied ein-rueckmeldung" hidden=""></div><div class="group-head"><h2>Hilfe</h2></div><div class="ein-gruppe"><div class="ein-schalter ein-wertzeile"><span class="ein-schalter-main"><span class="ein-schalter-t">Online</span></span><span class="ein-zeit-wert">Ja</span></div><div class="ein-schalter ein-wertzeile"><span class="ein-schalter-main"><span class="ein-schalter-t">Letzter Fehler</span></span><span class="ein-zeit-wert">Keiner</span></div><button type="button" class="ein-schalter ein-wertzeile"><span class="ein-schalter-main"><span class="ein-schalter-t">Cache leeren und neu laden</span></span></button><button type="button" class="ein-schalter ein-wertzeile"><span class="ein-schalter-main"><span class="ein-schalter-t">Protokoll dieses Starts</span></span><span class="ein-chev">›</span></button></div></div>
     </div>
-    <div class="meta">.more-title + .more-item — welche Zeilen erscheinen, hängt an der Rolle. Der fünfte Tab entfällt ganz, wenn keine übrig bleibt.</div>
   </div>
-
 </div>
 </body>
 </html>

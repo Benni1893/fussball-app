@@ -119,6 +119,13 @@ die Selbstregistrierung abgeschaltet (PHASE0.md, Abschnitt „Testkonto und Selb
 - Vier verwaiste Handler ohne erzeugendes Element: `data-remind`, `data-toggle-paid`, `data-del-fine`, `data-paypal` (Selektor bei `app.js` 5809).
 - 5. Tab bei Trainer+Kassenwart (ohne Admin): Beschriftung „Trainer“ mit Platz-Symbol, öffnet aber das Mehr-Menü statt der Aufstellung (`setupPrimaryNavTab`, `app.js` 6931-6939: Beschriftung nach höchster Rolle, Ziel nach Anzahl der Spezialbereiche). Klären, ob „Mehr“ gemeint ist. Der Rauchtest `landkartenrauch.mjs` prüft das tatsächliche Verhalten. Nachgetragen am 02.10.2026.
 
+### Paket „Anmeldung und Onboarding“ (Folgepaket aus „Final Alle Screens“, vorgemerkt 07.10.2026)
+Bei der Übernahme der Vorlage „Final Alle Screens“ ausdrücklich ausgenommen, Vorlage unter `.design-sync/concepts/final-2026-10/`:
+- Screen 22 Anmeldung und die Onboarding-Schritte (Registrierung bleibt abgeschaltet, siehe oben).
+- „Position statt Rückennummer im Profil“ (Profil zeigt weiter die Rückennummer; Position bräuchte ein Feld in `profiles` und eine Migration).
+- Mehr-Blatt und Rollen-Screen 26, die die Vorlage selbst als entfallen markiert.
+- Offen aus der Übernahme: Push „Aufstellung veröffentlicht“ (D6) gibt es in der App nicht, die Vorlage zeigt ihn in 19 und 25; die Zeile „Spieltag“ der Vorlage ist in der App „Dringendes zustellen“ (bestehender Schalter); Titel der Push-Text-Zeilen in 25 „zu prüfen“ gegen `notification_templates`.
+
 ---
 
 # Phase 1 — Analyse: Einstellungen + Kader

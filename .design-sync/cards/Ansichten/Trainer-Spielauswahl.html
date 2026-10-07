@@ -4,125 +4,31 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Trainer — Spielauswahl</title>
+<title>Trainer · Spielauswahl</title>
 <link rel="stylesheet" href="../../../styles.css">
 <style>
   /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
-  body { padding: 0; min-height: 0; }
+  body { padding: 0; min-height: 0; background: var(--bg-1); }
   .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
   .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
   .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; line-height: 1.6; }
-  /* Echte Gerätebreite, damit die gemessenen Maße auch gemessen aussehen. */
-  .frame { width: 390px; max-width: 100%; padding: 0 16px; background: var(--bg); border: 1px dashed var(--line); border-radius: 12px; }
+  .frame { width: 390px; max-width: 100%; padding: 20px 16px; background: var(--grad-app); border-radius: 12px; }
+  /* Blaetter liegen in der App fest am Bildschirmrand; transform macht den Rahmen zum Bezug. */
+  .frame-blatt { position: relative; padding: 0; overflow: hidden; transform: translateZ(0); }
 </style>
 </head>
 <body>
 <div class="sp">
-
   <div>
-    <div class="sp-h">Ganze Ansicht bei 390px — Kacheln aus trainer-kacheln-v2.png, Rest aus trainer-sheet-v2.png</div>
+    <div class="sp-h">Trainer · Spielauswahl</div>
+    <p class="meta">Nächstes Spiel, Kaderkarte, weitere Spiele, Vorlagen (Final 06). Erzeugt aus dem Markup der App (kartenbau.mjs).</p>
+  </div>
+  <div>
+    <div class="sp-h">06 Trainer</div>
     <div class="frame">
-      <div class="page-head tv-head" style="padding-top:14px"><h1>Trainer</h1>
-        <p>Spiel wählen, danach baust du die Elf auf dem Platz.</p></div>
-
-      <div class="card tv-next">
-        <div class="tv-next-kopf">
-          <span class="tv-next-lbl">Nächstes Spiel</span>
-          <span class="tv-next-bdg">Heim</span>
-        </div>
-        <div class="tv-next-zeile">
-          <span class="tv-next-datum"><b class="num">20</b><i>Sep</i></span>
-          <span class="tv-next-main"><span class="tv-next-t">VfB Sparta München</span>
-            <span class="tv-next-m num">12:30 Uhr · Anpfiff in 3 Tagen</span></span>
-        </div>
-        <div class="tv-next-zahlen">
-          <div class="tv-nz"><b class="num is-zu">11</b><span>Zugesagt</span></div>
-          <div class="tv-nz"><b class="num is-ab">1</b><span>Abgesagt</span></div>
-          <div class="tv-nz"><b class="num is-of">4</b><span>Offen</span></div>
-        </div>
-        <div class="tv-next-fuss"><button class="tv-next-btn" type="button">Elf aufstellen</button></div>
-      </div>
-
-      <button class="card tv-kader" type="button">
-        <span class="tv-kader-kopf"><span class="tv-kader-t">Kader</span>
-          <span class="tv-kader-n num">16 Spieler</span>
-          <span class="tv-garrow">›</span></span>
-        <span class="tv-kbar" role="img" aria-label="12 fit, 2 angeschlagen, 1 verletzt, 1 Urlaub">
-          <i class="is-fit" style="width:75.00%"></i><i class="is-ang" style="width:12.50%"></i><i class="is-verl" style="width:6.25%"></i><i class="is-url" style="width:6.25%"></i>
-        </span>
-        <span class="tv-kleg">
-          <span class="tv-kstat"><i class="is-fit"></i><b class="num">12</b><span>fit</span></span>
-          <span class="tv-kstat"><i class="is-ang"></i><b class="num">2</b><span>angeschlagen</span></span>
-          <span class="tv-kstat"><i class="is-verl"></i><b class="num">1</b><span>verletzt</span></span>
-          <span class="tv-kstat"><i class="is-url"></i><b class="num">1</b><span>Urlaub</span></span>
-        </span>
-      </button>
-
-      <div class="section-title sec-mini"><h2>Weitere Spiele</h2><button class="link-btn" type="button">Alle &rsaquo;</button></div>
-      <div class="card tv-glist">
-        <button class="tv-grow" type="button">
-          <span class="tv-gdate"><span class="d-day num">27</span><span class="d-mon">Sep</span></span>
-          <span class="tv-gmain"><span class="tv-gopp">FT München-Gern 2</span>
-            <span class="tv-gmeta num">10:00 · Auswärts</span></span>
-          <span class="tv-gchip">Elf steht</span>
-          <span class="tv-garrow">›</span>
-        </button>
-        <button class="tv-grow" type="button">
-          <span class="tv-gdate"><span class="d-day num">4</span><span class="d-mon">Okt</span></span>
-          <span class="tv-gmain"><span class="tv-gopp">SV Olympiadorf München</span>
-            <span class="tv-gmeta num">12:30 · Heim</span></span>
-          <span class="tv-gchip is-offen">offen</span>
-          <span class="tv-garrow">›</span>
-        </button>
-      </div>
-
-      <div class="section-title sec-mini"><h2>Vorlagen</h2><button class="link-btn" type="button">Neu &rsaquo;</button></div>
-      <div class="card tv-tpls" style="margin-bottom:16px">
-        <div class="tv-tpl">
-          <span class="tv-tpl-main"><span class="tv-tpl-n">4-3-3 Standard</span>
-            <span class="rs">geändert am 17. Sep</span></span>
-          <span class="tv-tpl-chip num">4-3-3</span>
-          <button class="icon-btn" type="button" aria-label="Vorlage löschen">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>
-          </button>
-        </div>
-      </div>
+<div class="page-head tv-head"><h1>Trainer</h1></div><div class="card tv-next"><div class="tk-kopf is-hero is-gold tv-next-kopf"><div class="tk-kopfzeile"><span class="wf wf-hero"><span class="wf-wd">So</span><span class="wf-day num">11</span><span class="wf-mon">Okt</span></span><span class="tk-kopf-main"><span class="tk-oben">Nächstes Spiel · Auswärts</span><span class="tk-titel">FC Teutonia Mün. 2</span><span class="tk-zeit">13:30 Uhr · in 6 Tagen</span></span></div></div><button class="tk-rueck tv-rueck"><span class="tk-rueck-main"><span class="tk-rueck-kopf"><span class="tk-rueck-t">Rückmeldungen</span></span><span class="tk-bar"><i class="is-zu" style="width:6.25%"></i><i class="is-ab" style="width:0.00%"></i></span><span class="tk-rueck-z"><b>1</b> zu · <b>0</b> ab · <b>15</b> offen</span></span><span class="tk-chev">›</span></button><div class="tv-next-fuss"><button class="btn btn-primary tv-next-btn">Elf aufstellen</button></div></div><button class="card tv-kader"><span class="tv-kader-kopf"><span class="tv-kader-t">Kader</span><span class="tv-kader-n">16 Spieler ›</span></span><span class="tv-kbar"><i class="is-fit" style="width:93.75%"></i><i class="is-verl" style="width:6.25%"></i></span><span class="tv-kleg"><span class="tv-kstat is-fit"><b>15</b> fit</span><span class="tv-ksep"> · </span><span class="tv-kstat is-verl"><b>1</b> verletzt</span></span></button><div class="group-head"><h2>Weitere Spiele</h2><button class="link-btn">Alle ›</button></div><div class="card dn-liste tv-glist"><button class="dn-zeile is-spiel tv-grow"><span class="dn-strich"></span><span class="wf wf-klein"><span class="wf-wd">So</span><span class="wf-day num">18</span><span class="wf-mon">Okt</span></span><span class="dn-main"><span class="dn-t">SC Grüne Heide 2</span><span class="dn-s">12:30 Uhr · Heim</span></span><span class="mark is-gruen">Elf steht</span><span class="row-chev tv-chev">›</span></button><button class="dn-zeile is-spiel tv-grow"><span class="dn-strich"></span><span class="wf wf-klein"><span class="wf-wd">So</span><span class="wf-day num">25</span><span class="wf-mon">Okt</span></span><span class="dn-main"><span class="dn-t">SV Am Hart Mün.</span><span class="dn-s">12:45 Uhr · Auswärts</span></span><span class="mark is-amber">Elf offen</span><span class="row-chev tv-chev">›</span></button></div><div class="group-head"><h2>Vorlagen</h2><button class="link-btn">+ Neu</button></div><div class="card tv-tpls"><div class="tv-tpl"><span class="tv-tpl-main"><span class="tv-tpl-n">Standard</span><span class="tv-tpl-s">4-3-3 · geändert 17. Sep</span></span><button class="tk-menue tv-tpl-menue"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><circle cx="5" cy="12" r="1.9"></circle><circle cx="12" cy="12" r="1.9"></circle><circle cx="19" cy="12" r="1.9"></circle></svg></button></div><div class="tv-tpl"><span class="tv-tpl-main"><span class="tv-tpl-n">Grundelf</span><span class="tv-tpl-s">4-2-3-1 · geändert 20. Sep</span></span><button class="tk-menue tv-tpl-menue"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><circle cx="5" cy="12" r="1.9"></circle><circle cx="12" cy="12" r="1.9"></circle><circle cx="19" cy="12" r="1.9"></circle></svg></button></div></div>
     </div>
   </div>
-
-  <div>
-    <div class="sp-h">Die Karte „Nächstes Spiel“ im Einzelnen</div>
-    <div class="card card-pad">
-      <p class="rs">Gemessen aus trainer-kacheln-v2.png: Karte 358×260 ohne Farbstreifen,
-      innen zwei Haarlinien. Kopfband 112 hoch mit Plakette 46×23 (heller Grund,
-      dunkelgrüne Schrift), Datumsblock 50 breit — Tag 22px, Monat 9px — und dem Gegner
-      in 20px/800. Kennzahlband 69 hoch über die volle Kartenbreite, drei Spalten zu 119,3,
-      getrennt durch senkrechte Haarlinien. Knopf 324×48, Radius 14.</p>
-    </div>
-    <div class="meta">.card.tv-next &gt; .tv-next-kopf (.tv-next-lbl, .tv-next-bdg) · .tv-next-zeile (.tv-next-datum, .tv-next-main mit .tv-next-t/.tv-next-m) · .tv-next-zahlen &gt; .tv-nz (b.is-zu/.is-ab/.is-of, span) · .tv-next-fuss &gt; .tv-next-btn</div>
-  </div>
-
-  <div>
-    <div class="sp-h">Kaderkarte — ein Balken statt Striche</div>
-    <div class="card card-pad">
-      <p class="rs">Gemessen 358×129, Innenrand 16. Der Balken ist 7 hoch und teilt sich
-      im Verhältnis der vier Statuszahlen; die Legende darunter steht zweispaltig mit
-      8px-Punkten. Die Zahl „4 OFFEN“ in der Spielkarte trägt --amber-700 statt des
-      gemessenen --amber-600: der hellere Ton erreicht auf Weiß nur 3,7:1.</p>
-    </div>
-    <div class="meta">.card.tv-kader &gt; .tv-kader-kopf (.tv-kader-t, .tv-kader-n, .tv-garrow) · .tv-kbar &gt; i.is-fit/.is-ang/.is-verl/.is-url · .tv-kleg &gt; .tv-kstat (i, b, span)</div>
-  </div>
-  <div>
-    <div class="sp-h">Zwei bewusste Abweichungen von der Vorlage</div>
-    <div class="card card-pad">
-      <p class="rs">Der <b>Papierkorb</b> in der Vorlagenzeile bleibt stehen, obwohl die
-      Vorlage dort nur die Formationsplakette zeigt — sonst wäre keine Vorlage mehr
-      löschbar. <b>„Neu ›"</b> führt in die Platzansicht des nächsten Spiels, weil eine
-      Vorlage nur aus einer offenen Aufstellung entstehen kann; ohne anstehendes Spiel
-      entfällt der Verweis.</p>
-    </div>
-  </div>
-
 </div>
 </body>
 </html>

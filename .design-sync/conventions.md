@@ -56,62 +56,57 @@ Layout-Beiwerk kommt als `style="…"` mit Tokens oder als neue, sprechende Klas
 
 | Zweck | Klassen |
 |---|---|
-| Fläche, Seite | `.card` `.card-pad` · `.page-head` `.page-head-row` `.pg-back` `.h1row` `.role-pill` · `.section-title` (klein: `.sec-mini`) · `.empty` |
+| Fläche, Seite | `.card` `.card-pad` · `.page-head` `.pg-back` `.h1row` `.role-pill` · `.section-title` (klein: `.sec-mini`) · `.empty` |
 | Textbausteine | `.lbl` (11px Großbuchstaben) · `.rs` (12px Nebentext) · `.num` (gleiche Ziffernbreite) |
-| Kennzahlen | `.kpi-grid` (`.kpi-3`) `.kpi` `.kpi-label` `.kpi-value` `.kpi-sub` `.kpi-amt` `.kpi-tapbar` · `.is-warn` · Geldzeilen: `.geld-rows` `.geld` `.geld-main` `.geld-lbl` `.geld-wert` `.geld-chev` |
-| Termine | `.event-list` (`.is-past`) · **Terminkarte** `.tk` (`.is-cancelled`): `.tk-kopf` `.tk-datum` `.d-wd` `.d-day` `.d-mon` · `.tk-kopf-main` `.tk-oben` `.tk-bdg` `.tk-zeit` `.tk-titel` `.tk-tags` · `.tk-menue` · `.tk-body` `.tk-feld` · `.tk-ort` `.tk-ort-ic` `.tk-ort-main` `.tk-ort-n` `.tk-ort-a` `.tk-route` · `.tk-rsvp` `.tk-btn` `.tk-abgesagt` `.tk-grund` · `.tk-frist` `.tk-warn` `.tk-bfv` `.tk-notiz` `.tk-ics` · `.tk-zusagen` `.tk-z-kopf` `.tk-z-lbl` `.tk-z-offen` `.tk-bar` `.tk-z-zahlen` · `.tk-kacheln` `.tk-kachel` `.tk-k-lbl` `.tk-k-wert` `.tk-chev` · Kalenderkopf: `.kal-seg` `.kal-seg-b` `.kal-neu` `.kal-abo-wrap` (`.is-weg`) `.kal-abo` (`.hat-x`) `.kal-abo-ic` `.kal-abo-main` `.kal-abo-t` `.kal-abo-chev` `.kal-abo-x` · Abo-Blatt: `.abo-karten` `.abo-karte` `.abo-k-t` `.abo-hinweis` `.abo-schritte` `.abo-btn` `.abo-fuss` `.cal-copied` `.cal-reset` · Benachrichtigungen: derselbe `.set-section`-Aufbau wie die übrigen Einstellungen, plus `.abo-schritte` für die Anleitungen und `.kal-abo-wrap` für den einmaligen Hinweis auf der Übersicht · Push-Katalog (nur Admin): `.pkat-liste` `.pkat-karte` `.pkat-kopf` `.pkat-name` `.pkat-marken` `.pkat-wer` `.pkat-vorschau` `.pkat-feld` `.pkat-lbl` `.pkat-zahl` (`.is-lang`) `.pkat-in` `.pkat-platz` `.pkat-knoepfe`, dazu die nachgebauten Mitteilungen `.mt` `.mt-ios` `.mt-android` mit `.mt-ic` `.mt-main` `.mt-kopf` `.mt-app` `.mt-zeit` `.mt-leiste` `.mt-badge` `.mt-t` `.mt-x` · `.frist` `.frist-label` `.frist-warn` |
-| Übersicht | Hero ist dieselbe `.tk` wie im Kalender · Danach-Liste: `.dn-liste` `.dn-zeile` `.dn-main` `.dn-t` `.dn-s` `.dn-zust` (`.is-zu` `.is-ab` `.is-offen`) · `.st-wahl[data-kompakt]` legt die Statuschips ins 2×2-Raster |
+| Kennzahlen | `.kpi-grid` (`.kpi-3`) `.kpi` `.kpi-label` `.kpi-value` `.kpi-sub` `.kpi-amt` · `.is-warn` · Geldzeilen: `.geld-rows` `.geld` `.geld-main` `.geld-lbl` `.geld-wert` `.geld-chev` |
+| Termine | `.event-list` (`.is-past`) · **Terminkarte** `.tk` (`.is-cancelled`): `.tk-kopf` · `.tk-kopf-main` `.tk-oben` `.tk-zeit` `.tk-titel` · `.tk-menue` · `.tk-body` · `.tk-ort` `.tk-ort-ic` `.tk-ort-n` `.tk-route` · `.tk-rsvp` `.tk-btn` `.tk-abgesagt` `.tk-grund` · `.tk-warn` `.tk-bfv` `.tk-notiz` · `.tk-bar` · `.tk-chev` · Kalenderkopf: `.kal-seg` `.kal-seg-b` `.kal-neu` `.kal-abo-wrap` (`.is-weg`) `.kal-abo` (`.hat-x`) `.kal-abo-ic` `.kal-abo-main` `.kal-abo-t` `.kal-abo-chev` `.kal-abo-x` · Abo-Blatt: `.abo-karten` `.abo-karte` `.abo-k-t` `.abo-hinweis` `.abo-schritte` `.abo-btn` `.abo-fuss` `.cal-copied` `.cal-reset` · Benachrichtigungen: derselbe `.set-section`-Aufbau wie die übrigen Einstellungen, plus `.abo-schritte` für die Anleitungen und `.kal-abo-wrap` für den einmaligen Hinweis auf der Übersicht · Push-Katalog (nur Admin): `.pkat-liste` `.pkat-karte` `.pkat-kopf` `.pkat-name` `.pkat-marken` `.pkat-wer` `.pkat-vorschau` `.pkat-feld` `.pkat-lbl` `.pkat-zahl` (`.is-lang`) `.pkat-in` `.pkat-platz` `.pkat-knoepfe`, dazu die nachgebauten Mitteilungen `.mt` `.mt-ios` `.mt-android` mit `.mt-ic` `.mt-main` `.mt-kopf` `.mt-app` `.mt-zeit` `.mt-leiste` `.mt-badge` `.mt-t` `.mt-x` · `.frist` `.frist-label` `.frist-warn` |
+| Übersicht | Hero ist dieselbe `.tk` wie im Kalender · Danach-Liste: `.dn-liste` `.dn-zeile` `.dn-main` `.dn-t` `.dn-s` (`.is-zu` `.is-ab` `.is-offen`) · `.st-wahl[data-kompakt]` legt die Statuschips ins 2×2-Raster |
 | Zu-/Absage | `.tk-rsvp` `.tk-btn` (Absage zusätzlich `.is-ab`, gewählt `.is-on`) · `.tk-grund`. Gewählt heißt Tint: heller Grund, Schrift und 1px-Rand in der dunklen Variante derselben Farbe. Das Dunkelgrün bleibt der Handlung vorbehalten. |
 | Aufgaben | `.task-list` `.task-row` (`.is-pay` `.is-lineup` `.is-rsvp`) `.task-num` `.task-main` `.task-title` `.task-sub` `.task-go` |
 | Aktionen | `.btn` + `.btn-primary` `.btn-soft` `.btn-danger` `.btn-ghost` · `.icon-btn` `.icon-ok` · `.link-btn` · `.chips` `.chip` (`.is-active`) |
-| Status | `.st-badge` + `.st-amber` `.st-red` `.st-grau` · `.tag` + `.tag-friendly` `.tag-cancelled` `.tag-manuell` · `.badge` + `.badge-open` `.badge-paid` `.badge-cancel` `.badge-auto` `.badge-self` · `.cd` + `.cd-neutral` `.cd-amber` `.cd-red` `.cd-due` `.cd-capped` |
+| Status | `.st-badge` + `.st-amber` `.st-red` `.st-grau` · `.tag` + `.tag-cancelled` `.tag-manuell` · `.badge` + `.badge-open` `.badge-paid` `.badge-cancel` `.badge-auto` `.badge-self` · `.cd` + `.cd-neutral` `.cd-amber` `.cd-red` `.cd-due` `.cd-capped` |
 | Fitnessstatus | `.st-wahl` `.st-chips` `.st-choice` + `.st-fit` `.st-angeschlagen` `.st-verletzt` `.st-urlaub` · `.st-felder` `.st-feld` |
-| Kader | `.kad-list` `.kad-row` (`.is-raus`) `.kad-kopf` `.kad-name` · `.laz-list` `.laz-row` `.laz-main` `.laz-name` `.laz-note` · `.avatar` |
-| Trainer-Ansicht | `.tv-head` · `.tv-next` `.tv-next-kopf` `.tv-next-lbl` `.tv-next-bdg` `.tv-next-zeile` `.tv-next-datum` `.tv-next-main` `.tv-next-t` `.tv-next-m` `.tv-next-zahlen` `.tv-nz` `.tv-next-fuss` `.tv-next-btn` · `.tv-kader` `.tv-kader-kopf` `.tv-kader-t` `.tv-kader-n` `.tv-kbar` `.tv-kleg` `.tv-kstat` `.tv-garrow` · `.tv-glist` `.tv-grow` `.tv-gdate` `.tv-gmain` `.tv-gopp` `.tv-gmeta` `.tv-gchip` (`.is-offen`) · `.tv-tpls` `.tv-tpl` `.tv-tpl-main` `.tv-tpl-n` `.tv-tpl-chip` |
-| Platzansicht | `.tv-lu` (`.tv-ro`) `.tv-top` `.tv-ic` `.tv-hi` `.tv-game` `.tv-sub` · `.tv-formbar` `.tv-fpill` `.tv-fmore` · `.tv-field` `.tv-pitch` `.tv-pitch-bg` `.tv-slot` (`.filled` `.sel`) `.tv-disc` `.tv-role` `.tv-pn` · `.tv-bank` `.tv-bank-h` `.tv-bank-row` `.tv-bslot` `.tv-bnr` `.tv-bn` `.tv-bx` `.tv-bplus` `.tv-bfrei` · `.tv-actions` `.tv-primary` `.tv-ghost` `.tv-cta` `.tv-ro-note` |
-| Rückmeldungen-Blatt | `.rs2-panel` `.rs2-griff` `.rs2-kopf` `.rs2-kopf-text` `.rs2-titel` `.rs2-sub` `.rs2-zu` · `.rs2-bar` · `.rs2-kacheln` `.rs2-kachel` `.rs2-k-l` `.rs2-k-z` · `.rs2-liste` `.rs2-zeile` `.rs2-av` `.rs2-n` `.rs2-grund` `.rs2-leer` · `.rs2-fuss` `.rs2-btn` `.rs2-btn2` |
+| Kader | `.kad-list` `.kad-row` (`.is-raus`) `.kad-kopf` `.kad-name` · · `.avatar` |
+| Trainer-Ansicht | `.tv-head` · `.tv-next` `.tv-next-kopf` `.tv-next-lbl` `.tv-next-zeile` `.tv-next-datum` `.tv-next-main` `.tv-next-t` `.tv-next-m` `.tv-next-zahlen` `.tv-next-fuss` `.tv-next-btn` · `.tv-kader` `.tv-kader-kopf` `.tv-kader-t` `.tv-kader-n` `.tv-kbar` `.tv-kleg` `.tv-kstat` · `.tv-glist` `.tv-grow` `.tv-gchip` (`.is-offen`) · `.tv-tpls` `.tv-tpl` `.tv-tpl-main` `.tv-tpl-n` `.tv-tpl-chip` |
+| Platzansicht | `.tv-lu` (`.tv-ro`) `.tv-top` `.tv-ic` `.tv-hi` `.tv-game` `.tv-sub` · `.tv-formbar` `.tv-fpill` `.tv-fmore` · `.tv-field` `.tv-pitch` `.tv-pitch-bg` `.tv-slot` (`.filled` `.sel`) `.tv-disc` `.tv-role` `.tv-pn` · `.tv-bank` `.tv-bank-h` `.tv-bank-row` `.tv-bslot` `.tv-bnr` `.tv-bn` `.tv-bx` · `.tv-actions` `.tv-primary` `.tv-ghost` `.tv-cta` `.tv-ro-note` |
+| Rückmeldungen-Blatt | `.rs2-panel` `.rs2-griff` `.rs2-kopf` `.rs2-kopf-text` `.rs2-titel` `.rs2-sub` `.rs2-zu` · `.rs2-bar` · `.rs2-kacheln` `.rs2-kachel` `.rs2-k-l` `.rs2-k-z` · `.rs2-liste` `.rs2-zeile` `.rs2-av` `.rs2-n` `.rs2-grund` `.rs2-leer` · `.rs2-fuss` `.rs2-btn` |
 | Konto | `.mine-banner` (`.is-clear`) `.mb-label` `.mb-value` `.mb-sub` `.mb-bar` `.mb-note` `.mb-pay` `.mb-pp` `.mb-foot` `.mb-cd` `.pp-word` · `.fine-list` `.fine-row` `.fine-main` `.fine-name` `.fine-desc` `.fine-reason` `.fine-right` `.fine-amt` |
-| Kasse | `.kpi-tapbar` `.ks-neu` `.kasse-add` `.kasse-lbl` `.kasse-count` `.kasse-players` `.kasse-chip` `.kasse-in` `.kasse-two` `.kasse-sum` `.kasse-sum-row` `.kasse-sum-total` `.kasse-save` `.ks-auch` · Reiter: `.ks-seg` `.ks-seg-b` (`.is-on`) `.ks-seg-n` · Suche: `.ks-such` `.ks-suchfeld` `.ks-such-in` `.ks-such-x` `.ks-gewaehlt` `.ks-gchip` · Eingabeseite: `.ks-seite` `.ks-seite-kopf` `.ks-seite-zur` `.ks-seite-t` `.ks-seite-x` `.ks-seite-body` · gemeinsamer Fuß: `.ks-fuss` `.ks-fuss-btn` · Prüfkarte: `.ks-deck` `.ks-card` `.ks-kopf` `.ks-av` `.ks-name` `.ks-amt` `.ks-meta` `.ks-zitat` `.ks-actions` · Offen: `.krow-list` `.krow` `.krow-top` `.krow-title` `.krow-amt` `.krow-strafe` `.krow-verh` `.krow-actions` `.ks-storno` `.ks-buchen` · Eingegangen: `.ks-ein` `.ks-ein-row` `.ks-ok` `.ks-ein-main` `.ks-ein-n` `.ks-ein-m` `.ks-ein-b` · Angabe des Spielers: `.ks-sag` `.ks-zi` (`.is-pp`) · Blatt: `.ks-bl` `.ks-bl-sum` `.ks-bl-top` `.ks-bl-n` `.ks-bl-b` `.ks-bl-s` `.ks-bl-lbl` `.ks-bl-h` `.ks-bl-cta` · Wähler: `.ks-wahl` `.ks-wahl-b` `.ks-wahl-t` `.ks-wahl-s` `.ks-wahl-f` · Zahlung melden: `.zm-lbl` `.zm-opt` `.zm-zahl` (`.is-lang`) `.zm-note` · `.ks-leer` `.ks-leer-t` · `.ks-ichips` `.ks-ichip` · `.zart-row` `.zart` (`.is-on`) |
-| Katalog | `.kat-list` `.kat-item` `.kat-name` `.kat-sub` `.kat-amount` (`.is-staffel`) `.kat-actions` `.kat-add` · Bearbeiten: `.kat-edit` `.kat-in` `.kat-fixed` `.kat-eur` `.kat-staffel` `.kat-edit-actions` |
-| Formulare | `.termin-form` `.tf-row` `.tf-2col` `.tf-wdh` `.tf-radio` `.tf-bis` `.tf-summary` |
+| Kasse | `.ks-neu` `.kasse-add` `.kasse-lbl` `.kasse-players` `.kasse-chip` `.kasse-in` `.kasse-sum` `.kasse-sum-row` `.kasse-sum-total` `.kasse-save` `.ks-auch` · Reiter: `.ks-seg` `.ks-seg-b` (`.is-on`) `.ks-seg-n` · Suche: `.ks-such` `.ks-suchfeld` `.ks-such-in` `.ks-such-x` `.ks-gewaehlt` `.ks-gchip` · Eingabeseite: `.ks-seite` `.ks-seite-kopf` `.ks-seite-zur` `.ks-seite-t` `.ks-seite-x` `.ks-seite-body` · gemeinsamer Fuß: `.ks-fuss` `.ks-fuss-btn` · Prüfkarte: `.ks-deck` `.ks-card` `.ks-kopf` `.ks-av` `.ks-name` `.ks-amt` `.ks-meta` `.ks-zitat` `.ks-actions` · Offen: `.krow` `.ks-buchen` · Eingegangen: `.ks-ein` `.ks-ein-row` `.ks-ok` `.ks-ein-main` `.ks-ein-n` `.ks-ein-m` `.ks-ein-b` · Angabe des Spielers: `.ks-sag` `.ks-zi` (`.is-pp`) · Blatt: `.ks-bl` `.ks-bl-sum` `.ks-bl-top` `.ks-bl-n` `.ks-bl-b` `.ks-bl-s` `.ks-bl-lbl` `.ks-bl-h` `.ks-bl-cta` · Wähler: `.ks-wahl` `.ks-wahl-b` `.ks-wahl-t` `.ks-wahl-s` `.ks-wahl-f` · Zahlung melden: `.zm-lbl` `.zm-opt` `.zm-zahl` (`.is-lang`) `.zm-note` · `.ks-leer` `.ks-leer-t` · `.ks-ichips` `.ks-ichip` · `.zart-row` `.zart` (`.is-on`) |
+| Katalog | `.kat-list` `.kat-item` `.kat-name` `.kat-sub` `.kat-amount` (`.is-staffel`) `.kat-actions` `.kat-add` · Bearbeiten: `.kat-edit` `.kat-in` `.kat-fixed` `.kat-eur` `.kat-staffel` |
+| Final-Bausteine (Paket Final Alle Screens) | `.group-head` · `.row` `.row-av` `.row-main` `.row-t` `.row-s` `.row-end` `.row-chev` · `.mark` (`.is-gruen` `.is-rot` `.is-amber` `.is-urlaub` `.is-gold`) `.mark-dot` · `.add-btn` · `.seg` `.seg-b` · Goldwürfel `.wf` `.wf-hero` `.wf-karte` `.wf-klein` · Terminkarte `.tk-kopf` (`.is-hero` `.is-spiel` `.is-training` `.is-sonstiges` `.is-gold`) `.tk-pille` `.tk-ring` `.tk-rueck` `.tk-felder` `.tk-feld2` `.tk-unten` · Danach `.dn-zeile` `.dn-strich` · Termin-Blatt `.tf-blatt` `.tf-art` `.tf-liste` `.tf-z` `.tf-l` `.tf-nat` `.tf-seg` · Platz `.tv-ring` `.tv-frei-hinweis` `.tv-frei-l` `.tv-krow` `.tv-knr` · Kader `.kad-kpis` `.kad-pille` `.sb-panel` `.sb-k` · Konto `.kt-seg` `.kt-kpi` `.kt-chip` `.kt-row` · Kasse `.ks-geist` `.ks-summe` `.ks-zeile` `.ks-bz` `.ks-box` `.ks-sum` `.ks-katzeile` · Katalog `.kat-blatt` · Einstellungen `.ein-status` `.ein-schritt` `.ein-gefahr` `.ein-wertzeile` `.pr-kopf` `.pr-zeile` |
+| Formulare | `.tf-wdh` `.tf-summary` |
 | Tabelle | `.table-wrap` + `.rollen-tbl` `.player-cell` `.rollen-av` `.rollen-name` `.rollen-mail` |
 | Anmeldung | `.auth-wrap` `.auth-card` `.auth-crest` `.auth-title` `.auth-sub` `.auth-field` `.auth-submit` `.auth-switch` `.auth-forgot` `.auth-error` `.auth-info` |
 | Blätter, Dialoge | `.more-sheet` `.more-backdrop` `.more-panel` `.more-title` `.more-item` · `.modal-ov` `.modal` (`.modal-sm`) `.modal-head` `.modal-x` `.modal-sub` `.modal-text` `.modal-actions` (`.modal-actions-col`) `.modal-hint` · `.ptr-ind` `.ptr-coin` `.ptr-ring` `.ptr-disc` `.ptr-logo` `.ptr-shadow` |
-| Einstellungen, Profil | `.set-section` `.set-profile` `.set-row` `.set-label` `.set-val` `.set-verwaltung` `.set-sub` `.set-hint` `.set-greet-name` `.set-greet-role` · `.pr-head` `.pr-av` `.pr-name` `.pr-list` `.pr-row` `.pr-bar` `.pr-main` `.pr-t` · `.sim-bar` `.sim-exit` `.sim-switch-hint` |
+| Einstellungen, Profil | `.set-section` `.set-label` `.set-val` `.set-verwaltung` `.set-sub` `.set-hint` · `.pr-head` `.pr-av` `.pr-name` `.pr-list` `.pr-row` `.pr-bar` `.pr-main` `.pr-t` · `.sim-bar` `.sim-exit` `.sim-switch-hint` |
 
 Zustände hängen sich als zweite Klasse an: `.tk-btn.is-ab.is-on`, `.kpi.is-warn`,
 `.tk.is-cancelled`. Geschlossene Blätter tragen `hidden`, nicht `display:none`.
 
 ## Farben nur über Tokens
 
-Nie ein Hex ins Markup. Alles liegt in `tokens/tokens.css` (159 Tokens):
+Nie ein Hex ins Markup. Alles liegt in `tokens/tokens.css` (151 Tokens):
 
 - Vereinsgrün `--green-990` bis `--green-050` — Kopfzeile, Primäraktion, Erfolg.
   `--green-700` trägt jede Primäraktion, `--green-800` Zahlen und Verweise.
-- Gold `--gold-700` bis `--gold-050` plus `--gold-ink` — Akzent, Spiele, Datumswürfel.
+- Gold `--gold-700` bis `--gold-100` plus `--gold-ink` — Akzent, Spiele, Datumswürfel.
   Schrift auf Goldflächen immer `--gold-ink` oder `--gold-ink-2`, nie Weiß.
 - Signal: `--red-600` `--red-050` (offen, abgesagt, verletzt) · `--amber-600`
-  `--amber-050` (wartet auf Bestätigung, gewählter Filter), dazu `--amber-700`
-  überall dort, wo der Ton als Text auf hellem Grund steht und 4,5:1 halten muss ·
-  `--dot-off` (Urlaub — kein eigenes Bunt, sondern dasselbe Grau wie im Balken
-  der Kaderkachel).
-- Neutral `--ink` `--muted` `--line` `--bg` `--card`. `--muted` erreicht auf Weiß
-  4,7:1 und ist die hellste erlaubte Nebenfarbe. Auf getönten Flächen reicht sie
-  nicht: auf `--seg-bg` kommt sie nur auf 3,9:1. Dort steht `--muted-2` (4,65:1
-  auf `--seg-bg`, 5,8:1 auf Weiß) — derselbe Ton, eine Stufe dunkler.
+  `--amber-050` (wartet auf Bestätigung, gemeldet, angeschlagen), Schrift darauf
+  `--amber-ink` (4,5:1) · Urlaub blau: `--blau-600` (Punkt), `--blau-050`
+  `--blau-700` `--blau-line` (Vorlage Final, ersetzt das frühere Grau).
+- Neutral `--ink` `--muted` `--line` `--bg` `--card`. `--muted` (#5c6a63) hält
+  5,7:1 auf Weiß und 4,7:1 auf `--bg-2`; es gibt nur noch diese eine Nebenfarbe.
 - `--seg-bg` ist der Kasten der Segmentleiste (`.ks-seg`, `.zart-row`): eine
   Fläche, kein Rand, auch wenn der Wert mit `--line` zusammenfällt.
 - Verläufe `--grad-card` `--grad-btn` `--grad-chip` `--grad-edge-green`
   `--grad-edge-gold` `--grad-edge-red` und weitere. Die gefüllten Statuschips
   tragen eigene, dunklere Verläufe — `--grad-chip-on` `--grad-chip-gold`
   `--grad-chip-red` `--grad-urlaub` —, weil weiße Schrift auf den hellen
-  Kantenverläufen keine 4,5:1 erreicht. Das Kopfband der Terminkarte trägt
-  `--grad-tk-kopf`, der ⋯-Kreis darauf `--tk-menue`.
-- Die Plakette HEIM/AUSWÄRTS auf dem Kopfband trägt `--bdg-venue-bg`
-  `--bdg-venue-line` `--bdg-venue-fg` — Gold als Tint, nicht als Vollton, damit
-  sie hinter Datum, Gegner und Uhrzeit zurücktritt (Schrift 5,60:1). Die drei
-  Werte sind aus der Vorlage gelesen und nicht als `color-mix` bestehender
-  Tokens ausdrückbar, weil das Kopfband ein Verlauf ist.
+  Kantenverläufen keine 4,5:1 erreicht. Der Kopf der Terminkarte richtet sich nach
+  der Art: Spiel dunkel (`--green-800` bis `--green-900`), Training hell
+  (`--grad-task-green`), Sonstiges gold (`--grad-task-gold`); der nächste Termin
+  trägt die Goldlinie (`--gold-400` bis `--gold-700`).
 - Form: `--radius` (14), `--radius-md` (12), `--radius-btn` (10),
   `--radius-sheet` (18), `--radius-pill`, `--radius-box` (6), `--shadow`,
   `--shadow-card`, `--shadow-sm`.
@@ -399,7 +394,7 @@ Bei gleichem Datum entscheidet der Name, damit die Reihenfolge nicht springt.
 
 ## Zeilen in einer Karte: 16, nicht 14
 
-`.kat-item` und `.laz-row` sind **eigenständige Karten** und tragen 14 px
+`.kat-item` ist eine **eigenständige Karte** und trägt 16 px
 waagerecht. Eine Zeile **innerhalb** einer Karte (`.ks-ein-row`) nimmt dagegen
 den Karten-Standard **16 px** — wie `.card-pad` und `.ks-card`. Der Abstand
 zwischen Avatar bzw. Symbolkreis und Text bleibt in beiden Fällen **12 px**;

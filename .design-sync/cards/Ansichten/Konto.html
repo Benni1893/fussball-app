@@ -8,132 +8,68 @@
 <link rel="stylesheet" href="../../../styles.css">
 <style>
   /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
-  body { padding: 0; min-height: 0; }
+  body { padding: 0; min-height: 0; background: var(--bg-1); }
   .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
   .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
   .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; line-height: 1.6; }
-  .frame { width: 390px; max-width: 100%; padding: 0 16px; background: var(--bg); border: 1px dashed var(--line); border-radius: 12px; }
+  .frame { width: 390px; max-width: 100%; padding: 20px 16px; background: var(--grad-app); border-radius: 12px; }
+  /* Blaetter liegen in der App fest am Bildschirmrand; transform macht den Rahmen zum Bezug. */
+  .frame-blatt { position: relative; padding: 0; overflow: hidden; transform: translateZ(0); }
 </style>
 </head>
 <body>
 <div class="sp">
-
   <div>
-    <div class="sp-h">Ganze Ansicht bei 390px</div>
+    <div class="sp-h">Strafen-Konto</div>
+    <p class="meta">Segment Ich / Mannschaft, Kontobanner, Chips mit Anzahl, Listen (Final 11, 12). Erzeugt aus dem Markup der App (kartenbau.mjs).</p>
+  </div>
+  <div>
+    <div class="sp-h">11 Konto Ich</div>
     <div class="frame">
-      <div class="page-head" style="padding-top:14px">
-        <button class="pg-back" type="button" aria-label="Zurück">&lsaquo;</button>
-        <h1>Strafen-Konto</h1>
-      </div>
 
+      <div class="page-head"><h1>Strafen-Konto</h1></div>
+      <div class="seg kt-seg">
+        <button class="seg-b is-on">Ich</button>
+        <button class="seg-b">Mannschaft</button>
+      </div>
       <div class="mine-banner">
-        <div class="mb-label">Dein Konto · Max Bauer</div>
-        <div class="mb-value num">128,50 €</div>
-        <div class="mb-sub">offen von 462,00 € · 9 Strafen</div>
-        <div class="mb-bar" role="img" aria-label="72 % erledigt"><i style="width:72%"></i></div>
-        <div class="mb-note">inkl. 6,00 € Mahnzuschlag</div>
-        <a class="btn btn-primary mb-pay" href="#">128,50 € jetzt bezahlen</a>
-        <div class="mb-pp"><span class="rs">über</span><span class="pp-word"><span class="pp1">Pay</span><span class="pp2">Pal</span></span><span class="rs">· Freunde &amp; Familie</span></div>
-        <div class="mb-foot">
-          <button class="link-btn" type="button">Zahlung melden</button>
-          <span class="mb-cd">Erhöhung in <span class="cd cd-red">2 Tage</span></span>
-        </div>
+        <div class="mb-label">Dein Konto · Lukas Weber</div>
+        <div class="mb-value num">30,00&nbsp;€</div>
+        <div class="mb-sub">2 Strafen offen · <b class="mb-gem">8 gemeldet</b></div>
+          <a class="btn btn-primary mb-pay" href="https://paypal.me/Teamkassefasanerie/30.00EUR" target="_blank" rel="noopener noreferrer">30,00&nbsp;€ jetzt bezahlen</a>
+          <div class="mb-pp">über <b class="pp-word">Pay<span>Pal</span></b> · Freunde &amp; Familie</div>
+          <div class="mb-foot">
+            <button class="link-btn">Zahlung melden ›</button>
+            <span class="mark is-rot mb-cd cd cd-red">Erhöhung in 1h 50m</span>
+          </div>
       </div>
-
-      <div class="kpi-grid">
-        <div class="kpi is-warn">
-          <div class="kpi-label">Summe offen</div>
-          <div class="kpi-value kpi-amt">128,50 €</div>
-          <div class="kpi-sub">3 offene Strafen</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-label">Kontostand</div>
-          <div class="kpi-value kpi-amt">642,00 €</div>
-          <div class="kpi-sub">Gesamtvolumen Saison</div>
-        </div>
+      <div class="kt-chips">
+        <button class="chip kt-chip is-active">Offen 2</button><button class="chip kt-chip">Gemeldet 8</button><button class="chip kt-chip">Bezahlt 1</button>
       </div>
-
-      <div class="chips" style="margin-bottom:12px">
-        <button class="chip is-active" type="button">Offen</button>
-        <button class="chip" type="button">Gemeldet</button>
-        <button class="chip" type="button">Eingegangen</button>
-        <button class="chip" type="button">Meine</button>
-        <button class="chip" type="button">Alle</button>
-      </div>
-
-      <div class="fine-list" style="padding-bottom:16px">
-        <div class="fine-row">
-          <span class="avatar">MB</span>
-          <div class="fine-main">
-            <div class="fine-name">Max Bauer</div>
-            <div class="fine-desc">Zu spät zum Training · 12. Sep · automatisch</div>
-          </div>
-          <div class="fine-right">
-            <div class="fine-amt is-warn num">12,00 €</div>
-            <span class="badge badge-open">offen</span>
-          </div>
-        </div>
-        <div class="fine-row">
-          <span class="avatar">JB</span>
-          <div class="fine-main">
-            <div class="fine-name">Jonas Becker</div>
-            <div class="fine-desc">Gelbe Karte · 8. Sep</div>
-            <div class="fine-reason">Abgelehnt: Betrag stimmt nicht</div>
-          </div>
-          <div class="fine-right">
-            <div class="fine-amt is-warn num">5,00 €</div>
-            <span class="badge badge-self">gemeldet</span>
-          </div>
-        </div>
-        <div class="fine-row">
-          <span class="avatar">NF</span>
-          <div class="fine-main">
-            <div class="fine-name">Niklas Fischer</div>
-            <div class="fine-desc">Handy in der Kabine · 5. Sep</div>
-          </div>
-          <div class="fine-right">
-            <div class="fine-amt num">10,00 €</div>
-            <span class="badge badge-paid">eingegangen</span>
-          </div>
-        </div>
-      </div>
+      <div class="card kt-liste"><div class="row kt-row"><span class="row-main"><span class="row-t">Zu spät zum Spiel</span><span class="row-s">3. Okt</span></span><span class="row-end kt-betrag is-rot">10,00&nbsp;€</span></div><div class="row kt-row"><span class="row-main"><span class="row-t">Vergessene Zahlung Mannschaftskasse</span><span class="row-s">1. Okt</span></span><span class="row-end kt-betrag is-rot">20,00&nbsp;€</span></div></div>
+    
     </div>
-    <div class="meta">Reihenfolge: .page-head · .mine-banner · .kpi-grid · .chips · .fine-list. Die Filterreihe passt ohne Scrollen in 390px — „Meine" ist bewusst kurz beschriftet.</div>
   </div>
-
   <div>
-    <div class="sp-h">Kontoblock ohne Schulden</div>
-    <div class="mine-banner is-clear">
-      <div class="mb-label">Dein Konto · Max Bauer</div>
-      <div class="mb-value num">0,00 €</div>
-      <div class="mb-sub">Du bist schuldenfrei</div>
-      <div class="mb-bar" role="img" aria-label="100 % erledigt"><i style="width:100%"></i></div>
-    </div>
-    <div class="meta">.mine-banner.is-clear — Bezahlknopf, PayPal-Zeile und Fußzeile entfallen ersatzlos.</div>
-  </div>
+    <div class="sp-h">12 Konto Mannschaft</div>
+    <div class="frame">
 
-  <div>
-    <div class="sp-h">Konto ohne Spielerzuordnung</div>
-    <div class="mine-banner">
-      <div class="mb-top">
-        <span class="mb-label">Dein Konto</span>
-        <span class="mb-state">Noch keinem Spieler zugeordnet</span>
+      <div class="page-head"><h1>Strafen-Konto</h1></div>
+      <div class="seg kt-seg">
+        <button class="seg-b">Ich</button>
+        <button class="seg-b is-on">Mannschaft</button>
       </div>
-      <div class="mb-note">Bitte einen Trainer/Admin um die Zuordnung – danach siehst du hier deine Strafen.</div>
-    </div>
-    <div class="meta">.mb-top mit .mb-state — kein Betrag, kein Bezahlknopf, sondern der Weg zur Zuordnung.</div>
-  </div>
-
-  <div>
-    <div class="sp-h">Der Mahnzuschlag</div>
-    <div class="card card-pad">
-      <p class="rs">Ab sieben Tagen +2 €, je weitere angefangene Woche +2 €, gedeckelt bei
-      fünf Stufen. Der Countdown in .mb-cd zeigt die Zeit bis zur nächsten Stufe und läuft
-      live; die Frist startet bei der Anlage durch den Kassenwart, nicht am Tag des Vergehens.
-      Die Formel steht wortgleich in der Datenbank — die Anzeige rechnet nie eigenständig.</p>
+      <div class="kt-kacheln">
+        <div class="kpi kt-kpi is-rot"><span class="kpi-label">Offen</span><span class="kpi-value">134,00 €</span></div>
+        <div class="kpi kt-kpi is-gruen"><span class="kpi-label">In der Kasse</span><span class="kpi-value">3,00 €</span></div>
+      </div>
+      <div class="kt-chips">
+        <button class="chip kt-chip is-active">Offen 7</button><button class="chip kt-chip">Gemeldet 8</button><button class="chip kt-chip">Bezahlt 1</button>
+      </div>
+      <div class="card kt-liste"><div class="row kt-row"><span class="row-av"><span>MB</span></span><span class="row-main"><span class="row-t">Max Bauer</span><span class="row-s">Vergessene Zahlung · 1. Okt</span></span><span class="row-end kt-betrag is-rot">20,00&nbsp;€</span></div><div class="row kt-row"><span class="row-av"><span>FH</span></span><span class="row-main"><span class="row-t">Felix Hofmann</span><span class="row-s">Duschen mit Socken · 26. Sep</span></span><span class="row-end kt-betrag is-rot">5,00&nbsp;€</span></div><div class="row kt-row"><span class="row-av"><span>FH</span></span><span class="row-main"><span class="row-t">Felix Hofmann</span><span class="row-s">Gelb-Rote Karte · 26. Sep</span></span><span class="row-end kt-betrag is-rot">12,00&nbsp;€</span></div><div class="row kt-row"><span class="row-av"><span>FH</span></span><span class="row-main"><span class="row-t">Florian Huber</span><span class="row-s">Wer · 26. Sep</span></span><span class="row-end kt-betrag is-rot">22,00&nbsp;€</span></div><div class="row kt-row"><span class="row-av"><span>NF</span></span><span class="row-main"><span class="row-t">Niklas Fischer</span><span class="row-s">Verspätete Absage · 26. Sep</span></span><span class="row-end kt-betrag is-rot">10,00&nbsp;€</span></div><div class="row kt-row"><span class="row-av"><span>FH</span></span><span class="row-main"><span class="row-t">Felix Hofmann</span><span class="row-s">Gelb-Rote Karte (Meckern) · 10. Mai</span></span><span class="row-end kt-betrag is-rot">30,00&nbsp;€</span></div><div class="row kt-row"><span class="row-av"><span>TR</span></span><span class="row-main"><span class="row-t">Tim Richter</span><span class="row-s">Unentschuldigtes Fehlen (Spiel) · 10. Mai</span></span><span class="row-end kt-betrag is-rot">35,00&nbsp;€</span></div></div>
+    
     </div>
   </div>
-
 </div>
 </body>
 </html>

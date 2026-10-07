@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Push-Katalog</title>
+<title>Push-Texte</title>
 <link rel="stylesheet" href="../../../styles.css">
 <style>
   /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
@@ -12,105 +12,23 @@
   .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
   .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
   .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; line-height: 1.6; }
-  .frame { width: 390px; max-width: 100%; padding: 12px 16px; background: var(--grad-app); border-radius: 12px; }
+  .frame { width: 390px; max-width: 100%; padding: 20px 16px; background: var(--grad-app); border-radius: 12px; }
+  /* Blaetter liegen in der App fest am Bildschirmrand; transform macht den Rahmen zum Bezug. */
+  .frame-blatt { position: relative; padding: 0; overflow: hidden; transform: translateZ(0); }
 </style>
 </head>
 <body>
 <div class="sp">
-
   <div>
-    <div class="sp-h">Wozu die Seite da ist</div>
-    <div class="card card-pad">
-      <p class="rs">Alle Texte der Benachrichtigungen liegen in <b>einer</b> Tabelle, nicht in Triggern
-      und nicht im Code. Hier lassen sie sich ändern — ohne Deploy — und vorher einmal echt aufs eigene
-      Handy schicken. „An mich senden“ geht ausschließlich an den Auslöser, auch bei Kategorien, die
-      sonst die ganze Mannschaft bekommt; Ruhezeiten und Kategorie-Schalter werden dabei übergangen.
-      Nur Admin.</p>
-    </div>
+    <div class="sp-h">Push-Texte</div>
+    <p class="meta">Gruppen nach Thema, Zeile mit Textvorlage (Final 25). Erzeugt aus dem Markup der App (kartenbau.mjs).</p>
   </div>
-
   <div>
-    <div class="sp-h">Die nachgebauten Mitteilungen</div>
+    <div class="sp-h">25 Push-Texte</div>
     <div class="frame">
-      <div class="pkat-vorschau">
-        <div class="mt mt-ios">
-          <span class="mt-ic" aria-hidden="true"><svg viewBox="0 0 96 96"><rect width="96" height="96" rx="20" fill="#144a37"/><g transform="translate(14,14) scale(0.708)" color="#fdf6e4"><svg viewBox="0 0 96 96"><defs><mask id="c"><rect width="96" height="96" fill="#000"/><circle cx="48" cy="48" r="42" fill="#fff"/><path d="M48 27 L66 40 L59 61 L37 61 L30 40 Z" fill="#000"/><path d="M48 6 L57 19 L48 24 L39 19 Z" fill="#000"/><path d="M90 37 L82 50 L72 44 L74 33 Z" fill="#000"/><path d="M74 88 L66 76 L75 68 L84 75 Z" fill="#000"/><path d="M22 88 L30 76 L21 68 L12 75 Z" fill="#000"/><path d="M6 37 L14 50 L24 44 L22 33 Z" fill="#000"/></mask></defs><rect width="96" height="96" fill="currentColor" mask="url(#c)"/></svg></g></svg></span>
-          <span class="mt-main">
-            <span class="mt-kopf"><span class="mt-app">FASANERIE</span><span class="mt-zeit">jetzt</span></span>
-            <span class="mt-t">💸 Neue Strafe: 8,00 €</span>
-            <span class="mt-x">Verspätete Rückmeldung, 20.09.2026. Bar, Überweisung oder PayPal.</span>
-          </span>
-        </div>
-        <div class="mt mt-android">
-          <span class="mt-leiste"><span class="mt-badge" aria-hidden="true"><svg viewBox="0 0 96 96"><defs><mask id="b"><rect width="96" height="96" fill="#000"/><circle cx="48" cy="48" r="42" fill="#fff"/><path d="M48 27 L66 40 L59 61 L37 61 L30 40 Z" fill="#000"/><path d="M48 6 L57 19 L48 24 L39 19 Z" fill="#000"/><path d="M90 37 L82 50 L72 44 L74 33 Z" fill="#000"/><path d="M74 88 L66 76 L75 68 L84 75 Z" fill="#000"/><path d="M22 88 L30 76 L21 68 L12 75 Z" fill="#000"/><path d="M6 37 L14 50 L24 44 L22 33 Z" fill="#000"/></mask></defs><rect width="96" height="96" fill="currentColor" mask="url(#b)"/></svg></span>
-          <span class="mt-app">Fasanerie · jetzt</span></span>
-          <span class="mt-t">💸 Neue Strafe: 8,00 €</span>
-          <span class="mt-x">Verspätete Rückmeldung, 20.09.2026. Bar, Überweisung oder PayPal.</span>
-        </div>
-      </div>
+<div class="ein-kopf"><button class="ein-back" type="button">‹ Einstellungen</button><span class="ein-kopf-t">Push-Texte</span></div><div class="ein-body ein-anim-rein"><div class="ein-h1-zeile"><h1 class="ein-h1">Push-Texte</h1><button class="link-btn kal-plus" type="button">Alle senden</button></div><div class="group-head"><h2>Termine</h2></div><div class="ein-gruppe ein-gruppe-gross"><button class="ein-schalter ein-wertzeile pkat-zeile" type="button"><span class="ein-schalter-main"><span class="ein-schalter-t">Neuer Termin</span><span class="ein-schalter-s pkat-vorlage">{liste}. Jetzt zu- oder absagen.</span></span><span class="ein-chev">›</span></button><button class="ein-schalter ein-wertzeile pkat-zeile" type="button"><span class="ein-schalter-main"><span class="ein-schalter-t">Termin geändert</span><span class="ein-schalter-s pkat-vorlage">{datum}: {aenderung}</span></span><span class="mark is-rot">zeitkritisch</span><span class="ein-chev">›</span></button><button class="ein-schalter ein-wertzeile pkat-zeile" type="button"><span class="ein-schalter-main"><span class="ein-schalter-t">Erinnerung vor Meldeschluss</span><span class="ein-schalter-s pkat-vorlage">{datum} {uhrzeit} · Meldeschluss {meldeschluss}. Ohne Antwort wird's teuer.</span></span><span class="mark is-rot">zeitkritisch</span><span class="ein-chev">›</span></button><button class="ein-schalter ein-wertzeile pkat-zeile" type="button"><span class="ein-schalter-main"><span class="ein-schalter-t">Termin fällt aus</span><span class="ein-schalter-s pkat-vorlage">{datum} {uhrzeit}. {grund}</span></span><span class="mark is-rot">zeitkritisch</span><span class="ein-chev">›</span></button></div><div class="group-head"><h2>Strafen</h2></div><div class="ein-gruppe ein-gruppe-gross"><button class="ein-schalter ein-wertzeile pkat-zeile" type="button"><span class="ein-schalter-main"><span class="ein-schalter-t">Neue Strafe</span><span class="ein-schalter-s pkat-vorlage">{grund}, {datum}. Bar, Überweisung oder PayPal.</span></span><span class="ein-chev">›</span></button><button class="ein-schalter ein-wertzeile pkat-zeile" type="button"><span class="ein-schalter-main"><span class="ein-schalter-t">Zahlung bestätigt</span><span class="ein-schalter-s pkat-vorlage">{anzahl} Strafen, {betrag} verbucht.</span></span><span class="ein-chev">›</span></button><button class="ein-schalter ein-wertzeile pkat-zeile" type="button"><span class="ein-schalter-main"><span class="ein-schalter-t">Zahlung abgelehnt</span><span class="ein-schalter-s pkat-vorlage">{betrag}: {grund}. Bitte mit dem Kassenwart klären.</span></span><span class="ein-chev">›</span></button><button class="ein-schalter ein-wertzeile pkat-zeile" type="button"><span class="ein-schalter-main"><span class="ein-schalter-t">Monatliche Erinnerung an offene Strafen</span><span class="ein-schalter-s pkat-vorlage">{anzahl} Strafen, älteste vom {datum}.</span></span><span class="ein-chev">›</span></button></div><div class="group-head"><h2>Für Trainer</h2></div><div class="ein-gruppe ein-gruppe-gross"><button class="ein-schalter ein-wertzeile pkat-zeile" type="button"><span class="ein-schalter-main"><span class="ein-schalter-t">Kurzfristige Absagen</span><span class="ein-schalter-s pkat-vorlage">{termin_titel} {datum} {uhrzeit}: {namen}</span></span><span class="mark is-rot">zeitkritisch</span><span class="ein-chev">›</span></button><button class="ein-schalter ein-wertzeile pkat-zeile" type="button"><span class="ein-schalter-main"><span class="ein-schalter-t">Übersicht nach Meldeschluss</span><span class="ein-schalter-s pkat-vorlage">{uhrzeit} · ✅ {zusagen} · ❌ {absagen} · ❓ {offen}</span></span><span class="ein-chev">›</span></button></div><div class="group-head"><h2>Für die Kasse</h2></div><div class="ein-gruppe ein-gruppe-gross"><button class="ein-schalter ein-wertzeile pkat-zeile" type="button"><span class="ein-schalter-main"><span class="ein-schalter-t">Zahlung gemeldet</span><span class="ein-schalter-s pkat-vorlage">{namen}, {betrag}. Jetzt bestätigen.</span></span><span class="ein-chev">›</span></button></div><div class="group-head"><h2>System</h2></div><div class="ein-gruppe ein-gruppe-gross"><button class="ein-schalter ein-wertzeile pkat-zeile" type="button"><span class="ein-schalter-main"><span class="ein-schalter-t">Testnachricht</span><span class="ein-schalter-s pkat-vorlage">Benachrichtigungen funktionieren ✅</span></span><span class="ein-chev">›</span></button></div><div class="group-head"><h2>Vorschauen</h2></div><div class="ein-gruppe"><button class="ein-zeile ohne-ic" type="button"><span class="ein-zeile-t">Vorschauen löschen</span></button></div><p class="ein-hinweis">„Alle senden“ und „An mich senden“ gehen nur an dich, ohne Ruhezeit.</p><div class="cal-copied" hidden=""></div></div>
     </div>
-    <div class="meta">.mt.mt-ios und .mt.mt-android. Sie imitieren absichtlich die Systeme statt unser Design — eine Vorschau in Vereinsgrün sähe hübsch aus und zeigte nicht, was der Nutzer sieht. Verwendet werden trotzdem nur vorhandene Tokens: --card mit --line für hell, --ink für dunkel, --dot-off für die Nebenzeile (10,0:1).</div>
   </div>
-
-  <div>
-    <div class="sp-h">Eine Kategorie, vollständig</div>
-    <div class="frame">
-      <div class="card card-pad pkat-karte">
-        <div class="pkat-kopf">
-          <span class="pkat-name">rueckmeldung_erinnerung</span>
-          <span class="pkat-marken"><span class="tag tag-cancelled">zeitkritisch</span></span>
-        </div>
-        <p class="set-hint pkat-wer"><b>An:</b> Spieler ohne Rückmeldung zu diesem Termin.<br>
-          <b>Wann:</b> 24 Stunden und 2 Stunden vor Meldeschluss.</p>
-        <div class="pkat-vorschau">
-          <div class="mt mt-ios">
-            <span class="mt-ic" aria-hidden="true"><svg viewBox="0 0 96 96"><rect width="96" height="96" rx="20" fill="#144a37"/><g transform="translate(14,14) scale(0.708)" color="#fdf6e4"><svg viewBox="0 0 96 96"><defs><mask id="c"><rect width="96" height="96" fill="#000"/><circle cx="48" cy="48" r="42" fill="#fff"/><path d="M48 27 L66 40 L59 61 L37 61 L30 40 Z" fill="#000"/><path d="M48 6 L57 19 L48 24 L39 19 Z" fill="#000"/><path d="M90 37 L82 50 L72 44 L74 33 Z" fill="#000"/><path d="M74 88 L66 76 L75 68 L84 75 Z" fill="#000"/><path d="M22 88 L30 76 L21 68 L12 75 Z" fill="#000"/><path d="M6 37 L14 50 L24 44 L22 33 Z" fill="#000"/></mask></defs><rect width="96" height="96" fill="currentColor" mask="url(#c)"/></svg></g></svg></span>
-            <span class="mt-main">
-              <span class="mt-kopf"><span class="mt-app">FASANERIE</span><span class="mt-zeit">jetzt</span></span>
-              <span class="mt-t">⏳ Bist du dabei? VfB Sparta München</span>
-              <span class="mt-x">20.09. 12:30 Uhr · Meldeschluss morgen 12:30 Uhr. Ohne Antwort wird’s teuer.</span>
-            </span>
-          </div>
-          <div class="mt mt-android">
-            <span class="mt-leiste"><span class="mt-badge" aria-hidden="true"><svg viewBox="0 0 96 96"><defs><mask id="b"><rect width="96" height="96" fill="#000"/><circle cx="48" cy="48" r="42" fill="#fff"/><path d="M48 27 L66 40 L59 61 L37 61 L30 40 Z" fill="#000"/><path d="M48 6 L57 19 L48 24 L39 19 Z" fill="#000"/><path d="M90 37 L82 50 L72 44 L74 33 Z" fill="#000"/><path d="M74 88 L66 76 L75 68 L84 75 Z" fill="#000"/><path d="M22 88 L30 76 L21 68 L12 75 Z" fill="#000"/><path d="M6 37 L14 50 L24 44 L22 33 Z" fill="#000"/></mask></defs><rect width="96" height="96" fill="currentColor" mask="url(#b)"/></svg></span>
-            <span class="mt-app">Fasanerie · jetzt</span></span>
-            <span class="mt-t">⏳ Bist du dabei? VfB Sparta München</span>
-            <span class="mt-x">20.09. 12:30 Uhr · Meldeschluss morgen 12:30 Uhr. Ohne Antwort wird’s teuer.</span>
-          </div>
-        </div>
-        <label class="pkat-feld"><span class="pkat-lbl">Titel <span class="pkat-zahl">35/40</span></span>
-          <input class="pkat-in" value="⏳ Bist du dabei? {termin_titel}"></label>
-        <label class="pkat-feld"><span class="pkat-lbl">Text <span class="pkat-zahl">76/110</span></span>
-          <textarea class="pkat-in" rows="2">{datum} {uhrzeit} · Meldeschluss {meldeschluss}. Ohne Antwort wird’s teuer.</textarea></label>
-        <p class="set-hint pkat-platz">Platzhalter: <code>{termin_titel}</code> <code>{datum}</code> <code>{uhrzeit}</code> <code>{meldeschluss}</code> <code>{termin_id}</code></p>
-        <div class="pkat-knoepfe">
-          <button class="btn btn-primary" type="button">An mich senden</button>
-        </div>
-      </div>
-    </div>
-    <div class="meta">.pkat-karte mit .pkat-kopf / .pkat-name / .pkat-marken · .pkat-wer · .pkat-vorschau · .pkat-feld mit .pkat-lbl und .pkat-zahl · .pkat-platz · .pkat-knoepfe</div>
-  </div>
-
-  <div>
-    <div class="sp-h">Geändert und fehlerhaft</div>
-    <div class="frame">
-      <div class="card card-pad pkat-karte">
-        <div class="pkat-kopf">
-          <span class="pkat-name">strafe_neu</span>
-          <span class="pkat-marken"><span class="tag tag-manuell">aus</span></span>
-        </div>
-        <div class="tk-warn">Unbekannter Platzhalter {summe}</div>
-        <label class="pkat-feld"><span class="pkat-lbl">Titel <span class="pkat-zahl is-lang">49/40 · wird abgeschnitten</span></span>
-          <input class="pkat-in" value="💸 Neue Strafe über {summe} ist soeben eingetragen"></label>
-        <div class="pkat-knoepfe">
-          <button class="btn btn-primary" type="button">Vorlage speichern</button>
-          <button class="btn btn-soft" type="button">Verwerfen</button>
-        </div>
-      </div>
-    </div>
-    <div class="meta">Der Zähler färbt sich ab der Länge, ab der die Sperrbildschirme kürzen (Titel 40, Text 110). Ein unbekannter Platzhalter sperrt „An mich senden“ und lässt sich auch nicht speichern — die Datenbank weist ihn ebenfalls ab. .pkat-zahl.is-lang trägt --red-700, 7,2:1.</div>
-  </div>
-
 </div>
 </body>
 </html>

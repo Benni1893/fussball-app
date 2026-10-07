@@ -73,27 +73,12 @@
   </div>
 
   <div>
-    <div class="sp-h">Lazarett — Zeile mit Zustand rechts</div>
-    <div class="laz-list">
-      <div class="card laz-row">
-        <span class="avatar">FH</span>
-        <div class="laz-main">
-          <div class="laz-name">Felix Hofmann</div>
-          <div class="rs">seit 8. Sep · zurück 4. Okt</div>
-          <div class="laz-note">Muskelfaserriss</div>
-        </div>
-        <span class="st-badge st-red">verletzt</span>
-      </div>
-      <div class="card laz-row">
-        <span class="avatar">SL</span>
-        <div class="laz-main">
-          <div class="laz-name">Simon Lang</div>
-          <div class="rs">seit 15. Sep · offenes Ende</div>
-        </div>
-        <span class="st-badge st-grau">Urlaub</span>
-      </div>
+    <div class="sp-h">Zeile mit Zustand rechts</div>
+    <div class="card">
+      <div class="row"><span class="row-av">FH</span><span class="row-main"><span class="row-t">Felix Hofmann</span><span class="row-s">verletzt · zurück 4. Okt</span></span><span class="row-end"><span class="mark is-rot"><i class="mark-dot"></i>Verletzt</span></span></div>
+      <div class="row"><span class="row-av">SL</span><span class="row-main"><span class="row-t">Simon Lang</span><span class="row-s">Urlaub · offenes Ende</span></span><span class="row-end"><span class="mark is-urlaub"><i class="mark-dot"></i>Urlaub</span></span></div>
     </div>
-    <div class="meta">.laz-list &gt; .card.laz-row mit .laz-main (.laz-name, .rs, optional .laz-note) und .st-badge. Sortiert nach Rückkehrdatum; wer keines hat, steht hinten.</div>
+    <div class="meta">.row mit .row-av, .row-main (.row-t, .row-s) und .row-end; der Zustand als .mark (.is-rot, .is-amber, .is-urlaub) mit .mark-dot. Ersetzt die frühere Lazarett-Liste; im Kader heißt die Gruppe „Fällt aus“.</div>
   </div>
 
   <div>

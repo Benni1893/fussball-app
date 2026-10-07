@@ -30,9 +30,7 @@
   --pitch-green-2: #2a7541; /* Spielfeldstreifen im Wechsel alle 44 px (Final 07) */
 
   /* ---- Gold -------------------------------------------------------------- */
-  --gold-600: #b8902f;
   --gold-500: #d4af37;    /* .hd Innenkante unten (32 %) */
-  --gold-050: #faf3df;    /* Vorlage --cream */
   --gold-700: #c39a22;    /* .ay::before 100%, Plakette gold 100% */
   --gold-400: #e3c25c;    /* .ay::before 0%,   Plakette gold 0%   */
   --gold-100: #fdf6e4;    /* .pill 0%, .dbg 0%, Aufgabenzeile gold 0% */
@@ -73,8 +71,6 @@
   /* ---- Neutral / Flaechen ------------------------------------------------ */
   --ink:   #1c2620;
   --muted: #5c6a63;       /* Final: 5,7:1 auf Weiss, 4,7:1 auf --bg-2, 4,57:1 auf --seg-bg */
-  --muted-2: var(--muted); /* frueher eigenes dunkleres Grau; --muted haelt jetzt
-                             selbst 4,5:1 auf getoenten Flaechen. Entfaellt beim Aufraeumen. */
   --line:  #e2e8e4;
   --bg:    #f4f7f5;
   --card:  #ffffff;
@@ -131,16 +127,6 @@
   --grad-edge-gold:  linear-gradient(180deg, var(--gold-400),  var(--gold-700));
   --grad-edge-red:   linear-gradient(180deg, var(--red-500),   var(--red-700));
   --grad-urlaub:     linear-gradient(180deg, var(--blau-600),  var(--blau-700));   /* Urlaub: blau (Final) */
-  --grad-tk-kopf:    linear-gradient(180deg, var(--green-800),  var(--green-900));   /* Kopfband der Terminkarte */
-  --tk-menue:        rgba(255,255,255,.14);   /* ⋯-Kreis auf dem Kopfband */
-  /* Plakette HEIM/AUSWAERTS auf dem Kopfband. Pixelgenau aus
-     termin-und-kalender-v2.png gelesen; dort ist sie --gold-500 zu 20 %
-     (Flaeche) und 50 % (Rand) ueber dem Kopfband. Als color-mix nicht
-     ausdrueckbar, weil das Kopfband ein Verlauf ist und keinen festen
-     Mischgrund hergibt - deshalb drei Werte, deckend. Schrift 5,60:1. */
-  --bdg-venue-bg:     #3c643b;
-  --bdg-venue-line:   #75803a;
-  --bdg-venue-fg:     #f6e8c2;
   --grad-task-red:   linear-gradient(180deg, var(--red-100),      var(--red-200));
   --grad-task-gold:  linear-gradient(180deg, var(--gold-100),     var(--gold-250));
   --grad-task-green: linear-gradient(180deg, var(--green-task-1), var(--green-task-2));
@@ -279,13 +265,11 @@ button { color: inherit; }
 }
 .hdr-gear svg { width: 24px; height: 24px; display: block; }
 .hdr-gear:active { opacity: .7; }
-body.auth-mode .hdr-gear { display: none; }   /* ausgeloggt: kein Zahnrad */
-.brand { display: flex; align-items: center; gap: 14px; }
+body.auth-mode .hdr-gear { display: none; }
+   /* ausgeloggt: kein Zahnrad */
+
 .crest { display: grid; place-items: center; filter: drop-shadow(0 2px 4px rgba(0,0,0,.25)); }
 .crest-logo { height: 46px; width: auto; display: block; }
-.brand-text { display: flex; flex-direction: column; line-height: 1.2; }
-.brand-text strong { font-size: 1.18rem; font-weight: 800; letter-spacing: .2px; }
-.brand-text small { color: #cfe3d8; font-weight: 500; }
 
 .user-switch { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
 .user-switch label { font-size: .72rem; text-transform: uppercase; letter-spacing: .8px; color: #bcd5c8; }
@@ -450,7 +434,6 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
 @keyframes ev-hl { 0%,55% { box-shadow: 0 0 0 2px var(--gold-500); } 100% { box-shadow: 0 0 0 0 rgba(212,175,55,0); } }
 .event.ev-highlight { animation: ev-hl 2.5s ease-out forwards; }
 
-
 .section-title {
   display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
   margin: 20px 0 8px;
@@ -567,7 +550,7 @@ body.simulating { padding-bottom: calc(56px + 46px + env(safe-area-inset-bottom)
   padding: 2px 8px;
   border-radius: 999px;
 }
-.tag-friendly { background: var(--amber-050); color: var(--amber-600); }
+
 .tag-cancelled{ background: var(--red-050);   color: var(--red-600); }
 .tag-manuell  { background: var(--amber-050); color: var(--amber-600); }
 
@@ -698,9 +681,6 @@ tbody tr:hover { background: #fbfdfc; }
 .st-amber { background: var(--amber-050); color: var(--amber-600); }
 .st-red   { background: var(--red-050);   color: var(--red-600); }
 
-.laz-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }
-.laz-row:last-child { border-bottom: 0; }
-
 /* Kader-Ansicht (Paket 4): Zeile im Stil der uebrigen 2a-Zeilen – Avatar links,
    Name in der Mitte, Status-Auswahl rechts. Das <select> ist zugleich Marke und
    Tap-Ziel, deshalb 44px hoch und 16px Schrift (sonst zoomt Safari beim Fokus). */
@@ -714,7 +694,7 @@ tbody tr:hover { background: #fbfdfc; }
   margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line);
 }
 .e-trainer .link-btn { font-size: 13px; font-weight: 600; }
-.e-trainer .e-tr-rechts { margin-left: auto; display: flex; align-items: center; gap: 2px; }
+
 /* Der Stift stand frei schwebend neben zwei Kaesten - jetzt sitzt er mit dem
    Papierkorb rechts in derselben Zeile, ohne Rahmen. */
 /* Symbol 20px sichtbar, 44px Trefferflaeche - ohne die Zeile zu dehnen. */
@@ -757,8 +737,7 @@ tbody tr:hover { background: #fbfdfc; }
 
 /* ---- Kalender abonnieren ("In meinen Kalender") ---- */
 .cal-sub { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
-.cal-sub-title { font-size: 1.05rem; font-weight: 800; margin: 0; }
-.cal-sub-desc { margin: 0; color: var(--muted); font-size: .9rem; }
+
 .cal-link { font-size: .82rem; color: var(--green-800); background: var(--green-050); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; overflow-wrap: anywhere; word-break: break-all; user-select: all; -webkit-user-select: all; }
 .cal-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .cal-actions .btn { flex: 1 1 auto; text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
@@ -780,8 +759,7 @@ tbody tr:hover { background: #fbfdfc; }
 /* ---- Einstellungen-Seite ---- */
 .set-section { margin-bottom: 4px; }
 .set-section .cal-sub { margin-top: 0; }
-.set-profile .set-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); }
-.set-profile .set-row:first-child { padding-top: 0; }
+
 .set-label { color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .68px; text-transform: uppercase; }
 .set-val { text-align: right; overflow-wrap: anywhere; font-size: 12px; font-weight: 500; color: var(--muted); }
 .btn.set-logout { display: flex; width: 100%; margin-top: 12px; color: var(--red-600); border-color: var(--red-line); }
@@ -793,18 +771,12 @@ tbody tr:hover { background: #fbfdfc; }
 
 /* BFV-Spiel manuell geändert: Hinweis/Reset in der Kachel + Read-only-Kopf im Modal */
 .e-bfv { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
-.bfv-drift { font-size: .82rem; color: var(--amber-600); }
-.bfv-drift .link-btn { font-size: .82rem; }
+
 .bfv-reset { font-size: .8rem; color: var(--muted); font-weight: 500; }
 .bfv-ro { background: var(--green-050); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
-.bfv-ro-line { font-weight: 700; }
-.bfv-ro-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
-.bfv-ro-hint { font-size: .78rem; color: var(--muted); margin-top: 6px; }
-.set-greet-name { font-size: 16px; font-weight: 700; }
-.set-greet-role { color: var(--muted); font-size: 12px; font-weight: 500; margin-top: 2px; }
+
 /* Abmelden (Vorlage 4a): Sekundaerknopf ueber die volle Breite, roter Text
    und roter Rand - deutlich, aber nicht so laut wie eine rote Flaeche. */
-
 
 /* ---- Einstellungen: zwei Ebenen -------------------------------------------
    Vorlage einstellungen-kader/einstellungenneu.png (Panel 1, 1b, 2) und
@@ -839,7 +811,7 @@ tbody tr:hover { background: #fbfdfc; }
   cursor: pointer; -webkit-tap-highlight-color: transparent;
 }
 .ein-back:active { opacity: .6; }
-.ein-back-chev { font-size: 26px; line-height: 1; margin-top: -2px; }
+
 /* Der Seitentitel in der Leiste ist erst da, wenn die grosse Ueberschrift weg ist. */
 .ein-kopf-t {
   font-size: 17px; font-weight: 800; color: var(--ink);
@@ -956,8 +928,7 @@ tbody tr:hover { background: #fbfdfc; }
   content: ""; position: absolute; top: 0; left: 15px; right: 0; height: 1px;
   background: var(--line);
 }
-.ein-zeitzeile-t { font-size: 16px; font-weight: 500; color: var(--ink); }
-.ein-gruppe.is-aus .ein-zeitzeile-t { color: var(--muted); }
+
 .ein-zeit-pille {
   position: relative; display: inline-flex; align-items: center; justify-content: center;
   width: 70px; height: 36px; padding: 0; box-sizing: border-box;
@@ -989,14 +960,7 @@ tbody tr:hover { background: #fbfdfc; }
 .ein-schalter-t { font-size: 16px; font-weight: 500; color: var(--ink); line-height: 1.3; }
 .ein-schalter-s { margin-top: 2px; font-size: 13px; font-weight: 400; color: var(--muted); line-height: 1.4; }
 .ein-gruppe.is-aus .ein-schalter-t { color: var(--muted); }
-.ein-gkopf {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  margin: 25px 0 11px; padding: 0 18px 0 15px;
-}
-.ein-gkopf-t { font-size: 11px; font-weight: 700; letter-spacing: .68px; text-transform: uppercase; color: var(--green-700); }
-.ein-gkopf-alle { display: flex; align-items: center; gap: 8px; }
-.ein-gkopf-alle span { font-size: 14px; font-weight: 600; color: var(--muted); }
-.ein-gkopf + .ein-gruppe { margin-top: 0; }
+
 .ein-hinweis { margin: 8px 0 0; padding: 0 15px; font-size: 13px; font-weight: 400; color: var(--muted); line-height: 1.35; }
 .ein-hinweis-oben { margin: 0 0 14px; }
 .ein-hinweis-admin { margin-top: 10px; }
@@ -1137,19 +1101,10 @@ textarea.pkat-in { resize: vertical; min-height: 76px; line-height: 1.45; }
 
 /* Kalender: zwei volle Buttons unter der Filterzeile (gestapelt) */
 .kal-cta { display: flex; flex-direction: column; gap: 8px; margin: 14px 0 16px; }
-.kal-cta-btn {
-  width: 100%; min-height: var(--h-btn); display: flex; align-items: center;
-  justify-content: center; gap: 8px; text-align: center;
-}
-.kal-cta-btn svg { width: 19px; height: 19px; flex: none; }
-.kal-cta-txt { display: block; line-height: 1.15; }
+
 /* Abo-Knopf: hoeher, Inhalt linksbuendig, Icon in Vereinsgruen (Vorlage). */
-.btn.kal-cta-sec { min-height: 58px; justify-content: flex-start; gap: 11px; text-align: left; }
-.kal-cta-sec svg { width: 21px; height: 21px; }
-.kal-cta-sec .kal-cta-txt small { display: block; font-weight: 500; font-size: 11px; color: var(--muted); margin-top: 1px; }
+
 /* Sekundaerer Button (In meinen Kalender) */
-.kal-cta-sec svg { color: var(--green-800); }
-.kal-cta-sec:hover, .kal-cta-sec:active { background: var(--green-050); }
 
 /* Kalender-Abo-Sheet (nutzt .more-sheet/.more-panel) */
 .sheet-desc { margin: 4px 0 12px; color: var(--muted); font-size: .9rem; }
@@ -1221,12 +1176,6 @@ textarea.pkat-in { resize: vertical; min-height: 76px; line-height: 1.45; }
   flex: 1 1 auto; min-height: var(--h-btn-lg); border: 0; border-radius: var(--radius-md);
   background: var(--green-700); color: #fff; font-size: 15px; font-weight: 800; letter-spacing: -.012em;
 }
-.rs2-btn2 {
-  flex: none; min-height: var(--h-btn-lg); padding: 0 14px;
-  border: 1px solid var(--line); border-radius: var(--radius-md);
-  background: var(--card); color: var(--green-800); font-size: 15px; font-weight: 800; letter-spacing: -.012em;
-}
-.rs2-btn2.is-weit { flex: 1 1 auto; }
 
 /* Profil: eigener Fitnessstatus */
 .st-choice { min-height: 44px; }
@@ -1236,23 +1185,21 @@ textarea.pkat-in { resize: vertical; min-height: 76px; line-height: 1.45; }
 
 /* Spielplan (BFV) – konfigurierter Zustand */
 .bfv-team { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-.bfv-team-name { font-weight: 800; font-size: 1.05rem; margin-top: 2px; }
+
 .bfv-change { font-size: .85rem; }
 .bfv-actions { margin-top: 10px; }
 
 /* ====================== Aufstellungs-Builder ====================== */
-.lu-controls { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+
 .lu-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
 .lu-row label { display: flex; flex-direction: column; gap: 3px; font-size: .72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
 .lu-select { padding: 7px 9px; border: 1px solid var(--line); border-radius: 9px; background: #fff; font: inherit; font-size: .9rem; }
 .lu-name { flex: 1; min-width: 200px; padding: 8px 11px; border: 1px solid var(--line); border-radius: 9px; font: inherit; }
 .lu-msg { align-self: center; font-size: .82rem; color: var(--green-800); font-weight: 600; }
-.lu-activebadge { display: inline-block; background: var(--green-800); color: #fff; font-size: .68rem; font-weight: 700; padding: 1px 8px; border-radius: 999px; vertical-align: middle; }
 
 .lu-main { display: grid; grid-template-columns: minmax(280px, 380px) 1fr; gap: 18px; align-items: start; }
 @media (max-width: 760px) { .lu-main { grid-template-columns: 1fr; } }
 
-.lu-pitch-wrap { width: 100%; }
 .pitch { position: relative; width: 100%; max-width: 380px; margin: 0 auto; aspect-ratio: 68 / 105; border-radius: 12px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(0,0,0,.1); }
 .pitch-bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 
@@ -1268,10 +1215,9 @@ textarea.pkat-in { resize: vertical; min-height: 76px; line-height: 1.45; }
 .field-pl.is-mismatch { box-shadow: 0 0 0 2px var(--amber-600), 0 2px 6px rgba(0,0,0,.3); }
 .field-pl .fp-warn { position: absolute; top: -3px; right: -3px; font-size: .72rem; }
 
-.lu-side { display: flex; flex-direction: column; gap: 14px; }
 .lu-group > h3 { margin: 0 0 8px; font-size: .9rem; display: flex; align-items: center; gap: 8px; }
 .lu-group summary { cursor: pointer; font-weight: 700; font-size: .9rem; padding: 4px 0; }
-.lu-count { background: #eef2ef; color: var(--muted); font-size: .72rem; font-weight: 700; padding: 0 7px; border-radius: 999px; }
+
 .pl-pool { display: flex; flex-wrap: wrap; gap: 8px; min-height: 30px; padding: 4px; border-radius: 10px; }
 [data-bank-drop] { background: #f6f8f6; border: 1px dashed var(--line); }
 .pl-empty { color: var(--muted); font-size: .85rem; padding: 6px 8px; }
@@ -1324,7 +1270,7 @@ textarea.pkat-in { resize: vertical; min-height: 76px; line-height: 1.45; }
   width: 100%; font: inherit; font-size: 16px;   /* 16px -> Safari zoomt nicht rein */
   padding: 10px 12px; min-height: 44px; border: 1px solid var(--line); border-radius: 10px; box-sizing: border-box; background: #fff;
 }
-.kat-edit-row2 { display: flex; align-items: center; gap: 8px; }
+
 .kat-in-amount { flex: 1; min-width: 0; }
 .kat-eur { color: var(--muted); font-weight: 700; }
 
@@ -1436,39 +1382,21 @@ textarea.pkat-in { resize: vertical; min-height: 76px; line-height: 1.45; }
 .donut-top { font-size: 34px; font-weight: 800; fill: var(--green-800); }
 .donut-bot { font-size: 13px; fill: var(--muted); }
 
-.chart-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 11px; min-width: 150px; }
-.chart-legend li { display: flex; align-items: center; gap: 9px; font-size: .9rem; color: var(--ink); }
-.chart-legend b { margin-left: auto; padding-left: 16px; font-variant-numeric: tabular-nums; color: var(--green-800); }
-.lg-dot { width: 12px; height: 12px; border-radius: 3px; flex: none; display: inline-block; }
-
-.bars { display: flex; flex-direction: column; gap: 14px; }
 .bar-head { display: flex; justify-content: space-between; font-size: .9rem; margin-bottom: 6px; }
 .bar-head b { font-variant-numeric: tabular-nums; color: var(--green-800); }
-.bar-track { background: #eef2ef; border-radius: 999px; height: 11px; overflow: hidden; }
+
 .bar-fill { height: 100%; display: flex; border-radius: 999px; overflow: hidden; min-width: 10px; }
 .seg { display: block; height: 100%; }
 .seg-paid { background: var(--gold-500); }
 .seg-open { background: var(--red-600); }
 .bar-sub { font-size: .76rem; color: var(--muted); margin-top: 5px; }
-.bars-legend { display: flex; gap: 18px; margin-top: 16px; font-size: .8rem; color: var(--muted); }
-.bars-legend span { display: flex; align-items: center; gap: 7px; }
 
 /* ---------- PayPal-Button (offizielles Checkout-Design) ------------------- */
 /* PayPal-Wortmarke als Textzeile unter dem Zahlknopf (Vorlage Kontoblock). */
 .pp-word { font-family: inherit; font-weight: 800; font-style: italic; font-size: 13px; line-height: 1; display: inline-flex; }
-.pp-word .pp1 { color: var(--pp-blue); }
-.pp-word .pp2 { color: var(--pp-cyan); }
-.paid-self-btn {
-  background: #fff; color: var(--green-800); border: 1px solid rgba(255,255,255,.6);
-  border-radius: 999px; padding: 9px 16px; font: inherit; font-weight: 700; cursor: pointer;
-  white-space: nowrap;
-}
-.paid-self-btn:hover { background: #eef7f1; }
-.paid-self-btn:disabled { opacity: .6; cursor: default; }
 
 /* „selbst gemeldet"-Status (Vertrauensprinzip) */
 .badge-self { background: var(--gold-badge-bg); color: var(--gold-ink); border: 1px solid var(--gold-badge-line); }
-
 
 /* ---------- Leerzustand ---------------------------------------------------- */
 .empty { text-align: center; color: var(--muted); padding: 40px 20px; }
@@ -1491,13 +1419,6 @@ body.auth-mode .app-footer { display: none; }
 
 #userBox { flex-direction: row; align-items: center; gap: 12px; }
 .ident { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.18; }
-.ident-name { font-weight: 700; color: #fff; }
-.ident-role { font-size: .72rem; color: #bcd5c8; }
-.logout-btn {
-  background: rgba(255,255,255,.14); color: #fff; border: 1px solid rgba(255,255,255,.32);
-  border-radius: 9px; padding: 7px 13px; font: inherit; font-weight: 600; cursor: pointer;
-}
-.logout-btn:hover { background: rgba(255,255,255,.24); }
 
 /* ---------- Anmeldung (Vorlage 5a) -----------------------------------------
    Die Vorlage dreht die App um: dunkelgruene Flaeche ueber die ganze Hoehe,
@@ -1570,8 +1491,9 @@ body.auth-mode .view { padding-left: 0; padding-right: 0; }
 
 /* ---------- Responsiv ------------------------------------------------------ */
 @media (max-width: 640px) {
+
   /* .event/.rsvp brauchen hier nichts mehr: die Karte ist seit Paket 7a immer gestapelt. */
-  .brand-text small { display: none; }
+  
 }
 
 /* ---------- Pull-to-Refresh ------------------------------------------------ */
@@ -1727,14 +1649,10 @@ body.auth-mode .view { padding-left: 0; padding-right: 0; }
   font-size: 11px; font-weight: 800; letter-spacing: .08em;
   text-transform: uppercase; color: var(--muted); line-height: normal;
 }
+
 /* Plakette: gemessen 46x23, voll gerundet, heller Grund mit dunkelgruener
    Schrift - nicht mehr der gefuellte Chip der vorigen Vorlage. */
-.tv-next-bdg {
-  flex: none; min-height: 23px; padding: 0 9px; border-radius: var(--radius-pill);
-  background: var(--green-050); color: var(--green-700);
-  font-size: 10px; font-weight: 800; letter-spacing: .04em;
-  display: inline-flex; align-items: center; line-height: normal;
-}
+
 .tv-next-zeile { display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px 15px; }
 /* Datumsblock ohne Farbkachel: Tag gross in --green-800, Monat klein grau. */
 .tv-next-datum { flex: none; width: 50px; margin-top: -2px; text-align: center; line-height: 1; }
@@ -1757,19 +1675,8 @@ body.auth-mode .view { padding-left: 0; padding-right: 0; }
   display: grid; grid-template-columns: repeat(3, 1fr);
   border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
 }
-.tv-nz {
-  display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 11px;
-  min-height: 69px; padding: 13px 6px 0; text-align: center;
-}
-.tv-nz + .tv-nz { border-left: 1px solid var(--line); }
-.tv-nz b { font-size: 18px; font-weight: 800; line-height: 1; letter-spacing: -.02em; }
-.tv-nz span {
-  font-size: 9px; font-weight: 800; line-height: 1; letter-spacing: .06em;
-  text-transform: uppercase; color: var(--muted);
-}
-.tv-nz b.is-zu { color: var(--green-700); }
-.tv-nz b.is-ab { color: var(--red-600); }
-.tv-nz b.is-of { color: var(--amber-700); }   /* dunkler als die Vorlage, sonst 3,7:1 */
+
+   /* dunkler als die Vorlage, sonst 3,7:1 */
 
 /* Band 3: der Knopf, gemessen 326x48, Radius 14, flaches --green-700.
    Der Aufstellungsstand steht nicht mehr hier, sondern als Plakette
@@ -1816,19 +1723,6 @@ body.auth-mode .view { padding-left: 0; padding-right: 0; }
 
 /* ---- Abschnittszeile klein (WEITERE SPIELE · Alle ›) -----------------------
    Gemessen: Grossbuchstaben 11 px, Sperrung, --muted; Verweis 13 px --green-700. */
-.section-title.sec-mini { margin: 20px 0 14px; align-items: center; }
-.section-title.sec-mini h2 {
-  font-size: 11px; font-weight: 800; letter-spacing: .08em;
-  text-transform: uppercase; color: var(--muted);
-}
-.section-title.sec-mini .link-btn {
-  position: relative; flex: none; min-height: 0; padding: 0; font-size: 13px; font-weight: 700;
-  color: var(--green-700); text-decoration: none;
-}
-.section-title.sec-mini .link-btn::after {
-  content: ""; position: absolute; top: 50%; right: -6px;
-  width: 72px; height: var(--tap); transform: translateY(-50%);
-}
 
 /* ---- Weitere Spiele: eine Karte, Zeilen mit Haarlinie ----------------------
    Gemessen: Zeile 60 px hoch, Datumsspalte ohne Farbfeld.                    */
@@ -1839,12 +1733,7 @@ body.auth-mode .view { padding-left: 0; padding-right: 0; }
   background: none; border: 0; color: var(--ink);
 }
 .tv-grow + .tv-grow { border-top: 1px solid var(--line); }
-.tv-gdate { flex: none; width: 34px; text-align: center; line-height: normal; }
-.tv-gdate .d-day { display: block; font-size: 19px; font-weight: 800; line-height: 1.1; color: var(--green-800); }
-.tv-gdate .d-mon { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--muted); }
-.tv-gmain { flex: 1 1 auto; min-width: 0; }
-.tv-gopp { display: block; font-size: 15px; font-weight: 700; line-height: normal; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tv-gmeta { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-top: 1px; }
+
 /* Plakette: „Elf steht" gruen hinterlegt, „offen" heller Grund mit Rand. */
 .tv-gchip {
   flex: 0 0 auto; display: inline-flex; align-items: center;
@@ -1853,7 +1742,6 @@ body.auth-mode .view { padding-left: 0; padding-right: 0; }
   background: var(--green-050); color: var(--green-700); border: 0;
 }
 .tv-gchip.is-offen { background: var(--bg); color: var(--muted); border: 1px solid var(--line); }
-.tv-garrow { flex: 0 0 auto; color: var(--dot-off); font-size: 18px; font-weight: 700; }
 
 /* ---- Vorlagen -------------------------------------------------------------
    Gemessen: Zeile 61 px, Formationsplakette rechts, Grund --gold-100.
@@ -1998,28 +1886,24 @@ body.blatt-offen, body.ks-seite-offen { overscroll-behavior-y: contain; }
 .tv-sheet > .tv-shbody:last-child { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
 .tv-shactions { padding: 8px 16px calc(10px + env(safe-area-inset-bottom)); display: flex; gap: 10px; }
 .tv-shactions button { flex: 1 1 0; min-height: 48px; border-radius: 12px; font-weight: 800; font-size: 15px; }
-.tv-btnp { border: 0; background: var(--green-700); color: #fff; }
+
 .tv-btns { border: 1px solid var(--line); background: var(--card); color: var(--green-800); }
 
 /* Kader-Gruppen im Panel */
-.tv-emptybtn { width: 100%; min-height: 44px; border: 1px solid var(--line); background: var(--bg); border-radius: 12px; font-weight: 700; color: var(--red-600); margin-bottom: 8px; }
+
 /* Feste Aktions-Zeile im Kader-Vollbild (z. B. „Alle Zugesagten auf die Bank"). Sekundär. */
 /* Gleiche Abstaende oben/unten (16px: Header-Pad 8 + 8, bzw. 10 + Body-Pad 6). Trennlinie darunter. */
-.tv-kaction { flex: 0 0 auto; padding: 8px 16px 10px; border-bottom: 1px solid var(--line); }
-.tv-kaction:empty { display: none; }
+
 .tv-kall { width: 100%; min-height: 44px; border: 0; background: var(--green-600); color: #fff; font-weight: 800; font-size: 14px; border-radius: 10px; }
 .tv-kall:disabled { background: var(--bg); color: var(--muted); border: 1px solid var(--line); }
-.tv-kall-reason { font-size: 11px; color: var(--muted); text-align: center; margin-top: 4px; }
-.tv-kg { margin-top: 12px; } .tv-kg:first-child { margin-top: 2px; }
-.tv-kg h4 { margin: 0 0 6px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
-.tv-kg h4 span { opacity: .6; margin-left: 4px; }
+
 .tv-kl { display: flex; flex-direction: column; gap: 8px; }
 .tv-pchip { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 6px 10px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
 .tv-pchip[data-tvplayer] { cursor: pointer; }
 .tv-pchip.off { opacity: .72; } .tv-pchip.placed { opacity: .45; }
 .tv-pnr { flex: 0 0 auto; width: 30px; height: 30px; border-radius: 50%; background: var(--green-050); color: var(--green-800); font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; }
 .tv-pw { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
-.tv-pnm { font-weight: 700; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 .tv-pmeta { font-size: 11px; color: var(--muted); }
 .tv-tag { flex: 0 0 auto; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 999px; letter-spacing: .3px; }
 .tv-tag.ok { background: var(--green-050); color: var(--green-700); }
@@ -2055,13 +1939,13 @@ body.blatt-offen, body.ks-seite-offen { overscroll-behavior-y: contain; }
   -webkit-tap-highlight-color: transparent;
 }
 .tv-bslot:active { transform: scale(.97); }
+
 /* Leerer Platz: "frei" wie in der Vorlage statt eines blassen Pluszeichens. */
-.tv-bslot .tv-bfrei { font-size: 9px; font-weight: 600; color: var(--muted); }
+
 .tv-bslot.filled { border-style: solid; border-color: var(--line-soft-2); background: var(--grad-bslot); box-shadow: var(--shadow-hair); }
 /* Vorlage .bnr/.bn: Nummer schlicht, kein Kreis. */
 .tv-bnr { color: var(--green-800); font-weight: 800; font-size: 13px; line-height: 1.1; }
 .tv-bn { font-size: 9px; font-weight: 600; color: var(--muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tv-bplus { font-size: 16px; font-weight: 700; color: var(--muted); line-height: 1; }
 
 /* Formationen-Raster */
 .tv-fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -2121,14 +2005,14 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 /* ===================== Kasse ===================== */
 .kasse-add { display: flex; flex-direction: column; gap: 10px; }
 .kasse-lbl { font-size: .8rem; font-weight: 700; color: var(--muted); }
-.kasse-count { background: var(--green-700); color: #fff; border-radius: 999px; padding: 1px 7px; font-size: .72rem; margin-left: 4px; }
+
 .kasse-players { display: flex; flex-wrap: wrap; gap: 6px; }
 .kasse-chip { font: inherit; font-size: .85rem; padding: 8px 12px; min-height: 40px; border: 1px solid var(--line);
   border-radius: 999px; background: #fff; color: var(--ink); cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .kasse-chip.is-on { background: var(--green-700); border-color: var(--green-700); color: #fff; font-weight: 700; }
 .kasse-select, .kasse-in { width: 100%; font: inherit; font-size: 16px; padding: 11px 12px; border: 1px solid var(--line);
   border-radius: 10px; box-sizing: border-box; background: #fff; min-height: 44px; }
-.kasse-two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
 .kasse-staffel { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .kasse-staffel .kasse-in { flex: 1; min-width: 130px; }
 .kasse-staffel-hint { font-size: .78rem; color: var(--muted); }
@@ -2157,9 +2041,9 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 }
 .kasse-catrow, .ks-prow { -webkit-appearance: none; appearance: none; }
 .kasse-picker-arrow { color: var(--muted); font-size: 18px; font-weight: 700; line-height: 1; flex: none; }
-.kasse-chosen { font-size: 12px; font-weight: 500; color: var(--muted); margin-top: 6px; }
+
 /* Zwei getrennte Einstiege: Individuell / aus dem Katalog. Erst nach Antippen oeffnet sich der Weg. */
-.kasse-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
 .kasse-mode { -webkit-appearance: none; appearance: none; font: inherit; font-weight: 700; color: var(--ink);
   min-height: 52px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff;
   cursor: pointer; text-align: center; line-height: 1.2; -webkit-tap-highlight-color: transparent; }
@@ -2207,19 +2091,12 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
   font-size: 17px;
   font-variant-numeric: tabular-nums;
 }
+
 /* Antippbare Kennzahl: springt in den passenden Reiter. */
-.kpi-tapbar {
-  width: 100%; text-align: left; font: inherit; color: inherit;
-  border: 0;
-  cursor: pointer; -webkit-tap-highlight-color: transparent;
-  transition: transform .08s ease;
-}
-.kpi-tapbar:active { background: var(--green-050); }
-.kpi-tapbar:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; }
 
 /* Unter-Überschriften im Anlage-Block */
 .kasse-sub { font-size: .82rem; font-weight: 800; color: var(--ink); margin-top: 4px; display: flex; align-items: baseline; gap: 8px; }
-.kasse-sub-hint { font-size: .74rem; font-weight: 600; color: var(--muted); }
+
 /* Kommentar: exakt zwei Zeilen, feste Höhe, wächst nicht; sonst identisch zu .kasse-in
    (Breite/Padding/Rahmen/Radius/Schriftgröße kommen aus .kasse-in). */
 .kasse-comment { resize: none; line-height: 1.4; height: calc(2 * 1.4em + 24px); min-height: 0; font-family: inherit; }
@@ -2244,30 +2121,22 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 .ks-ichip .chip-x:hover { background: #fff; color: var(--red-600); }
 
 /* Bulk-Aktion + Zahlart-Auswahl */
-.kasse-bulk { margin-bottom: 8px; }
+
 /* Reiter „Offen" (Vorlage 5B): eine Karte je Strafe. Kein Avatar und keine
    Zustandsmarke - in diesem Reiter ist der Zustand immer derselbe. */
-.krow-list { display: flex; flex-direction: column; gap: 10px; }
+
 .krow { background: var(--card); border: 1px solid var(--line-soft); border-radius: var(--radius);
   box-shadow: var(--shadow-sm); padding: 14px; cursor: pointer;
   -webkit-tap-highlight-color: transparent; }
 .krow:focus-visible { outline: 2px solid var(--green-700); outline-offset: 2px; }
-.krow-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-.krow-title { flex: 1; min-width: 0; font-size: 16px; font-weight: 700; line-height: 1.25; color: var(--ink);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.krow-amt { flex: none; font-size: 16px; font-weight: 800; color: var(--ink); white-space: nowrap; letter-spacing: -.018em; }
-.krow-strafe { font-size: 14px; font-weight: 500; line-height: 1.3; color: var(--muted); margin-top: 3px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.krow-verh { font-size: 12.5px; font-weight: 500; color: var(--muted); opacity: .78; margin-top: 2px; }
-.krow-actions { display: flex; align-items: stretch; gap: 10px; margin-top: 12px; }
+
 /* Storno schmal, Buchen breit - die Vorlage gewichtet den haeufigen Weg. */
-.ks-storno { flex: 0 0 auto; min-width: 92px; color: var(--red-600); font-weight: 700; }
+
 .ks-buchen { flex: 1 1 auto; font-size: 15px; }
 .fine-reason { font-size: 12px; color: var(--red-600); margin-top: 6px; white-space: normal; }
 
 /* Audit-Verlauf. Die Zeilen stehen im Detail-Blatt, nicht mehr unter der Karte. */
-.linklike { -webkit-appearance: none; appearance: none; border: 0; background: none; padding: 2px 0; cursor: pointer;
-  color: var(--green-700); font: inherit; font-size: .76rem; font-weight: 700; }
+
 .fine-hist-body { margin-top: 4px; display: flex; flex-direction: column; gap: 3px; }
 .hist-line { font-size: 12px; color: var(--muted); }
 
@@ -2277,7 +2146,6 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 .kat-staffel { display: none; }
 .kat-edit.is-staffel .kat-staffel { display: grid; gap: 8px; }
 .kat-edit.is-staffel .kat-fixed { display: none; }
-.kat-edit-actions { display: flex; justify-content: flex-end; gap: 2px; }
 
 /* ===========================================================================
    Uebersicht - Vorlage 1a (Trainer/Kassenwart) und 1b (Spieler)
@@ -2366,7 +2234,7 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 }
 .ks-seg-b {
   position: relative; min-height: 44px; border: 0; border-radius: 11px; background: none;
-  color: var(--muted-2); font: inherit; font-size: 14px; font-weight: 700; letter-spacing: -.01em;
+  color: var(--muted); font: inherit; font-size: 14px; font-weight: 700; letter-spacing: -.01em;
   white-space: nowrap; cursor: pointer; -webkit-tap-highlight-color: transparent;
   display: flex; align-items: center; justify-content: center; gap: 5px;
   padding: 0 4px; overflow: hidden;
@@ -2384,7 +2252,7 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
   margin: 14px 16px 10px; padding: 0 10px;
   background: var(--surface-2); border: 1px solid var(--line-soft-3); border-radius: var(--radius-btn);
 }
-.ks-suchfeld .ks-zi { color: var(--muted-2); }
+.ks-suchfeld .ks-zi { color: var(--muted); }
 .ks-such-in {
   flex: 1; min-width: 0; min-height: var(--h-in);
   border: 0; background: none; font: inherit; font-size: var(--fs-input); color: var(--ink);
@@ -2394,7 +2262,7 @@ body.kb-open .app-nav, body.kb-open .sim-bar { display: none; }
 .ks-such-in:focus { outline: none; }
 .ks-such-x {
   position: relative; flex: none; width: 28px; height: 28px;
-  border: 0; background: none; color: var(--muted-2); font-size: 20px; line-height: 1;
+  border: 0; background: none; color: var(--muted); font-size: 20px; line-height: 1;
   cursor: pointer; -webkit-appearance: none; appearance: none;
 }
 .ks-such-x::after {
@@ -2697,12 +2565,6 @@ body.kb-open .ks-fuss { padding-bottom: 12px; }
 .kad-kopf { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
 .kad-name { flex: 1; min-width: 0; font-size: 14px; font-weight: 700; }
 
-.laz-list { display: flex; flex-direction: column; gap: 8px; }
-.laz-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; min-height: 56px; }
-.laz-main { flex: 1; min-width: 0; }
-.laz-name { font-size: 14px; font-weight: 700; line-height: normal; }
-.laz-note { font-size: 12px; font-weight: 500; color: var(--muted); margin-top: 2px; }
-
 /* ===========================================================================
    Globale Materialebene - Vorlage "App in 2a - High End"
    ---------------------------------------------------------------------------
@@ -2823,8 +2685,7 @@ body {
 }
 
 /* --- Datumswuerfel: in der Vorlage durchgehend creme ----------------------- */
-.event-date,
-.event.typ-spiel .event-date {
+.event-date {
   background: var(--grad-gold);
   box-shadow: var(--shadow-dbg);
 }
@@ -2916,7 +2777,7 @@ body {
 }
 
 /* --- Sekundaerknopf; gefaehrliche Handlung gleicher Knopf, Schrift rot ------ */
-.btn, .btn-soft, .rs2-btn2 {
+.btn, .btn-soft {
   background-image: var(--grad-btn-sec);
   border: 1px solid var(--line-soft-3);
   color: var(--ink);
@@ -2995,7 +2856,7 @@ body {
 }
 
 /* --- Gruppenkopf: ersetzt .section-title, .sec-mini, .tv-next-lbl ... ------ */
-.group-head, .section-title, .sec-mini, .tv-next-lbl, .tv-bank-h, .ein-titel, .ein-gkopf-t, .set-label, .ks-bl-lbl, .abo-k-t {
+.group-head, .section-title, .tv-next-lbl, .tv-bank-h, .ein-titel, .set-label, .ks-bl-lbl, .abo-k-t {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -3010,14 +2871,15 @@ body {
 .group-head h2, .group-head h3, .section-title h2, .section-title h3 {
   margin: 0; font: inherit; letter-spacing: inherit; color: inherit;
 }
+
 /* Textverweis rechts im Gruppenkopf: 15/600, ohne Unterstreichung, Flaeche 44 */
-.group-head .link-btn, .section-title .link-btn, .sec-mini .link-btn {
+.group-head .link-btn, .section-title .link-btn {
   position: relative;
   min-height: 0;
   text-transform: none;
   letter-spacing: 0;
 }
-.group-head .link-btn::after, .section-title .link-btn::after, .sec-mini .link-btn::after {
+.group-head .link-btn::after, .section-title .link-btn::after {
   content: ""; position: absolute; right: 0; top: 50%;
   width: calc(100% + 16px); height: var(--tap); transform: translateY(-50%);
 }
@@ -3056,7 +2918,7 @@ body {
 .row-t { font-size: var(--fs-zeile); font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .row-s { font-size: var(--fs-neben); font-weight: 500; color: var(--muted); }
 .row-end { flex: none; display: flex; align-items: center; gap: var(--sp-2); font-weight: 700; }
-.row-chev, .kal-abo-chev, .geld-chev, .tv-garrow { color: var(--green-chev); }
+.row-chev, .kal-abo-chev, .geld-chev { color: var(--green-chev); }
 
 /* --- Marke / Plakette: Satzschreibung, Bedeutungsfarbe --------------------- */
 .mark {
@@ -3072,8 +2934,9 @@ body {
 .mark.is-urlaub  { background: var(--blau-050);       color: var(--blau-700); }
 .mark.is-gold    { background: var(--gold-badge-bg);  color: var(--gold-ink); border: 1px solid var(--gold-badge-line); }
 .mark-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
+
 /* Bestandsfehler: Amber-Schrift --amber-600 erreicht auf --amber-050 nur 3,35:1. */
-.tag-friendly, .tag-manuell, .cd-amber, .st-amber, .lu-ptag.ang, .tv-tag.ang { color: var(--amber-ink); }
+.tag-manuell, .cd-amber, .st-amber, .lu-ptag.ang, .tv-tag.ang { color: var(--amber-ink); }
 
 /* --- Kennzahl-Kachel: ganz getoent statt Randstreifen ---------------------- */
 .kpi.is-warn::before { content: none; }
@@ -3353,7 +3216,7 @@ span.tk-unten-r::after { content: none; }
 .mb-label, .mb-value, .mb-sub { display: table; margin-left: auto; margin-right: auto; }
 .mb-value { margin-top: 11px; }
 .mb-pp .rs { font-size: 13px; font-weight: 400; line-height: 19px; }
-.mb-pp .pp1, .mb-pp .pp2 { font-size: 15px; font-weight: 800; line-height: 19px; }
+
 .mb-foot .link-btn { min-height: 0; line-height: 17px; }
 .dn-liste { margin-top: 0; }
 /* Untere Navigation (Final): 62 hoch plus 8 Rand unten, Schrift 11, Abstand 4 */
@@ -3962,7 +3825,7 @@ body:has(.kat-blatt-ov) .app-nav { visibility: hidden; }
 .ein-kopf { margin: -8px -16px 0; min-height: 44px; background: transparent; gap: 8px; }
 .ein-kopf.is-kompakt { background: var(--bg-1); }
 .ein-back { min-height: 44px; color: var(--green-800); font-size: 15px; font-weight: 600; gap: 0; }
-.ein-back-t { line-height: 19px; }
+
 .ein-h1 { margin: 0 0 16px; letter-spacing: -.02em; line-height: 31px; }
 .ein-body > .ein-gruppe:first-of-type, .ein-gruppe.ein-gruppe-erste { margin-top: 0; }
 .ein-schalter { gap: 12px; min-height: 52px; padding: 0 16px; }

@@ -6,7 +6,7 @@ set -uo pipefail
 
 OUT="ds-bundle"
 CSS="$OUT/_ds_app.css"
-SCAFFOLD="sp sp-h meta bar row duo sw sw-grid frame f-nav f-sheet blatt-demo wahl-demo seite-demo such-demo"   # nur Kartengeruest
+SCAFFOLD="sp sp-h meta bar row duo sw sw-grid frame frame-blatt f-nav f-sheet blatt-demo wahl-demo seite-demo such-demo"   # nur Kartengeruest
 # Echte App-Klassen ohne eigene CSS-Regel. Stehen so in index.html bzw. app.js; sie erben
 # ihre Darstellung vom Elternelement. Bewusst in den Karten behalten, damit das
 # Markup dem der App entspricht - siehe NOTES.md.

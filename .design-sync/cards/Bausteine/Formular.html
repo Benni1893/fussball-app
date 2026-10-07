@@ -20,61 +20,23 @@
   <div>
     <div class="sp-h">Termin anlegen</div>
     <div class="card card-pad">
-      <form class="termin-form" onsubmit="return false">
-        <label class="tf-row">
-          <span>Art</span>
-          <select>
-            <option>Spiel</option>
-            <option selected>Training</option>
-            <option>Sonstiges</option>
-          </select>
-        </label>
-
-        <label class="tf-row">
-          <span>Titel</span>
-          <input type="text" value="Abschlusstraining">
-        </label>
-
-        <div class="tf-2col">
-          <label class="tf-row">
-            <span>Beginn</span>
-            <input type="date" value="2026-09-17">
-          </label>
-          <label class="tf-row">
-            <span>Uhrzeit</span>
-            <input type="time" value="19:30">
-          </label>
-        </div>
-
-        <label class="tf-row">
-          <span>Ort</span>
-          <input type="text" value="Kunstrasen 2">
-        </label>
-
-        <fieldset class="tf-wdh">
-          <legend>Wiederholung</legend>
-          <label class="tf-radio"><input type="radio" name="wdh" checked> einmalig</label>
-          <label class="tf-radio"><input type="radio" name="wdh"> wöchentlich</label>
-          <label class="tf-row tf-bis">
-            <span>bis</span>
-            <input type="date" value="2026-12-17">
-          </label>
-        </fieldset>
-
-        <label class="tf-row">
-          <span>Hinweis an die Mannschaft</span>
-          <textarea>Bitte Stutzen und Schienbeinschoner mitbringen.</textarea>
-        </label>
-
-        <div class="tf-summary">Legt 1 Termin an — Mi, 17.09. um 19:30 Uhr.</div>
-
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn btn-primary" type="submit">Termin speichern</button>
-          <button class="btn" type="button">Abbrechen</button>
-        </div>
-      </form>
+      <div class="tf-liste">
+        <div class="tf-z"><span class="tf-l">Gegner</span><input class="tf-in" type="text" placeholder="Gegnerischer Verein"></div>
+        <div class="tf-z"><span class="tf-l">Spielort</span><span class="tf-seg"><button type="button" class="tf-seg-b">Heim</button><button type="button" class="tf-seg-b is-on">Auswärts</button></span></div>
+        <div class="tf-z"><span class="tf-l">Datum</span><span class="tf-nat"><span class="tf-anz">So, 11. Okt 2026</span><input type="date"></span></div>
+        <div class="tf-z"><span class="tf-l">Anstoß</span><span class="tf-nat"><span class="tf-anz">13:30</span><input type="time"></span>
+          <span class="tf-rechts"><span class="tf-nat"><span class="tf-anz">Treffen 12:45</span><input type="time"></span></span></div>
+        <div class="tf-z"><span class="tf-l">Ort</span><input class="tf-in" type="text" placeholder="Straße, Ort"></div>
+        <div class="tf-z"><span class="tf-l">Notiz</span><textarea class="tf-in" rows="1" placeholder="Für die Spieler"></textarea></div>
+      </div>
+      <div class="tf-gruppe">
+        <div class="group-head"><h2>Wiederholung</h2></div>
+        <div class="seg tf-wdh"><button type="button" class="seg-b is-on">Einmalig</button><button type="button" class="seg-b">Wöchentlich</button></div>
+        <div class="tf-summary">Legt 1 Termin an.</div>
+      </div>
+      <div class="tf-fuss"><div class="tf-hint"></div><button type="button" class="btn btn-primary tf-submit">Spiel anlegen</button></div>
     </div>
-    <div class="meta">.termin-form &gt; .tf-row (Label + Feld) · .tf-2col · .tf-wdh mit .tf-radio · .tf-summary</div>
+    <div class="meta">.tf-liste &gt; .tf-z (.tf-l + .tf-in, .tf-seg oder .tf-nat mit .tf-anz über dem nativen Feld) · .tf-rechts für ein zweites Feld in der Zeile · .tf-gruppe mit .seg.tf-wdh · .tf-fuss mit .tf-submit. Vollständig im Blatt der Karte „Kalender“.</div>
   </div>
 
   <div>

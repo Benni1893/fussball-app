@@ -8,132 +8,42 @@
 <link rel="stylesheet" href="../../../styles.css">
 <style>
   /* Nur Geruest der Vorschaukarte - gehoert nicht zum Design-System. */
-  body { padding: 0; min-height: 0; }
+  body { padding: 0; min-height: 0; background: var(--bg-1); }
   .sp { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
   .sp-h { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 8px; }
   .meta { font-size: .7rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; margin-top: 7px; line-height: 1.6; }
-  .frame { width: 390px; max-width: 100%; padding: 0 16px 16px; background: var(--bg); border: 1px dashed var(--line); border-radius: 12px; }
+  .frame { width: 390px; max-width: 100%; padding: 20px 16px; background: var(--grad-app); border-radius: 12px; }
+  /* Blaetter liegen in der App fest am Bildschirmrand; transform macht den Rahmen zum Bezug. */
+  .frame-blatt { position: relative; padding: 0; overflow: hidden; transform: translateZ(0); }
 </style>
 </head>
 <body>
 <div class="sp">
-
   <div>
-    <div class="sp-h">Ein Baustein an drei Orten</div>
-    <div class="card card-pad">
-      <p class="rs">Dieselben vier Chips stehen auf der Übersicht („Mein Status"), im Profil
-      und im Kader. Geschrieben wird ausschließlich über eine Datenbankfunktion; die Datenbank
-      entscheidet, wer darf — Spieler nur über sich selbst, Trainer und Admin über alle.</p>
-    </div>
+    <div class="sp-h">Kader und Status</div>
+    <p class="meta">Getönte Kennzahlen, Fällt aus, Einsatzbereit, Blatt „Status ändern“ (Final 09, 10). Erzeugt aus dem Markup der App (kartenbau.mjs).</p>
   </div>
-
   <div>
-    <div class="sp-h">Kader — Kennzahlen, Statuszeilen, Lazarett</div>
+    <div class="sp-h">09 Kader</div>
     <div class="frame">
-      <div class="page-head" style="padding-top:14px">
-        <button class="pg-back" type="button" aria-label="Zurück">&lsaquo;</button>
-        <h1>Kader</h1>
-      </div>
 
-      <div class="kpi-grid kpi-3">
-        <div class="kpi"><div class="kpi-label">Spieler</div><div class="kpi-value">16</div><div class="kpi-sub">im Kader</div></div>
-        <div class="kpi"><div class="kpi-label">Fit</div><div class="kpi-value">12</div><div class="kpi-sub">einsatzbereit</div></div>
-        <div class="kpi is-warn"><div class="kpi-label">Nicht fit</div><div class="kpi-value">4</div><div class="kpi-sub">angeschlagen, verletzt oder im Urlaub</div></div>
+      <div class="page-head"><h1>Kader</h1></div>
+      <div class="kad-kpis">
+        <div class="kpi kad-kpi is-gruen"><span class="kpi-label">Fit</span><span class="kpi-value">15</span></div><div class="kpi kad-kpi is-amber"><span class="kpi-label">Angeschlagen</span><span class="kpi-value">0</span></div>
+        <div class="kpi kad-kpi is-rot"><span class="kpi-label">Verletzt</span><span class="kpi-value">1</span></div><div class="kpi kad-kpi is-urlaub"><span class="kpi-label">Urlaub</span><span class="kpi-value">0</span></div>
       </div>
-
-      <div class="section-title"><h2>Kader-Status</h2></div>
-      <div class="kad-list">
-        <div class="card kad-row">
-          <div class="kad-kopf">
-            <span class="avatar">MB</span>
-            <span class="kad-name">Max Bauer</span>
-          </div>
-          <div class="st-wahl">
-            <div class="chips st-chips">
-              <button class="chip st-choice is-on st-fit" type="button">fit</button>
-              <button class="chip st-choice" type="button">angeschlagen</button>
-              <button class="chip st-choice" type="button">verletzt</button>
-              <button class="chip st-choice" type="button">Urlaub</button>
-            </div>
-          </div>
-        </div>
-        <div class="card kad-row is-raus">
-          <div class="kad-kopf">
-            <span class="avatar">FH</span>
-            <span class="kad-name">Felix Hofmann <span class="st-badge st-red">verletzt</span></span>
-          </div>
-          <div class="st-wahl">
-            <div class="chips st-chips">
-              <button class="chip st-choice" type="button">fit</button>
-              <button class="chip st-choice" type="button">angeschlagen</button>
-              <button class="chip st-choice is-on st-verletzt" type="button">verletzt</button>
-              <button class="chip st-choice" type="button">Urlaub</button>
-            </div>
-            <div class="st-felder">
-              <label class="st-feld"><span class="lbl">voraussichtlich bis</span>
-                <input class="kasse-in" type="date" value="2026-10-04"></label>
-              <label class="st-feld"><span class="lbl">Notiz</span>
-                <input class="kasse-in" type="text" value="Muskelfaserriss"></label>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="section-title"><h2>Lazarett</h2></div>
-      <div class="laz-list">
-        <div class="card laz-row">
-          <span class="avatar">FH</span>
-          <div class="laz-main">
-            <div class="laz-name">Felix Hofmann</div>
-            <div class="rs">seit 8. Sep · zurück 4. Okt</div>
-            <div class="laz-note">Muskelfaserriss</div>
-          </div>
-          <span class="st-badge st-red">verletzt</span>
-        </div>
-        <div class="card laz-row">
-          <span class="avatar">SL</span>
-          <div class="laz-main">
-            <div class="laz-name">Simon Lang</div>
-            <div class="rs">seit 15. Sep · offenes Ende</div>
-          </div>
-          <span class="st-badge st-grau">Urlaub</span>
-        </div>
-      </div>
+      <div class="group-head"><h2>Fällt aus</h2></div><div class="card kad-liste"><button class="row kad-row is-zwei"><span class="row-av">EN</span><span class="row-main"><span class="row-t">Emil Nordhoff</span><span class="row-s">Knie · seit 28. Sep</span></span><span class="row-end"><span class="mark kad-pille is-rot"><span class="mark-dot"></span>Verletzt ▾</span></span></button></div>
+      <div class="group-head"><h2>Einsatzbereit · 15</h2></div>
+      <div class="card kad-liste"><button class="row kad-row"><span class="row-av"><span>MB</span></span><span class="row-main"><span class="row-t">Max Bauer</span></span><span class="row-end"><span class="mark kad-pille is-gruen"><span class="mark-dot"></span>Fit ▾</span></span></button><button class="row kad-row"><span class="row-av"><span>JB</span></span><span class="row-main"><span class="row-t">Jonas Becker</span></span><span class="row-end"><span class="mark kad-pille is-gruen"><span class="mark-dot"></span>Fit ▾</span></span></button><button class="row kad-row"><span class="row-av"><span>NF</span></span><span class="row-main"><span class="row-t">Niklas Fischer</span></span><span class="row-end"><span class="mark kad-pille is-gruen"><span class="mark-dot"></span>Fit ▾</span></span></button><button class="row kad-row"><span class="row-av"><span>FH</span></span><span class="row-main"><span class="row-t">Felix Hofmann</span></span><span class="row-end"><span class="mark kad-pille is-gruen"><span class="mark-dot"></span>Fit ▾</span></span></button><button class="row kad-row"><span class="row-av"><span>FH</span></span><span class="row-main"><span class="row-t">Florian Huber</span></span><span class="row-end"><span class="mark kad-pille is-gruen"><span class="mark-dot"></span>Fit ▾</span></span></button><button class="row kad-row"><span class="row-av"><span>DK</span></span><span class="row-main"><span class="row-t">Daniel Koch</span></span><span class="row-end"><span class="mark kad-pille is-gruen"><span class="mark-dot"></span>Fit ▾</span></span></button><button class="row kad-row"><span class="row-av"><span>SL</span></span><span class="row-main"><span class="row-t">Simon Lang</span></span><span class="row-end"><span class="mark kad-pille is-gruen"><span class="mark-dot"></span>Fit ▾</span></span></button><button class="row kad-row"><span class="row-av"><span>CL</span></span><span class="row-main"><span class="row-t">Carl Lindner</span></span><span class="row-end"><span class="mark kad-pille is-gruen"><span class="mark-dot"></span>Fit ▾</span></span></button><button class="row kad-row"><span class="row-av"><span>JR</span></span><span class="row-main"><span class="row-t">Jonas Reich</span></span><span class="row-end"><span class="mark kad-pille is-gruen"><span class="mark-dot"></span>Fit ▾</span></span></button><button class="row kad-row"><span class="row-av"><span>TR</span></span><span class="row-main"><span class="row-t">Tim Richter</span></span><span class="row-end"><span class="mark kad-pille is-gruen"><span class="mark-dot"></span>Fit ▾</span></span></button><button class="row kad-row"><span class="row-av"><span>BS</span></span><span class="row-main"><span class="row-t">Bruno Seidl</span></span><span class="row-end"><span class="mark kad-pille is-gruen"><span class="mark-dot"></span>Fit ▾</span></span></button><button class="row kad-row"><span class="row-av"><span>PW</span></span><span class="row-main"><span class="row-t">Paul Wagner</span></span><span class="row-end"><span class="mark kad-pille is-gruen"><span class="mark-dot"></span>Fit ▾</span></span></button><button class="row kad-row"><span class="row-av"><span>LW</span></span><span class="row-main"><span class="row-t">Lukas Weber</span></span><span class="row-end"><span class="mark kad-pille is-gruen"><span class="mark-dot"></span>Fit ▾</span></span></button><button class="row kad-row"><span class="row-av"><span>AZ</span></span><span class="row-main"><span class="row-t">Anton Zeller</span></span><span class="row-end"><span class="mark kad-pille is-gruen"><span class="mark-dot"></span>Fit ▾</span></span></button><button class="row kad-row"><span class="row-av"><span>OZ</span></span><span class="row-main"><span class="row-t">Oskar Zierer</span></span><span class="row-end"><span class="mark kad-pille is-gruen"><span class="mark-dot"></span>Fit ▾</span></span></button></div>
+    
     </div>
-    <div class="meta">.kad-list &gt; .card.kad-row (+ .is-raus) mit .kad-kopf (.avatar, .kad-name) und .st-wahl · .laz-list &gt; .card.laz-row. Das Lazarett ist nach Rückkehrdatum sortiert; wer keines hat, steht hinten.</div>
   </div>
-
   <div>
-    <div class="sp-h">Mein Status auf der Übersicht</div>
-    <div class="card card-pad">
-      <div class="section-title"><h2>Mein Status</h2></div>
-      <div class="st-wahl">
-        <div class="chips st-chips">
-          <button class="chip st-choice" type="button">fit</button>
-          <button class="chip st-choice is-on st-angeschlagen" type="button">angeschlagen</button>
-          <button class="chip st-choice" type="button">verletzt</button>
-          <button class="chip st-choice" type="button">Urlaub</button>
-        </div>
-        <div class="st-felder">
-          <label class="st-feld"><span class="lbl">voraussichtlich bis</span>
-            <input class="kasse-in" type="date"></label>
-          <label class="st-feld"><span class="lbl">Notiz</span>
-            <input class="kasse-in" type="text" placeholder="optional"></label>
-        </div>
-      </div>
-    </div>
-    <div class="meta">Derselbe .st-wahl-Block. Bei „fit" entfallen Datum und Notiz; die Felder speichern beim Verlassen, es gibt keinen Knopf.</div>
-  </div>
-
-  <div>
-    <div class="sp-h">„Urlaub" ist kein Rot</div>
-    <div class="card card-pad">
-      <p class="rs">Urlaub zählt wie verletzt: nicht einsatzbereit. Farblich bekommt er
-      aber einen eigenen Ton (--blau-700 mit --blau-050), damit eine geplante Abwesenheit
-      im Lazarett nicht wie eine Verletzung aussieht.</p>
+    <div class="sp-h">10 Status-Blatt</div>
+    <div class="frame frame-blatt" style="height:584px">
+<div class="more-sheet"><button class="more-backdrop"></button><div class="more-panel sb-panel"><span class="sb-griff"></span><div class="sb-kopf"><span class="row-av sb-av">EN</span><span class="sb-kopf-t"><span class="sb-name">Emil Nordhoff</span><span class="sb-sub">IV · Nr. 5</span></span></div><div class="sb-knoepfe"><button type="button" class="sb-k st-fit"><span class="st-dot"></span>Fit</button><button type="button" class="sb-k st-angeschlagen"><span class="st-dot"></span>Angeschlagen</button><button type="button" class="sb-k st-verletzt is-on"><span class="st-dot"></span>Verletzt</button><button type="button" class="sb-k st-urlaub"><span class="st-dot"></span>Urlaub</button></div><div class="sb-felder"><input class="sb-feld" type="text" value="Knie" placeholder="Grund (optional)"><label class="sb-feld sb-datum"><span class="sb-datum-l">Voraussichtlich bis</span><input type="date" value=""></label></div><button class="btn btn-primary sb-speichern">Speichern</button></div></div>
     </div>
   </div>
-
 </div>
 </body>
 </html>
