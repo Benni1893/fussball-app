@@ -354,3 +354,54 @@ Behoben sind 8 (Zusage/Absage), 7, 16, 18 und 21. Runden: eine, plus eine Zwisch
 | Trefferfläche < 44 px: `div.group-head.tv-bank-kopf > button.link-btn` · zu klein unten | admin: trainer/spiel, trainer: trainer/spiel, trainerkassenwart: trainer/spiel | 360, 384, 390, 393, 412, 414, 430 | Chromium · Inter, Chromium · Roboto, WebKit · Inter | 100, 130 % | `nacharbeit/nachher/nacharbeit/nachher/befunde/chromium-inter/admin/trainer_spiel-360-100.png` |
 | Trefferfläche < 44 px: `button.tv-bslot > span.tv-bx` · zu klein rechts/oben | admin: trainer/spiel, trainer: trainer/spiel, trainerkassenwart: trainer/spiel | 384, 390, 393, 412, 414, 430 | Chromium · Inter, Chromium · Roboto, WebKit · Inter | 100, 130 % | `nacharbeit/nachher/nacharbeit/nachher/befunde/chromium-inter/admin/trainer_spiel-384-100.png` |
 | Überlappung: `div.modal > p.modal-sub` „Text frei anpassen, dann teilen oder kop“ · div.modal > div.modal-head > button.modal-x | admin: dashboard+rsvpSheet+shareModal, admin: kalender+rsvpSheet+shareModal, admin: trainer+rsvpSheet+shareModal (+6) | 320, 360, 375, 384, 390 | Chromium · Inter, Chromium · Roboto, WebKit · Inter | 100 % | `nacharbeit/nachher/nacharbeit/nachher/befunde/chromium-inter/admin/dashboard_rsvpSheet_shareModal-320-100.png` |
+
+---
+
+# Nachtrag: Ausnahmeliste im Werkzeug (08.10.2026)
+
+Nur das Werkzeug wurde geändert, die App nicht. Die Build-Kennung bleibt 2026-10-08-B.
+
+`geraetematrix.mjs` hat jetzt eine Ausnahmeliste `AUSNAHMEN`. Jeder Eintrag hat Selektor, Richtung und Begründung.
+
+**Wie eine Ausnahme greift:**
+- Die Prüfung läuft im Browser am echten Element (`el.matches`).
+- Bei Trefferflächen gilt sie nur, wenn **alle** zu kleinen Richtungen in der Liste stehen. Wird eine begrenzte Zone in einer anderen Richtung zu klein, bleibt das ein Befund.
+- Bei abgeschnittenen Eingabefeldern gilt sie nur für die Art „Eingabefeld“.
+- Bei Überlappungen muss auch der Partner passen.
+- Ausnahmen landen getrennt in `ergebnis-*.json` (`profile[].ausnahmen`), in der Zusammenfassung der Matrix und in `gmbericht.mjs`. Sie zählen nicht als Befund, und für sie entsteht kein Befundbild.
+
+| Ausnahme | Typ | Selektor | Richtung | Begründung |
+|---|---|---|---|---|
+| zone-rueckmeldung | Trefferfläche | `.tk-unten-l` | oben | Zone oben auf 5 px begrenzt (halbe Lücke zu Zusage/Absage), 144 × 35 px |
+| zone-elf | Trefferfläche | `button.tk-unten-r` | oben | gleiche Zeile unter Absage, oben 5 px |
+| zone-alle-bestaetigen | Trefferfläche | `.ks-stapelkopf .link-btn` | unten | unten 4 px (halbe Lücke zur Prüfkarte), 124 × 35,5 px |
+| zone-spieler-waehlen | Trefferfläche | `.tv-bank-kopf .link-btn` | unten | unten 6 px (halbe Lücke zum Bankplatz), 133 × 37,5 px |
+| zone-bank-x | Trefferfläche | `.tv-bx` | rechts, oben | rechts 6,5 px, oben 8,5 px, 37,5 × 39,5 px (über 32 px) |
+| zone-danach | Trefferfläche | `.group-head:has(+ .dn-liste) .link-btn` | unten | „Kalender ›“: unten 4,5 px, 91 × 36 px (sechste begrenzte Zone aus Abschnitt C, damit ein voller Lauf sie nicht als neuen Befund meldet) |
+| feld-ort | abgeschnitten | `.tf-z > input.tf-in` | Eingabefeld | Wert rollt im nativen Feld, bewusst nicht angefasst |
+| feld-push-titel | abgeschnitten | `.pkat-feld > input.pkat-in` | Eingabefeld | ebenso |
+| feld-katalogname | abgeschnitten | `.kat-item.kat-edit > input.kat-in-name` | Eingabefeld | ebenso |
+| feld-status-datum | abgeschnitten | `.sb-feld.sb-datum > input` | Eingabefeld | natives Datumsfeld (WebKit), ebenso |
+| teilen-x-unterzeile | Überlappung | `.modal > p.modal-sub` mit `.modal-head > .modal-x` | – | Zone des × über der Unterzeile, die keine Funktion hat |
+
+Zur Abweichung vom Auftrag: Er nannte fünf begrenzte Zonen. Abschnitt C hat sechs; „Kalender ›“ ist als sechste mit aufgenommen.
+
+**Kontrolllauf** auf den 15 betroffenen Zuständen (`nacharbeit-zustaende.txt`), mit 9 Breiten × 2 Schriftgrößen × 3 Varianten, Ergebnisse unter `nacharbeit/kontrolle/`:
+- **0 Befunde** außerhalb der Ausnahmeliste.
+- **887 Ausnahmen**, genau die 887 Restbefunde des Nachher-Laufs.
+
+| Ausnahme | Anzahl |
+|---|---|
+| zone-rueckmeldung | 213 |
+| zone-alle-bestaetigen | 156 |
+| zone-elf | 147 |
+| zone-spieler-waehlen | 117 |
+| zone-bank-x | 93 |
+| teilen-x-unterzeile | 81 |
+| feld-ort | 57 |
+| feld-push-titel | 11 |
+| feld-katalogname | 9 |
+| feld-status-datum | 3 |
+| zone-danach | 0 (trat in diesen Zuständen nicht auf) |
+
+Einen vollen Lauf habe ich nicht gemacht.

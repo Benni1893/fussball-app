@@ -96,6 +96,41 @@ export async function schriftDateien(fam) {
 
 export const SA = (s) => s.replace(/env\(\s*safe-area-inset-(top|bottom|left|right)\s*(,[^)]*)?\)/g, 'var(--gm-sa-$1, 0px)');
 
+/* ---------------- Ausnahmen ----------------
+   Bewusst begrenzte Tippzonen und akzeptierte Fälle aus
+   .design-sync/geraetematrix/ABSCHLUSS.md (Nachtrag Nacharbeit, C und E).
+   Eine Ausnahme greift nur am passenden Element (el.matches(sel)) und nur
+   in der genannten Richtung:
+     treffer       alle zu kleinen Richtungen stehen in richtung
+     abgeschnitten richtung 'Eingabefeld' (Text rollt im nativen Feld)
+     ueberlappung  der Partner passt auf partner
+   Ausnahmen werden getrennt gezählt (ergebnis-*.json: profile[].ausnahmen),
+   nicht als Befund.                                                        */
+export const AUSNAHMEN = [
+  { id: 'zone-rueckmeldung', typ: 'treffer', sel: '.tk-unten-l', richtung: ['oben'],
+    grund: 'Zone oben auf 5 px begrenzt (halbe Lücke zu Zusage/Absage, 10 px); 144 × 35 px.' },
+  { id: 'zone-elf', typ: 'treffer', sel: 'button.tk-unten-r', richtung: ['oben'],
+    grund: 'Wie „9 zu · 2 ab ›“: gleiche Zeile unter Absage, oben 5 px.' },
+  { id: 'zone-alle-bestaetigen', typ: 'treffer', sel: '.ks-stapelkopf .link-btn', richtung: ['unten'],
+    grund: 'Zone unten auf 4 px begrenzt (halbe Lücke zur Prüfkarte, 8 px); 124 × 35,5 px.' },
+  { id: 'zone-spieler-waehlen', typ: 'treffer', sel: '.tv-bank-kopf .link-btn', richtung: ['unten'],
+    grund: 'Zone unten auf 6 px begrenzt (halbe Lücke zum ersten Bankplatz, 12 px); 133 × 37,5 px.' },
+  { id: 'zone-bank-x', typ: 'treffer', sel: '.tv-bx', richtung: ['rechts', 'oben'],
+    grund: 'Rechts 6,5 px (halbe Lücke zum Nachbarplatz, 13 px), oben 8,5 px (halbe Lücke zu „Spieler wählen ›“, 17 px); 37,5 × 39,5 px, über 32 px.' },
+  { id: 'zone-danach', typ: 'treffer', sel: '.group-head:has(+ .dn-liste) .link-btn', richtung: ['unten'],
+    grund: '„Kalender ›“ über der ersten Danach-Zeile: unten 4,5 px (halbe Lücke, 9 px); 91 × 36 px. Sechste begrenzte Zone aus Abschnitt C.' },
+  { id: 'feld-ort', typ: 'abgeschnitten', sel: '.tf-z > input.tf-in', richtung: ['Eingabefeld'],
+    grund: 'Langer Wert rollt im nativen Eingabefeld (Termin-Blatt); bewusst nicht angefasst.' },
+  { id: 'feld-push-titel', typ: 'abgeschnitten', sel: '.pkat-feld > input.pkat-in', richtung: ['Eingabefeld'],
+    grund: 'Langer Push-Titel rollt im nativen Eingabefeld; bewusst nicht angefasst.' },
+  { id: 'feld-katalogname', typ: 'abgeschnitten', sel: '.kat-item.kat-edit > input.kat-in-name', richtung: ['Eingabefeld'],
+    grund: 'Langer Katalogname rollt im nativen Eingabefeld (320 px, 130 %); bewusst nicht angefasst.' },
+  { id: 'feld-status-datum', typ: 'abgeschnitten', sel: '.sb-feld.sb-datum > input', richtung: ['Eingabefeld'],
+    grund: 'Natives Datumsfeld im Status-Blatt (WebKit, 320 px, 130 %); bewusst nicht angefasst.' },
+  { id: 'teilen-x-unterzeile', typ: 'ueberlappung', sel: '.modal > p.modal-sub', partner: '.modal-head > .modal-x',
+    grund: 'Zone des × im Teilen-Fenster reicht über die Unterzeile; sie hat keine Funktion.' },
+];
+
 /* ---------------- im Browser ---------------- */
 
 /* Schrift 130 %: an = true setzt, an = false stellt zurück. */
@@ -119,7 +154,17 @@ export function skaliereImBrowser({ an, faktor }) {
   return werte.length;
 }
 
-function pruefeImBrowser({ oben, sa, ausloeserSel }) {
+function pruefeImBrowser({ oben, sa, ausloeserSel, ausnahmen }) {
+  const passt = (el, sel) => { try { return !!el && el.nodeType === 1 && el.matches(sel); } catch (e) { return false; } };
+  const ausnahme = (typ, el, info) => {
+    for (const a of ausnahmen || []) {
+      if (a.typ !== typ) continue;
+      if (typ === 'ueberlappung') {
+        if ((passt(el, a.sel) && passt(info.partner, a.partner)) || (passt(info.partner, a.sel) && passt(el, a.partner))) return a.id;
+      } else if (passt(el, a.sel) && info.richtung.every((x) => a.richtung.includes(x))) return a.id;
+    }
+    return null;
+  };
   const W = document.documentElement.clientWidth, H = window.innerHeight;
   const befunde = [];
   const root = oben.length ? document.getElementById(oben[oben.length - 1]) : document.body;
@@ -275,7 +320,7 @@ function pruefeImBrowser({ oben, sa, ausloeserSel }) {
   for (const c of ctl) {
     if (c.el.tagName !== 'INPUT' || !/^(text|email|search|tel|url|number|password)?$/.test(c.el.type || '')) continue;
     if (c.el.scrollWidth > c.el.clientWidth + 1 && c.el.value && document.activeElement !== c.el) {
-      befunde.push({ typ: 'abgeschnitten', el: pfad(c.el), text: kurz(c.el.value), detail: 'Eingabefeld' });
+      befunde.push({ typ: 'abgeschnitten', el: pfad(c.el), text: kurz(c.el.value), detail: 'Eingabefeld', ausnahme: ausnahme('abgeschnitten', c.el, { richtung: ['Eingabefeld'] }) });
       markiere(c.el);
     }
   }
@@ -339,7 +384,7 @@ function pruefeImBrowser({ oben, sa, ausloeserSel }) {
     const k = pfad(a.el) + ' | ' + pfad(b.el);
     if (paare.has(k)) continue;
     paare.add(k);
-    befunde.push({ typ: 'ueberlappung', el: pfad(a.el), text: a.label + ' / ' + b.label, detail: pfad(b.el) + ' (' + Math.round(w) + '×' + Math.round(h) + ')' });
+    befunde.push({ typ: 'ueberlappung', el: pfad(a.el), text: a.label + ' / ' + b.label, detail: pfad(b.el) + ' (' + Math.round(w) + '×' + Math.round(h) + ')', ausnahme: ausnahme('ueberlappung', a.el, { partner: b.el }) });
     markiere(a.el); markiere(b.el);
   }
 
@@ -366,7 +411,7 @@ function pruefeImBrowser({ oben, sa, ausloeserSel }) {
       if (!gehoert(t) && !fremdeLeiste(t, el)) fehlt.push(n);
     }
     if (fehlt.length) {
-      befunde.push({ typ: 'treffer', el: pfad(el), text: txt(el), detail: Math.round(r.width) + '×' + Math.round(r.height) + ', zu klein ' + fehlt.join('/') });
+      befunde.push({ typ: 'treffer', el: pfad(el), text: txt(el), detail: Math.round(r.width) + '×' + Math.round(r.height) + ', zu klein ' + fehlt.join('/'), ausnahme: ausnahme('treffer', el, { richtung: fehlt }) });
       markiere(el);
     }
   }
@@ -456,7 +501,7 @@ async function laufeProfil({ browser, basis, variante, profil, knoten, breiten, 
     }
     return route.continue().catch(() => {});
   });
-  const ergebnisse = [], nichtErreicht = [];
+  const ergebnisse = [], ausnahmen = [], nichtErreicht = [];
   let neuGeladen = 0;
   const lese = () => page.evaluate(zustandImBrowser, UEBERLAGERUNGEN);
   const ausloeserSel = AUSLOESER.map((a) => a.sel).join(', ');
@@ -523,7 +568,9 @@ async function laufeProfil({ browser, basis, variante, profil, knoten, breiten, 
           await page.evaluate(() => window.dispatchEvent(new Event('resize')));
           await ruhe();
           if (gr !== 100) { await page.evaluate(skaliereImBrowser, { an: true, faktor: gr / 100 }); await ruhe(); }
-          const befunde = await page.evaluate(pruefeImBrowser, { oben: z.oben, sa, ausloeserSel });
+          const alleBefunde = await page.evaluate(pruefeImBrowser, { oben: z.oben, sa, ausloeserSel, ausnahmen: AUSNAHMEN });
+          const befunde = alleBefunde.filter((b) => !b.ausnahme);
+          for (const b of alleBefunde.filter((x) => x.ausnahme)) ausnahmen.push({ ...b, profil, schluessel: n.schluessel, breite: g.b, schrift: gr });
           let bild = null;
           if (befunde.length && mitBildern) {
             const dir = path.join(AUSGABE, 'befunde', variante, profil);
@@ -537,7 +584,7 @@ async function laufeProfil({ browser, basis, variante, profil, knoten, breiten, 
             await page.evaluate(skaliereImBrowser, { an: false });
             if (await rest()) { neuGeladen++; await erreiche(n); }
           }
-          for (const b of befunde) ergebnisse.push({ ...b, profil, schluessel: n.schluessel, name: n.name, breite: g.b, schrift: gr, bild: bild && bild.replace(/\\/g, '/') });
+          for (const { ausnahme: _a, ...b } of befunde) ergebnisse.push({ ...b, profil, schluessel: n.schluessel, name: n.name, breite: g.b, schrift: gr, bild: bild && bild.replace(/\\/g, '/') });
         } catch (e) {
           ergebnisse.push({ typ: 'fehler', el: '-', text: String(e.message).slice(0, 120), profil, schluessel: n.schluessel, name: n.name, breite: g.b, schrift: gr });
         }
@@ -546,7 +593,7 @@ async function laufeProfil({ browser, basis, variante, profil, knoten, breiten, 
   }
   const bericht = await lauf.bericht();
   await ctx.close();
-  return { profil, ergebnisse, nichtErreicht, neuGeladen, verstoesse: bericht.verstoesse, fehler: bericht.fehler };
+  return { profil, ergebnisse, ausnahmen, nichtErreicht, neuGeladen, verstoesse: bericht.verstoesse, fehler: bericht.fehler };
 }
 
 export async function laufeVariante(variante, opts = {}) {
@@ -601,7 +648,9 @@ if (istHaupt) {
     const alle = json.profile.flatMap((p) => p.ergebnisse);
     const nach = {};
     for (const e of alle) nach[e.typ] = (nach[e.typ] || 0) + 1;
-    console.log(`${v}: ${alle.length} Einzelbefunde ${JSON.stringify(nach)}, nicht erreicht ${json.profile.reduce((s, p) => s + p.nichtErreicht.length, 0)}, `
+    const ausn = {};
+    for (const a of json.profile.flatMap((p) => p.ausnahmen || [])) ausn[a.ausnahme] = (ausn[a.ausnahme] || 0) + 1;
+    console.log(`${v}: ${alle.length} Einzelbefunde ${JSON.stringify(nach)}, Ausnahmen ${Object.values(ausn).reduce((x, y) => x + y, 0)} ${JSON.stringify(ausn)}, nicht erreicht ${json.profile.reduce((s, p) => s + p.nichtErreicht.length, 0)}, `
       + `Verstöße ${json.profile.reduce((s, p) => s + p.verstoesse.length, 0)}, ${json.sekunden} s -> ${datei}`);
   }
 }

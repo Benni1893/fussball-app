@@ -12,8 +12,10 @@ const TYP = { ueberlauf: 'Waagerechter Überlauf', abgeschnitten: 'Text abgeschn
 const ENGINE = { 'chromium-inter': 'Chromium · Inter', 'chromium-roboto': 'Chromium · Roboto', 'webkit-inter': 'WebKit · Inter' };
 const g = new Map();
 let gesamt = 0;
+const ausn = new Map();   // Ausnahmen (AUSNAHMEN in geraetematrix.mjs), getrennt gezählt
 for (const f of fs.readdirSync(ordner).filter((x) => /^ergebnis-.*\.json$/.test(x)).sort()) {
   const j = JSON.parse(fs.readFileSync(path.join(ordner, f), 'utf8'));
+  for (const p of j.profile) for (const a of p.ausnahmen || []) ausn.set(a.ausnahme, (ausn.get(a.ausnahme) || 0) + 1);
   for (const p of j.profile) for (const e of p.ergebnisse) {
     gesamt++;
     const el = e.el.replace(/#ev-[\w-]+/g, '').replace(/\.(ein-anim-rein|open|filled|on)\b/g, '');
@@ -29,7 +31,9 @@ for (const f of fs.readdirSync(ordner).filter((x) => /^ergebnis-.*\.json$/.test(
 const esc = (s) => String(s || '').replace(/\|/g, '/').replace(/\n/g, ' ');
 const kurz = (el) => el.split(' > ').slice(-2).join(' > ');
 const zeilen = [...g.values()].sort((a, b) => a.typ.localeCompare(b.typ) || b.n - a.n);
-console.log(`${gesamt} Einzelbefunde in ${zeilen.length} Gruppen.\n`);
+const ausnSumme = [...ausn.values()].reduce((x, y) => x + y, 0);
+console.log(`${gesamt} Einzelbefunde in ${zeilen.length} Gruppen.`
+  + (ausn.size ? ` Ausnahmen (nicht als Befund): ${ausnSumme}, davon ${[...ausn].map(([k, n]) => k + ' ' + n).join(', ')}.` : '') + '\n');
 console.log('| Befund | Ansicht | Breite | Engine | Schrift | Screenshot |');
 console.log('|---|---|---|---|---|---|');
 for (const x of zeilen) {
