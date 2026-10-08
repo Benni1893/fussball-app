@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-08-B";
+  var APP_BUILD = "2026-10-09-A";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -3085,23 +3085,44 @@
   function ddmm(iso) { const p = iso.split("-"); return `${p[2]}.${p[1]}.`; }
   function weekdayPluralOf(iso) { const [y,m,d] = iso.split("-").map(Number); return WD_PLURAL[new Date(y, m-1, d).getDay()]; }
 
-  // Hintergrund-Scroll-Sperre für Dialoge (iOS-fest: body fixieren, Position merken).
-  // Zählerbasiert, damit verschachtelte Dialoge (z. B. Serien-Abfrage über dem
-  // Termin-Dialog) korrekt bleiben.
-  let _scrollLocks = 0, _scrollLockY = 0;
-  function lockBodyScroll() {
-    if (_scrollLocks++ > 0) return;
-    _scrollLockY = window.scrollY || window.pageYOffset || 0;
-    const b = document.body.style;
-    b.position = "fixed"; b.top = `-${_scrollLockY}px`; b.left = "0"; b.right = "0"; b.width = "100%";
+  /* Hintergrund-Scroll-Sperre für alle Fenster und Blätter (iOS-fest: body
+     fixieren, Position merken). Nachschliff A7: Die Sperre gleicht sich selbst
+     ab - sie gilt, solange irgendeine Ebene aus SPERR_SEL sichtbar ist. Vorher
+     zählte jeder Dialog selbst mit; wer das vergaß (Katalog-Blatt „Strafe
+     hinzufügen“), ließ den Hintergrund mitscrollen. lockBodyScroll() und
+     unlockBodyScroll() bleiben als Aufrufe erhalten und stoßen nur den
+     Abgleich an; ein Beobachter fängt Ebenen ohne eigenen Aufruf.          */
+  const SPERR_SEL = ".modal-ov, .more-sheet, .kat-blatt-ov, .tv-sheet.open, #ksSeite, #terminModal, [data-sperrt]";
+  let _gesperrt = false, _scrollLockY = 0, _sperrPlan = 0;
+  function ebeneOffen() {
+    for (const el of document.querySelectorAll(SPERR_SEL)) {
+      if (el.hidden || !el.getClientRects().length) continue;
+      const cs = getComputedStyle(el);
+      if (cs.display === "none" || cs.visibility === "hidden") continue;
+      return true;
+    }
+    return false;
   }
-  function unlockBodyScroll() {
-    if (_scrollLocks === 0) return;
-    if (--_scrollLocks > 0) return;
+  function sperreAbgleichen() {
+    _sperrPlan = 0;
+    const offen = ebeneOffen();
     const b = document.body.style;
-    b.position = ""; b.top = ""; b.left = ""; b.right = ""; b.width = "";
-    window.scrollTo(0, _scrollLockY);
+    if (offen && !_gesperrt) {
+      _gesperrt = true;
+      _scrollLockY = window.scrollY || window.pageYOffset || 0;
+      b.position = "fixed"; b.top = `-${_scrollLockY}px`; b.left = "0"; b.right = "0"; b.width = "100%";
+    } else if (!offen && _gesperrt) {
+      _gesperrt = false;
+      b.position = ""; b.top = ""; b.left = ""; b.right = ""; b.width = "";
+      window.scrollTo(0, _scrollLockY);
+    }
   }
+  function sperrePlanen() { if (!_sperrPlan) _sperrPlan = requestAnimationFrame(sperreAbgleichen); }
+  function lockBodyScroll() { sperrePlanen(); }
+  function unlockBodyScroll() { sperrePlanen(); }
+  try {
+    new MutationObserver(sperrePlanen).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "hidden"] });
+  } catch (e) { /* ohne Beobachter greifen die direkten Aufrufe */ }
 
   /* --------------------------------------------------------------------------
      Blatt-Steuerung: EIN Weg, ein Bottom-Sheet zu oeffnen und zu schliessen.
@@ -5225,11 +5246,11 @@
       return seg === "ich"
         ? '<div class="row kt-row"><span class="row-main"><span class="row-t">' + esc(vergehenName(x)) + '</span>' +
             '<span class="row-s">' + datum + '</span>' + grund + '</span>' +
-            '<span class="row-end kt-betrag ' + betragKl(x) + '">' + euro(x.betrag).replace(/s/g, " ") + '</span></div>'
+            '<span class="row-end kt-betrag ' + betragKl(x) + '">' + euro(x.betrag) + '</span></div>'
         : '<div class="row kt-row"><span class="row-av"><span>' + esc(initials(x.player.name)) + '</span></span>' +
             '<span class="row-main"><span class="row-t">' + esc(x.player.name) + '</span>' +
             '<span class="row-s">' + esc(vergehenName(x)) + ' · ' + datum + '</span>' + grund + '</span>' +
-            '<span class="row-end kt-betrag ' + betragKl(x) + '">' + euro(x.betrag).replace(/s/g, " ") + '</span></div>';
+            '<span class="row-end kt-betrag ' + betragKl(x) + '">' + euro(x.betrag) + '</span></div>';
     };
 
     viewEl.innerHTML = `
@@ -5649,9 +5670,10 @@
           </div>
 
           <div id="kasseSummary">${kasseSummaryHtml()}</div>
-          <div class="ks-fuss">
-            <button class="btn btn-primary ks-fuss-btn" data-kasse-add${build.valid ? "" : " disabled"}>Strafe speichern</button>
-          </div>
+        </div>
+        <!-- Nachschliff A5: Fuß fest am Blattende, nicht mehr sticky im Scrollbereich -->
+        <div class="ks-fuss">
+          <button class="btn btn-primary ks-fuss-btn" data-kasse-add${build.valid ? "" : " disabled"}>Strafe speichern</button>
         </div>
       </div>`;
   }

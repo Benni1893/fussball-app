@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/fc-fasanerie-nord-app-7e48a82b-b7ba-40ea-9e6b-30040a24c0d8/fonts/inter.css">
+<link rel="stylesheet" href="_ds/fc-fasanerie-nord-app-7e48a82b-b7ba-40ea-9e6b-30040a24c0d8/tokens/tokens.css">
+<script src="_ds/fc-fasanerie-nord-app-7e48a82b-b7ba-40ea-9e6b-30040a24c0d8/_ds_bundle.js"></script>
+<style>body{margin:0;background:var(--bg);color:var(--ink);font-family:"Inter",system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}a{color:var(--green-800)}a:hover{color:var(--green-700)}
+@keyframes fcFill{0%{height:0}30%,100%{height:var(--fill,24%)}}
+@keyframes fcBubble{0%{transform:translateY(0);opacity:0}15%{opacity:.9}100%{transform:translateY(-26px);opacity:0}}
+@keyframes fcFoam{0%,100%{transform:translateX(0)}50%{transform:translateX(-6px)}}
+@keyframes fcFan1{0%,8%{transform:rotate(0)}22%,100%{transform:rotate(-16deg)}}
+@keyframes fcFan2{0%,8%{transform:rotate(0)}22%,100%{transform:rotate(-5deg)}}
+@keyframes fcFan3{0%,8%{transform:rotate(0)}22%,86%,100%{transform:rotate(8deg)}92%{transform:rotate(14deg)}}
+@keyframes fcCoin{0%,40%{transform:translateY(-34px);opacity:0}55%{transform:translateY(0);opacity:1}62%{transform:translateY(-5px)}70%,100%{transform:translateY(0);opacity:1}}
+@keyframes fcTicker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes fcShot{0%{transform:none;opacity:1}18%{transform:none}30%{transform:translate(128px,-40px) rotate(300deg)}42%{transform:translate(252px,-26px) rotate(560deg);opacity:1}48%{transform:translate(262px,-20px) rotate(600deg);opacity:1}78%{transform:translate(262px,-20px) rotate(600deg);opacity:0}80%{transform:none;opacity:0}92%,100%{transform:none;opacity:1}}
+@keyframes fcKeeper{0%{transform:none}10%{transform:translateX(-3px)}20%{transform:translateX(3px)}30%{transform:none}40%,70%{transform:translate(-4px,14px) rotate(-78deg)}85%,100%{transform:none}}
+@keyframes fcNet{0%,41%{transform:none}46%{transform:translateX(3px) scaleX(1.2)}56%{transform:translateX(1px) scaleX(1.05)}66%,100%{transform:none}}
+@keyframes fcTor{0%,43%{transform:translate(-50%,-50%) scale(0);opacity:0}50%{transform:translate(-50%,-50%) scale(1.25);opacity:1}56%,72%{transform:translate(-50%,-50%) scale(1);opacity:1}80%,100%{transform:translate(-50%,-50%) scale(.8);opacity:0}}
+@keyframes fcConf1{0%,42%{transform:none;opacity:0}45%{opacity:1}72%,100%{transform:translate(-46px,-34px) rotate(220deg);opacity:0}}
+@keyframes fcConf2{0%,42%{transform:none;opacity:0}45%{opacity:1}72%,100%{transform:translate(-30px,-50px) rotate(-160deg);opacity:0}}
+@keyframes fcConf3{0%,42%{transform:none;opacity:0}45%{opacity:1}72%,100%{transform:translate(-58px,-8px) rotate(140deg);opacity:0}}
+@keyframes fcConf4{0%,42%{transform:none;opacity:0}45%{opacity:1}72%,100%{transform:translate(-14px,-44px) rotate(260deg);opacity:0}}
+@keyframes fcBump{0%,44%{transform:scale(1)}50%{transform:scale(1.08)}58%,100%{transform:scale(1)}}
+@keyframes fcDrop{0%{transform:translateY(-30px);opacity:0}10%{opacity:1}28%{transform:translateY(14px);opacity:1}31%,100%{transform:translateY(16px);opacity:0}}
+@keyframes fcSquash{0%,80%{transform:scale(1,1)}86%{transform:scale(1.04,.93)}92%{transform:scale(.98,1.03)}100%{transform:scale(1,1)}}
+@keyframes fcTail{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(22deg)}}
+@keyframes fcBlink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+@keyframes fcPhrase{0%{opacity:0;transform:translateY(4px)}4%,30%{opacity:1;transform:none}34%,100%{opacity:0;transform:translateY(-4px)}}
+@keyframes fcOla{0%,30%,100%{transform:translateY(0)}12%{transform:translateY(-11px)}}
+@keyframes fcLazy{0%,30%,100%{transform:translateY(0)}14%{transform:translateY(-3px)}}
+@keyframes fcZ{0%{transform:translate(0,0) scale(.6);opacity:0}20%{opacity:1}100%{transform:translate(10px,-22px) scale(1.1);opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}</style>
+</helmet>
+<section style="padding:40px 32px 80px;display:flex;flex-direction:column;gap:32px">
+<header style="display:flex;flex-direction:column;gap:10px;max-width:960px">
+  <h1 style="margin:0;font-size:34px;font-weight:800;letter-spacing:-.025em">Nachschliff Oktober · Final</h1>
+  <p style="margin:0;font-size:15px;line-height:1.55;color:#5c6a63;text-wrap:pretty">Die abgestimmten Fassungen aller neun Elemente, je 390 px, mit Schriftgrößen, Gewichten, Abständen und Tokens. Blätter folgen einem Muster (D3): Griff, Titel, beschriftete Felder, Fuß mit gleich breiten Knöpfen, leichte Abdunklung statt schwarzem Overlay. Für D5 gilt die ruhige, farbige Kachel ohne Animation.</p>
+  <div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14px;font-weight:600"><a href="#D1">D1 Mannschaftskasse</a><a href="#D2">D2 Termin-Menü</a><a href="#D3">D3 Strafe bearbeiten</a><a href="#D4">D4 Mein Status</a><a href="#D5">D5 Offen und Kasse</a><a href="#D6">D6 Rückmeldungen</a><a href="#D7">D7 Aufstellung › Mehr</a><a href="#D8">D8 Bank</a><a href="#D9">D9 Strafe › Bezahlt</a></div>
+</header>
+<div style="display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start">
+<figure id="D1" data-screen-label="D1 Mannschaftskasse" style="margin:0;width:390px;display:flex;flex-direction:column;gap:14px">
+  <figcaption style="display:flex;align-items:center;gap:10px"><span style="padding:3px 10px;border-radius:8px;background:var(--green-900);color:#fff;font-size:14px;font-weight:800">D1</span><span style="font-size:16px;font-weight:700">Übersicht · Kachel Mannschaftskasse</span></figcaption>
+  <div style="width:390px;border-radius:28px;overflow:hidden;border:1px solid var(--line-soft);background:var(--grad-app);box-shadow:0 20px 40px -24px rgba(16,40,30,.4);padding:4px 16px 28px;box-sizing:border-box">
+    <div style="margin:24px 0 8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">Kasse</div>
+    <div style="background:var(--grad-card);border:1px solid var(--line-soft);border-radius:14px;box-shadow:var(--shadow-card);min-height:76px;padding:14px 12px 14px 16px;box-sizing:border-box;display:flex;align-items:center;gap:12px">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+        <span style="font-size:26px;font-weight:800;letter-spacing:-.025em;line-height:1.05;color:var(--red-600);font-variant-numeric:tabular-nums">4.606,00 €</span>
+        <span style="font-size:15px;line-height:1.3;color:#5c6a63"><b style="font-weight:700;color:var(--ink)">Mannschaftskasse</b> · offen im Team</span>
+      </div>
+      <span style="flex:none;width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--green-chev);font-size:22px">›</span>
+    </div>
+    <div style="margin:24px 0 8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">Kasse · nichts offen</div>
+    <div style="background:var(--grad-card);border:1px solid var(--line-soft);border-radius:14px;box-shadow:var(--shadow-card);min-height:76px;padding:14px 12px 14px 16px;box-sizing:border-box;display:flex;align-items:center;gap:12px">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+        <span style="font-size:26px;font-weight:800;letter-spacing:-.025em;line-height:1.05;color:var(--green-800);font-variant-numeric:tabular-nums">0,00 €</span>
+        <span style="font-size:15px;line-height:1.3;color:#5c6a63"><b style="font-weight:700;color:var(--ink)">Mannschaftskasse</b> · offen im Team</span>
+      </div>
+      <span style="flex:none;width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--green-chev);font-size:22px">›</span>
+    </div>
+  </div>
+  <div style="background:#fff;border:1px solid var(--line-soft);border-radius:12px;padding:14px 16px;display:grid;grid-template-columns:112px 1fr;gap:6px 12px;font-size:13px;line-height:1.45">
+    <b>Rollen</b><span>Spieler und Kassenwart sehen denselben Inhalt, daher eine Variante.</span>
+    <b>Betrag</b><span>26 px / 800, −.025em, tabular-nums · <code>--red-600</code>, bei 0,00 € <code>--green-800</code></span>
+    <b>Beschriftung</b><span>15 px; „Mannschaftskasse“ 700 <code>--ink</code>, Rest 400 #5c6a63 (Nebenfarbe der Finals)</span>
+    <b>Fläche</b><span><code>--grad-card</code>, 1 px <code>--line-soft</code>, <code>--radius</code> 14, <code>--shadow-card</code></span>
+    <b>Maße</b><span>min. 76 px hoch · Innenabstand 14 / 12 / 14 / 16 · Abstand Betrag–Text 4 · Pfeil in 44er Fläche, <code>--green-chev</code></span>
+    <b>Gruppenkopf</b><span>12 px / 700, Versalien, .06em, Abstand 24 oben / 8 unten</span>
+  </div>
+  <img src="ist/okt/0689.png" alt="Ist IMG_0689" style="width:150px;border-radius:12px;border:1px solid var(--line-soft)">
+</figure>
+<figure id="D2" data-screen-label="D2 Termin-Menü" style="margin:0;width:390px;display:flex;flex-direction:column;gap:14px">
+  <figcaption style="display:flex;align-items:center;gap:10px"><span style="padding:3px 10px;border-radius:8px;background:var(--green-900);color:#fff;font-size:14px;font-weight:800">D2</span><span style="font-size:16px;font-weight:700">Terminkarte · Menü hinter ⋯</span></figcaption>
+  <div style="position:relative;width:390px;height:430px;border-radius:28px;overflow:hidden;border:1px solid var(--line-soft);background:var(--grad-app);box-shadow:0 20px 40px -24px rgba(16,40,30,.4);padding:20px 16px;box-sizing:border-box">
+    <div style="background:var(--grad-card);border:1px solid var(--line-soft);border-radius:14px;box-shadow:var(--shadow-card)">
+      <div style="position:relative;background:linear-gradient(180deg,var(--green-task-1),var(--green-task-2));border-radius:13px 13px 0 0;padding:12px 12px 14px 14px;display:flex;gap:12px;align-items:center;border-bottom:1px solid var(--green-badge-line)">
+        <span style="position:absolute;left:0;right:0;bottom:-1px;height:3px;background:linear-gradient(90deg,var(--gold-400),var(--gold-700))"></span>
+        <div style="flex:none;width:48px;height:56px;border-radius:10px;background:var(--grad-gold);border:1px solid var(--gold-line);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1"><span style="font-size:12px;font-weight:700;color:var(--gold-ink)">Do</span><span style="font-size:22px;font-weight:800;color:var(--green-800);margin:2px 0">8</span><span style="font-size:12px;font-weight:700;color:var(--gold-ink);text-transform:uppercase">Okt</span></div>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;font-weight:700;color:var(--gold-ink)">Nächster Termin · heute</span><span style="font-size:21px;font-weight:800;letter-spacing:-.02em;color:var(--green-task-ink)">Training</span><span style="font-size:13px;font-weight:600;color:var(--green-task-ink-2)">19:30 bis 21:00 Uhr</span></div>
+        <span style="flex:none;width:44px;height:44px;border-radius:999px;background:#fff;box-shadow:0 0 0 2px var(--green-badge-line);display:flex;align-items:center;justify-content:center"><img src="assets/ic-dots-d.svg" alt="" style="width:20px;height:20px"></span>
+      </div>
+      <div style="padding:14px 16px 16px;display:grid;grid-template-columns:1fr 1fr;gap:8px"><div style="min-height:48px;border-radius:12px;background:var(--green-050);border:1.5px solid var(--green-700);color:var(--green-800);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700">Zugesagt</div><div style="min-height:48px;border-radius:12px;background:var(--grad-btn-sec);border:1px solid var(--line-soft-3);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700">Absage</div></div>
+    </div>
+    <div style="position:absolute;top:92px;right:28px;width:252px;background:var(--card);border:1px solid var(--line-soft);border-radius:14px;box-shadow:0 1px 2px rgba(16,40,30,.08),0 18px 36px -14px rgba(16,40,30,.45);overflow:hidden">
+      <div style="padding:10px 14px 8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">Training · 8. Okt</div>
+      <div style="display:flex;align-items:center;gap:12px;min-height:44px;padding:0 14px;color:var(--green-800)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"></rect><path d="M3.5 10h17M8 3v4M16 3v4M12 13v5M9.5 15.5h5"></path></svg><span style="font-size:15px;font-weight:600;color:var(--ink)">In Kalender speichern</span></div>
+      <div style="height:1px;background:var(--line);margin-left:46px"></div>
+      <div style="display:flex;align-items:center;gap:12px;min-height:44px;padding:0 14px;color:var(--green-800)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4"></path></svg><span style="font-size:15px;font-weight:600;color:var(--ink)">Termin bearbeiten</span></div>
+      <div style="height:6px;background:var(--bg);border-top:1px solid var(--line);border-bottom:1px solid var(--line)"></div>
+      <div style="display:flex;align-items:center;gap:12px;min-height:44px;padding:0 14px;color:var(--red-600)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12.5A1.5 1.5 0 0 0 8.5 21h7a1.5 1.5 0 0 0 1.5-1.5L18 7M9 7V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V7"></path></svg><span style="font-size:15px;font-weight:600">Termin löschen</span></div>
+    </div>
+  </div>
+  <div style="background:#fff;border:1px solid var(--line-soft);border-radius:12px;padding:14px 16px;display:grid;grid-template-columns:112px 1fr;gap:6px 12px;font-size:13px;line-height:1.45">
+    <b>Position</b><span>Rechtsbündig unter dem ⋯-Knopf: oberer Rand 6 px unter dem Knopf, rechter Rand bündig mit dem Knopf (12 px Kartenkante). Öffnet nach oben, wenn unten weniger als 200 px frei sind. Kein Overlay; Tippen daneben schließt.</span>
+    <b>⋯ geöffnet</b><span>Knopf weiß mit 2 px Ring <code>--green-badge-line</code></span>
+    <b>Popover</b><span>Breite 252 · <code>--card</code>, 1 px <code>--line-soft</code>, <code>--radius</code> 14 · Schatten 0 1 2 / 0 18 36 −14 (Grün 990)</span>
+    <b>Kopf</b><span>Termin und Datum, 12 px / 700, Versalien, #5c6a63 · Innenabstand 10 / 14 / 8</span>
+    <b>Einträge</b><span>44 px hoch, Innenabstand 0 14, Icon 20 px Strich 1.8 <code>--green-800</code>, Abstand 12 · Text 15 px / 600 <code>--ink</code> · Trennlinie <code>--line</code> ab 46 px</span>
+    <b>Löschen</b><span>Abgesetzt durch 6 px Band <code>--bg</code> mit Linien · Icon und Text <code>--red-600</code>, steht immer zuletzt</span>
+    <b>Rollen</b><span>Spieler sehen nur „In Kalender speichern“ (Popover ohne Band).</span>
+  </div>
+  <img src="ist/okt/0690.png" alt="Ist IMG_0690" style="width:150px;border-radius:12px;border:1px solid var(--line-soft)">
+</figure>
+<figure id="D3" data-screen-label="D3 Strafe bearbeiten" style="margin:0;width:390px;display:flex;flex-direction:column;gap:14px">
+  <figcaption style="display:flex;align-items:center;gap:10px"><span style="padding:3px 10px;border-radius:8px;background:var(--green-900);color:#fff;font-size:14px;font-weight:800">D3</span><span style="font-size:16px;font-weight:700">Strafenkatalog · Blatt Strafe bearbeiten</span></figcaption>
+  <div style="position:relative;width:390px;height:640px;border-radius:28px;overflow:hidden;border:1px solid var(--line-soft);background:var(--grad-app);box-shadow:0 20px 40px -24px rgba(16,40,30,.4)">
+    <div style="padding:20px 16px;display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:26px;font-weight:800;letter-spacing:-.02em">Strafenkatalog</span><span style="font-size:15px;font-weight:700;color:var(--green-800)">+ Strafe</span></div>
+      <div style="background:var(--grad-card);border:1px solid var(--line-soft);border-radius:14px;min-height:60px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;font-size:16px;font-weight:600"><span>Zu spät zum Spiel / Treffpunkt</span><span style="font-weight:800;color:var(--green-800)">10,00 €</span></div>
+      <div style="background:var(--grad-card);border:1px solid var(--line-soft);border-radius:14px;min-height:60px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;font-size:16px;font-weight:600"><span>Unentschuldigtes Fehlen (Training)</span><span style="font-weight:800;color:var(--green-800)">15,00 €</span></div>
+    </div>
+    <div style="position:absolute;inset:0;background:rgba(10,44,33,.18)"></div>
+    <div style="position:absolute;left:0;right:0;bottom:0;background:var(--card);border-radius:18px 18px 0 0;box-shadow:var(--shadow-sheet);display:flex;flex-direction:column">
+      <span style="align-self:center;margin-top:8px;width:36px;height:5px;border-radius:999px;background:var(--dot-off)"></span>
+      <div style="padding:12px 16px 4px"><span style="font-size:20px;font-weight:800;letter-spacing:-.015em">Strafe bearbeiten</span></div>
+      <div style="padding:12px 16px 16px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">Bezeichnung</span><div style="min-height:46px;border-radius:10px;border:1px solid var(--line-soft-3);background:var(--grad-in);box-shadow:var(--shadow-in);display:flex;align-items:center;padding:0 14px;font-size:16px;font-weight:500">Zu spät zum Spiel / Treffpunkt</div></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">Art</span><div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:3px;border-radius:12px;background:var(--bg-2);border:1px solid var(--line-soft)"><span style="min-height:38px;border-radius:9px;background:#fff;box-shadow:var(--shadow-sm);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--green-800)">Festbetrag</span><span style="min-height:38px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:#5c6a63">Staffel</span></div></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">Betrag</span><div style="min-height:46px;border-radius:10px;border:1px solid var(--line-soft-3);background:var(--grad-in);box-shadow:var(--shadow-in);display:flex;align-items:center;padding:0 14px;font-size:16px;font-weight:500;font-variant-numeric:tabular-nums"><span style="flex:1">10,00</span><span style="font-weight:700;color:#5c6a63">€</span></div></div>
+      </div>
+      <div style="padding:14px 16px 10px;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="min-height:48px;border-radius:12px;background:var(--grad-btn-sec);border:1px solid var(--line-soft-3);box-shadow:var(--shadow-btn-sec);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700">Abbrechen</div>
+        <div style="min-height:48px;border-radius:12px;background:linear-gradient(180deg,var(--green-600),var(--green-700));color:#fff;box-shadow:var(--shadow-btn);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700">Speichern</div>
+      </div>
+      <div style="margin:0 16px 22px;min-height:44px;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--red-600)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12.5A1.5 1.5 0 0 0 8.5 21h7a1.5 1.5 0 0 0 1.5-1.5L18 7M9 7V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V7"></path></svg><span style="font-size:15px;font-weight:700">Strafe löschen</span></div>
+    </div>
+  </div>
+  <div style="background:#fff;border:1px solid var(--line-soft);border-radius:12px;padding:14px 16px;display:grid;grid-template-columns:112px 1fr;gap:6px 12px;font-size:13px;line-height:1.45">
+    <b>Muster</b><span>Vorlage für D4: Griff, Titel, beschriftete Felder, Fuß mit Abbrechen und Speichern in zwei gleich breiten Spalten. Das Kreuz entfällt, Abbrechen übernimmt.</span>
+    <b>Löschen</b><span>Als Textknopf unter dem Fuß, mittig, 44 px hoch, Icon 18 + Text 15 px / 700 <code>--red-600</code>. Alle Knöpfe enden auf derselben Kante (16 px Rand); im Ist war Löschen schmaler und versetzt.</span>
+    <b>Hinzufügen</b><span>Gleiches Blatt mit Titel „Strafe hinzufügen“, leeren Feldern und ohne Löschen.</span>
+    <b>Blatt</b><span><code>--card</code>, oben <code>--radius-sheet</code> 18, <code>--shadow-sheet</code> · Griff 36 × 5 <code>--dot-off</code>, 8 oben</span>
+    <b>Abdunklung</b><span>Grün 990 bei 18 % statt <code>--ov-sheet</code> 50 %: die Seite bleibt lesbar</span>
+    <b>Titel</b><span>20 px / 800, −.015em · Innenabstand 12 / 16 / 4</span>
+    <b>Felder</b><span>Label 12 px / 700 Versalien #5c6a63, Abstand 6 · Feld <code>--h-in</code> 46, <code>--radius-btn</code> 10, 1 px <code>--line-soft-3</code>, <code>--grad-in</code>, <code>--shadow-in</code>, Schrift <code>--fs-input</code> 16 / 500 · Feldabstand 14</span>
+    <b>Art</b><span>Segment statt Auswahlliste: Spur <code>--bg-2</code>, aktiv weiß mit <code>--shadow-sm</code>, 15 px / 700 <code>--green-800</code></span>
+    <b>Fuß</b><span>Linie <code>--line</code>, Innenabstand 14 / 16 / 10, Abstand 8 · Knöpfe <code>--h-btn-lg</code> 48, <code>--radius-md</code> 12, 16 px / 700 · Primär Grün 600→700 + <code>--shadow-btn</code>, Sekundär <code>--grad-btn-sec</code> + <code>--shadow-btn-sec</code></span>
+  </div>
+  <img src="ist/okt/0692.png" alt="Ist IMG_0692" style="width:150px;border-radius:12px;border:1px solid var(--line-soft)">
+</figure>
+<figure id="D4" data-screen-label="D4 Mein Status" style="margin:0;width:390px;display:flex;flex-direction:column;gap:14px">
+  <figcaption style="display:flex;align-items:center;gap:10px"><span style="padding:3px 10px;border-radius:8px;background:var(--green-900);color:#fff;font-size:14px;font-weight:800">D4</span><span style="font-size:16px;font-weight:700">Übersicht · Mein Status</span></figcaption>
+  <div style="width:390px;border-radius:28px;overflow:hidden;border:1px solid var(--line-soft);background:var(--grad-app);box-shadow:0 20px 40px -24px rgba(16,40,30,.4);padding:4px 16px 24px;box-sizing:border-box">
+    <div style="margin:24px 0 8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">Mein Status</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div style="min-height:48px;border-radius:12px;background:var(--grad-btn-sec);border:1px solid var(--line-soft-3);display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px;font-weight:600"><span style="width:8px;height:8px;border-radius:999px;background:var(--green-600)"></span>Fit</div>
+      <div style="min-height:48px;border-radius:12px;background:var(--amber-050);border:1.5px solid var(--amber-600);display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px;font-weight:700;color:var(--gold-ink-2)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--amber-600)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Angeschlagen</div>
+      <div style="min-height:48px;border-radius:12px;background:var(--grad-btn-sec);border:1px solid var(--line-soft-3);display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px;font-weight:600"><span style="width:8px;height:8px;border-radius:999px;background:var(--red-600)"></span>Verletzt</div>
+      <div style="min-height:48px;border-radius:12px;background:var(--grad-btn-sec);border:1px solid var(--line-soft-3);display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px;font-weight:600"><span style="width:8px;height:8px;border-radius:999px;background:var(--blau-600)"></span>Urlaub</div>
+    </div>
+    <div style="margin-top:8px;background:var(--grad-card);border:1px solid var(--line-soft);border-radius:14px;box-shadow:var(--shadow-card);min-height:56px;padding:8px 4px 8px 16px;box-sizing:border-box;display:flex;align-items:center;gap:12px">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600">Voraussichtlich bis So, 18. Okt</span><span style="font-size:13px;color:#5c6a63">Wade zu</span></div>
+      <span style="min-height:44px;padding:0 12px;display:flex;align-items:center;font-size:15px;font-weight:600;color:var(--green-800)">Ändern</span>
+    </div>
+    <div style="margin:22px 0 8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">Gewählt, je Status</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div style="min-height:48px;border-radius:12px;background:var(--green-050);border:1.5px solid var(--green-600);display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px;font-weight:700;color:var(--green-800)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--green-600)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Fit</div>
+      <div style="min-height:48px;border-radius:12px;background:var(--amber-050);border:1.5px solid var(--amber-600);display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px;font-weight:700;color:var(--gold-ink-2)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--amber-600)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Angeschlagen</div>
+      <div style="min-height:48px;border-radius:12px;background:var(--red-050);border:1.5px solid var(--red-600);display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px;font-weight:700;color:var(--red-700)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--red-600)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Verletzt</div>
+      <div style="min-height:48px;border-radius:12px;background:var(--blau-050);border:1.5px solid var(--blau-700);display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px;font-weight:700;color:var(--blau-700)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--blau-700)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Urlaub</div>
+    </div>
+  </div>
+  <div style="position:relative;width:390px;height:470px;border-radius:28px;overflow:hidden;border:1px solid var(--line-soft);background:var(--grad-app);box-shadow:0 20px 40px -24px rgba(16,40,30,.4)">
+    <div style="padding:4px 16px">
+      <div style="margin:24px 0 8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">Mein Status</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div style="min-height:48px;border-radius:12px;background:var(--grad-btn-sec);border:1px solid var(--line-soft-3)"></div><div style="min-height:48px;border-radius:12px;background:var(--amber-050);border:1.5px solid var(--amber-600)"></div></div>
+    </div>
+    <div style="position:absolute;inset:0;background:rgba(10,44,33,.18)"></div>
+    <div style="position:absolute;left:0;right:0;bottom:0;background:var(--card);border-radius:18px 18px 0 0;box-shadow:var(--shadow-sheet);display:flex;flex-direction:column">
+      <span style="align-self:center;margin-top:8px;width:36px;height:5px;border-radius:999px;background:var(--dot-off)"></span>
+      <div style="padding:12px 16px 4px;display:flex;align-items:center;gap:10px"><span style="font-size:20px;font-weight:800;letter-spacing:-.015em">Angeschlagen</span><span style="width:10px;height:10px;border-radius:999px;background:var(--amber-600)"></span></div>
+      <div style="padding:12px 16px 16px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">Voraussichtlich bis</span><div style="min-height:46px;border-radius:10px;border:1px solid var(--line-soft-3);background:var(--grad-in);box-shadow:var(--shadow-in);display:flex;align-items:center;padding:0 14px;font-size:16px;font-weight:500"><span style="flex:1">So, 18. Okt 2026</span><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--green-800)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"></rect><path d="M3.5 10h17M8 3v4M16 3v4"></path></svg></div></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">Notiz</span><div style="min-height:46px;border-radius:10px;border:1px solid var(--line-soft-3);background:var(--grad-in);box-shadow:var(--shadow-in);display:flex;align-items:center;padding:0 14px;font-size:16px;font-weight:500;color:var(--muted)">optional</div></div>
+      </div>
+      <div style="padding:14px 16px 26px;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="min-height:48px;border-radius:12px;background:var(--grad-btn-sec);border:1px solid var(--line-soft-3);box-shadow:var(--shadow-btn-sec);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700">Abbrechen</div>
+        <div style="min-height:48px;border-radius:12px;background:linear-gradient(180deg,var(--green-600),var(--green-700));color:#fff;box-shadow:var(--shadow-btn);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700">Speichern</div>
+      </div>
+    </div>
+  </div>
+  <div style="background:#fff;border:1px solid var(--line-soft);border-radius:12px;padding:14px 16px;display:grid;grid-template-columns:112px 1fr;gap:6px 12px;font-size:13px;line-height:1.45">
+    <b>Auswahl</b><span>Raster 2 × 2, Abstand 8 · Knopf 48 hoch, <code>--radius-md</code> 12, 16 px</span>
+    <b>Nicht gewählt</b><span><code>--grad-btn-sec</code>, 1 px <code>--line-soft-3</code>, Punkt 8 px in Statusfarbe, Text 600 <code>--ink</code></span>
+    <b>Gewählt</b><span>Fläche + 1,5 px Rand + Haken 16 px in Statusfarbe, Text 700 · Fit <code>--green-050</code> / <code>--green-600</code> / Text <code>--green-800</code> · Angeschlagen <code>--amber-050</code> / <code>--amber-600</code> / Text <code>--gold-ink-2</code> (Amber-Schrift hätte nur 3,3 : 1) · Verletzt <code>--red-050</code> / <code>--red-600</code> / <code>--red-700</code> · Urlaub <code>--blau-050</code> / <code>--blau-700</code></span>
+    <b>Ablauf</b><span>Angeschlagen, Verletzt, Urlaub öffnen das Blatt; Fit setzt direkt. Nach Speichern ersetzt eine Zeile die beiden Inline-Felder: „Voraussichtlich bis …“ 15 / 600, Notiz 13 px #5c6a63, „Ändern“ öffnet das Blatt wieder.</span>
+    <b>Blatt</b><span>Muster D3: Griff, Titel 20 / 800 mit 10 px Statuspunkt, Felder 46 hoch mit Label 12 / 700, Fuß Abbrechen | Speichern 48 · Datumsfeld mit Kalender-Icon 20 <code>--green-800</code> · Platzhalter <code>--muted</code></span>
+    <b>Abdunklung</b><span>Wie D3, 18 %; kein schwarzes Overlay</span>
+  </div>
+  <img src="ist/okt/0689.png" alt="Ist IMG_0689" style="width:150px;border-radius:12px;border:1px solid var(--line-soft)">
+</figure>
+<figure id="D5" data-screen-label="D5 Kennzahl Offen" style="margin:0;width:390px;display:flex;flex-direction:column;gap:12px">
+    <figcaption style="display:flex;align-items:center;gap:10px"><span style="padding:3px 10px;border-radius:8px;background:var(--green-900);color:#fff;font-size:14px;font-weight:800">D5</span><span style="font-size:16px;font-weight:700">Kennzahl Offen und Kasse · Konto › Mannschaft und Kasse</span></figcaption>
+    <div style="width:390px;border-radius:28px;overflow:hidden;border:1px solid var(--line-soft);background:var(--grad-app);box-shadow:0 20px 40px -24px rgba(16,40,30,.4);padding:20px 16px 24px;box-sizing:border-box;display:flex;flex-direction:column;gap:12px">
+      <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">Konto › Mannschaft · Kasse</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="position:relative;background:var(--grad-kpi);border:1px solid var(--line-soft);border-radius:14px;box-shadow:var(--shadow-card);padding:14px;display:flex;flex-direction:column;gap:4px;overflow:hidden">
+          <span style="position:absolute;right:12px;top:-6px;width:22px;height:30px;border-radius:4px;background:linear-gradient(180deg,var(--red-500),var(--red-700));box-shadow:0 3px 8px -2px rgba(165,40,27,.6);transform:rotate(14deg)"></span>
+          <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">Offen</span>
+          <span style="font-size:24px;font-weight:800;letter-spacing:-.02em;color:var(--red-600);font-variant-numeric:tabular-nums">4.611,00 €</span>
+          <span style="font-size:13px;color:#5c6a63">240 Strafen</span>
+        </div>
+        <div style="position:relative;background:var(--grad-kpi);border:1px solid var(--line-soft);border-radius:14px;box-shadow:var(--shadow-card);padding:14px;display:flex;flex-direction:column;gap:4px;overflow:hidden">
+          <span style="position:absolute;right:10px;top:10px;opacity:.9"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="var(--green-800)" stroke-width="1.6" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"></circle><path d="M12 8.2l3.6 2.6-1.4 4.2H9.8L8.4 10.8z" fill="var(--green-800)"></path><path d="M12 8.2V2.6M15.6 10.8l5.2-1.8M14.2 15l3.2 4.4M9.8 15l-3.2 4.4M8.4 10.8 3.2 9"></path></svg></span>
+          <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">In der Kasse</span>
+          <span style="font-size:24px;font-weight:800;letter-spacing:-.02em;color:var(--green-800);font-variant-numeric:tabular-nums">1.097,00 €</span>
+          <span style="font-size:13px;color:#5c6a63">61 Zahlungen</span>
+        </div>
+      </div>
+    </div>
+    <div style="background:#fff;border:1px solid var(--line-soft);border-radius:12px;padding:12px 14px;display:grid;grid-template-columns:92px 1fr;gap:5px 10px;font-size:13px;line-height:1.45">
+      <b>Stellen</b><span>Gleich in Konto › Mannschaft und in der Kasse; ersetzt die Kacheln mit dunklem Rahmen.</span><b>Idee</b><span>Ruhige weiße Kacheln mit einem Augenzwinkern: Eine Schiedsrichterkarte ragt schräg aus der Offen-Kachel, in der Kasse liegt der Ball.</span>
+      <b>Fläche</b><span><code>--grad-kpi</code>, 1 px <code>--line-soft</code>, <code>--radius</code> 14, <code>--shadow-card</code></span>
+      <b>Karte</b><span>22 × 30, Radius 4, <code>--red-500</code>→<code>--red-700</code>, 14° gedreht, oben angeschnitten · Ball 24 px <code>--green-800</code></span>
+      <b>Text</b><span>Label 12 / 700 Versalien #5c6a63 · Betrag 24 / 800 · Anzahl 13 px #5c6a63 (Werte aus Filter „Offen 240“ und „61 Zahlungen“)</span>
+    </div>
+  </figure>
+<figure id="D6" data-screen-label="D6 Rückmeldungen-Sheet" style="margin:0;width:390px;display:flex;flex-direction:column;gap:14px">
+  <figcaption style="display:flex;align-items:center;gap:10px"><span style="padding:3px 10px;border-radius:8px;background:var(--green-900);color:#fff;font-size:14px;font-weight:800">D6</span><span style="font-size:16px;font-weight:700">Rückmeldungen-Sheet · Fußbereich</span></figcaption>
+  <div style="position:relative;width:390px;height:560px;border-radius:28px;overflow:hidden;border:1px solid var(--line-soft);background:var(--grad-app);box-shadow:0 20px 40px -24px rgba(16,40,30,.4)">
+    <div style="position:absolute;inset:0;background:rgba(10,44,33,.18)"></div>
+    <div style="position:absolute;left:0;right:0;bottom:0;top:40px;background:var(--card);border-radius:18px 18px 0 0;box-shadow:var(--shadow-sheet);display:flex;flex-direction:column">
+      <span style="align-self:center;margin-top:8px;width:36px;height:5px;border-radius:999px;background:var(--dot-off)"></span>
+      <div style="padding:12px 16px 0;display:flex;flex-direction:column;gap:2px"><span style="font-size:20px;font-weight:800;letter-spacing:-.015em">Rückmeldungen</span><span style="font-size:13px;color:#5c6a63">Training · Do 8. Okt · 19:30</span></div>
+      <div style="margin:14px 16px 0;height:8px;border-radius:999px;background:var(--track-sheet);display:flex;overflow:hidden"><span style="width:6%;background:var(--green-600)"></span></div>
+      <div style="margin:10px 16px 0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+        <div style="border-radius:12px;background:var(--green-050);padding:8px 10px;display:flex;flex-direction:column"><span style="font-size:12px;font-weight:700;color:var(--green-800)">Zugesagt</span><span style="font-size:20px;font-weight:800;color:var(--green-800)">1</span></div>
+        <div style="border-radius:12px;background:var(--red-050);padding:8px 10px;display:flex;flex-direction:column"><span style="font-size:12px;font-weight:700;color:var(--red-700)">Abgesagt</span><span style="font-size:20px;font-weight:800;color:var(--red-700)">0</span></div>
+        <div style="border-radius:12px;background:var(--bg);border:1px solid var(--line);padding:8px 10px;display:flex;flex-direction:column"><span style="font-size:12px;font-weight:700;color:#5c6a63">Offen</span><span style="font-size:20px;font-weight:800">15</span></div>
+      </div>
+      <div style="flex:1;min-height:0;overflow:hidden;margin-top:10px;border-top:1px solid var(--line)">
+        <div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border-bottom:1px solid var(--line)"><span style="width:32px;height:32px;border-radius:999px;background:var(--grad-av);box-shadow:var(--shadow-av);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--green-800)">TW</span><span style="font-size:15px;font-weight:600">Tobias Wagner</span></div>
+        <div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border-bottom:1px solid var(--line)"><span style="width:32px;height:32px;border-radius:999px;background:var(--grad-av);box-shadow:var(--shadow-av);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--green-800)">LS</span><span style="font-size:15px;font-weight:600">Leon Schmidt</span></div>
+        <div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px"><span style="width:32px;height:32px;border-radius:999px;background:var(--grad-av);box-shadow:var(--shadow-av);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--green-800)">MB</span><span style="font-size:15px;font-weight:600">Max Bauer</span></div>
+      </div>
+      <div style="border-top:1px solid var(--line);padding:6px 16px 0">
+        <div style="display:flex;align-items:center;gap:12px;min-height:52px;color:var(--green-800)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.5a6.5 6.5 0 0 1 3.5 5.5"></path></svg><span style="flex:1;font-size:15px;font-weight:700">Kader</span><span style="font-size:14px;color:#5c6a63">15 fit · 1 verletzt</span><span style="font-size:20px;color:var(--green-chev)">›</span></div>
+      </div>
+      <div style="padding:8px 16px 24px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="min-height:48px;border-radius:12px;background:var(--grad-btn-sec);border:1px solid var(--line-soft-3);box-shadow:var(--shadow-btn-sec);display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:700;color:var(--green-800)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5M5 12v7.5A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V12"></path></svg><span style="color:var(--ink)">Übersicht teilen</span></div>
+        <div style="min-height:48px;border-radius:12px;background:linear-gradient(180deg,var(--green-600),var(--green-700));color:#fff;box-shadow:var(--shadow-btn);display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:700"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20.5a2 2 0 0 0 4 0"></path></svg>Push senden</div>
+      </div>
+    </div>
+  </div>
+  <div style="position:relative;width:390px;height:300px;border-radius:28px;overflow:hidden;border:1px solid var(--line-soft);background:var(--grad-app);box-shadow:0 20px 40px -24px rgba(16,40,30,.4)">
+    <div style="position:absolute;inset:0;background:rgba(10,44,33,.18)"></div>
+    <div style="position:absolute;left:24px;right:24px;top:50%;transform:translateY(-50%);background:var(--card);border-radius:18px;box-shadow:var(--shadow-auth);padding:20px 16px 16px;display:flex;flex-direction:column;gap:8px">
+      <span style="align-self:flex-start;width:40px;height:40px;border-radius:12px;background:var(--green-050);color:var(--green-800);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20.5a2 2 0 0 0 4 0"></path></svg></span>
+      <span style="margin-top:4px;font-size:18px;font-weight:800;letter-spacing:-.01em;line-height:1.25">Push an 15 offene Spieler senden?</span>
+      <span style="font-size:14px;line-height:1.45;color:#5c6a63">Training · Do 8. Okt · 19:30</span>
+      <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="min-height:48px;border-radius:12px;background:var(--grad-btn-sec);border:1px solid var(--line-soft-3);box-shadow:var(--shadow-btn-sec);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700">Abbrechen</div>
+        <div style="min-height:48px;border-radius:12px;background:linear-gradient(180deg,var(--green-600),var(--green-700));color:#fff;box-shadow:var(--shadow-btn);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700">Senden</div>
+      </div>
+    </div>
+  </div>
+  <div style="background:#fff;border:1px solid var(--line-soft);border-radius:12px;padding:14px 16px;display:grid;grid-template-columns:112px 1fr;gap:6px 12px;font-size:13px;line-height:1.45">
+    <b>Grundlage</b><span>Kein Screenshot; Kopf, Balken, Kacheln und Liste wie das Rückmeldungen-Blatt im Design-System, nur der Fuß ist neu.</span>
+    <b>Kader-Verweis</b><span>Ganze Zeile antippbar, 52 hoch, über den Knöpfen, Linie <code>--line</code> darüber · Icon 20 <code>--green-800</code>, „Kader“ 15 / 700, Stand 14 px #5c6a63, Pfeil <code>--green-chev</code></span>
+    <b>Knöpfe</b><span>Zwei gleich breite Spalten, Abstand 8, Innenabstand 8 / 16 / 24 · 48 hoch, <code>--radius-md</code> 12, 15 px / 700, Icon 18 · Übersicht teilen sekundär (<code>--grad-btn-sec</code>, Icon <code>--green-800</code>), Push senden primär (Grün 600→700, <code>--shadow-btn</code>). „Rückmeldung teilen“ entfällt.</span>
+    <b>Leer</b><span>Sind keine Spieler offen, ist Push senden deaktiviert (<code>--bg-2</code>, Text <code>--muted</code>).</span>
+    <b>Dialog</b><span>Mittig, seitlich 24 · <code>--card</code>, <code>--radius-sheet</code> 18, <code>--shadow-auth</code>, Innenabstand 20 / 16 / 16 · Icon-Feld 40 <code>--green-050</code> · Frage 18 / 800 mit Anzahl N · Termin 14 px #5c6a63 · Abbrechen | Senden 48 · Abdunklung 18 % wie D3</span>
+  </div>
+</figure>
+<figure id="D7" data-screen-label="D7 Aufstellung Mehr" style="margin:0;width:390px;display:flex;flex-direction:column;gap:12px">
+    <figcaption style="display:flex;align-items:center;gap:10px"><span style="padding:3px 10px;border-radius:8px;background:var(--green-900);color:#fff;font-size:14px;font-weight:800">D7</span><span style="font-size:15px;font-weight:700">Aufstellung · Blatt Mehr</span></figcaption>
+    <div style="position:relative;width:390px;height:600px;border-radius:28px;overflow:hidden;border:1px solid var(--line-soft);background:var(--grad-app);box-shadow:0 20px 40px -24px rgba(16,40,30,.4)">
+      <div style="margin:16px;height:260px;border-radius:14px;background:var(--pitch-green);box-shadow:var(--shadow-pitch)"></div>
+      <div style="position:absolute;inset:0;background:rgba(10,44,33,.18)"></div>
+      <div style="position:absolute;left:0;right:0;bottom:0;background:var(--bg);border-radius:18px 18px 0 0;box-shadow:var(--shadow-sheet);display:flex;flex-direction:column">
+        <span style="align-self:center;margin-top:8px;width:36px;height:5px;border-radius:999px;background:var(--dot-off)"></span>
+        <div style="padding:12px 16px 0;display:flex;flex-direction:column;gap:2px"><span style="font-size:20px;font-weight:800;letter-spacing:-.015em">Aufstellung</span><span style="font-size:13px;color:#5c6a63">vs. FC Teutonia Mün. 2 · So 11. Okt</span></div>
+        <div style="margin:14px 16px 0;background:var(--card);border:1px solid var(--line-soft);border-radius:14px;overflow:hidden">
+          <div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 14px;color:var(--green-800)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 14-5.3M20 4v4h-4M20 12a8 8 0 0 1-14 5.3M4 20v-4h4"></path></svg><span style="flex:1;font-size:15px;font-weight:600;color:var(--ink)">Vom letzten Spiel übernehmen</span><span style="font-size:20px;color:var(--green-chev)">›</span></div>
+          <div style="height:1px;background:var(--line);margin-left:46px"></div>
+          <div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 14px;color:var(--green-800)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h12v17l-6-4-6 4z"></path></svg><span style="flex:1;font-size:15px;font-weight:600;color:var(--ink)">Als Vorlage speichern</span><span style="font-size:20px;color:var(--green-chev)">›</span></div>
+        </div>
+        <div style="margin:18px 16px 8px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">Vorlage anwenden</span><span style="min-height:44px;display:flex;align-items:center;font-size:14px;font-weight:600;color:var(--green-800)">Favoriten bearbeiten</span></div>
+        <div style="margin:0 16px;background:var(--card);border:1px solid var(--line-soft);border-radius:14px;overflow:hidden">
+          <div style="display:flex;align-items:center;gap:12px;min-height:56px;padding:0 14px"><span style="flex:none;padding:4px 8px;border-radius:8px;background:var(--green-050);border:1px solid var(--green-badge-line);font-size:13px;font-weight:800;color:var(--green-800);font-variant-numeric:tabular-nums">4-3-3</span><span style="flex:1;font-size:15px;font-weight:600">4-3-3 Standard</span><span style="font-size:15px;font-weight:700;color:var(--green-800)">Anwenden</span></div>
+        </div>
+        <div style="margin:12px 16px 26px;background:var(--card);border:1px solid var(--line-soft);border-radius:14px;min-height:52px;display:flex;align-items:center;gap:12px;padding:0 14px;color:var(--red-600)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12.5A1.5 1.5 0 0 0 8.5 21h7a1.5 1.5 0 0 0 1.5-1.5L18 7M9 7V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V7"></path></svg><span style="font-size:15px;font-weight:600">Aufstellung leeren</span></div>
+      </div>
+    </div>
+    <div style="background:#fff;border:1px solid var(--line-soft);border-radius:12px;padding:12px 14px;display:grid;grid-template-columns:92px 1fr;gap:5px 10px;font-size:13px;line-height:1.45">
+      <b>Aufbau</b><span>Blatt auf <code>--bg</code> mit drei Gruppen in weißen Karten: Aktionen, Vorlagen, Leeren. Kreuz entfällt (Griff, Wischen, Tippen daneben).</span>
+      <b>Kopf</b><span>Titel 20 / 800, darunter Spiel 13 px #5c6a63 · Innenabstand 12 / 16 / 0</span>
+      <b>Zeilen</b><span>52 hoch, Innenabstand 0 14, Icon 20 <code>--green-800</code>, Text 15 / 600, Pfeil <code>--green-chev</code>, Linie ab 46 px</span>
+      <b>Vorlagen</b><span>Gruppenkopf 12 / 700 Versalien, „Favoriten bearbeiten“ rechts 14 / 600 <code>--green-800</code> · Zeile 56 hoch mit Formations-Marke (<code>--green-050</code>, Rand <code>--green-badge-line</code>, 13 / 800) und „Anwenden“ 15 / 700</span>
+      <b>Leeren</b><span>Eigene Karte, 12 px abgesetzt, Icon und Text <code>--red-600</code></span>
+    </div>
+    <img src="ist/okt/0696.png" alt="Ist IMG_0696" style="width:150px;border-radius:12px;border:1px solid var(--line-soft)">
+  </figure>
+<figure id="D8" data-screen-label="D8 Bank" style="margin:0;width:390px;display:flex;flex-direction:column;gap:12px">
+    <figcaption style="display:flex;align-items:center;gap:10px"><span style="padding:3px 10px;border-radius:8px;background:var(--green-900);color:#fff;font-size:14px;font-weight:800">D8</span><span style="font-size:15px;font-weight:700">Aufstellung · Blatt Spieler für die Bank</span></figcaption>
+    <div style="position:relative;width:390px;height:600px;border-radius:28px;overflow:hidden;border:1px solid var(--line-soft);background:var(--grad-app);box-shadow:0 20px 40px -24px rgba(16,40,30,.4)">
+      <div style="position:absolute;inset:0;background:rgba(10,44,33,.18)"></div>
+      <div style="position:absolute;left:0;right:0;bottom:0;top:36px;background:var(--card);border-radius:18px 18px 0 0;box-shadow:var(--shadow-sheet);display:flex;flex-direction:column;overflow:hidden">
+        <span style="align-self:center;margin-top:8px;width:36px;height:5px;border-radius:999px;background:var(--dot-off)"></span>
+        <div style="padding:12px 16px 12px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line)">
+          <div style="flex:1;display:flex;flex-direction:column;gap:6px"><span style="font-size:20px;font-weight:800;letter-spacing:-.015em">Spieler für die Bank</span>
+            <div style="display:flex;align-items:center;gap:8px"><div style="display:flex;gap:4px"><span style="width:16px;height:6px;border-radius:999px;background:var(--green-600)"></span><span style="width:16px;height:6px;border-radius:999px;background:var(--track-sheet)"></span><span style="width:16px;height:6px;border-radius:999px;background:var(--track-sheet)"></span><span style="width:16px;height:6px;border-radius:999px;background:var(--track-sheet)"></span><span style="width:16px;height:6px;border-radius:999px;background:var(--track-sheet)"></span><span style="width:16px;height:6px;border-radius:999px;background:var(--track-sheet)"></span><span style="width:16px;height:6px;border-radius:999px;background:var(--track-sheet)"></span></div><span style="font-size:13px;font-weight:600;color:#5c6a63"><b style="color:var(--ink)">1</b> von 7 belegt</span></div>
+          </div>
+          <span style="flex:none;min-height:44px;padding:0 4px;display:flex;align-items:center;font-size:15px;font-weight:700;color:var(--green-800)">Fertig</span>
+        </div>
+        <div style="padding:14px 16px 6px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">Tor · 1</div>
+        <div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border-top:1px solid var(--line)"><span style="width:26px;text-align:right;font-size:15px;font-weight:800;color:var(--green-800);font-variant-numeric:tabular-nums">1</span><div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:15px;font-weight:600">Tobias Wagner</span><span style="font-size:13px;color:#5c6a63">TW · keine Rückmeldung</span></div><span style="width:44px;height:44px;display:flex;align-items:center;justify-content:center"><span style="width:32px;height:32px;border-radius:999px;border:1.5px solid var(--green-badge-line);background:var(--grad-btn-sec);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600;color:var(--green-800);line-height:1">+</span></span></div>
+        <div style="padding:14px 16px 6px;border-top:1px solid var(--line);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">Abwehr · 1</div>
+        <div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border-top:1px solid var(--line);background:var(--green-050)"><span style="width:26px;text-align:right;font-size:15px;font-weight:800;color:var(--green-800);font-variant-numeric:tabular-nums">5</span><div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:15px;font-weight:700">Leon Schmidt</span><span style="font-size:13px;color:#5c6a63">IV · auf der Bank</span></div><span style="width:44px;height:44px;display:flex;align-items:center;justify-content:center"><span style="width:32px;height:32px;border-radius:999px;background:linear-gradient(180deg,var(--green-600),var(--green-700));display:flex;align-items:center;justify-content:center"><img src="assets/ic-check-w.svg" alt="" style="width:15px;height:15px"></span></span></div>
+        <div style="padding:14px 16px 6px;border-top:1px solid var(--line);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">Mittelfeld · 2</div>
+        <div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border-top:1px solid var(--line)"><span style="width:26px;text-align:right;font-size:15px;font-weight:800;color:var(--green-800);font-variant-numeric:tabular-nums">14</span><div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:15px;font-weight:600">Niklas Roth</span><span style="font-size:13px;color:#5c6a63">ZM · zugesagt</span></div><span style="width:44px;height:44px;display:flex;align-items:center;justify-content:center"><span style="width:32px;height:32px;border-radius:999px;border:1.5px solid var(--green-badge-line);background:var(--grad-btn-sec);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600;color:var(--green-800);line-height:1">+</span></span></div>
+        <div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border-top:1px solid var(--line)"><span style="width:26px;text-align:right;font-size:15px;font-weight:800;color:var(--green-800);font-variant-numeric:tabular-nums">18</span><div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:15px;font-weight:600">Tim Schulz</span><span style="font-size:13px;color:#5c6a63">OM · keine Rückmeldung</span></div><span style="width:44px;height:44px;display:flex;align-items:center;justify-content:center"><span style="width:32px;height:32px;border-radius:999px;border:1.5px solid var(--green-badge-line);background:var(--grad-btn-sec);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600;color:var(--green-800);line-height:1">+</span></span></div>
+        <div style="flex:1"></div>
+        <div style="border-top:1px solid var(--line);min-height:52px;padding:0 16px;display:flex;align-items:center;gap:10px;background:var(--bg)"><span style="flex:1;font-size:13px;color:#5c6a63">Ausgeblendet: <b style="color:var(--ink)">11</b> auf dem Platz · <b style="color:var(--ink)">1</b> verletzt</span><span style="min-height:44px;display:flex;align-items:center;font-size:14px;font-weight:600;color:var(--green-800)">Anzeigen</span></div>
+      </div>
+    </div>
+    <div style="background:#fff;border:1px solid var(--line-soft);border-radius:12px;padding:12px 14px;display:grid;grid-template-columns:92px 1fr;gap:5px 10px;font-size:13px;line-height:1.45">
+      <b>Änderung</b><span>Die Liste zeigt nur, wer auf die Bank kann: frei oder schon auf der Bank. Wer auf dem Platz steht oder verletzt ist, fällt raus. Die Zahl im Gruppenkopf zählt nur die Wählbaren; leere Gruppen entfallen.</span>
+      <b>Fußzeile</b><span>52 hoch, <code>--bg</code>, Linie <code>--line</code> · „Ausgeblendet: …“ 13 px #5c6a63, Zahlen 700 <code>--ink</code> · „Anzeigen“ 14 / 600 <code>--green-800</code> blendet die übrigen kurz ein (blass, einzeilig, 44 hoch)</span>
+      <b>Kopf</b><span>Titel 20 / 800 · 7 Platzmarken 16 × 6 (<code>--green-600</code> belegt, <code>--track-sheet</code> frei) + „1 von 7 belegt“ 13 / 600 · „Fertig“ 15 / 700 <code>--green-800</code> ersetzt das Kreuz</span><b>Zeilen</b><span>52 hoch · Nummer 15 / 800 <code>--green-800</code>, 26 breit rechtsbündig · Name 15 / 600 · Position · Rückmeldung 13 px #5c6a63 · Gruppenkopf 12 / 700 Versalien, Innenabstand 14 / 16 / 6</span><b>Zustände</b><span>Frei: Kreis 32 (Trefferfläche 44) mit „+“, Rand <code>--green-badge-line</code> · Auf der Bank: Zeile <code>--green-050</code>, Kreis grün mit Haken</span>
+    </div>
+  </figure>
+<figure id="D9" data-screen-label="D9 Strafe Detail" style="margin:0;width:390px;display:flex;flex-direction:column;gap:12px">
+    <figcaption style="display:flex;align-items:center;gap:10px"><span style="padding:3px 10px;border-radius:8px;background:var(--green-900);color:#fff;font-size:14px;font-weight:800">D9</span><span style="font-size:15px;font-weight:700">Kasse › Bezahlt · Blatt Strafe</span></figcaption>
+    <div style="position:relative;width:390px;height:600px;border-radius:28px;overflow:hidden;border:1px solid var(--line-soft);background:var(--grad-app);box-shadow:0 20px 40px -24px rgba(16,40,30,.4)">
+      <div style="position:absolute;inset:0;background:rgba(10,44,33,.18)"></div>
+      <div style="position:absolute;left:0;right:0;bottom:0;background:var(--card);border-radius:18px 18px 0 0;box-shadow:var(--shadow-sheet);display:flex;flex-direction:column">
+        <span style="align-self:center;margin-top:8px;width:36px;height:5px;border-radius:999px;background:var(--dot-off)"></span>
+        <div style="padding:14px 16px 0;display:flex;align-items:center;gap:12px">
+          <span style="flex:none;width:44px;height:44px;border-radius:999px;background:var(--grad-av);box-shadow:var(--shadow-av);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:var(--green-800)">LW</span>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px"><span style="font-size:18px;font-weight:800;letter-spacing:-.01em">Lukas Weber</span><span style="font-size:14px;color:#5c6a63">Rote Karte (unsportlich) · 26.09.</span></div>
+        </div>
+        <div style="margin:16px 16px 0;padding:16px;border-radius:14px;background:var(--green-050);border:1px solid var(--green-badge-line);display:flex;align-items:center;gap:12px">
+          <div style="flex:1;display:flex;flex-direction:column;gap:4px"><span style="font-size:30px;font-weight:800;letter-spacing:-.025em;line-height:1.05;color:var(--green-800);font-variant-numeric:tabular-nums">22,00 €</span><span style="font-size:14px;color:var(--green-task-ink-2)">gezahlt per <b style="font-style:italic;font-weight:800;color:var(--pp-blue)">Pay<span style="color:var(--pp-cyan)">Pal</span></b> · 07.10.</span></div>
+          <span style="padding:4px 10px;border-radius:999px;background:var(--card);border:1px solid var(--green-badge-line);color:var(--green-800);font-size:12px;font-weight:700">Eingegangen</span>
+        </div>
+        <div style="margin:20px 16px 10px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5c6a63">Verlauf</div>
+        <div style="margin:0 16px;display:flex;flex-direction:column">
+          <div style="display:grid;grid-template-columns:20px 1fr auto;gap:10px;align-items:start"><div style="display:flex;flex-direction:column;align-items:center;align-self:stretch"><span style="margin-top:4px;width:10px;height:10px;border-radius:999px;background:var(--red-600)"></span><span style="flex:1;width:2px;background:var(--line);margin:3px 0"></span></div><div style="padding-bottom:14px;display:flex;flex-direction:column"><span style="font-size:15px;font-weight:600">Angelegt</span><span style="font-size:13px;color:#5c6a63">offen</span></div><span style="font-size:13px;color:#5c6a63;font-variant-numeric:tabular-nums">26.09. · 21:48</span></div>
+          <div style="display:grid;grid-template-columns:20px 1fr auto;gap:10px;align-items:start"><div style="display:flex;flex-direction:column;align-items:center;align-self:stretch"><span style="margin-top:4px;width:10px;height:10px;border-radius:999px;background:var(--amber-600)"></span><span style="flex:1;width:2px;background:var(--line);margin:3px 0"></span></div><div style="padding-bottom:14px;display:flex;flex-direction:column"><span style="font-size:15px;font-weight:600">Gemeldet</span><span style="font-size:13px;color:#5c6a63">Spieler meldet Zahlung</span></div><span style="font-size:13px;color:#5c6a63;font-variant-numeric:tabular-nums">28.09. · 16:42</span></div>
+          <div style="display:grid;grid-template-columns:20px 1fr auto;gap:10px;align-items:start"><div style="display:flex;flex-direction:column;align-items:center"><span style="margin-top:4px;width:10px;height:10px;border-radius:999px;background:var(--green-600);box-shadow:0 0 0 3px var(--green-050)"></span></div><div style="display:flex;flex-direction:column"><span style="font-size:15px;font-weight:700;color:var(--green-800)">Eingegangen</span><span style="font-size:13px;color:#5c6a63">PayPal</span></div><span style="font-size:13px;color:#5c6a63;font-variant-numeric:tabular-nums">07.10. · 09:26</span></div>
+        </div>
+        <div style="margin-top:20px;padding:14px 16px 26px;border-top:1px solid var(--line)">
+          <div style="min-height:48px;border-radius:12px;background:var(--grad-btn-sec);border:1px solid var(--line-soft-3);box-shadow:var(--shadow-btn-sec);display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px;font-weight:700;color:var(--red-700)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"></path><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"></path></svg>Buchung rückgängig</div>
+        </div>
+      </div>
+    </div>
+    <div style="background:#fff;border:1px solid var(--line-soft);border-radius:12px;padding:12px 14px;display:grid;grid-template-columns:92px 1fr;gap:5px 10px;font-size:13px;line-height:1.45">
+      <b>Kopf</b><span>Avatar 44 <code>--grad-av</code> · Name 18 / 800 · Strafe und Datum 14 px #5c6a63 · Titel „Strafe“ und Kreuz entfallen</span>
+      <b>Betrag</b><span>Feld <code>--green-050</code>, Rand <code>--green-badge-line</code>, <code>--radius</code> 14, Innenabstand 16 · 30 / 800 <code>--green-800</code> · Zahlweg 14 px mit PayPal-Wortmarke <code>--pp-blue</code> / <code>--pp-cyan</code> · Pille „Eingegangen“ 12 / 700. Ersetzt den gelben Hinweis.</span>
+      <b>Verlauf</b><span>Zeitleiste: Punkt 10 px in Statusfarbe (offen <code>--red-600</code>, gemeldet <code>--amber-600</code>, eingegangen <code>--green-600</code>), Linie 2 px <code>--line</code> · Schritt 15 / 600, Detail 13 px, Zeit rechts 13 px tabular · Abstand 14</span>
+      <b>Fuß</b><span>Linie <code>--line</code>, Innenabstand 14 / 16 / 26 · Sekundärknopf 48, Text und Icon <code>--red-700</code>, weil die Buchung zurückgenommen wird</span>
+    </div>
+    <img src="ist/okt/0700.png" alt="Ist IMG_0700" style="width:150px;border-radius:12px;border:1px solid var(--line-soft)">
+  </figure>
+</div>
+</section>
+</x-dc>
+</body>
+</html>
+

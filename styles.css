@@ -4030,3 +4030,34 @@ button, input, select, textarea { font-family: inherit; }
 .wf-hero  .wf-day { line-height: 1; margin: .1154em 0; }   /* 3 px bei 26 px */
 .wf-karte .wf-day { line-height: 1; margin: .0909em 0; }   /* 2 px bei 22 px */
 .wf-klein .wf-day { line-height: 1; margin: .1053em 0; }   /* 2 px bei 19 px */
+
+/* ===== NACHSCHLIFF OKTOBER, Teil A (09.10.2026): Abstände und Layout =====
+   Ist-Werte gemessen bei 390 px (Bericht .design-sync/nachschliff-2026-10/ABSCHLUSS.md). */
+/* A1 Mein Konto: unten so viel Luft wie oben (oben 21 px bis „Dein Konto“) */
+.mine-banner:has(> .mb-foot:last-child) { padding-bottom: 6px; }
+/* A2 Terminkarte: Zusage/Absage mittig zwischen Trennlinie und Kartenunterkante,
+   wenn darunter keine Rückmelde- oder Zählerzeile folgt */
+.tk-rsvp.is-gross:last-child { padding-bottom: 14px; }
+.tk-body:has(> .tk-rsvp:only-child) { padding-bottom: 14px; }
+/* A3 Kasse: Segmente nach Inhalt, Zähler kompakt mit Abstand zum Wort */
+.ks-seg .ks-seg-b { flex: 1 1 auto; padding: 0 10px; }
+.ks-seg-n { min-width: 22px; height: 20px; padding: 0 6px; margin-left: 6px; }
+@media (max-width: 359px) { .ks-seg .ks-seg-b { padding: 0 4px; } .ks-seg-n { margin-left: 4px; } }
+/* A3 „1 von 5 · 65 € · Alle bestätigen“: oben und unten je 12 px; die Zone
+   von „Alle bestätigen“ reicht unten weiter bis zur halben Lücke (6 px) */
+.group-head.ks-stapelkopf { margin: 12px 0 12px; }
+.ks-stapelkopf .link-btn::after { bottom: -6px; }
+/* A4 + A8 Spielerlisten: ein Zeilenmuster für Konto › Mannschaft und Kasse.
+   Innenabstand oben und unten gleich, Name kürzt mit Auslassungspunkten,
+   Betrag in fester rechter Spalte mit Ziffern gleicher Breite. */
+.row.kt-row, .row.ks-zeile, .row.ks-bz { min-height: 60px; padding-top: 10px; padding-bottom: 10px; gap: 12px; }
+.row.kt-row + .row.kt-row, .row.ks-zeile + .row.ks-zeile, .row.ks-bz + .row.ks-bz { min-height: 61px; }
+.kt-row .row-main, .ks-zeile .row-main, .ks-bz .row-main { align-items: stretch; }
+.kt-row .row-t, .ks-zeile .row-t, .ks-bz .row-t { max-width: 100%; }
+.kt-betrag, .ks-betrag, .ks-bz-b { flex: none; min-width: 76px; justify-content: flex-end; text-align: right; font-variant-numeric: tabular-nums; }
+/* A5 Strafe verhängen: Fuß deckend und fest am Blattende, Home-Leiste frei */
+#ksSeite .ks-seite-body { padding-bottom: 16px; }
+#ksSeite .ks-fuss { position: static; flex: 0 0 auto; padding: 12px 16px calc(14px + env(safe-area-inset-bottom)); background: var(--card); border-top: 1px solid var(--line); }
+#ksSeite .ks-fuss-btn:disabled { background: var(--bg-2); color: var(--muted); }
+/* A6 Einstellungen: Zeilentitel wie in der übrigen App (--fs-zeile, 700) */
+.ein-zeile-t, .ein-schalter-t { font-size: var(--fs-zeile); font-weight: 700; }

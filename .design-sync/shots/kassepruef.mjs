@@ -727,11 +727,13 @@ console.log('--- Blätter gehen alle durch dieselbe Steuerung ---');
     'und kommt erst zurück, wenn das letzte Blatt zu ist');
   // Die Sperre selbst: body fixieren statt overflow:hidden - sonst scrollt
   // iOS im Standalone-Modus weiter.
-  const sperre = app.slice(app.indexOf('function lockBodyScroll'), app.indexOf('function blattAuf'));
+  // Seit Nachschliff A7 gleicht sich die Sperre selbst ab (statt Zähler je Dialog).
+  const sperre = app.slice(app.indexOf('const SPERR_SEL'), app.indexOf('function blattAuf'));
   pruefe(sperre.includes('b.position = "fixed"'), 'die Sperre fixiert den body');
   pruefe(sperre.includes('_scrollLockY = window.scrollY'), 'und merkt sich die Scrollposition');
   pruefe(sperre.includes('window.scrollTo(0, _scrollLockY)'), 'und stellt sie beim Schließen wieder her');
-  pruefe(sperre.includes('if (_scrollLocks++ > 0) return;'), 'verschachtelte Blätter zählen mit');
+  pruefe(sperre.includes('new MutationObserver(sperrePlanen)'), 'ein Beobachter erkennt jede offene Ebene, auch ohne eigenen Aufruf');
+  pruefe(/SPERR_SEL = "[^"]*\.kat-blatt-ov/.test(sperre), 'das Katalog-Blatt zählt als Ebene');
   pruefe(app.includes('blattAlleZu();'), 'beim Ansichtswechsel geht alles zu');
 
   // CSS dazu.

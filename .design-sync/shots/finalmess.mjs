@@ -21,6 +21,11 @@ import { vorlageDaten, JETZT_VORLAGE } from './finaldaten.mjs';
 
 const BASIS = path.join(process.cwd(), '.design-sync', 'concepts', 'final-2026-10');
 const SOLL = path.join(BASIS, 'soll'), IST = path.join(BASIS, 'ist'), VGL = path.join(BASIS, 'vergleich');
+/* Nachschliff Oktober: aktualisierte Referenzen. Liegt hier <Screen>.json, gilt sie statt
+   der Final-Vorlage (ohne deren Ausnahmen, Versatz und fehlende Texte). NS_REFERENZ="<Grund>"
+   schreibt die aktuelle Messung als neue Referenz; das Verzeichnis REFERENZEN.json nennt
+   je Screen Grund und Datum. */
+const NSREF = path.join(BASIS, 'soll-nachschliff');
 for (const d of [IST, VGL]) fs.mkdirSync(d, { recursive: true });
 const TOL = Number(process.env.TOL || 1);
 
@@ -85,7 +90,8 @@ const leinwand = await browser.newPage();
 let alleGruen = true;
 for (const name of wahl) {
   const cfg = SCREENS[name];
-  const sollJson = path.join(SOLL, name + '.json');
+  const nsRef = fs.existsSync(path.join(NSREF, name + '.json'));
+  const sollJson = path.join(nsRef ? NSREF : SOLL, name + '.json');
   if (!cfg) { console.log('FEHL ' + name + ': keine Messvorschrift in finalscreens.mjs'); alleGruen = false; continue; }
   if (!fs.existsSync(sollJson)) { console.log('FEHL ' + name + ': kein Soll (finalsoll.mjs laufen lassen)'); alleGruen = false; continue; }
   const soll = JSON.parse(fs.readFileSync(sollJson, 'utf8'));
@@ -104,7 +110,16 @@ for (const name of wahl) {
   const istPng = await page.screenshot({ clip: { x: 0, y: 0, width: 390, height: hoehe } });
   fs.writeFileSync(path.join(IST, name + '.png'), istPng);
   fs.writeFileSync(path.join(IST, name + '.json'), JSON.stringify(ist));
-  const sollB64 = fs.readFileSync(path.join(SOLL, name + '.png')).toString('base64');
+  const sollB64 = fs.readFileSync(path.join(nsRef ? NSREF : SOLL, name + '.png')).toString('base64');
+  if (process.env.NS_REFERENZ) {
+    fs.mkdirSync(NSREF, { recursive: true });
+    fs.writeFileSync(path.join(NSREF, name + '.json'), JSON.stringify({ ...ist, hoehe: soll.hoehe, elemente: ist.elemente.map((e) => ({ ...e, x: e.x + 1, y: e.y + 1 })) })  /* Soll-Bilder haben 1 px Rahmen, vergleiche() zieht ihn ab */);
+    fs.writeFileSync(path.join(NSREF, name + '.png'), istPng);
+    const vz = path.join(NSREF, 'REFERENZEN.json');
+    const liste = fs.existsSync(vz) ? JSON.parse(fs.readFileSync(vz, 'utf8')) : {};
+    liste[name] = { grund: process.env.NS_REFERENZ, datum: new Date().toISOString().slice(0, 10) };
+    fs.writeFileSync(vz, JSON.stringify(liste, null, 1) + '\n');
+  }
   const vgl = await leinwand.evaluate(async ([a, b, h]) => {
     const lade = async (d) => { const i = new Image(); await new Promise((ok) => { i.onload = ok; i.src = 'data:image/png;base64,' + d; }); return i; };
     const A = await lade(a), B = await lade(b);
@@ -114,13 +129,14 @@ for (const name of wahl) {
     return c.toDataURL('image/png').split(',')[1];
   }, [sollB64, istPng.toString('base64'), hoehe]);
   fs.writeFileSync(path.join(VGL, name + '.png'), Buffer.from(vgl, 'base64'));
-  const v = vergleiche(soll, ist, cfg.ausnahmen, cfg.erlaubt, cfg.versatz);
+  const v = nsRef || process.env.NS_REFERENZ ? vergleiche(soll, ist) : vergleiche(soll, ist, cfg.ausnahmen, cfg.erlaubt, cfg.versatz);
   const bericht = await inst.bericht();
-  const gruen = v.befunde.length === 0 && v.fehlend.filter((t) => !(cfg.ohneText || []).includes(t)).length === 0 && bericht.verstoesse.length === 0 && bericht.fehler.length === 0;
+  const ohneText = nsRef ? [] : (cfg.ohneText || []);
+  const gruen = v.befunde.length === 0 && v.fehlend.filter((t) => !ohneText.includes(t)).length === 0 && bericht.verstoesse.length === 0 && bericht.fehler.length === 0;
   if (!gruen) alleGruen = false;
-  console.log('\n=== ' + name + ' (' + cfg.profil + ') ' + (gruen ? 'GRÜN' : 'ABWEICHUNG') + ' · ' + v.gefunden.length + ' Texte zugeordnet');
+  console.log('\n=== ' + name + ' (' + cfg.profil + ') ' + (gruen ? 'GRÜN' : 'ABWEICHUNG') + (nsRef ? ' [Referenz Nachschliff]' : '') + ' · ' + v.gefunden.length + ' Texte zugeordnet');
   for (const b of v.befunde) console.log('  Δ ' + b);
-  const fehlt = v.fehlend.filter((t) => !(cfg.ohneText || []).includes(t));
+  const fehlt = v.fehlend.filter((t) => !ohneText.includes(t));
   if (fehlt.length) console.log('  fehlt im Ist: ' + fehlt.map((t) => '"' + t + '"').join(', '));
   if (bericht.verstoesse.length || bericht.fehler.length) console.log('  Stand-in: ' + bericht.verstoesse.concat(bericht.fehler).join(' | '));
   await ctx.close();

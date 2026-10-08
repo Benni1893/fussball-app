@@ -112,7 +112,7 @@ export const AUSNAHMEN = [
   { id: 'zone-elf', typ: 'treffer', sel: 'button.tk-unten-r', richtung: ['oben'],
     grund: 'Wie „9 zu · 2 ab ›“: gleiche Zeile unter Absage, oben 5 px.' },
   { id: 'zone-alle-bestaetigen', typ: 'treffer', sel: '.ks-stapelkopf .link-btn', richtung: ['unten'],
-    grund: 'Zone unten auf 4 px begrenzt (halbe Lücke zur Prüfkarte, 8 px); 124 × 35,5 px.' },
+    grund: 'Zone unten auf 6 px begrenzt (halbe Lücke zur Prüfkarte, seit Nachschliff A3 12 px); 124 × 37,5 px.' },
   { id: 'zone-spieler-waehlen', typ: 'treffer', sel: '.tv-bank-kopf .link-btn', richtung: ['unten'],
     grund: 'Zone unten auf 6 px begrenzt (halbe Lücke zum ersten Bankplatz, 12 px); 133 × 37,5 px.' },
   { id: 'zone-bank-x', typ: 'treffer', sel: '.tv-bx', richtung: ['rechts', 'oben'],

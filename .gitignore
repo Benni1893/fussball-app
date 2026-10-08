@@ -62,3 +62,6 @@ node_modules/
 .design-sync/geraetematrix/lauf*.log
 .design-sync/geraetematrix/kontaktbogen/
 .design-sync/geraetematrix/nacharbeit/*/befunde/
+
+# Nachschliff Oktober: iPhone-Screenshots der Vorlage nicht versionieren (Kopien von .design-sync/concepts/IMG_0688-0700)
+.design-sync/reference/app/nachschliff-2026-10/soll/ist/
