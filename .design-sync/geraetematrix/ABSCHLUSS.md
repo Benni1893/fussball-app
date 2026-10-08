@@ -245,3 +245,112 @@ Mit den damaligen Messartefakten (variable Schrift unter WebKit, Übergänge), d
 | Umbruch in Wort/Betrag/Datum: `span.row-main > span.row-s` „30. Aug“ · Datum | admin: kasse/offen, kassenwart: kasse/offen, trainerkassenwart: kasse/offen | 320, 360 | Chromium · Roboto, WebKit · Inter | 130 % | `befunde/chromium-roboto/admin/kasse_offen-320-130.png` |
 | Umbruch in Wort/Betrag/Datum: `span.kat-main > span.kat-sub` „10,00 €“ · Betrag | spieler: katalog, trainer: katalog | 320 | Chromium · Roboto | 130 % | `befunde/chromium-roboto/spieler/katalog-320-130.png` |
 | Verdeckt (Kopf, Nav, Safe Area): `span.row-main > span.row-s` „ST“ · unter Safe Area unten (Scrollende) | admin: trainer/spiel+tvSheetKader, trainer: trainer/spiel+tvSheetKader, trainerkassenwart: trainer/spiel+tvSheetKader | 360, 375, 384, 390, 393, 412, 414, 430 | Chromium · Inter, Chromium · Roboto, WebKit · Inter | 100, 130 % | `befunde/chromium-inter/admin/trainer_spiel_tvSheetKader-360-130.png` |
+
+
+---
+
+# Nachtrag: Nacharbeit (08.10.2026, Build 2026-10-08-B)
+
+Basis ist Commit d9e4e7e, Abschnitt 4. Umgesetzt nach OK mit drei Präzisierungen. Ohne Datenbankänderung und ohne Test-Pushs.
+
+## A. Einstufung der 22 Gruppen (Phase 0) und Korrektur
+
+Die Einstufung je Gruppe steht in der Phase-0-Antwort. Meine Zusammenfassung dort war verzählt. In der Tabelle selbst standen:
+- **7 Messartefakte:** 5, 9, 10, 11, 15, 19, 20;
+- **5 bewusst akzeptierte Fälle:** 1 bis 4, 22;
+- **10 echte Mängel:** 6, 7, 8, 12, 13, 14, 16, 17, 18, 21.
+
+Die Zusammenfassung nannte dagegen 9 Artefakte und 8 Mängel.
+
+## B. Werkzeug: Prüfpunkte auf fixen oder klebenden Flächen
+
+`geraetematrix.mjs`: Ein Prüfpunkt zählt nur dann nicht, wenn er auf einer **fremden** Fläche mit `position: fixed` oder `sticky` landet. Fremd heißt, sie enthält das geprüfte Element nicht. Fixe Ebenen, in denen das Element selbst liegt (Blatt, Fenster), zählen weiter. Ein Treffer auf fremden, nicht fixen Flächen bleibt ein Mangel. Neu sind außerdem `GM_ZUSTAENDE` (genaue Zustandsschlüssel) und `GM_AUSGABE` (eigener Ordner für Teilläufe).
+
+Auf denselben 15 Zuständen gemessen, verglichen mit dem Lauf aus d9e4e7e:
+
+| Weggefallen | Grund |
+|---|---|
+| 5, 9, 10, 11, 15, 19, 20 | die 7 Artefakte: Prüfpunkt unter Nav-Leiste oder Kopfzeile |
+| **14** (× am Bankplatz, WebKit 390, „rechts/unten“) | Der untere Prüfpunkt lag auf der klebenden Speichern-Leiste. Der Befund „rechts“ bleibt und zählt jetzt zu Gruppe 13. Kein Mangel geht verloren. |
+| **17** („Kalender ›“/„Alle Strafen ›“ unten, 130 %) | Die Messung meldete „Alle Strafen ›“ am unteren Rand über der Nav, das war ein Artefakt. Meine Phase-0-Prüfung hatte versehentlich das zweite Element „Kalender ›“ betrachtet. Dessen echte Überlappung mit der ersten Danach-Zeile bei 130 % taucht in der Matrix nicht auf, weil die Zeile am Bildrand lag. Ich habe sie trotzdem nach Punkt 1 behoben (Abschnitt C). |
+
+Es fallen also 9 Gruppen weg statt der genannten 7. Die beiden zusätzlichen sind oben begründet; darunter ist kein echter Mangel, der verdeckt würde.
+
+## C. Tippzonen auf halber Strecke (Punkt 1)
+
+Die Lücken habe ich bei 390 px gemessen (`gmzonen.mjs`). Statt der zentrierten 44-px-Zone (`::after`) hat jedes Element jetzt feste Ausdehnungen. Zur Nachbarseite reicht die Zone bis zur halben Lücke, zur anderen Seite bleibt sie bei (44 px − Höhe) / 2. Sichtbar ändert sich nichts, der 390-px-Abgleich ist 27/27 grün.
+
+**Stellen, an denen die Zone dadurch unter 44 px fällt:**
+
+| Element | Nachbar | Lücke | Zone 100 % | Zone 130 % |
+|---|---|---|---|---|
+| „9 zu · 2 ab · 5 offen ›“ (Kalender, Übersicht) | Zusage/Absage darüber | 10 px | 144 × 35 px | 183 × 37 px |
+| „Elf steht ›“ / „Elf offen ›“ (gleiche Zeile) | Absage darüber | 10 px | Breite + 16 × 35 px | × 37 px |
+| „Alle bestätigen“ (Kasse, Gemeldet) | Prüfkarte darunter | 8 px | 124 × 35,5 px | 157 × 38 px |
+| „Spieler wählen ›“ (Platz, Bank) | erster Bankplatz darunter | 12 px | 133 × 37,5 px | 168 × 40 px |
+| × am Bankplatz | Nachbarplatz rechts (13 px), „Spieler wählen ›“ oben (17 px) | – | **37,5 × 39,5 px** | 37,5 × 39,5 px |
+| „Kalender ›“ (Übersicht, Danach) | erste Danach-Zeile darunter | 9 px | 91 × 36 px | 114 × 38,5 px |
+
+**× am Bankplatz (13/14):** Die Zone ist 37,5 × 39,5 px groß. Sie liegt über 32 px, deshalb schlage ich keine Alternative vor.
+
+**Ohne Begrenzung behoben:**
+- Zusage/Absage (8) haben ihre volle Fläche zurück, weil die Zone darunter oben endet.
+- Das × im Teilen-Fenster (7) liegt über der Unterzeile, die keine Funktion hat.
+- „+ Neu“ und andere kurze Verweise im Gruppenkopf (16): Die Zone wird nach rechts auf 44 px um die Mitte erweitert. Der Kasten bleibt; eine Mindestbreite am Kasten hätte „Alle ›“ in 06 Trainer verschoben (Runde 1).
+- Segmentknöpfe unter 360 px (18) sind mindestens 44 px breit.
+
+## D. Datumswürfel (Punkt 2)
+
+Grundgröße 12 px. Die Höhe steht in `em`: Hero 5,5 em (66 px), Karte 4,6667 em (56 px), Training/Sonstiges 4,8333 em (58 px), klein 4,6667 em (56 px). Zeilenhöhe ohne Einheit (1), der Abstand um den Tag ebenfalls in em. Bei 100 % sind das genau die bisherigen Pixel, bei 130 % wächst der Würfel mit; Wochentag und Tag rücken nicht mehr übereinander (Gruppe 21 weg).
+
+## E. Restbefunde vorher und nachher
+
+Beides ist mit dem neuen Werkzeug gemessen, auf denselben 15 Zuständen (`nacharbeit-zustaende.txt`), in allen 9 Breiten, beiden Schriftgrößen und allen drei Varianten. Ergebnisse liegen unter `nacharbeit/vorher/` und `nacharbeit/nachher/`.
+
+| | Einzelbefunde | Gruppen |
+|---|---|---|
+| vorher (Stand d9e4e7e) | 728 | 13 |
+| nachher (2026-10-08-B) | 887 | 10 |
+
+Die Einzelbefunde steigen, weil die bewusst begrenzten Zonen (Abschnitt C) jetzt in jeder Breite als „unter 44 px“ zählen. Echte Überlappungen sind keine mehr übrig.
+
+**Nachher, nach Einstufung:**
+- **Bewusst begrenzt (Abschnitt C), 5 Gruppen:** „9 zu …“, „Elf steht ›“, „Alle bestätigen“, „Spieler wählen ›“, × am Bankplatz.
+- **Bewusst akzeptiert, 5 Gruppen:**
+  - 4 × native Eingabefelder mit langem Inhalt (Punkt 3, nicht angefasst);
+  - Zone des × über der Unterzeile im Teilen-Fenster.
+
+Behoben sind 8 (Zusage/Absage), 7, 16, 18 und 21. Runden: eine, plus eine Zwischenkorrektur für 16, nach der 390-px-Abweichung bei „Alle ›“. Pflichtliste 20/20, 390-px-Abgleich 27/27. Der Kontaktbogen `kontaktbogen-320-130.png` ist neu erzeugt.
+
+### Vorher
+
+| Befund | Ansicht | Breite | Engine | Schrift | Screenshot |
+|---|---|---|---|---|---|
+| Text abgeschnitten: `div.tf-z > input.tf-in` „Sportplatz Musterhausen“ · Eingabefeld | admin: dashboard+terminModal, trainer: dashboard+terminModal, trainerkassenwart: dashboard+terminModal | 320, 360, 375, 384, 390, 393 | Chromium · Inter, Chromium · Roboto, WebKit · Inter | 100, 130 % | `nacharbeit/vorher/nacharbeit/vorher/befunde/chromium-inter/admin/dashboard_terminModal-320-100.png` |
+| Text abgeschnitten: `label.pkat-feld > input.pkat-in` „📅 {anzahl} neue Termine“ · Eingabefeld | admin: einstellungen/pushtext/termin_neu | 320, 360, 375, 384, 390, 393 | Chromium · Inter, Chromium · Roboto, WebKit · Inter | 100, 130 % | `nacharbeit/vorher/nacharbeit/vorher/befunde/chromium-inter/admin/einstellungen_pushtext_termin_neu-320-130.png` |
+| Text abgeschnitten: `div.kat-item.kat-edit > input.kat-in.kat-in-name` „Verspätete Rückmeldung“ · Eingabefeld | admin: katalog+katBlatt, kassenwart: katalog+katBlatt, trainerkassenwart: katalog+katBlatt | 320 | Chromium · Inter, Chromium · Roboto, WebKit · Inter | 130 % | `nacharbeit/vorher/nacharbeit/vorher/befunde/chromium-inter/admin/katalog_katBlatt-320-130.png` |
+| Text abgeschnitten: `label.sb-feld.sb-datum > input` „2026-10-10“ · Eingabefeld | admin: kader+statusBlatt, trainer: kader+statusBlatt, trainerkassenwart: kader+statusBlatt | 320 | WebKit · Inter | 130 % | `nacharbeit/vorher/nacharbeit/vorher/befunde/webkit-inter/admin/kader_statusBlatt-320-130.png` |
+| Trefferfläche < 44 px: `div.group-head.ks-stapelkopf > button.link-btn` · zu klein unten | admin: kasse/pruefen, kassenwart: kasse/pruefen, trainerkassenwart: kasse/pruefen | alle | Chromium · Inter, Chromium · Roboto, WebKit · Inter | 100, 130 % | `nacharbeit/vorher/nacharbeit/vorher/befunde/chromium-inter/admin/kasse_pruefen-320-100.png` |
+| Trefferfläche < 44 px: `div.tk-rsvp > button.tk-btn` · zu klein unten | admin: kalender, trainer: kalender, trainerkassenwart: kalender | alle | Chromium · Inter, Chromium · Roboto, WebKit · Inter | 100 % | `nacharbeit/vorher/nacharbeit/vorher/befunde/chromium-inter/admin/kalender-320-100.png` |
+| Trefferfläche < 44 px: `button.tv-bslot > span.tv-bx` · zu klein rechts | admin: trainer/spiel, trainer: trainer/spiel, trainerkassenwart: trainer/spiel | 384, 390, 393, 412, 414, 430 | Chromium · Inter, Chromium · Roboto, WebKit · Inter | 100, 130 % | `nacharbeit/vorher/nacharbeit/vorher/befunde/chromium-inter/admin/trainer_spiel-384-100.png` |
+| Trefferfläche < 44 px: `div.group-head.tv-bank-kopf > button.link-btn` · zu klein unten | admin: trainer/spiel, trainer: trainer/spiel, trainerkassenwart: trainer/spiel | 360, 384, 390, 393, 412, 414, 430 | Chromium · Inter, Chromium · Roboto, WebKit · Inter | 100 % | `nacharbeit/vorher/nacharbeit/vorher/befunde/chromium-inter/admin/trainer_spiel-360-100.png` |
+| Trefferfläche < 44 px: `div.modal-head > button.modal-x` · zu klein unten | admin: dashboard+rsvpSheet+shareModal, admin: kalender+rsvpSheet+shareModal, admin: trainer+rsvpSheet+shareModal (+6) | 375, 430 | Chromium · Inter, Chromium · Roboto, WebKit · Inter | 130 % | `nacharbeit/vorher/nacharbeit/vorher/befunde/chromium-inter/admin/dashboard_rsvpSheet_shareModal-375-130.png` |
+| Trefferfläche < 44 px: `div.group-head > button.link-btn` · zu klein rechts | admin: trainer, trainer: trainer, trainerkassenwart: trainer | 360, 384, 390, 393, 412, 414, 430 | Chromium · Roboto | 100 % | `nacharbeit/vorher/nacharbeit/vorher/befunde/chromium-roboto/admin/trainer-360-100.png` |
+| Trefferfläche < 44 px: `div.kal-seg > button.kal-seg-b` · zu klein rechts | admin: kalender, kassenwart: kalender, spieler: kalender (+2) | 320 | Chromium · Inter, Chromium · Roboto, WebKit · Inter | 130 % | `nacharbeit/vorher/nacharbeit/vorher/befunde/chromium-inter/admin/kalender-320-130.png` |
+| Überlappung: `div.modal > p.modal-sub` „Text frei anpassen, dann teilen oder kop“ · div.modal > div.modal-head > button.modal-x | admin: dashboard+rsvpSheet+shareModal, admin: kalender+rsvpSheet+shareModal, admin: trainer+rsvpSheet+shareModal (+6) | 320, 360, 375, 384, 390 | Chromium · Inter, Chromium · Roboto, WebKit · Inter | 100 % | `nacharbeit/vorher/nacharbeit/vorher/befunde/chromium-inter/admin/dashboard_rsvpSheet_shareModal-320-100.png` |
+| Überlappung: `span.wf.wf-karte > span.wf-wd` „So / 4“ · div.tk-kopfzeile > span.wf.wf-karte > span.wf-day.num | admin: kalender, kassenwart: kalender, spieler: kalender (+2) | alle | Chromium · Inter | 130 % | `nacharbeit/vorher/nacharbeit/vorher/befunde/chromium-inter/admin/kalender-320-130.png` |
+
+### Nachher
+
+| Befund | Ansicht | Breite | Engine | Schrift | Screenshot |
+|---|---|---|---|---|---|
+| Text abgeschnitten: `div.tf-z > input.tf-in` „Sportplatz Musterhausen“ · Eingabefeld | admin: dashboard+terminModal, trainer: dashboard+terminModal, trainerkassenwart: dashboard+terminModal | 320, 360, 375, 384, 390, 393 | Chromium · Inter, Chromium · Roboto, WebKit · Inter | 100, 130 % | `nacharbeit/nachher/nacharbeit/nachher/befunde/chromium-inter/admin/dashboard_terminModal-320-100.png` |
+| Text abgeschnitten: `label.pkat-feld > input.pkat-in` „📅 {anzahl} neue Termine“ · Eingabefeld | admin: einstellungen/pushtext/termin_neu | 320, 360, 375, 384, 390, 393 | Chromium · Inter, Chromium · Roboto, WebKit · Inter | 100, 130 % | `nacharbeit/nachher/nacharbeit/nachher/befunde/chromium-inter/admin/einstellungen_pushtext_termin_neu-320-130.png` |
+| Text abgeschnitten: `div.kat-item.kat-edit > input.kat-in.kat-in-name` „Verspätete Rückmeldung“ · Eingabefeld | admin: katalog+katBlatt, kassenwart: katalog+katBlatt, trainerkassenwart: katalog+katBlatt | 320 | Chromium · Inter, Chromium · Roboto, WebKit · Inter | 130 % | `nacharbeit/nachher/nacharbeit/nachher/befunde/chromium-inter/admin/katalog_katBlatt-320-130.png` |
+| Text abgeschnitten: `label.sb-feld.sb-datum > input` „2026-10-10“ · Eingabefeld | admin: kader+statusBlatt, trainer: kader+statusBlatt, trainerkassenwart: kader+statusBlatt | 320 | WebKit · Inter | 130 % | `nacharbeit/nachher/nacharbeit/nachher/befunde/webkit-inter/admin/kader_statusBlatt-320-130.png` |
+| Trefferfläche < 44 px: `div.tk-unten > button.tk-unten-l` · zu klein oben | admin: kalender, trainer: kalender, trainerkassenwart: kalender | alle | Chromium · Inter, Chromium · Roboto, WebKit · Inter | 100, 130 % | `nacharbeit/nachher/nacharbeit/nachher/befunde/chromium-inter/admin/kalender-360-100.png` |
+| Trefferfläche < 44 px: `div.group-head.ks-stapelkopf > button.link-btn` · zu klein unten | admin: kasse/pruefen, kassenwart: kasse/pruefen, trainerkassenwart: kasse/pruefen | alle | Chromium · Inter, Chromium · Roboto, WebKit · Inter | 100, 130 % | `nacharbeit/nachher/nacharbeit/nachher/befunde/chromium-inter/admin/kasse_pruefen-320-100.png` |
+| Trefferfläche < 44 px: `div.tk-unten > button.tk-unten-r` · zu klein oben | admin: kalender, trainer: kalender, trainerkassenwart: kalender | alle | Chromium · Inter, Chromium · Roboto, WebKit · Inter | 100, 130 % | `nacharbeit/nachher/nacharbeit/nachher/befunde/chromium-inter/admin/kalender-360-100.png` |
+| Trefferfläche < 44 px: `div.group-head.tv-bank-kopf > button.link-btn` · zu klein unten | admin: trainer/spiel, trainer: trainer/spiel, trainerkassenwart: trainer/spiel | 360, 384, 390, 393, 412, 414, 430 | Chromium · Inter, Chromium · Roboto, WebKit · Inter | 100, 130 % | `nacharbeit/nachher/nacharbeit/nachher/befunde/chromium-inter/admin/trainer_spiel-360-100.png` |
+| Trefferfläche < 44 px: `button.tv-bslot > span.tv-bx` · zu klein rechts/oben | admin: trainer/spiel, trainer: trainer/spiel, trainerkassenwart: trainer/spiel | 384, 390, 393, 412, 414, 430 | Chromium · Inter, Chromium · Roboto, WebKit · Inter | 100, 130 % | `nacharbeit/nachher/nacharbeit/nachher/befunde/chromium-inter/admin/trainer_spiel-384-100.png` |
+| Überlappung: `div.modal > p.modal-sub` „Text frei anpassen, dann teilen oder kop“ · div.modal > div.modal-head > button.modal-x | admin: dashboard+rsvpSheet+shareModal, admin: kalender+rsvpSheet+shareModal, admin: trainer+rsvpSheet+shareModal (+6) | 320, 360, 375, 384, 390 | Chromium · Inter, Chromium · Roboto, WebKit · Inter | 100 % | `nacharbeit/nachher/nacharbeit/nachher/befunde/chromium-inter/admin/dashboard_rsvpSheet_shareModal-320-100.png` |

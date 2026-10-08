@@ -3996,3 +3996,37 @@ button, input, select, textarea { font-family: inherit; }
 .modal-x { min-width: 44px; min-height: 44px; }
 /* Schließen im Blatt bleibt 44 px breit, auch neben langem Titel */
 .tv-shx { flex: none; }
+
+/* ===== GERÄTEMATRIX, Nacharbeit (08.10.2026, Build 2026-10-08-B) =====
+   Erweiterte Tippzonen benachbarter Elemente treffen sich auf halber Strecke
+   (Lücken bei 390 px gemessen, gmzonen.mjs). Sichtbar ändert sich nichts.
+   Zur anderen Seite bleibt die Zone bei (44 px - Höhe) / 2.                */
+/* „9 zu · 2 ab · 5 offen ›“ unter Zusage/Absage: Lücke 10 px -> oben 5 px */
+.tk-unten-l::after, .tk-unten-r::after { top: -5px; bottom: calc((100% - var(--tap)) / 2); height: auto; transform: none; }
+/* „Alle bestätigen“ über der Prüfkarte: Lücke 8 px -> unten 4 px */
+.ks-stapelkopf .link-btn::after { top: calc((100% - var(--tap)) / 2); bottom: -4px; height: auto; transform: none; }
+/* „Spieler wählen ›“ über dem ersten Bankplatz: Lücke 12 px -> unten 6 px */
+.tv-bank-kopf .link-btn::after { top: calc((100% - var(--tap)) / 2); bottom: -6px; height: auto; transform: none; }
+/* „Kalender ›“ über der ersten Danach-Zeile: Lücke 9 px -> unten 4,5 px */
+.group-head:has(+ .dn-liste) .link-btn::after { top: calc((100% - var(--tap)) / 2); bottom: -4.5px; height: auto; transform: none; }
+/* × am Bankplatz: rechts zum Nachbarplatz (Lücke 13 px) 6,5 px, oben zu
+   „Spieler wählen ›“ (Lücke 17 px) 8,5 px; links und unten im eigenen Platz 13 px */
+.tv-bx::after { top: -8.5px; right: -6.5px; bottom: -13px; left: -13px; width: auto; height: auto; transform: none; }
+/* × im Teilen-Fenster liegt über der Unterzeile (sie hat keine Funktion) */
+.modal-x { position: relative; z-index: 1; }
+/* „+ Neu“ und andere kurze Verweise im Gruppenkopf: Zone um die Mitte mindestens
+   44 px breit (nach rechts erweitert, nur wenn der Verweis schmaler ist); der Kasten bleibt */
+.group-head .link-btn::after { right: min(0px, calc((100% - var(--tap)) / 2)); }
+/* Segmentknöpfe unter 360 px: trotz Verteilung nach Inhalt mindestens 44 px */
+@media (max-width: 359px) { .seg-b, .ks-seg-b, .kal-seg-b { min-width: var(--tap); } }
+/* Datumswürfel: Höhe in em, Zeilenhöhe ohne Einheit; bei 100 % genau die
+   bisherigen Pixel (12 px Grundgröße), bei großer Schrift wächst er mit */
+.wf { font-size: 12px; }
+.wf-wd, .wf-mon { line-height: 1; }
+.wf-hero  { height: 5.5em; }            /* 66 px */
+.wf-karte { height: 4.6667em; }         /* 56 px */
+.wf-klein { height: 4.6667em; }         /* 56 px */
+.tk-kopf.is-training .wf-karte, .tk-kopf.is-sonstiges .wf-karte { height: 4.8333em; }   /* 58 px */
+.wf-hero  .wf-day { line-height: 1; margin: .1154em 0; }   /* 3 px bei 26 px */
+.wf-karte .wf-day { line-height: 1; margin: .0909em 0; }   /* 2 px bei 22 px */
+.wf-klein .wf-day { line-height: 1; margin: .1053em 0; }   /* 2 px bei 19 px */

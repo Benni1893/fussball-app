@@ -33,6 +33,7 @@
 
    Aufruf: node .design-sync/shots/geraetematrix.mjs [variante ...]
            GM_PROFIL=admin,trainer  GM_BREITEN=320,390  GM_SCHRIFT=100,130
+           GM_ZUSTAENDE=kalender,kasse/pruefen (genaue Schlüssel, Teillauf)
    Ausgabe: .design-sync/geraetematrix/ergebnis-<variante>.json
             .design-sync/geraetematrix/befunde/<variante>/... (Bilder)      */
 import fs from 'node:fs';
@@ -45,6 +46,8 @@ import { kandidatenImBrowser } from './landkarte.mjs';
 
 const ZIEL = '.design-sync/geraetematrix';
 const SCHRIFTEN = path.join(ZIEL, 'schriften');
+// Teilläufe: GM_AUSGABE=<unterordner> schreibt Ergebnisse und Bilder dorthin
+const AUSGABE = process.env.GM_AUSGABE ? path.join(ZIEL, process.env.GM_AUSGABE) : ZIEL;
 const RUHE_MS = 450;
 
 export const GERAETE = [
@@ -350,13 +353,17 @@ function pruefeImBrowser({ oben, sa, ausloeserSel }) {
     // Verweis im Fließtext ist ausgenommen (WCAG 2.5.8 „inline“)
     if (el.tagName === 'A' && cs(el).display === 'inline' && el.parentElement && el.parentElement.textContent.trim().length > el.textContent.trim().length + 10) continue;
     const cx = (r.left + r.right) / 2, cy = (r.top + r.bottom) / 2;
+    /* Prüfpunkt auf einer fremden fixen oder klebenden Fläche (Nav, Kopf, Blattfuß):
+       das liegt an der Scrollposition, nicht am Element - zählt nicht. Fixe Ebenen,
+       die das Element selbst enthalten (Blatt, Fenster), zählen weiter. */
+    const fremdeLeiste = (t, el) => { for (let e = t; e && e.nodeType === 1; e = e.parentElement) { const p = cs(e).position; if ((p === 'fixed' || p === 'sticky') && !e.contains(el)) return true; } return false; };
     const gehoert = (t) => t && (t === el || el.contains(t) || (el.labels && [...el.labels].some((l) => l.contains(t))) || (t.closest('label') && t.closest('label').contains(el)));
     const fehlt = [];
     for (const [dx, dy, n] of [[-21.5, 0, 'links'], [21.5, 0, 'rechts'], [0, -21.5, 'oben'], [0, 21.5, 'unten']]) {
       const x = cx + dx, y = cy + dy;
       if (x < 0 || x >= W || y < 0 || y >= H) continue;
       const t = document.elementFromPoint(x, y);
-      if (!gehoert(t)) fehlt.push(n);
+      if (!gehoert(t) && !fremdeLeiste(t, el)) fehlt.push(n);
     }
     if (fehlt.length) {
       befunde.push({ typ: 'treffer', el: pfad(el), text: txt(el), detail: Math.round(r.width) + '×' + Math.round(r.height) + ', zu klein ' + fehlt.join('/') });
@@ -519,7 +526,7 @@ async function laufeProfil({ browser, basis, variante, profil, knoten, breiten, 
           const befunde = await page.evaluate(pruefeImBrowser, { oben: z.oben, sa, ausloeserSel });
           let bild = null;
           if (befunde.length && mitBildern) {
-            const dir = path.join(ZIEL, 'befunde', variante, profil);
+            const dir = path.join(AUSGABE, 'befunde', variante, profil);
             fs.mkdirSync(dir, { recursive: true });
             bild = path.join(dir, `${n.schluessel.replace(/[^a-zA-Z0-9_.-]/g, '_')}-${g.b}-${gr}.png`);
             await page.addStyleTag({ content: '[data-gm-mark]{outline:2px solid #e000e0 !important;outline-offset:-1px !important}' }).catch(() => {});
@@ -553,7 +560,7 @@ export async function laufeVariante(variante, opts = {}) {
   const t0 = Date.now();
   const { server, basis } = await starte(process.cwd());
   const browser = v.engine === 'webkit' ? await webkit.launch() : await chromium.launch({ channel: 'chrome' });
-  if (opts.mitBildern !== false) fs.rmSync(path.join(ZIEL, 'befunde', variante), { recursive: true, force: true });
+  if (opts.mitBildern !== false) fs.rmSync(path.join(AUSGABE, 'befunde', variante), { recursive: true, force: true });
   const log = opts.log || ((s) => console.log(s));
   const parallel = opts.parallel || 3;
   const warteschlange = [...profile];
@@ -561,7 +568,7 @@ export async function laufeVariante(variante, opts = {}) {
   await Promise.all(Array.from({ length: Math.min(parallel, profile.length) }, async () => {
     while (warteschlange.length) {
       const p = warteschlange.shift();
-      const knoten = lk.profile[p].knoten.filter((n) => n.ansicht !== 'dialog' && (!opts.nur || opts.nur.some((x) => n.schluessel.includes(x))));
+      const knoten = lk.profile[p].knoten.filter((n) => n.ansicht !== 'dialog' && (!opts.nur || opts.nur.some((x) => n.schluessel.includes(x))) && (!opts.genau || opts.genau.includes(n.schluessel)));
       const t = Date.now();
       res.push(await laufeProfil({ browser, basis, variante, profil: p, knoten, breiten, schriften, schriftBytes, mitBildern: opts.mitBildern !== false, log }));
       log(`  ${variante} ${p}: ${knoten.length} Zustände, ${Math.round((Date.now() - t) / 1000)} s`);
@@ -583,12 +590,13 @@ if (istHaupt) {
     breiten: process.env.GM_BREITEN ? process.env.GM_BREITEN.split(',').map(Number) : undefined,
     schriften: process.env.GM_SCHRIFT ? process.env.GM_SCHRIFT.split(',').map(Number) : undefined,
     nur: process.env.GM_NUR ? process.env.GM_NUR.split(',') : undefined,
+    genau: process.env.GM_ZUSTAENDE ? process.env.GM_ZUSTAENDE.split(',') : undefined,
     parallel: Number(process.env.GM_PARALLEL || 3),
   };
-  fs.mkdirSync(ZIEL, { recursive: true });
+  fs.mkdirSync(AUSGABE, { recursive: true });
   for (const v of varianten) {
     const json = await laufeVariante(v, opts);
-    const datei = path.join(ZIEL, `ergebnis-${v}.json`);
+    const datei = path.join(AUSGABE, `ergebnis-${v}.json`);
     fs.writeFileSync(datei, JSON.stringify(json, null, 1) + '\n');
     const alle = json.profile.flatMap((p) => p.ergebnisse);
     const nach = {};

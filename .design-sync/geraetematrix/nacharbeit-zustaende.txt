@@ -1,0 +1,1 @@
+kalender,kasse/pruefen,trainer/spiel,dashboard+rsvpSheet+shareModal,dashboard+terminModal,einstellungen/kalender,katalog+katBlatt,rollen-verwalten,trainer,einstellungen/pushtext/termin_neu,kalender+rsvpSheet+shareModal,trainer+rsvpSheet+shareModal,dashboard,strafen,kader+statusBlatt
