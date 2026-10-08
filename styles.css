@@ -3945,3 +3945,54 @@ button.ein-wertzeile { cursor: pointer; }
 .ein-schalter-s.is-rot { color: var(--red-700); }
 .btn.diag-bericht { margin-top: 10px; }
 .ein-fuss-mitte span { display: inline; }
+
+/* ===== GERÄTEMATRIX (08.10.2026): Breiten 320 bis 430 px, Schrift 130 % =====
+   Befunde aus .design-sync/shots/geraetematrix.mjs. Bei 390 px und 100 %
+   ändert sich nichts (Messung gegen die Vorlage bleibt grün).            */
+/* Knöpfe und Felder erben die App-Schrift (Safari setzt sonst die Systemschrift) */
+button, input, select, textarea { font-family: inherit; }
+/* Bottom-Nav: lange Beschriftung kürzen statt über den Rand laufen */
+.nav-label { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Segmente: unter 360 px nach Inhalt verteilen, damit „Sonstiges“ und „Gemeldet 2“ passen */
+@media (max-width: 359px) {
+  .seg-b, .ks-seg-b, .kal-seg-b { flex: 1 1 auto; padding-left: 4px; padding-right: 4px; }
+  .ks-seg-n { margin-left: 4px; min-width: 20px; padding: 0 5px; }
+}
+/* Zahlart-Chips: jede Spalte mindestens so breit wie ihr Wort */
+.zart-row { grid-template-columns: repeat(3, minmax(max-content, 1fr)); }
+/* Beschriftungsspalten fester Breite wachsen mit einem langen Wort */
+.tf-l, .pr-l { min-width: min-content; }
+/* Kader-Kennzahl: die Zahl bleibt immer sichtbar, das Wort wird gekürzt */
+.kad-kpi .kpi-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kad-kpi .kpi-value { flex: none; }
+/* Formular im Blatt: die Liste schrumpft nicht, das Blatt scrollt */
+.tf-liste { flex-shrink: 0; }
+/* Eingabefeld füllt die ganze Zeile (Trefferfläche 52 statt 20 px) */
+.tf-z > input.tf-in { align-self: stretch; }
+/* Kurzes Uhrzeitfeld („Ende“) mindestens 44 px breit */
+.tf-rechts .tf-nat { min-width: 44px; justify-content: flex-end; }
+/* Formationspillen: die 44-px-Trefferfläche nicht vom Scrollbereich kappen */
+.tv-formbar { padding-top: 3px; padding-bottom: 3px; margin-top: 11px; margin-bottom: 9px; }
+/* Name in Zeilen kürzt sich auch bei linksbündiger Spalte */
+.tv-krow .row-t, .ks-zeile .row-t { max-width: 100%; }
+/* Meldeschluss darf in die nächste Zeile rutschen */
+.tk-rueck-kopf { flex-wrap: wrap; row-gap: 2px; }
+/* Spielplan BFV: Wert kürzen statt Beschriftung überdecken */
+.ein-gruppe-gross > .ein-wertzeile:has(> .ein-zeit-wert) .ein-schalter-main { min-width: min-content; }
+.ein-gruppe-gross > .ein-wertzeile .ein-zeit-wert { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Rollen: feste Rollenspalten (48 px, Trefferflächen überlappen nicht), Name und E-Mail gekürzt;
+   vorher schob die E-Mail die Spalten Kassenwart und Admin aus der Karte */
+.rollen-tbl { table-layout: fixed; }
+.rollen-tbl th:not(:first-child) { width: 48px; padding-left: 0; padding-right: 0; }
+.rollen-tbl td:not(:first-child) { padding-left: 0; padding-right: 0; text-align: center; }
+.rollen-tbl .player-cell > div { flex: 1 1 auto; min-width: 0; }
+.rollen-name, .rollen-mail { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Seitenkopf mit Verweis („+ Strafe“): bei großer Schrift unter den Titel statt über den Rand */
+.page-head.h1row { flex-wrap: wrap; }
+.page-head.h1row .kal-plus { white-space: nowrap; }
+/* Bank-Blatt ohne Fußzeile: Abstand für die Home-Leiste */
+.tv-ksheet .tv-shbody:has(+ .tv-kfuss:empty) { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+/* Schließen-Knopf im Teilen-Fenster: volle 44 px */
+.modal-x { min-width: 44px; min-height: 44px; }
+/* Schließen im Blatt bleibt 44 px breit, auch neben langem Titel */
+.tv-shx { flex: none; }

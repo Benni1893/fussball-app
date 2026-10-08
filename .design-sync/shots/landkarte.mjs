@@ -42,7 +42,7 @@ const slug = (s) => (s || '').toLowerCase().replace(/ä/g, 'ae').replace(/ö/g, 
 /* Läuft im Browser: sichtbare Auslöser im aktuellen Zustand.
    Ist eine Überlagerung offen, zählt nur, was in der obersten liegt.
    Geschlossene Überlagerungen und unsichtbare Elemente zählen nicht.   */
-function kandidatenImBrowser({ ausloeser, ueberlagerungen, oben, istStart, nurArt, nurWert }) {
+export function kandidatenImBrowser({ ausloeser, ueberlagerungen, oben, istStart, nurArt, nurWert }) {
   const offen = new Set(oben);
   const zu = ueberlagerungen.map((u) => document.getElementById(u.id)).filter((el) => el && !offen.has(el.id));
   const bereich = oben.length ? document.getElementById(oben[oben.length - 1]) : document;

@@ -23,7 +23,11 @@ const css = fs.readFileSync('styles.css', 'utf8');
 // Wie die App schreibt: das schmale Leerzeichen vor dem Euro wird ein normales.
 const euroTxt = (n) => n.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' }).replace(/\s/g, ' ');
 
-const M = ladeKasse();
+/* Seit der Gerätematrix (08.10.2026) behält die App das geschützte Leerzeichen in
+   Beträgen und Daten (U+00A0 statt Leerzeichen), damit sie nicht umbrechen. Für die
+   Textvergleiche zählt es als normales Leerzeichen. */
+const nb = (x) => (typeof x === 'string' ? x.replace(new RegExp(String.fromCharCode(0xa0), 'g'), ' ') : x);
+const M = new Proxy(ladeKasse(), { get: (t, k) => (typeof t[k] === 'function' ? (...a) => nb(t[k](...a)) : t[k]) });
 M.setDaten(SPIELER_BY_ID, { katalog: KATALOG, strafen: [], players: SPIELER });
 const DATEN = beispielDaten();
 const frisch = () => {

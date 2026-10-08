@@ -54,3 +54,10 @@ node_modules/
 
 # Lokale Claude-Rechte (nie committen)
 .claude/settings.local.json
+
+# Gerätematrix: Schriften und Befundbilder lokal (geraetematrix.mjs)
+.design-sync/geraetematrix/schriften/
+.design-sync/geraetematrix/befunde/
+.design-sync/geraetematrix/runde*/
+.design-sync/geraetematrix/lauf*.log
+.design-sync/geraetematrix/kontaktbogen/

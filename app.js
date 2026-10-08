@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-07-D";
+  var APP_BUILD = "2026-10-08-A";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -599,7 +599,7 @@
         const sp = offeneElf[0];
         zeilen.push({
           art: "lineup", zahl: offeneElf.length, titel: "Elf aufstellen",
-          sub: fmtWd(sp.datum) + " " + fmtDay(sp.datum) + ". " + fmtMon(sp.datum) + " · " + esc(sp.gegner || sp.titel),
+          sub: fmtWd(sp.datum) + " " + fmtDay(sp.datum) + ".\u00a0" + fmtMon(sp.datum) + " · " + esc(sp.gegner || sp.titel),
           attr: 'data-lineup-edit="' + sp.id + '"',
         });
       }
@@ -611,7 +611,7 @@
   }
   // Kurzbezeichnung eines Termins fuer die Unterzeile der Aufgabenliste.
   function eventKurz(e) {
-    const wann = fmtWd(e.datum) + " " + fmtDay(e.datum) + ". " + fmtMon(e.datum);
+    const wann = fmtWd(e.datum) + " " + fmtDay(e.datum) + ".\u00a0" + fmtMon(e.datum);
     if (e.typ === "spiel") return wann + " · " + (e.heim ? "vs. " : "@ ") + esc(e.gegner || e.titel);
     return wann + " · " + esc(e.titel);
   }
@@ -739,8 +739,8 @@
     const kpi = (k, label, cls) => '<div class="kpi kad-kpi ' + cls + '"><span class="kpi-label">' + label + '</span><span class="kpi-value">' + zahl[k] + '</span></div>';
     const zeile = (p) => {
       const neben = istFit(p) ? "" : [p.statusNote ? esc(p.statusNote) : "",
-        p.statusSince ? "seit " + fmtDay(p.statusSince) + ". " + fmtMon(p.statusSince) : "",
-        p.statusUntil ? "bis " + fmtDay(p.statusUntil) + ". " + fmtMon(p.statusUntil) : ""].filter(Boolean).join(" · ");
+        p.statusSince ? "seit " + fmtDay(p.statusSince) + ".\u00a0" + fmtMon(p.statusSince) : "",
+        p.statusUntil ? "bis " + fmtDay(p.statusUntil) + ".\u00a0" + fmtMon(p.statusUntil) : ""].filter(Boolean).join(" · ");
       return '<button class="row kad-row' + (neben ? " is-zwei" : "") + '" data-status-blatt="' + p.id + '" aria-label="Status von ' + esc(p.name) + ' ändern">' +
         '<span class="row-av">' + (neben ? esc(initials(p.name)) : '<span>' + esc(initials(p.name)) + '</span>') + '</span>' +
         '<span class="row-main"><span class="row-t">' + esc(p.name) + '</span>' + (neben ? '<span class="row-s">' + neben + '</span>' : "") + '</span>' +
@@ -2775,7 +2775,7 @@
                   : r.status === "ab" ? ["Abgesagt", ""] : ["Offen", "is-rot"];
     const spiel = e.typ === "spiel";
     const titel = spiel ? esc(e.gegner || e.titel) : esc(e.titel);
-    const zeit = e.zeit ? esc(e.zeit) + " Uhr" : "ganztägig";
+    const zeit = e.zeit ? esc(e.zeit) + "\u00a0Uhr" : "ganztägig";
     const neben = spiel
       ? "Spiel · " + zeit + (e.heim != null ? " · " + (e.heim ? "Heim" : "Auswärts") : "")
       : e.typ === "sonstiges" ? "Sonstiges · " + zeit : zeit;
@@ -2810,7 +2810,7 @@
   // "19:30 bis 21:00 Uhr", "13:30 Uhr · Treffen 12:45", "ganztägig"
   function zeitText(e) {
     if (!e.zeit) return "ganztägig";
-    const z = esc(e.zeit) + (e.ende ? " bis " + esc(e.ende) : "") + " Uhr";
+    const z = esc(e.zeit) + (e.ende ? " bis " + esc(e.ende) : "") + "\u00a0Uhr";
     return z + (e.treffen ? " · Treffen " + esc(e.treffen) : "");
   }
 
@@ -3848,7 +3848,7 @@
     const formOpt = Object.keys(FORMATIONS).map((f) =>
       `<option value="${f}" ${f === lb.formation ? "selected" : ""}>${f}</option>`).join("");
     const gameLine = ev
-      ? `${fmtDay(ev.datum)}. ${fmtMon(ev.datum)}${ev.zeit ? " · " + ev.zeit + " Uhr" : ""} · ${ev.heim ? "vs." : "@"} ${esc(ev.gegner || ev.titel)}`
+      ? `${fmtDay(ev.datum)}.\u00a0${fmtMon(ev.datum)}${ev.zeit ? " · " + ev.zeit + " Uhr" : ""} · ${ev.heim ? "vs." : "@"} ${esc(ev.gegner || ev.titel)}`
       : "Kein Spiel gewählt";
     const chip = aktiv
       ? `<span class="lu2-chip is-on">● Aktiv: ${esc(aktiv.name)}</span>`
@@ -4089,7 +4089,7 @@
     const varianten = (DEMO.lineups || []).filter((l) => l.eventId === lb.eventId && !l.isTemplate);
     const vorlagen  = (DEMO.lineups || []).filter((l) => l.isTemplate);
     const evOpt = spiele.map((e) =>
-      `<option value="${e.id}" ${e.id === lb.eventId ? "selected" : ""}>${fmtDay(e.datum)}. ${fmtMon(e.datum)} · ${e.heim ? "vs." : "@"} ${esc(e.gegner || e.titel)}</option>`).join("");
+      `<option value="${e.id}" ${e.id === lb.eventId ? "selected" : ""}>${fmtDay(e.datum)}.\u00a0${fmtMon(e.datum)} · ${e.heim ? "vs." : "@"} ${esc(e.gegner || e.titel)}</option>`).join("");
     const varOpt = `<option value="new" ${!lb.lineupId ? "selected" : ""}>Neue Aufstellung</option>` +
       varianten.map((l) => `<option value="${l.id}" ${l.id === lb.lineupId ? "selected" : ""}>${esc(l.name)}${l.isActive ? " (aktiv)" : ""}</option>`).join("");
     const tplOpt = `<option value="">Vorlage wählen …</option>` +
@@ -4218,7 +4218,7 @@
   function tvNextHtml(e) {
     const z = rueckZahlen(e);
     const pz = z.gesamt ? (z.zu / z.gesamt) * 100 : 0, pa = z.gesamt ? (z.ab / z.gesamt) * 100 : 0;
-    const meta = (e.zeit ? esc(e.zeit) + " Uhr · " : "") + anpfiffText(e.datum);
+    const meta = (e.zeit ? esc(e.zeit) + "\u00a0Uhr · " : "") + anpfiffText(e.datum);
     const oben = "Nächstes Spiel" + (e.heim == null ? "" : " · " + (e.heim ? "Heim" : "Auswärts"));
     return '<div class="card tv-next">' +
       '<div class="tk-kopf is-hero is-gold tv-next-kopf"><div class="tk-kopfzeile">' +
@@ -4317,7 +4317,7 @@
     if (!l.updatedAt) return "Vorlage";
     const d = new Date(l.updatedAt);
     if (isNaN(d)) return "Vorlage";
-    return "geändert " + d.getDate() + ". " + MON[d.getMonth()];
+    return "geändert " + d.getDate() + ".\u00a0" + MON[d.getMonth()];
   }
   async function tvSaveTemplate() {
     const nm = window.prompt("Name der Vorlage:", tv.formation + " Standard");
@@ -4991,8 +4991,8 @@
      Bearbeitende (ganze Kachel oeffnet das Blatt). Spieler: nur Ansicht. */
   function katRowView(k, canEdit) {
     const staffel = k.typ === "staffel";
-    const amt = euro(staffel ? (k.proEinheit || 0) : k.betrag).replace(/\s/g, " ");
-    const unten = staffel ? ["je " + (k.schritt || 1) + " " + esc(k.einheit || ""), k.maxBetrag != null ? "max " + euro(k.maxBetrag).replace(/\s/g, " ") : ""].filter(Boolean).join(" · ") : "";
+    const amt = euro(staffel ? (k.proEinheit || 0) : k.betrag);
+    const unten = staffel ? ["je " + (k.schritt || 1) + " " + esc(k.einheit || ""), k.maxBetrag != null ? "max " + euro(k.maxBetrag) : ""].filter(Boolean).join(" · ") : "";
     const inhalt = '<span class="kat-main"><span class="kat-name">' + esc(k.vergehen) + '</span>' + (unten ? '<span class="kat-sub">' + unten + '</span>' : "") + '</span>' +
       '<span class="kat-amount">' + amt + '</span>';
     return canEdit
@@ -5159,7 +5159,7 @@
       '<button class="tv-shx" data-zm-close aria-label="Schließen">&times;</button></div>' +
       '<div class="tv-shbody">' +
         '<div class="ks-bl-sum"><div class="ks-bl-top"><span class="ks-bl-n">Offener Betrag</span>' +
-        '<span class="ks-bl-b num">' + euro(offen).replace(/\s/g, " ") + '</span></div>' +
+        '<span class="ks-bl-b num">' + euro(offen) + '</span></div>' +
         '<div class="ks-bl-s">' + anzahl + (anzahl === 1 ? " Strafe" : " Strafen") + ' werden als gemeldet markiert.</div></div>' +
         '<div class="lbl ks-bl-lbl">Zahlart</div>' +
         '<div class="zart-row">' + chips + '</div>' +
@@ -5220,7 +5220,7 @@
     const chips = [["offen", "Offen"], ["gemeldet", "Gemeldet"], ["bezahlt", "Bezahlt"]];
     const betragKl = (x) => x.st === "offen" ? "is-rot" : x.st === "gemeldet" ? "is-amber" : "is-gruen";
     const zeile = (x) => {
-      const datum = fmtDay(x.datum) + ". " + fmtMon(x.datum) + (x.auto ? " · automatisch" : "");
+      const datum = fmtDay(x.datum) + ".\u00a0" + fmtMon(x.datum) + (x.auto ? " · automatisch" : "");
       const grund = x.st === "offen" && x.ablehnGrund ? '<span class="row-s is-rot">Abgelehnt: ' + esc(x.ablehnGrund) + '</span>' : "";
       return seg === "ich"
         ? '<div class="row kt-row"><span class="row-main"><span class="row-t">' + esc(vergehenName(x)) + '</span>' +
@@ -5240,8 +5240,8 @@
       </div>
       ${seg === "ich" ? kontoBlockHtml() : `
       <div class="kt-kacheln">
-        <div class="kpi kt-kpi is-rot"><span class="kpi-label">Offen</span><span class="kpi-value">${euro(summe("offen")).replace(/\s/g, " ")}</span></div>
-        <div class="kpi kt-kpi is-gruen"><span class="kpi-label">In der Kasse</span><span class="kpi-value">${euro(summe("bestätigt")).replace(/\s/g, " ")}</span></div>
+        <div class="kpi kt-kpi is-rot"><span class="kpi-label">Offen</span><span class="kpi-value">${euro(summe("offen"))}</span></div>
+        <div class="kpi kt-kpi is-gruen"><span class="kpi-label">In der Kasse</span><span class="kpi-value">${euro(summe("bestätigt"))}</span></div>
       </div>`}
       <div class="kt-chips">
         ${chips.map(([k, l]) => `<button class="chip kt-chip${strafenFilter === k ? " is-active" : ""}" data-sfilter="${k}" aria-pressed="${strafenFilter === k}">${l} ${anz(stKey[k])}</button>`).join("")}
@@ -5338,7 +5338,7 @@
     const wer = nSp === 1 ? namen[0] : nSp + " Spieler";
     const n = b.entries;
     return `<div class="kasse-sum ks-sum"><span>${n === 1 ? "1 Strafe" : n + " Strafen"} für ${esc(wer)}</span>
-        <b>${euro(b.total).replace(/\s/g, " ")}</b></div>`;
+        <b>${euro(b.total)}</b></div>`;
   }
 
   /* Eine Zeile des Audit-Verlaufs. Der Verlauf selbst steht seit dem neuen
@@ -5378,7 +5378,7 @@
     const wann = s.gemeldetAm ? fmtGemeldet(s.gemeldetAm) : "";
     const meta = [art, wann ? "gemeldet " + wann : ""].filter(Boolean).join(" · ");
     return `
-      <div class="group-head ks-stapelkopf"><h2>${i + 1} von ${sorted.length} · ${euro(summe).replace(/\s/g, " ")}</h2>
+      <div class="group-head ks-stapelkopf"><h2>${i + 1} von ${sorted.length} · ${euro(summe)}</h2>
         ${sorted.length > 1 ? `<button class="link-btn" data-kasse-confirm-all>Alle bestätigen</button>` : ""}</div>
       <div class="ks-deck${sorted.length > 1 ? " is-stapel" : ""}">
         ${sorted.length > 2 ? '<div class="ks-geist is-2" aria-hidden="true"></div>' : ""}${sorted.length > 1 ? '<div class="ks-geist is-1" aria-hidden="true"></div>' : ""}
@@ -5386,7 +5386,7 @@
           <span class="avatar ks-av">${initials(s.player.name)}</span>
           <div class="ks-name">${esc(s.player.name)}</div>
           <div class="ks-grund">${esc(vergehenName(s))}</div>
-          <div class="ks-amt">${euro(s.betrag).replace(/\s/g, " ")}</div>
+          <div class="ks-amt">${euro(s.betrag)}</div>
           ${meta ? `<div class="ks-meta">${zartIconHtml(s.sagtZahlart)}<span>${esc(meta)}</span></div>` : ""}
           ${s.sagtNote ? `<div class="ks-zitat">„${esc(s.sagtNote)}"</div>` : ""}
           <div class="ks-actions">
@@ -5421,12 +5421,12 @@
     const gruppen = ksOffenNachSpieler(list);
     const summe = list.reduce((a, x) => a + x.betrag, 0);
     return `<div class="ks-summe"><span class="ks-summe-l">${list.length} ${list.length === 1 ? "Strafe" : "Strafen"} · ${gruppen.length} Spieler</span>
-        <span class="ks-summe-b is-rot">${euro(summe).replace(/\s/g, " ")}</span></div>
+        <span class="ks-summe-b is-rot">${euro(summe)}</span></div>
       <div class="card ks-liste">${gruppen.map((g) => `<button type="button" class="row ks-zeile" data-ks-spieler="${g.playerId}" aria-label="${esc(g.player.name)} buchen">
           <span class="row-av"><span>${esc(initials(g.player.name))}</span></span>
           <span class="row-main"><span class="row-t">${esc(g.player.name)}</span>
-            <span class="row-s">${g.anzahl === 1 ? "1 Strafe · " + fmtDay(g.aelteste) + ". " + fmtMon(g.aelteste) : g.anzahl + " Strafen · älteste " + fmtDay(g.aelteste) + ". " + fmtMon(g.aelteste)}</span></span>
-          <span class="row-end ks-betrag is-rot">${euro(g.summe).replace(/\s/g, " ")}</span>
+            <span class="row-s">${g.anzahl === 1 ? "1 Strafe · " + fmtDay(g.aelteste) + ".\u00a0" + fmtMon(g.aelteste) : g.anzahl + " Strafen · älteste " + fmtDay(g.aelteste) + ".\u00a0" + fmtMon(g.aelteste)}</span></span>
+          <span class="row-end ks-betrag is-rot">${euro(g.summe)}</span>
           <span class="row-chev" aria-hidden="true">›</span></button>`).join("")}</div>`;
   }
 
@@ -5436,7 +5436,7 @@
     if (!list.length) return `<div class="card card-pad ks-leer"><div class="ks-leer-t">Noch keine Zahlungen</div><div class="rs">Bezahlte Strafen stehen hier.</div></div>`;
     const summe = list.reduce((a, x) => a + x.betrag, 0);
     return `<div class="ks-summe"><span class="ks-summe-l">${list.length} ${list.length === 1 ? "Zahlung" : "Zahlungen"}</span>
-        <span class="ks-summe-b is-gruen">${euro(summe).replace(/\s/g, " ")}</span></div>
+        <span class="ks-summe-b is-gruen">${euro(summe)}</span></div>
       <div class="card ks-liste ks-ein">${list.map((x) => {
       const art = x.zahlart ? (ZAHLART_LABEL[x.zahlart] || x.zahlart) : "";
       const wann = x.paidAt ? fmtKurz(String(x.paidAt).slice(0, 10)) : fmtKurz(x.datum);
@@ -5444,7 +5444,7 @@
         <span class="row-av"><span>${esc(initials(x.player.name))}</span></span>
         <span class="row-main"><span class="row-t">${esc(x.player.name)}</span>
           <span class="row-s">${[esc(art), wann].filter(Boolean).join(" · ")}</span></span>
-        <span class="row-end ks-betrag is-gruen">${euro(x.betrag).replace(/\s/g, " ")}</span>
+        <span class="row-end ks-betrag is-gruen">${euro(x.betrag)}</span>
       </button>`;
     }).join("")}</div>`;
   }
@@ -5523,9 +5523,9 @@
   function ksKatalogZeileHtml(k) {
     const on = !!kasse.items[k.id];
     const menge = (kasse.items[k.id] && kasse.items[k.id].menge) || 1;
-    const preis = euro(k.typ === "staffel" ? (k.proEinheit || 0) : k.betrag).replace(/\s/g, " ");
+    const preis = euro(k.typ === "staffel" ? (k.proEinheit || 0) : k.betrag);
     const neben = k.typ === "staffel"
-      ? ["je " + (k.schritt || 1) + " " + esc(k.einheit || ""), k.maxBetrag != null ? "max " + euro(k.maxBetrag).replace(/\s/g, " ") : ""].filter(Boolean).join(" · ")
+      ? ["je " + (k.schritt || 1) + " " + esc(k.einheit || ""), k.maxBetrag != null ? "max " + euro(k.maxBetrag) : ""].filter(Boolean).join(" · ")
       : "";
     return `<div class="kasse-catrow ks-katzeile${on ? " is-sel" : ""}" data-kat-zeile="${k.id}">
       <button type="button" class="kasse-catpick" data-kasse-catrow="${k.id}" role="checkbox" aria-checked="${on}">
@@ -5535,7 +5535,7 @@
       </button>
       ${on && k.typ === "staffel" ? `<div class="kasse-bezugwrap">
         <input class="kasse-in kasse-bezug" data-kasse-bezug="${k.id}" inputmode="decimal" placeholder="${esc(k.einheit || "Menge")}" value="${esc(kasse.bezug[k.id] || "")}">
-        ${k.maxBetrag != null ? `<span class="kasse-staffel-hint">max ${euro(k.maxBetrag).replace(/\s/g, " ")}</span>` : ""}
+        ${k.maxBetrag != null ? `<span class="kasse-staffel-hint">max ${euro(k.maxBetrag)}</span>` : ""}
       </div>` : ""}
       ${on && k.typ !== "staffel" ? `<div class="kasse-qty">
         <button type="button" class="qty-btn" data-kasse-qty="${k.id}" data-d="-1" aria-label="weniger">−</button>
@@ -6318,20 +6318,20 @@
     const art = ksBlatt.zahlart;
     const zeilen = liste.map((x) => {
       const an = ksBlatt.auswahl.has(x.id);
-      const neben = [fmtDay(x.datum) + ". " + fmtMon(x.datum), x.auto ? "automatisch" : "",
+      const neben = [fmtDay(x.datum) + ".\u00a0" + fmtMon(x.datum), x.auto ? "automatisch" : "",
         x.sagtZahlart ? "Spieler: " + esc(ZAHLART_LABEL[x.sagtZahlart] || x.sagtZahlart) : ""].filter(Boolean).join(" · ");
       return '<div class="row ks-bz" data-ks-wahl-id="' + x.id + '" role="checkbox" aria-checked="' + an + '" tabindex="0">' +
         '<span class="ks-box' + (an ? " is-an" : "") + '" aria-hidden="true">' + (an ? ICON_CHECK : "") + '</span>' +
         '<span class="row-main"><span class="row-t">' + esc(vergehenName(x)) + '</span><span class="row-s">' + neben + '</span>' +
           (x.ablehnGrund ? '<span class="row-s is-rot">Abgelehnt: ' + esc(x.ablehnGrund) + '</span>' : "") + '</span>' +
-        '<span class="row-end ks-bz-b">' + euro(x.betrag).replace(/\s/g, " ") + '</span>' +
+        '<span class="row-end ks-bz-b">' + euro(x.betrag) + '</span>' +
         '<button type="button" class="tk-menue ks-bz-menue" data-ks-zmenu="' + x.id + '" aria-label="Mehr zu ' + esc(vergehenName(x)) + '">' +
           '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg></button></div>';
     }).join("");
     return '<span class="tv-grip ks-grip"></span>' +
       '<div class="tv-sh ks-bl-kopf"><span class="row-av ks-bl-av">' + esc(initials(p.name)) + '</span>' +
         '<div class="tv-sh-text"><strong>' + esc(p.name) + '</strong><div class="tv-shsub">' +
-          (liste.length === 1 ? "1 offene Strafe" : liste.length + " offene Strafen") + ' · ' + euro(gesamt).replace(/\s/g, " ") + '</div></div>' +
+          (liste.length === 1 ? "1 offene Strafe" : liste.length + " offene Strafen") + ' · ' + euro(gesamt) + '</div></div>' +
         '<button class="tv-shx" data-ks-bl-close aria-label="Schließen">' + ICON_X + '</button></div>' +
       '<div class="tv-shbody ks-bl-body">' +
         (liste.length ? '<div class="card ks-bz-liste">' + zeilen + '</div>' : '<div class="empty">Keine offenen Strafen mehr.</div>') +
@@ -6339,7 +6339,7 @@
         '<div class="seg ks-buchart-seg" role="radiogroup" aria-label="Zahlart">' + KS_BUCH_ARTEN.map(([k, l]) =>
           '<button type="button" class="seg-b' + (art === k ? " is-on" : "") + '" data-ks-zart="' + k + '" aria-checked="' + (art === k) + '" role="radio">' + l + '</button>').join("") + '</div>' +
         (gewaehlt.length ? '<div class="ks-bz-sum"><span>' + (gewaehlt.length === 1 ? "1 Strafe" : gewaehlt.length + " Strafen") + ', ' +
-          esc((ZAHLART_LABEL[art] || art).replace(/^./, (c) => c.toLowerCase())) + '</span><b>' + euro(summe).replace(/\s/g, " ") + '</b></div>' : "") +
+          esc((ZAHLART_LABEL[art] || art).replace(/^./, (c) => c.toLowerCase())) + '</span><b>' + euro(summe) + '</b></div>' : "") +
         '<button class="btn btn-primary ks-bl-cta" data-ks-bl-buchen' + (gewaehlt.length ? "" : " disabled") + '>Als bezahlt buchen</button>' +
       '</div>';
   }
@@ -6366,7 +6366,7 @@
     if (!s) return;
     const kopf = "Strafe";
     const summe = `<div class="ks-bl-sum">
-        <div class="ks-bl-top"><span class="ks-bl-n">${esc(s.player.name)}</span><span class="ks-bl-b num">${euro(s.betrag).replace(/\s/g, " ")}</span></div>
+        <div class="ks-bl-top"><span class="ks-bl-n">${esc(s.player.name)}</span><span class="ks-bl-b num">${euro(s.betrag)}</span></div>
         <div class="ks-bl-s">${esc(vergehenName(s))} · ${fmtKurz(s.datum)}</div>
       </div>`;
     const body = summe +
