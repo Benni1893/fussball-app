@@ -613,6 +613,13 @@
         },
         {
           "von": "dashboard",
+          "art": "nav",
+          "wert": "kasse",
+          "text": "Mannschaftskasse, 37,00 € offen im Team",
+          "nach": "strafen"
+        },
+        {
+          "von": "dashboard",
           "art": "paid-self",
           "wert": null,
           "text": "Zahlung melden ›",
@@ -774,6 +781,7 @@
         "goto",
         "kseg",
         "logout",
+        "nav",
         "paid-self",
         "pw-aendern",
         "tab",
@@ -1913,7 +1921,7 @@
           "von": "dashboard",
           "art": "nav",
           "wert": "kasse",
-          "text": "Mannschaftskasseoffen im Team 37,00 €›",
+          "text": "Mannschaftskasse, 37,00 € offen im Team",
           "nach": "strafen"
         },
         {
@@ -2978,7 +2986,7 @@
           "von": "dashboard",
           "art": "nav",
           "wert": "kasse",
-          "text": "Mannschaftskasseoffen im Team 37,00 €›",
+          "text": "Mannschaftskasse, 37,00 € offen im Team",
           "nach": "strafen"
         },
         {
@@ -4759,7 +4767,7 @@
           "von": "dashboard",
           "art": "nav",
           "wert": "kasse",
-          "text": "Mannschaftskasseoffen im Team 37,00 €›",
+          "text": "Mannschaftskasse, 37,00 € offen im Team",
           "nach": "strafen"
         },
         {
@@ -6883,7 +6891,7 @@
           "von": "dashboard",
           "art": "nav",
           "wert": "kasse",
-          "text": "Mannschaftskasseoffen im Team 37,00 €›",
+          "text": "Mannschaftskasse, 37,00 € offen im Team",
           "nach": "strafen"
         },
         {

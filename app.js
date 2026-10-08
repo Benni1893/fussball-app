@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-09-A";
+  var APP_BUILD = "2026-10-09-B";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -668,20 +668,20 @@
     // Betrag; ist verknuepft und nichts offen, sagt das die gruene Zeile im
     // Aufgabenblock - eine Null-Zeile daneben waere leeres Gewicht.
     const eigenerBlock = (kontoVerknuepft && meinOffen > 0) ? kontoBlockHtml() : "";
-    // Mannschaftskasse (Trainer, Kassenwart): die Vorlage zeichnet sie nicht,
-    // sie bleibt als Zeile am Ende der Uebersicht.
-    const teamZeile = (trainer || Roles.canManageFines())
-      ? `<div class="card dn-liste geld-liste">
-          ${!kontoVerknuepft ? `<button class="row geld" data-nav="meine-strafen">
+    /* Kachel Mannschaftskasse (Nachschliff D1): alle Rollen, gleicher Inhalt.
+       Betrag 26/800 rot, bei 0,00 € grün; führt nach Konto › Mannschaft.
+       „Meine Strafen“ bleibt als eigene Zeile für Konten ohne Spielerzuordnung. */
+    const teamZeile = `${!kontoVerknuepft ? `<div class="card dn-liste geld-liste">
+          <button class="row geld" data-nav="meine-strafen">
             <span class="row-main"><span class="row-t">Meine Strafen</span></span>
             <span class="row-end num">${euro(meinOffen)}</span><span class="row-chev" aria-hidden="true">›</span>
-          </button>` : ""}
-          <button class="row geld" data-nav="kasse">
-            <span class="row-main"><span class="row-t">Mannschaftskasse</span><span class="row-s">offen im Team</span></span>
-            <span class="row-end num${teamOffen > 0 ? " is-warn" : ""}">${euro(teamOffen)}</span><span class="row-chev" aria-hidden="true">›</span>
           </button>
-        </div>`
-      : "";
+        </div>` : ""}
+        <button type="button" class="card kasse-kachel" data-nav="kasse" aria-label="Mannschaftskasse, ${esc(euro(teamOffen))} offen im Team">
+          <span class="kk-main"><span class="kk-betrag num${teamOffen > 0 ? "" : " is-null"}">${euro(teamOffen)}</span>
+            <span class="kk-text"><b>Mannschaftskasse</b> · offen im Team</span></span>
+          <span class="kk-chev" aria-hidden="true">›</span>
+        </button>`;
 
     viewEl.innerHTML = `
       <div class="page-head h1row">

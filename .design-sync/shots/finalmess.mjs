@@ -129,7 +129,9 @@ for (const name of wahl) {
     return c.toDataURL('image/png').split(',')[1];
   }, [sollB64, istPng.toString('base64'), hoehe]);
   fs.writeFileSync(path.join(VGL, name + '.png'), Buffer.from(vgl, 'base64'));
-  const v = nsRef || process.env.NS_REFERENZ ? vergleiche(soll, ist) : vergleiche(soll, ist, cfg.ausnahmen, cfg.erlaubt, cfg.versatz);
+  // Build-Kennung (z. B. 2026-10-09-A) ändert sich mit jedem Commit: in Nachschliff-Referenzen nicht vergleichen.
+  const ohneBuild = (j) => ({ ...j, elemente: j.elemente.filter((e) => !/^\d{4}-\d{2}-\d{2}-[A-Z]$/.test(e.text || "")) });
+  const v = nsRef || process.env.NS_REFERENZ ? vergleiche(ohneBuild(soll), ohneBuild(ist)) : vergleiche(soll, ist, cfg.ausnahmen, cfg.erlaubt, cfg.versatz);
   const bericht = await inst.bericht();
   const ohneText = nsRef ? [] : (cfg.ohneText || []);
   const gruen = v.befunde.length === 0 && v.fehlend.filter((t) => !ohneText.includes(t)).length === 0 && bericht.verstoesse.length === 0 && bericht.fehler.length === 0;

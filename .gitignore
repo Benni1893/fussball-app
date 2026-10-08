@@ -65,3 +65,6 @@ node_modules/
 
 # Nachschliff Oktober: iPhone-Screenshots der Vorlage nicht versionieren (Kopien von .design-sync/concepts/IMG_0688-0700)
 .design-sync/reference/app/nachschliff-2026-10/soll/ist/
+.design-sync/nachschliff-2026-10/soll/
+.design-sync/nachschliff-2026-10/ist/
+.design-sync/nachschliff-2026-10/vergleich/
