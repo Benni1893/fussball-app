@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-09-C";
+  var APP_BUILD = "2026-10-09-D";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -5052,28 +5052,42 @@
       ? '<button type="button" class="kat-item is-tap" data-kat-edit="' + k.id + '" aria-label="' + esc(k.vergehen) + ' bearbeiten">' + inhalt + '<span class="row-chev" aria-hidden="true">›</span></button>'
       : '<div class="kat-item">' + inhalt + '</div>';
   }
-  function katRowEdit(k) {
-    const id = k ? k.id : "new";
+  /* Blatt „Strafe bearbeiten / hinzufügen“ (Nachschliff D3, Muster für alle
+     Blätter): Griff, Titel 20/800, beschriftete Felder (Label 12/700, Feld 46),
+     Art als Segment Festbetrag | Staffel, bei Staffel je, Einheit und max im
+     selben Feldmuster darunter. Fuß Abbrechen | Speichern in zwei gleich
+     breiten Spalten; Löschen als roter Textknopf darunter (nur Bearbeiten).
+     Das Kreuz entfällt, Abbrechen übernimmt. */
+  const NSB_MUELL = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12.5A1.5 1.5 0 0 0 8.5 21h7a1.5 1.5 0 0 0 1.5-1.5L18 7M9 7V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V7"/></svg>';
+  function katBlattHtml(k) {
     const isStaffel = !!(k && k.typ === "staffel");
     const nm = (n) => (n == null ? "" : String(n).replace(".", ","));
-    return `<div class="kat-item kat-edit${isStaffel ? " is-staffel" : ""}">
-      <input class="kat-in kat-in-name" data-kat-input="name" type="text" placeholder="Bezeichnung" value="${esc(k ? k.vergehen : "")}">
-      <select class="kat-in kat-type" data-kat-type>
-        <option value="fixed"${!isStaffel ? " selected" : ""}>Festbetrag</option>
-        <option value="staffel"${isStaffel ? " selected" : ""}>Gestaffelt</option>
-      </select>
-      <div class="kat-fixed">
-        <input class="kat-in kat-in-amount" data-kat-input="amount" type="text" inputmode="decimal" placeholder="Betrag" value="${esc(isStaffel ? "" : nm(k ? k.betrag : null))}">
-        <span class="kat-eur">€</span>
-      </div>
-      <div class="kat-staffel">
-        <input class="kat-in" data-kat-input="proEinheit" inputmode="decimal" placeholder="Betrag je Schritt (€)" value="${esc(nm(k ? k.proEinheit : null))}">
-        <input class="kat-in" data-kat-input="schritt" inputmode="numeric" placeholder="je angefangene … (z. B. 5)" value="${esc(k && k.schritt != null ? String(k.schritt) : "")}">
-        <input class="kat-in" data-kat-input="einheit" type="text" placeholder="Einheit (z. B. Minuten)" value="${esc(k ? (k.einheit || "") : "")}">
-        <input class="kat-in" data-kat-input="maxBetrag" inputmode="decimal" placeholder="Höchstbetrag € (optional)" value="${esc(nm(k ? k.maxBetrag : null))}">
-      </div>
-    </div>`;
+    const betrag = k ? (isStaffel ? k.proEinheit : k.betrag) : null;
+    const feld = (label, inner, extra) => '<label class="nsb-feld' + (extra ? " " + extra : "") + '"><span class="nsb-l">' + label + '</span>' + inner + '</label>';
+    return `<div class="kat-blatt nsb" role="dialog" aria-modal="true" aria-label="${k ? "Strafe bearbeiten" : "Strafe hinzufügen"}">
+          <span class="nsb-griff" aria-hidden="true"></span>
+          <div class="nsb-titel"><span>${k ? "Strafe bearbeiten" : "Strafe hinzufügen"}</span></div>
+          <div class="nsb-felder kat-edit${isStaffel ? " is-staffel" : ""}">
+            ${feld("Bezeichnung", `<input class="nsb-in" data-kat-input="name" type="text" placeholder="z. B. Zu spät zum Training" value="${esc(k ? k.vergehen : "")}">`)}
+            <div class="nsb-feld"><span class="nsb-l" id="katArtL">Art</span>
+              <div class="nsb-seg" role="radiogroup" aria-labelledby="katArtL">
+                <button type="button" class="nsb-seg-b${!isStaffel ? " is-on" : ""}" role="radio" aria-checked="${!isStaffel}" data-kat-art="fixed">Festbetrag</button>
+                <button type="button" class="nsb-seg-b${isStaffel ? " is-on" : ""}" role="radio" aria-checked="${isStaffel}" data-kat-art="staffel">Staffel</button>
+              </div>
+              <input type="hidden" data-kat-type value="${isStaffel ? "staffel" : "fixed"}"></div>
+            ${feld("Betrag", `<span class="nsb-in nsb-eur"><input data-kat-input="amount" type="text" inputmode="decimal" placeholder="0,00" value="${esc(nm(betrag))}" aria-label="Betrag"><span aria-hidden="true">€</span></span>`)}
+            ${feld("je", `<input class="nsb-in" data-kat-input="schritt" inputmode="numeric" placeholder="z. B. 5" value="${esc(k && k.schritt != null ? String(k.schritt) : "")}">`, "kat-staffel")}
+            ${feld("Einheit", `<input class="nsb-in" data-kat-input="einheit" type="text" placeholder="z. B. Minuten" value="${esc(k ? (k.einheit || "") : "")}">`, "kat-staffel")}
+            ${feld("max", `<span class="nsb-in nsb-eur"><input data-kat-input="maxBetrag" inputmode="decimal" placeholder="optional" value="${esc(nm(k ? k.maxBetrag : null))}" aria-label="Höchstbetrag"><span aria-hidden="true">€</span></span>`, "kat-staffel")}
+          </div>
+          <div class="nsb-fuss">
+            <button type="button" class="btn nsb-sek" data-kat-cancel>Abbrechen</button>
+            <button type="button" class="btn btn-primary nsb-prim kat-speichern" data-kat-save="${k ? k.id : "new"}">Speichern</button>
+          </div>
+          ${k ? `<button type="button" class="nsb-del kat-del-btn" data-kat-del="${k.id}">${NSB_MUELL}<span>Strafe löschen</span></button>` : ""}
+        </div>`;
   }
+
   function renderKatalog() {
     const canEdit = Roles.canEditCatalog();
     const blatt = canEdit && katEdit != null;
@@ -5086,16 +5100,7 @@
       ${blatt ? `
       <div class="kat-blatt-ov" id="katBlatt">
         <button class="kat-blatt-hg" data-kat-cancel aria-label="Schließen"></button>
-        <div class="kat-blatt" role="dialog" aria-modal="true" aria-label="${k ? "Strafe bearbeiten" : "Strafe hinzufügen"}">
-          <div class="tf-kopf"><span class="tf-griff" aria-hidden="true"></span>
-            <div class="tf-kopfzeile"><span class="tf-titel">${k ? "Strafe bearbeiten" : "Strafe hinzufügen"}</span>
-              <button type="button" class="tf-x" data-kat-cancel aria-label="Schließen">${ICON_X}</button></div></div>
-          <div class="kat-blatt-body">
-            ${katRowEdit(k)}
-            <button class="btn btn-primary kat-speichern" data-kat-save="${k ? k.id : "new"}">Speichern</button>
-            ${k ? `<button class="btn btn-soft btn-danger kat-del-btn" data-kat-del="${k.id}">Löschen</button>` : ""}
-          </div>
-        </div>
+        ${katBlattHtml(k)}
       </div>` : ""}
     `;
     // Kein Autofokus beim Oeffnen (Konvention: keine Tastatur ohne Tipp).
@@ -6554,11 +6559,15 @@
       : '<button class="btn btn-primary" data-pkat-send="' + esc(k) + '" type="button"' + (fehler ? " disabled" : "") + '>An mich senden</button>';
   });
 
-  viewEl.addEventListener("change", (ev) => {
-    if (currentView === "katalog" && ev.target.matches("[data-kat-type]")) {
-      const row = ev.target.closest(".kat-edit");
-      if (row) row.classList.toggle("is-staffel", ev.target.value === "staffel");
-    }
+  // D3: Art als Segment; das versteckte Feld data-kat-type trägt den Wert für Speichern.
+  viewEl.addEventListener("click", (ev) => {
+    const b = currentView === "katalog" && ev.target.closest("[data-kat-art]");
+    if (!b) return;
+    const felder = b.closest(".kat-edit"), typ = b.dataset.katArt;
+    if (!felder) return;
+    felder.classList.toggle("is-staffel", typ === "staffel");
+    felder.querySelector("[data-kat-type]").value = typ;
+    felder.querySelectorAll("[data-kat-art]").forEach((x) => { const an = x === b; x.classList.toggle("is-on", an); x.setAttribute("aria-checked", String(an)); });
   });
   /* Die Karten in „Zu prüfen" und „Offen" sind antippbar, aber keine echten
      Knöpfe - sie enthalten selbst welche, und ein Knopf im Knopf ist kein
@@ -6988,7 +6997,7 @@
       if (!name) { window.alert("Bitte eine Bezeichnung eingeben."); return; }
       try {
         if (typ === "staffel") {
-          const proE = num(gv("proEinheit"));
+          const proE = num(gv("amount"));   // D3: ein Betragsfeld, bei Staffel je Schritt
           const schritt = parseInt(String(gv("schritt")).replace(/[^0-9]/g, ""), 10);
           const einheit = gv("einheit").trim();
           const maxRaw = String(gv("maxBetrag")).trim();

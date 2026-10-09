@@ -2,7 +2,7 @@
    Soll: .design-sync/reference/app/nachschliff-2026-10/soll/Nachschliff Oktober Final.dc.html
          (lokal gespiegelt). Je Element (D1 … D9) ein Rahmen und darin eine Wurzel.
    Ist:  App über den Landkarten-Stand-in bei 388 px (= Innenbreite der 390er Vorlagen-
-         Rahmen mit 1 px Rand), Maßstab 1; Wurzel per Selektor.
+         Rahmen mit border-box und 1 px Rand; Rahmen ohne border-box: breite 390), Maßstab 1.
    Verglichen werden alle Elemente mit eigenem Text, relativ zur linken oberen Ecke der
    Wurzel: Kanten (±1 px), Schriftgröße, -gewicht, Farbe und Laufweite (exakt).
    Zuordnung über den Text (Reihenfolge innerhalb gleicher Texte); abweichende Daten
@@ -89,7 +89,7 @@ for (const name of wahl) {
   // --- Ist
   const ctx = await neuerKontext(browser);
   await ctx.close();
-  const ictx = await browser.newContext({ viewport: { width: 388, height: cfg.hoehe || 844 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true,
+  const ictx = await browser.newContext({ viewport: { width: cfg.breite || 388, height: cfg.hoehe || 844 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true,
     locale: 'de-DE', timezoneId: 'Europe/Berlin', serviceWorkers: 'block' });
   const page = await ictx.newPage();
   const inst = await installiere(page, cfg.ist.profil, cfg.ist.daten ? { daten: cfg.ist.daten() } : undefined);

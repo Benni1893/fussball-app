@@ -24,4 +24,12 @@ export const NS_ELEMENTE = {
       vorbereitung: async (page) => { await page.click('.tk-kopf.is-training .tk-menue'); await page.waitForTimeout(300); } },
     ersetze: { 'Training · 6. Okt': 'Training · 8. Okt' },
   },
+  // D3: Blatt Strafe bearbeiten (Katalog, erste Strafe).
+  D3: {
+    soll: { figur: 'D3', rahmen: 0, wurzel: '(f) => f.children[2]' },
+    ist: { profil: 'admin', schluessel: 'katalog+katBlatt', wurzel: '#katBlatt .kat-blatt' },
+    hoehe: 900, breite: 390,
+    // Werte stehen in der App in Eingabefeldern (kein Textknoten)
+    ohne: ['Zu spät zum Spiel / Treffpunkt', '10,00'],
+  },
 };
