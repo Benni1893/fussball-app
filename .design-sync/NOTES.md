@@ -1099,7 +1099,7 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
 
 ## Prüfskripte: Pflichtliste und „nur mit Testkonto“ (Stand 05.10.2026)
 
-- **Pflichtliste (20)** — laufen ohne Anmeldung und müssen vor jedem Push grün
+- **Pflichtliste (21)** — laufen ohne Anmeldung und müssen vor jedem Push grün
   sein: `abopruef`, `buildpruef`, `deeplinkpruef`, `einpruef`, `icspruef`,
   `kachelpruef`, `kassepruef`, `katalogpruef`, `kopfpruef`, `meldeschlusspruef`,
   `p1pruef`, `p3pruef`, `p4pruef`, `prefspruef`, `pushpruef`, `swpruef`,
@@ -1118,7 +1118,10 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
   den Parser-Abschnitt aus `api/sync-bfv.js` und prüft ihn an Beispiel-Feeds
   (Heim/Auswärts, „II“ und „2“ als dieselbe Mannschaft, „III“ als andere,
   Sommer-/Winterzeit, LOCATION, gefaltete Zeilen), dazu dass Migration 0044 nur
-  künftige Termine absagt. Ohne Netz, ohne Datenbank.
+  künftige Termine absagt. Ohne Netz, ohne Datenbank. Seit 09.10.2026
+  (Nachschliff C1) als 21. Skript `statuspruef`: Mein Status in Übersicht und
+  Profil (Fit direkt, Blatt „Voraussichtlich bis“ für die anderen Status,
+  ein Aufruf mit Notiz und Datum, Abbrechen ohne Schreiben, „Ändern“).
 - **SQL-Prüfskripte** (`supabase/checks/*.sql`, nicht auf der Pflichtliste):
   laufen nach dem Einspielen einer Migration im SQL-Editor und ändern nichts.
   Jeder Fall läuft in einer Untertransaktion, die immer zurückgerollt wird;
