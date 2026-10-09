@@ -2938,7 +2938,7 @@
             "ksBl"
           ],
           "ueberschrift": "Kasse",
-          "titel": "Strafe",
+          "titel": null,
           "tiefe": 2,
           "pfad": [
             {
@@ -4313,7 +4313,7 @@
             "ksBl"
           ],
           "ueberschrift": "Kasse",
-          "titel": "Strafe",
+          "titel": null,
           "tiefe": 2,
           "pfad": [
             {
@@ -6514,7 +6514,7 @@
             "ksBl"
           ],
           "ueberschrift": "Kasse",
-          "titel": "Strafe",
+          "titel": null,
           "tiefe": 2,
           "pfad": [
             {

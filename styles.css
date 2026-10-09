@@ -4273,3 +4273,52 @@ body:has(.nsb-ov) .app-nav { visibility: hidden; }
 .tvb-zeigen { flex: none; min-height: var(--tap); display: flex; align-items: center; padding: 0; border: 0; background: none; font: inherit; font-size: 14px; font-weight: 600; color: var(--green-800); cursor: pointer; }
 .tvb-kreis { box-sizing: content-box; }
 .tvb-kreis.is-an { box-sizing: border-box; }
+/* E3 Kasse › Bezahlt · Blatt Strafe (Vorlage D9) */
+#ksBl:not(.ks-bl-spieler) { background: var(--card); }
+#ksBl:not(.ks-bl-spieler) > .nsb-griff { margin-top: 8px; }
+.ksd-kopf { flex: none; display: flex; align-items: center; gap: 12px; padding: 14px 16px 0; }
+.ksd-av { flex: none; width: var(--tap); height: var(--tap); border-radius: var(--radius-pill); background: var(--grad-av); box-shadow: var(--shadow-av);
+  display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: var(--green-800); }
+.ksd-kopf-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.ksd-name { font-size: 18px; font-weight: 800; letter-spacing: -.01em; color: var(--ink); }
+.ksd-sub { font-size: 14px; color: var(--muted); }
+#ksBl .ksd-body { padding: 0; }
+.ksd-feld { display: flex; align-items: center; gap: 12px; margin: 16px 16px 0; padding: 16px; border-radius: var(--radius); border: 1px solid var(--green-badge-line); background: var(--green-050); }
+.ksd-feld-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.ksd-betrag { font-size: 30px; font-weight: 800; letter-spacing: -.025em; line-height: 1.05; color: var(--green-800); font-variant-numeric: tabular-nums; }
+.ksd-zeile { font-size: 14px; color: var(--green-task-ink-2); }
+.ksd-pp { font-style: italic; font-weight: 800; color: var(--pp-blue); }
+.ksd-pp span { color: var(--pp-cyan); }
+.ksd-pille { flex: none; padding: 4px 10px; border-radius: var(--radius-pill); background: var(--card); border: 1px solid var(--green-badge-line); color: var(--green-800); font-size: 12px; font-weight: 700; }
+.ksd-feld.is-amber { background: var(--amber-050); border-color: var(--amber-line); }
+.ksd-feld.is-amber .ksd-betrag, .ksd-feld.is-amber .ksd-pille { color: var(--amber-ink); }
+.ksd-feld.is-amber .ksd-zeile { color: var(--amber-ink); }
+.ksd-feld.is-amber .ksd-pille { border-color: var(--amber-line); }
+.ksd-feld.is-rot { background: var(--red-050); border-color: var(--red-line); }
+.ksd-feld.is-rot .ksd-betrag, .ksd-feld.is-rot .ksd-pille { color: var(--red-700); }
+.ksd-feld.is-rot .ksd-zeile { color: var(--red-ink-2); }
+.ksd-feld.is-rot .ksd-pille { border-color: var(--red-line); }
+.ksd-feld.is-grau { background: var(--bg); border-color: var(--line); }
+.ksd-feld.is-grau .ksd-betrag, .ksd-feld.is-grau .ksd-pille, .ksd-feld.is-grau .ksd-zeile { color: var(--muted); }
+.ksd-feld.is-grau .ksd-pille { border-color: var(--line); }
+.ksd-notiz { margin: 10px 16px 0; font-size: 14px; color: var(--muted); }
+.ksd-gruppe { margin: 20px 16px 10px; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.ksd-verlauf { margin: 0 16px; display: flex; flex-direction: column; }
+.ksd-laedt { font-size: 13px; color: var(--muted); }
+.ksd-schritt { display: grid; grid-template-columns: 20px 1fr auto; gap: 10px; align-items: start; }
+.ksd-spur { display: flex; flex-direction: column; align-items: center; align-self: stretch; }
+.ksd-punkt { margin-top: 4px; width: 10px; height: 10px; border-radius: var(--radius-pill); background: var(--muted); }
+.ksd-punkt.is-rot { background: var(--red-600); }
+.ksd-punkt.is-amber { background: var(--amber-600); }
+.ksd-punkt.is-gruen { background: var(--green-600); }
+.ksd-schritt.is-letzter .ksd-punkt.is-gruen { box-shadow: 0 0 0 3px var(--green-050); }
+.ksd-linie { flex: 1; width: 2px; margin: 3px 0; background: var(--line); }
+.ksd-s-main { display: flex; flex-direction: column; padding-bottom: 14px; }
+.ksd-schritt.is-letzter .ksd-s-main { padding-bottom: 0; }
+.ksd-s-t { font-size: 15px; font-weight: 600; color: var(--ink); }
+.ksd-schritt.is-letzter .ksd-s-t { font-weight: 700; color: var(--green-800); }
+.ksd-s-d { font-size: 13px; color: var(--muted); }
+.ksd-s-z { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ksd-fuss { flex: none; margin-top: 20px; padding: 14px 16px calc(26px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); }
+.ksd-fuss .ksd-zurueck { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 50px; margin: 0; border-radius: var(--radius-md);
+  background: var(--grad-btn-sec); border: 1px solid var(--line-soft-3); box-shadow: var(--shadow-btn-sec); font-size: 16px; font-weight: 700; color: var(--red-700); }

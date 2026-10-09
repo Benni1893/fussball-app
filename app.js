@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-09-I";
+  var APP_BUILD = "2026-10-09-J";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -5548,12 +5548,6 @@
   /* Eine Zeile des Audit-Verlaufs. Der Verlauf selbst steht seit dem neuen
      Kassendesign im Detail-Blatt (ksBlattVerlauf), nicht mehr unter jeder
      Zeile - die Vorlage zeigt die Liste ohne Zusatzzeilen. */
-  function histLineHtml(h) {
-    const lab = (st) => (STATUS_META[st] && STATUS_META[st].label) || st || "neu";
-    const arrow = (h.from ? lab(h.from) : "angelegt") + " → " + lab(h.to);
-    const extra = [h.method ? (ZAHLART_LABEL[h.method] || h.method) : "", h.reason ? ("Grund: " + h.reason) : ""].filter(Boolean).join(" · ");
-    return `<div class="hist-line">${fmtTs(h.at)} · ${esc(arrow)}${extra ? " · " + esc(extra) : ""}</div>`;
-  }
 
   /* Die Angabe des Spielers (Migration 0040): Zahlart und freier Text. Sie
      ueberlebt eine Ablehnung bewusst - abgelehnt heisst, der Kassenwart
@@ -6569,25 +6563,60 @@
     sheet.classList.remove("ks-bl-spieler");
     const s = ksStrafeById(ksBlatt.id);
     if (!s) return;
-    const kopf = "Strafe";
-    const summe = `<div class="ks-bl-sum">
-        <div class="ks-bl-top"><span class="ks-bl-n">${esc(s.player.name)}</span><span class="ks-bl-b num">${euro(s.betrag)}</span></div>
-        <div class="ks-bl-s">${esc(vergehenName(s))} · ${fmtKurz(s.datum)}</div>
-      </div>`;
-    const body = summe +
-        ksSagtHtml(s) +
-        (s.ablehnGrund ? `<div class="fine-reason">Abgelehnt: ${esc(s.ablehnGrund)}</div>` : "") +
-        `<div class="lbl ks-bl-lbl">Verlauf</div>
-         <div class="fine-hist-body" id="ksBlHist"><div class="hist-line">lädt…</div></div>` +
-        (s.st === "bestätigt" ? `<button class="btn ks-bl-cta" data-ks-bl-unpay>Buchung rückgängig</button>` : "");
+    /* Blatt „Strafe“ (Nachschliff E3, Vorlage D9): Kopf mit Avatar, Name und
+       Strafe; Betragsfeld in der Statusfarbe mit Zahlweg und Pille (ersetzt den
+       gelben Hinweis); Zeitleiste aus fine_status_log; „Buchung rückgängig“
+       als Sekundärknopf in Rot. Titel „Strafe“ und Kreuz entfallen. */
+    const zw = (art) => art === "paypal" ? '<b class="ksd-pp">Pay<span>Pal</span></b>' : esc(ZAHLART_LABEL[art] || art || "");
+    const tag = (iso) => iso ? fmtKurz(String(iso).slice(0, 10)) : "";
+    const st = s.st;
+    const feld = st === "bestätigt"
+      ? { kl: "is-gruen", pille: "Eingegangen", zeile: (s.zahlart ? "gezahlt per " + zw(s.zahlart) : "gezahlt") + (s.paidAt ? " · " + tag(s.paidAt) : "") }
+      : st === "gemeldet"
+        ? { kl: "is-amber", pille: "Gemeldet", zeile: s.sagtZahlart ? "gemeldet per " + zw(s.sagtZahlart) : "vom Spieler gemeldet" }
+        : st === "storniert" ? { kl: "is-grau", pille: "Storniert", zeile: "storniert" }
+        : { kl: "is-rot", pille: "Offen", zeile: s.ablehnGrund ? "Abgelehnt: " + esc(s.ablehnGrund) : "noch nicht bezahlt" };
     sheet.innerHTML =
-      '<div class="tv-sh"><span class="tv-grip"></span><strong>' + esc(kopf) + '</strong>' +
-      '<button class="tv-shx" data-ks-bl-close aria-label="Schließen">&times;</button></div>' +
-      '<div class="tv-shbody">' + body + '</div>';
-    sheet.setAttribute("aria-label", kopf);
+      '<span class="nsb-griff" aria-hidden="true"></span>' +
+      '<div class="ksd-kopf"><span class="ksd-av">' + esc(initials(s.player.name)) + '</span>' +
+        '<span class="ksd-kopf-main"><span class="ksd-name">' + esc(s.player.name) + '</span><span class="ksd-sub">' + esc(vergehenName(s)) + ' · ' + fmtKurz(s.datum) + '</span></span></div>' +
+      '<div class="tv-shbody ksd-body">' +
+        '<div class="ksd-feld ' + feld.kl + '"><span class="ksd-feld-main"><span class="ksd-betrag">' + euro(s.betrag) + '</span>' +
+          '<span class="ksd-zeile">' + feld.zeile + '</span></span><span class="ksd-pille">' + feld.pille + '</span></div>' +
+        (s.sagtNote ? '<div class="ksd-notiz">Spieler: „' + esc(s.sagtNote) + '“</div>' : "") +
+        '<div class="ksd-gruppe">Verlauf</div>' +
+        '<div class="ksd-verlauf" id="ksBlHist"><div class="ksd-laedt">lädt…</div></div>' +
+      '</div>' +
+      (st === "bestätigt" ? '<div class="ksd-fuss"><button type="button" class="btn ksd-zurueck" data-ks-bl-unpay>' +
+        '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>' +
+        'Buchung rückgängig</button></div>' : "");
+    sheet.setAttribute("aria-label", "Strafe " + vergehenName(s));
     ksBlattVerlauf(s.id);
   }
-
+  /* Zeitleiste: ein Schritt je Statuswechsel. Punkt in der Statusfarbe,
+     Linie zum nächsten Schritt, der letzte Schritt hervorgehoben. */
+  function ksdSchritt(h) {
+    const art = h.method ? (ZAHLART_LABEL[h.method] || h.method) : "";
+    if (!h.from && h.to === "offen") return { t: "Angelegt", d: "offen", kl: "is-rot" };
+    if (h.to === "gemeldet") return { t: "Gemeldet", d: "Spieler meldet Zahlung", kl: "is-amber" };
+    if (h.to === "bestätigt") return { t: "Eingegangen", d: art || "bezahlt", kl: "is-gruen" };
+    if (h.to === "storniert") return { t: "Storniert", d: h.reason || "", kl: "is-grau" };
+    if (h.from === "gemeldet" && h.to === "offen") return { t: "Abgelehnt", d: h.reason || "wieder offen", kl: "is-rot" };
+    if (h.from === "bestätigt" && h.to === "offen") return { t: "Zurückgenommen", d: "wieder offen", kl: "is-rot" };
+    return { t: (STATUS_META[h.to] && STATUS_META[h.to].label) || h.to, d: art, kl: "is-grau" };
+  }
+  function ksdZeit(iso) {
+    try { const d = new Date(iso); if (isNaN(d)) return ""; return String(d.getDate()).padStart(2, "0") + "." + String(d.getMonth() + 1).padStart(2, "0") + ". · " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); }
+    catch (e) { return ""; }
+  }
+  function ksdVerlaufHtml(rows) {
+    return rows.map((h, i) => {
+      const x = ksdSchritt(h), letzter = i === rows.length - 1;
+      return '<div class="ksd-schritt' + (letzter ? " is-letzter" : "") + '"><span class="ksd-spur"><span class="ksd-punkt ' + x.kl + '"></span>' + (letzter ? "" : '<span class="ksd-linie"></span>') + '</span>' +
+        '<span class="ksd-s-main"><span class="ksd-s-t">' + esc(x.t) + '</span>' + (x.d ? '<span class="ksd-s-d">' + esc(x.d) + '</span>' : "") + '</span>' +
+        '<span class="ksd-s-z">' + ksdZeit(h.at) + '</span></div>';
+    }).join("");
+  }
   async function ksBlattVerlauf(id) {
     const box = document.getElementById("ksBlHist");
     if (!box) return;
@@ -6595,10 +6624,10 @@
       const rows = await DB.fineHistory(id);
       if (!document.getElementById("ksBlHist")) return;
       document.getElementById("ksBlHist").innerHTML =
-        rows.length ? rows.map(histLineHtml).join("") : `<div class="hist-line">Kein Verlauf.</div>`;
+        rows.length ? ksdVerlaufHtml(rows) : `<div class="ksd-laedt">Kein Verlauf.</div>`;
     } catch (e) {
       const b = document.getElementById("ksBlHist");
-      if (b) b.innerHTML = `<div class="hist-line">Verlauf nicht ladbar.</div>`;
+      if (b) b.innerHTML = `<div class="ksd-laedt">Verlauf nicht ladbar.</div>`;
     }
   }
 

@@ -9,6 +9,8 @@ import { daten } from './landkartenmodul.mjs';
 const kaderD6 = () => { const d = daten(); d.players.forEach((p) => Object.assign(p, p.id === 'p05' ? { status: 'verletzt' } : { status: 'fit', statusNote: null, statusUntil: null })); return d; };
 // Bank wie in der Vorlage D8: niemand im Urlaub (Fußzeile: auf dem Platz · verletzt)
 const bankD8 = () => { const d = daten(); d.players.forEach((p) => { if (p.status === 'urlaub') Object.assign(p, { status: 'fit', statusNote: null, statusUntil: null }); }); return d; };
+// Bezahlte Strafe wie in der Vorlage D9 (f03: gemeldet und per PayPal eingegangen)
+const strafeD9 = () => { const d = daten(); const x = d.strafen.find((y) => y.id === 'f03'); Object.assign(x, { vergehen: 'Rote Karte (unsportlich)', betrag: 22, datum: '2026-09-26', createdAt: '2026-09-26T19:48:00Z', gemeldetAm: '2026-09-28T14:42:00Z', paidAt: '2026-10-07T07:26:00Z', zahlart: 'paypal' }); return d; };
 // Eigener Spieler (p06) mit dem Status aus der Vorlage D4
 const mitStatus = () => { const d = daten(); const p = d.players.find((x) => x.id === 'p06'); Object.assign(p, { status: 'angeschlagen', statusNote: 'Wade zu', statusUntil: '2026-10-18', statusSince: '2026-10-01' }); return d; };
 
@@ -107,5 +109,12 @@ export const NS_ELEMENTE = {
     soll: { figur: 'D8', rahmen: 0, wurzel: '(f) => f.children[1].lastElementChild' },
     ist: { profil: 'admin', schluessel: 'trainer/spiel+tvSheetKader', wurzel: '#tvSheetKader .tvb-fuss', daten: () => bankD8() },
     breite: 390,
+  },
+  // E3 (Vorlage D9): Kasse › Bezahlt › Blatt Strafe.
+  E3: {
+    soll: { figur: 'D9', rahmen: 0, wurzel: '(f) => f.children[1]' },
+    ist: { profil: 'kassenwart', schluessel: 'kasse/bezahlt', wurzel: '#ksBl', daten: () => strafeD9(),
+      vorbereitung: async (page) => { await page.click('[data-ks-det="f03"]'); await page.waitForTimeout(500); } },
+    breite: 390, ersetze: { 'FO': 'LW', 'Felix Oberhaus': 'Lukas Weber', '3,00 €': '22,00 €' }, breiteFrei: ['Lukas Weber', '22,00 €'],
   },
 };

@@ -320,7 +320,9 @@ window.DB = (function () {
       if (!s) return [];
       const v = [{ from: null, to: "offen", method: null, reason: null, by: null, at: s.createdAt }];
       if (s.status === "gemeldet") v.push({ from: "offen", to: "gemeldet", method: s.sagtZahlart, reason: null, by: null, at: s.gemeldetAm });
-      if (s.status === "bestätigt") v.push({ from: "offen", to: "bestätigt", method: s.zahlart, reason: null, by: null, at: s.paidAt });
+      // Gemeldet und danach bestätigt (Kasse › Bezahlt, Zeitleiste E3)
+      if (s.status === "bestätigt" && s.gemeldetAm) v.push({ from: "offen", to: "gemeldet", method: null, reason: null, by: null, at: s.gemeldetAm });
+      if (s.status === "bestätigt") v.push({ from: s.gemeldetAm ? "gemeldet" : "offen", to: "bestätigt", method: s.zahlart, reason: null, by: null, at: s.paidAt });
       if (s.status === "storniert") v.push({ from: "offen", to: "storniert", method: null, reason: null, by: null, at: s.createdAt });
       return v;
     },
