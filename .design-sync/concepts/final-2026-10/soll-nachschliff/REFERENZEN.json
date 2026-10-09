@@ -58,5 +58,9 @@
  "08 Bank-Blatt": {
   "grund": "Nachschliff E2: Bank-Blatt nur mit Wählbaren, Kopf mit Platzmarken und Fertig, Fußzeile Ausgeblendet",
   "datum": "2026-10-09"
+ },
+ "02 Kalender": {
+  "grund": "Nacharbeit Punkt 1: Zusage/Absage überall 14 px über und unter der Knopfzeile (Token --rsvp-luft), Vorlage hatte im Kalender 12/10 und 14/12",
+  "datum": "2026-10-09"
  }
 }

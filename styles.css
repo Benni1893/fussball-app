@@ -191,7 +191,8 @@
   --sp-4: 16px;
   --sp-5: 24px;
   --sp-6: 32px;
-
+  /* Zusage/Absage: Luft über und unter der Knopfzeile, an jedem Ort gleich */
+  --rsvp-luft: 14px;
 }
 
 * { box-sizing: border-box; }
@@ -4008,8 +4009,8 @@ button, input, select, textarea { font-family: inherit; }
    Erweiterte Tippzonen benachbarter Elemente treffen sich auf halber Strecke
    (Lücken bei 390 px gemessen, gmzonen.mjs). Sichtbar ändert sich nichts.
    Zur anderen Seite bleibt die Zone bei (44 px - Höhe) / 2.                */
-/* „9 zu · 2 ab · 5 offen ›“ unter Zusage/Absage: Lücke 10 px -> oben 5 px */
-.tk-unten-l::after, .tk-unten-r::after { top: -5px; bottom: calc((100% - var(--tap)) / 2); height: auto; transform: none; }
+/* „9 zu · 2 ab · 5 offen ›“ unter Zusage/Absage: Lücke --rsvp-luft -> oben die Hälfte */
+.tk-unten-l::after, .tk-unten-r::after { top: calc(var(--rsvp-luft) / -2); bottom: calc((100% - var(--tap)) / 2); height: auto; transform: none; }
 /* „Alle bestätigen“ über der Prüfkarte: Lücke 8 px -> unten 4 px */
 .ks-stapelkopf .link-btn::after { top: calc((100% - var(--tap)) / 2); bottom: -4px; height: auto; transform: none; }
 /* „Spieler wählen ›“ über dem ersten Bankplatz: Lücke 12 px -> unten 6 px */
@@ -4042,10 +4043,7 @@ button, input, select, textarea { font-family: inherit; }
    Ist-Werte gemessen bei 390 px (Bericht .design-sync/nachschliff-2026-10/ABSCHLUSS.md). */
 /* A1 Mein Konto: unten so viel Luft wie oben (oben 21 px bis „Dein Konto“) */
 .mine-banner:has(> .mb-foot:last-child) { padding-bottom: 6px; }
-/* A2 Terminkarte: Zusage/Absage mittig zwischen Trennlinie und Kartenunterkante,
-   wenn darunter keine Rückmelde- oder Zählerzeile folgt */
-.tk-rsvp.is-gross:last-child { padding-bottom: 14px; }
-.tk-body:has(> .tk-rsvp:only-child) { padding-bottom: 14px; }
+/* A2: ersetzt durch den Baustein Zusage/Absage am Dateiende (Nacharbeit) */
 /* A3 Kasse: Segmente nach Inhalt, Zähler kompakt mit Abstand zum Wort */
 .ks-seg .ks-seg-b { flex: 1 1 auto; padding: 0 10px; }
 .ks-seg-n { min-width: 22px; height: 20px; padding: 0 6px; margin-left: 6px; }
@@ -4334,3 +4332,23 @@ body:has(.nsb-ov) .app-nav { visibility: hidden; }
 .ksd-fuss { flex: none; margin-top: 20px; padding: 14px 16px calc(26px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); }
 .ksd-fuss .ksd-zurueck { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 50px; margin: 0; border-radius: var(--radius-md);
   background: var(--grad-btn-sec); border: 1px solid var(--line-soft-3); box-shadow: var(--shadow-btn-sec); font-size: 16px; font-weight: 700; color: var(--red-700); }
+
+/* =====================================================================
+   Baustein Zusage/Absage (Nacharbeit Nachschliff, 09.10.2026)
+   Ein Maß an jedem Ort: --rsvp-luft über der Knopfzeile (bis Trennlinie,
+   Kopf oder Ortszeile) und darunter (bis Kartenende, Trennlinie oder
+   Folgezeile). Knöpfe 8 px auseinander (Vorlage). Jede Kartenart meldet
+   nur ihren Grundabstand (--tk-gap, --tk-pad-oben); die Luft selbst kommt
+   allein aus dem Token. Geprüft von rsvppruef (Pflichtliste).
+   ===================================================================== */
+.tk-body { --tk-gap: 12px; --tk-pad-oben: 14px; }
+.card.tk.is-spiel .tk-body { --tk-gap: 10px; --tk-pad-oben: 12px; }
+.card.tk.is-sonstiges .tk-body { --tk-pad-oben: 12px; }
+.card.tk.is-hero .tk-body { --tk-gap: 0px; --tk-pad-oben: 0px; }
+.card.tk .tk-body > .tk-rsvp { padding: 0; margin-top: calc(var(--rsvp-luft) - var(--tk-gap)); }
+.card.tk.is-hero .tk-body > .tk-rsvp { padding: 0 16px; }
+.card.tk .tk-body > .tk-rsvp:first-child { margin-top: calc(var(--rsvp-luft) - var(--tk-pad-oben)); }
+.card.tk .tk-body > :has(+ .tk-rsvp) { margin-bottom: 0; }
+.card.tk .tk-body > .tk-rsvp + * { margin-top: calc(var(--rsvp-luft) - var(--tk-gap)); }
+.card.tk.is-hero .tk-body > .tk-rsvp + .tk-grund, .card.tk.is-hero .tk-body > .tk-rsvp + .tk-warn { padding-top: 0; }
+.card.tk .tk-body:has(> .tk-rsvp:last-child) { padding-bottom: var(--rsvp-luft); }

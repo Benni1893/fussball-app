@@ -108,9 +108,9 @@ export const SA = (s) => s.replace(/env\(\s*safe-area-inset-(top|bottom|left|rig
    nicht als Befund.                                                        */
 export const AUSNAHMEN = [
   { id: 'zone-rueckmeldung', typ: 'treffer', sel: '.tk-unten-l', richtung: ['oben'],
-    grund: 'Zone oben auf 5 px begrenzt (halbe Lücke zu Zusage/Absage, 10 px); 144 × 35 px.' },
+    grund: 'Zone oben auf 7 px begrenzt (halbe Lücke zu Zusage/Absage, --rsvp-luft 14 px); 144 × 37 px.' },
   { id: 'zone-elf', typ: 'treffer', sel: 'button.tk-unten-r', richtung: ['oben'],
-    grund: 'Wie „9 zu · 2 ab ›“: gleiche Zeile unter Absage, oben 5 px.' },
+    grund: 'Wie „9 zu · 2 ab ›“: gleiche Zeile unter Absage, oben 7 px.' },
   { id: 'zone-alle-bestaetigen', typ: 'treffer', sel: '.ks-stapelkopf .link-btn', richtung: ['oben', 'unten'],
     grund: 'Zone oben und unten auf 6 px begrenzt (halbe Lücke zum Segment und zur Prüfkarte, seit Nachschliff A3 je 12 px); 124 × 31 px, bei 130 % 124 × 37,5 px.' },
   { id: 'zone-spieler-waehlen', typ: 'treffer', sel: '.tv-bank-kopf .link-btn', richtung: ['unten'],

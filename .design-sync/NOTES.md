@@ -1099,7 +1099,7 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
 
 ## Prüfskripte: Pflichtliste und „nur mit Testkonto“ (Stand 05.10.2026)
 
-- **Pflichtliste (22)** — laufen ohne Anmeldung und müssen vor jedem Push grün
+- **Pflichtliste (23)** — laufen ohne Anmeldung und müssen vor jedem Push grün
   sein: `abopruef`, `buildpruef`, `deeplinkpruef`, `einpruef`, `icspruef`,
   `kachelpruef`, `kassepruef`, `katalogpruef`, `kopfpruef`, `meldeschlusspruef`,
   `p1pruef`, `p3pruef`, `p4pruef`, `prefspruef`, `pushpruef`, `swpruef`,
@@ -1124,7 +1124,15 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
   ein Aufruf mit Notiz und Datum, Abbrechen ohne Schreiben, „Ändern“). Als
   22. `rspushpruef` (Nachschliff C2): Push senden im Rückmeldungen-Blatt
   (P1 aus 0050, Bestätigung mit Anzahl, „An N gesendet“, Sperre und letzter
-  Versand sichtbar, deaktiviert ohne Offene, nur echte Trainer/Admins).
+  Versand sichtbar, deaktiviert ohne Offene, nur echte Trainer/Admins). Als
+  23. `rsvppruef` (Nacharbeit Nachschliff, 09.10.2026): Zusage/Absage hat an
+  jedem Ort dasselbe Maß, Knöpfe 8 px auseinander, darüber und darunter
+  `--rsvp-luft` (14 px). Gemessen in Übersicht und Kalender, als Spieler und
+  Trainer, mit und ohne Rückmeldezeile und mit Absagegrund. Der Abstand kommt
+  nur aus dem Baustein am Ende von `styles.css`; die Kartenarten melden dort
+  nur ihren Grundabstand (`--tk-gap`, `--tk-pad-oben`). Keine eigenen
+  Abstandsregeln für `.tk-rsvp` außerhalb des Bausteins, das prüft das Skript
+  mit.
 - **SQL-Prüfskripte** (`supabase/checks/*.sql`, nicht auf der Pflichtliste):
   laufen nach dem Einspielen einer Migration im SQL-Editor und ändern nichts.
   Jeder Fall läuft in einer Untertransaktion, die immer zurückgerollt wird;
