@@ -174,6 +174,10 @@ const VORLAGEN = [
           ['termin_titel', 'datum', 'uhrzeit', 'zusagen', 'absagen', 'offen', 'termin_id'],
           { termin_titel: 'TSV Beispielstadt', datum: '04.10.', uhrzeit: '15:00 Uhr', zusagen: '9', absagen: '2', offen: '5', termin_id: 'beispiel' },
           'Alle Trainer.', 'Direkt nach Meldeschluss.'),
+  vorlage('status_abgelaufen', 'coach', '📋 {kopf}', '{detail} Der Status ist noch gesetzt, bitte im Kader prüfen.', '#ansicht=kader', 'normal',
+          ['kopf', 'detail', 'datum'],
+          { kopf: 'Max Muster wieder verfügbar', detail: 'Verletzt, voraussichtlich bis 08.10.', datum: '08.10.' },
+          'Alle mit der Rolle Trainer.', 'Am Tag nach „voraussichtlich bis“ um 9:00 Uhr, wenn der Status noch gesetzt ist. Mehrere Spieler am selben Tag kommen in einer Mitteilung.', ['datum']),
   vorlage('rueckmeldung_erinnerung', 'spieler', '⏳ Bist du dabei? {termin_titel}', "{datum} {uhrzeit} · Meldeschluss {meldeschluss}. Ohne Antwort wird's teuer.", '#termin={termin_id}', 'high',
           ['termin_titel', 'datum', 'uhrzeit', 'meldeschluss', 'termin_id'],
           { termin_titel: 'TSV Beispielstadt', datum: '04.10.', uhrzeit: '15:00 Uhr', meldeschluss: 'morgen 15:00 Uhr', termin_id: 'beispiel' },
@@ -217,6 +221,7 @@ const PREFS = {
   strafe_neu: true, zahlung_bestaetigt: true, zahlung_abgelehnt: true, rueckmeldung_erinnerung: true,
   termin_abgesagt: true, termin_geaendert: true, termin_neu: true, strafen_offen: false,
   zahlung_gemeldet: true, absage_kurzfristig: true, meldeschluss_uebersicht: true, unterbesetzung: true,
+  status_abgelaufen: true,
   quiet_from: '22:00:00', quiet_to: '08:00:00', quiet_override_urgent: true,
   hint_dismissed_at: null, updated_at: '2026-09-25T18:00:00Z',
 };

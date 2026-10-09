@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-09-M";
+  var APP_BUILD = "2026-10-09-N";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -1641,12 +1641,13 @@
     rueckmeldung_nachfrage: "Nachfrage per Push", termin_abgesagt: "Termin fällt aus",
     strafe_neu: "Neue Strafe", zahlung_bestaetigt: "Zahlung bestätigt", zahlung_abgelehnt: "Zahlung abgelehnt",
     strafen_offen: "Monatliche Erinnerung an offene Strafen", absage_kurzfristig: "Kurzfristige Absagen",
-    meldeschluss_uebersicht: "Übersicht nach Meldeschluss", zahlung_gemeldet: "Zahlung gemeldet", test: "Testnachricht",
+    meldeschluss_uebersicht: "Übersicht nach Meldeschluss", status_abgelaufen: "Status abgelaufen",
+    zahlung_gemeldet: "Zahlung gemeldet", test: "Testnachricht",
   };
   const KAT_THEMEN = [
     ["Termine", ["termin_neu", "termin_geaendert", "rueckmeldung_erinnerung", "rueckmeldung_nachfrage", "termin_abgesagt"]],
     ["Strafen", ["strafe_neu", "zahlung_bestaetigt", "zahlung_abgelehnt", "strafen_offen"]],
-    ["Für Trainer", ["absage_kurzfristig", "meldeschluss_uebersicht"]],
+    ["Für Trainer", ["absage_kurzfristig", "meldeschluss_uebersicht", "status_abgelaufen"]],
     ["Für die Kasse", ["zahlung_gemeldet"]],
   ];
   function pushTexteHtml() {
@@ -1905,6 +1906,8 @@
       // "Zu wenig Zusagen" (unterbesetzung) folgt erst mit einer Mindestzahl je
       // Termintyp (F4); ohne Erzeuger kein Schalter (Konsistenzpruefung 06.10.2026).
       ["meldeschluss_uebersicht", "klemmbrett",  "Übersicht nach Meldeschluss",             "dunkelgruen"],
+      // Nachschliff C4 (0059): am Tag nach "voraussichtlich bis" um 9 Uhr.
+      ["status_abgelaufen",       "puls",        "Status abgelaufen",                       "dunkelgruen"],
     ] },
     { rolle: "treasurer", titel: "Kasse", kategorien: [
       ["zahlung_gemeldet",        "boerse",      "Zahlung gemeldet",                        "gold"],
@@ -1989,6 +1992,7 @@
     { id: "trainer", titel: "Für Trainer", zeilen: [
       [["absage_kurzfristig"], "Kurzfristige Absagen"],
       [["meldeschluss_uebersicht"], "Übersicht nach Meldeschluss"],
+      [["status_abgelaufen"], "Status abgelaufen"],
     ] },
     { id: "kasse", titel: "Für die Kasse", zeilen: [
       [["zahlung_gemeldet"], "Zahlung gemeldet"],

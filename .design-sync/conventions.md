@@ -177,7 +177,7 @@ suchen.
 | ⚠️ | Problem | `zahlung_abgelehnt` |
 | 📅 | Termin-Info | `termin_geaendert`, `termin_neu` |
 | ❌ | Ausfall | `termin_abgesagt` |
-| 📋 | Übersicht | `meldeschluss_uebersicht` |
+| 📋 | Übersicht, Trainer soll nachsehen | `meldeschluss_uebersicht`, `status_abgelaufen` |
 | 🔔 | Test | `test` |
 
 Im **Text** sind Emojis sparsam erlaubt, wo sie Zahlen gliedern — etwa
