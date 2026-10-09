@@ -4208,3 +4208,28 @@ body:has(.nsb-ov) .app-nav { visibility: hidden; }
 .push-best-k .nsb-prim { background: var(--grad-btn); border: 0; box-shadow: var(--shadow-btn); color: #fff; }
 .rs2-kader-t { flex: 1 0 auto; }
 .rs2-kader-s { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* E1 Aufstellung · Blatt Mehr (Vorlage D7): Blatt auf --bg, drei Karten */
+#tvSheetMenu.tvm { background: var(--bg); border-radius: var(--radius-sheet) var(--radius-sheet) 0 0; box-shadow: var(--shadow-sheet); }
+.tvm > .nsb-griff { margin-top: 8px; }
+.tvm-kopf { flex: none; display: flex; flex-direction: column; gap: 2px; padding: 12px 16px 0; }
+.tvm-titel { font-size: 20px; font-weight: 800; letter-spacing: -.015em; color: var(--ink); }
+.tvm-sub { font-size: 13px; color: var(--muted); }
+#tvSheetMenu .tvm-body { padding: 0 0 calc(26px + env(safe-area-inset-bottom)); }
+.tvm-karte { display: block; margin: 14px 16px 0; background: var(--card); border: 1px solid var(--line-soft); border-radius: var(--radius); overflow: hidden; }
+.tvm-zeile { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 0 14px; border: 0; background: none; font: inherit; color: var(--green-800); text-align: left; cursor: pointer; }
+.tvm-zeile svg { flex: none; }
+.tvm-zt { flex: 1 1 auto; font-size: 15px; font-weight: 600; color: var(--ink); }
+.tvm-chev { font-size: 20px; color: var(--green-chev); }
+.tvm-linie { height: 1px; margin-left: 46px; background: var(--line); }
+.tvm-gruppe { display: flex; justify-content: space-between; align-items: center; margin: 18px 16px 8px; }
+.tvm-gt { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.tvm-fav { min-height: var(--tap); display: flex; align-items: center; padding: 0; border: 0; background: none; font: inherit; font-size: 14px; font-weight: 600; color: var(--green-800); cursor: pointer; }
+.tvm-gruppe + .tvm-karte { margin-top: 0; }
+.tvm-vorlage { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 0 14px; border: 0; background: none; font: inherit; text-align: left; cursor: pointer; }
+.tvm-vorlage + .tvm-linie { margin-left: 14px; }
+.tvm-form { flex: none; padding: 4px 8px; border-radius: 8px; background: var(--green-050); border: 1px solid var(--green-badge-line); font-size: 13px; font-weight: 800; color: var(--green-800); font-variant-numeric: tabular-nums; }
+.tvm-vn { flex: 1 1 auto; min-width: 0; font-size: 15px; font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tvm-anw { flex: none; font-size: 15px; font-weight: 700; color: var(--green-800); }
+.tvm-leer { padding: 16px 14px; font-size: 14px; color: var(--muted); }
+.tvm-leeren { display: flex; align-items: center; gap: 12px; width: calc(100% - 32px); min-height: 54px; margin-top: 12px; padding: 0 14px; font: inherit; font-size: 15px; font-weight: 600; color: var(--red-600); text-align: left; cursor: pointer; }
+.tvm-leeren svg { flex: none; }

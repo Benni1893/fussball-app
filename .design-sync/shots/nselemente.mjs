@@ -78,4 +78,11 @@ export const NS_ELEMENTE = {
     breite: 390, ersetze: { 'Push an 2 offene Spieler senden?': 'Push an 15 offene Spieler senden?', 'TSV Beispielstadt · So 4. Okt · 15:00': 'Training · Do 8. Okt · 19:30' },
     breiteFrei: ['Push an 15 offene Spieler senden?', 'Training · Do 8. Okt · 19:30'],
   },
+  // E1 (Vorlage D7): Blatt Mehr der Aufstellung.
+  E1: {
+    soll: { figur: 'D7', rahmen: 0, wurzel: '(f) => f.children[2]' },
+    ist: { profil: 'admin', schluessel: 'trainer/spiel+tvSheetMenu', wurzel: '#tvSheetMenu' },
+    breite: 390, ersetze: { 'vs. TSV Beispielstadt · So 4. Okt': 'vs. FC Teutonia Mün. 2 · So 11. Okt', '4-2-3-1': '4-3-3', 'Grundelf': '4-3-3 Standard' },
+    breiteFrei: ['vs. FC Teutonia Mün. 2 · So 11. Okt', '4-3-3', '4-3-3 Standard', 'Anwenden'],
+  },
 };

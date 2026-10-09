@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-09-G";
+  var APP_BUILD = "2026-10-09-H";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -4782,10 +4782,12 @@
       '<div class="tv-scrim" id="tvScrimForm" data-tvclose="form"></div>' +
       '<div class="tv-sheet" id="tvSheetForm" role="dialog" aria-modal="true" aria-label="Formationen"><div class="tv-sh"><span class="tv-grip"></span><div><strong id="tvFormTitle">Formation wechseln</strong><div class="tv-shsub" id="tvFormSub"></div></div><button class="tv-shx" data-tvclose="form" aria-label="Schließen">&times;</button></div><div class="tv-shbody"><div class="tv-fgrid" id="tvFgrid"></div></div><div class="tv-shactions" id="tvFormActions"></div></div>' +
       '<div class="tv-scrim" id="tvScrimMenu" data-tvclose="menu"></div>' +
-      '<div class="tv-sheet" id="tvSheetMenu" role="dialog" aria-modal="true" aria-label="Mehr"><div class="tv-sh"><span class="tv-grip"></span><div><strong>Mehr</strong></div><button class="tv-shx" data-tvclose="menu" aria-label="Schließen">&times;</button></div><div class="tv-shbody" id="tvMenuBody"></div></div>' +
+      '<div class="tv-sheet tvm" id="tvSheetMenu" role="dialog" aria-modal="true" aria-label="Aufstellung"><span class="nsb-griff" aria-hidden="true"></span><div class="tvm-kopf"><span class="tvm-titel">Aufstellung</span><span class="tvm-sub" id="tvMenuSub"></span></div><div class="tv-shbody tvm-body" id="tvMenuBody"></div></div>' +
       '<div class="tv-toast" id="tvToast"></div>';
     document.body.appendChild(w);
     w.addEventListener("click", tvPanelClick);
+    // E1: Blatt „Mehr“ ohne Kreuz - Wischen nach unten schließt.
+    sheetSwipeToClose(document.getElementById("tvSheetMenu"), document.getElementById("tvMenuBody"), () => tvCloseMenu());
 
     // Kader-Vollbild: Wisch-nach-unten zum Schließen (nur wenn Liste oben steht).
     var panel = document.getElementById("tvSheetKader");
@@ -5004,16 +5006,30 @@
   }
   function tvToggleFav(f) { const i = tvFav.indexOf(f); if (i >= 0) { if (tvFav.length > 2) tvFav.splice(i, 1); } else if (tvFav.length < 4) tvFav.push(f); tvSaveFav(); }
 
+  /* Blatt „Mehr“ der Aufstellung (Nachschliff E1, Vorlage D7): Blatt auf --bg
+     mit drei Gruppen in weißen Karten - Aktionen, Vorlagen, Leeren. Kopf mit
+     Titel und Spiel; „Favoriten bearbeiten“ (Formations-Editor) steht im Kopf
+     der Vorlagen-Gruppe. Das Kreuz entfällt (Griff, Wischen, Tippen daneben). */
+  const TVM_IC = {
+    holen: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3M20 4v4h-4M20 12a8 8 0 0 1-14 5.3M4 20v-4h4"/></svg>',
+    merken: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5h12v17l-6-4-6 4z"/></svg>',
+    muell: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12.5A1.5 1.5 0 0 0 8.5 21h7a1.5 1.5 0 0 0 1.5-1.5L18 7M9 7V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V7"/></svg>',
+  };
   function tvOpenMenu() {
     const tpl = (DEMO.lineups || []).filter(l => l.isTemplate);
+    const ev = DEMO.events.find((x) => x.id === tv.eventId);
+    const sub = document.getElementById("tvMenuSub");
+    if (sub) sub.textContent = ev ? ["vs. " + (ev.gegner || ev.titel), fmtWd(ev.datum) + " " + fmtDay(ev.datum) + ".\u00a0" + fmtMon(ev.datum)].join(" · ") : "";
+    const zeile = (attr, ic, text) => '<button type="button" class="tvm-zeile" ' + attr + '>' + TVM_IC[ic] + '<span class="tvm-zt">' + text + '</span><span class="tvm-chev" aria-hidden="true">›</span></button>';
     document.getElementById("tvMenuBody").innerHTML =
-      '<button class="tv-mi" data-tvadopt>Vom letzten Spiel übernehmen &amp; anpassen</button>' +
-      '<button class="tv-mi" data-tvtplsave>Als Vorlage speichern</button>' +
-      (tpl.length ? '<div class="tv-mgroup">Vorlage anwenden</div>' + tpl.map(l =>
-        '<button class="tv-mi tv-mi-sub" data-tvtplapply="' + l.id + '">' + esc(l.name) +
-        '<small>' + esc(l.formation) + '</small></button>').join("") : "") +
-      '<button class="tv-mi" data-tvfavedit>Favoriten bearbeiten</button>' +
-      '<button class="tv-mi danger" data-tvclear>Aufstellung leeren</button>';
+      '<div class="tvm-karte">' + zeile("data-tvadopt", "holen", "Vom letzten Spiel übernehmen") + '<div class="tvm-linie" aria-hidden="true"></div>' +
+        zeile("data-tvtplsave", "merken", "Als Vorlage speichern") + '</div>' +
+      '<div class="tvm-gruppe"><span class="tvm-gt">Vorlage anwenden</span><button type="button" class="tvm-fav" data-tvfavedit>Favoriten bearbeiten</button></div>' +
+      '<div class="tvm-karte">' + (tpl.length ? tpl.map((l) =>
+        '<button type="button" class="tvm-vorlage" data-tvtplapply="' + l.id + '"><span class="tvm-form num">' + esc(l.formation) + '</span>' +
+        '<span class="tvm-vn">' + esc(l.name) + '</span><span class="tvm-anw">Anwenden</span></button>').join('<div class="tvm-linie" aria-hidden="true"></div>')
+        : '<div class="tvm-leer">Noch keine Vorlage gespeichert.</div>') + '</div>' +
+      '<button type="button" class="tvm-karte tvm-leeren" data-tvclear>' + TVM_IC.muell + '<span>Aufstellung leeren</span></button>';
     blattAuf("tvScrimMenu", "tvSheetMenu");
   }
   function tvCloseMenu() { blattZu("tvScrimMenu", "tvSheetMenu"); }
