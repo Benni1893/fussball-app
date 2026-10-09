@@ -50,4 +50,12 @@ export const NS_ELEMENTE = {
       vorbereitung: async (page) => { await page.click('.st-knopf.st-angeschlagen'); await page.waitForTimeout(300); } },
     breite: 390, ohne: ['optional'],
   },
+  // D5: Kennzahlen in Konto › Mannschaft (Beträge und Anzahlen aus dem Stand-in).
+  D5: {
+    soll: { figur: 'D5', rahmen: 0, wurzel: '(f) => f.children[1]' },
+    ist: { profil: 'kassenwart', schluessel: 'strafen', wurzel: '.kt-kacheln',
+      vorbereitung: async (page) => { await page.click('[data-kseg="team"]'); await page.waitForTimeout(400); } },
+    ersetze: { '37,00 €': '4.611,00 €', '6,00 €': '1.097,00 €', '4 Strafen': '240 Strafen', '2 Zahlungen': '61 Zahlungen' },
+    breiteFrei: ['4.611,00 €', '1.097,00 €', '240 Strafen', '61 Zahlungen'],
+  },
 };

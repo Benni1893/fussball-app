@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-09-E";
+  var APP_BUILD = "2026-10-09-F";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -5328,6 +5328,7 @@
     gefiltert.sort((a, b) => (stRank[a.st] - stRank[b.st]) || b.datum.localeCompare(a.datum));
 
     const summe = (st) => alle.filter((x) => x.st === st).reduce((a, x) => a + x.betrag, 0);
+    const anzahl = (st) => alle.filter((x) => x.st === st).length;
     const chips = [["offen", "Offen"], ["gemeldet", "Gemeldet"], ["bezahlt", "Bezahlt"]];
     const betragKl = (x) => x.st === "offen" ? "is-rot" : x.st === "gemeldet" ? "is-amber" : "is-gruen";
     const zeile = (x) => {
@@ -5351,8 +5352,8 @@
       </div>
       ${seg === "ich" ? kontoBlockHtml() : `
       <div class="kt-kacheln">
-        <div class="kpi kt-kpi is-rot"><span class="kpi-label">Offen</span><span class="kpi-value">${euro(summe("offen"))}</span></div>
-        <div class="kpi kt-kpi is-gruen"><span class="kpi-label">In der Kasse</span><span class="kpi-value">${euro(summe("bestätigt"))}</span></div>
+        <div class="kpi kt-kpi is-rot"><span class="kt-karte" aria-hidden="true"></span><span class="kpi-label">Offen</span><span class="kpi-value">${euro(summe("offen"))}</span><span class="kt-anz">${anzahl("offen") === 1 ? "1 Strafe" : anzahl("offen") + " Strafen"}</span></div>
+        <div class="kpi kt-kpi is-gruen"><span class="kt-ball" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 8.2l3.6 2.6-1.4 4.2H9.8L8.4 10.8z" fill="currentColor"/><path d="M12 8.2V2.6M15.6 10.8l5.2-1.8M14.2 15l3.2 4.4M9.8 15l-3.2 4.4M8.4 10.8 3.2 9"/></svg></span><span class="kpi-label">In der Kasse</span><span class="kpi-value">${euro(summe("bestätigt"))}</span><span class="kt-anz">${anzahl("bestätigt") === 1 ? "1 Zahlung" : anzahl("bestätigt") + " Zahlungen"}</span></div>
       </div>`}
       <div class="kt-chips">
         ${chips.map(([k, l]) => `<button class="chip kt-chip${strafenFilter === k ? " is-active" : ""}" data-sfilter="${k}" aria-pressed="${strafenFilter === k}">${l} ${anz(stKey[k])}</button>`).join("")}
