@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-09-D";
+  var APP_BUILD = "2026-10-09-E";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -127,30 +127,83 @@
   // "urlaub" zaehlt ueberall wie verletzt: nicht einsatzbereit.
   function istFit(p) { return !p || !p.status || p.status === "fit"; }
 
-  /* Chips plus - bei allem ausser "fit" - Datum und Notiz. Die Felder speichern
-     beim Verlassen, es gibt keinen Knopf. */
+  /* Mein Status (Nachschliff D4): Raster 2 × 2. Nicht gewählt mit Punkt in der
+     Statusfarbe, gewählt mit Fläche, 1,5 px Rand und Haken in der Statusfarbe.
+     Fit setzt direkt; Angeschlagen, Verletzt und Urlaub öffnen das Blatt mit
+     „Voraussichtlich bis“ und Notiz (openStatusFenster). Nach dem Speichern
+     steht statt der Felder eine Zeile „Voraussichtlich bis …“ mit „Ändern“. */
+  const ST_HAKEN = '<svg class="st-haken" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  function statusBisText(iso) {
+    if (!iso) return "";
+    const dt = parseDate(iso);
+    return WT[dt.getDay()] + ", " + dt.getDate() + ". " + MON[dt.getMonth()];
+  }
   function statusWahlHtml(p, opts) {
     opts = opts || {};
     const st = p.status || "fit";
-    const chips = STATUS_WAHL.map(([wert, label]) =>
-      `<button class="chip st-choice st-${wert}${st === wert ? " is-on" : ""}" data-status-set="${p.id}" data-wert="${wert}" aria-pressed="${st === wert}">` +
-      (st === wert ? '<svg class="st-haken" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7"/></svg>' : '<span class="st-dot" aria-hidden="true"></span>') +
-      `${label}</button>`
-    ).join("");
-    const felder = istFit(p) ? "" : `
-      <div class="st-felder">
-        <label class="st-feld">
-          <span class="lbl">voraussichtlich bis</span>
-          <input class="kasse-in" type="date" data-status-until="${p.id}" value="${esc(p.statusUntil || "")}" aria-label="voraussichtlich bis">
-        </label>
-        <label class="st-feld">
-          <span class="lbl">Notiz</span>
-          <input class="kasse-in" type="text" data-status-note="${p.id}" value="${esc(p.statusNote || "")}" placeholder="optional" aria-label="Notiz zum Status">
-        </label>
+    const knoepfe = STATUS_WAHL.map(([wert, label]) => {
+      const an = st === wert;
+      // Fit setzt direkt, die anderen öffnen das Blatt (auch der schon gewählte: dort ändern).
+      const attr = wert === "fit" ? `data-status-set="${p.id}"` : `data-status-fenster="${p.id}"`;
+      return `<button type="button" class="st-knopf st-${wert}${an ? " is-on" : ""}" ${attr} data-wert="${wert}" aria-pressed="${an}">` +
+        (an ? ST_HAKEN : '<span class="st-dot" aria-hidden="true"></span>') + `${label}</button>`;
+    }).join("");
+    const zeile = istFit(p) ? "" : `
+      <div class="card st-zeile">
+        <span class="st-zeile-main"><span class="st-zeile-t">${p.statusUntil ? "Voraussichtlich bis " + statusBisText(p.statusUntil) : "Ohne Enddatum"}</span>${p.statusNote ? `<span class="st-zeile-s">${esc(p.statusNote)}</span>` : ""}</span>
+        <button type="button" class="st-aendern" data-status-fenster="${p.id}" data-wert="${esc(st)}">Ändern</button>
       </div>`;
     return `<div class="st-wahl"${opts.kompakt ? ' data-kompakt=""' : ""}>
-      <div class="chips st-chips">${chips}</div>${felder}
+      <div class="st-raster">${knoepfe}</div>${zeile}
     </div>`;
+  }
+
+  /* Blatt „Voraussichtlich bis“ (D4, Muster D3): Titel = Status mit Punkt,
+     Datum (formatierte Anzeige über dem nativen Feld) und Notiz, Fuß
+     Abbrechen | Speichern. Speichern schreibt Status, Datum und Notiz in einem
+     Aufruf (set_player_status); Abbrechen ändert nichts. */
+  function closeStatusFenster() {
+    const ex = document.getElementById("statusFenster");
+    if (ex) ex.remove();
+    unlockBodyScroll();
+  }
+  function openStatusFenster(playerId, wert) {
+    const p = playerById[playerId];
+    if (!p) return;
+    closeStatusFenster();
+    const label = (STATUS_WAHL.find(([w]) => w === wert) || [])[1] || wert;
+    const gleich = p.status === wert;
+    const bis = gleich ? (p.statusUntil || "") : "";
+    const notiz = gleich ? (p.statusNote || "") : "";
+    const ov = document.createElement("div");
+    ov.className = "nsb-ov"; ov.id = "statusFenster";
+    ov.innerHTML = '<button type="button" class="nsb-hg" data-sf-zu aria-label="Schließen"></button>' +
+      '<div class="nsb" role="dialog" aria-modal="true" aria-label="' + esc(label) + '">' +
+        '<span class="nsb-griff" aria-hidden="true"></span>' +
+        '<div class="nsb-titel sf-titel"><span>' + esc(label) + '</span><span class="sf-punkt st-' + esc(wert) + '" aria-hidden="true"></span></div>' +
+        '<div class="nsb-felder">' +
+          '<label class="nsb-feld"><span class="nsb-l">Voraussichtlich bis</span>' +
+            '<span class="nsb-in sf-datum"><span class="sf-datum-t' + (bis ? "" : " is-leer") + '" data-sf-anz>' + (bis ? esc(tfDatumText(bis)) : "Datum wählen") + '</span>' +
+            '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>' +
+            '<input type="date" data-sf-bis value="' + esc(bis) + '" aria-label="Voraussichtlich bis"></span></label>' +
+          '<label class="nsb-feld"><span class="nsb-l">Notiz</span><input class="nsb-in" type="text" data-sf-notiz maxlength="80" placeholder="optional" value="' + esc(notiz) + '"></label>' +
+        '</div>' +
+        '<div class="nsb-fuss"><button type="button" class="btn nsb-sek" data-sf-zu>Abbrechen</button>' +
+          '<button type="button" class="btn btn-primary nsb-prim" data-sf-speichern>Speichern</button></div>' +
+      '</div>';
+    document.body.appendChild(ov);
+    lockBodyScroll();
+    const datum = ov.querySelector("[data-sf-bis]"), anz = ov.querySelector("[data-sf-anz]");
+    datum.addEventListener("change", () => { anz.textContent = datum.value ? tfDatumText(datum.value) : "Datum wählen"; anz.classList.toggle("is-leer", !datum.value); });
+    ov.addEventListener("click", async (ev) => {
+      if (ev.target.closest("[data-sf-zu]")) { closeStatusFenster(); return; }
+      if (ev.target.closest("[data-sf-speichern]")) {
+        const until = datum.value || null;
+        const note = ov.querySelector("[data-sf-notiz]").value.trim() || null;
+        closeStatusFenster();
+        await statusSpeichern(playerId, wert, { until, note });
+      }
+    });
   }
 
   /* Status schreiben und kurz bestaetigen. Datum und Notiz kommen aus den
@@ -3124,7 +3177,7 @@
      hinzufügen“), ließ den Hintergrund mitscrollen. lockBodyScroll() und
      unlockBodyScroll() bleiben als Aufrufe erhalten und stoßen nur den
      Abgleich an; ein Beobachter fängt Ebenen ohne eigenen Aufruf.          */
-  const SPERR_SEL = ".modal-ov, .more-sheet, .kat-blatt-ov, .tv-sheet.open, #ksSeite, #terminModal, [data-sperrt]";
+  const SPERR_SEL = ".modal-ov, .more-sheet, .kat-blatt-ov, .nsb-ov, .tv-sheet.open, #ksSeite, #terminModal, [data-sperrt]";
   let _gesperrt = false, _scrollLockY = 0, _sperrPlan = 0;
   function ebeneOffen() {
     for (const el of document.querySelectorAll(SPERR_SEL)) {
@@ -6659,13 +6712,14 @@
       // „Buchung rückgängig" steht jetzt im Detail-Blatt (ksBlattUnpay).
     }
 
-    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-kseg],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-trennen],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-cal-hide],[data-cal-copy-profil],[data-cal-open-ein],[data-cal-google-ein],[data-cal-regen-ein],[data-push-an],[data-push-aus],[data-push-test],[data-push-install],[data-push-hinweis-weg],[data-ein-haupt],[data-pn-kat],[data-ein-alle],[data-pn-thema],[data-pn-ruhe],[data-pn-dringend],[data-pkat-save],[data-pkat-reset],[data-pkat-send],[data-pkat-alle],[data-pkat-clear],[data-pkat-hinweis-save],[data-ics-event],[data-koord-save],[data-status-set],[data-status-blatt],[data-pw-aendern],[data-logout],[data-ein],[data-ein-back],[data-ein-tat],[data-diag-bericht],[data-diag-cache]");
+    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-kseg],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-trennen],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-cal-hide],[data-cal-copy-profil],[data-cal-open-ein],[data-cal-google-ein],[data-cal-regen-ein],[data-push-an],[data-push-aus],[data-push-test],[data-push-install],[data-push-hinweis-weg],[data-ein-haupt],[data-pn-kat],[data-ein-alle],[data-pn-thema],[data-pn-ruhe],[data-pn-dringend],[data-pkat-save],[data-pkat-reset],[data-pkat-send],[data-pkat-alle],[data-pkat-clear],[data-pkat-hinweis-save],[data-ics-event],[data-koord-save],[data-status-set],[data-status-fenster],[data-status-blatt],[data-pw-aendern],[data-logout],[data-ein],[data-ein-back],[data-ein-tat],[data-diag-bericht],[data-diag-cache]");
     if (!t) return;
 
     // Fitnessstatus setzen. Wer das darf, entscheidet die Datenbank:
     // Spieler nur sich selbst, coach/admin alle (set_player_status).
     if (t.dataset.statusBlatt) { openStatusBlatt(t.dataset.statusBlatt); return; }
     if (t.hasAttribute("data-pw-aendern")) { openPasswortBlatt(); return; }
+    if (t.dataset.statusFenster) { openStatusFenster(t.dataset.statusFenster, t.dataset.wert); return; }
     if (t.dataset.statusSet) {
       await statusSpeichern(t.dataset.statusSet, t.dataset.wert);
       return;

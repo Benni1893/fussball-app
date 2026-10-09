@@ -140,6 +140,29 @@
           "nameQuelle": "liste"
         },
         {
+          "schluessel": "dashboard+statusFenster",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "statusFenster"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "titel": "Angeschlagen",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "status-fenster",
+              "wert": null,
+              "text": "Angeschlagen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/spieler/dashboard--statusFenster.png",
+          "strang": "uebersicht",
+          "name": "Mein Status · Voraussichtlich bis",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "dashboard+tkMenu",
           "ansicht": "dashboard",
           "unter": null,
@@ -594,6 +617,41 @@
           "strang": "einstellungen",
           "name": "Neues Passwort",
           "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "einstellungen/profil+statusFenster",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [
+            "statusFenster"
+          ],
+          "ueberschrift": null,
+          "titel": "Angeschlagen",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Spieler · Profil ansehen ›",
+              "global": false
+            },
+            {
+              "art": "status-fenster",
+              "wert": null,
+              "text": "Angeschlagen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/spieler/einstellungen__profil--statusFenster.png",
+          "strang": "einstellungen",
+          "name": "Mein Status · Voraussichtlich bis",
+          "nameQuelle": "liste"
         }
       ],
       "kanten": [
@@ -624,6 +682,13 @@
           "wert": null,
           "text": "Zahlung melden ›",
           "nach": "dashboard+zmBl"
+        },
+        {
+          "von": "dashboard",
+          "art": "status-fenster",
+          "wert": null,
+          "text": "Angeschlagen",
+          "nach": "dashboard+statusFenster"
         },
         {
           "von": "dashboard",
@@ -717,6 +782,13 @@
           "nach": "einstellungen/profil+pwBlatt"
         },
         {
+          "von": "einstellungen/profil",
+          "art": "status-fenster",
+          "wert": null,
+          "text": "Angeschlagen",
+          "nach": "einstellungen/profil+statusFenster"
+        },
+        {
           "von": "einstellungen/ruhezeiten",
           "art": "ein",
           "wert": "mitteilungen",
@@ -784,6 +856,7 @@
         "nav",
         "paid-self",
         "pw-aendern",
+        "status-fenster",
         "tab",
         "tkmenu",
         "zahnrad"
@@ -833,6 +906,29 @@
           "strang": "uebersicht",
           "name": "Rückmeldungen",
           "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "dashboard+statusFenster",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "statusFenster"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "titel": "Angeschlagen",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "status-fenster",
+              "wert": null,
+              "text": "Angeschlagen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/dashboard--statusFenster.png",
+          "strang": "uebersicht",
+          "name": "Mein Status · Voraussichtlich bis",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "dashboard+tkMenu",
@@ -1681,6 +1777,41 @@
           "nameQuelle": "liste"
         },
         {
+          "schluessel": "einstellungen/profil+statusFenster",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [
+            "statusFenster"
+          ],
+          "ueberschrift": null,
+          "titel": "Angeschlagen",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Trainer · Spieler · Profil ans",
+              "global": false
+            },
+            {
+              "art": "status-fenster",
+              "wert": null,
+              "text": "Angeschlagen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/einstellungen__profil--statusFenster.png",
+          "strang": "einstellungen",
+          "name": "Mein Status · Voraussichtlich bis",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "kader+statusBlatt",
           "ansicht": "kader",
           "unter": null,
@@ -1940,6 +2071,13 @@
         },
         {
           "von": "dashboard",
+          "art": "status-fenster",
+          "wert": null,
+          "text": "Angeschlagen",
+          "nach": "dashboard+statusFenster"
+        },
+        {
+          "von": "dashboard",
           "art": "tab",
           "wert": "kalender",
           "text": "Kalender",
@@ -2070,6 +2208,13 @@
           "wert": null,
           "text": "PasswortÄndern›",
           "nach": "einstellungen/profil+pwBlatt"
+        },
+        {
+          "von": "einstellungen/profil",
+          "art": "status-fenster",
+          "wert": null,
+          "text": "Angeschlagen",
+          "nach": "einstellungen/profil+statusFenster"
         },
         {
           "von": "einstellungen/ruhezeiten",
@@ -2276,6 +2421,7 @@
         "rs-teilen",
         "rsvp-sheet",
         "status-blatt",
+        "status-fenster",
         "tab",
         "tab5",
         "termin-edit",
@@ -2310,6 +2456,29 @@
           "bild": "bilder/kassenwart/dashboard.png",
           "strang": "uebersicht",
           "name": "Übersicht",
+          "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "dashboard+statusFenster",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "statusFenster"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "titel": "Angeschlagen",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "status-fenster",
+              "wert": null,
+              "text": "Angeschlagen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/dashboard--statusFenster.png",
+          "strang": "uebersicht",
+          "name": "Mein Status · Voraussichtlich bis",
           "nameQuelle": "liste"
         },
         {
@@ -2931,6 +3100,41 @@
           "nameQuelle": "liste"
         },
         {
+          "schluessel": "einstellungen/profil+statusFenster",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [
+            "statusFenster"
+          ],
+          "ueberschrift": null,
+          "titel": "Angeschlagen",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Kassenwart · Spieler · Profil ",
+              "global": false
+            },
+            {
+              "art": "status-fenster",
+              "wert": null,
+              "text": "Angeschlagen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/einstellungen__profil--statusFenster.png",
+          "strang": "einstellungen",
+          "name": "Mein Status · Voraussichtlich bis",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "kasse/strafe-katalog+ksSeite+ksSheet",
           "ansicht": "kasse",
           "unter": "strafe-katalog",
@@ -2995,6 +3199,13 @@
           "wert": null,
           "text": "Zahlung melden ›",
           "nach": "dashboard+zmBl"
+        },
+        {
+          "von": "dashboard",
+          "art": "status-fenster",
+          "wert": null,
+          "text": "Angeschlagen",
+          "nach": "dashboard+statusFenster"
         },
         {
           "von": "dashboard",
@@ -3107,6 +3318,13 @@
           "wert": null,
           "text": "PasswortÄndern›",
           "nach": "einstellungen/profil+pwBlatt"
+        },
+        {
+          "von": "einstellungen/profil",
+          "art": "status-fenster",
+          "wert": null,
+          "text": "Angeschlagen",
+          "nach": "einstellungen/profil+statusFenster"
         },
         {
           "von": "einstellungen/ruhezeiten",
@@ -3314,6 +3532,7 @@
         "nav",
         "paid-self",
         "pw-aendern",
+        "status-fenster",
         "tab",
         "tab5",
         "task-pay",
@@ -3389,6 +3608,29 @@
           "strang": "uebersicht",
           "name": "Rückmeldungen",
           "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "dashboard+statusFenster",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "statusFenster"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "titel": "Angeschlagen",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "status-fenster",
+              "wert": null,
+              "text": "Angeschlagen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/dashboard--statusFenster.png",
+          "strang": "uebersicht",
+          "name": "Mein Status · Voraussichtlich bis",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "dashboard+tkMenu",
@@ -4374,6 +4616,41 @@
           "nameQuelle": "liste"
         },
         {
+          "schluessel": "einstellungen/profil+statusFenster",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [
+            "statusFenster"
+          ],
+          "ueberschrift": null,
+          "titel": "Angeschlagen",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Trainer · Kassenwart · Spieler",
+              "global": false
+            },
+            {
+              "art": "status-fenster",
+              "wert": null,
+              "text": "Angeschlagen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/einstellungen__profil--statusFenster.png",
+          "strang": "einstellungen",
+          "name": "Mein Status · Voraussichtlich bis",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "kader+statusBlatt",
           "ansicht": "kader",
           "unter": null,
@@ -4587,6 +4864,41 @@
           "nameQuelle": "liste"
         },
         {
+          "schluessel": "profil+statusFenster",
+          "ansicht": "profil",
+          "unter": null,
+          "oben": [
+            "statusFenster"
+          ],
+          "ueberschrift": "Profil",
+          "titel": "Angeschlagen",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Trainer",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "profil",
+              "text": "Profil",
+              "global": false
+            },
+            {
+              "art": "status-fenster",
+              "wert": null,
+              "text": "Angeschlagen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/profil--statusFenster.png",
+          "strang": "profil",
+          "name": "Mein Status · Voraussichtlich bis",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "trainer+rsvpSheet",
           "ansicht": "trainer",
           "unter": null,
@@ -4786,6 +5098,13 @@
         },
         {
           "von": "dashboard",
+          "art": "status-fenster",
+          "wert": null,
+          "text": "Angeschlagen",
+          "nach": "dashboard+statusFenster"
+        },
+        {
+          "von": "dashboard",
           "art": "tab",
           "wert": "kalender",
           "text": "Kalender",
@@ -4958,6 +5277,13 @@
           "wert": null,
           "text": "PasswortÄndern›",
           "nach": "einstellungen/profil+pwBlatt"
+        },
+        {
+          "von": "einstellungen/profil",
+          "art": "status-fenster",
+          "wert": null,
+          "text": "Angeschlagen",
+          "nach": "einstellungen/profil+statusFenster"
         },
         {
           "von": "einstellungen/ruhezeiten",
@@ -5163,6 +5489,13 @@
           "nach": "profil+pwBlatt"
         },
         {
+          "von": "profil",
+          "art": "status-fenster",
+          "wert": null,
+          "text": "Angeschlagen",
+          "nach": "profil+statusFenster"
+        },
+        {
           "von": "strafen",
           "art": "paid-self",
           "wert": null,
@@ -5317,6 +5650,7 @@
         "rs-teilen",
         "rsvp-sheet",
         "status-blatt",
+        "status-fenster",
         "tab",
         "tab5",
         "task-pay",
@@ -5399,6 +5733,29 @@
           "strang": "uebersicht",
           "name": "Rückmeldungen",
           "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "dashboard+statusFenster",
+          "ansicht": "dashboard",
+          "unter": null,
+          "oben": [
+            "statusFenster"
+          ],
+          "ueberschrift": "Servus, Felix",
+          "titel": "Angeschlagen",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "status-fenster",
+              "wert": null,
+              "text": "Angeschlagen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/dashboard--statusFenster.png",
+          "strang": "uebersicht",
+          "name": "Mein Status · Voraussichtlich bis",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "dashboard+tkMenu",
@@ -6465,6 +6822,41 @@
           "nameQuelle": "liste"
         },
         {
+          "schluessel": "einstellungen/profil+statusFenster",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [
+            "statusFenster"
+          ],
+          "ueberschrift": null,
+          "titel": "Angeschlagen",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Admin · Spieler · Profil anseh",
+              "global": false
+            },
+            {
+              "art": "status-fenster",
+              "wert": null,
+              "text": "Angeschlagen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/einstellungen__profil--statusFenster.png",
+          "strang": "einstellungen",
+          "name": "Mein Status · Voraussichtlich bis",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "einstellungen/pushtext/termin_neu",
           "ansicht": "einstellungen",
           "unter": "pushtext/termin_neu",
@@ -6711,6 +7103,41 @@
           "nameQuelle": "liste"
         },
         {
+          "schluessel": "profil+statusFenster",
+          "ansicht": "profil",
+          "unter": null,
+          "oben": [
+            "statusFenster"
+          ],
+          "ueberschrift": "Profil",
+          "titel": "Angeschlagen",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Mehr",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "profil",
+              "text": "Profil",
+              "global": false
+            },
+            {
+              "art": "status-fenster",
+              "wert": null,
+              "text": "Angeschlagen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/profil--statusFenster.png",
+          "strang": "profil",
+          "name": "Mein Status · Voraussichtlich bis",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "trainer+rsvpSheet",
           "ansicht": "trainer",
           "unter": null,
@@ -6907,6 +7334,13 @@
           "wert": null,
           "text": "RückmeldungenMeldeschluss in 21 h9 zu · 2 ab · 5",
           "nach": "dashboard+rsvpSheet"
+        },
+        {
+          "von": "dashboard",
+          "art": "status-fenster",
+          "wert": null,
+          "text": "Angeschlagen",
+          "nach": "dashboard+statusFenster"
         },
         {
           "von": "dashboard",
@@ -7110,6 +7544,13 @@
           "wert": null,
           "text": "PasswortÄndern›",
           "nach": "einstellungen/profil+pwBlatt"
+        },
+        {
+          "von": "einstellungen/profil",
+          "art": "status-fenster",
+          "wert": null,
+          "text": "Angeschlagen",
+          "nach": "einstellungen/profil+statusFenster"
         },
         {
           "von": "einstellungen/pushtexte",
@@ -7322,6 +7763,13 @@
           "nach": "profil+pwBlatt"
         },
         {
+          "von": "profil",
+          "art": "status-fenster",
+          "wert": null,
+          "text": "Angeschlagen",
+          "nach": "profil+statusFenster"
+        },
+        {
           "von": "strafen",
           "art": "paid-self",
           "wert": null,
@@ -7476,6 +7924,7 @@
         "rs-teilen",
         "rsvp-sheet",
         "status-blatt",
+        "status-fenster",
         "tab",
         "tab5",
         "task-pay",

@@ -4128,3 +4128,40 @@ button, input, select, textarea { font-family: inherit; }
 .nsb-in { min-height: calc(var(--h-in) + 2px); }
 .nsb-fuss .btn { min-height: calc(var(--h-btn-lg) + 2px); }
 .nsb-del.kat-del-btn { width: auto; }
+/* D4 Übersicht · Mein Status: Raster 2 × 2, gewählt farbig je Status */
+.st-raster { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.st-knopf { box-sizing: content-box; position: relative; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0;
+  border: 1px solid var(--line-soft-3); border-radius: var(--radius-md); background: var(--grad-btn-sec);
+  font: inherit; font-size: 16px; font-weight: 600; color: var(--ink); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.st-knopf .st-dot { width: 8px; height: 8px; border-radius: var(--radius-pill); }
+.st-knopf.st-fit .st-dot { background: var(--green-600); }
+.st-knopf.is-on { border-width: 1.5px; font-weight: 700; }
+.st-knopf.is-on.st-fit          { background: var(--green-050); border-color: var(--green-600); color: var(--green-800); }
+.st-knopf.is-on.st-angeschlagen { background: var(--amber-050); border-color: var(--amber-600); color: var(--gold-ink-2); }
+.st-knopf.is-on.st-verletzt     { background: var(--red-050);   border-color: var(--red-600);   color: var(--red-700); }
+.st-knopf.is-on.st-urlaub       { background: var(--blau-050);  border-color: var(--blau-700);  color: var(--blau-700); }
+.st-knopf.is-on.st-fit .st-haken          { color: var(--green-600); }
+.st-knopf.is-on.st-angeschlagen .st-haken { color: var(--amber-600); }
+.st-knopf.is-on.st-verletzt .st-haken     { color: var(--red-600); }
+.st-knopf.is-on.st-urlaub .st-haken       { color: var(--blau-700); }
+.st-knopf .st-haken { flex: none; }
+.card.st-zeile { margin-top: 8px; display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px 4px 8px 16px;
+  background: var(--grad-card); border: 1px solid var(--line-soft); border-radius: var(--radius); box-shadow: var(--shadow-card); }
+.st-zeile-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.st-zeile-t { font-size: 15px; font-weight: 600; color: var(--ink); }
+.st-zeile-s { font-size: 13px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.st-aendern { flex: none; min-height: var(--tap); padding: 0 12px; border: 0; background: none; font: inherit; font-size: 15px; font-weight: 600; color: var(--green-800); cursor: pointer; }
+/* Blatt-Ebene für Blätter im Muster D3 (Status, Rückmeldungen-Dialog) */
+.nsb-ov { position: fixed; inset: 0; bottom: var(--kb, 0px); z-index: 96; display: flex; flex-direction: column; justify-content: flex-end; padding-top: calc(env(safe-area-inset-top) + 16px); }
+.nsb-hg { position: absolute; inset: 0; border: 0; padding: 0; background: var(--ov-soft); }
+.nsb-ov > .nsb { position: relative; max-height: 100%; }
+body:has(.nsb-ov) .app-nav { visibility: hidden; }
+.sf-titel { display: flex; align-items: center; gap: 10px; }
+.sf-punkt { width: 10px; height: 10px; border-radius: var(--radius-pill); background: var(--green-600); }
+.sf-punkt.st-angeschlagen { background: var(--amber-600); }
+.sf-punkt.st-verletzt { background: var(--red-600); }
+.sf-punkt.st-urlaub { background: var(--blau-600); }
+.sf-datum { position: relative; gap: 0; color: var(--green-800); }
+.sf-datum-t { flex: 1 1 auto; color: var(--ink); }
+.sf-datum-t.is-leer { color: var(--muted); }
+.sf-datum input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; border: 0; padding: 0; margin: 0; font-size: 16px; -webkit-appearance: none; appearance: none; }

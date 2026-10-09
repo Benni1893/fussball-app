@@ -5,6 +5,9 @@
    ersetze: Ist-Text -> Soll-Text (andere Testdaten); ohne: Soll-Texte, die nicht verglichen werden. */
 import { daten } from './landkartenmodul.mjs';
 
+// Eigener Spieler (p06) mit dem Status aus der Vorlage D4
+const mitStatus = () => { const d = daten(); const p = d.players.find((x) => x.id === 'p06'); Object.assign(p, { status: 'angeschlagen', statusNote: 'Wade zu', statusUntil: '2026-10-18', statusSince: '2026-10-01' }); return d; };
+
 export const NS_ELEMENTE = {
   // D1: erste Kachel (Betrag offen). Betrag aus dem Stand-in, daher ersetzt.
   D1: {
@@ -31,5 +34,20 @@ export const NS_ELEMENTE = {
     hoehe: 900, breite: 390,
     // Werte stehen in der App in Eingabefeldern (kein Textknoten)
     ohne: ['Zu spät zum Spiel / Treffpunkt', '10,00'],
+  },
+  // D4: Auswahl, Zeile und Blatt mit dem Stand der Vorlage (angeschlagen bis 18. Okt, Wade zu).
+  'D4 Auswahl': {
+    soll: { figur: 'D4', rahmen: 0, wurzel: '(f) => f.children[1]' },
+    ist: { profil: 'spieler', schluessel: 'dashboard', wurzel: '.st-raster', daten: () => mitStatus() },
+  },
+  'D4 Zeile': {
+    soll: { figur: 'D4', rahmen: 0, wurzel: '(f) => f.children[2]' },
+    ist: { profil: 'spieler', schluessel: 'dashboard', wurzel: '.st-zeile', daten: () => mitStatus() },
+  },
+  'D4 Blatt': {
+    soll: { figur: 'D4', rahmen: 1, wurzel: '(f) => f.children[2]' },
+    ist: { profil: 'spieler', schluessel: 'dashboard', wurzel: '#statusFenster .nsb', daten: () => mitStatus(),
+      vorbereitung: async (page) => { await page.click('.st-knopf.st-angeschlagen'); await page.waitForTimeout(300); } },
+    breite: 390, ohne: ['optional'],
   },
 };
