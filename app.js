@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-09-L";
+  var APP_BUILD = "2026-10-09-M";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -7291,6 +7291,9 @@
         navJumpTo("strafen", { strafenFilter: "meine" });
       } else if (kind === "kasse") {
         navJumpTo("strafen", { strafenFilter: "offen", kontoSeg: "team" });
+      } else if (kind === "kader") {
+        // C3: Kader-Kachel auf der Terminkarte des Trainers (vorher ohne Ziel)
+        navJumpTo("kader");
       }
       return;
     }

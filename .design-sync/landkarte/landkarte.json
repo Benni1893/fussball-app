@@ -998,6 +998,27 @@
           "nameQuelle": "ueberschrift"
         },
         {
+          "schluessel": "kader",
+          "ansicht": "kader",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Kader",
+          "titel": "Kader",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "nav",
+              "wert": "kader",
+              "text": "Kader13 fit›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/kader.png",
+          "strang": "kader",
+          "name": "Kader",
+          "nameQuelle": "ueberschrift"
+        },
+        {
           "schluessel": "kalender",
           "ansicht": "kalender",
           "unter": null,
@@ -1356,31 +1377,33 @@
           "nameQuelle": "ueberschrift"
         },
         {
-          "schluessel": "kader",
+          "schluessel": "kader+statusBlatt",
           "ansicht": "kader",
           "unter": null,
-          "oben": [],
+          "oben": [
+            "statusBlatt"
+          ],
           "ueberschrift": "Kader",
-          "titel": "Kader",
+          "titel": null,
           "tiefe": 2,
           "pfad": [
             {
-              "art": "tab5",
-              "wert": null,
-              "text": "Trainer",
-              "global": true
+              "art": "nav",
+              "wert": "kader",
+              "text": "Kader13 fit›",
+              "global": false
             },
             {
-              "art": "goto",
-              "wert": "kader",
-              "text": "Kader16 Spieler ›13 fit · 1 angeschlagen · 1 ver",
+              "art": "status-blatt",
+              "wert": null,
+              "text": "Status von Moritz Vogler ändern",
               "global": false
             }
           ],
-          "bild": "bilder/trainer/kader.png",
+          "bild": "bilder/trainer/kader--statusBlatt.png",
           "strang": "kader",
-          "name": "Kader",
-          "nameQuelle": "ueberschrift"
+          "name": "Status ändern",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "kalender+calSheet",
@@ -1812,41 +1835,6 @@
           "nameQuelle": "liste"
         },
         {
-          "schluessel": "kader+statusBlatt",
-          "ansicht": "kader",
-          "unter": null,
-          "oben": [
-            "statusBlatt"
-          ],
-          "ueberschrift": "Kader",
-          "titel": null,
-          "tiefe": 3,
-          "pfad": [
-            {
-              "art": "tab5",
-              "wert": null,
-              "text": "Trainer",
-              "global": true
-            },
-            {
-              "art": "goto",
-              "wert": "kader",
-              "text": "Kader16 Spieler ›13 fit · 1 angeschlagen · 1 ver",
-              "global": false
-            },
-            {
-              "art": "status-blatt",
-              "wert": null,
-              "text": "Status von Moritz Vogler ändern",
-              "global": false
-            }
-          ],
-          "bild": "bilder/trainer/kader--statusBlatt.png",
-          "strang": "kader",
-          "name": "Status ändern",
-          "nameQuelle": "liste"
-        },
-        {
           "schluessel": "kalender+rsvpSheet+pushModal",
           "ansicht": "kalender",
           "unter": null,
@@ -2047,6 +2035,13 @@
           "wert": null,
           "text": "Aufstellung11 von 11›",
           "nach": "trainer/spiel"
+        },
+        {
+          "von": "dashboard",
+          "art": "nav",
+          "wert": "kader",
+          "text": "Kader13 fit›",
+          "nach": "kader"
         },
         {
           "von": "dashboard",
@@ -2387,12 +2382,6 @@
       ],
       "tiefengrenze": [],
       "ohneWirkung": [
-        {
-          "von": "dashboard",
-          "art": "nav",
-          "wert": "kader",
-          "text": "Kader13 fit›"
-        },
         {
           "von": "dashboard",
           "art": "tab",
@@ -3722,6 +3711,27 @@
           "nameQuelle": "ueberschrift"
         },
         {
+          "schluessel": "kader",
+          "ansicht": "kader",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Kader",
+          "titel": "Kader",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "nav",
+              "wert": "kader",
+              "text": "Kader13 fit›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/kader.png",
+          "strang": "kader",
+          "name": "Kader",
+          "nameQuelle": "ueberschrift"
+        },
+        {
           "schluessel": "kalender",
           "ansicht": "kalender",
           "unter": null,
@@ -4080,31 +4090,33 @@
           "nameQuelle": "ueberschrift"
         },
         {
-          "schluessel": "kader",
+          "schluessel": "kader+statusBlatt",
           "ansicht": "kader",
           "unter": null,
-          "oben": [],
+          "oben": [
+            "statusBlatt"
+          ],
           "ueberschrift": "Kader",
-          "titel": "Kader",
+          "titel": null,
           "tiefe": 2,
           "pfad": [
             {
-              "art": "tab5",
-              "wert": null,
-              "text": "Trainer",
-              "global": true
+              "art": "nav",
+              "wert": "kader",
+              "text": "Kader13 fit›",
+              "global": false
             },
             {
-              "art": "mehr",
-              "wert": "kader",
-              "text": "Kader",
+              "art": "status-blatt",
+              "wert": null,
+              "text": "Status von Moritz Vogler ändern",
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/kader.png",
+          "bild": "bilder/trainerkassenwart/kader--statusBlatt.png",
           "strang": "kader",
-          "name": "Kader",
-          "nameQuelle": "ueberschrift"
+          "name": "Status ändern",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "kalender+calSheet",
@@ -4673,41 +4685,6 @@
           "nameQuelle": "liste"
         },
         {
-          "schluessel": "kader+statusBlatt",
-          "ansicht": "kader",
-          "unter": null,
-          "oben": [
-            "statusBlatt"
-          ],
-          "ueberschrift": "Kader",
-          "titel": null,
-          "tiefe": 3,
-          "pfad": [
-            {
-              "art": "tab5",
-              "wert": null,
-              "text": "Trainer",
-              "global": true
-            },
-            {
-              "art": "mehr",
-              "wert": "kader",
-              "text": "Kader",
-              "global": false
-            },
-            {
-              "art": "status-blatt",
-              "wert": null,
-              "text": "Status von Moritz Vogler ändern",
-              "global": false
-            }
-          ],
-          "bild": "bilder/trainerkassenwart/kader--statusBlatt.png",
-          "strang": "kader",
-          "name": "Status ändern",
-          "nameQuelle": "liste"
-        },
-        {
           "schluessel": "kalender+rsvpSheet+pushModal",
           "ansicht": "kalender",
           "unter": null,
@@ -5096,6 +5073,13 @@
           "wert": null,
           "text": "Aufstellung11 von 11›",
           "nach": "trainer/spiel"
+        },
+        {
+          "von": "dashboard",
+          "art": "nav",
+          "wert": "kader",
+          "text": "Kader13 fit›",
+          "nach": "kader"
         },
         {
           "von": "dashboard",
@@ -5613,12 +5597,6 @@
       "ohneWirkung": [
         {
           "von": "dashboard",
-          "art": "nav",
-          "wert": "kader",
-          "text": "Kader13 fit›"
-        },
-        {
-          "von": "dashboard",
           "art": "tab",
           "wert": "dashboard",
           "text": "Übersicht"
@@ -5866,6 +5844,27 @@
           "bild": "bilder/admin/einstellungen.png",
           "strang": "einstellungen",
           "name": "Einstellungen",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "kader",
+          "ansicht": "kader",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Kader",
+          "titel": "Kader",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "nav",
+              "wert": "kader",
+              "text": "Kader13 fit›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/kader.png",
+          "strang": "kader",
+          "name": "Kader",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -6281,31 +6280,33 @@
           "nameQuelle": "ueberschrift"
         },
         {
-          "schluessel": "kader",
+          "schluessel": "kader+statusBlatt",
           "ansicht": "kader",
           "unter": null,
-          "oben": [],
+          "oben": [
+            "statusBlatt"
+          ],
           "ueberschrift": "Kader",
-          "titel": "Kader",
+          "titel": null,
           "tiefe": 2,
           "pfad": [
             {
-              "art": "tab5",
-              "wert": null,
-              "text": "Mehr",
-              "global": true
+              "art": "nav",
+              "wert": "kader",
+              "text": "Kader13 fit›",
+              "global": false
             },
             {
-              "art": "mehr",
-              "wert": "kader",
-              "text": "Kader",
+              "art": "status-blatt",
+              "wert": null,
+              "text": "Status von Moritz Vogler ändern",
               "global": false
             }
           ],
-          "bild": "bilder/admin/kader.png",
+          "bild": "bilder/admin/kader--statusBlatt.png",
           "strang": "kader",
-          "name": "Kader",
-          "nameQuelle": "ueberschrift"
+          "name": "Status ändern",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "kalender+calSheet",
@@ -6934,41 +6935,6 @@
           "nameQuelle": "ueberschrift"
         },
         {
-          "schluessel": "kader+statusBlatt",
-          "ansicht": "kader",
-          "unter": null,
-          "oben": [
-            "statusBlatt"
-          ],
-          "ueberschrift": "Kader",
-          "titel": null,
-          "tiefe": 3,
-          "pfad": [
-            {
-              "art": "tab5",
-              "wert": null,
-              "text": "Mehr",
-              "global": true
-            },
-            {
-              "art": "mehr",
-              "wert": "kader",
-              "text": "Kader",
-              "global": false
-            },
-            {
-              "art": "status-blatt",
-              "wert": null,
-              "text": "Status von Moritz Vogler ändern",
-              "global": false
-            }
-          ],
-          "bild": "bilder/admin/kader--statusBlatt.png",
-          "strang": "kader",
-          "name": "Status ändern",
-          "nameQuelle": "liste"
-        },
-        {
           "schluessel": "kalender+rsvpSheet+pushModal",
           "ansicht": "kalender",
           "unter": null,
@@ -7357,6 +7323,13 @@
           "wert": null,
           "text": "Aufstellung11 von 11›",
           "nach": "trainer/spiel"
+        },
+        {
+          "von": "dashboard",
+          "art": "nav",
+          "wert": "kader",
+          "text": "Kader13 fit›",
+          "nach": "kader"
         },
         {
           "von": "dashboard",
@@ -7907,12 +7880,6 @@
       ],
       "tiefengrenze": [],
       "ohneWirkung": [
-        {
-          "von": "dashboard",
-          "art": "nav",
-          "wert": "kader",
-          "text": "Kader13 fit›"
-        },
         {
           "von": "dashboard",
           "art": "tab",

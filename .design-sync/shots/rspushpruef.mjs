@@ -96,6 +96,24 @@ const ANTWORT = { zaehlen: { offen: 5, ausgenommen: 1, ohne_konto: 0, ohne_abo: 
   await ctx.close();
 }
 pruefe(app.includes('return !Roles.isSimulating() && (Roles.real.indexOf("coach") !== -1 || Roles.isRealAdmin())'), 'Push nur für die echte Rolle Trainer oder Admin, nie in der Rollenvorschau');
+// 5) C3: Kader im Rückmeldungen-Blatt und auf der Terminkarte des Trainers führt in den Kader
+{
+  const { ctx, page } = await blatt('admin', ANTWORT);
+  await page.click('#rsvpSheet [data-rs-kader]'); await page.waitForTimeout(400);
+  const z = await page.evaluate(() => ({ h1: (document.querySelector('#view h1') || {}).textContent, blatt: !!document.getElementById('rsvpSheet') }));
+  pruefe(z.h1 === 'Kader' && !z.blatt, 'Kader-Zeile im Blatt öffnet den Kader', JSON.stringify(z));
+  await ctx.close();
+}
+{
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const page = await ctx.newPage(); await installiere(page, 'trainer');
+  await page.goto(basis); await warteAufApp(page);
+  const da = await page.evaluate(() => !!document.querySelector('.tk-feld2[data-nav="kader"]'));
+  if (da) { await page.click('.tk-feld2[data-nav="kader"]'); await page.waitForTimeout(400); }
+  const h1 = await page.evaluate(() => (document.querySelector('#view h1') || {}).textContent);
+  pruefe(da && h1 === 'Kader', 'Kader-Kachel auf der Terminkarte des Trainers öffnet den Kader', da + ' ' + h1);
+  await ctx.close();
+}
 await browser.close(); server.close();
 console.log(fehler.length ? '--- NICHT bestanden: ' + fehler.length + ' ---' : '--- bestanden ---');
 process.exit(fehler.length ? 1 : 0);
