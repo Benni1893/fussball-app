@@ -305,4 +305,123 @@ Mit dem eigenen Konto, ohne Pushs an Spieler.
 | 0869e69 | C3 Kader erreichbar | M |
 | 54c823f | C4 Status abgelaufen (Migration 0059) | N |
 | 4932cb6 | C5 Buchung zurücknehmen (Migration 0060) | O |
-| (dieser) | Abschluss: Gerätematrix-Korrekturen, neue Zustände, Bericht | P |
+| b0ad2ec | Abschluss: Gerätematrix-Korrekturen, neue Zustände, Bericht | P |
+
+## 10. Nachtrag: Nacharbeit (09.10.2026, Build Q und R)
+
+Ausgangsstand b0ad2ec (Build P). Die neuen Screenshots sind **IMG_0720 bis
+IMG_0723** in `.design-sync/concepts/`; sie sind nicht im Repo.
+
+| Bild | Inhalt | Punkt |
+|---|---|---|
+| IMG_0720 | Übersicht-Hero als Spieler, Zusage/Absage ohne Rückmeldezeile (unten zu eng) | 1 |
+| IMG_0721 | Kalender, oberste Spielkarte (unten zu viel Platz) und Training | 1 |
+| IMG_0722 | Kalender weiter unten: Training, Spiel Heim | 1 |
+| IMG_0723 | ⋯-Menü der Terminkarte als Admin/Trainer | 2 |
+
+### Punkt 1: Zusage/Absage überall mit demselben Maß (db8d69f, Build Q)
+
+Messung vorher bei 390 px. Werte: Knopfabstand / oben / unten. Oben bis zur
+Trennlinie, zum Kopf oder zur Ortszeile; unten bis zur Folgezeile bzw. zur
+Innenkante der Karte.
+
+| Ort | mit Rückmelde- bzw. Zählerzeile | ohne Zeile |
+|---|---|---|
+| Übersicht, Hero (Spieler und Trainer) | 8 / 14 / 14 | 8 / 14 / 5 |
+| Kalender, Spiel groß (oberste Karte) | 8 / 12 / 10 | 8 / 12 / 31 |
+| Kalender, Spiel | 8 / 12 / 10 | 8 / 12 / 17 |
+| Kalender, Training | 8 / 14 / 12 | 8 / 14 / 15 |
+| Kalender, Sonstiges | (keine Zeile) | 8 / 12 / 17 |
+
+Die Übersicht hat außerhalb des Hero keine Zusage/Absage-Knöpfe; die
+Danach-Zeilen sind reine Verweise.
+
+**Ursache:** drei Sonderregeln, die sich überlagerten:
+- Das Hero-Padding (14/4) schlug die A2-Regel.
+- Im Kalender addierten sich A2 (14 px) und der Körperabstand (16 px).
+- Die Ortszeile hatte +2 px.
+
+**Die Vorlage ist hier selbst uneinheitlich** (14/14, 12/10, 14/12). Auf
+deine Rückmeldung hin gilt jetzt überall der Hero-Wert der Vorlage.
+
+**Umsetzung:**
+- Token `--rsvp-luft: 14px` im Token-Block (Zeile 5 bis 196).
+- Ein Baustein am Ende von `styles.css`: Die Kartenarten melden nur ihren
+  Grundabstand, der Abstand selbst kommt nur aus dem Token. Die alten
+  Sonderregeln sind entfernt.
+- Nachher überall **8 / 14 / 14**: mit und ohne Rückmeldezeile, mit
+  Absagegrund, als Spieler und als Trainer.
+- Die Tippzone der Zählerzeile reicht nach oben die halbe Lücke (7 px). Die
+  Ausnahmen `zone-rueckmeldung` und `zone-elf` nennen jetzt 7 px.
+
+**Prüfungen:**
+- Messregel `rsvppruef` neu in der Pflichtliste.
+- Referenz **02 Kalender** als Nachschliff-Referenz erneuert (Grund in
+  `REFERENZEN.json`); 01 Übersicht bleibt unverändert.
+- Gerätematrix `nacharbeit-2026-10-p1` (Übersicht, Kalender, Rückmeldungen):
+  0 Befunde.
+
+### Punkt 2: Popover schließt (9a8d8ee, Build R)
+
+Das Termin-Menü hinter ⋯ ist das einzige Popover der App. Die Zeilenmenüs
+(Vorlage, Strafe in der Kasse) sind Blätter mit Abdunklung und schließen
+über ihre Fläche.
+
+Das Popover schließt jetzt:
+- beim Wischen (ab 8 px) und beim Mausrad;
+- bei Tipp daneben;
+- beim Ansichtswechsel;
+- beim Drehen und bei geänderter Fenstergröße.
+
+Es bleibt offen direkt nach dem Öffnen und bei Zittern beim Tippen.
+Gemeinsamer Weg für jedes Popover: `popoverBinden(zu)`.
+
+**Prüfungen:**
+- `popoverpruef` neu in der Pflichtliste (Trainer und Spieler, je 8 Fälle).
+- Gerätematrix `nacharbeit-2026-10-p2` (Termin-Menü): 0 Befunde.
+
+### Punkt 3: Empfänger von C4 (nur gelesen, nichts geändert)
+
+**Live vergebene Rollen** (`user_roles`):
+
+| Rolle | Konten |
+|---|---|
+| admin | 1 |
+| player | 3 |
+| treasurer | 1 |
+| coach | **0** |
+
+- Es gibt **3 Profile für 16 Spieler**:
+  - Das Admin-Konto hat admin, player und treasurer und ist mit einem Spieler
+    verknüpft.
+  - Die zwei übrigen Konten haben nur player und sind keinem Spieler
+    zugeordnet.
+- **Die Empfängerabfrage aus 0059** ist
+  `notify_profile_mit_rolle('coach')` =
+  `select distinct user_id from user_roles where role = 'coach'`. Dazu prüft
+  `kategorie_erlaubt` beim Zustellen dieselbe Rolle.
+- **Ergebnis:** Der Spielertrainer wird **nicht erfasst**. Kein Konto hat
+  live die Rolle coach. Entweder hat er noch kein Konto, oder sein Konto hat
+  die Rolle nicht.
+- Die Abfrage selbst ist richtig: Sobald ein Konto die Rolle coach hat
+  (zuweisbar unter Rollen verwalten), bekommt es die Mitteilung und sieht
+  den Schalter „Status abgelaufen“.
+- An Rollen und Daten ist nichts geändert.
+
+### Stand
+
+- Pflichtliste **24/24** grün, neu sind `rsvppruef` und `popoverpruef`.
+- 390 px: `finalmess` **27/27**, `nsmess` **17/17**.
+- Gerätematrix-Teilläufe: 0 Befunde außerhalb der Ausnahmeliste.
+- Keine Datenbankänderung, keine Test-Pushs.
+
+**iPhone-Test:**
+1. Als Spieler (Rollenvorschau genügt) Übersicht und Kalender öffnen:
+   Zusage/Absage hat oben und unten gleich viel Luft, auch an der obersten
+   Kalenderkarte.
+2. Als Trainer ⋯ öffnen und:
+   - wischen;
+   - neben das Menü tippen;
+   - auf einen anderen Reiter wechseln;
+   - das Gerät drehen.
+   Das Menü schließt jedes Mal.
