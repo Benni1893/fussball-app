@@ -23,7 +23,7 @@ const AUSWAHL = [
   ['admin', 'dashboard+rsvpSheet', 'Rückmeldungen'],
   ['admin', 'trainer', 'Trainer'],
   ['admin', 'trainer/spiel', 'Platz'],
-  ['admin', 'trainer/spiel+tvSheetKader', 'Bank-Blatt'],
+  ['admin', 'trainer/spiel+tvSheetKader#bank', 'Bank-Blatt'],
   ['admin', 'kader', 'Kader'],
   ['admin', 'strafen', 'Konto'],
   ['admin', 'kasse/pruefen', 'Kasse Gemeldet'],

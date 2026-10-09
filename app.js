@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-09-O";
+  var APP_BUILD = "2026-10-09-P";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -3144,9 +3144,11 @@
       b.classList.add("is-offen"); b.setAttribute("aria-expanded", "true");
       const r = b.getBoundingClientRect();
       const breite = pop.offsetWidth, hoehe = pop.offsetHeight;
-      pop.style.left = Math.max(8, Math.min(W - breite - 8, r.right - breite)) + "px";
-      if (H - r.bottom < 200 && r.top > hoehe + 12) pop.style.top = (r.top - 6 - hoehe) + "px";
-      else pop.style.top = Math.min(r.bottom + 6, H - hoehe - 8) + "px";
+      // Ganze Pixel: bei krummer Lage (Knopf auf 220,19) rundet der Treffertest
+      // den unteren Rand jeder Zeile auf die 1-px-Linie darunter.
+      pop.style.left = Math.round(Math.max(8, Math.min(W - breite - 8, r.right - breite))) + "px";
+      if (H - r.bottom < 200 && r.top > hoehe + 12) pop.style.top = Math.round(r.top - 6 - hoehe) + "px";
+      else pop.style.top = Math.round(Math.min(r.bottom + 6, H - hoehe - 8)) + "px";
     } else {
       pop.style.left = Math.max(8, W - pop.offsetWidth - 16) + "px"; pop.style.top = "80px";
     }

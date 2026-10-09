@@ -1580,11 +1580,11 @@
           "nameQuelle": "ueberschrift"
         },
         {
-          "schluessel": "trainer/spiel+tvSheetKader",
+          "schluessel": "trainer/spiel+tvSheetKader#bank",
           "ansicht": "trainer",
           "unter": "spiel",
           "oben": [
-            "tvSheetKader"
+            "tvSheetKader#bank"
           ],
           "ueberschrift": null,
           "titel": "Spieler für die Bank",
@@ -1603,10 +1603,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainer/trainer__spiel--tvSheetKader.png",
+          "bild": "bilder/trainer/trainer__spiel--tvSheetKader-bank.png",
           "strang": "trainer",
-          "name": "Spieler für die Bank",
-          "nameQuelle": "ueberschrift"
+          "name": "Bank-Blatt",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "trainer/spiel+tvSheetMenu",
@@ -2342,7 +2342,7 @@
           "art": "tvbankadd",
           "wert": null,
           "text": "Spieler wählen ›",
-          "nach": "trainer/spiel+tvSheetKader"
+          "nach": "trainer/spiel+tvSheetKader#bank"
         },
         {
           "von": "trainer/spiel",
@@ -2920,11 +2920,11 @@
           "nameQuelle": "ueberschrift"
         },
         {
-          "schluessel": "kasse+ksBl",
+          "schluessel": "kasse+ksBl#detail",
           "ansicht": "kasse",
           "unter": null,
           "oben": [
-            "ksBl"
+            "ksBl#detail"
           ],
           "ueberschrift": "Kasse",
           "titel": null,
@@ -2943,9 +2943,9 @@
               "global": false
             }
           ],
-          "bild": "bilder/kassenwart/kasse--ksBl.png",
+          "bild": "bilder/kassenwart/kasse--ksBl-detail.png",
           "strang": "kasse",
-          "name": "Strafe buchen",
+          "name": "Strafe mit Verlauf",
           "nameQuelle": "liste"
         },
         {
@@ -3180,6 +3180,83 @@
           "strang": "kasse",
           "name": "Spieler auswählen",
           "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "kasse+ksBl",
+          "ansicht": "kasse",
+          "unter": null,
+          "oben": [
+            "ksBl"
+          ],
+          "ueberschrift": "Kasse",
+          "titel": "Ilja Rennert",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Kasse",
+              "global": true
+            },
+            {
+              "art": "kstab",
+              "wert": "offen",
+              "text": "Offen",
+              "global": false
+            },
+            {
+              "art": "ks-spieler",
+              "wert": null,
+              "text": "Ilja Rennert buchen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/kasse--ksBl.png",
+          "strang": "kasse",
+          "name": "Strafe buchen",
+          "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "kasse+ksZMenu+ksBl",
+          "ansicht": "kasse",
+          "unter": null,
+          "oben": [
+            "ksZMenu",
+            "ksBl"
+          ],
+          "ueberschrift": "Kasse",
+          "titel": "Ilja Rennert",
+          "tiefe": 4,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Kasse",
+              "global": true
+            },
+            {
+              "art": "kstab",
+              "wert": "offen",
+              "text": "Offen",
+              "global": false
+            },
+            {
+              "art": "ks-spieler",
+              "wert": null,
+              "text": "Ilja Rennert buchen",
+              "global": false
+            },
+            {
+              "art": "ks-zmenu",
+              "wert": null,
+              "text": "Mehr zu Verspätete Rückmeldung",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/kasse--ksZMenu--ksBl.png",
+          "strang": "kasse",
+          "name": "Ilja Rennert",
+          "nameQuelle": "ueberschrift"
         }
       ],
       "kanten": [
@@ -3363,7 +3440,7 @@
           "art": "ks-det",
           "wert": null,
           "text": "FO Felix Oberhaus bar · 13.09. 3,00 €",
-          "nach": "kasse+ksBl"
+          "nach": "kasse+ksBl#detail"
         },
         {
           "von": "kasse/bezahlt",
@@ -3419,7 +3496,7 @@
           "art": "ks-det",
           "wert": null,
           "text": "Meldung von Bruno Kessler im Detail",
-          "nach": "kasse+ksBl"
+          "nach": "kasse+ksBl#detail"
         },
         {
           "von": "kasse/pruefen",
@@ -3455,6 +3532,13 @@
           "wert": null,
           "text": "Weiter",
           "nach": "kasse/strafe-katalog+ksSeite"
+        },
+        {
+          "von": "kasse+ksBl",
+          "art": "ks-zmenu",
+          "wert": null,
+          "text": "Mehr zu Verspätete Rückmeldung",
+          "nach": "kasse+ksZMenu+ksBl"
         },
         {
           "von": "katalog",
@@ -3511,6 +3595,12 @@
           "text": "Gemeldet 2"
         },
         {
+          "von": "kasse+ksZMenu+ksBl",
+          "art": "ks-zmenu",
+          "wert": null,
+          "text": "Mehr zu Verspätete Rückmeldung"
+        },
+        {
           "von": "strafen",
           "art": "kseg",
           "wert": "ich",
@@ -3537,6 +3627,7 @@
         "ks-spieler-w",
         "ks-wahl",
         "ks-weiter",
+        "ks-zmenu",
         "kseg",
         "kstab",
         "logout",
@@ -4318,11 +4409,11 @@
           "nameQuelle": "ueberschrift"
         },
         {
-          "schluessel": "kasse+ksBl",
+          "schluessel": "kasse+ksBl#detail",
           "ansicht": "kasse",
           "unter": null,
           "oben": [
-            "ksBl"
+            "ksBl#detail"
           ],
           "ueberschrift": "Kasse",
           "titel": null,
@@ -4341,9 +4432,9 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/kasse--ksBl.png",
+          "bild": "bilder/trainerkassenwart/kasse--ksBl-detail.png",
           "strang": "kasse",
-          "name": "Strafe buchen",
+          "name": "Strafe mit Verlauf",
           "nameQuelle": "liste"
         },
         {
@@ -4488,11 +4579,11 @@
           "nameQuelle": "ueberschrift"
         },
         {
-          "schluessel": "trainer/spiel+tvSheetKader",
+          "schluessel": "trainer/spiel+tvSheetKader#bank",
           "ansicht": "trainer",
           "unter": "spiel",
           "oben": [
-            "tvSheetKader"
+            "tvSheetKader#bank"
           ],
           "ueberschrift": null,
           "titel": "Spieler für die Bank",
@@ -4511,10 +4602,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/trainerkassenwart/trainer__spiel--tvSheetKader.png",
+          "bild": "bilder/trainerkassenwart/trainer__spiel--tvSheetKader-bank.png",
           "strang": "trainer",
-          "name": "Spieler für die Bank",
-          "nameQuelle": "ueberschrift"
+          "name": "Bank-Blatt",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "trainer/spiel+tvSheetMenu",
@@ -4828,6 +4919,41 @@
           "nameQuelle": "ueberschrift"
         },
         {
+          "schluessel": "kasse+ksBl",
+          "ansicht": "kasse",
+          "unter": null,
+          "oben": [
+            "ksBl"
+          ],
+          "ueberschrift": "Kasse",
+          "titel": "Ilja Rennert",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "task-pay",
+              "wert": null,
+              "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
+              "global": false
+            },
+            {
+              "art": "kstab",
+              "wert": "offen",
+              "text": "Offen",
+              "global": false
+            },
+            {
+              "art": "ks-spieler",
+              "wert": null,
+              "text": "Ilja Rennert buchen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/kasse--ksBl.png",
+          "strang": "kasse",
+          "name": "Strafe buchen",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "profil+pwBlatt",
           "ansicht": "profil",
           "unter": null,
@@ -4966,6 +5092,48 @@
           "strang": "trainer",
           "name": "Vorlagen-Menü",
           "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "kasse+ksZMenu+ksBl",
+          "ansicht": "kasse",
+          "unter": null,
+          "oben": [
+            "ksZMenu",
+            "ksBl"
+          ],
+          "ueberschrift": "Kasse",
+          "titel": "Ilja Rennert",
+          "tiefe": 4,
+          "pfad": [
+            {
+              "art": "task-pay",
+              "wert": null,
+              "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
+              "global": false
+            },
+            {
+              "art": "kstab",
+              "wert": "offen",
+              "text": "Offen",
+              "global": false
+            },
+            {
+              "art": "ks-spieler",
+              "wert": null,
+              "text": "Ilja Rennert buchen",
+              "global": false
+            },
+            {
+              "art": "ks-zmenu",
+              "wert": null,
+              "text": "Mehr zu Verspätete Rückmeldung",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/kasse--ksZMenu--ksBl.png",
+          "strang": "kasse",
+          "name": "Ilja Rennert",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "trainer+rsvpSheet+pushModal",
@@ -5387,7 +5555,7 @@
           "art": "ks-det",
           "wert": null,
           "text": "FO Felix Oberhaus bar · 13.09. 3,00 €",
-          "nach": "kasse+ksBl"
+          "nach": "kasse+ksBl#detail"
         },
         {
           "von": "kasse/bezahlt",
@@ -5443,7 +5611,7 @@
           "art": "ks-det",
           "wert": null,
           "text": "Meldung von Bruno Kessler im Detail",
-          "nach": "kasse+ksBl"
+          "nach": "kasse+ksBl#detail"
         },
         {
           "von": "kasse/pruefen",
@@ -5479,6 +5647,13 @@
           "wert": null,
           "text": "Weiter",
           "nach": "kasse/strafe-katalog+ksSeite"
+        },
+        {
+          "von": "kasse+ksBl",
+          "art": "ks-zmenu",
+          "wert": null,
+          "text": "Mehr zu Verspätete Rückmeldung",
+          "nach": "kasse+ksZMenu+ksBl"
         },
         {
           "von": "katalog",
@@ -5555,7 +5730,7 @@
           "art": "tvbankadd",
           "wert": null,
           "text": "Spieler wählen ›",
-          "nach": "trainer/spiel+tvSheetKader"
+          "nach": "trainer/spiel+tvSheetKader#bank"
         },
         {
           "von": "trainer/spiel",
@@ -5626,6 +5801,12 @@
           "text": "Gemeldet 2"
         },
         {
+          "von": "kasse+ksZMenu+ksBl",
+          "art": "ks-zmenu",
+          "wert": null,
+          "text": "Mehr zu Verspätete Rückmeldung"
+        },
+        {
           "von": "strafen",
           "art": "kseg",
           "wert": "ich",
@@ -5659,6 +5840,7 @@
         "ks-spieler-w",
         "ks-wahl",
         "ks-weiter",
+        "ks-zmenu",
         "kseg",
         "kstab",
         "lineup-edit",
@@ -6508,11 +6690,11 @@
           "nameQuelle": "ueberschrift"
         },
         {
-          "schluessel": "kasse+ksBl",
+          "schluessel": "kasse+ksBl#detail",
           "ansicht": "kasse",
           "unter": null,
           "oben": [
-            "ksBl"
+            "ksBl#detail"
           ],
           "ueberschrift": "Kasse",
           "titel": null,
@@ -6531,9 +6713,9 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/kasse--ksBl.png",
+          "bild": "bilder/admin/kasse--ksBl-detail.png",
           "strang": "kasse",
-          "name": "Strafe buchen",
+          "name": "Strafe mit Verlauf",
           "nameQuelle": "liste"
         },
         {
@@ -6705,11 +6887,11 @@
           "nameQuelle": "ueberschrift"
         },
         {
-          "schluessel": "trainer/spiel+tvSheetKader",
+          "schluessel": "trainer/spiel+tvSheetKader#bank",
           "ansicht": "trainer",
           "unter": "spiel",
           "oben": [
-            "tvSheetKader"
+            "tvSheetKader#bank"
           ],
           "ueberschrift": null,
           "titel": "Spieler für die Bank",
@@ -6728,10 +6910,10 @@
               "global": false
             }
           ],
-          "bild": "bilder/admin/trainer__spiel--tvSheetKader.png",
+          "bild": "bilder/admin/trainer__spiel--tvSheetKader-bank.png",
           "strang": "trainer",
-          "name": "Spieler für die Bank",
-          "nameQuelle": "ueberschrift"
+          "name": "Bank-Blatt",
+          "nameQuelle": "liste"
         },
         {
           "schluessel": "trainer/spiel+tvSheetMenu",
@@ -7078,6 +7260,41 @@
           "nameQuelle": "ueberschrift"
         },
         {
+          "schluessel": "kasse+ksBl",
+          "ansicht": "kasse",
+          "unter": null,
+          "oben": [
+            "ksBl"
+          ],
+          "ueberschrift": "Kasse",
+          "titel": "Ilja Rennert",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "task-pay",
+              "wert": null,
+              "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
+              "global": false
+            },
+            {
+              "art": "kstab",
+              "wert": "offen",
+              "text": "Offen",
+              "global": false
+            },
+            {
+              "art": "ks-spieler",
+              "wert": null,
+              "text": "Ilja Rennert buchen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/kasse--ksBl.png",
+          "strang": "kasse",
+          "name": "Strafe buchen",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "profil+pwBlatt",
           "ansicht": "profil",
           "unter": null,
@@ -7216,6 +7433,48 @@
           "strang": "trainer",
           "name": "Vorlagen-Menü",
           "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "kasse+ksZMenu+ksBl",
+          "ansicht": "kasse",
+          "unter": null,
+          "oben": [
+            "ksZMenu",
+            "ksBl"
+          ],
+          "ueberschrift": "Kasse",
+          "titel": "Ilja Rennert",
+          "tiefe": 4,
+          "pfad": [
+            {
+              "art": "task-pay",
+              "wert": null,
+              "text": "2 Zahlungen bestätigen Kasse · seit heute ›",
+              "global": false
+            },
+            {
+              "art": "kstab",
+              "wert": "offen",
+              "text": "Offen",
+              "global": false
+            },
+            {
+              "art": "ks-spieler",
+              "wert": null,
+              "text": "Ilja Rennert buchen",
+              "global": false
+            },
+            {
+              "art": "ks-zmenu",
+              "wert": null,
+              "text": "Mehr zu Verspätete Rückmeldung",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/kasse--ksZMenu--ksBl.png",
+          "strang": "kasse",
+          "name": "Ilja Rennert",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "trainer+rsvpSheet+pushModal",
@@ -7672,7 +7931,7 @@
           "art": "ks-det",
           "wert": null,
           "text": "FO Felix Oberhaus bar · 13.09. 3,00 €",
-          "nach": "kasse+ksBl"
+          "nach": "kasse+ksBl#detail"
         },
         {
           "von": "kasse/bezahlt",
@@ -7728,7 +7987,7 @@
           "art": "ks-det",
           "wert": null,
           "text": "Meldung von Bruno Kessler im Detail",
-          "nach": "kasse+ksBl"
+          "nach": "kasse+ksBl#detail"
         },
         {
           "von": "kasse/pruefen",
@@ -7764,6 +8023,13 @@
           "wert": null,
           "text": "Weiter",
           "nach": "kasse/strafe-katalog+ksSeite"
+        },
+        {
+          "von": "kasse+ksBl",
+          "art": "ks-zmenu",
+          "wert": null,
+          "text": "Mehr zu Verspätete Rückmeldung",
+          "nach": "kasse+ksZMenu+ksBl"
         },
         {
           "von": "katalog",
@@ -7840,7 +8106,7 @@
           "art": "tvbankadd",
           "wert": null,
           "text": "Spieler wählen ›",
-          "nach": "trainer/spiel+tvSheetKader"
+          "nach": "trainer/spiel+tvSheetKader#bank"
         },
         {
           "von": "trainer/spiel",
@@ -7911,6 +8177,12 @@
           "text": "Gemeldet 2"
         },
         {
+          "von": "kasse+ksZMenu+ksBl",
+          "art": "ks-zmenu",
+          "wert": null,
+          "text": "Mehr zu Verspätete Rückmeldung"
+        },
+        {
           "von": "strafen",
           "art": "kseg",
           "wert": "ich",
@@ -7944,6 +8216,7 @@
         "ks-spieler-w",
         "ks-wahl",
         "ks-weiter",
+        "ks-zmenu",
         "kseg",
         "kstab",
         "lineup-edit",
@@ -7977,7 +8250,6 @@
   },
   "nichtErreichteAusloeser": [
     "view-jump",
-    "ks-zmenu",
     "tvfill"
   ]
 }

@@ -92,22 +92,22 @@ export const NS_ELEMENTE = {
   // E2 (Vorlage D8): Bank-Blatt, Kopf, freie Zeile, Bank-Zeile, Fußzeile.
   'E2 Kopf': {
     soll: { figur: 'D8', rahmen: 0, wurzel: '(f) => f.children[1].children[1]' },
-    ist: { profil: 'admin', schluessel: 'trainer/spiel+tvSheetKader', wurzel: '#tvSheetKader .tv-sh' },
+    ist: { profil: 'admin', schluessel: 'trainer/spiel+tvSheetKader#bank', wurzel: '#tvSheetKader .tv-sh' },
     breite: 390,
   },
   'E2 Zeile frei': {
     soll: { figur: 'D8', rahmen: 0, wurzel: '(f) => f.children[1].children[3]' },
-    ist: { profil: 'admin', schluessel: 'trainer/spiel+tvSheetKader', wurzel: '#tvSheetKader .tvb-zeile:not(.is-bank)' },
+    ist: { profil: 'admin', schluessel: 'trainer/spiel+tvSheetKader#bank', wurzel: '#tvSheetKader .tvb-zeile:not(.is-bank)' },
     breite: 390, ersetze: { '6': '1', 'Felix Oberhaus': 'Tobias Wagner', 'ZM · keine Rückmeldung': 'TW · keine Rückmeldung' }, breiteFrei: ['Tobias Wagner', 'TW · keine Rückmeldung', '1'],
   },
   'E2 Zeile Bank': {
     soll: { figur: 'D8', rahmen: 0, wurzel: '(f) => f.children[1].children[5]' },
-    ist: { profil: 'admin', schluessel: 'trainer/spiel+tvSheetKader', wurzel: '#tvSheetKader .tvb-zeile.is-bank' },
+    ist: { profil: 'admin', schluessel: 'trainer/spiel+tvSheetKader#bank', wurzel: '#tvSheetKader .tvb-zeile.is-bank' },
     breite: 390, ersetze: { '12': '5', 'Oskar Zierer': 'Leon Schmidt', 'TW · auf der Bank': 'IV · auf der Bank' }, breiteFrei: ['Leon Schmidt', 'IV · auf der Bank', '5'],
   },
   'E2 Fuß': {
     soll: { figur: 'D8', rahmen: 0, wurzel: '(f) => f.children[1].lastElementChild' },
-    ist: { profil: 'admin', schluessel: 'trainer/spiel+tvSheetKader', wurzel: '#tvSheetKader .tvb-fuss', daten: () => bankD8() },
+    ist: { profil: 'admin', schluessel: 'trainer/spiel+tvSheetKader#bank', wurzel: '#tvSheetKader .tvb-fuss', daten: () => bankD8() },
     breite: 390,
   },
   // E3 (Vorlage D9): Kasse › Bezahlt › Blatt Strafe.

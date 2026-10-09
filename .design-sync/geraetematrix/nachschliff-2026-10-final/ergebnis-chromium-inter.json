@@ -1,0 +1,641 @@
+{
+ "variante": "chromium-inter",
+ "engine": "Chromium",
+ "schrift": "Inter",
+ "breiten": [
+  320,
+  360,
+  375,
+  384,
+  390,
+  393,
+  412,
+  414,
+  430
+ ],
+ "schriften": [
+  100,
+  130
+ ],
+ "sekunden": 250,
+ "profile": [
+  {
+   "profil": "admin",
+   "ergebnisse": [],
+   "ausnahmen": [
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "admin",
+     "schluessel": "kasse/pruefen",
+     "breite": 320,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "admin",
+     "schluessel": "kasse/pruefen",
+     "breite": 360,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "141×24, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "admin",
+     "schluessel": "kasse/pruefen",
+     "breite": 360,
+     "schrift": 130
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "admin",
+     "schluessel": "kasse/pruefen",
+     "breite": 375,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "141×24, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "admin",
+     "schluessel": "kasse/pruefen",
+     "breite": 375,
+     "schrift": 130
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "admin",
+     "schluessel": "kasse/pruefen",
+     "breite": 384,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "141×24, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "admin",
+     "schluessel": "kasse/pruefen",
+     "breite": 384,
+     "schrift": 130
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "admin",
+     "schluessel": "kasse/pruefen",
+     "breite": 390,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "141×24, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "admin",
+     "schluessel": "kasse/pruefen",
+     "breite": 390,
+     "schrift": 130
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "admin",
+     "schluessel": "kasse/pruefen",
+     "breite": 393,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "141×24, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "admin",
+     "schluessel": "kasse/pruefen",
+     "breite": 393,
+     "schrift": 130
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "admin",
+     "schluessel": "kasse/pruefen",
+     "breite": 412,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "141×24, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "admin",
+     "schluessel": "kasse/pruefen",
+     "breite": 412,
+     "schrift": 130
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "admin",
+     "schluessel": "kasse/pruefen",
+     "breite": 414,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "141×24, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "admin",
+     "schluessel": "kasse/pruefen",
+     "breite": 414,
+     "schrift": 130
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "admin",
+     "schluessel": "kasse/pruefen",
+     "breite": 430,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "141×24, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "admin",
+     "schluessel": "kasse/pruefen",
+     "breite": 430,
+     "schrift": 130
+    }
+   ],
+   "nichtErreicht": [],
+   "neuGeladen": 0,
+   "verstoesse": [],
+   "fehler": []
+  },
+  {
+   "profil": "anmeldung",
+   "ergebnisse": [],
+   "ausnahmen": [],
+   "nichtErreicht": [],
+   "neuGeladen": 0,
+   "verstoesse": [],
+   "fehler": []
+  },
+  {
+   "profil": "kassenwart",
+   "ergebnisse": [],
+   "ausnahmen": [
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "kassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 320,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "kassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 360,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "141×24, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "kassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 360,
+     "schrift": 130
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "kassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 375,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "141×24, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "kassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 375,
+     "schrift": 130
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "kassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 384,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "141×24, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "kassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 384,
+     "schrift": 130
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "kassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 390,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "141×24, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "kassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 390,
+     "schrift": 130
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "kassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 393,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "141×24, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "kassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 393,
+     "schrift": 130
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "kassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 412,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "141×24, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "kassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 412,
+     "schrift": 130
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "kassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 414,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "141×24, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "kassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 414,
+     "schrift": 130
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "kassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 430,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "141×24, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "kassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 430,
+     "schrift": 130
+    }
+   ],
+   "nichtErreicht": [],
+   "neuGeladen": 0,
+   "verstoesse": [],
+   "fehler": []
+  },
+  {
+   "profil": "spieler",
+   "ergebnisse": [],
+   "ausnahmen": [],
+   "nichtErreicht": [],
+   "neuGeladen": 0,
+   "verstoesse": [],
+   "fehler": []
+  },
+  {
+   "profil": "trainer",
+   "ergebnisse": [],
+   "ausnahmen": [],
+   "nichtErreicht": [],
+   "neuGeladen": 0,
+   "verstoesse": [],
+   "fehler": []
+  },
+  {
+   "profil": "trainerkassenwart",
+   "ergebnisse": [],
+   "ausnahmen": [
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "trainerkassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 320,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "trainerkassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 360,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "141×24, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "trainerkassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 360,
+     "schrift": 130
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "trainerkassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 375,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "141×24, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "trainerkassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 375,
+     "schrift": 130
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "trainerkassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 384,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "141×24, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "trainerkassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 384,
+     "schrift": 130
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "trainerkassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 390,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "141×24, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "trainerkassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 390,
+     "schrift": 130
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "trainerkassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 393,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "141×24, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "trainerkassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 393,
+     "schrift": 130
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "trainerkassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 412,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "141×24, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "trainerkassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 412,
+     "schrift": 130
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "trainerkassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 414,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "141×24, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "trainerkassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 414,
+     "schrift": 130
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "109×19, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "trainerkassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 430,
+     "schrift": 100
+    },
+    {
+     "typ": "treffer",
+     "el": "div.ks-pane > div.group-head.ks-stapelkopf > button.link-btn",
+     "text": "Alle bestätigen",
+     "detail": "141×24, zu klein oben/unten",
+     "ausnahme": "zone-alle-bestaetigen",
+     "profil": "trainerkassenwart",
+     "schluessel": "kasse/pruefen",
+     "breite": 430,
+     "schrift": 130
+    }
+   ],
+   "nichtErreicht": [],
+   "neuGeladen": 0,
+   "verstoesse": [],
+   "fehler": []
+  }
+ ]
+}

@@ -1,0 +1,77 @@
+{
+ "variante": "webkit-inter",
+ "engine": "WebKit",
+ "schrift": "Inter",
+ "breiten": [
+  320,
+  360,
+  375,
+  384,
+  390,
+  393,
+  412,
+  414,
+  430
+ ],
+ "schriften": [
+  100,
+  130
+ ],
+ "sekunden": 27,
+ "profile": [
+  {
+   "profil": "admin",
+   "ergebnisse": [],
+   "ausnahmen": [],
+   "nichtErreicht": [],
+   "neuGeladen": 0,
+   "verstoesse": [],
+   "fehler": []
+  },
+  {
+   "profil": "anmeldung",
+   "ergebnisse": [],
+   "ausnahmen": [],
+   "nichtErreicht": [],
+   "neuGeladen": 0,
+   "verstoesse": [],
+   "fehler": []
+  },
+  {
+   "profil": "kassenwart",
+   "ergebnisse": [],
+   "ausnahmen": [],
+   "nichtErreicht": [],
+   "neuGeladen": 0,
+   "verstoesse": [],
+   "fehler": []
+  },
+  {
+   "profil": "spieler",
+   "ergebnisse": [],
+   "ausnahmen": [],
+   "nichtErreicht": [],
+   "neuGeladen": 0,
+   "verstoesse": [],
+   "fehler": []
+  },
+  {
+   "profil": "trainer",
+   "ergebnisse": [],
+   "ausnahmen": [],
+   "nichtErreicht": [],
+   "neuGeladen": 0,
+   "verstoesse": [],
+   "fehler": []
+  },
+  {
+   "profil": "trainerkassenwart",
+   "ergebnisse": [],
+   "ausnahmen": [],
+   "nichtErreicht": [],
+   "neuGeladen": 0,
+   "verstoesse": [],
+   "fehler": []
+  }
+ ]
+}

@@ -43,9 +43,9 @@ const slug = (s) => (s || '').toLowerCase().replace(/ä/g, 'ae').replace(/ö/g, 
    Ist eine Überlagerung offen, zählt nur, was in der obersten liegt.
    Geschlossene Überlagerungen und unsichtbare Elemente zählen nicht.   */
 export function kandidatenImBrowser({ ausloeser, ueberlagerungen, oben, istStart, nurArt, nurWert }) {
-  const offen = new Set(oben);
+  const offen = new Set(oben.map((o) => o.split('#')[0]));   // "tvSheetKader#bank" -> tvSheetKader
   const zu = ueberlagerungen.map((u) => document.getElementById(u.id)).filter((el) => el && !offen.has(el.id));
-  const bereich = oben.length ? document.getElementById(oben[oben.length - 1]) : document;
+  const bereich = oben.length ? document.getElementById(oben[oben.length - 1].split('#')[0]) : document;
   const sichtbar = (el, gesperrtOk) => {
     if (zu.some((z) => z.contains(el))) return false;
     if (!el.getClientRects().length) return false;

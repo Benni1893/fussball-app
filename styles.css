@@ -3942,6 +3942,11 @@ button.ein-wertzeile { cursor: pointer; }
 .pkat-zeile .mark { flex: none; }
 .pkat-vorlage { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pkat-zeile .ein-schalter-main { min-width: 0; }
+/* Nachschliff Abschluss: der Titel (16/700 seit A6) behält seine Mindestbreite,
+   die Marke kürzt bei Platzmangel (320 px, 130 %) mit Auslassungspunkten. */
+.pkat-zeile .ein-schalter-main { flex: 1 1 0; min-width: min-content; }
+.pkat-zeile .pkat-vorlage { width: 0; min-width: 100%; }
+.pkat-zeile .mark { display: block; flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .ein-h1-zeile { position: relative; display: block; }
 .ein-h1-zeile .link-btn { position: absolute; right: 0; top: 50%; transform: translateY(-50%); }
 .ein-schalter-s.is-rot { color: var(--red-700); }
@@ -4046,9 +4051,11 @@ button, input, select, textarea { font-family: inherit; }
 .ks-seg-n { min-width: 22px; height: 20px; padding: 0 6px; margin-left: 6px; }
 @media (max-width: 359px) { .ks-seg .ks-seg-b { padding: 0 4px; } .ks-seg-n { margin-left: 4px; } }
 /* A3 „1 von 5 · 65 € · Alle bestätigen“: oben und unten je 12 px; die Zone
-   von „Alle bestätigen“ reicht unten weiter bis zur halben Lücke (6 px) */
+   von „Alle bestätigen“ reicht oben und unten bis zur halben Lücke (6 px).
+   Oben nicht weiter: sonst deckt sie je nach Schriftmaß die Zone des
+   Segments darüber zu (Gerätematrix, Roboto, Nachschliff Abschluss). */
 .group-head.ks-stapelkopf { margin: 12px 0 12px; }
-.ks-stapelkopf .link-btn::after { bottom: -6px; }
+.ks-stapelkopf .link-btn::after { top: -6px; bottom: -6px; }
 /* A4 + A8 Spielerlisten: ein Zeilenmuster für Konto › Mannschaft und Kasse.
    Innenabstand oben und unten gleich, Name kürzt mit Auslassungspunkten,
    Betrag in fester rechter Spalte mit Ziffern gleicher Breite. */
@@ -4090,6 +4097,11 @@ button, input, select, textarea { font-family: inherit; }
 .tkp-item span { font-size: 15px; font-weight: 600; color: var(--ink); }
 .tkp-item.is-rot, .tkp-item.is-rot span { color: var(--red-600); }
 .tkp-linie { height: 1px; margin-left: 46px; background: var(--line); }
+/* Trefferfläche jeder Zeile 1 px über die Linie bzw. das Band darunter: bei
+   krummer Lage (DPR 2,625) rundet der Treffertest den unteren Rand sonst auf
+   die Linie (Gerätematrix, Nachschliff Abschluss). Unsichtbar, ohne Layout. */
+.tkp-item { position: relative; }
+.tkp-item::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; }
 .tkp-band { height: 8px; background: var(--bg); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .tk-kopf .tk-menue.is-offen { background: #fff; box-shadow: 0 0 0 2px var(--green-badge-line); color: var(--green-800); }
 /* Abdunklung aller Blätter und Dialoge: --ov-soft (Grün 990, 18 %) statt bis zu 55 % Schwarzgrün.

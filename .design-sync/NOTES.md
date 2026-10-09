@@ -1171,6 +1171,13 @@ node .design-sync/shots/landkartendrift.mjs     # Drift-Prüfung (Pflichtliste)
 node .design-sync/shots/landkartenrauch.mjs     # Rauchtest des Stand-ins (Pflichtliste)
 ```
 
+**Spielarten eines Blatts (seit 09.10.2026, Nachschliff):** Zeigt dasselbe
+Blatt zwei verschiedene Inhalte, hängt `zustandImBrowser` eine Marke an den
+Bezeichner: `tvSheetKader#bank` (Bank-Blatt, Klasse `is-bankmodus`) und
+`ksBl#detail` (Strafe mit Verlauf, `ksd-*`). Wer aus `oben` ein Element holt,
+nimmt den Teil vor `#` (`landkarte.mjs`, `geraetematrix.mjs`). Die Schlüssel
+lauten `trainer/spiel+tvSheetKader#bank` und `kasse+ksBl#detail`.
+
 | Datei | versioniert | Inhalt |
 |---|---|---|
 | `.design-sync/landkarte/landkarte.json` | ja | Knoten, Kanten, Klickpfade, Strang und Name je Knoten |

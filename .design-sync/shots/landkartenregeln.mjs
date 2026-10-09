@@ -117,7 +117,13 @@ export function zustandImBrowser(ueberlagerungen) {
   for (const u of ueberlagerungen) {
     const el = document.getElementById(u.id);
     if (!el) continue;
-    if (u.blatt ? el.classList.contains('open') : sichtbar(el)) oben.push(u.id);
+    if (!(u.blatt ? el.classList.contains('open') : sichtbar(el))) continue;
+    // Spielarten desselben Blatts als eigener Zustand (Nachschliff E2/E3):
+    // "#..." hängt am Bezeichner, getElementById nimmt den Teil davor.
+    let id = u.id;
+    if (u.id === 'tvSheetKader' && el.classList.contains('is-bankmodus')) id += '#bank';
+    if (u.id === 'ksBl' && el.querySelector('[class*="ksd-"]')) id += '#detail';
+    oben.push(id);
   }
   // Kassen-Reiter nur ohne offenes Blatt: "Strafe verhängen" & Co. sind in
   // jedem Reiter dasselbe Blatt und sollen nicht dreifach auf der Karte stehen.
@@ -140,7 +146,7 @@ export function zustandImBrowser(ueberlagerungen) {
     return null;
   };
   let titel = h1t || null;
-  if (oben.length) titel = ersteUeberschrift(document.getElementById(oben[oben.length - 1]));
+  if (oben.length) titel = ersteUeberschrift(document.getElementById(oben[oben.length - 1].split('#')[0]));
   else if (ansicht === 'kasse' && unter) {
     const r = document.querySelector('.ks-seg-b.is-on[data-kstab]');
     titel = h1t && r ? h1t + ' · ' + textVon(r) : titel;
@@ -207,6 +213,8 @@ export const NAMEN = {
   'einstellungen/profil+pwBlatt': 'Neues Passwort',
   'profil+pwBlatt': 'Neues Passwort',                     // Überschrift ist der Vorlagenname (Testdaten)
   'kasse+ksBl': 'Strafe buchen',                           // Überschrift nur "Strafe"
+  'kasse+ksBl#detail': 'Strafe mit Verlauf',               // Nachschliff E3, Überschrift nur "Strafe"
+  'trainer/spiel+tvSheetKader#bank': 'Bank-Blatt',         // Nachschliff E2
   'trainer/spiel+tvSheetMenu': 'Aufstellungs-Menü',        // Überschrift nur "Mehr"
 };
 const TESTDATEN = /Musterhausen|Beispielstadt|Probedorf|Testhausen/;
