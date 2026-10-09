@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-09-Q";
+  var APP_BUILD = "2026-10-09-R";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -3105,7 +3105,54 @@
     zurueck: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3M20 4v4h-4M20 12a8 8 0 0 1-14 5.3M4 20v-4h4"/></svg>',
     muell: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12.5A1.5 1.5 0 0 0 8.5 21h7a1.5 1.5 0 0 0 1.5-1.5L18 7M9 7V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V7"/></svg>',
   };
+  /* Gemeinsames Verhalten aller Popover (Nacharbeit 2): offen ist höchstens
+     eines; es schließt beim Scrollen (Wischen oder Mausrad, auch über der
+     Fangfläche, die das Scrollen dahinter sperrt), bei Tipp daneben (Fang-
+     fläche), beim Ansichtswechsel (switchView, Hash) und beim Drehen bzw.
+     Ändern der Fenstergröße. scroll und resize zählen erst nach 400 ms: das
+     Sperren des Hintergrunds beim Öffnen löst selbst eines davon aus.
+     popoverBinden(zu) hängt die Wächter an, popoverLoesen() nimmt sie ab. */
+  let popoverWaechter = null;
+  function popoverLoesen() {
+    if (popoverWaechter) { const w = popoverWaechter; popoverWaechter = null; w(); }
+  }
+  function popoverZu() {
+    if (popoverWaechter && popoverWaechter.zu) popoverWaechter.zu();
+  }
+  function popoverBinden(zu) {
+    popoverLoesen();
+    const seit = Date.now();
+    let startY = null, startX = null;
+    const spaet = () => { if (Date.now() - seit > 400) zu(); };
+    const tStart = (ev) => { const t = ev.touches && ev.touches[0]; startY = t ? t.clientY : null; startX = t ? t.clientX : null; };
+    const tMove = (ev) => {
+      const t = ev.touches && ev.touches[0];
+      if (!t || startY == null) return;
+      if (Math.abs(t.clientY - startY) > 8 || Math.abs(t.clientX - startX) > 8) zu();   // Wischen, kein Zittern beim Tippen
+    };
+    const opt = { capture: true, passive: true };
+    document.addEventListener("touchstart", tStart, opt);
+    document.addEventListener("touchmove", tMove, opt);
+    document.addEventListener("wheel", zu, opt);
+    window.addEventListener("scroll", spaet, opt);
+    window.addEventListener("resize", spaet);
+    window.addEventListener("orientationchange", zu);
+    window.addEventListener("hashchange", zu);
+    const w = () => {
+      document.removeEventListener("touchstart", tStart, opt);
+      document.removeEventListener("touchmove", tMove, opt);
+      document.removeEventListener("wheel", zu, opt);
+      window.removeEventListener("scroll", spaet, opt);
+      window.removeEventListener("resize", spaet);
+      window.removeEventListener("orientationchange", zu);
+      window.removeEventListener("hashchange", zu);
+    };
+    w.zu = zu;
+    popoverWaechter = w;
+  }
+
   function closeTkMenu() {
+    popoverLoesen();
     const ex = document.getElementById("tkMenu");
     if (ex) ex.remove();
     document.querySelectorAll(".tk-menue.is-offen").forEach((b) => { b.classList.remove("is-offen"); b.setAttribute("aria-expanded", "false"); });
@@ -3153,6 +3200,7 @@
       pop.style.left = Math.max(8, W - pop.offsetWidth - 16) + "px"; pop.style.top = "80px";
     }
     lockBodyScroll();
+    popoverBinden(closeTkMenu);
     ov.addEventListener("click", (ev) => {
       if (ev.target.closest("[data-sheet-close]")) { closeTkMenu(); return; }
       const it = ev.target.closest(".tkp-item");
@@ -7578,6 +7626,7 @@
     return false;
   }
   function switchView(view) {
+    popoverZu();   // offenes Popover (Termin-Menü) schließt beim Ansichtswechsel
     currentView = view;
     if (view === "lineup") { tv.view = "games"; tv.eventId = null; tv.sel = null; tv.mark = null; tv.alleSpiele = false; } // v2 startet immer bei der Spielauswahl
     // Kachel-Sprung-Zustand (Ursprung/Readonly/Hash) beim normalen Tab-Wechsel verwerfen.

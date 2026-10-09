@@ -1099,7 +1099,7 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
 
 ## Prüfskripte: Pflichtliste und „nur mit Testkonto“ (Stand 05.10.2026)
 
-- **Pflichtliste (23)** — laufen ohne Anmeldung und müssen vor jedem Push grün
+- **Pflichtliste (24)** — laufen ohne Anmeldung und müssen vor jedem Push grün
   sein: `abopruef`, `buildpruef`, `deeplinkpruef`, `einpruef`, `icspruef`,
   `kachelpruef`, `kassepruef`, `katalogpruef`, `kopfpruef`, `meldeschlusspruef`,
   `p1pruef`, `p3pruef`, `p4pruef`, `prefspruef`, `pushpruef`, `swpruef`,
@@ -1132,7 +1132,10 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
   nur aus dem Baustein am Ende von `styles.css`; die Kartenarten melden dort
   nur ihren Grundabstand (`--tk-gap`, `--tk-pad-oben`). Keine eigenen
   Abstandsregeln für `.tk-rsvp` außerhalb des Bausteins, das prüft das Skript
-  mit.
+  mit. Als 24. `popoverpruef`: das Termin-Menü (einziges Popover) schließt
+  bei Wischen, Mausrad, Tipp daneben, Ansichtswechsel, Drehen und Größen-
+  änderung, bleibt aber offen direkt nach dem Öffnen und bei Zittern unter
+  8 px. Neue Popover hängen sich mit `popoverBinden(zu)` an denselben Weg.
 - **SQL-Prüfskripte** (`supabase/checks/*.sql`, nicht auf der Pflichtliste):
   laufen nach dem Einspielen einer Migration im SQL-Editor und ändern nichts.
   Jeder Fall läuft in einer Untertransaktion, die immer zurückgerollt wird;
