@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-09-K";
+  var APP_BUILD = "2026-10-09-L";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -1257,9 +1257,9 @@
     if (!g.offen.length) hinweis = "";
     else if (p.laden) hinweis = "";
     else if (p.fehler) hinweis = p.fehler;
-    else if (d && d.gesperrt) hinweis = "Erinnert " + (d.letzte ? rsUhr(d.letzte) : "") + (d.naechste_moeglich ? " · wieder ab " + rsUhr(d.naechste_moeglich) : "");
+    else if (d && d.gesperrt) hinweis = "Zuletzt gesendet " + (d.letzte ? rsUhr(d.letzte) : "") + (d.naechste_moeglich ? " · wieder ab " + rsUhr(d.naechste_moeglich) : "");
     else if (d && !d.gesendet) hinweis = "Niemand per Push erreichbar" + rsGruende(d, true);
-    else bereit = !!d;
+    else { bereit = !!d; if (d && d.letzte) hinweis = "Zuletzt gesendet " + rsUhr(d.letzte); }   // C2: letzter Versand auch nach Ablauf der Sperre
     const push = '<button type="button" class="btn btn-primary rs2-push-b" ' + (bereit ? 'data-rs-push="' + e.id + '"' : "disabled") +
       (p.laden && g.offen.length ? ' aria-busy="true"' : "") + '>' + RS_IC_GLOCKE + 'Push senden</button>';
     return kader + '<div class="rs2-knoepfe">' + uebersicht + push + '</div>' +

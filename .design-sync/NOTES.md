@@ -1099,7 +1099,7 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
 
 ## Prüfskripte: Pflichtliste und „nur mit Testkonto“ (Stand 05.10.2026)
 
-- **Pflichtliste (21)** — laufen ohne Anmeldung und müssen vor jedem Push grün
+- **Pflichtliste (22)** — laufen ohne Anmeldung und müssen vor jedem Push grün
   sein: `abopruef`, `buildpruef`, `deeplinkpruef`, `einpruef`, `icspruef`,
   `kachelpruef`, `kassepruef`, `katalogpruef`, `kopfpruef`, `meldeschlusspruef`,
   `p1pruef`, `p3pruef`, `p4pruef`, `prefspruef`, `pushpruef`, `swpruef`,
@@ -1121,7 +1121,10 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
   künftige Termine absagt. Ohne Netz, ohne Datenbank. Seit 09.10.2026
   (Nachschliff C1) als 21. Skript `statuspruef`: Mein Status in Übersicht und
   Profil (Fit direkt, Blatt „Voraussichtlich bis“ für die anderen Status,
-  ein Aufruf mit Notiz und Datum, Abbrechen ohne Schreiben, „Ändern“).
+  ein Aufruf mit Notiz und Datum, Abbrechen ohne Schreiben, „Ändern“). Als
+  22. `rspushpruef` (Nachschliff C2): Push senden im Rückmeldungen-Blatt
+  (P1 aus 0050, Bestätigung mit Anzahl, „An N gesendet“, Sperre und letzter
+  Versand sichtbar, deaktiviert ohne Offene, nur echte Trainer/Admins).
 - **SQL-Prüfskripte** (`supabase/checks/*.sql`, nicht auf der Pflichtliste):
   laufen nach dem Einspielen einer Migration im SQL-Editor und ändern nichts.
   Jeder Fall läuft in einer Untertransaktion, die immer zurückgerollt wird;
