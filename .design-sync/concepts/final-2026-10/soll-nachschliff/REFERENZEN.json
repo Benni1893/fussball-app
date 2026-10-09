@@ -54,5 +54,9 @@
  "04 Rückmeldungen": {
   "grund": "Nachschliff D6: Fuß des Rückmeldungen-Blatts (Kader-Zeile, Übersicht teilen | Push senden)",
   "datum": "2026-10-09"
+ },
+ "08 Bank-Blatt": {
+  "grund": "Nachschliff E2: Bank-Blatt nur mit Wählbaren, Kopf mit Platzmarken und Fertig, Fußzeile Ausgeblendet",
+  "datum": "2026-10-09"
  }
 }

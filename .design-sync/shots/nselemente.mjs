@@ -7,6 +7,8 @@ import { daten } from './landkartenmodul.mjs';
 
 // Kader wie in der Vorlage D6: alle fit, einer verletzt (15 fit · 1 verletzt)
 const kaderD6 = () => { const d = daten(); d.players.forEach((p) => Object.assign(p, p.id === 'p05' ? { status: 'verletzt' } : { status: 'fit', statusNote: null, statusUntil: null })); return d; };
+// Bank wie in der Vorlage D8: niemand im Urlaub (Fußzeile: auf dem Platz · verletzt)
+const bankD8 = () => { const d = daten(); d.players.forEach((p) => { if (p.status === 'urlaub') Object.assign(p, { status: 'fit', statusNote: null, statusUntil: null }); }); return d; };
 // Eigener Spieler (p06) mit dem Status aus der Vorlage D4
 const mitStatus = () => { const d = daten(); const p = d.players.find((x) => x.id === 'p06'); Object.assign(p, { status: 'angeschlagen', statusNote: 'Wade zu', statusUntil: '2026-10-18', statusSince: '2026-10-01' }); return d; };
 
@@ -84,5 +86,26 @@ export const NS_ELEMENTE = {
     ist: { profil: 'admin', schluessel: 'trainer/spiel+tvSheetMenu', wurzel: '#tvSheetMenu' },
     breite: 390, ersetze: { 'vs. TSV Beispielstadt · So 4. Okt': 'vs. FC Teutonia Mün. 2 · So 11. Okt', '4-2-3-1': '4-3-3', 'Grundelf': '4-3-3 Standard' },
     breiteFrei: ['vs. FC Teutonia Mün. 2 · So 11. Okt', '4-3-3', '4-3-3 Standard', 'Anwenden'],
+  },
+  // E2 (Vorlage D8): Bank-Blatt, Kopf, freie Zeile, Bank-Zeile, Fußzeile.
+  'E2 Kopf': {
+    soll: { figur: 'D8', rahmen: 0, wurzel: '(f) => f.children[1].children[1]' },
+    ist: { profil: 'admin', schluessel: 'trainer/spiel+tvSheetKader', wurzel: '#tvSheetKader .tv-sh' },
+    breite: 390,
+  },
+  'E2 Zeile frei': {
+    soll: { figur: 'D8', rahmen: 0, wurzel: '(f) => f.children[1].children[3]' },
+    ist: { profil: 'admin', schluessel: 'trainer/spiel+tvSheetKader', wurzel: '#tvSheetKader .tvb-zeile:not(.is-bank)' },
+    breite: 390, ersetze: { '6': '1', 'Felix Oberhaus': 'Tobias Wagner', 'ZM · keine Rückmeldung': 'TW · keine Rückmeldung' }, breiteFrei: ['Tobias Wagner', 'TW · keine Rückmeldung', '1'],
+  },
+  'E2 Zeile Bank': {
+    soll: { figur: 'D8', rahmen: 0, wurzel: '(f) => f.children[1].children[5]' },
+    ist: { profil: 'admin', schluessel: 'trainer/spiel+tvSheetKader', wurzel: '#tvSheetKader .tvb-zeile.is-bank' },
+    breite: 390, ersetze: { '12': '5', 'Oskar Zierer': 'Leon Schmidt', 'TW · auf der Bank': 'IV · auf der Bank' }, breiteFrei: ['Leon Schmidt', 'IV · auf der Bank', '5'],
+  },
+  'E2 Fuß': {
+    soll: { figur: 'D8', rahmen: 0, wurzel: '(f) => f.children[1].lastElementChild' },
+    ist: { profil: 'admin', schluessel: 'trainer/spiel+tvSheetKader', wurzel: '#tvSheetKader .tvb-fuss', daten: () => bankD8() },
+    breite: 390,
   },
 };

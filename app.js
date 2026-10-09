@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-09-H";
+  var APP_BUILD = "2026-10-09-I";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -4778,7 +4778,7 @@
     const w = document.createElement("div"); w.id = "tvPanels";
     w.innerHTML =
       '<div class="tv-scrim" id="tvScrimKader" data-tvclose="kader"></div>' +
-      '<div class="tv-sheet tv-ksheet" id="tvSheetKader" role="dialog" aria-modal="true" aria-label="Spieler wählen"><span class="tv-grip"></span><div class="tv-sh"><div class="tv-sh-text"><strong id="tvKaderTitle">Spieler wählen</strong><div class="tv-shsub" id="tvKaderSub"></div></div><button class="tv-shx" data-tvclose="kader" aria-label="Schließen">' + ICON_X + '</button></div><div class="tv-shbody" id="tvKaderBody"></div><div class="tv-kfuss" id="tvKaderFuss"></div></div>' +
+      '<div class="tv-sheet tv-ksheet" id="tvSheetKader" role="dialog" aria-modal="true" aria-label="Spieler wählen"><span class="tv-grip"></span><div class="tv-sh"><div class="tv-sh-text"><strong id="tvKaderTitle">Spieler wählen</strong><div class="tv-shsub" id="tvKaderSub"></div></div><button class="tv-shx" data-tvclose="kader" aria-label="Schließen">' + ICON_X + '</button><button type="button" class="tvb-fertig" data-tvclose="kader">Fertig</button></div><div class="tv-shbody" id="tvKaderBody"></div><div class="tv-kfuss" id="tvKaderFuss"></div></div>' +
       '<div class="tv-scrim" id="tvScrimForm" data-tvclose="form"></div>' +
       '<div class="tv-sheet" id="tvSheetForm" role="dialog" aria-modal="true" aria-label="Formationen"><div class="tv-sh"><span class="tv-grip"></span><div><strong id="tvFormTitle">Formation wechseln</strong><div class="tv-shsub" id="tvFormSub"></div></div><button class="tv-shx" data-tvclose="form" aria-label="Schließen">&times;</button></div><div class="tv-shbody"><div class="tv-fgrid" id="tvFgrid"></div></div><div class="tv-shactions" id="tvFormActions"></div></div>' +
       '<div class="tv-scrim" id="tvScrimMenu" data-tvclose="menu"></div>' +
@@ -4865,6 +4865,7 @@
   /* Blatt 07c "Spieler fuer die Position": gruppiert nach Eignung.
      Laeuft bei mehreren freien Positionen der Reihe nach (tv.fillQueue). */
   function tvOpenKader(key) {
+    document.getElementById("tvSheetKader").classList.remove("is-bankmodus");
     tv.sel = { key: key }; tvViewLineup();
     const g = tvPosGruppen(key);
     document.getElementById("tvKaderTitle").textContent = posLang(key);
@@ -4880,11 +4881,10 @@
   // Kader-Auswahl fuer die BANK (Blatt 08): nach Mannschaftsteil.
   function tvOpenBank() {
     if (tv.bank.length >= TV_BANK_MAX) { tvToast("Bank ist voll (" + TV_BANK_MAX + ")"); return; }
-    tv.sel = { bank: true }; tv.fillQueue = null; tvViewLineup();
+    tv.sel = { bank: true }; tv.fillQueue = null; tvBankZeigen = false; tvViewLineup();
     document.getElementById("tvKaderTitle").textContent = "Spieler für die Bank";
-    document.getElementById("tvKaderSub").textContent = tv.bank.length + " von " + TV_BANK_MAX + " belegt";
-    document.getElementById("tvKaderFuss").innerHTML = "";
-    tvRenderKaderBody(null);
+    document.getElementById("tvSheetKader").classList.add("is-bankmodus");
+    tvRenderBank();
     blattAuf("tvScrimKader", "tvSheetKader");
     const b = document.getElementById("tvKaderBody"); if (b) b.scrollTop = 0;
   }
@@ -4960,6 +4960,67 @@
     return '<div class="row tv-krow' + (mitAvatar ? "" : " is-bank") + (vergeben ? " is-vergeben" : "") + '"' + attr + '>' + links +
       '<span class="row-main"><span class="row-t">' + esc(p.name) + '</span><span class="row-s">' + tvNeben(p) + '</span></span>' +
       '<span class="row-end">' + rechts + '</span></div>';
+  }
+  /* Blatt „Spieler für die Bank“ (Nachschliff E2, Vorlage D8): die Liste
+     zeigt nur, wer auf die Bank kann - frei oder schon auf der Bank. Auf dem
+     Platz, verletzt und im Urlaub fallen raus und stehen in der Fußzeile
+     („Ausgeblendet: 11 auf dem Platz · 1 verletzt · 1 Urlaub · Anzeigen“);
+     „Anzeigen“ blendet sie blass und einzeilig ein. Angeschlagene bleiben
+     wählbar und tragen eine Pille. Kopf mit 7 Platzmarken und „Fertig“ statt
+     Kreuz; das Blatt bleibt nach jedem Tipp offen, bis die Bank voll ist. */
+  let tvBankZeigen = false;
+  const TV_HAKEN_W = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>';
+  function tvBankKopf() {
+    const sub = document.getElementById("tvKaderSub"); if (!sub) return;
+    const n = tv.bank.length;
+    let marken = "";
+    for (let i = 0; i < TV_BANK_MAX; i++) marken += '<span class="tvb-mark' + (i < n ? " is-voll" : "") + '"></span>';
+    sub.innerHTML = '<span class="tvb-marken" aria-hidden="true">' + marken + '</span><span class="tvb-stand"><b>' + n + '</b> von ' + TV_BANK_MAX + ' belegt</span>';
+  }
+  function tvBankGrund(p) {
+    if (tv.bank.indexOf(p.id) !== -1) return null;
+    if (tvPlacedAll().has(p.id)) return "platz";
+    if (p.status === "verletzt") return "verletzt";
+    if (p.status === "urlaub") return "urlaub";
+    return null;
+  }
+  function tvBankZeile(p) {
+    const aufBank = tv.bank.indexOf(p.id) !== -1;
+    const r = tvRsvp(p.id);
+    const neben = [p.pos ? esc(p.pos) : "", aufBank ? "auf der Bank" : r === "zu" ? "zugesagt" : r === "ab" ? "abgesagt" : "keine Rückmeldung"].filter(Boolean).join(" · ");
+    const pille = !aufBank && p.status === "angeschlagen" ? '<span class="tvb-pille">angeschlagen</span>' : "";
+    const knopf = aufBank ? '<span class="tvb-kreis is-an">' + TV_HAKEN_W + '</span>' : '<span class="tvb-kreis">+</span>';
+    const attr = aufBank ? "" : ' data-tvplayer="' + p.id + '" role="button" tabindex="0" aria-label="' + esc(p.name) + ' auf die Bank"';
+    return '<div class="tvb-zeile' + (aufBank ? " is-bank" : "") + '"' + attr + '><span class="tvb-nr">' + (p.nr != null ? p.nr : "") + '</span>' +
+      '<span class="tvb-main"><span class="tvb-name">' + esc(p.name) + '</span><span class="tvb-neben">' + neben + '</span></span>' + pille +
+      '<span class="tvb-knopf" aria-hidden="true">' + knopf + '</span></div>';
+  }
+  function tvBankBodyHtml() {
+    const frei = TV_BANK_MAX - tv.bank.length, n = Math.min(frei, tvBankCandidates().length);
+    let h = n > 0 ? '<div class="tvb-alle"><button type="button" class="btn btn-soft tv-kall" data-tvbankall>Alle ' + n + ' freien Zugesagten setzen</button></div>' : "";
+    const aus = { platz: 0, verletzt: 0, urlaub: 0 };
+    const blass = [];
+    LB_GROUPS.forEach(([gk, label]) => {
+      const alle = DEMO.players.filter((p) => lbTeamPart(p.pos) === gk).sort(byName);
+      const waehlbar = alle.filter((p) => !tvBankGrund(p));
+      alle.forEach((p) => { const g = tvBankGrund(p); if (g) { aus[g]++; blass.push(p); } });
+      if (waehlbar.length) h += '<div class="tvb-gruppe">' + label + ' · ' + waehlbar.length + '</div>' + waehlbar.map(tvBankZeile).join("");
+    });
+    if (tvBankZeigen && blass.length) h += '<div class="tvb-gruppe">Ausgeblendet</div>' + blass.map((p) =>
+      '<div class="tvb-zeile is-blass"><span class="tvb-nr">' + (p.nr != null ? p.nr : "") + '</span><span class="tvb-name">' + esc(p.name) + '</span>' +
+      '<span class="tvb-grund">' + ({ platz: "auf dem Platz", verletzt: "verletzt", urlaub: "Urlaub" })[tvBankGrund(p)] + '</span></div>').join("");
+    const teile = [aus.platz ? '<b>' + aus.platz + '</b> auf dem Platz' : "", aus.verletzt ? '<b>' + aus.verletzt + '</b> verletzt' : "", aus.urlaub ? '<b>' + aus.urlaub + '</b> Urlaub' : ""].filter(Boolean);
+    const fuss = teile.length ? '<div class="tvb-fuss"><span class="tvb-fuss-t">Ausgeblendet: ' + teile.join(" · ") + '</span>' +
+      '<button type="button" class="tvb-zeigen" data-tvbankzeigen>' + (tvBankZeigen ? "Ausblenden" : "Anzeigen") + '</button></div>' : "";
+    return { body: h || '<div class="empty">Kein Spieler frei.</div>', fuss };
+  }
+  function tvRenderBank() {
+    const body = document.getElementById("tvKaderBody"), fuss = document.getElementById("tvKaderFuss");
+    if (!body) return;
+    const r = tvBankBodyHtml();
+    body.innerHTML = r.body;
+    if (fuss) fuss.innerHTML = r.fuss;
+    tvBankKopf();
   }
   function tvRenderKaderBody(key) {
     const body = document.getElementById("tvKaderBody"); if (!body) return;
@@ -5055,12 +5116,16 @@
         if (!window.confirm((p ? p.name : "Spieler") + " ist nicht verfügbar. Trotzdem aufstellen?")) return;
       }
       const key = tv.sel && tv.sel.key;
-      if (tv.sel && tv.sel.bank) tvAddBank(pl.dataset.tvplayer); else if (key) tvAssign(key, pl.dataset.tvplayer);
+      if (tv.sel && tv.sel.bank) {
+        tvAddBank(pl.dataset.tvplayer);
+        if (tv.bank.length < TV_BANK_MAX) { tvViewLineup(); tvRenderBank(); return; }   // E2: Blatt bleibt offen, bis die Bank voll ist
+      } else if (key) tvAssign(key, pl.dataset.tvplayer);
       const naechste = key ? tvNaechsteFreie(key) : null;
       tvCloseKader();
       if (naechste) tvOpenKader(naechste); else { tv.fillQueue = null; tvViewLineup(); }
       return;
     }
+    if (t.closest("[data-tvbankzeigen]")) { tvBankZeigen = !tvBankZeigen; tvRenderBank(); return; }
     const star = t.closest("[data-tvstar]"); if (star) { ev.stopPropagation(); tvToggleFav(star.dataset.tvstar); tvRenderFgrid(); tvRenderFormActions(); return; }
     const fc = t.closest("[data-tvfcard]"); if (fc) { const f = fc.dataset.tvfcard; if (tvFavMode) { tvToggleFav(f); tvRenderFgrid(); tvRenderFormActions(); } else { tvSwitchFormation(f); tvCloseForm(); tvViewLineup(); } return; }
     if (t.closest("[data-tvfavdone]")) { if (tvFav.length < 2) return; if (!tvFav.includes(tv.formation)) tv.formation = tvFav[0]; tvCloseForm(); tvViewLineup(); return; }

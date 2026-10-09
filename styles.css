@@ -4233,3 +4233,43 @@ body:has(.nsb-ov) .app-nav { visibility: hidden; }
 .tvm-leer { padding: 16px 14px; font-size: 14px; color: var(--muted); }
 .tvm-leeren { display: flex; align-items: center; gap: 12px; width: calc(100% - 32px); min-height: 54px; margin-top: 12px; padding: 0 14px; font: inherit; font-size: 15px; font-weight: 600; color: var(--red-600); text-align: left; cursor: pointer; }
 .tvm-leeren svg { flex: none; }
+/* E2 Aufstellung · Blatt Spieler für die Bank (Vorlage D8) */
+#tvSheetKader.is-bankmodus { background: var(--card); }
+#tvSheetKader.is-bankmodus .tv-sh { align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+#tvSheetKader.is-bankmodus .tv-sh-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 6px; }
+#tvSheetKader.is-bankmodus #tvKaderTitle { font-size: 20px; font-weight: 800; letter-spacing: -.015em; line-height: normal; }
+#tvSheetKader.is-bankmodus .tv-shsub { display: flex; align-items: center; gap: 8px; margin: 0; }
+#tvSheetKader.is-bankmodus .tv-shx { display: none; }
+.tvb-fertig { display: none; }
+#tvSheetKader.is-bankmodus .tvb-fertig { display: flex; align-items: center; flex: none; min-height: var(--tap); padding: 0 4px; border: 0; background: none; font: inherit; font-size: 15px; font-weight: 700; color: var(--green-800); cursor: pointer; }
+.tvb-marken { display: flex; gap: 4px; }
+.tvb-mark { width: 16px; height: 6px; border-radius: var(--radius-pill); background: var(--track-sheet); }
+.tvb-mark.is-voll { background: var(--green-600); }
+.tvb-stand { font-size: 13px; font-weight: 600; color: var(--muted); }
+.tvb-stand b { color: var(--ink); }
+#tvSheetKader.is-bankmodus .tv-shbody { padding: 0; }
+.tvb-alle { padding: 12px 16px 0; }
+.tvb-gruppe { padding: 14px 16px 6px; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.tvb-gruppe ~ .tvb-gruppe { border-top: 1px solid var(--line); }
+.tvb-zeile { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 16px; border-top: 1px solid var(--line); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.tvb-zeile.is-bank { background: var(--green-050); cursor: default; }
+.tvb-nr { flex: none; width: 26px; text-align: right; font-size: 15px; font-weight: 800; color: var(--green-800); font-variant-numeric: tabular-nums; }
+.tvb-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.tvb-name { font-size: 15px; font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tvb-zeile.is-bank .tvb-name { font-weight: 700; }
+.tvb-neben { font-size: 13px; color: var(--muted); }
+.tvb-pille { flex: none; padding: 3px 8px; border-radius: var(--radius-pill); background: var(--amber-050); color: var(--gold-ink-2); font-size: 12px; font-weight: 700; }
+.tvb-knopf { flex: none; width: var(--tap); height: var(--tap); display: flex; align-items: center; justify-content: center; }
+.tvb-kreis { width: 32px; height: 32px; border-radius: var(--radius-pill); border: 1.5px solid var(--green-badge-line); background: var(--grad-btn-sec);
+  display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 600; line-height: 1; color: var(--green-800); }
+.tvb-kreis.is-an { border: 0; background: var(--grad-btn); }
+.tvb-zeile.is-blass { min-height: 44px; opacity: .55; cursor: default; }
+.tvb-zeile.is-blass .tvb-name { flex: 1 1 auto; min-width: 0; }
+.tvb-grund { flex: none; font-size: 13px; color: var(--muted); }
+#tvSheetKader.is-bankmodus .tv-kfuss { padding: 0; }
+.tvb-fuss { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 16px calc(env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: var(--bg); }
+.tvb-fuss-t { flex: 1 1 auto; font-size: 13px; color: var(--muted); }
+.tvb-fuss-t b { color: var(--ink); }
+.tvb-zeigen { flex: none; min-height: var(--tap); display: flex; align-items: center; padding: 0; border: 0; background: none; font: inherit; font-size: 14px; font-weight: 600; color: var(--green-800); cursor: pointer; }
+.tvb-kreis { box-sizing: content-box; }
+.tvb-kreis.is-an { box-sizing: border-box; }
