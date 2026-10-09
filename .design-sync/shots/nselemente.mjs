@@ -17,4 +17,11 @@ export const NS_ELEMENTE = {
     soll: { figur: 'D1', rahmen: 0, wurzel: '(f) => f.children[3]' },
     ist: { profil: 'spieler', schluessel: 'dashboard', wurzel: '.kasse-kachel', daten: () => { const d = daten(); d.strafen = d.strafen.filter((x) => x.status !== 'offen'); return d; } },
   },
+  // D2: Popover am ⋯ einer Trainingskarte im Kalender (Trainer-Rechte: alle drei Einträge).
+  D2: {
+    soll: { figur: 'D2', rahmen: 0, wurzel: '(f) => f.children[1]' },
+    ist: { profil: 'admin', schluessel: 'kalender', wurzel: '#tkMenu .tkp',
+      vorbereitung: async (page) => { await page.click('.tk-kopf.is-training .tk-menue'); await page.waitForTimeout(300); } },
+    ersetze: { 'Training · 6. Okt': 'Training · 8. Okt' },
+  },
 };

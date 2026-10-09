@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-09-B";
+  var APP_BUILD = "2026-10-09-C";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -3024,39 +3024,71 @@
 
   /* ⋯-Menue der Terminkarte: fuer alle Rollen. "In Kalender speichern" fuer
      jeden; Kader-Info fuer Trainer bei Spielen; Pflege nur mit Recht. */
+  /* Termin-Menü hinter ⋯ als Popover (Nachschliff D2): rechtsbündig 6 px unter
+     dem Knopf, öffnet nach oben, wenn unten weniger als 200 px frei sind.
+     Keine Abdunklung; Tippen daneben schließt (unsichtbare Fangfläche, sie
+     sperrt zugleich das Scrollen dahinter, A7). Destruktive Einträge stehen
+     gemeinsam im roten Block unter dem Trennband; Spieler sehen nur „In
+     Kalender speichern“ (ohne Band). */
+  const TKP_IC = {
+    kal: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/></svg>',
+    teilen: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5M5 12v7.5A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V12"/></svg>',
+    stift: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4"/></svg>',
+    zurueck: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3M20 4v4h-4M20 12a8 8 0 0 1-14 5.3M4 20v-4h4"/></svg>',
+    muell: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12.5A1.5 1.5 0 0 0 8.5 21h7a1.5 1.5 0 0 0 1.5-1.5L18 7M9 7V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V7"/></svg>',
+  };
   function closeTkMenu() {
     const ex = document.getElementById("tkMenu");
-    if (ex) { ex.remove(); unlockBodyScroll(); }
+    if (ex) ex.remove();
+    document.querySelectorAll(".tk-menue.is-offen").forEach((b) => { b.classList.remove("is-offen"); b.setAttribute("aria-expanded", "false"); });
+    unlockBodyScroll();
   }
-  function openTkMenu(eventId) {
+  function openTkMenu(eventId, knopf) {
     const e = DEMO.events.find((x) => x.id === eventId);
     if (!e) return;
     closeTkMenu();
     const darfPflegen = Roles.canManageSchedule();
     const mb = e.manuellBearbeitet || {};
-    const zeilen = ['<button class="more-item" data-ics-event="' + e.id + '">In Kalender speichern</button>'];
-    if (Roles.canManageEvents() && e.typ === "spiel") zeilen.push('<button class="more-item" data-kader-info="' + e.id + '">Kader-Info teilen</button>');
+    const eintrag = (attr, ic, text, rot) => '<button type="button" class="tkp-item' + (rot ? " is-rot" : "") + '" ' + attr + '>' + TKP_IC[ic] + '<span>' + text + '</span></button>';
+    const oben = [eintrag('data-ics-event="' + e.id + '"', "kal", "In Kalender speichern")];
+    if (Roles.canManageEvents() && e.typ === "spiel") oben.push(eintrag('data-kader-info="' + e.id + '"', "teilen", "Kader-Info teilen"));
+    const rot = [];
     if (darfPflegen) {
-      zeilen.push('<button class="more-item" data-termin-edit="' + e.id + '">Termin bearbeiten</button>');
-      if (e.quelle === "bfv" && (mb.start || mb.ort))
-        zeilen.push('<button class="more-item" data-bfv-reset="' + e.id + '">Zurücksetzen auf BFV-Daten</button>');
-      zeilen.push('<button class="more-item is-danger" data-termin-del="' + e.id + '">Termin löschen</button>');
+      oben.push(eintrag('data-termin-edit="' + e.id + '"', "stift", "Termin bearbeiten"));
+      if (e.quelle === "bfv" && (mb.start || mb.ort)) oben.push(eintrag('data-bfv-reset="' + e.id + '"', "zurueck", "Zurücksetzen auf BFV-Daten"));
+      rot.push(eintrag('data-termin-del="' + e.id + '"', "muell", "Termin löschen", true));
     }
+    const titel = (e.typ === "spiel" ? esc(e.gegner || e.titel) : esc(e.titel)) + " · " + fmtDay(e.datum) + ". " + fmtMon(e.datum);
     const ov = document.createElement("div");
-    ov.className = "more-sheet"; ov.id = "tkMenu";
-    ov.innerHTML = '<button class="more-backdrop" data-sheet-close aria-label="Schließen"></button>' +
-      '<div class="more-panel" role="dialog" aria-modal="true" aria-label="Termin">' +
-      '<div class="more-title">' + (e.typ === "spiel" ? esc(e.gegner || e.titel) : esc(e.titel)) +
-      ' · ' + fmtDay(e.datum) + '. ' + fmtMon(e.datum) + '</div>' + zeilen.join("") + '</div>';
+    ov.className = "tkp-ov"; ov.id = "tkMenu"; ov.setAttribute("data-sperrt", "");
+    ov.innerHTML = '<button type="button" class="tkp-fang" data-sheet-close aria-label="Menü schließen"></button>' +
+      '<div class="tkp" role="menu" aria-label="Termin">' +
+        '<div class="tkp-kopf tkp-titel">' + titel + '</div>' +
+        oben.join('<div class="tkp-linie" aria-hidden="true"></div>') +
+        (rot.length ? '<div class="tkp-band" aria-hidden="true"></div>' + rot.join('<div class="tkp-linie" aria-hidden="true"></div>') : "") +
+      '</div>';
     document.body.appendChild(ov);
+    // Lage: am geöffneten Knopf, sonst am ersten ⋯ dieses Termins.
+    const b = knopf || document.querySelector('.tk-menue[data-tkmenu="' + e.id + '"]');
+    const pop = ov.querySelector(".tkp");
+    const W = document.documentElement.clientWidth, H = window.innerHeight;
+    if (b) {
+      b.classList.add("is-offen"); b.setAttribute("aria-expanded", "true");
+      const r = b.getBoundingClientRect();
+      const breite = pop.offsetWidth, hoehe = pop.offsetHeight;
+      pop.style.left = Math.max(8, Math.min(W - breite - 8, r.right - breite)) + "px";
+      if (H - r.bottom < 200 && r.top > hoehe + 12) pop.style.top = (r.top - 6 - hoehe) + "px";
+      else pop.style.top = Math.min(r.bottom + 6, H - hoehe - 8) + "px";
+    } else {
+      pop.style.left = Math.max(8, W - pop.offsetWidth - 16) + "px"; pop.style.top = "80px";
+    }
     lockBodyScroll();
     ov.addEventListener("click", (ev) => {
-      if (ev.target === ov || ev.target.closest("[data-sheet-close]")) { closeTkMenu(); return; }
-      const it = ev.target.closest(".more-item");
+      if (ev.target.closest("[data-sheet-close]")) { closeTkMenu(); return; }
+      const it = ev.target.closest(".tkp-item");
       if (!it) return;
-      // Das Menue haengt am body, der Klickpfad der Ansicht aber an viewEl:
-      // die Zeile kurz in die Ansicht legen und dort ausloesen.
-      // Kopie, weil click() auf das gerade geklickte Element nicht erneut feuert.
+      // Das Menü hängt am body, der Klickpfad der Ansicht aber an viewEl:
+      // die Zeile kurz in die Ansicht legen und dort auslösen.
       closeTkMenu();
       const kopie = it.cloneNode(true);
       kopie.hidden = true;
@@ -7012,7 +7044,7 @@
 
     // Rückmeldungen ansehen (Trainer/Admin) -> Bottom-Sheet
     if (t.dataset.rsvpSheet) { openRsvpSheet(t.dataset.rsvpSheet); return; }
-    if (t.dataset.tkmenu) { openTkMenu(t.dataset.tkmenu); return; }
+    if (t.dataset.tkmenu) { openTkMenu(t.dataset.tkmenu, t); return; }
 
     // Aufgabenblock: eigene Rückmeldung -> zum Hero scrollen und Zusage fokussieren.
     if (t.dataset.taskFocus) {
