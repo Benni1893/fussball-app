@@ -1123,7 +1123,7 @@
             {
               "art": "rs-push",
               "wert": null,
-              "text": "Push senden (2)",
+              "text": "Push senden",
               "global": false
             }
           ],
@@ -1873,7 +1873,7 @@
             {
               "art": "rs-push",
               "wert": null,
-              "text": "Push senden (2)",
+              "text": "Push senden",
               "global": false
             }
           ],
@@ -1980,7 +1980,7 @@
             {
               "art": "rs-push",
               "wert": null,
-              "text": "Push senden (2)",
+              "text": "Push senden",
               "global": false
             }
           ],
@@ -2120,9 +2120,16 @@
         },
         {
           "von": "dashboard+rsvpSheet",
+          "art": "rs-kader",
+          "wert": null,
+          "text": "Kader13 fit · 1 verletzt · 1 Urlaub›",
+          "nach": "kader"
+        },
+        {
+          "von": "dashboard+rsvpSheet",
           "art": "rs-push",
           "wert": null,
-          "text": "Push senden (2)",
+          "text": "Push senden",
           "nach": "dashboard+rsvpSheet+pushModal"
         },
         {
@@ -2267,9 +2274,16 @@
         },
         {
           "von": "kalender+rsvpSheet",
+          "art": "rs-kader",
+          "wert": null,
+          "text": "Kader13 fit · 1 verletzt · 1 Urlaub›",
+          "nach": "kader"
+        },
+        {
+          "von": "kalender+rsvpSheet",
           "art": "rs-push",
           "wert": null,
-          "text": "Push senden (2)",
+          "text": "Push senden",
           "nach": "kalender+rsvpSheet+pushModal"
         },
         {
@@ -2351,9 +2365,16 @@
         },
         {
           "von": "trainer+rsvpSheet",
+          "art": "rs-kader",
+          "wert": null,
+          "text": "Kader13 fit · 1 verletzt · 1 Urlaub›",
+          "nach": "kader"
+        },
+        {
+          "von": "trainer+rsvpSheet",
           "art": "rs-push",
           "wert": null,
-          "text": "Push senden (2)",
+          "text": "Push senden",
           "nach": "trainer+rsvpSheet+pushModal"
         },
         {
@@ -2417,6 +2438,7 @@
         "nav",
         "paid-self",
         "pw-aendern",
+        "rs-kader",
         "rs-push",
         "rs-teilen",
         "rsvp-sheet",
@@ -3825,7 +3847,7 @@
             {
               "art": "rs-push",
               "wert": null,
-              "text": "Push senden (2)",
+              "text": "Push senden",
               "global": false
             }
           ],
@@ -4712,7 +4734,7 @@
             {
               "art": "rs-push",
               "wert": null,
-              "text": "Push senden (2)",
+              "text": "Push senden",
               "global": false
             }
           ],
@@ -5001,7 +5023,7 @@
             {
               "art": "rs-push",
               "wert": null,
-              "text": "Push senden (2)",
+              "text": "Push senden",
               "global": false
             }
           ],
@@ -5189,9 +5211,16 @@
         },
         {
           "von": "dashboard+rsvpSheet",
+          "art": "rs-kader",
+          "wert": null,
+          "text": "Kader13 fit · 1 verletzt · 1 Urlaub›",
+          "nach": "kader"
+        },
+        {
+          "von": "dashboard+rsvpSheet",
           "art": "rs-push",
           "wert": null,
-          "text": "Push senden (2)",
+          "text": "Push senden",
           "nach": "dashboard+rsvpSheet+pushModal"
         },
         {
@@ -5336,9 +5365,16 @@
         },
         {
           "von": "kalender+rsvpSheet",
+          "art": "rs-kader",
+          "wert": null,
+          "text": "Kader13 fit · 1 verletzt · 1 Urlaub›",
+          "nach": "kader"
+        },
+        {
+          "von": "kalender+rsvpSheet",
           "art": "rs-push",
           "wert": null,
-          "text": "Push senden (2)",
+          "text": "Push senden",
           "nach": "kalender+rsvpSheet+pushModal"
         },
         {
@@ -5553,9 +5589,16 @@
         },
         {
           "von": "trainer+rsvpSheet",
+          "art": "rs-kader",
+          "wert": null,
+          "text": "Kader13 fit · 1 verletzt · 1 Urlaub›",
+          "nach": "kader"
+        },
+        {
+          "von": "trainer+rsvpSheet",
           "art": "rs-push",
           "wert": null,
-          "text": "Push senden (2)",
+          "text": "Push senden",
           "nach": "trainer+rsvpSheet+pushModal"
         },
         {
@@ -5646,6 +5689,7 @@
         "nav",
         "paid-self",
         "pw-aendern",
+        "rs-kader",
         "rs-push",
         "rs-teilen",
         "rsvp-sheet",
@@ -5950,7 +5994,7 @@
             {
               "art": "rs-push",
               "wert": null,
-              "text": "Push senden (2)",
+              "text": "Push senden",
               "global": false
             }
           ],
@@ -6951,7 +6995,7 @@
             {
               "art": "rs-push",
               "wert": null,
-              "text": "Push senden (2)",
+              "text": "Push senden",
               "global": false
             }
           ],
@@ -7240,7 +7284,7 @@
             {
               "art": "rs-push",
               "wert": null,
-              "text": "Push senden (2)",
+              "text": "Push senden",
               "global": false
             }
           ],
@@ -7435,9 +7479,16 @@
         },
         {
           "von": "dashboard+rsvpSheet",
+          "art": "rs-kader",
+          "wert": null,
+          "text": "Kader13 fit · 1 verletzt · 1 Urlaub›",
+          "nach": "kader"
+        },
+        {
+          "von": "dashboard+rsvpSheet",
           "art": "rs-push",
           "wert": null,
-          "text": "Push senden (2)",
+          "text": "Push senden",
           "nach": "dashboard+rsvpSheet+pushModal"
         },
         {
@@ -7610,9 +7661,16 @@
         },
         {
           "von": "kalender+rsvpSheet",
+          "art": "rs-kader",
+          "wert": null,
+          "text": "Kader13 fit · 1 verletzt · 1 Urlaub›",
+          "nach": "kader"
+        },
+        {
+          "von": "kalender+rsvpSheet",
           "art": "rs-push",
           "wert": null,
-          "text": "Push senden (2)",
+          "text": "Push senden",
           "nach": "kalender+rsvpSheet+pushModal"
         },
         {
@@ -7827,9 +7885,16 @@
         },
         {
           "von": "trainer+rsvpSheet",
+          "art": "rs-kader",
+          "wert": null,
+          "text": "Kader13 fit · 1 verletzt · 1 Urlaub›",
+          "nach": "kader"
+        },
+        {
+          "von": "trainer+rsvpSheet",
           "art": "rs-push",
           "wert": null,
-          "text": "Push senden (2)",
+          "text": "Push senden",
           "nach": "trainer+rsvpSheet+pushModal"
         },
         {
@@ -7920,6 +7985,7 @@
         "nav",
         "paid-self",
         "pw-aendern",
+        "rs-kader",
         "rs-push",
         "rs-teilen",
         "rsvp-sheet",

@@ -4176,3 +4176,35 @@ body:has(.nsb-ov) .app-nav { visibility: hidden; }
 .kt-anz { font-size: 13px; color: var(--muted); }
 .kt-karte { position: absolute; right: 12px; top: -6px; width: 22px; height: 30px; border-radius: 4px; background: linear-gradient(180deg, var(--red-500), var(--red-700)); box-shadow: 0 3px 8px -2px rgba(165,40,27,.6); transform: rotate(14deg); }
 .kt-ball { position: absolute; right: 10px; top: 10px; opacity: .9; color: var(--green-800); display: flex; }
+/* D6 Rückmeldungen-Blatt · Fuß: Kader-Zeile, dann Übersicht teilen | Push senden */
+.rs2-fuss { display: block; gap: 0; padding: 0; border-top: 0; }
+.rs2-kader-b { border-top: 1px solid var(--line); padding: 6px 16px 0; }
+.rs2-kader { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 0; border: 0; background: none;
+  font: inherit; color: var(--green-800); text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.rs2-kader svg { flex: none; }
+.rs2-kader-t { flex: 1 1 auto; font-size: 15px; font-weight: 700; }
+.rs2-kader-s { font-size: 14px; color: var(--muted); }
+.rs2-kader-c { font-size: 20px; color: var(--green-chev); }
+.rs2-knoepfe { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 8px 16px 8px; }
+.rs2-knoepfe:last-child { padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+.rs2-knoepfe.is-eins { grid-template-columns: 1fr; }
+.rs2-knoepfe .btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 50px; margin: 0; border-radius: var(--radius-md); font-size: 15px; font-weight: 700; }
+.rs2-knoepfe .rs2-sek { background: var(--grad-btn-sec); border: 1px solid var(--line-soft-3); box-shadow: var(--shadow-btn-sec); color: var(--green-800); }
+.rs2-knoepfe .rs2-sek span { color: var(--ink); }
+.rs2-knoepfe .rs2-push-b { background: var(--grad-btn); border: 0; box-shadow: var(--shadow-btn); color: #fff; }
+.rs2-knoepfe .rs2-push-b:disabled { background: var(--bg-2); color: var(--muted); box-shadow: none; opacity: 1; }
+.rs2-fuss > .rs2-hinweis, .rs2-fuss > .rs2-meldung { margin: 0; padding: 0 16px 6px; }
+.rs2-fuss > :last-child.rs2-hinweis, .rs2-fuss > :last-child.rs2-meldung { padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+/* D6 Dialog „Push an N offene Spieler senden?“ */
+.modal.push-best { width: 100%; max-width: 342px; padding: 20px 16px 16px; border-radius: var(--radius-sheet); background: var(--card); box-shadow: var(--shadow-auth);
+  display: flex; flex-direction: column; gap: 8px; }
+.push-best-ic { align-self: flex-start; width: 40px; height: 40px; border-radius: var(--radius-md); background: var(--green-050); color: var(--green-800); display: flex; align-items: center; justify-content: center; }
+.push-best-t { margin-top: 4px; font-size: 18px; font-weight: 800; letter-spacing: -.01em; line-height: 1.25; color: var(--ink); }
+.push-best-s { font-size: 14px; line-height: 1.45; color: var(--muted); }
+.push-best-l { margin: 0; }
+.push-best-k { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.push-best-k .btn { width: 100%; min-height: 50px; margin: 0; border-radius: var(--radius-md); font-size: 16px; font-weight: 700; }
+.push-best-k .nsb-sek { background: var(--grad-btn-sec); border: 1px solid var(--line-soft-3); box-shadow: var(--shadow-btn-sec); color: var(--ink); }
+.push-best-k .nsb-prim { background: var(--grad-btn); border: 0; box-shadow: var(--shadow-btn); color: #fff; }
+.rs2-kader-t { flex: 1 0 auto; }
+.rs2-kader-s { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

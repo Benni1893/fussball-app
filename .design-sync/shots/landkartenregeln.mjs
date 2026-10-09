@@ -47,6 +47,7 @@ export const AUSLOESER = [
   { art: 'kader-info',   sel: '[data-kader-info]' },
   { art: 'rs-teilen',    sel: '[data-rs-teilen]' },
   { art: 'rs-push',      sel: '[data-rs-push]' },
+  { art: 'rs-kader',     sel: '[data-rs-kader]' },   // Kader-Verweis im Rückmeldungen-Blatt (Nachschliff D6)
   { art: 'status-blatt', sel: '[data-status-blatt]' },
   { art: 'status-fenster', sel: '[data-status-fenster]' },   // Mein Status: Blatt Voraussichtlich bis (Nachschliff D4)
   { art: 'tvtplmenu',    sel: '[data-tvtplmenu]' },

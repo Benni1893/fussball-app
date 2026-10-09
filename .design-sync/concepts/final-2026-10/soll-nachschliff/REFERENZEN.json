@@ -50,5 +50,9 @@
  "E 27 Diagnose": {
   "grund": "Nachschliff A: A1 Kontokachel unten 6 px, A4/A8 Zeilenmuster, A3 Kasse-Segment und Stapelkopf, A5 Fuß am Blattende, A6 Einstellungen 16/700",
   "datum": "2026-10-08"
+ },
+ "04 Rückmeldungen": {
+  "grund": "Nachschliff D6: Fuß des Rückmeldungen-Blatts (Kader-Zeile, Übersicht teilen | Push senden)",
+  "datum": "2026-10-09"
  }
 }

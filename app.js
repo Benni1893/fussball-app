@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-09-F";
+  var APP_BUILD = "2026-10-09-G";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -1145,6 +1145,10 @@
   }
 
   // Unterzeile: Datum, Art und - wenn die Automatik laeuft - die Frist.
+  // "Training · Do 8. Okt · 19:30" (Dialog „Push senden“, Nachschliff D6)
+  function rsTerminZeile(e) {
+    return [e.typ === "spiel" ? (e.gegner || e.titel) : (e.titel || "Training"), fmtWd(e.datum) + " " + fmtDay(e.datum) + ". " + fmtMon(e.datum), e.zeit || ""].filter(Boolean).join(" · ");
+  }
   function rsKopfzeile(e) {
     const teile = [fmtWd(e.datum) + " " + fmtDay(e.datum) + ". " + fmtMon(e.datum),
                    e.typ === "spiel" ? ((e.gegner || e.titel)) : (e.titel || "Training")];
@@ -1223,34 +1227,44 @@
     const diff = Math.round((tag - heute) / 86400000);
     return diff === 0 ? hm : diff === 1 ? "morgen " + hm : diff === -1 ? "gestern " + hm : WT[d.getDay()] + " " + hm;
   }
+  /* Fuß des Blatts (Nachschliff D6): Kader-Verweis als ganze Zeile über den
+     Knöpfen, darunter zwei gleich breite Knöpfe „Übersicht teilen“
+     (sekundär) und „Push senden“ (primär, send_rsvp_reminder aus 0050 mit
+     Bestätigung und 12-h-Sperre). „Rückmeldung teilen“ entfällt. Push nur für
+     die echte Rolle Trainer oder Admin, nie in der Rollenvorschau; ohne
+     Berechtigung steht „Übersicht teilen“ allein. Sind keine Spieler offen,
+     ist Push senden deaktiviert. */
+  const RS_IC_TEILEN = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5M5 12v7.5A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V12"/></svg>';
+  const RS_IC_GLOCKE = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20.5a2 2 0 0 0 4 0"/></svg>';
+  const RS_IC_KADER = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.5a6.5 6.5 0 0 1 3.5 5.5"/></svg>';
+  // Stand wie in der Vorlage („15 fit · 1 verletzt“): fit und die Ausfälle; angeschlagen
+  // bleibt einsatzbereit und steht hier nicht, damit die Zeile kurz bleibt.
+  function rsKaderStand() {
+    const n = (st) => DEMO.players.filter((p) => (p.status || "fit") === st).length;
+    const teile = [n("fit") + " fit"];
+    if (n("verletzt")) teile.push(n("verletzt") + " verletzt");
+    if (n("urlaub")) teile.push(n("urlaub") + " Urlaub");
+    return teile.join(" · ");
+  }
   function rsFussHtml(e, g) {
-    const teilen = '<button class="btn btn-soft rs2-teilen" data-rs-erinnern="' + e.id + '">Teilen</button>';
-    const uebersicht = '<button class="btn btn-soft rs2-teilen" data-rs-teilen="' + e.id + '">Übersicht teilen</button>';
-    if (!g.offen.length) return '<div class="rs2-reihe is-eins">' + uebersicht + '</div>';
-    let push = "";
-    if (rsDarfPush(e)) {
-      const p = (rsPush && rsPush.eventId === e.id) ? rsPush : { laden: true };
-      const d = p.daten;
-      let knopf, hinweis = "";
-      if (p.laden) {
-        knopf = '<button class="btn btn-primary rs2-push" disabled aria-busy="true">Push senden</button>';
-      } else if (p.fehler) {
-        knopf = '<button class="btn btn-primary rs2-push" disabled>Push senden</button>';
-        hinweis = p.fehler;
-      } else if (d && d.gesperrt) {
-        knopf = '<button class="btn btn-primary rs2-push" disabled>Push gesendet</button>';
-        hinweis = "Erinnert " + (d.letzte ? rsUhr(d.letzte) : "") + (d.naechste_moeglich ? " · wieder ab " + rsUhr(d.naechste_moeglich) : "");
-      } else if (d && !d.gesendet) {
-        knopf = '<button class="btn btn-primary rs2-push" disabled>Push senden</button>';
-        hinweis = "Niemand per Push erreichbar" + rsGruende(d, true);
-      } else {
-        knopf = '<button class="btn btn-primary rs2-push" data-rs-push="' + e.id + '">Push senden (' + d.gesendet + ')</button>';
-      }
-      push = knopf +
-        (p.meldung ? '<div class="rs2-meldung" role="status">' + esc(p.meldung) + '</div>' : "") +
-        (hinweis ? '<div class="rs2-hinweis">' + esc(hinweis) + '</div>' : "");
-    }
-    return push + '<div class="rs2-reihe">' + teilen + uebersicht + '</div>';
+    const kader = '<div class="rs2-kader-b"><button type="button" class="rs2-kader" data-rs-kader>' + RS_IC_KADER +
+      '<span class="rs2-kader-t">Kader</span><span class="rs2-kader-s">' + esc(rsKaderStand()) + '</span><span class="rs2-kader-c" aria-hidden="true">›</span></button></div>';
+    const uebersicht = '<button type="button" class="btn rs2-sek" data-rs-teilen="' + e.id + '">' + RS_IC_TEILEN + '<span>Übersicht teilen</span></button>';
+    if (!rsDarfPush(e)) return kader + '<div class="rs2-knoepfe is-eins">' + uebersicht + '</div>';
+    const p = (rsPush && rsPush.eventId === e.id) ? rsPush : { laden: !!g.offen.length };
+    const d = p.daten;
+    let bereit = false, hinweis = "";
+    if (!g.offen.length) hinweis = "";
+    else if (p.laden) hinweis = "";
+    else if (p.fehler) hinweis = p.fehler;
+    else if (d && d.gesperrt) hinweis = "Erinnert " + (d.letzte ? rsUhr(d.letzte) : "") + (d.naechste_moeglich ? " · wieder ab " + rsUhr(d.naechste_moeglich) : "");
+    else if (d && !d.gesendet) hinweis = "Niemand per Push erreichbar" + rsGruende(d, true);
+    else bereit = !!d;
+    const push = '<button type="button" class="btn btn-primary rs2-push-b" ' + (bereit ? 'data-rs-push="' + e.id + '"' : "disabled") +
+      (p.laden && g.offen.length ? ' aria-busy="true"' : "") + '>' + RS_IC_GLOCKE + 'Push senden</button>';
+    return kader + '<div class="rs2-knoepfe">' + uebersicht + push + '</div>' +
+      (p.meldung ? '<div class="rs2-meldung" role="status">' + esc(p.meldung) + '</div>' : "") +
+      (hinweis ? '<div class="rs2-hinweis">' + esc(hinweis) + '</div>' : "");
   }
   // ", 2 ohne Push-Abo, 1 ohne Konto" (nur Werte > 0)
   function rsGruende(d, mitKomma) {
@@ -1277,23 +1291,20 @@
     }
     neuZeichnen();
   }
-  // Bestaetigung vor dem Senden (kleiner Dialog).
-  function rsPushBestaetigen(d) {
+  /* Bestätigung vor dem Senden (Nachschliff D6): mittiger Dialog mit
+     Glocke, Frage mit Anzahl N, Termin darunter, Abbrechen | Senden. */
+  function rsPushBestaetigen(d, e) {
     return new Promise((resolve) => {
       const ov = document.createElement("div");
       ov.className = "modal-ov"; ov.id = "pushModal";
-      const zeilen = [];
-      if (d.ohne_abo) zeilen.push(d.ohne_abo + " ohne Push-Abo");
-      if (d.ohne_konto) zeilen.push(d.ohne_konto + " ohne Konto");
-      if (d.abgeschaltet) zeilen.push(d.abgeschaltet + (d.abgeschaltet === 1 ? " hat" : " haben") + " Erinnerungen abgeschaltet");
-      if (d.ausgenommen) zeilen.push(d.ausgenommen + " im Urlaub oder verletzt, ausgenommen");
       ov.innerHTML = `
-        <div class="modal modal-sm push-best" role="dialog" aria-modal="true" aria-label="Push senden">
-          <div class="push-best-t">An ${d.gesendet} ${d.gesendet === 1 ? "Spieler" : "Spieler"} senden?</div>
-          ${zeilen.length ? `<ul class="push-best-l">${zeilen.map((z) => `<li>${esc(z)}</li>`).join("")}</ul>` : ""}
+        <div class="modal push-best" role="dialog" aria-modal="true" aria-label="Push senden">
+          <span class="push-best-ic" aria-hidden="true">${RS_IC_GLOCKE.replace('width="18" height="18"', 'width="22" height="22"')}</span>
+          <div class="push-best-t">Push an ${d.gesendet} offene${d.gesendet === 1 ? "n Spieler" : " Spieler"} senden?</div>
+          <div class="push-best-s">${e ? esc(rsTerminZeile(e)) : ""}</div>
           <div class="push-best-k">
-            <button class="btn btn-primary" data-push-ok>Senden</button>
-            <button class="btn btn-soft" data-push-abbr>Abbrechen</button>
+            <button type="button" class="btn nsb-sek" data-push-abbr>Abbrechen</button>
+            <button type="button" class="btn btn-primary nsb-prim" data-push-ok>Senden</button>
           </div>
         </div>`;
       document.body.appendChild(ov);
@@ -1307,7 +1318,7 @@
   async function rsPushSenden(e, neuZeichnen) {
     const d0 = rsPush && rsPush.daten;
     if (!d0 || !d0.gesendet || d0.gesperrt) return;
-    if (!(await rsPushBestaetigen(d0))) return;
+    if (!(await rsPushBestaetigen(d0, e))) return;
     rsPush = { eventId: e.id, laden: true };
     neuZeichnen();
     try {
@@ -1356,7 +1367,7 @@
       const f = ev.target.closest("[data-rsfilter]");
       if (f) { rsFilter = f.dataset.rsfilter; neuZeichnen(); return; }
       if (ev.target.closest("[data-rs-push]")) { rsPushSenden(e, neuZeichnen); return; }
-      if (ev.target.closest("[data-rs-erinnern]")) { openShareModal("Erinnerung", erinnernText(e)); return; }
+      if (ev.target.closest("[data-rs-kader]")) { closeRsvpSheet(); navJumpTo("kader"); return; }
       if (ev.target.closest("[data-rs-teilen]")) { openShareModal("Rückmeldungen", rueckmeldeText(e)); return; }
       if (ev.target === ov || ev.target.closest("[data-sheet-close]")) closeRsvpSheet();
     });

@@ -5,6 +5,8 @@
    ersetze: Ist-Text -> Soll-Text (andere Testdaten); ohne: Soll-Texte, die nicht verglichen werden. */
 import { daten } from './landkartenmodul.mjs';
 
+// Kader wie in der Vorlage D6: alle fit, einer verletzt (15 fit · 1 verletzt)
+const kaderD6 = () => { const d = daten(); d.players.forEach((p) => Object.assign(p, p.id === 'p05' ? { status: 'verletzt' } : { status: 'fit', statusNote: null, statusUntil: null })); return d; };
 // Eigener Spieler (p06) mit dem Status aus der Vorlage D4
 const mitStatus = () => { const d = daten(); const p = d.players.find((x) => x.id === 'p06'); Object.assign(p, { status: 'angeschlagen', statusNote: 'Wade zu', statusUntil: '2026-10-18', statusSince: '2026-10-01' }); return d; };
 
@@ -57,5 +59,23 @@ export const NS_ELEMENTE = {
       vorbereitung: async (page) => { await page.click('[data-kseg="team"]'); await page.waitForTimeout(400); } },
     ersetze: { '37,00 €': '4.611,00 €', '6,00 €': '1.097,00 €', '4 Strafen': '240 Strafen', '2 Zahlungen': '61 Zahlungen' },
     breiteFrei: ['4.611,00 €', '1.097,00 €', '240 Strafen', '61 Zahlungen'],
+  },
+  // D6: Fuß des Rückmeldungen-Blatts (Kopf, Balken, Liste bleiben wie Final 04) und Dialog.
+  'D6 Kader': {
+    soll: { figur: 'D6', rahmen: 0, wurzel: '(f) => f.children[1].children[5]' },
+    ist: { profil: 'admin', schluessel: 'dashboard+rsvpSheet', wurzel: '.rs2-kader-b', daten: () => kaderD6() },
+    breite: 390,
+  },
+  'D6 Knöpfe': {
+    soll: { figur: 'D6', rahmen: 0, wurzel: '(f) => f.children[1].children[6]' },
+    ist: { profil: 'admin', schluessel: 'dashboard+rsvpSheet', wurzel: '.rs2-knoepfe', vorbereitung: async (page) => { await page.waitForTimeout(400); } },
+    breite: 390,
+  },
+  'D6 Dialog': {
+    soll: { figur: 'D6', rahmen: 1, wurzel: '(f) => f.children[1]' },
+    ist: { profil: 'admin', schluessel: 'dashboard+rsvpSheet', wurzel: '#pushModal .push-best',
+      vorbereitung: async (page) => { await page.waitForTimeout(400); await page.click('[data-rs-push]'); await page.waitForTimeout(300); } },
+    breite: 390, ersetze: { 'Push an 2 offene Spieler senden?': 'Push an 15 offene Spieler senden?', 'TSV Beispielstadt · So 4. Okt · 15:00': 'Training · Do 8. Okt · 19:30' },
+    breiteFrei: ['Push an 15 offene Spieler senden?', 'Training · Do 8. Okt · 19:30'],
   },
 };
