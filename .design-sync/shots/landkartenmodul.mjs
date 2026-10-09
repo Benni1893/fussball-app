@@ -371,7 +371,7 @@ window.DB = (function () {
     confirmFines: schreib("confirmFines", (ids) => (ids || []).length),
     markFinesPaid: schreib("markFinesPaid", (ids) => (ids || []).length),
     rejectFine: schreib("rejectFine"),
-    cancelBatch: schreib("cancelBatch", 1), cancelFine: schreib("cancelFine"),
+    cancelBatch: schreib("cancelBatch", 1), cancelFine: schreib("cancelFine"), undoFinePayment: schreib("undoFinePayment"),
   };
 })();
 `;

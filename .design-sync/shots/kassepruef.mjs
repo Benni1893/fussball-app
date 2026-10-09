@@ -594,6 +594,10 @@ console.log('--- Schreibpfade ---');
                      'deleteFine', 'setFinePaid', 'createFinesBatch']) {
     pruefe(app.includes('DB.' + rpc + '('), 'DB.' + rpc + ' wird weiter benutzt');
   }
+  // Nachschliff C5 (0060): Buchung rückgängig über die RPC, nicht mehr als
+  // direktes Update, das die Zahlart stehen ließ.
+  pruefe(/async function ksBlattUnpay[\s\S]{0,300}DB\.undoFinePayment\(id\)/.test(app) && !app.includes('DB.setFinePaid(id, false)'),
+    'Buchung rückgängig nutzt undo_fine_payment (0060)');
   /* Der alte Fehler: jede Bestaetigung wurde fest als „paypal" gebucht, egal
      was der Spieler gesagt hatte. PayPal ist jetzt wieder der Wert - aber als
      RUECKFALL hinter der Angabe des Spielers, nicht als fester Wert. Genau

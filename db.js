@@ -490,6 +490,12 @@ window.DB = (function () {
     const { error } = await client.rpc("cancel_fine", { p_id: id });
     if (error) throw error;
   }
+  // Buchung zuruecknehmen (Migration 0060): bestaetigt -> offen, Zahlart und
+  // Bezahlt-Felder leer, Schritt mit vorheriger Zahlart im Verlauf.
+  async function undoFinePayment(id) {
+    const { error } = await client.rpc("undo_fine_payment", { p_id: id });
+    if (error) throw error;
+  }
 
   // Audit-Verlauf einer Strafe (wer/wann/von→nach/Zahlart/Grund).
   async function fineHistory(fineId) {
@@ -622,6 +628,6 @@ window.DB = (function () {
     getSession, signIn, signUp, signOut, loadProfile, setMyPlayer, setPlayerStatus,
     resetPassword, updatePassword, onPasswordRecovery, myRoles,
     listMembers, grantRole, revokeRole, reportMyPayment,
-    createFinesBatch, confirmFines, markFinesPaid, rejectFine, cancelBatch, cancelFine, fineHistory,
+    createFinesBatch, confirmFines, markFinesPaid, rejectFine, cancelBatch, cancelFine, undoFinePayment, fineHistory,
   };
 })();

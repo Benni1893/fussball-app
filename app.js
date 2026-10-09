@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-09-N";
+  var APP_BUILD = "2026-10-09-O";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -6606,7 +6606,7 @@
     if (h.to === "bestätigt") return { t: "Eingegangen", d: art || "bezahlt", kl: "is-gruen" };
     if (h.to === "storniert") return { t: "Storniert", d: h.reason || "", kl: "is-grau" };
     if (h.from === "gemeldet" && h.to === "offen") return { t: "Abgelehnt", d: h.reason || "wieder offen", kl: "is-rot" };
-    if (h.from === "bestätigt" && h.to === "offen") return { t: "Zurückgenommen", d: "wieder offen", kl: "is-rot" };
+    if (h.from === "bestätigt" && h.to === "offen") return { t: "Zurückgenommen", d: art ? "wieder offen, vorher " + art : "wieder offen", kl: "is-rot" };
     return { t: (STATUS_META[h.to] && STATUS_META[h.to].label) || h.to, d: art, kl: "is-grau" };
   }
   function ksdZeit(iso) {
@@ -6675,7 +6675,7 @@
     const id = ksBlatt.id;
     if (!window.confirm("Buchung rückgängig machen? Die Strafe steht wieder als offen.")) return;
     try {
-      await DB.setFinePaid(id, false);
+      await DB.undoFinePayment(id);
       ksBlattClose();
       await reloadData();
       tvToast("Zurückgesetzt");

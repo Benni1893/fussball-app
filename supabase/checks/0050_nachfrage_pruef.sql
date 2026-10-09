@@ -63,9 +63,9 @@ begin
         -- ---- 1) Rechte -----------------------------------------------------
         ('send_rsvp_reminder als anon, Spieler, Kassenwart', v_basis || array[format('insert into public.events (id, club_id, type, title, date, time, status, quelle, auto_fine) select %L, %L, ''training'', ''Prüftermin'', (x at time zone ''Europe/Berlin'')::date, to_char(x at time zone ''Europe/Berlin'', ''HH24:MI''), ''geplant'', ''manuell'', false from (select date_trunc(''minute'', now() + interval ''50 hours'') as x) q', v_e1, v_club)], array[format('select public.send_rsvp_reminder(%L, true)::text', v_e1)], null::text[], null::text, 'verweigert', array['anon','Spieler','Kassenwart']),
         ('send_rsvp_reminder als Trainer und Admin (nur zählen)', v_basis || array[format('insert into public.events (id, club_id, type, title, date, time, status, quelle, auto_fine) select %L, %L, ''training'', ''Prüftermin'', (x at time zone ''Europe/Berlin'')::date, to_char(x at time zone ''Europe/Berlin'', ''HH24:MI''), ''geplant'', ''manuell'', false from (select date_trunc(''minute'', now() + interval ''50 hours'') as x) q', v_e1, v_club)], array[format('select (public.send_rsvp_reminder(%L, true) ->> ''nur_zaehlen'')', v_e1)], null, null, 'wert:true', array['Trainer','Admin']),
-        ('authenticated darf genau 28 Funktionen (26 aus 0042b + send_rsvp_reminder + set_notification_strafhinweis seit 0056)', null, null, null,
+        ('authenticated darf genau 29 Funktionen (26 aus 0042b + send_rsvp_reminder + set_notification_strafhinweis seit 0056 + undo_fine_payment seit 0060)', null, null, null,
          'select count(*)::text || ''/'' || bool_or(p.proname = ''send_rsvp_reminder'')::text from pg_proc p where p.pronamespace = ''public''::regnamespace and has_function_privilege(''authenticated'', p.oid, ''execute'')',
-         'wert:28/true', array['intern']),
+         'wert:29/true', array['intern']),
         ('keine notify_*-Funktion für anon/authenticated', null, null, null,
          'select count(*)::text from pg_proc p where p.pronamespace = ''public''::regnamespace and p.proname like ''notify\_%'' and p.proname <> ''notify_enqueue'' and (has_function_privilege(''anon'', p.oid, ''execute'') or has_function_privilege(''authenticated'', p.oid, ''execute''))',
          'wert:0', array['intern']),
