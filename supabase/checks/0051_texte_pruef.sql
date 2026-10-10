@@ -63,7 +63,7 @@ begin
          array['select public.send_preview_notification(''strafe_neu'')::text'], null, null, 'fehler:Für dieses Konto ist noch kein Gerät angemeldet.', array['Admin']),
         ('Push-Text leer', null, array['select public.set_notification_template(''strafe_neu'', '''', '''', true)::text'], null, null, 'fehler:Titel und Text dürfen nicht leer sein.', array['Admin']),
         ('Gerät anmelden mit leeren Daten', null, array['select public.upsert_push_subscription('''', '''', '''', null, null)::text'], null, null, 'fehler:Unvollständige Anmeldedaten.', array['Spieler']),
-        ('iCal-URL als Spieler', null, array['select public.set_ical_url(''https://example.invalid/x.ics'')::text'], null, null, 'fehler:Nur Trainer, Kassenwart oder Admin dürfen die iCal-URL setzen.', array['Spieler']),
+        ('iCal-URL als Spieler', null, array['select public.set_ical_url(''https://example.invalid/x.ics'')::text'], null, null, 'verweigert', array['Spieler']),   -- seit 0061 nur Trainer und Admin (42501)
         -- direkt aufrufen: ungenutzt würde der Planer die IMMUTABLE-Funktion weglassen
         ('Vorlage ohne Wert', null, array['select public.render_vorlage(''{a}'', ''{}''::jsonb, array[''a''])'], null, null,
          'fehler:Kein Wert für {a}.', array['intern']),
