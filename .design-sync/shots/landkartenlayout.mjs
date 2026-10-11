@@ -54,9 +54,9 @@ const ZIEL = '.design-sync/landkarte';
 const BILDER = path.join(ZIEL, 'bilder');
 const ROLLEN = path.join(BILDER, 'rollen');
 const KOMPLETT = path.join(BILDER, 'landkarte-komplett.html');
-const REIHENFOLGE = ['anmeldung', 'spieler', 'trainer', 'kassenwart', 'trainerkassenwart', 'admin'];
-const VORSCHAU = { breite: 300, qualitaet: 0.72 };
-const GROSS = { breite: 480, qualitaet: 0.6 };
+const REIHENFOLGE = ['anmeldung', 'wartend', 'spieler', 'trainer', 'kassenwart', 'trainerkassenwart', 'admin'];
+const VORSCHAU = { breite: 300, qualitaet: 0.66 };
+const GROSS = { breite: 440, qualitaet: 0.5 };   // bis 11.10.2026 480 px, 0.6; mit der Spalte "Wartet auf Freigabe" sonst ueber 15 MB
 const GRENZE = 15 * 1024 * 1024;
 
 /* Fingerabdruck von landkarte.json, Zeilenenden egal (Git wandelt sie unter

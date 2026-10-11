@@ -1,0 +1,221 @@
+{
+ "variante": "webkit-inter",
+ "engine": "WebKit",
+ "schrift": "Inter",
+ "breiten": [
+  320,
+  360,
+  375,
+  384,
+  390,
+  393,
+  412,
+  414,
+  430
+ ],
+ "schriften": [
+  100,
+  130
+ ],
+ "sekunden": 185,
+ "profile": [
+  {
+   "profil": "admin",
+   "ergebnisse": [],
+   "ausnahmen": [
+    {
+     "typ": "ueberlappung",
+     "el": "div#shareModal.modal-ov > div.modal > p.modal-sub",
+     "text": "Text frei anpassen, dann teilen oder kopieren. / Schließen",
+     "detail": "div.modal > div.modal-head > button.modal-x (12×4)",
+     "ausnahme": "teilen-x-unterzeile",
+     "profil": "admin",
+     "schluessel": "rollen-verwalten+shareModal",
+     "breite": 320,
+     "schrift": 100
+    },
+    {
+     "typ": "ueberlappung",
+     "el": "div#shareModal.modal-ov > div.modal > p.modal-sub",
+     "text": "Text frei anpassen, dann teilen oder kopieren. / Schließen",
+     "detail": "div.modal > div.modal-head > button.modal-x (21×4)",
+     "ausnahme": "teilen-x-unterzeile",
+     "profil": "admin",
+     "schluessel": "rollen-verwalten+shareModal",
+     "breite": 375,
+     "schrift": 100
+    },
+    {
+     "typ": "ueberlappung",
+     "el": "div#shareModal.modal-ov > div.modal > p.modal-sub",
+     "text": "Text frei anpassen, dann teilen oder kopieren. / Schließen",
+     "detail": "div.modal > div.modal-head > button.modal-x (12×4)",
+     "ausnahme": "teilen-x-unterzeile",
+     "profil": "admin",
+     "schluessel": "rollen-verwalten+shareModal",
+     "breite": 384,
+     "schrift": 100
+    },
+    {
+     "typ": "ueberlappung",
+     "el": "div#shareModal.modal-ov > div.modal > p.modal-sub",
+     "text": "Text frei anpassen, dann teilen oder kopieren. / Schließen",
+     "detail": "div.modal > div.modal-head > button.modal-x (6×4)",
+     "ausnahme": "teilen-x-unterzeile",
+     "profil": "admin",
+     "schluessel": "rollen-verwalten+shareModal",
+     "breite": 390,
+     "schrift": 100
+    }
+   ],
+   "nichtErreicht": [],
+   "neuGeladen": 0,
+   "verstoesse": [],
+   "fehler": []
+  },
+  {
+   "profil": "anmeldung",
+   "ergebnisse": [],
+   "ausnahmen": [],
+   "nichtErreicht": [],
+   "neuGeladen": 0,
+   "verstoesse": [],
+   "fehler": []
+  },
+  {
+   "profil": "kassenwart",
+   "ergebnisse": [],
+   "ausnahmen": [],
+   "nichtErreicht": [],
+   "neuGeladen": 0,
+   "verstoesse": [],
+   "fehler": []
+  },
+  {
+   "profil": "spieler",
+   "ergebnisse": [],
+   "ausnahmen": [],
+   "nichtErreicht": [],
+   "neuGeladen": 0,
+   "verstoesse": [],
+   "fehler": []
+  },
+  {
+   "profil": "trainer",
+   "ergebnisse": [],
+   "ausnahmen": [
+    {
+     "typ": "ueberlappung",
+     "el": "div#shareModal.modal-ov > div.modal > p.modal-sub",
+     "text": "Text frei anpassen, dann teilen oder kopieren. / Schließen",
+     "detail": "div.modal > div.modal-head > button.modal-x (12×4)",
+     "ausnahme": "teilen-x-unterzeile",
+     "profil": "trainer",
+     "schluessel": "rollen-verwalten+shareModal",
+     "breite": 320,
+     "schrift": 100
+    },
+    {
+     "typ": "ueberlappung",
+     "el": "div#shareModal.modal-ov > div.modal > p.modal-sub",
+     "text": "Text frei anpassen, dann teilen oder kopieren. / Schließen",
+     "detail": "div.modal > div.modal-head > button.modal-x (21×4)",
+     "ausnahme": "teilen-x-unterzeile",
+     "profil": "trainer",
+     "schluessel": "rollen-verwalten+shareModal",
+     "breite": 375,
+     "schrift": 100
+    },
+    {
+     "typ": "ueberlappung",
+     "el": "div#shareModal.modal-ov > div.modal > p.modal-sub",
+     "text": "Text frei anpassen, dann teilen oder kopieren. / Schließen",
+     "detail": "div.modal > div.modal-head > button.modal-x (12×4)",
+     "ausnahme": "teilen-x-unterzeile",
+     "profil": "trainer",
+     "schluessel": "rollen-verwalten+shareModal",
+     "breite": 384,
+     "schrift": 100
+    },
+    {
+     "typ": "ueberlappung",
+     "el": "div#shareModal.modal-ov > div.modal > p.modal-sub",
+     "text": "Text frei anpassen, dann teilen oder kopieren. / Schließen",
+     "detail": "div.modal > div.modal-head > button.modal-x (6×4)",
+     "ausnahme": "teilen-x-unterzeile",
+     "profil": "trainer",
+     "schluessel": "rollen-verwalten+shareModal",
+     "breite": 390,
+     "schrift": 100
+    }
+   ],
+   "nichtErreicht": [],
+   "neuGeladen": 0,
+   "verstoesse": [],
+   "fehler": []
+  },
+  {
+   "profil": "trainerkassenwart",
+   "ergebnisse": [],
+   "ausnahmen": [
+    {
+     "typ": "ueberlappung",
+     "el": "div#shareModal.modal-ov > div.modal > p.modal-sub",
+     "text": "Text frei anpassen, dann teilen oder kopieren. / Schließen",
+     "detail": "div.modal > div.modal-head > button.modal-x (12×4)",
+     "ausnahme": "teilen-x-unterzeile",
+     "profil": "trainerkassenwart",
+     "schluessel": "rollen-verwalten+shareModal",
+     "breite": 320,
+     "schrift": 100
+    },
+    {
+     "typ": "ueberlappung",
+     "el": "div#shareModal.modal-ov > div.modal > p.modal-sub",
+     "text": "Text frei anpassen, dann teilen oder kopieren. / Schließen",
+     "detail": "div.modal > div.modal-head > button.modal-x (21×4)",
+     "ausnahme": "teilen-x-unterzeile",
+     "profil": "trainerkassenwart",
+     "schluessel": "rollen-verwalten+shareModal",
+     "breite": 375,
+     "schrift": 100
+    },
+    {
+     "typ": "ueberlappung",
+     "el": "div#shareModal.modal-ov > div.modal > p.modal-sub",
+     "text": "Text frei anpassen, dann teilen oder kopieren. / Schließen",
+     "detail": "div.modal > div.modal-head > button.modal-x (12×4)",
+     "ausnahme": "teilen-x-unterzeile",
+     "profil": "trainerkassenwart",
+     "schluessel": "rollen-verwalten+shareModal",
+     "breite": 384,
+     "schrift": 100
+    },
+    {
+     "typ": "ueberlappung",
+     "el": "div#shareModal.modal-ov > div.modal > p.modal-sub",
+     "text": "Text frei anpassen, dann teilen oder kopieren. / Schließen",
+     "detail": "div.modal > div.modal-head > button.modal-x (6×4)",
+     "ausnahme": "teilen-x-unterzeile",
+     "profil": "trainerkassenwart",
+     "schluessel": "rollen-verwalten+shareModal",
+     "breite": 390,
+     "schrift": 100
+    }
+   ],
+   "nichtErreicht": [],
+   "neuGeladen": 0,
+   "verstoesse": [],
+   "fehler": []
+  },
+  {
+   "profil": "wartend",
+   "ergebnisse": [],
+   "ausnahmen": [],
+   "nichtErreicht": [],
+   "neuGeladen": 0,
+   "verstoesse": [],
+   "fehler": []
+  }
+ ]
+}

@@ -125,7 +125,7 @@ module.exports = async function handler(req, res) {
     }
     const token = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "").trim();
 
-    // Autorisierung: Cron-Secret ODER eingeloggter coach/treasurer/admin
+    // Autorisierung: Cron-Secret ODER eingeloggter Trainer/Admin (E5, Onboarding 0061)
     let allowed = false;
     if (CRON_SECRET && token && token === CRON_SECRET) {
       allowed = true;
@@ -137,7 +137,7 @@ module.exports = async function handler(req, res) {
       });
       if (rr.ok) {
         const roles = await rr.json();
-        if (Array.isArray(roles) && roles.some((r) => r === "coach" || r === "treasurer" || r === "admin")) allowed = true;
+        if (Array.isArray(roles) && roles.some((r) => r === "coach" || r === "admin")) allowed = true;
       }
     }
     if (!allowed) return res.status(401).json({ ok: false, error: "Nicht autorisiert." });

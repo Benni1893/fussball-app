@@ -1099,7 +1099,7 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
 
 ## Prüfskripte: Pflichtliste und „nur mit Testkonto“ (Stand 05.10.2026)
 
-- **Pflichtliste (24)** — laufen ohne Anmeldung und müssen vor jedem Push grün
+- **Pflichtliste (25)** — laufen ohne Anmeldung und müssen vor jedem Push grün
   sein: `abopruef`, `buildpruef`, `deeplinkpruef`, `einpruef`, `icspruef`,
   `kachelpruef`, `kassepruef`, `katalogpruef`, `kopfpruef`, `meldeschlusspruef`,
   `p1pruef`, `p3pruef`, `p4pruef`, `prefspruef`, `pushpruef`, `swpruef`,
@@ -1136,6 +1136,17 @@ Zahlen gliedern (`✅ 12 · ❌ 3 · ❓ 4`), nicht zur Dekoration.
   bei Wischen, Mausrad, Tipp daneben, Ansichtswechsel, Drehen und Größen-
   änderung, bleibt aber offen direkt nach dem Öffnen und bei Zittern unter
   8 px. Neue Popover hängen sich mit `popoverBinden(zu)` an denselben Weg.
+  Als 25. `onboardingpruef` (Paket Anmeldung und Onboarding, 11.10.2026,
+  Branch `onboarding`): Registrierung nur mit gültigem Einladungslink,
+  Onboarding-Schritte und Wartebildschirm des Stand-in-Profils „Wartet auf
+  Freigabe“ ohne Mannschaftsdaten, „Rollen verwalten“ mit Einladung,
+  Anfragen, Mitgliedern und Protokoll für Trainer und Admin, Profil mit
+  Position, Datenschutz und „Konto löschen“, Hinweis statt Zahlknopf ohne
+  PayPal-Link. Den echten Weg gegen die Datenbank prüft
+  `onboarding_e2e.mjs` (nicht auf der Pflichtliste: legt Testkonten mit
+  Gmail-Plus-Adressen an, schaltet die drei Onboarding-Vorlagen für die
+  Dauer aus, ordnet nie einem echten Kadereintrag zu, räumt am Ende alles
+  weg und vergleicht mit dem Ausgangsstand).
 - **SQL-Prüfskripte** (`supabase/checks/*.sql`, nicht auf der Pflichtliste):
   laufen nach dem Einspielen einer Migration im SQL-Editor und ändern nichts.
   Jeder Fall läuft in einer Untertransaktion, die immer zurückgerollt wird;

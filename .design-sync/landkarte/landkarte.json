@@ -16,7 +16,8 @@
     "profil": "Profil",
     "diagnose": "Diagnose",
     "push-nachrichten": "Push-Nachrichten",
-    "rollen-verwalten": "Rollen verwalten"
+    "rollen-verwalten": "Rollen verwalten",
+    "onboarding": "Onboarding"
   },
   "profile": {
     "anmeldung": {
@@ -551,6 +552,42 @@
           "nameQuelle": "liste"
         },
         {
+          "schluessel": "dialog:einwilligung-widerrufen-dein-status-ange",
+          "ansicht": "dialog",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": null,
+          "dialog": {
+            "typ": "confirm",
+            "text": "Einwilligung widerrufen? Dein Status angeschlagen oder verletzt, die Notiz und das Datum werden gelöscht."
+          },
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Spieler · Profil ansehen ›",
+              "global": false
+            },
+            {
+              "art": "pr-gesundheit",
+              "wert": null,
+              "text": "Gesundheitsstatus erlauben",
+              "global": false
+            }
+          ],
+          "bild": null,
+          "strang": "einstellungen",
+          "name": "Einwilligung widerrufen",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "einstellungen/google",
           "ansicht": "einstellungen",
           "unter": "google",
@@ -581,6 +618,76 @@
           "bild": "bilder/spieler/einstellungen__google.png",
           "strang": "einstellungen",
           "name": "Für Google",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "einstellungen/profil+kontoWegBlatt",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [
+            "kontoWegBlatt"
+          ],
+          "ueberschrift": null,
+          "titel": "Konto löschen",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Spieler · Profil ansehen ›",
+              "global": false
+            },
+            {
+              "art": "pr-konto-weg",
+              "wert": null,
+              "text": "KontoLöschen›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/spieler/einstellungen__profil--kontoWegBlatt.png",
+          "strang": "einstellungen",
+          "name": "Konto löschen",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "einstellungen/profil+positionBlatt",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [
+            "positionBlatt"
+          ],
+          "ueberschrift": null,
+          "titel": "Position",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Spieler · Profil ansehen ›",
+              "global": false
+            },
+            {
+              "art": "pr-position",
+              "wert": null,
+              "text": "PositionMittelfeld›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/spieler/einstellungen__profil--positionBlatt.png",
+          "strang": "einstellungen",
+          "name": "Position",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -776,6 +883,27 @@
         },
         {
           "von": "einstellungen/profil",
+          "art": "pr-gesundheit",
+          "wert": null,
+          "text": "Gesundheitsstatus erlauben",
+          "nach": "dialog:einwilligung-widerrufen-dein-status-ange"
+        },
+        {
+          "von": "einstellungen/profil",
+          "art": "pr-konto-weg",
+          "wert": null,
+          "text": "KontoLöschen›",
+          "nach": "einstellungen/profil+kontoWegBlatt"
+        },
+        {
+          "von": "einstellungen/profil",
+          "art": "pr-position",
+          "wert": null,
+          "text": "PositionMittelfeld›",
+          "nach": "einstellungen/profil+positionBlatt"
+        },
+        {
+          "von": "einstellungen/profil",
           "art": "pw-aendern",
           "wert": null,
           "text": "PasswortÄndern›",
@@ -855,6 +983,9 @@
         "logout",
         "nav",
         "paid-self",
+        "pr-gesundheit",
+        "pr-konto-weg",
+        "pr-position",
         "pw-aendern",
         "status-fenster",
         "tab",
@@ -1269,6 +1400,33 @@
           "nameQuelle": "ueberschrift"
         },
         {
+          "schluessel": "einstellungen/bfv",
+          "ansicht": "einstellungen",
+          "unter": "bfv",
+          "oben": [],
+          "ueberschrift": "Spielplan BFV",
+          "titel": "Spielplan BFV",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "bfv",
+              "text": "Spielplan BFVVerbunden›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/einstellungen__bfv.png",
+          "strang": "einstellungen",
+          "name": "Spielplan BFV",
+          "nameQuelle": "ueberschrift"
+        },
+        {
           "schluessel": "einstellungen/kalender",
           "ansicht": "einstellungen",
           "unter": "kalender",
@@ -1522,6 +1680,33 @@
           "nameQuelle": "liste"
         },
         {
+          "schluessel": "rollen-verwalten",
+          "ansicht": "rollen-verwalten",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Rollen verwalten",
+          "titel": "Rollen verwalten",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "goto",
+              "wert": "admin",
+              "text": "Rollen›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/rollen-verwalten.png",
+          "strang": "rollen-verwalten",
+          "name": "Rollen verwalten",
+          "nameQuelle": "ueberschrift"
+        },
+        {
           "schluessel": "strafen+zmBl",
           "ansicht": "strafen",
           "unter": null,
@@ -1732,6 +1917,78 @@
           "nameQuelle": "liste"
         },
         {
+          "schluessel": "dialog:einwilligung-widerrufen-dein-status-ange",
+          "ansicht": "dialog",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": null,
+          "dialog": {
+            "typ": "confirm",
+            "text": "Einwilligung widerrufen? Dein Status angeschlagen oder verletzt, die Notiz und das Datum werden gelöscht."
+          },
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Trainer · Spieler · Profil ans",
+              "global": false
+            },
+            {
+              "art": "pr-gesundheit",
+              "wert": null,
+              "text": "Gesundheitsstatus erlauben",
+              "global": false
+            }
+          ],
+          "bild": null,
+          "strang": "einstellungen",
+          "name": "Einwilligung widerrufen",
+          "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "dialog:link-erneuern-der-bisherige-link-funktio",
+          "ansicht": "dialog",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": null,
+          "dialog": {
+            "typ": "confirm",
+            "text": "Link erneuern? Der bisherige Link funktioniert danach nicht mehr."
+          },
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "goto",
+              "wert": "admin",
+              "text": "Rollen›",
+              "global": false
+            },
+            {
+              "art": "mf",
+              "wert": "erneuern",
+              "text": "Link erneuernalter wird ungültig",
+              "global": false
+            }
+          ],
+          "bild": null,
+          "strang": "rollen-verwalten",
+          "name": "Einladungslink erneuern",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "einstellungen/google",
           "ansicht": "einstellungen",
           "unter": "google",
@@ -1762,6 +2019,76 @@
           "bild": "bilder/trainer/einstellungen__google.png",
           "strang": "einstellungen",
           "name": "Für Google",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "einstellungen/profil+kontoWegBlatt",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [
+            "kontoWegBlatt"
+          ],
+          "ueberschrift": null,
+          "titel": "Konto löschen",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Trainer · Spieler · Profil ans",
+              "global": false
+            },
+            {
+              "art": "pr-konto-weg",
+              "wert": null,
+              "text": "KontoLöschen›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/einstellungen__profil--kontoWegBlatt.png",
+          "strang": "einstellungen",
+          "name": "Konto löschen",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "einstellungen/profil+positionBlatt",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [
+            "positionBlatt"
+          ],
+          "ueberschrift": null,
+          "titel": "Position",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Trainer · Spieler · Profil ans",
+              "global": false
+            },
+            {
+              "art": "pr-position",
+              "wert": null,
+              "text": "PositionMittelfeld›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/einstellungen__profil--positionBlatt.png",
+          "strang": "einstellungen",
+          "name": "Position",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -1939,6 +2266,111 @@
           "bild": "bilder/trainer/kalender--shareModal.png",
           "strang": "kalender",
           "name": "Kader-Info",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "rollen-verwalten+freigabeBlatt",
+          "ansicht": "rollen-verwalten",
+          "unter": null,
+          "oben": [
+            "freigabeBlatt"
+          ],
+          "ueberschrift": "Rollen verwalten",
+          "titel": "Lena Anfrage",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "goto",
+              "wert": "admin",
+              "text": "Rollen›",
+              "global": false
+            },
+            {
+              "art": "mf-anfrage",
+              "wert": null,
+              "text": "Lena AnfrageAbwehr · seit 02.10.›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/rollen-verwalten--freigabeBlatt.png",
+          "strang": "rollen-verwalten",
+          "name": "Anfrage freigeben",
+          "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "rollen-verwalten+rolleBlatt",
+          "ansicht": "rollen-verwalten",
+          "unter": null,
+          "oben": [
+            "rolleBlatt"
+          ],
+          "ueberschrift": "Rollen verwalten",
+          "titel": "Felix Oberhaus",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "goto",
+              "wert": "admin",
+              "text": "Rollen›",
+              "global": false
+            },
+            {
+              "art": "mf-mitglied",
+              "wert": null,
+              "text": "Felix Oberhaus (du)Admin›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/rollen-verwalten--rolleBlatt.png",
+          "strang": "rollen-verwalten",
+          "name": "Rollen eines Mitglieds",
+          "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "rollen-verwalten+shareModal",
+          "ansicht": "rollen-verwalten",
+          "unter": null,
+          "oben": [
+            "shareModal"
+          ],
+          "ueberschrift": "Rollen verwalten",
+          "titel": "Einladung teilen",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "goto",
+              "wert": "admin",
+              "text": "Rollen›",
+              "global": false
+            },
+            {
+              "art": "mf",
+              "wert": "teilen",
+              "text": "Link teilen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/rollen-verwalten--shareModal.png",
+          "strang": "rollen-verwalten",
+          "name": "Einladung teilen",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -2151,6 +2583,13 @@
         {
           "von": "einstellungen",
           "art": "ein",
+          "wert": "bfv",
+          "text": "Spielplan BFVVerbunden›",
+          "nach": "einstellungen/bfv"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
           "wert": "diagnose",
           "text": "Diagnose›",
           "nach": "diagnose"
@@ -2186,6 +2625,13 @@
         {
           "von": "einstellungen",
           "art": "goto",
+          "wert": "admin",
+          "text": "Rollen›",
+          "nach": "rollen-verwalten"
+        },
+        {
+          "von": "einstellungen",
+          "art": "goto",
           "wert": "katalog",
           "text": "Strafenkatalog›",
           "nach": "katalog"
@@ -2203,6 +2649,27 @@
           "wert": null,
           "text": "Abmelden",
           "nach": "dialog:abmelden"
+        },
+        {
+          "von": "einstellungen/profil",
+          "art": "pr-gesundheit",
+          "wert": null,
+          "text": "Gesundheitsstatus erlauben",
+          "nach": "dialog:einwilligung-widerrufen-dein-status-ange"
+        },
+        {
+          "von": "einstellungen/profil",
+          "art": "pr-konto-weg",
+          "wert": null,
+          "text": "KontoLöschen›",
+          "nach": "einstellungen/profil+kontoWegBlatt"
+        },
+        {
+          "von": "einstellungen/profil",
+          "art": "pr-position",
+          "wert": null,
+          "text": "PositionMittelfeld›",
+          "nach": "einstellungen/profil+positionBlatt"
         },
         {
           "von": "einstellungen/profil",
@@ -2303,6 +2770,34 @@
           "nach": "kalender+terminModal"
         },
         {
+          "von": "rollen-verwalten",
+          "art": "mf-anfrage",
+          "wert": null,
+          "text": "Lena AnfrageAbwehr · seit 02.10.›",
+          "nach": "rollen-verwalten+freigabeBlatt"
+        },
+        {
+          "von": "rollen-verwalten",
+          "art": "mf-mitglied",
+          "wert": null,
+          "text": "Felix Oberhaus (du)Admin›",
+          "nach": "rollen-verwalten+rolleBlatt"
+        },
+        {
+          "von": "rollen-verwalten",
+          "art": "mf",
+          "wert": "erneuern",
+          "text": "Link erneuernalter wird ungültig",
+          "nach": "dialog:link-erneuern-der-bisherige-link-funktio"
+        },
+        {
+          "von": "rollen-verwalten",
+          "art": "mf",
+          "wert": "teilen",
+          "text": "Link teilen",
+          "nach": "rollen-verwalten+shareModal"
+        },
+        {
           "von": "strafen",
           "art": "paid-self",
           "wert": null,
@@ -2395,6 +2890,12 @@
           "text": "Protokoll dieses Starts›"
         },
         {
+          "von": "rollen-verwalten",
+          "art": "mf",
+          "wert": "kopieren",
+          "text": "Link kopieren"
+        },
+        {
           "von": "strafen",
           "art": "kseg",
           "wert": "ich",
@@ -2424,8 +2925,14 @@
         "kseg",
         "lineup-edit",
         "logout",
+        "mf",
+        "mf-anfrage",
+        "mf-mitglied",
         "nav",
         "paid-self",
+        "pr-gesundheit",
+        "pr-konto-weg",
+        "pr-position",
         "pw-aendern",
         "rs-kader",
         "rs-push",
@@ -3043,6 +3550,42 @@
           "nameQuelle": "liste"
         },
         {
+          "schluessel": "dialog:einwilligung-widerrufen-dein-status-ange",
+          "ansicht": "dialog",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": null,
+          "dialog": {
+            "typ": "confirm",
+            "text": "Einwilligung widerrufen? Dein Status angeschlagen oder verletzt, die Notiz und das Datum werden gelöscht."
+          },
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Kassenwart · Spieler · Profil ",
+              "global": false
+            },
+            {
+              "art": "pr-gesundheit",
+              "wert": null,
+              "text": "Gesundheitsstatus erlauben",
+              "global": false
+            }
+          ],
+          "bild": null,
+          "strang": "einstellungen",
+          "name": "Einwilligung widerrufen",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "einstellungen/google",
           "ansicht": "einstellungen",
           "unter": "google",
@@ -3073,6 +3616,111 @@
           "bild": "bilder/kassenwart/einstellungen__google.png",
           "strang": "einstellungen",
           "name": "Für Google",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "einstellungen/profil+kontoWegBlatt",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [
+            "kontoWegBlatt"
+          ],
+          "ueberschrift": null,
+          "titel": "Konto löschen",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Kassenwart · Spieler · Profil ",
+              "global": false
+            },
+            {
+              "art": "pr-konto-weg",
+              "wert": null,
+              "text": "KontoLöschen›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/einstellungen__profil--kontoWegBlatt.png",
+          "strang": "einstellungen",
+          "name": "Konto löschen",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "einstellungen/profil+paypalBlatt",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [
+            "paypalBlatt"
+          ],
+          "ueberschrift": null,
+          "titel": "PayPal-Link der Kasse",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Kassenwart · Spieler · Profil ",
+              "global": false
+            },
+            {
+              "art": "pr-paypal",
+              "wert": null,
+              "text": "PayPalTeamkassefasanerie›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/einstellungen__profil--paypalBlatt.png",
+          "strang": "einstellungen",
+          "name": "PayPal-Link der Kasse",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "einstellungen/profil+positionBlatt",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [
+            "positionBlatt"
+          ],
+          "ueberschrift": null,
+          "titel": "Position",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Kassenwart · Spieler · Profil ",
+              "global": false
+            },
+            {
+              "art": "pr-position",
+              "wert": null,
+              "text": "PositionMittelfeld›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/einstellungen__profil--positionBlatt.png",
+          "strang": "einstellungen",
+          "name": "Position",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -3402,6 +4050,34 @@
         },
         {
           "von": "einstellungen/profil",
+          "art": "pr-gesundheit",
+          "wert": null,
+          "text": "Gesundheitsstatus erlauben",
+          "nach": "dialog:einwilligung-widerrufen-dein-status-ange"
+        },
+        {
+          "von": "einstellungen/profil",
+          "art": "pr-konto-weg",
+          "wert": null,
+          "text": "KontoLöschen›",
+          "nach": "einstellungen/profil+kontoWegBlatt"
+        },
+        {
+          "von": "einstellungen/profil",
+          "art": "pr-paypal",
+          "wert": null,
+          "text": "PayPalTeamkassefasanerie›",
+          "nach": "einstellungen/profil+paypalBlatt"
+        },
+        {
+          "von": "einstellungen/profil",
+          "art": "pr-position",
+          "wert": null,
+          "text": "PositionMittelfeld›",
+          "nach": "einstellungen/profil+positionBlatt"
+        },
+        {
+          "von": "einstellungen/profil",
           "art": "pw-aendern",
           "wert": null,
           "text": "PasswortÄndern›",
@@ -3633,6 +4309,10 @@
         "logout",
         "nav",
         "paid-self",
+        "pr-gesundheit",
+        "pr-konto-weg",
+        "pr-paypal",
+        "pr-position",
         "pw-aendern",
         "status-fenster",
         "tab",
@@ -4073,6 +4753,33 @@
           "nameQuelle": "ueberschrift"
         },
         {
+          "schluessel": "einstellungen/bfv",
+          "ansicht": "einstellungen",
+          "unter": "bfv",
+          "oben": [],
+          "ueberschrift": "Spielplan BFV",
+          "titel": "Spielplan BFV",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "bfv",
+              "text": "Spielplan BFVVerbunden›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/einstellungen__bfv.png",
+          "strang": "einstellungen",
+          "name": "Spielplan BFV",
+          "nameQuelle": "ueberschrift"
+        },
+        {
           "schluessel": "einstellungen/kalender",
           "ansicht": "einstellungen",
           "unter": "kalender",
@@ -4494,6 +5201,33 @@
           "nameQuelle": "ueberschrift"
         },
         {
+          "schluessel": "rollen-verwalten",
+          "ansicht": "rollen-verwalten",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Rollen verwalten",
+          "titel": "Rollen verwalten",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "goto",
+              "wert": "admin",
+              "text": "Rollen›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/rollen-verwalten.png",
+          "strang": "rollen-verwalten",
+          "name": "Rollen verwalten",
+          "nameQuelle": "ueberschrift"
+        },
+        {
           "schluessel": "strafen+zmBl",
           "ansicht": "strafen",
           "unter": null,
@@ -4673,6 +5407,78 @@
           "nameQuelle": "liste"
         },
         {
+          "schluessel": "dialog:einwilligung-widerrufen-dein-status-ange",
+          "ansicht": "dialog",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": null,
+          "dialog": {
+            "typ": "confirm",
+            "text": "Einwilligung widerrufen? Dein Status angeschlagen oder verletzt, die Notiz und das Datum werden gelöscht."
+          },
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Trainer",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "profil",
+              "text": "Profil",
+              "global": false
+            },
+            {
+              "art": "pr-gesundheit",
+              "wert": null,
+              "text": "Gesundheitsstatus erlauben",
+              "global": false
+            }
+          ],
+          "bild": null,
+          "strang": "profil",
+          "name": "Einwilligung widerrufen",
+          "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "dialog:link-erneuern-der-bisherige-link-funktio",
+          "ansicht": "dialog",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": null,
+          "dialog": {
+            "typ": "confirm",
+            "text": "Link erneuern? Der bisherige Link funktioniert danach nicht mehr."
+          },
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "goto",
+              "wert": "admin",
+              "text": "Rollen›",
+              "global": false
+            },
+            {
+              "art": "mf",
+              "wert": "erneuern",
+              "text": "Link erneuernalter wird ungültig",
+              "global": false
+            }
+          ],
+          "bild": null,
+          "strang": "rollen-verwalten",
+          "name": "Einladungslink erneuern",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "einstellungen/google",
           "ansicht": "einstellungen",
           "unter": "google",
@@ -4703,6 +5509,111 @@
           "bild": "bilder/trainerkassenwart/einstellungen__google.png",
           "strang": "einstellungen",
           "name": "Für Google",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "einstellungen/profil+kontoWegBlatt",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [
+            "kontoWegBlatt"
+          ],
+          "ueberschrift": null,
+          "titel": "Konto löschen",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Trainer · Kassenwart · Spieler",
+              "global": false
+            },
+            {
+              "art": "pr-konto-weg",
+              "wert": null,
+              "text": "KontoLöschen›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/einstellungen__profil--kontoWegBlatt.png",
+          "strang": "einstellungen",
+          "name": "Konto löschen",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "einstellungen/profil+paypalBlatt",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [
+            "paypalBlatt"
+          ],
+          "ueberschrift": null,
+          "titel": "PayPal-Link der Kasse",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Trainer · Kassenwart · Spieler",
+              "global": false
+            },
+            {
+              "art": "pr-paypal",
+              "wert": null,
+              "text": "PayPalTeamkassefasanerie›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/einstellungen__profil--paypalBlatt.png",
+          "strang": "einstellungen",
+          "name": "PayPal-Link der Kasse",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "einstellungen/profil+positionBlatt",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [
+            "positionBlatt"
+          ],
+          "ueberschrift": null,
+          "titel": "Position",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Trainer · Kassenwart · Spieler",
+              "global": false
+            },
+            {
+              "art": "pr-position",
+              "wert": null,
+              "text": "PositionMittelfeld›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/einstellungen__profil--positionBlatt.png",
+          "strang": "einstellungen",
+          "name": "Position",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -4954,6 +5865,111 @@
           "nameQuelle": "liste"
         },
         {
+          "schluessel": "profil+kontoWegBlatt",
+          "ansicht": "profil",
+          "unter": null,
+          "oben": [
+            "kontoWegBlatt"
+          ],
+          "ueberschrift": "Profil",
+          "titel": "Konto löschen",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Trainer",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "profil",
+              "text": "Profil",
+              "global": false
+            },
+            {
+              "art": "pr-konto-weg",
+              "wert": null,
+              "text": "KontoLöschen›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/profil--kontoWegBlatt.png",
+          "strang": "profil",
+          "name": "Konto löschen",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "profil+paypalBlatt",
+          "ansicht": "profil",
+          "unter": null,
+          "oben": [
+            "paypalBlatt"
+          ],
+          "ueberschrift": "Profil",
+          "titel": "PayPal-Link der Kasse",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Trainer",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "profil",
+              "text": "Profil",
+              "global": false
+            },
+            {
+              "art": "pr-paypal",
+              "wert": null,
+              "text": "PayPalTeamkassefasanerie›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/profil--paypalBlatt.png",
+          "strang": "profil",
+          "name": "PayPal-Link der Kasse",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "profil+positionBlatt",
+          "ansicht": "profil",
+          "unter": null,
+          "oben": [
+            "positionBlatt"
+          ],
+          "ueberschrift": "Profil",
+          "titel": "Position",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Trainer",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "profil",
+              "text": "Profil",
+              "global": false
+            },
+            {
+              "art": "pr-position",
+              "wert": null,
+              "text": "PositionMittelfeld›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/profil--positionBlatt.png",
+          "strang": "profil",
+          "name": "Position",
+          "nameQuelle": "ueberschrift"
+        },
+        {
           "schluessel": "profil+pwBlatt",
           "ansicht": "profil",
           "unter": null,
@@ -5022,6 +6038,146 @@
           "strang": "profil",
           "name": "Mein Status · Voraussichtlich bis",
           "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "rollen-verwalten+freigabeBlatt",
+          "ansicht": "rollen-verwalten",
+          "unter": null,
+          "oben": [
+            "freigabeBlatt"
+          ],
+          "ueberschrift": "Rollen verwalten",
+          "titel": "Lena Anfrage",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "goto",
+              "wert": "admin",
+              "text": "Rollen›",
+              "global": false
+            },
+            {
+              "art": "mf-anfrage",
+              "wert": null,
+              "text": "Lena AnfrageAbwehr · seit 02.10.›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/rollen-verwalten--freigabeBlatt.png",
+          "strang": "rollen-verwalten",
+          "name": "Anfrage freigeben",
+          "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "rollen-verwalten+paypalBlatt",
+          "ansicht": "rollen-verwalten",
+          "unter": null,
+          "oben": [
+            "paypalBlatt"
+          ],
+          "ueberschrift": "Rollen verwalten",
+          "titel": "PayPal-Link der Kasse",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "goto",
+              "wert": "admin",
+              "text": "Rollen›",
+              "global": false
+            },
+            {
+              "art": "mf",
+              "wert": "paypal",
+              "text": "PayPal-LinkTeamkassefasanerie›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/rollen-verwalten--paypalBlatt.png",
+          "strang": "rollen-verwalten",
+          "name": "PayPal-Link der Kasse",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "rollen-verwalten+rolleBlatt",
+          "ansicht": "rollen-verwalten",
+          "unter": null,
+          "oben": [
+            "rolleBlatt"
+          ],
+          "ueberschrift": "Rollen verwalten",
+          "titel": "Felix Oberhaus",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "goto",
+              "wert": "admin",
+              "text": "Rollen›",
+              "global": false
+            },
+            {
+              "art": "mf-mitglied",
+              "wert": null,
+              "text": "Felix Oberhaus (du)Admin›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/rollen-verwalten--rolleBlatt.png",
+          "strang": "rollen-verwalten",
+          "name": "Rollen eines Mitglieds",
+          "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "rollen-verwalten+shareModal",
+          "ansicht": "rollen-verwalten",
+          "unter": null,
+          "oben": [
+            "shareModal"
+          ],
+          "ueberschrift": "Rollen verwalten",
+          "titel": "Einladung teilen",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "goto",
+              "wert": "admin",
+              "text": "Rollen›",
+              "global": false
+            },
+            {
+              "art": "mf",
+              "wert": "teilen",
+              "text": "Link teilen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/rollen-verwalten--shareModal.png",
+          "strang": "rollen-verwalten",
+          "name": "Einladung teilen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "trainer+rsvpSheet",
@@ -5399,6 +6555,13 @@
         {
           "von": "einstellungen",
           "art": "ein",
+          "wert": "bfv",
+          "text": "Spielplan BFVVerbunden›",
+          "nach": "einstellungen/bfv"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
           "wert": "diagnose",
           "text": "Diagnose›",
           "nach": "diagnose"
@@ -5434,6 +6597,13 @@
         {
           "von": "einstellungen",
           "art": "goto",
+          "wert": "admin",
+          "text": "Rollen›",
+          "nach": "rollen-verwalten"
+        },
+        {
+          "von": "einstellungen",
+          "art": "goto",
           "wert": "katalog",
           "text": "Strafenkatalog›",
           "nach": "katalog"
@@ -5451,6 +6621,34 @@
           "wert": null,
           "text": "Abmelden",
           "nach": "dialog:abmelden"
+        },
+        {
+          "von": "einstellungen/profil",
+          "art": "pr-gesundheit",
+          "wert": null,
+          "text": "Gesundheitsstatus erlauben",
+          "nach": "dialog:einwilligung-widerrufen-dein-status-ange"
+        },
+        {
+          "von": "einstellungen/profil",
+          "art": "pr-konto-weg",
+          "wert": null,
+          "text": "KontoLöschen›",
+          "nach": "einstellungen/profil+kontoWegBlatt"
+        },
+        {
+          "von": "einstellungen/profil",
+          "art": "pr-paypal",
+          "wert": null,
+          "text": "PayPalTeamkassefasanerie›",
+          "nach": "einstellungen/profil+paypalBlatt"
+        },
+        {
+          "von": "einstellungen/profil",
+          "art": "pr-position",
+          "wert": null,
+          "text": "PositionMittelfeld›",
+          "nach": "einstellungen/profil+positionBlatt"
         },
         {
           "von": "einstellungen/profil",
@@ -5678,6 +6876,34 @@
         },
         {
           "von": "profil",
+          "art": "pr-gesundheit",
+          "wert": null,
+          "text": "Gesundheitsstatus erlauben",
+          "nach": "dialog:einwilligung-widerrufen-dein-status-ange"
+        },
+        {
+          "von": "profil",
+          "art": "pr-konto-weg",
+          "wert": null,
+          "text": "KontoLöschen›",
+          "nach": "profil+kontoWegBlatt"
+        },
+        {
+          "von": "profil",
+          "art": "pr-paypal",
+          "wert": null,
+          "text": "PayPalTeamkassefasanerie›",
+          "nach": "profil+paypalBlatt"
+        },
+        {
+          "von": "profil",
+          "art": "pr-position",
+          "wert": null,
+          "text": "PositionMittelfeld›",
+          "nach": "profil+positionBlatt"
+        },
+        {
+          "von": "profil",
           "art": "pw-aendern",
           "wert": null,
           "text": "PasswortÄndern›",
@@ -5689,6 +6915,41 @@
           "wert": null,
           "text": "Angeschlagen",
           "nach": "profil+statusFenster"
+        },
+        {
+          "von": "rollen-verwalten",
+          "art": "mf-anfrage",
+          "wert": null,
+          "text": "Lena AnfrageAbwehr · seit 02.10.›",
+          "nach": "rollen-verwalten+freigabeBlatt"
+        },
+        {
+          "von": "rollen-verwalten",
+          "art": "mf-mitglied",
+          "wert": null,
+          "text": "Felix Oberhaus (du)Admin›",
+          "nach": "rollen-verwalten+rolleBlatt"
+        },
+        {
+          "von": "rollen-verwalten",
+          "art": "mf",
+          "wert": "erneuern",
+          "text": "Link erneuernalter wird ungültig",
+          "nach": "dialog:link-erneuern-der-bisherige-link-funktio"
+        },
+        {
+          "von": "rollen-verwalten",
+          "art": "mf",
+          "wert": "paypal",
+          "text": "PayPal-LinkTeamkassefasanerie›",
+          "nach": "rollen-verwalten+paypalBlatt"
+        },
+        {
+          "von": "rollen-verwalten",
+          "art": "mf",
+          "wert": "teilen",
+          "text": "Link teilen",
+          "nach": "rollen-verwalten+shareModal"
         },
         {
           "von": "strafen",
@@ -5807,6 +7068,12 @@
           "text": "Mehr zu Verspätete Rückmeldung"
         },
         {
+          "von": "rollen-verwalten",
+          "art": "mf",
+          "wert": "kopieren",
+          "text": "Link kopieren"
+        },
+        {
           "von": "strafen",
           "art": "kseg",
           "wert": "ich",
@@ -5846,8 +7113,15 @@
         "lineup-edit",
         "logout",
         "mehr",
+        "mf",
+        "mf-anfrage",
+        "mf-mitglied",
         "nav",
         "paid-self",
+        "pr-gesundheit",
+        "pr-konto-weg",
+        "pr-paypal",
+        "pr-position",
         "pw-aendern",
         "rs-kader",
         "rs-push",
@@ -6981,6 +8255,78 @@
           "nameQuelle": "liste"
         },
         {
+          "schluessel": "dialog:einwilligung-widerrufen-dein-status-ange",
+          "ansicht": "dialog",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": null,
+          "dialog": {
+            "typ": "confirm",
+            "text": "Einwilligung widerrufen? Dein Status angeschlagen oder verletzt, die Notiz und das Datum werden gelöscht."
+          },
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Mehr",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "profil",
+              "text": "Profil",
+              "global": false
+            },
+            {
+              "art": "pr-gesundheit",
+              "wert": null,
+              "text": "Gesundheitsstatus erlauben",
+              "global": false
+            }
+          ],
+          "bild": null,
+          "strang": "profil",
+          "name": "Einwilligung widerrufen",
+          "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "dialog:link-erneuern-der-bisherige-link-funktio",
+          "ansicht": "dialog",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": null,
+          "dialog": {
+            "typ": "confirm",
+            "text": "Link erneuern? Der bisherige Link funktioniert danach nicht mehr."
+          },
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Mehr",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "admin",
+              "text": "Rollen",
+              "global": false
+            },
+            {
+              "art": "mf",
+              "wert": "erneuern",
+              "text": "Link erneuernalter wird ungültig",
+              "global": false
+            }
+          ],
+          "bild": null,
+          "strang": "rollen-verwalten",
+          "name": "Einladungslink erneuern",
+          "nameQuelle": "liste"
+        },
+        {
           "schluessel": "einstellungen/google",
           "ansicht": "einstellungen",
           "unter": "google",
@@ -7011,6 +8357,111 @@
           "bild": "bilder/admin/einstellungen__google.png",
           "strang": "einstellungen",
           "name": "Für Google",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "einstellungen/profil+kontoWegBlatt",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [
+            "kontoWegBlatt"
+          ],
+          "ueberschrift": null,
+          "titel": "Konto löschen",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Admin · Spieler · Profil anseh",
+              "global": false
+            },
+            {
+              "art": "pr-konto-weg",
+              "wert": null,
+              "text": "KontoLöschen›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/einstellungen__profil--kontoWegBlatt.png",
+          "strang": "einstellungen",
+          "name": "Konto löschen",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "einstellungen/profil+paypalBlatt",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [
+            "paypalBlatt"
+          ],
+          "ueberschrift": null,
+          "titel": "PayPal-Link der Kasse",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Admin · Spieler · Profil anseh",
+              "global": false
+            },
+            {
+              "art": "pr-paypal",
+              "wert": null,
+              "text": "PayPalTeamkassefasanerie›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/einstellungen__profil--paypalBlatt.png",
+          "strang": "einstellungen",
+          "name": "PayPal-Link der Kasse",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "einstellungen/profil+positionBlatt",
+          "ansicht": "einstellungen",
+          "unter": "profil",
+          "oben": [
+            "positionBlatt"
+          ],
+          "ueberschrift": null,
+          "titel": "Position",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "profil",
+              "text": "FO Felix Oberhaus Admin · Spieler · Profil anseh",
+              "global": false
+            },
+            {
+              "art": "pr-position",
+              "wert": null,
+              "text": "PositionMittelfeld›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/einstellungen__profil--positionBlatt.png",
+          "strang": "einstellungen",
+          "name": "Position",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -7295,6 +8746,111 @@
           "nameQuelle": "liste"
         },
         {
+          "schluessel": "profil+kontoWegBlatt",
+          "ansicht": "profil",
+          "unter": null,
+          "oben": [
+            "kontoWegBlatt"
+          ],
+          "ueberschrift": "Profil",
+          "titel": "Konto löschen",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Mehr",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "profil",
+              "text": "Profil",
+              "global": false
+            },
+            {
+              "art": "pr-konto-weg",
+              "wert": null,
+              "text": "KontoLöschen›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/profil--kontoWegBlatt.png",
+          "strang": "profil",
+          "name": "Konto löschen",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "profil+paypalBlatt",
+          "ansicht": "profil",
+          "unter": null,
+          "oben": [
+            "paypalBlatt"
+          ],
+          "ueberschrift": "Profil",
+          "titel": "PayPal-Link der Kasse",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Mehr",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "profil",
+              "text": "Profil",
+              "global": false
+            },
+            {
+              "art": "pr-paypal",
+              "wert": null,
+              "text": "PayPalTeamkassefasanerie›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/profil--paypalBlatt.png",
+          "strang": "profil",
+          "name": "PayPal-Link der Kasse",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "profil+positionBlatt",
+          "ansicht": "profil",
+          "unter": null,
+          "oben": [
+            "positionBlatt"
+          ],
+          "ueberschrift": "Profil",
+          "titel": "Position",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Mehr",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "profil",
+              "text": "Profil",
+              "global": false
+            },
+            {
+              "art": "pr-position",
+              "wert": null,
+              "text": "PositionMittelfeld›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/profil--positionBlatt.png",
+          "strang": "profil",
+          "name": "Position",
+          "nameQuelle": "ueberschrift"
+        },
+        {
           "schluessel": "profil+pwBlatt",
           "ansicht": "profil",
           "unter": null,
@@ -7363,6 +8919,146 @@
           "strang": "profil",
           "name": "Mein Status · Voraussichtlich bis",
           "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "rollen-verwalten+freigabeBlatt",
+          "ansicht": "rollen-verwalten",
+          "unter": null,
+          "oben": [
+            "freigabeBlatt"
+          ],
+          "ueberschrift": "Rollen verwalten",
+          "titel": "Lena Anfrage",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Mehr",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "admin",
+              "text": "Rollen",
+              "global": false
+            },
+            {
+              "art": "mf-anfrage",
+              "wert": null,
+              "text": "Lena AnfrageAbwehr · seit 02.10.›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/rollen-verwalten--freigabeBlatt.png",
+          "strang": "rollen-verwalten",
+          "name": "Anfrage freigeben",
+          "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "rollen-verwalten+paypalBlatt",
+          "ansicht": "rollen-verwalten",
+          "unter": null,
+          "oben": [
+            "paypalBlatt"
+          ],
+          "ueberschrift": "Rollen verwalten",
+          "titel": "PayPal-Link der Kasse",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Mehr",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "admin",
+              "text": "Rollen",
+              "global": false
+            },
+            {
+              "art": "mf",
+              "wert": "paypal",
+              "text": "PayPal-LinkTeamkassefasanerie›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/rollen-verwalten--paypalBlatt.png",
+          "strang": "rollen-verwalten",
+          "name": "PayPal-Link der Kasse",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "rollen-verwalten+rolleBlatt",
+          "ansicht": "rollen-verwalten",
+          "unter": null,
+          "oben": [
+            "rolleBlatt"
+          ],
+          "ueberschrift": "Rollen verwalten",
+          "titel": "Felix Oberhaus",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Mehr",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "admin",
+              "text": "Rollen",
+              "global": false
+            },
+            {
+              "art": "mf-mitglied",
+              "wert": null,
+              "text": "Felix Oberhaus (du)Admin›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/rollen-verwalten--rolleBlatt.png",
+          "strang": "rollen-verwalten",
+          "name": "Rollen eines Mitglieds",
+          "nameQuelle": "liste"
+        },
+        {
+          "schluessel": "rollen-verwalten+shareModal",
+          "ansicht": "rollen-verwalten",
+          "unter": null,
+          "oben": [
+            "shareModal"
+          ],
+          "ueberschrift": "Rollen verwalten",
+          "titel": "Einladung teilen",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Mehr",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "admin",
+              "text": "Rollen",
+              "global": false
+            },
+            {
+              "art": "mf",
+              "wert": "teilen",
+              "text": "Link teilen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/rollen-verwalten--shareModal.png",
+          "strang": "rollen-verwalten",
+          "name": "Einladung teilen",
+          "nameQuelle": "ueberschrift"
         },
         {
           "schluessel": "trainer+rsvpSheet",
@@ -7823,6 +9519,34 @@
         },
         {
           "von": "einstellungen/profil",
+          "art": "pr-gesundheit",
+          "wert": null,
+          "text": "Gesundheitsstatus erlauben",
+          "nach": "dialog:einwilligung-widerrufen-dein-status-ange"
+        },
+        {
+          "von": "einstellungen/profil",
+          "art": "pr-konto-weg",
+          "wert": null,
+          "text": "KontoLöschen›",
+          "nach": "einstellungen/profil+kontoWegBlatt"
+        },
+        {
+          "von": "einstellungen/profil",
+          "art": "pr-paypal",
+          "wert": null,
+          "text": "PayPalTeamkassefasanerie›",
+          "nach": "einstellungen/profil+paypalBlatt"
+        },
+        {
+          "von": "einstellungen/profil",
+          "art": "pr-position",
+          "wert": null,
+          "text": "PositionMittelfeld›",
+          "nach": "einstellungen/profil+positionBlatt"
+        },
+        {
+          "von": "einstellungen/profil",
           "art": "pw-aendern",
           "wert": null,
           "text": "PasswortÄndern›",
@@ -8054,6 +9778,34 @@
         },
         {
           "von": "profil",
+          "art": "pr-gesundheit",
+          "wert": null,
+          "text": "Gesundheitsstatus erlauben",
+          "nach": "dialog:einwilligung-widerrufen-dein-status-ange"
+        },
+        {
+          "von": "profil",
+          "art": "pr-konto-weg",
+          "wert": null,
+          "text": "KontoLöschen›",
+          "nach": "profil+kontoWegBlatt"
+        },
+        {
+          "von": "profil",
+          "art": "pr-paypal",
+          "wert": null,
+          "text": "PayPalTeamkassefasanerie›",
+          "nach": "profil+paypalBlatt"
+        },
+        {
+          "von": "profil",
+          "art": "pr-position",
+          "wert": null,
+          "text": "PositionMittelfeld›",
+          "nach": "profil+positionBlatt"
+        },
+        {
+          "von": "profil",
           "art": "pw-aendern",
           "wert": null,
           "text": "PasswortÄndern›",
@@ -8065,6 +9817,41 @@
           "wert": null,
           "text": "Angeschlagen",
           "nach": "profil+statusFenster"
+        },
+        {
+          "von": "rollen-verwalten",
+          "art": "mf-anfrage",
+          "wert": null,
+          "text": "Lena AnfrageAbwehr · seit 02.10.›",
+          "nach": "rollen-verwalten+freigabeBlatt"
+        },
+        {
+          "von": "rollen-verwalten",
+          "art": "mf-mitglied",
+          "wert": null,
+          "text": "Felix Oberhaus (du)Admin›",
+          "nach": "rollen-verwalten+rolleBlatt"
+        },
+        {
+          "von": "rollen-verwalten",
+          "art": "mf",
+          "wert": "erneuern",
+          "text": "Link erneuernalter wird ungültig",
+          "nach": "dialog:link-erneuern-der-bisherige-link-funktio"
+        },
+        {
+          "von": "rollen-verwalten",
+          "art": "mf",
+          "wert": "paypal",
+          "text": "PayPal-LinkTeamkassefasanerie›",
+          "nach": "rollen-verwalten+paypalBlatt"
+        },
+        {
+          "von": "rollen-verwalten",
+          "art": "mf",
+          "wert": "teilen",
+          "text": "Link teilen",
+          "nach": "rollen-verwalten+shareModal"
         },
         {
           "von": "strafen",
@@ -8183,6 +9970,12 @@
           "text": "Mehr zu Verspätete Rückmeldung"
         },
         {
+          "von": "rollen-verwalten",
+          "art": "mf",
+          "wert": "kopieren",
+          "text": "Link kopieren"
+        },
+        {
           "von": "strafen",
           "art": "kseg",
           "wert": "ich",
@@ -8222,8 +10015,15 @@
         "lineup-edit",
         "logout",
         "mehr",
+        "mf",
+        "mf-anfrage",
+        "mf-mitglied",
         "nav",
         "paid-self",
+        "pr-gesundheit",
+        "pr-konto-weg",
+        "pr-paypal",
+        "pr-position",
         "pw-aendern",
         "rs-kader",
         "rs-push",
@@ -8246,6 +10046,229 @@
         "zahnrad"
       ],
       "schreibaufrufe": []
+    },
+    "wartend": {
+      "titel": "Wartet auf Freigabe",
+      "rollen": [],
+      "knoten": [
+        {
+          "schluessel": "datenschutz",
+          "ansicht": "datenschutz",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Datenschutz",
+          "titel": "Datenschutz",
+          "tiefe": 0,
+          "pfad": [],
+          "bild": "bilder/wartend/datenschutz.png",
+          "strang": "onboarding",
+          "name": "Datenschutz",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "anmeldung/anmelden",
+          "ansicht": "anmeldung",
+          "unter": "anmelden",
+          "oben": [],
+          "ueberschrift": "Anmelden",
+          "titel": "Anmelden",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "ob",
+              "wert": "spaeter",
+              "text": "Später weitermachen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/wartend/anmeldung__anmelden.png",
+          "strang": "anmeldung",
+          "name": "Anmelden",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "deine-position",
+          "ansicht": "deine-position",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Deine Position",
+          "titel": "Deine Position",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "ob-weiter-ds",
+              "wert": null,
+              "text": "Weiter",
+              "global": false
+            }
+          ],
+          "bild": "bilder/wartend/deine-position.png",
+          "strang": "onboarding",
+          "name": "Deine Position",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "anmeldung/reset-link-senden",
+          "ansicht": "anmeldung",
+          "unter": "reset-link-senden",
+          "oben": [],
+          "ueberschrift": "Passwort zurücksetzen",
+          "titel": "Passwort zurücksetzen",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "ob",
+              "wert": "spaeter",
+              "text": "Später weitermachen",
+              "global": false
+            },
+            {
+              "art": "auth",
+              "wert": "forgot",
+              "text": "Passwort vergessen?",
+              "global": false
+            }
+          ],
+          "bild": "bilder/wartend/anmeldung__reset-link-senden.png",
+          "strang": "anmeldung",
+          "name": "Passwort zurücksetzen",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "zum-home-bildschirm",
+          "ansicht": "zum-home-bildschirm",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Zum Home-Bildschirm",
+          "titel": "Zum Home-Bildschirm",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "ob-weiter-ds",
+              "wert": null,
+              "text": "Weiter",
+              "global": false
+            },
+            {
+              "art": "ob-weiter-pos",
+              "wert": null,
+              "text": "Weiter",
+              "global": false
+            }
+          ],
+          "bild": "bilder/wartend/zum-home-bildschirm.png",
+          "strang": "onboarding",
+          "name": "Zum Home-Bildschirm",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "warte-auf-freigabe",
+          "ansicht": "warte-auf-freigabe",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Warte auf Freigabe",
+          "titel": "Warte auf Freigabe",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "ob-weiter-ds",
+              "wert": null,
+              "text": "Weiter",
+              "global": false
+            },
+            {
+              "art": "ob-weiter-pos",
+              "wert": null,
+              "text": "Weiter",
+              "global": false
+            },
+            {
+              "art": "ob",
+              "wert": "home",
+              "text": "Weiter",
+              "global": false
+            }
+          ],
+          "bild": "bilder/wartend/warte-auf-freigabe.png",
+          "strang": "onboarding",
+          "name": "Warte auf Freigabe",
+          "nameQuelle": "ueberschrift"
+        }
+      ],
+      "kanten": [
+        {
+          "von": "anmeldung/anmelden",
+          "art": "auth",
+          "wert": "forgot",
+          "text": "Passwort vergessen?",
+          "nach": "anmeldung/reset-link-senden"
+        },
+        {
+          "von": "anmeldung/reset-link-senden",
+          "art": "auth",
+          "wert": "login",
+          "text": "Zurück zur Anmeldung",
+          "nach": "anmeldung/anmelden"
+        },
+        {
+          "von": "datenschutz",
+          "art": "ob-weiter-ds",
+          "wert": null,
+          "text": "Weiter",
+          "nach": "deine-position"
+        },
+        {
+          "von": "datenschutz",
+          "art": "ob",
+          "wert": "spaeter",
+          "text": "Später weitermachen",
+          "nach": "anmeldung/anmelden"
+        },
+        {
+          "von": "deine-position",
+          "art": "ob-weiter-pos",
+          "wert": null,
+          "text": "Weiter",
+          "nach": "zum-home-bildschirm"
+        },
+        {
+          "von": "deine-position",
+          "art": "ob",
+          "wert": "spaeter",
+          "text": "Später weitermachen",
+          "nach": "anmeldung/anmelden"
+        },
+        {
+          "von": "zum-home-bildschirm",
+          "art": "ob",
+          "wert": "home",
+          "text": "Weiter",
+          "nach": "warte-auf-freigabe"
+        }
+      ],
+      "tiefengrenze": [],
+      "ohneWirkung": [],
+      "unbekannt": [],
+      "nichtWiederholbar": [
+        {
+          "knoten": "zum-home-bildschirm",
+          "art": "ob",
+          "wert": "spaeter"
+        },
+        {
+          "knoten": "warte-auf-freigabe"
+        }
+      ],
+      "gefundeneArten": [
+        "auth",
+        "ob",
+        "ob-weiter-ds",
+        "ob-weiter-pos"
+      ],
+      "schreibaufrufe": [
+        "einwilligungSetzen",
+        "positionSetzen"
+      ]
     }
   },
   "nichtErreichteAusloeser": [

@@ -1,0 +1,558 @@
+{
+ "variante": "chromium-inter",
+ "engine": "Chromium",
+ "schrift": "Inter",
+ "breiten": [
+  320,
+  360,
+  375,
+  384,
+  390,
+  393,
+  412,
+  414,
+  430
+ ],
+ "schriften": [
+  100,
+  130
+ ],
+ "sekunden": 152,
+ "profile": [
+  {
+   "profil": "admin",
+   "ergebnisse": [
+    {
+     "typ": "abgeschnitten",
+     "el": "div.ein-schalter.ohne-ic > span.ein-schalter-main > span.ein-schalter-s",
+     "text": "http://127.0.0.1:64941/#einladung=landkarte-einlad",
+     "detail": "an div.ein-gruppe.mf-gruppe",
+     "profil": "admin",
+     "schluessel": "rollen-verwalten",
+     "name": "Rollen verwalten",
+     "breite": 320,
+     "schrift": 100,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/admin/rollen-verwalten-320-100.png"
+    },
+    {
+     "typ": "abgeschnitten",
+     "el": "div.ein-schalter.ohne-ic > span.ein-schalter-main > span.ein-schalter-s",
+     "text": "http://127.0.0.1:64941/#einladung=landkarte-einlad",
+     "detail": "an div.ein-gruppe.mf-gruppe",
+     "profil": "admin",
+     "schluessel": "rollen-verwalten",
+     "name": "Rollen verwalten",
+     "breite": 320,
+     "schrift": 130,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/admin/rollen-verwalten-320-130.png"
+    },
+    {
+     "typ": "abgeschnitten",
+     "el": "div.ein-schalter.ohne-ic > span.ein-schalter-main > span.ein-schalter-s",
+     "text": "http://127.0.0.1:64941/#einladung=landkarte-einlad",
+     "detail": "an div.ein-gruppe.mf-gruppe",
+     "profil": "admin",
+     "schluessel": "rollen-verwalten",
+     "name": "Rollen verwalten",
+     "breite": 360,
+     "schrift": 130,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/admin/rollen-verwalten-360-130.png"
+    },
+    {
+     "typ": "abgeschnitten",
+     "el": "div.ein-schalter.ohne-ic > span.ein-schalter-main > span.ein-schalter-s",
+     "text": "http://127.0.0.1:64941/#einladung=landkarte-einlad",
+     "detail": "an div.ein-gruppe.mf-gruppe",
+     "profil": "admin",
+     "schluessel": "rollen-verwalten",
+     "name": "Rollen verwalten",
+     "breite": 375,
+     "schrift": 130,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/admin/rollen-verwalten-375-130.png"
+    },
+    {
+     "typ": "abgeschnitten",
+     "el": "div.ein-schalter.ohne-ic > span.ein-schalter-main > span.ein-schalter-s",
+     "text": "http://127.0.0.1:64941/#einladung=landkarte-einlad",
+     "detail": "an div.ein-gruppe.mf-gruppe",
+     "profil": "admin",
+     "schluessel": "rollen-verwalten",
+     "name": "Rollen verwalten",
+     "breite": 384,
+     "schrift": 130,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/admin/rollen-verwalten-384-130.png"
+    },
+    {
+     "typ": "abgeschnitten",
+     "el": "div.ein-schalter.ohne-ic > span.ein-schalter-main > span.ein-schalter-s",
+     "text": "http://127.0.0.1:64941/#einladung=landkarte-einlad",
+     "detail": "an div.ein-gruppe.mf-gruppe",
+     "profil": "admin",
+     "schluessel": "rollen-verwalten",
+     "name": "Rollen verwalten",
+     "breite": 390,
+     "schrift": 130,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/admin/rollen-verwalten-390-130.png"
+    },
+    {
+     "typ": "abgeschnitten",
+     "el": "div.ein-schalter.ohne-ic > span.ein-schalter-main > span.ein-schalter-s",
+     "text": "http://127.0.0.1:64941/#einladung=landkarte-einlad",
+     "detail": "an div.ein-gruppe.mf-gruppe",
+     "profil": "admin",
+     "schluessel": "rollen-verwalten",
+     "name": "Rollen verwalten",
+     "breite": 393,
+     "schrift": 130,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/admin/rollen-verwalten-393-130.png"
+    },
+    {
+     "typ": "umbruch",
+     "el": "div.nsb-felder > div.nsb-feld > span.fg-w",
+     "text": "invalid",
+     "detail": "Wort",
+     "profil": "admin",
+     "schluessel": "rollen-verwalten+freigabeBlatt",
+     "name": "Anfrage freigeben",
+     "breite": 320,
+     "schrift": 130,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/admin/rollen-verwalten_freigabeBlatt-320-130.png"
+    }
+   ],
+   "ausnahmen": [
+    {
+     "typ": "ueberlappung",
+     "el": "div#shareModal.modal-ov > div.modal > p.modal-sub",
+     "text": "Text frei anpassen, dann teilen oder kopieren. / Schließen",
+     "detail": "div.modal > div.modal-head > button.modal-x (12×4)",
+     "ausnahme": "teilen-x-unterzeile",
+     "profil": "admin",
+     "schluessel": "rollen-verwalten+shareModal",
+     "breite": 320,
+     "schrift": 100
+    },
+    {
+     "typ": "ueberlappung",
+     "el": "div#shareModal.modal-ov > div.modal > p.modal-sub",
+     "text": "Text frei anpassen, dann teilen oder kopieren. / Schließen",
+     "detail": "div.modal > div.modal-head > button.modal-x (21×4)",
+     "ausnahme": "teilen-x-unterzeile",
+     "profil": "admin",
+     "schluessel": "rollen-verwalten+shareModal",
+     "breite": 375,
+     "schrift": 100
+    },
+    {
+     "typ": "ueberlappung",
+     "el": "div#shareModal.modal-ov > div.modal > p.modal-sub",
+     "text": "Text frei anpassen, dann teilen oder kopieren. / Schließen",
+     "detail": "div.modal > div.modal-head > button.modal-x (12×4)",
+     "ausnahme": "teilen-x-unterzeile",
+     "profil": "admin",
+     "schluessel": "rollen-verwalten+shareModal",
+     "breite": 384,
+     "schrift": 100
+    },
+    {
+     "typ": "ueberlappung",
+     "el": "div#shareModal.modal-ov > div.modal > p.modal-sub",
+     "text": "Text frei anpassen, dann teilen oder kopieren. / Schließen",
+     "detail": "div.modal > div.modal-head > button.modal-x (6×4)",
+     "ausnahme": "teilen-x-unterzeile",
+     "profil": "admin",
+     "schluessel": "rollen-verwalten+shareModal",
+     "breite": 390,
+     "schrift": 100
+    }
+   ],
+   "nichtErreicht": [],
+   "neuGeladen": 0,
+   "verstoesse": [],
+   "fehler": []
+  },
+  {
+   "profil": "anmeldung",
+   "ergebnisse": [],
+   "ausnahmen": [],
+   "nichtErreicht": [],
+   "neuGeladen": 0,
+   "verstoesse": [],
+   "fehler": []
+  },
+  {
+   "profil": "kassenwart",
+   "ergebnisse": [],
+   "ausnahmen": [],
+   "nichtErreicht": [],
+   "neuGeladen": 0,
+   "verstoesse": [],
+   "fehler": []
+  },
+  {
+   "profil": "spieler",
+   "ergebnisse": [],
+   "ausnahmen": [],
+   "nichtErreicht": [],
+   "neuGeladen": 0,
+   "verstoesse": [],
+   "fehler": []
+  },
+  {
+   "profil": "trainer",
+   "ergebnisse": [
+    {
+     "typ": "abgeschnitten",
+     "el": "div.ein-schalter.ohne-ic > span.ein-schalter-main > span.ein-schalter-s",
+     "text": "http://127.0.0.1:64941/#einladung=landkarte-einlad",
+     "detail": "an div.ein-gruppe.mf-gruppe",
+     "profil": "trainer",
+     "schluessel": "rollen-verwalten",
+     "name": "Rollen verwalten",
+     "breite": 320,
+     "schrift": 100,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/trainer/rollen-verwalten-320-100.png"
+    },
+    {
+     "typ": "abgeschnitten",
+     "el": "div.ein-schalter.ohne-ic > span.ein-schalter-main > span.ein-schalter-s",
+     "text": "http://127.0.0.1:64941/#einladung=landkarte-einlad",
+     "detail": "an div.ein-gruppe.mf-gruppe",
+     "profil": "trainer",
+     "schluessel": "rollen-verwalten",
+     "name": "Rollen verwalten",
+     "breite": 320,
+     "schrift": 130,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/trainer/rollen-verwalten-320-130.png"
+    },
+    {
+     "typ": "abgeschnitten",
+     "el": "div.ein-schalter.ohne-ic > span.ein-schalter-main > span.ein-schalter-s",
+     "text": "http://127.0.0.1:64941/#einladung=landkarte-einlad",
+     "detail": "an div.ein-gruppe.mf-gruppe",
+     "profil": "trainer",
+     "schluessel": "rollen-verwalten",
+     "name": "Rollen verwalten",
+     "breite": 360,
+     "schrift": 130,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/trainer/rollen-verwalten-360-130.png"
+    },
+    {
+     "typ": "abgeschnitten",
+     "el": "div.ein-schalter.ohne-ic > span.ein-schalter-main > span.ein-schalter-s",
+     "text": "http://127.0.0.1:64941/#einladung=landkarte-einlad",
+     "detail": "an div.ein-gruppe.mf-gruppe",
+     "profil": "trainer",
+     "schluessel": "rollen-verwalten",
+     "name": "Rollen verwalten",
+     "breite": 375,
+     "schrift": 130,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/trainer/rollen-verwalten-375-130.png"
+    },
+    {
+     "typ": "abgeschnitten",
+     "el": "div.ein-schalter.ohne-ic > span.ein-schalter-main > span.ein-schalter-s",
+     "text": "http://127.0.0.1:64941/#einladung=landkarte-einlad",
+     "detail": "an div.ein-gruppe.mf-gruppe",
+     "profil": "trainer",
+     "schluessel": "rollen-verwalten",
+     "name": "Rollen verwalten",
+     "breite": 384,
+     "schrift": 130,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/trainer/rollen-verwalten-384-130.png"
+    },
+    {
+     "typ": "abgeschnitten",
+     "el": "div.ein-schalter.ohne-ic > span.ein-schalter-main > span.ein-schalter-s",
+     "text": "http://127.0.0.1:64941/#einladung=landkarte-einlad",
+     "detail": "an div.ein-gruppe.mf-gruppe",
+     "profil": "trainer",
+     "schluessel": "rollen-verwalten",
+     "name": "Rollen verwalten",
+     "breite": 390,
+     "schrift": 130,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/trainer/rollen-verwalten-390-130.png"
+    },
+    {
+     "typ": "abgeschnitten",
+     "el": "div.ein-schalter.ohne-ic > span.ein-schalter-main > span.ein-schalter-s",
+     "text": "http://127.0.0.1:64941/#einladung=landkarte-einlad",
+     "detail": "an div.ein-gruppe.mf-gruppe",
+     "profil": "trainer",
+     "schluessel": "rollen-verwalten",
+     "name": "Rollen verwalten",
+     "breite": 393,
+     "schrift": 130,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/trainer/rollen-verwalten-393-130.png"
+    },
+    {
+     "typ": "umbruch",
+     "el": "div.nsb-felder > div.nsb-feld > span.fg-w",
+     "text": "invalid",
+     "detail": "Wort",
+     "profil": "trainer",
+     "schluessel": "rollen-verwalten+freigabeBlatt",
+     "name": "Anfrage freigeben",
+     "breite": 320,
+     "schrift": 130,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/trainer/rollen-verwalten_freigabeBlatt-320-130.png"
+    }
+   ],
+   "ausnahmen": [
+    {
+     "typ": "ueberlappung",
+     "el": "div#shareModal.modal-ov > div.modal > p.modal-sub",
+     "text": "Text frei anpassen, dann teilen oder kopieren. / Schließen",
+     "detail": "div.modal > div.modal-head > button.modal-x (12×4)",
+     "ausnahme": "teilen-x-unterzeile",
+     "profil": "trainer",
+     "schluessel": "rollen-verwalten+shareModal",
+     "breite": 320,
+     "schrift": 100
+    },
+    {
+     "typ": "ueberlappung",
+     "el": "div#shareModal.modal-ov > div.modal > p.modal-sub",
+     "text": "Text frei anpassen, dann teilen oder kopieren. / Schließen",
+     "detail": "div.modal > div.modal-head > button.modal-x (21×4)",
+     "ausnahme": "teilen-x-unterzeile",
+     "profil": "trainer",
+     "schluessel": "rollen-verwalten+shareModal",
+     "breite": 375,
+     "schrift": 100
+    },
+    {
+     "typ": "ueberlappung",
+     "el": "div#shareModal.modal-ov > div.modal > p.modal-sub",
+     "text": "Text frei anpassen, dann teilen oder kopieren. / Schließen",
+     "detail": "div.modal > div.modal-head > button.modal-x (12×4)",
+     "ausnahme": "teilen-x-unterzeile",
+     "profil": "trainer",
+     "schluessel": "rollen-verwalten+shareModal",
+     "breite": 384,
+     "schrift": 100
+    },
+    {
+     "typ": "ueberlappung",
+     "el": "div#shareModal.modal-ov > div.modal > p.modal-sub",
+     "text": "Text frei anpassen, dann teilen oder kopieren. / Schließen",
+     "detail": "div.modal > div.modal-head > button.modal-x (6×4)",
+     "ausnahme": "teilen-x-unterzeile",
+     "profil": "trainer",
+     "schluessel": "rollen-verwalten+shareModal",
+     "breite": 390,
+     "schrift": 100
+    }
+   ],
+   "nichtErreicht": [],
+   "neuGeladen": 0,
+   "verstoesse": [],
+   "fehler": []
+  },
+  {
+   "profil": "trainerkassenwart",
+   "ergebnisse": [
+    {
+     "typ": "abgeschnitten",
+     "el": "div.ein-schalter.ohne-ic > span.ein-schalter-main > span.ein-schalter-s",
+     "text": "http://127.0.0.1:64941/#einladung=landkarte-einlad",
+     "detail": "an div.ein-gruppe.mf-gruppe",
+     "profil": "trainerkassenwart",
+     "schluessel": "rollen-verwalten",
+     "name": "Rollen verwalten",
+     "breite": 320,
+     "schrift": 100,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/trainerkassenwart/rollen-verwalten-320-100.png"
+    },
+    {
+     "typ": "abgeschnitten",
+     "el": "div.ein-schalter.ohne-ic > span.ein-schalter-main > span.ein-schalter-s",
+     "text": "http://127.0.0.1:64941/#einladung=landkarte-einlad",
+     "detail": "an div.ein-gruppe.mf-gruppe",
+     "profil": "trainerkassenwart",
+     "schluessel": "rollen-verwalten",
+     "name": "Rollen verwalten",
+     "breite": 320,
+     "schrift": 130,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/trainerkassenwart/rollen-verwalten-320-130.png"
+    },
+    {
+     "typ": "abgeschnitten",
+     "el": "div.ein-schalter.ohne-ic > span.ein-schalter-main > span.ein-schalter-s",
+     "text": "http://127.0.0.1:64941/#einladung=landkarte-einlad",
+     "detail": "an div.ein-gruppe.mf-gruppe",
+     "profil": "trainerkassenwart",
+     "schluessel": "rollen-verwalten",
+     "name": "Rollen verwalten",
+     "breite": 360,
+     "schrift": 130,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/trainerkassenwart/rollen-verwalten-360-130.png"
+    },
+    {
+     "typ": "abgeschnitten",
+     "el": "div.ein-schalter.ohne-ic > span.ein-schalter-main > span.ein-schalter-s",
+     "text": "http://127.0.0.1:64941/#einladung=landkarte-einlad",
+     "detail": "an div.ein-gruppe.mf-gruppe",
+     "profil": "trainerkassenwart",
+     "schluessel": "rollen-verwalten",
+     "name": "Rollen verwalten",
+     "breite": 375,
+     "schrift": 130,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/trainerkassenwart/rollen-verwalten-375-130.png"
+    },
+    {
+     "typ": "abgeschnitten",
+     "el": "div.ein-schalter.ohne-ic > span.ein-schalter-main > span.ein-schalter-s",
+     "text": "http://127.0.0.1:64941/#einladung=landkarte-einlad",
+     "detail": "an div.ein-gruppe.mf-gruppe",
+     "profil": "trainerkassenwart",
+     "schluessel": "rollen-verwalten",
+     "name": "Rollen verwalten",
+     "breite": 384,
+     "schrift": 130,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/trainerkassenwart/rollen-verwalten-384-130.png"
+    },
+    {
+     "typ": "abgeschnitten",
+     "el": "div.ein-schalter.ohne-ic > span.ein-schalter-main > span.ein-schalter-s",
+     "text": "http://127.0.0.1:64941/#einladung=landkarte-einlad",
+     "detail": "an div.ein-gruppe.mf-gruppe",
+     "profil": "trainerkassenwart",
+     "schluessel": "rollen-verwalten",
+     "name": "Rollen verwalten",
+     "breite": 390,
+     "schrift": 130,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/trainerkassenwart/rollen-verwalten-390-130.png"
+    },
+    {
+     "typ": "abgeschnitten",
+     "el": "div.ein-schalter.ohne-ic > span.ein-schalter-main > span.ein-schalter-s",
+     "text": "http://127.0.0.1:64941/#einladung=landkarte-einlad",
+     "detail": "an div.ein-gruppe.mf-gruppe",
+     "profil": "trainerkassenwart",
+     "schluessel": "rollen-verwalten",
+     "name": "Rollen verwalten",
+     "breite": 393,
+     "schrift": 130,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/trainerkassenwart/rollen-verwalten-393-130.png"
+    },
+    {
+     "typ": "umbruch",
+     "el": "div.nsb-felder > div.nsb-feld > span.fg-w",
+     "text": "invalid",
+     "detail": "Wort",
+     "profil": "trainerkassenwart",
+     "schluessel": "rollen-verwalten+freigabeBlatt",
+     "name": "Anfrage freigeben",
+     "breite": 320,
+     "schrift": 130,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/trainerkassenwart/rollen-verwalten_freigabeBlatt-320-130.png"
+    }
+   ],
+   "ausnahmen": [
+    {
+     "typ": "ueberlappung",
+     "el": "div#shareModal.modal-ov > div.modal > p.modal-sub",
+     "text": "Text frei anpassen, dann teilen oder kopieren. / Schließen",
+     "detail": "div.modal > div.modal-head > button.modal-x (12×4)",
+     "ausnahme": "teilen-x-unterzeile",
+     "profil": "trainerkassenwart",
+     "schluessel": "rollen-verwalten+shareModal",
+     "breite": 320,
+     "schrift": 100
+    },
+    {
+     "typ": "ueberlappung",
+     "el": "div#shareModal.modal-ov > div.modal > p.modal-sub",
+     "text": "Text frei anpassen, dann teilen oder kopieren. / Schließen",
+     "detail": "div.modal > div.modal-head > button.modal-x (21×4)",
+     "ausnahme": "teilen-x-unterzeile",
+     "profil": "trainerkassenwart",
+     "schluessel": "rollen-verwalten+shareModal",
+     "breite": 375,
+     "schrift": 100
+    },
+    {
+     "typ": "ueberlappung",
+     "el": "div#shareModal.modal-ov > div.modal > p.modal-sub",
+     "text": "Text frei anpassen, dann teilen oder kopieren. / Schließen",
+     "detail": "div.modal > div.modal-head > button.modal-x (12×4)",
+     "ausnahme": "teilen-x-unterzeile",
+     "profil": "trainerkassenwart",
+     "schluessel": "rollen-verwalten+shareModal",
+     "breite": 384,
+     "schrift": 100
+    },
+    {
+     "typ": "ueberlappung",
+     "el": "div#shareModal.modal-ov > div.modal > p.modal-sub",
+     "text": "Text frei anpassen, dann teilen oder kopieren. / Schließen",
+     "detail": "div.modal > div.modal-head > button.modal-x (6×4)",
+     "ausnahme": "teilen-x-unterzeile",
+     "profil": "trainerkassenwart",
+     "schluessel": "rollen-verwalten+shareModal",
+     "breite": 390,
+     "schrift": 100
+    }
+   ],
+   "nichtErreicht": [],
+   "neuGeladen": 0,
+   "verstoesse": [],
+   "fehler": []
+  },
+  {
+   "profil": "wartend",
+   "ergebnisse": [
+    {
+     "typ": "ueberlauf",
+     "el": "Seite",
+     "text": "scrollWidth 332 > 320",
+     "profil": "wartend",
+     "schluessel": "datenschutz",
+     "name": "Datenschutz",
+     "breite": 320,
+     "schrift": 100,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/wartend/datenschutz-320-100.png"
+    },
+    {
+     "typ": "ueberlauf",
+     "el": "Seite",
+     "text": "scrollWidth 370 > 320",
+     "profil": "wartend",
+     "schluessel": "datenschutz",
+     "name": "Datenschutz",
+     "breite": 320,
+     "schrift": 130,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/wartend/datenschutz-320-130.png"
+    },
+    {
+     "typ": "abgeschnitten",
+     "el": "div.auth-wrap > div.auth-card.ob-card > p.auth-sub.ob-text",
+     "text": "Die App speichert deinen Namen, deine E-Mail, Zu- ",
+     "detail": "an body.auth-mode",
+     "profil": "wartend",
+     "schluessel": "datenschutz",
+     "name": "Datenschutz",
+     "breite": 320,
+     "schrift": 130,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/wartend/datenschutz-320-130.png"
+    },
+    {
+     "typ": "ueberlauf",
+     "el": "Seite",
+     "text": "scrollWidth 370 > 360",
+     "profil": "wartend",
+     "schluessel": "datenschutz",
+     "name": "Datenschutz",
+     "breite": 360,
+     "schrift": 130,
+     "bild": ".design-sync/geraetematrix/onboarding-2026-10-11/befunde/chromium-inter/wartend/datenschutz-360-130.png"
+    }
+   ],
+   "ausnahmen": [],
+   "nichtErreicht": [],
+   "neuGeladen": 0,
+   "verstoesse": [],
+   "fehler": []
+  }
+ ]
+}

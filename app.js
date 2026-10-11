@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-11-A";
+  var APP_BUILD = "2026-10-11-B";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -22,12 +22,13 @@
 
   // PayPal.Me-Link (Betrag wird übergeben). Echter Vereins-/Kassen-Name (paypal.me/Teamkassefasanerie,
   // Konto "Benjamin Lauck") – verifiziert gueltig. Betrag MUSS mit Punkt (12.50), nie mit Komma.
-  const PAYPAL_ME = "Teamkassefasanerie";
+  // E8: PayPal-Link der Mannschaft aus team_settings (0061), nicht mehr fest im Code.
+  const paypalName = () => (typeof DEMO !== "undefined" && DEMO && DEMO.paypalName) || null;
   function paypalMeLink(betrag) {
     // PayPal.Me erwartet den Betrag mit PUNKT (12.50), NICHT mit Komma -> sonst leere/kaputte Seite.
     const n = Number(String(betrag).replace(",", "."));
     const amount = (isFinite(n) && n > 0 ? n : 0).toFixed(2);   // "12.50"
-    return `https://paypal.me/${PAYPAL_ME}/${amount}EUR`;
+    return `https://paypal.me/${encodeURIComponent(paypalName() || "")}/${amount}EUR`;
   }
 
   /* ---------------------------------------------------------------------------
@@ -186,7 +187,7 @@
             '<span class="nsb-in sf-datum"><span class="sf-datum-t' + (bis ? "" : " is-leer") + '" data-sf-anz>' + (bis ? esc(tfDatumText(bis)) : "Datum wählen") + '</span>' +
             '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>' +
             '<input type="date" data-sf-bis value="' + esc(bis) + '" aria-label="Voraussichtlich bis"></span></label>' +
-          '<label class="nsb-feld"><span class="nsb-l">Notiz</span><input class="nsb-in" type="text" data-sf-notiz maxlength="80" placeholder="optional" value="' + esc(notiz) + '"></label>' +
+          '<label class="nsb-feld"><span class="nsb-l">Notiz</span><input class="nsb-in" type="text" data-sf-notiz maxlength="80" placeholder="optional, keine Diagnosen" value="' + esc(notiz) + '"></label>' +
         '</div>' +
         '<div class="nsb-fuss"><button type="button" class="btn nsb-sek" data-sf-zu>Abbrechen</button>' +
           '<button type="button" class="btn btn-primary nsb-prim" data-sf-speichern>Speichern</button></div>' +
@@ -505,7 +506,7 @@
       else if (currentView === "kader") { if (Roles.canManageEvents()) renderKader(); else renderDashboard(); }
       else if (currentView === "lineup") { if (Roles.canManageEvents()) { if (LINEUP_V2) renderLineupV2(); else renderLineup(); } else renderDashboard(); }
       else if (currentView === "kasse") { if (Roles.canManageFines()) renderKasse(); else renderDashboard(); }
-      else if (currentView === "admin") { if (Roles.isAdmin()) renderAdmin(); else renderDashboard(); }
+      else if (currentView === "admin") { if (Roles.canManageEvents()) renderAdmin(); else renderDashboard(); }
       else if (currentView === "pushkatalog") { if (Roles.isAdmin()) renderPushKatalog(); else renderDashboard(); }
     } catch (err) { renderErrorBoundary(err); }
   }
@@ -515,7 +516,7 @@
   // Daten frisch aus Supabase holen und die aktuelle Ansicht neu rendern.
   async function reloadData() {
     DEMO = await DB.loadAll();
-    playerById = Object.fromEntries(DEMO.players.map((p) => [p.id, p]));
+    playerById = Object.fromEntries(DEMO.players.concat(DEMO.ehemalige || []).map((p) => [p.id, p]));
     katById    = Object.fromEntries(DEMO.katalog.map((k) => [k.id, k]));
     buildStateFromData();
     if (currentProfile && currentProfile.player_id) state.currentPlayerId = currentProfile.player_id;
@@ -1642,12 +1643,14 @@
     strafe_neu: "Neue Strafe", zahlung_bestaetigt: "Zahlung bestätigt", zahlung_abgelehnt: "Zahlung abgelehnt",
     strafen_offen: "Monatliche Erinnerung an offene Strafen", absage_kurzfristig: "Kurzfristige Absagen",
     meldeschluss_uebersicht: "Übersicht nach Meldeschluss", status_abgelaufen: "Status abgelaufen",
+    anfrage_neu: "Neue Anfrage", konto_freigegeben: "Konto freigegeben", rolle_geaendert: "Rolle geändert",
     zahlung_gemeldet: "Zahlung gemeldet", test: "Testnachricht",
   };
   const KAT_THEMEN = [
     ["Termine", ["termin_neu", "termin_geaendert", "rueckmeldung_erinnerung", "rueckmeldung_nachfrage", "termin_abgesagt"]],
     ["Strafen", ["strafe_neu", "zahlung_bestaetigt", "zahlung_abgelehnt", "strafen_offen"]],
-    ["Für Trainer", ["absage_kurzfristig", "meldeschluss_uebersicht", "status_abgelaufen"]],
+    ["Für Trainer", ["absage_kurzfristig", "meldeschluss_uebersicht", "status_abgelaufen", "anfrage_neu"]],
+    ["Konto", ["konto_freigegeben", "rolle_geaendert"]],
     ["Für die Kasse", ["zahlung_gemeldet"]],
   ];
   function pushTexteHtml() {
@@ -1908,6 +1911,8 @@
       ["meldeschluss_uebersicht", "klemmbrett",  "Übersicht nach Meldeschluss",             "dunkelgruen"],
       // Nachschliff C4 (0059): am Tag nach "voraussichtlich bis" um 9 Uhr.
       ["status_abgelaufen",       "puls",        "Status abgelaufen",                       "dunkelgruen"],
+      // Onboarding (0061): neue Anfrage ueber den Einladungslink (Trainer und Admin).
+      ["anfrage_neu",             "person",      "Neue Anfragen",                           "dunkelgruen"],
     ] },
     { rolle: "treasurer", titel: "Kasse", kategorien: [
       ["zahlung_gemeldet",        "boerse",      "Zahlung gemeldet",                        "gold"],
@@ -1993,6 +1998,7 @@
       [["absage_kurzfristig"], "Kurzfristige Absagen"],
       [["meldeschluss_uebersicht"], "Übersicht nach Meldeschluss"],
       [["status_abgelaufen"], "Status abgelaufen"],
+      [["anfrage_neu"], "Neue Anfragen"],
     ] },
     { id: "kasse", titel: "Für die Kasse", zeilen: [
       [["zahlung_gemeldet"], "Zahlung gemeldet"],
@@ -2252,7 +2258,7 @@
     mitteilungen: { titel: "Mitteilungen",     darf: () => true },
     ruhezeiten:   { titel: "Ruhezeiten",       darf: () => true },
     kalender:     { titel: "Kalender abonnieren", darf: () => true },
-    bfv:          { titel: "Spielplan BFV",    darf: () => Roles.isAdmin() },
+    bfv:          { titel: "Spielplan BFV",    darf: () => Roles.canManageEvents() },   // E5: Trainer und Admin
     // Final 21, 25, 27: Profil, Push-Texte und Diagnose als Unterseiten.
     profil:       { titel: "Profil",           darf: () => true, ohneTitel: true },
     pushtexte:    { titel: "Push-Texte",       darf: () => Roles.isAdmin() },
@@ -2487,8 +2493,8 @@
   // Mitgliederzahl fuer die Zeile "Rollen": erst nach dem Laden, kein Warten beim Oeffnen.
   let einMitglieder = null;
   function einMitgliederLaden() {
-    if (!Roles.isAdmin() || einMitglieder != null || !DB.listMembers) return;
-    DB.listMembers().then((m) => {
+    if (!Roles.canManageEvents() || einMitglieder != null || !DB.mitgliederListe) return;
+    DB.mitgliederListe().then((m) => {
       einMitglieder = Array.isArray(m) ? m.length : null;
       const el = viewEl.querySelector("[data-ein-rollen]");
       if (el && einMitglieder != null) el.textContent = String(einMitglieder);
@@ -2528,10 +2534,10 @@
       ${verwaltung ? `
       <div class="group-head"><h2>Verwaltung</h2></div>
       <div class="ein-gruppe">
-        ${Roles.isAdmin() ? einZeileHtml({ ein: "bfv", ic: einIcon("tabelle"), titel: "Spielplan BFV", wert: (DEMO && DEMO.icalUrl) ? "Verbunden" : "Nicht verbunden" }) : ""}
+        ${Roles.canManageEvents() ? einZeileHtml({ ein: "bfv", ic: einIcon("tabelle"), titel: "Spielplan BFV", wert: (DEMO && DEMO.icalUrl) ? "Verbunden" : "Nicht verbunden" }) : ""}
         ${einZeileHtml({ goto: "katalog", ic: einIcon("buch"), titel: "Strafenkatalog" })}
         ${Roles.isAdmin() ? einZeileHtml({ ein: "pushtexte", ic: einIcon("sprech"), titel: "Push-Texte" }) : ""}
-        ${Roles.isAdmin() ? einZeileHtml({ goto: "admin", ic: einIcon("person"), titel: "Rollen", wert: einMitglieder != null ? String(einMitglieder) : "", wertAttr: "data-ein-rollen" }) : ""}
+        ${Roles.canManageEvents() ? einZeileHtml({ goto: "admin", ic: einIcon("person"), titel: "Rollen", wert: einMitglieder != null ? String(einMitglieder) : "", wertAttr: "data-ein-rollen" }) : ""}
       </div>` : ""}
 
       <div class="group-head"><h2>Info</h2></div>
@@ -2715,13 +2721,22 @@
       <div class="group-head"><h2>Konto</h2></div>
       <div class="ein-gruppe pr-konto">
         ${zeile("E-Mail", esc(u.email || "Keine E-Mail"))}
-        ${player ? zeile("Rückennummer", player.nr != null ? String(player.nr) : "Keine") : ""}
+        ${player ? zeile("Position", esc(positionName(hauptVon(player)) || "Wählen"), 'data-pr-position') : ""}
         ${zeile("Passwort", "Ändern", 'data-pw-aendern')}
+        ${Roles.canManageFines() ? zeile("PayPal", esc(paypalName() || "Nicht hinterlegt"), 'data-pr-paypal') : ""}
       </div>
       ${player ? `
       <div class="group-head"><h2>Mein Status</h2></div>
       ${statusWahlHtml(player, { kompakt: true })}
       ${rueck}` : `<div class="empty" style="padding:24px 0">Dein Konto ist noch keinem Spieler zugeordnet. Melde dich beim Trainerteam.</div>`}
+      <div class="group-head"><h2>Datenschutz</h2></div>
+      <div class="ein-gruppe pr-konto pr-ds">
+        ${einSchalterZeileHtml({ titel: "Verletzt und angeschlagen", sub: "Erlaubt Gesundheitsangaben im Status. Ausschalten löscht Status, Notiz und Datum.",
+            schalter: pnSchalterHtml('data-pr-gesundheit aria-label="Gesundheitsstatus erlauben"', kontoStand && kontoStand.gesundheit ? "true" : "false") })}
+        ${zeile("Datenschutz", "Erklärung lesen", 'data-pr-link="datenschutz"')}
+        ${zeile("Impressum", "Ansehen", 'data-pr-link="impressum"')}
+        ${zeile("Konto", '<span class="pr-rot">Löschen</span>', 'data-pr-konto-weg')}
+      </div>
       <button class="btn btn-soft pr-abmelden" data-logout type="button">Abmelden</button>
     `;
   }
@@ -5350,8 +5365,9 @@
           : meineGemeldet > 0 ? "Zahlung gemeldet, wartet auf Bestätigung" : "Du bist schuldenfrei"}</div>
         ${meinZuschlag > 0 ? `<div class="mb-note">inkl. ${euro(meinZuschlag)} Mahnzuschlag</div>` : ""}
         ${meineOffen > 0 ? `
-          <a class="btn btn-primary mb-pay" href="${paypalMeLink(meineOffen)}" target="_blank" rel="noopener noreferrer">${euro(meineOffen)} jetzt bezahlen</a>
-          <div class="mb-pp">über <b class="pp-word">Pay<span>Pal</span></b> · Freunde &amp; Familie</div>
+          ${paypalName() ? `<a class="btn btn-primary mb-pay" href="${paypalMeLink(meineOffen)}" target="_blank" rel="noopener noreferrer">${euro(meineOffen)} jetzt bezahlen</a>
+          <div class="mb-pp">über <b class="pp-word">Pay<span>Pal</span></b> · Freunde &amp; Familie</div>`
+          : `<div class="mb-pp">Der Kassenwart hinterlegt gerade einen neuen PayPal-Link. Bis dahin bar oder per Überweisung zahlen.</div>`}
           <div class="mb-foot">
             <button class="link-btn" data-paid-self>Zahlung melden ›</button>
             ${bannerCd ? `<span class="mark is-rot mb-cd cd" data-cd-prefix="Erhöhung in " data-cd-created="${bannerCd.createdAt}" data-cd-step="${faelligeStufen({ createdAt: bannerCd.createdAt }, Date.now())}">Erhöhung in ${fmtRestzeit(bannerCd.remMs, true)}</span>` : ""}
@@ -6895,7 +6911,11 @@
     // Spieler nur sich selbst, coach/admin alle (set_player_status).
     if (t.dataset.statusBlatt) { openStatusBlatt(t.dataset.statusBlatt); return; }
     if (t.hasAttribute("data-pw-aendern")) { openPasswortBlatt(); return; }
-    if (t.dataset.statusFenster) { openStatusFenster(t.dataset.statusFenster, t.dataset.wert); return; }
+    if (t.dataset.statusFenster) {
+      const sf = t.dataset.statusFenster, wert = t.dataset.wert;
+      if ((wert === "angeschlagen" || wert === "verletzt") && !gesundheitErlaubt()) { gesundheitFragen(() => openStatusFenster(sf, wert)); return; }
+      openStatusFenster(sf, wert); return;
+    }
     if (t.dataset.statusSet) {
       await statusSpeichern(t.dataset.statusSet, t.dataset.wert);
       return;
@@ -7354,7 +7374,7 @@
 
     // PayPal.Me-Link in neuem Tab öffnen (Betrag wird übergeben). Phase 4: echte Integration.
     if (t.dataset.paypal) {
-      if (!PAYPAL_ME) { window.alert("PayPal ist noch nicht eingerichtet."); return; }   // nur bei leerem Namen
+      if (!paypalName()) { window.alert("Der Kassenwart hat noch keinen PayPal-Link hinterlegt."); return; }
       window.open(paypalMeLink(t.dataset.paypal), "_blank", "noopener,noreferrer");
       return;
     }
@@ -7542,7 +7562,7 @@
   function deepErlaubt(ansicht) {
     if (ansicht === "kader" || ansicht === "lineup") return Roles.canManageEvents();
     if (ansicht === "kasse") return Roles.canManageFines();
-    if (ansicht === "admin") return Roles.isAdmin();
+    if (ansicht === "admin") return Roles.canManageEvents();   // Trainer und Admin (Freigaben, Rollen)
     return DEEP_ANSICHTEN.indexOf(ansicht) !== -1;
   }
 
@@ -7996,6 +8016,528 @@
   window.addEventListener("fn:chrome-shown", syncHeaderHeight); // nach dem Splash: echte Kopfzeilenhoehe nachmessen
 
   /* ===========================================================================
+     ONBOARDING UND MANNSCHAFT (Paket Anmeldung und Onboarding, Migration 0061)
+     Einladung, Registrierung mit Name, Onboarding-Schritte, Wartebildschirm,
+     Freigabe, Rollen, PayPal-Link der Kasse, Position, Einwilligungen und
+     Konto loeschen. Alle Rechte liegen serverseitig in den RPCs aus 0061;
+     hier ist nur die Oberflaeche.
+     =========================================================================== */
+  const DS_FASSUNG = "DS-2026-10";   // Fassung der Datenschutzerklaerung, wird mit der Einwilligung gespeichert
+  let kontoStand = null;              // mein_konto(): Freigabe, Einwilligungen, Position, PayPal-Frage
+  let einladungToken = null;          // aus #einladung=<token>, bis zur Registrierung im Speicher
+  let einladungInfo = null;           // { gueltig, mannschaft }
+  let obDatenschutz = false, obGesundheit = false, obPos = null;
+  let mannschaft = null;              // Seite "Rollen verwalten": Einladung, Anfragen, Mitglieder, Protokoll
+  const POSITIONEN = [["torwart", "Torwart"], ["abwehr", "Abwehr"], ["mittelfeld", "Mittelfeld"], ["sturm", "Sturm"]];
+  const positionName = (p) => (POSITIONEN.find(([w]) => w === p) || [])[1] || "";
+  // Hauptposition eines Spielers: gespeichert (E7) oder aus dem alten Kuerzel abgeleitet.
+  const KUERZEL_GRUPPE = { TW: "torwart", AV: "abwehr", IV: "abwehr", LV: "abwehr", RV: "abwehr", ZM: "mittelfeld", OM: "mittelfeld", DM: "mittelfeld", LM: "mittelfeld", RM: "mittelfeld", ST: "sturm", MS: "sturm", LA: "sturm", RA: "sturm" };
+  const hauptVon = (p) => (p && (p.haupt || KUERZEL_GRUPPE[String(p.pos || "").toUpperCase()])) || null;
+  const lsLies = (k) => { try { return window.localStorage.getItem(k); } catch (e) { return null; } };
+  const lsSetz = (k, v) => { try { if (v == null) window.localStorage.removeItem(k); else window.localStorage.setItem(k, v); } catch (e) {} };
+  const RECHT_LINKS = '<div class="auth-switch ob-recht"><a href="datenschutz.html">Datenschutz</a> · <a href="impressum.html">Impressum</a></div>';
+
+  function einladungAusHash() {
+    const m = /^#einladung=([A-Za-z0-9_-]{8,64})$/.exec(window.location.hash || "");
+    if (m) {
+      einladungToken = m[1]; lsSetz("fn_einladung", m[1]);
+      try { history.replaceState(null, "", window.location.pathname + window.location.search); } catch (e) {}
+      return { token: einladungToken, frisch: true };
+    }
+    if (!einladungToken) einladungToken = lsLies("fn_einladung");
+    return { token: einladungToken, frisch: false };
+  }
+  function einladungLink(token) { return window.location.origin + window.location.pathname + "#einladung=" + token; }
+  function gesundheitErlaubt() { return !kontoStand || !!kontoStand.gesundheit; }
+
+  /* ---- Blatt im bestehenden Muster (nsb, --ov-soft, Griff, Titel, Fuss) ---- */
+  function nsbZu(id) { const ex = document.getElementById(id); if (ex) { ex.remove(); unlockBodyScroll(); } }
+  function nsbOeffnen(id, titel, inhalt, fuss, aufKlick) {
+    nsbZu(id);
+    const ov = document.createElement("div");
+    ov.className = "nsb-ov"; ov.id = id;
+    ov.innerHTML = '<button type="button" class="nsb-hg" data-nsb-zu aria-label="Schließen"></button>' +
+      '<div class="nsb" role="dialog" aria-modal="true" aria-label="' + esc(titel) + '">' +
+        '<span class="nsb-griff" aria-hidden="true"></span>' +
+        '<div class="nsb-titel"><span>' + esc(titel) + '</span></div>' +
+        inhalt + (fuss ? '<div class="nsb-fuss">' + fuss + '</div>' : "") +
+      '</div>';
+    document.body.appendChild(ov);
+    lockBodyScroll();
+    ov.addEventListener("click", async (ev) => {
+      if (ev.target.closest("[data-nsb-zu]")) { nsbZu(id); if (ov.__nachZu) ov.__nachZu(); return; }
+      if (aufKlick) await aufKlick(ev, ov);
+    });
+    return ov;
+  }
+  const fehlerText = (e) => (e && e.message) || String(e);
+
+  /* ---- Onboarding ---------------------------------------------------------
+     Reihenfolge (O4): Datenschutz, Position, Zum Home-Bildschirm (entfaellt in
+     der Home-Bildschirm-App), Push (nur in der Home-Bildschirm-App), dann
+     Wartebildschirm. Der Stand liegt serverseitig (Einwilligung, Position)
+     bzw. auf dem Geraet (Home, Push), Abbrechen und Fortsetzen geht jederzeit.
+     Bestehende Konten ohne Datenschutz-Zustimmung sehen nur den ersten Schritt. */
+  function obSchritt() {
+    const k = kontoStand || {};
+    if (k.freigabe === "abgelehnt") return "abgelehnt";
+    if (!k.datenschutz) return "datenschutz";
+    if (k.freigabe === "aktiv") return null;
+    if (!k.position) return "position";
+    if (!istStandalone() && !lsLies("fn_ob_home")) return "home";
+    if (istStandalone() && !lsLies("fn_ob_push") && pushZustand(pushUmgebung()) === "bereit") return "push";
+    return "warten";
+  }
+  function obRahmen(schritt, nr, gesamt, titel, text, inhalt, fuss) {
+    document.body.classList.add("auth-mode");
+    viewEl.innerHTML = '<div class="auth-wrap"><div class="auth-card ob-card" data-ob-schritt="' + schritt + '">' +
+      '<div class="auth-crest"><img src="assets/logo.png" alt="FC Fasanerie-Nord" /></div>' +
+      (nr ? '<p class="ob-schritt">Schritt ' + nr + ' von ' + gesamt + '</p>' : "") +
+      '<h1 class="auth-title">' + esc(titel) + '</h1>' +
+      (text ? '<p class="auth-sub ob-text">' + text + '</p>' : "") +
+      (authError ? '<div class="auth-error">' + esc(authError) + '</div>' : "") +
+      (authInfo ? '<div class="auth-info">' + esc(authInfo) + '</div>' : "") +
+      inhalt +
+      '<div class="ob-fuss">' + fuss + '</div>' +
+      RECHT_LINKS +
+      '</div></div>';
+  }
+  function renderOnboarding() {
+    const s = obSchritt();
+    if (!s) { authError = ""; authInfo = ""; init(); return; }
+    const k = kontoStand || {};
+    const standalone = istStandalone();
+    const liste = ["datenschutz", "position"].concat(standalone
+      ? (pushZustand(pushUmgebung()) === "bereit" || lsLies("fn_ob_push") ? ["push"] : [])
+      : ["home"]);
+    const nr = liste.indexOf(s) + 1, ges = liste.length;
+    const spaeter = '<button type="button" class="link-btn ob-spaeter" data-ob="spaeter">Später weitermachen</button>';
+    const weiter = (was, text, an) => '<button type="button" class="btn btn-primary ob-weiter" data-ob="' + was + '"' + (an === false ? " disabled" : "") + '>' + text + '</button>';
+
+    if (s === "datenschutz") {
+      const bestand = k.freigabe === "aktiv";
+      obRahmen(s, bestand ? 0 : nr, ges, "Datenschutz",
+        (bestand ? "Bevor es weitergeht, brauchen wir einmal deine Zustimmung. " : "") +
+        "Die App speichert deinen Namen, deine E-Mail, Zu- und Absagen, Strafen und Zahlungen, damit die Mannschaft planen kann. " +
+        'Die Daten liegen bei Supabase in Frankfurt. <a href="datenschutz.html">Datenschutzerklärung lesen</a>',
+        '<div class="ein-gruppe ob-gruppe">' +
+          einSchalterZeileHtml({ titel: "Datenschutz: Ich stimme zu", sub: "Erforderlich, siehe Datenschutzerklärung",
+            schalter: pnSchalterHtml('data-ob-ds aria-label="Der Datenschutzerklärung zustimmen"', obDatenschutz ? "true" : "false") }) +
+          einSchalterZeileHtml({ titel: "Verletzt und angeschlagen",
+            sub: "Freiwillig: erlaubt Gesundheitsangaben in deinem Status. Im Profil jederzeit widerrufbar.",
+            schalter: pnSchalterHtml('data-ob-ge aria-label="Gesundheitsstatus erlauben"', obGesundheit ? "true" : "false") }) +
+        '</div>',
+        weiter("datenschutz", "Weiter", obDatenschutz) +
+        (bestand ? '<button type="button" class="link-btn ob-spaeter" data-ob="abmelden">Abmelden</button>' : spaeter));
+      return;
+    }
+    if (s === "position") {
+      const wahl = obPos || k.position;
+      obRahmen(s, nr, ges, "Deine Position",
+        "Wo spielst du meistens? Der Trainer sieht das im Kader und bei der Aufstellung. Ändern kannst du es später im Profil.",
+        '<div class="ein-gruppe ob-gruppe">' + POSITIONEN.map(([w, l]) =>
+          einZeileHtml({ attr: 'data-ob-pos="' + w + '" aria-pressed="' + (wahl === w) + '"', titel: l, wert: wahl === w ? "Gewählt" : "", chev: false })).join("") + '</div>',
+        weiter("position", "Weiter", !!wahl) + spaeter);
+      return;
+    }
+    if (s === "home") {
+      const ios = istAppleGeraet();
+      const iphone = '<div class="ob-anl"><h2 class="ob-anl-t">iPhone (Safari)</h2><ol class="ob-liste">' +
+        '<li>Unten in Safari auf <b>Teilen</b> tippen, das Quadrat mit dem Pfeil.</li>' +
+        '<li><b>Zum Home-Bildschirm</b> wählen und <b>Hinzufügen</b> tippen.</li>' +
+        '<li>Die App vom Home-Bildschirm öffnen und dort noch einmal anmelden. Danach geht es hier weiter.</li></ol></div>';
+      const android = '<div class="ob-anl"><h2 class="ob-anl-t">Android (Chrome)</h2>' + (installPrompt
+        ? '<button type="button" class="btn ob-sek" data-ob="installieren">App installieren</button>'
+        : '<ol class="ob-liste"><li>Oben rechts auf das Menü <b>⋮</b> tippen.</li>' +
+          '<li><b>App installieren</b> oder <b>Zum Startbildschirm hinzufügen</b> wählen.</li>' +
+          '<li>Die App vom Startbildschirm öffnen und dort anmelden.</li></ol>') + '</div>';
+      obRahmen(s, nr, ges, "Zum Home-Bildschirm",
+        "Vom Home-Bildschirm startet die App wie eine richtige App, und nur dort kommen Mitteilungen an.",
+        ios ? iphone + android : android + iphone,
+        weiter("home", "Weiter") + spaeter);
+      return;
+    }
+    if (s === "push") {
+      obRahmen(s, nr, ges, "Mitteilungen erlauben",
+        "So erfährst du sofort, wenn du freigegeben bist, und später, wenn sich ein Termin ändert, jemand kurzfristig absagt oder eine Strafe kommt. Ruhezeiten stellst du in den Einstellungen ein.",
+        "", weiter("push", "Mitteilungen erlauben") +
+        '<button type="button" class="link-btn ob-spaeter" data-ob="push-spaeter">Nicht jetzt</button>');
+      return;
+    }
+    if (s === "abgelehnt") {
+      obRahmen(s, 0, 0, "Anfrage abgelehnt",
+        "Dein Trainer hat die Anfrage abgelehnt. Wenn das ein Versehen war, sprich ihn an. Du kannst dein Konto hier löschen.",
+        "", '<button type="button" class="btn ob-sek" data-ob="abmelden">Abmelden</button>' +
+        '<button type="button" class="link-btn ob-weg" data-ob="konto-weg">Konto löschen</button>');
+      return;
+    }
+    // warten
+    const pushAn = pushZustand(pushUmgebung()) === "aktiv";
+    obRahmen("warten", 0, 0, "Warte auf Freigabe",
+      "Danke, " + esc(k.anzeigename || k.name || "") + ". Dein Trainer bestätigt deine Anfrage und ordnet dich dem Kader zu. " +
+      (pushAn ? "Du bekommst eine Mitteilung, sobald es so weit ist." : "Schau später wieder vorbei."),
+      standalone ? "" : '<p class="ob-hinweis">Öffne die App vom Home-Bildschirm, um Mitteilungen zu erlauben.</p>',
+      weiter("pruefen", "Erneut prüfen") +
+      '<button type="button" class="btn ob-sek" data-ob="abmelden">Abmelden</button>' +
+      '<button type="button" class="link-btn ob-weg" data-ob="konto-weg">Konto löschen</button>');
+  }
+
+  async function obAbmelden(info) {
+    try { await DB.signOut(); } catch (e) {}
+    currentProfile = null; kontoStand = null; Roles.set([]);
+    Roles.simulate(null); applySimUI();
+    authMode = "login"; authError = ""; authInfo = info || "";
+    renderLogin();
+  }
+
+  viewEl.addEventListener("click", async (ev) => {
+    const karte = ev.target.closest(".ob-card");
+    if (!karte) return;
+    const sw = ev.target.closest("[data-ob-ds],[data-ob-ge]");
+    // Schalter und Auswahl stellen nur ihren Zustand um, ohne die Karte neu zu zeichnen.
+    if (sw) {
+      const an = sw.hasAttribute("data-ob-ds") ? (obDatenschutz = !obDatenschutz) : (obGesundheit = !obGesundheit);
+      sw.setAttribute("aria-checked", an ? "true" : "false");
+      const w = karte.querySelector('[data-ob="datenschutz"]');
+      if (w) w.disabled = !obDatenschutz;
+      return;
+    }
+    const pos = ev.target.closest("[data-ob-pos]");
+    if (pos) {
+      obPos = pos.dataset.obPos;
+      karte.querySelectorAll("[data-ob-pos]").forEach((z) => {
+        const gewaehlt = z.dataset.obPos === obPos;
+        z.setAttribute("aria-pressed", gewaehlt ? "true" : "false");
+        let w = z.querySelector(".ein-zeile-w");
+        if (gewaehlt && !w) { w = document.createElement("span"); w.className = "ein-zeile-w"; z.appendChild(w); }
+        if (w) w.textContent = gewaehlt ? "Gewählt" : "";
+      });
+      const w = karte.querySelector('[data-ob="position"]');
+      if (w) w.disabled = false;
+      return;
+    }
+    const b = ev.target.closest("[data-ob]");
+    if (!b || b.disabled) return;
+    const was = b.dataset.ob;
+    authError = "";
+    try {
+      if (was === "datenschutz") {
+        b.disabled = true;
+        kontoStand = await DB.einwilligungSetzen("datenschutz", true, DS_FASSUNG);
+        if (obGesundheit) kontoStand = await DB.einwilligungSetzen("gesundheit", true, DS_FASSUNG);
+        if (kontoStand && kontoStand.freigabe === "aktiv") { init(); return; }
+      } else if (was === "position") {
+        b.disabled = true;
+        kontoStand = await DB.positionSetzen(obPos || kontoStand.position);
+      } else if (was === "home") {
+        lsSetz("fn_ob_home", "1");
+      } else if (was === "installieren") {
+        if (installPrompt) { installPrompt.prompt(); installPrompt = null; }
+        lsSetz("fn_ob_home", "1");
+      } else if (was === "push") {
+        b.disabled = true;
+        const r = await pushAnmelden();
+        lsSetz("fn_ob_push", "1");
+        if (r !== "granted") authInfo = "Mitteilungen sind aus. Du kannst sie später in den Einstellungen erlauben.";
+      } else if (was === "push-spaeter") {
+        lsSetz("fn_ob_push", "1");
+      } else if (was === "pruefen") {
+        b.disabled = true;
+        kontoStand = await DB.meinKonto();
+        if (kontoStand && kontoStand.freigabe === "aktiv") { init(); return; }
+        authInfo = "Noch nicht freigegeben.";
+      } else if (was === "spaeter") {
+        await obAbmelden("Du kannst jederzeit weitermachen: einfach wieder anmelden."); return;
+      } else if (was === "abmelden") {
+        await obAbmelden(""); return;
+      } else if (was === "konto-weg") {
+        loeschenOeffnen(); return;
+      }
+    } catch (e) {
+      authError = fehlerText(e);
+    }
+    renderOnboarding();
+  });
+
+  /* ---- Konto loeschen (Profil, Wartebildschirm) --------------------------- */
+  function loeschenOeffnen() {
+    nsbOeffnen("kontoWegBlatt", "Konto löschen",
+      '<div class="nsb-felder"><p class="ein-hinweis ob-blatt-text">Dein Konto, deine Rückmeldungen, dein Status und deine Einstellungen werden gelöscht. ' +
+      'Strafen bleiben in der Kasse, aber ohne deinen Namen. Das lässt sich nicht rückgängig machen.</p></div>',
+      '<button type="button" class="btn nsb-sek" data-nsb-zu>Abbrechen</button>' +
+      '<button type="button" class="btn btn-primary nsb-prim nsb-rot" data-kl>Endgültig löschen</button>',
+      async (ev) => {
+        if (!ev.target.closest("[data-kl]")) return;
+        try { await DB.kontoLoeschen(); }
+        catch (e) { window.alert("Konto konnte nicht gelöscht werden: " + fehlerText(e)); return; }
+        nsbZu("kontoWegBlatt");
+        await obAbmelden("Dein Konto wurde gelöscht.");
+      });
+  }
+
+  /* ---- Gesundheitsstatus: Einwilligung (E11) ------------------------------- */
+  function gesundheitFragen(weiter) {
+    nsbOeffnen("gesundheitBlatt", "Gesundheitsstatus erlauben",
+      '<div class="nsb-felder"><p class="ein-hinweis ob-blatt-text">Angeschlagen und verletzt sind Gesundheitsangaben. Die App speichert sie nur mit deiner Einwilligung, ' +
+      'sichtbar für Trainer und Admin. Du kannst sie im Profil jederzeit widerrufen, dann werden Status, Notiz und Datum gelöscht.</p></div>',
+      '<button type="button" class="btn nsb-sek" data-nsb-zu>Abbrechen</button>' +
+      '<button type="button" class="btn btn-primary nsb-prim" data-ge-ja>Erlauben</button>',
+      async (ev) => {
+        if (!ev.target.closest("[data-ge-ja]")) return;
+        try { kontoStand = await DB.einwilligungSetzen("gesundheit", true, DS_FASSUNG); }
+        catch (e) { window.alert("Konnte nicht gespeichert werden: " + fehlerText(e)); return; }
+        nsbZu("gesundheitBlatt");
+        if (weiter) weiter(); else render();
+      });
+  }
+  async function gesundheitWiderrufen() {
+    if (!window.confirm("Einwilligung widerrufen? Dein Status angeschlagen oder verletzt, die Notiz und das Datum werden gelöscht.")) return;
+    try { kontoStand = await DB.einwilligungSetzen("gesundheit", false, null); await reloadData(); tvToast("Widerrufen"); }
+    catch (e) { window.alert("Konnte nicht gespeichert werden: " + fehlerText(e)); }
+  }
+
+  /* ---- Position (E7) ---------------------------------------------------------- */
+  function positionOeffnen() {
+    const me = currentProfile && currentProfile.player_id ? playerById[currentProfile.player_id] : null;
+    let wahl = hauptVon(me) || (kontoStand && kontoStand.position) || null;
+    const inhalt = () => '<div class="ein-gruppe">' + POSITIONEN.map(([w, l]) =>
+      einZeileHtml({ attr: 'data-po="' + w + '" aria-pressed="' + (wahl === w) + '"', titel: l, wert: wahl === w ? "Gewählt" : "", chev: false })).join("") + '</div>';
+    nsbOeffnen("positionBlatt", "Position", '<div class="nsb-felder" data-po-inhalt>' + inhalt() + '</div>',
+      '<button type="button" class="btn nsb-sek" data-nsb-zu>Abbrechen</button>' +
+      '<button type="button" class="btn btn-primary nsb-prim" data-po-speichern>Speichern</button>',
+      async (ev, ov) => {
+        const w = ev.target.closest("[data-po]");
+        if (w) { wahl = w.dataset.po; ov.querySelector("[data-po-inhalt]").innerHTML = inhalt(); return; }
+        if (!ev.target.closest("[data-po-speichern]") || !wahl) return;
+        try { kontoStand = await DB.positionSetzen(wahl); }
+        catch (e) { window.alert("Konnte nicht gespeichert werden: " + fehlerText(e)); return; }
+        nsbZu("positionBlatt");
+        await reloadData();
+        tvToast("Gespeichert");
+      });
+  }
+
+  /* ---- PayPal-Link der Kasse (E8) ----------------------------------------------- */
+  function paypalOeffnen(frage) {
+    const akt = (DEMO && DEMO.paypalName) || "";
+    nsbOeffnen("paypalBlatt", "PayPal-Link der Kasse",
+      '<div class="nsb-felder">' +
+        (frage ? '<p class="ein-hinweis ob-blatt-text">Du bist jetzt Kassenwart. Hinterlege deinen PayPal.me-Link, damit Spieler direkt an dich zahlen.</p>' : "") +
+        '<label class="nsb-feld"><span class="nsb-l">PayPal.me-Name oder Link</span>' +
+        '<input class="nsb-in" type="text" data-pp-name maxlength="80" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="paypal.me/deinname" value="' + esc(akt) + '"></label>' +
+      '</div>',
+      '<button type="button" class="btn nsb-sek" data-nsb-zu>' + (frage ? "Später" : "Abbrechen") + '</button>' +
+      '<button type="button" class="btn btn-primary nsb-prim" data-pp-speichern>Speichern</button>',
+      async (ev, ov) => {
+        if (!ev.target.closest("[data-pp-speichern]")) return;
+        try {
+          const r = await DB.paypalSetzen(ov.querySelector("[data-pp-name]").value);
+          if (DEMO) DEMO.paypalName = (r && r.paypal_name) || null;
+          if (kontoStand) kontoStand.paypal_frage = false;
+        } catch (e) { window.alert("Konnte nicht gespeichert werden: " + fehlerText(e)); return; }
+        nsbZu("paypalBlatt");
+        tvToast("Gespeichert");
+        render();
+      });
+  }
+
+  /* ---- Seite "Rollen verwalten": Einladung, Anfragen, Mitglieder, Protokoll ---- */
+  const PROTOKOLL_TEXT = {
+    registriert: "hat sich registriert", freigegeben: "freigegeben", abgelehnt: "abgelehnt",
+    rolle_vergeben: "Rolle vergeben", rolle_entzogen: "Rolle entzogen", entfernt: "aus der Mannschaft entfernt",
+    konto_geloescht: "Konto gelöscht", einladung_erstellt: "Einladungslink erstellt",
+    einladung_erneuert: "Einladungslink erneuert", paypal_geaendert: "PayPal-Link geändert",
+  };
+  function datumKurz(iso, mitZeit) {
+    const d = new Date(iso);
+    if (isNaN(d)) return "";
+    const z = String(d.getDate()).padStart(2, "0") + "." + String(d.getMonth() + 1).padStart(2, "0") + ".";
+    return mitZeit ? z + " " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0") : z;
+  }
+  function protokollZeileHtml(p) {
+    const d = p.details || {};
+    const titel = (p.ziel ? p.ziel + ": " : "") + (PROTOKOLL_TEXT[p.aktion] || p.aktion) + (d.rolle ? " (" + (ROLLE_KURZ[d.rolle] || d.rolle) + ")" : "");
+    return einSchalterZeileHtml({ titel: titel, sub: datumKurz(p.zeit, true) + " · " + (p.wer || "System"), schalter: "" });
+  }
+  function rollenText(r) {
+    const l = ["coach", "treasurer", "admin"].filter((x) => (r || []).indexOf(x) >= 0).map((x) => ROLLE_KURZ[x]);
+    return l.length ? l.join(" · ") : "Spieler";
+  }
+  function mannschaftHtml() {
+    const m = mannschaft;
+    const link = m.einl && m.einl.token ? einladungLink(m.einl.token) : "";
+    let h = "";
+    if (Roles.isRealAdmin()) {
+      h += `<div class="sim-switch card card-pad">
+        <div class="sim-switch-label">Ansicht testen als</div>
+        <div class="sim-switch-btns">
+          <button class="chip" data-sim="player">Spieler</button>
+          <button class="chip" data-sim="coach">Trainer</button>
+          <button class="chip" data-sim="treasurer">Kassenwart</button>
+          <button class="chip" data-sim="admin">Admin</button>
+        </div>
+        <div class="sim-switch-hint">Reine Anzeige-Vorschau, ändert nichts an deinen Rechten oder Daten.</div>
+      </div>`;
+    }
+    h += '<div class="group-head"><h2>Einladung</h2></div><div class="ein-gruppe mf-gruppe">' +
+      einSchalterZeileHtml({ titel: "Einladungslink", sub: link || "Wird geladen", schalter: "" }) +
+      einZeileHtml({ attr: 'data-mf="teilen"', titel: "Link teilen", chev: false }) +
+      einZeileHtml({ attr: 'data-mf="kopieren"', titel: "Link kopieren", chev: false }) +
+      einZeileHtml({ attr: 'data-mf="erneuern"', titel: "Link erneuern", wert: "alter wird ungültig", chev: false }) +
+      '</div>';
+    h += '<div class="group-head"><h2>Offene Anfragen</h2></div>' + (m.anfragen.length
+      ? '<div class="ein-gruppe">' + m.anfragen.map((a) => einZeileHtml({ attr: 'data-mf-anfrage="' + esc(a.id) + '"',
+          titel: a.name || a.email, wert: [positionName(a.position), "seit " + datumKurz(a.angefragt_am)].filter(Boolean).join(" · ") })).join("") + '</div>'
+      : '<p class="ein-hinweis">Keine offenen Anfragen.</p>');
+    h += '<div class="group-head"><h2>Mitglieder</h2></div><div class="ein-gruppe">' +
+      m.mitglieder.map((x) => einZeileHtml({ attr: 'data-mf-mitglied="' + esc(x.id) + '"', titel: x.name + (x.ich ? " (du)" : ""), wert: rollenText(x.rollen) })).join("") +
+      '</div>';
+    if (Roles.canManageFines()) {
+      h += '<div class="group-head"><h2>Kasse</h2></div><div class="ein-gruppe">' +
+        einZeileHtml({ attr: 'data-mf="paypal"', titel: "PayPal-Link", wert: (DEMO && DEMO.paypalName) || "Nicht hinterlegt" }) + '</div>';
+    }
+    h += '<div class="group-head"><h2>Protokoll</h2></div>' + (m.protokoll.length
+      ? '<div class="ein-gruppe mf-gruppe">' + m.protokoll.map(protokollZeileHtml).join("") + '</div>'
+      : '<p class="ein-hinweis">Noch keine Einträge.</p>');
+    return h;
+  }
+  function mannschaftZeichnen() {
+    if (currentView !== "admin" || !mannschaft) return;
+    viewEl.innerHTML = '<div class="page-head"><h1>Rollen verwalten</h1></div>' + mannschaftHtml();
+  }
+  async function renderAdmin() {
+    document.body.classList.remove("auth-mode");
+    if (!mannschaft) viewEl.innerHTML = '<div class="page-head"><h1>Rollen verwalten</h1></div><div class="empty">Lade Mannschaft …</div>';
+    else mannschaftZeichnen();
+    try {
+      const [einl, anfragen, mitglieder, protokoll] = await Promise.all([
+        DB.einladungHolen(), DB.anfragenListe(), DB.mitgliederListe(), DB.protokollListe(20)]);
+      mannschaft = { einl: einl, anfragen: anfragen || [], mitglieder: mitglieder || [], protokoll: protokoll || [] };
+    } catch (err) {
+      if (currentView === "admin") viewEl.innerHTML = '<div class="page-head"><h1>Rollen verwalten</h1></div><div class="empty">' + esc(fehlerText(err)) + '</div>';
+      return;
+    }
+    mannschaftZeichnen();
+  }
+  async function mannschaftNeu() { mannschaft = null; await reloadData(); if (currentView === "admin") renderAdmin(); }
+
+  async function freigabeOeffnen(id) {
+    const a = mannschaft && mannschaft.anfragen.find((x) => x.id === id);
+    if (!a) return;
+    let frei = [];
+    try { frei = (await DB.kaderFrei()) || []; } catch (e) {}
+    let wahl = "neu";
+    const inhalt = () =>
+      '<div class="nsb-felder">' +
+        '<div class="nsb-feld"><span class="nsb-l">E-Mail</span><span class="fg-w">' + esc(a.email || "") + '</span></div>' +
+        '<div class="nsb-feld"><span class="nsb-l">Position</span><span class="fg-w">' + esc(positionName(a.position) || "Keine Angabe") + '</span></div>' +
+        '<div class="nsb-feld"><span class="nsb-l">Dem Kader zuordnen</span><div class="ein-gruppe">' +
+          einZeileHtml({ attr: 'data-fg-wahl="neu" aria-pressed="' + (wahl === "neu") + '"', titel: "Neuer Kadereintrag", wert: wahl === "neu" ? "Gewählt" : "", chev: false }) +
+          frei.map((p) => einZeileHtml({ attr: 'data-fg-wahl="' + esc(p.id) + '" aria-pressed="' + (wahl === p.id) + '"', titel: p.name,
+            wert: wahl === p.id ? "Gewählt" : (p.nummer != null ? "Nr. " + p.nummer : ""), chev: false })).join("") +
+        '</div></div>' +
+      '</div>';
+    nsbOeffnen("freigabeBlatt", a.name || "Anfrage", '<div data-fg-inhalt>' + inhalt() + '</div>',
+      '<button type="button" class="btn nsb-sek" data-fg="ablehnen">Ablehnen</button>' +
+      '<button type="button" class="btn btn-primary nsb-prim" data-fg="freigeben">Freigeben</button>',
+      async (ev, ov) => {
+        const w = ev.target.closest("[data-fg-wahl]");
+        if (w) { wahl = w.dataset.fgWahl; ov.querySelector("[data-fg-inhalt]").innerHTML = inhalt(); return; }
+        const b = ev.target.closest("[data-fg]");
+        if (!b) return;
+        try {
+          if (b.dataset.fg === "ablehnen") {
+            if (!window.confirm((a.name || "Diese Anfrage") + " ablehnen?")) return;
+            await DB.anfrageAblehnen(a.id); tvToast("Abgelehnt");
+          } else {
+            await DB.anfrageFreigeben(a.id, wahl === "neu" ? null : wahl, null); tvToast("Freigegeben");
+          }
+        } catch (e) { window.alert("Hat nicht geklappt: " + fehlerText(e)); return; }
+        nsbZu("freigabeBlatt");
+        await mannschaftNeu();
+      });
+  }
+
+  function rolleOeffnen(id) {
+    const x = mannschaft && mannschaft.mitglieder.find((m) => m.id === id);
+    if (!x) return;
+    const zeile = (rolle, titel, sub) => einSchalterZeileHtml({ titel: titel, sub: sub,
+      schalter: pnSchalterHtml('data-rl="' + rolle + '" aria-label="' + titel + '"', (x.rollen || []).indexOf(rolle) >= 0 ? "true" : "false") });
+    const inhalt = () =>
+      '<div class="ein-gruppe">' +
+        zeile("coach", "Trainer", "Termine, Kader, Aufstellung, Freigaben") +
+        zeile("treasurer", "Kassenwart", "Strafen, Kasse, PayPal-Link") +
+        (Roles.isRealAdmin() ? zeile("admin", "Admin", "Betrieb der App: Push-Texte, Technik") : "") +
+      '</div>' +
+      (x.ich ? "" : '<div class="ein-gruppe">' + einZeileHtml({ attr: "data-rl-entfernen", titel: "Aus der Mannschaft entfernen", aktion: true, chev: false }) + '</div>');
+    const ov = nsbOeffnen("rolleBlatt", x.name, '<div class="nsb-felder" data-rl-inhalt>' + inhalt() + '</div>',
+      '<button type="button" class="btn btn-primary nsb-prim" data-nsb-zu>Fertig</button>',
+      async (ev, ov) => {
+        const sw = ev.target.closest("[data-rl]");
+        if (sw) {
+          const r = sw.dataset.rl, an = (x.rollen || []).indexOf(r) < 0;
+          if (!an && x.ich && (r === "coach" || r === "admin") && !window.confirm("Dir selbst diese Rolle nehmen?")) return;
+          sw.disabled = true;
+          try {
+            await DB.rolleSetzen(x.id, r, an);
+            x.rollen = an ? (x.rollen || []).concat([r]) : (x.rollen || []).filter((y) => y !== r);
+            if (x.ich) { try { Roles.set(await DB.myRoles()); } catch (e) {} fillIdentity(); }
+          } catch (e) { window.alert("Konnte Rolle nicht ändern: " + fehlerText(e)); }
+          ov.querySelector("[data-rl-inhalt]").innerHTML = inhalt();
+          if (x.ich && !Roles.canManageEvents()) { nsbZu("rolleBlatt"); switchView("dashboard"); return; }
+          mannschaftZeichnen();
+          return;
+        }
+        if (ev.target.closest("[data-rl-entfernen]")) {
+          if (!window.confirm(x.name + " aus der Mannschaft entfernen? Das Konto wird gelöscht, Rückmeldungen und Status auch. Die Kasse behält die Beträge ohne Namen.")) return;
+          try { await DB.mitgliedEntfernen(x.id); }
+          catch (e) { window.alert("Hat nicht geklappt: " + fehlerText(e)); return; }
+          nsbZu("rolleBlatt"); tvToast("Entfernt");
+          await mannschaftNeu();
+        }
+      });
+    ov.__nachZu = mannschaftZeichnen;
+  }
+
+  viewEl.addEventListener("click", async (ev) => {
+    const a = ev.target.closest("[data-mf-anfrage]");
+    if (a) { freigabeOeffnen(a.dataset.mfAnfrage); return; }
+    const m = ev.target.closest("[data-mf-mitglied]");
+    if (m) { rolleOeffnen(m.dataset.mfMitglied); return; }
+    const b = ev.target.closest("[data-mf]");
+    if (b && mannschaft) {
+      const link = mannschaft.einl && mannschaft.einl.token ? einladungLink(mannschaft.einl.token) : "";
+      const was = b.dataset.mf;
+      if (was === "teilen" && link) {
+        openShareModal("Einladung teilen", "Hier kannst du dich bei " + ((DEMO && DEMO.teamName) || "unserer Mannschaft") +
+          " anmelden. Nach der Registrierung gibt der Trainer dein Konto frei:\n" + link);
+      } else if (was === "kopieren" && link) {
+        const ok = await copyText(link);
+        tvToast(ok ? "Link kopiert" : "Kopieren ging nicht");
+      } else if (was === "erneuern") {
+        if (!window.confirm("Link erneuern? Der bisherige Link funktioniert danach nicht mehr.")) return;
+        try { mannschaft.einl = await DB.einladungErneuern(); mannschaftZeichnen(); tvToast("Neuer Link erstellt"); }
+        catch (e) { window.alert("Hat nicht geklappt: " + fehlerText(e)); }
+      } else if (was === "paypal") {
+        paypalOeffnen(false);
+      }
+      return;
+    }
+    // Profil (O8, O9)
+    if (ev.target.closest("[data-pr-position]")) { positionOeffnen(); return; }
+    if (ev.target.closest("[data-pr-paypal]")) { paypalOeffnen(false); return; }
+    if (ev.target.closest("[data-pr-konto-weg]")) { loeschenOeffnen(); return; }
+    const g = ev.target.closest("[data-pr-gesundheit]");
+    if (g) {
+      if (gesundheitErlaubt() && kontoStand && kontoStand.gesundheit) await gesundheitWiderrufen();
+      else gesundheitFragen(() => render());
+      render(); return;
+    }
+    const l = ev.target.closest("[data-pr-link]");
+    if (l) { window.location.href = l.dataset.prLink + ".html"; return; }
+  });
+
+  /* ===========================================================================
      AUTHENTIFIZIERUNG (Oberfläche)
      =========================================================================== */
   let currentProfile = null;
@@ -8051,6 +8593,10 @@
     if (/Password should be at least/i.test(msg)) return "Passwort muss mindestens 6 Zeichen haben.";
     if (/Email not confirmed/i.test(msg)) return "Bitte bestätige zuerst deine E-Mail (Link in der Mail).";
     if (/valid email/i.test(msg)) return "Bitte eine gültige E-Mail-Adresse eingeben.";
+    // handle_new_user (0061) bricht ohne gueltige Einladung oder ohne Namen ab.
+    if (/Database error saving new user/i.test(msg)) return "Registrierung nicht möglich. Der Einladungslink ist nicht mehr gültig, frag deinen Trainer nach dem aktuellen Link.";
+    // Supabase: "Allow new users to sign up" im Dashboard aus.
+    if (/Signups not allowed/i.test(msg)) return "Registrieren ist im Moment gesperrt. Bitte sag deinem Trainer Bescheid.";
     return msg;
   }
 
@@ -8140,14 +8686,19 @@
     const titles  = { login: "Anmelden", register: "Konto erstellen", forgot: "Passwort zurücksetzen" };
     const submits = { login: "Anmelden", register: "Registrieren", forgot: "Reset-Link senden" };
     const needPw = mode !== "forgot";
+    // Registrieren nur mit gueltigem Einladungslink (E1, Onboarding O3).
+    const einladungOk = !!(einladungInfo && einladungInfo.gueltig && einladungToken);
+    const mannschaftName = einladungOk ? (einladungInfo.mannschaft || "deiner Mannschaft") : "";
     viewEl.innerHTML = `
       <div class="auth-wrap">
         <form class="auth-card" id="authForm" data-mode="${mode}">
           <div class="auth-crest"><img src="assets/logo.png" alt="FC Fasanerie-Nord" /></div>
           <h1 class="auth-title">${titles[mode]}</h1>
-          <p class="auth-sub">FC Fasanerie-Nord · Mannschaftsbereich</p>
+          <p class="auth-sub">${mode === "register" ? "Einladung von " + esc(mannschaftName) : "FC Fasanerie-Nord · Mannschaftsbereich"}</p>
           ${authError ? `<div class="auth-error">${esc(authError)}</div>` : ""}
           ${authInfo ? `<div class="auth-info">${esc(authInfo)}</div>` : ""}
+          ${mode === "register" ? `<label class="auth-field"><span>Dein Name</span>
+            <input type="text" name="name" autocomplete="name" minlength="2" maxlength="60" placeholder="Vorname Nachname" required></label>` : ""}
           <label class="auth-field"><span>E-Mail</span>
             <input type="email" name="email" autocomplete="email" placeholder="name@example.de" required></label>
           ${needPw ? `<label class="auth-field"><span>Passwort</span>
@@ -8156,9 +8707,11 @@
           <button type="submit" class="auth-submit">${submits[mode]}</button>
           ${mode === "login" ? `<button type="button" class="link-btn auth-forgot" data-auth="forgot">Passwort vergessen?</button>` : ""}
           <div class="auth-switch">${
-            mode === "login"    ? `Noch kein Konto? <button type="button" class="link-btn" data-auth="register">Jetzt registrieren</button>`
+            mode === "login"    ? (einladungOk ? `Neu bei ${esc(mannschaftName)}? <button type="button" class="link-btn" data-auth="register">Jetzt registrieren</button>`
+                                 : `Neu hier? Registrieren geht nur über den Einladungslink deiner Mannschaft.`)
             : mode === "register" ? `Schon ein Konto? <button type="button" class="link-btn" data-auth="login">Hier anmelden</button>`
             : `<button type="button" class="link-btn" data-auth="login">Zurück zur Anmeldung</button>`}</div>
+          ${RECHT_LINKS}
         </form>
       </div>`;
   }
@@ -8197,54 +8750,6 @@
       <div class="pick-grid">${opts}</div>`;
   }
 
-  // Admin: Rollen verwalten (Mitglieder-Liste + Rollen-Häkchen).
-  async function renderAdmin() {
-    document.body.classList.remove("auth-mode");
-    viewEl.innerHTML = `<div class="page-head"><h1>Rollen verwalten</h1></div>
-      <div class="empty">Lade Mitglieder …</div>`;
-    let members;
-    try { members = await DB.listMembers(); }
-    catch (err) {
-      viewEl.innerHTML = `<div class="page-head"><h1>Rollen verwalten</h1></div>
-        <div class="empty">${esc((err && err.message) || String(err))}</div>`;
-      return;
-    }
-    const nameOf = (m) => (m.playerId && playerById[m.playerId]) ? playerById[m.playerId].name : (m.email || "—");
-    members.sort((a, b) => nameOf(a).localeCompare(nameOf(b)));
-    const cell = (m, role) =>
-      `<td style="text-align:center"><input type="checkbox" class="role-box" data-user="${m.userId}" data-role="${role}" ${m.roles.indexOf(role) !== -1 ? "checked" : ""}></td>`;
-    viewEl.innerHTML = `
-      <div class="page-head"><h1>Rollen verwalten</h1></div>
-      <div class="sim-switch card card-pad">
-        <div class="sim-switch-label">Ansicht testen als</div>
-        <div class="sim-switch-btns">
-          <button class="chip" data-sim="player">Spieler</button>
-          <button class="chip" data-sim="coach">Trainer</button>
-          <button class="chip" data-sim="treasurer">Kassenwart</button>
-          <button class="chip" data-sim="admin">Admin</button>
-        </div>
-        <div class="sim-switch-hint">Reine Anzeige-Vorschau – ändert nichts an deinen Rechten oder Daten. Alle Zugriffe bleiben serverseitig per RLS abgesichert.</div>
-      </div>
-      <div class="card table-wrap"><table class="rollen-tbl">
-        <thead><tr><th>Mitglied</th>
-          <th style="text-align:center"><abbr title="Trainer">Tr</abbr></th>
-          <th style="text-align:center"><abbr title="Kassenwart">Ka</abbr></th>
-          <th style="text-align:center"><abbr title="Admin">Ad</abbr></th></tr></thead>
-        <tbody>
-          ${members.map((m) => {
-            const name = nameOf(m);
-            return `<tr>
-              <td><div class="player-cell"><span class="avatar rollen-av">${initials(name)}</span>
-                <div><div class="rollen-name">${esc(name)}</div>
-                <div class="rollen-mail">${esc(m.email || "")}</div></div></div></td>
-              ${cell(m, "coach")}${cell(m, "treasurer")}${cell(m, "admin")}
-            </tr>`;
-          }).join("")}
-        </tbody>
-      </table></div>
-      <p style="color:var(--muted);font-size:.85rem;margin-top:12px">${members.length} Mitglied(er) · Neue erscheinen hier, sobald sie sich registriert haben.</p>`;
-  }
-
   // Status setzen (Trainer/Admin) per Auswahl im Kader-Status.
   /* Datum und Notiz speichern beim Verlassen des Feldes - kein extra Knopf.
      Der Status selbst kommt aus den Chips; hier wird er unveraendert
@@ -8256,33 +8761,6 @@
     const p = playerById[playerId];
     if (!p || istFit(p)) return;          // bei "fit" gibt es keine Felder
     await statusSpeichern(playerId, p.status);
-  });
-
-  // Rolle per Häkchen vergeben/entziehen.
-  viewEl.addEventListener("change", async (ev) => {
-    const box = ev.target.closest(".role-box");
-    if (!box) return;
-    const userId = box.dataset.user, role = box.dataset.role, want = box.checked;
-    if (!want && role === "admin" && userId === currentUserId) {
-      if (!window.confirm("Dir selbst die Admin-Rolle entziehen? Du verlierst dann die Admin-Rechte.")) {
-        box.checked = true; return;
-      }
-    }
-    box.disabled = true;
-    try {
-      if (want) await DB.grantRole(userId, role, DEMO.clubId);
-      else await DB.revokeRole(userId, role);
-      if (userId === currentUserId) {
-        try { Roles.set(await DB.myRoles()); } catch (e) {}
-        fillIdentity();
-        if (!Roles.isAdmin()) { switchView("dashboard"); return; }
-      }
-    } catch (err) {
-      box.checked = !want;
-      window.alert("Konnte Rolle nicht ändern: " + ((err && err.message) || err));
-    } finally {
-      box.disabled = false;
-    }
   });
 
   // Login-/Registrier-Formular absenden.
@@ -8301,10 +8779,14 @@
         authError = ""; authInfo = ""; init(); return;
       }
       if (mode === "register") {
-        const res = await DB.signUp(email, form.password.value);
+        if (!einladungToken) throw new Error("Registrieren geht nur über den Einladungslink deiner Mannschaft.");
+        const name = form.name ? form.name.value.trim().replace(/\s+/g, " ") : "";
+        if (name.length < 2) throw new Error("Bitte gib deinen Namen an.");
+        const res = await DB.signUp(email, form.password.value, { name: name, einladung: einladungToken });
+        lsSetz("fn_einladung", null);
         if (!res.session) {
           authMode = "login"; authError = "";
-          authInfo = "Konto erstellt! Bitte bestätige deine E-Mail (Link in der Mail) und melde dich dann an.";
+          authInfo = "Konto erstellt. Bitte bestätige deine E-Mail (Link in der Mail) und melde dich dann an.";
           renderLogin(); return;
         }
         authError = ""; authInfo = ""; init(); return;
@@ -8364,12 +8846,30 @@
 
     let session = null;
     try { session = await withTimeout(DB.getSession(), 8000, "Sitzung laden"); boot("session:" + (session ? "ok" : "none")); } catch (e) { session = null; boot("session:fail (" + ((e && e.message) || e) + ")"); }
-    if (!session) { renderLogin(); boot("ui:login"); hideSplash(); return; }
+    if (!session) {
+      // Einladungslink (#einladung=<token>): pruefen, dann gleich zur Registrierung.
+      const einl = einladungAusHash();
+      if (einl.token) {
+        try { einladungInfo = await withTimeout(DB.einladungPruefen(einl.token), 8000, "Einladung prüfen"); } catch (e) { einladungInfo = null; }
+        if (einladungInfo && einladungInfo.gueltig) { if (einl.frisch) authMode = "register"; }
+        else if (einladungInfo) {
+          lsSetz("fn_einladung", null); einladungToken = null;
+          if (einl.frisch) authError = "Dieser Einladungslink ist nicht mehr gültig. Frag deinen Trainer nach dem aktuellen Link.";
+        }
+      }
+      renderLogin(); boot("ui:login"); hideSplash(); return;
+    }
+    // Onboarding (0061): wer noch nicht freigegeben ist, sieht nur seine Schritte.
+    try { kontoStand = await withTimeout(DB.meinKonto(), 8000, "Konto laden"); } catch (e) { kontoStand = null; }
+    if (kontoStand && (kontoStand.freigabe !== "aktiv" || !kontoStand.datenschutz)) {
+      currentUserId = session.user.id;
+      renderOnboarding(); boot("ui:onboarding"); hideSplash(); return;
+    }
 
     try {
       DEMO = await withTimeout(DB.loadAll(), 15000, "Daten laden");
       boot("loadAll:ok");
-      playerById = Object.fromEntries(DEMO.players.map((p) => [p.id, p]));
+      playerById = Object.fromEntries(DEMO.players.concat(DEMO.ehemalige || []).map((p) => [p.id, p]));
       katById    = Object.fromEntries(DEMO.katalog.map((k) => [k.id, k]));
       buildStateFromData();
       currentUserId = session.user.id;
@@ -8387,6 +8887,8 @@
       boot("render:ok");
       hideSplash();
       routeDeepLink();        // Deep-Link aus Benachrichtigung/Verweis (nach dem ersten Render)
+      // E8: neuer Kassenwart wird einmal nach seinem PayPal-Link gefragt.
+      if (kontoStand && kontoStand.paypal_frage && Roles.has("treasurer")) paypalOeffnen(true);
       // Push: Zustand dieses Geraets abgleichen und Einstellungen holen.
       // Beides ohne Nutzergeste und deshalb ohne subscribe().
       try { pushPrefs = await DB.loadNotificationPrefs(); } catch (e) { pushPrefs = null; }

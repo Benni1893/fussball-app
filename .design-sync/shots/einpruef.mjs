@@ -101,13 +101,13 @@ console.log('--- Aufbau der Uebersicht ---');
   }
   pruefe((s.match(/class="ein-zeile"/g) || []).length === 5, 'Spieler hat fuenf Zeilen');
 
-  // Trainer: Verwaltung ja, aber kein Spielplan, keine Push-Texte, keine Rollen (Admin).
+  // Trainer: Verwaltung, Spielplan (E5) und Rollen mit Einladung und Freigaben (Onboarding), keine Push-Texte.
   E.setRollen(['coach']);
   const c = E.uebersichtHtml();
   pruefe(c.includes('Strafenkatalog'), 'Trainer kommt an den Strafenkatalog');
-  pruefe(!c.includes('Spielplan BFV'), 'Trainer sieht den Spielplan nicht');
+  pruefe(c.includes('Spielplan BFV'), 'Trainer sieht den Spielplan (E5)');
   pruefe(!c.includes('Push-Texte'), 'Trainer sieht die Push-Texte nicht');
-  pruefe(!c.includes('>Rollen<'), 'Trainer sieht die Rollen nicht');
+  pruefe(c.includes('>Rollen<'), 'Trainer sieht die Rollen (Einladung, Freigaben)');
   E.setRollen(['admin', 'player']);
 }
 

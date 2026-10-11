@@ -38,6 +38,17 @@ export const AUSLOESER = [
   { art: 'ks-spieler',   sel: '[data-ks-spieler]' },
   { art: 'ks-zmenu',     sel: '[data-ks-zmenu]' },
   { art: 'ks-det',       sel: '[data-ks-det]' },
+  // Onboarding und Mannschaft (0061)
+  { art: 'ob-weiter-ds', sel: '[data-ob="datenschutz"]', vorher: '[data-ob-ds]' },
+  { art: 'ob-weiter-pos', sel: '[data-ob="position"]', vorher: '[data-ob-pos="abwehr"]' },
+  { art: 'ob',           sel: '[data-ob]:not([data-ob="datenschutz"]):not([data-ob="position"])', attr: 'data-ob' },
+  { art: 'mf',           sel: '[data-mf]', attr: 'data-mf' },
+  { art: 'mf-anfrage',   sel: '[data-mf-anfrage]' },
+  { art: 'mf-mitglied',  sel: '[data-mf-mitglied]' },
+  { art: 'pr-position',  sel: '[data-pr-position]' },
+  { art: 'pr-paypal',    sel: '[data-pr-paypal]' },
+  { art: 'pr-konto-weg', sel: '[data-pr-konto-weg]' },
+  { art: 'pr-gesundheit', sel: '[data-pr-gesundheit]' },
   // Termine und Rückmeldungen
   { art: 'cal-sheet',    sel: '[data-cal-sheet]' },
   { art: 'rsvp-sheet',   sel: '[data-rsvp-sheet]' },
@@ -76,6 +87,7 @@ export const UEBERLAGERUNGEN = [
   { id: 'moreSheet' }, { id: 'calSheet' }, { id: 'rsvpSheet' }, { id: 'tkMenu' },
   { id: 'terminModal' }, { id: 'scopeModal' }, { id: 'shareModal' }, { id: 'tvUnsaved' }, { id: 'pushModal' }, { id: 'statusBlatt' }, { id: 'tvTplMenu' }, { id: 'katBlatt' }, { id: 'ksZMenu' }, { id: 'pwBlatt' }, { id: 'statusFenster' },
   { id: 'ksSeite' },
+  { id: 'freigabeBlatt' }, { id: 'rolleBlatt' }, { id: 'paypalBlatt' }, { id: 'positionBlatt' }, { id: 'gesundheitBlatt' }, { id: 'kontoWegBlatt' },
   { id: 'ksWahl', blatt: true }, { id: 'ksSheet', blatt: true }, { id: 'ksBl', blatt: true },
   { id: 'zmBl', blatt: true },
   { id: 'tvSheetKader', blatt: true }, { id: 'tvSheetForm', blatt: true }, { id: 'tvSheetMenu', blatt: true },
@@ -101,6 +113,8 @@ export function zustandImBrowser(ueberlagerungen) {
   const submit = document.querySelector('.auth-submit');
   const hash = location.hash || '';
   if (h1t === 'Diagnose') ansicht = 'diagnose';
+  // Onboarding (0061): Schritte und Wartebildschirm ohne Navigation, Ansicht = Ueberschrift.
+  else if (document.querySelector('.ob-card')) ansicht = slug(h1t);
   else if (submit) { ansicht = 'anmeldung'; unter = slug(submit.textContent); }
   else if (/^#ein=/.test(hash)) { ansicht = 'einstellungen'; unter = hash.slice(5); }
   else if (/^#strafe=/.test(hash)) { ansicht = 'kasse'; unter = 'strafe-' + hash.slice(8); }
@@ -167,9 +181,12 @@ export const STRAENGE = {
   anmeldung: 'Anmeldung', uebersicht: 'Übersicht', mehr: 'Mehr', einstellungen: 'Einstellungen',
   kalender: 'Kalender', katalog: 'Katalog', konto: 'Konto', trainer: 'Trainer', kasse: 'Kasse',
   kader: 'Kader', profil: 'Profil', diagnose: 'Diagnose', 'push-nachrichten': 'Push-Nachrichten',
-  'rollen-verwalten': 'Rollen verwalten',
+  'rollen-verwalten': 'Rollen verwalten', onboarding: 'Onboarding',
 };
-const STRANG_DER_ANSICHT = { dashboard: 'uebersicht', strafen: 'konto' };
+const STRANG_DER_ANSICHT = { dashboard: 'uebersicht', strafen: 'konto',
+  // Onboarding (0061): Schritte und Wartebildschirm eines Kontos ohne Freigabe
+  datenschutz: 'onboarding', 'deine-position': 'onboarding', 'zum-home-bildschirm': 'onboarding',
+  'mitteilungen-erlauben': 'onboarding', 'warte-auf-freigabe': 'onboarding', 'anfrage-abgelehnt': 'onboarding' };
 
 /* knoten: Liste eines Profils, kanten: dessen Kanten. Liefert schluessel -> Strang. */
 export function straengeVon(profilName, knoten, kanten) {
@@ -216,6 +233,12 @@ export const NAMEN = {
   'kasse+ksBl#detail': 'Strafe mit Verlauf',               // Nachschliff E3, Überschrift nur "Strafe"
   'trainer/spiel+tvSheetKader#bank': 'Bank-Blatt',         // Nachschliff E2
   'trainer/spiel+tvSheetMenu': 'Aufstellungs-Menü',        // Überschrift nur "Mehr"
+  // Onboarding (0061): native Rückfragen ohne Überschrift
+  'dialog:einwilligung-widerrufen-dein-status-ange': 'Einwilligung widerrufen',
+  'dialog:link-erneuern-der-bisherige-link-funktio': 'Einladungslink erneuern',
+  'dialog:dir-selbst-diese-rolle-nehmen': 'Eigene Rolle abgeben',
+  'rollen-verwalten+freigabeBlatt': 'Anfrage freigeben',    // Überschrift ist der Name (Testdaten)
+  'rollen-verwalten+rolleBlatt': 'Rollen eines Mitglieds',  // Überschrift ist der Name (Testdaten)
 };
 const TESTDATEN = /Musterhausen|Beispielstadt|Probedorf|Testhausen/;
 const DATUM = /\b\d{1,2}\.\s?(Jan|Feb|Mär|Apr|Mai|Jun|Jul|Aug|Sep|Okt|Nov|Dez)/;

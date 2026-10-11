@@ -4352,3 +4352,37 @@ body:has(.nsb-ov) .app-nav { visibility: hidden; }
 .card.tk .tk-body > .tk-rsvp + * { margin-top: calc(var(--rsvp-luft) - var(--tk-gap)); }
 .card.tk.is-hero .tk-body > .tk-rsvp + .tk-grund, .card.tk.is-hero .tk-body > .tk-rsvp + .tk-warn { padding-top: 0; }
 .card.tk .tk-body:has(> .tk-rsvp:last-child) { padding-bottom: var(--rsvp-luft); }
+
+/* =====================================================================
+   Anmeldung und Onboarding (Paket 11.10.2026, Migration 0061)
+   Nur vorhandene Tokens und Bausteine: auth-card, ein-gruppe,
+   einSchalterZeileHtml, nsb-Blatt mit --ov-soft. Trefferflächen 44 px.
+   ===================================================================== */
+.ob-schritt { margin: 0 0 6px; text-align: center; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.ob-text { margin: 8px 0 4px; font-size: 14px; line-height: 1.45; text-align: left; color: var(--ink); }
+.ob-text a, .ob-recht a { color: var(--green-800); font-weight: 600; }
+.ob-gruppe { margin-top: 14px; }
+.ob-card .ein-schalter-s { white-space: normal; }
+.ob-fuss { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+.ob-weiter, .ob-sek { width: 100%; min-height: var(--h-btn); }
+.ob-weiter:disabled { opacity: .55; cursor: default; }
+.ob-spaeter, .ob-weg { align-self: center; min-height: var(--tap); font-size: 13px; font-weight: 600; }
+.ob-weg, .pr-rot { color: var(--red-700); }
+.ob-anl { margin-top: 14px; }
+.ob-anl-t { margin: 0 0 6px; font-size: 13px; font-weight: 700; color: var(--ink); }
+.ob-liste { margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.45; color: var(--ink); }
+.ob-liste li + li { margin-top: 4px; }
+.ob-hinweis { margin: 12px 0 0; font-size: 13px; line-height: 1.4; color: var(--muted); }
+.ob-recht { margin-top: 16px; }
+.ob-recht a { display: inline-flex; align-items: center; min-height: var(--tap); padding: 0 4px; }
+.ob-blatt-text { padding: 0; margin: 0; font-size: 14px; color: var(--ink); }
+.fg-w { display: block; font-size: 15px; font-weight: 600; color: var(--ink); overflow-wrap: anywhere; }
+.nsb .ein-gruppe { margin: 0; }
+.nsb-fuss .nsb-rot { background: var(--red-700); border-color: var(--red-700); color: #fff; box-shadow: none; }
+.ob-gruppe .ein-schalter, .mf-gruppe .ein-schalter, .pr-ds .ein-schalter, .nsb .ein-schalter { padding-top: 12px; padding-bottom: 12px; min-height: 56px; }
+/* Freigabe-Blatt: der Wrapper um die Felder darf schrumpfen, damit die Kaderliste scrollt (echter Kader, 17 Einträge) */
+.nsb > [data-fg-inhalt] { flex: 0 1 auto; min-height: 0; display: flex; flex-direction: column; }
+/* Gerätematrix Runde 1 (11.10.2026): langer Link und E-Mail kürzen mit Auslassungspunkten,
+   Onboarding-Karte auf schmalen Geräten mit weniger Innenrand */
+.mf-gruppe .ein-schalter-s, .fg-w { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; overflow-wrap: normal; }
+@media (max-width: 374px) { body.auth-mode .auth-wrap:has(.ob-card) { padding-left: 12px; padding-right: 12px; } .ob-card { padding-left: 14px; padding-right: 14px; } }

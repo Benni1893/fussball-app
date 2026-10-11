@@ -243,6 +243,8 @@ export function daten() {
     strafen: STRAFEN,
     rsvps: RUECK.map(([eventId, playerId, status, grund]) => ({ eventId, playerId, status, grund })),
     lineups: AUFSTELLUNGEN,
+    paypalName: 'Teamkassefasanerie',
+    ehemalige: [],
   };
 }
 
@@ -255,20 +257,32 @@ export const PROFILE = {
   kassenwart:        { titel: 'Kassenwart',         rollen: ['player', 'treasurer'] },
   trainerkassenwart: { titel: 'Trainer+Kassenwart', rollen: ['player', 'coach', 'treasurer'] },
   admin:             { titel: 'Admin',              rollen: ['player', 'admin'] },
+  // Onboarding (0061): angemeldet, aber noch nicht freigegeben. Sieht keine Mannschaftsdaten.
+  wartend:           { titel: 'Wartet auf Freigabe', rollen: [], freigabe: 'wartet' },
 };
 
 function profilDaten(name) {
   const p = PROFILE[name];
   if (!p) throw new Error('Unbekanntes Profil: ' + name);
-  if (!p.rollen) return { sitzung: null, profil: null, rollen: [] };
+  if (!p.rollen) return { sitzung: null, profil: null, rollen: [], konto: null };
   const userId = 'u-' + name;
   const email = name + '@landkarte.example.invalid';
+  const wartet = p.freigabe === 'wartet';
+  const leitung = p.rollen.indexOf('coach') >= 0 || p.rollen.indexOf('admin') >= 0;
   return {
     sitzung: { user: { id: userId, email }, access_token: 'landkarte' },
-    profil: { id: userId, club_id: 'club-1', email, role: 'player', player_id: EIGENER_SPIELER,
+    profil: { id: userId, club_id: 'club-1', email, role: 'player', player_id: wartet ? null : EIGENER_SPIELER,
+              freigabe: wartet ? 'wartet' : 'aktiv',
               created_at: '2026-08-01T10:00:00Z', calendar_token: null,
               calendar_hint_dismissed_at: null, calendar_subscribe_started_at: null },
-    rollen: p.rollen.slice(),
+    rollen: wartet ? [] : p.rollen.slice(),
+    // mein_konto() (0061): bestehende Konten haben beide Einwilligungen schon.
+    konto: wartet
+      ? { freigabe: 'wartet', name: 'Neu Ling', anzeigename: 'Neu Ling', email, hat_spieler: false, position: null,
+          datenschutz: null, gesundheit: null, paypal_frage: false, leitung: false, mannschaft: 'SV Musterhausen 2' }
+      : { freigabe: 'aktiv', name: null, anzeigename: null, email, hat_spieler: true, position: 'mittelfeld',
+          datenschutz: { fassung: '2026-10', am: '2026-10-01T10:00:00Z' }, gesundheit: { fassung: '2026-10', am: '2026-10-01T10:00:00Z' },
+          paypal_frage: false, leitung, mannschaft: 'SV Musterhausen 2' },
   };
 }
 
@@ -298,6 +312,7 @@ window.__dbProtokoll = [];
 window.DB = (function () {
   "use strict";
   const D = ${JSON.stringify(D)};
+  let KONTO = D.profil.konto ? JSON.parse(JSON.stringify(D.profil.konto)) : null;
   const kopie = (x) => { try { return JSON.parse(JSON.stringify(x === undefined ? null : x)); } catch (e) { return String(x); } };
   const lies = (wert) => async () => kopie(wert);
   const schreib = (methode, antwort) => async (...argumente) => {
@@ -320,6 +335,15 @@ window.DB = (function () {
     pushSubscriptionBekannt: lies(false),
     myCalendarToken: lies("landkarte-token"),
     listMembers: lies(D.mitglieder),
+    /* Onboarding (0061). meinKonto ist zustandsbehaftet, damit sich die Schritte durchklicken lassen. */
+    meinKonto: async () => kopie(KONTO),
+    einladungPruefen: async (token) => (token === "landkarte-einladung" ? { gueltig: true, mannschaft: "SV Musterhausen 2" } : { gueltig: false, mannschaft: null }),
+    einladungHolen: lies({ token: "landkarte-einladung", erstellt_am: "2026-09-20T18:00:00Z" }),
+    anfragenListe: lies(D.profil.konto && D.profil.konto.leitung ? [{ id: "u-anfrage", name: "Lena Anfrage", email: "lena@landkarte.example.invalid", angefragt_am: "2026-10-02T09:15:00Z", position: "abwehr", freigabe: "wartet", datenschutz: true }] : []),
+    kaderFrei: lies(D.daten.players.filter((p) => ["p03", "p04", "p09"].indexOf(p.id) >= 0).map((p) => ({ id: p.id, name: p.name, nummer: p.nr, position: null }))),
+    mitgliederListe: lies(D.mitglieder.filter((m) => m.playerId).map((m) => ({ id: m.userId, name: (D.daten.players.find((p) => p.id === m.playerId) || {}).name || m.email, email: m.email, ich: m.userId === "u-a", hat_spieler: true, rollen: m.roles }))),
+    protokollListe: lies([{ zeit: "2026-10-01T19:02:00Z", aktion: "freigegeben", ziel: "Jonas Brandt", wer: "Felix Hartmann", details: {} },
+                         { zeit: "2026-09-28T20:11:00Z", aktion: "rolle_vergeben", ziel: "Mara Vogt", wer: "Felix Hartmann", details: { rolle: "treasurer" } }]),
     fineHistory: async (fineId) => {
       const s = D.daten.strafen.find((x) => x.id === fineId);
       if (!s) return [];
@@ -372,6 +396,16 @@ window.DB = (function () {
     markFinesPaid: schreib("markFinesPaid", (ids) => (ids || []).length),
     rejectFine: schreib("rejectFine"),
     cancelBatch: schreib("cancelBatch", 1), cancelFine: schreib("cancelFine"), undoFinePayment: schreib("undoFinePayment"),
+    einladungErneuern: schreib("einladungErneuern", { token: "landkarte-einladung-neu", erstellt_am: "2026-10-02T18:00:00Z" }),
+    einwilligungSetzen: schreib("einwilligungSetzen", (art, an, fassung) => { if (KONTO) KONTO[art] = an ? { fassung: fassung, am: new Date().toISOString() } : null; return kopie(KONTO); }),
+    positionSetzen: schreib("positionSetzen", (pos) => { if (KONTO) KONTO.position = pos; return kopie(KONTO); }),
+    anfrageFreigeben: schreib("anfrageFreigeben", { profil: "u-anfrage", spieler: "p-neu" }),
+    anfrageAblehnen: schreib("anfrageAblehnen"),
+    rolleSetzen: schreib("rolleSetzen", []),
+    paypalSetzen: schreib("paypalSetzen", (name) => ({ paypal_name: name || null })),
+    paypalFrageErledigt: schreib("paypalFrageErledigt"),
+    kontoLoeschen: schreib("kontoLoeschen"),
+    mitgliedEntfernen: schreib("mitgliedEntfernen"),
   };
 })();
 `;
@@ -422,6 +456,9 @@ export async function installiere(page, profilName, opts) {
 
   await page.clock.setFixedTime(new Date((opts && opts.jetzt) || JETZT));
   await page.addInitScript(SW_ATTRAPPE);
+  // Onboarding (0061): vor der Anmeldung liegt ein gueltiger Einladungslink vor,
+  // damit die Registrierung erreichbar ist (wie nach einem Tipp auf den Link).
+  if (profilName === 'anmeldung') await page.addInitScript(() => { try { localStorage.setItem('fn_einladung', 'landkarte-einladung'); } catch (e) {} });
 
   page.on('request', (r) => { if (istSupabase(r.url())) verstoesse.push('Request an Supabase: ' + r.method() + ' ' + r.url()); });
   page.on('pageerror', (e) => fehler.push('Seitenfehler: ' + e.message));

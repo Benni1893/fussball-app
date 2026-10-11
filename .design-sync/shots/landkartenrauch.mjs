@@ -70,6 +70,7 @@ for (const name of Object.keys(PROFILE)) {
       login: !!document.querySelector('.auth-submit'),
       nav: !!nav && getComputedStyle(nav).display !== 'none',
       diagnose: !!h1 && h1.textContent.trim() === 'Diagnose',
+      titel: h1 ? h1.textContent.trim() : null,
       tab5: m ? { sichtbar: getComputedStyle(m).display !== 'none',
                   text: ((m.querySelector('.nav-label') || {}).textContent || '').trim(),
                   ziel: m.hasAttribute('data-more') ? 'more' : 'view:' + m.getAttribute('data-view') } : null,
@@ -86,6 +87,11 @@ for (const name of Object.keys(PROFILE)) {
   if (name === 'anmeldung') {
     pruefe(zustand.login, 'Login-Maske steht');
     pruefe(!zustand.nav, 'keine Navigation vor der Anmeldung');
+  } else if (PROFILE[name].freigabe === 'wartet') {
+    // Onboarding (0061): ohne Freigabe nur die Schritte, keine Mannschaftsdaten.
+    pruefe(!zustand.nav && !zustand.login, 'Onboarding statt Navigation');
+    pruefe(zustand.titel === 'Datenschutz', 'erster Schritt Datenschutz', zustand.titel);
+    pruefe(!zustand.zusageKnopf && !zustand.ohneRueckmeldung, 'keine Termine, keine Rückmeldungen');
   } else {
     pruefe(zustand.nav && !zustand.login, 'Navigation steht, keine Login-Maske');
     const soll = TAB5[name], ist = zustand.tab5 || {};

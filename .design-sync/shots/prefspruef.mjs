@@ -47,7 +47,7 @@ console.log('--- Deckt die Gliederung alle Kategorien ab? ---');
   // unterbesetzung folgt erst mit F4 (kein Erzeuger, Vorlage aus): bewusst ohne Schalter.
   const ALLE = ['strafe_neu','zahlung_bestaetigt','zahlung_abgelehnt','zahlung_gemeldet',
     'absage_kurzfristig','termin_geaendert','termin_abgesagt','termin_neu',
-    'rueckmeldung_erinnerung','meldeschluss_uebersicht','strafen_offen','status_abgelaufen'];
+    'rueckmeldung_erinnerung','meldeschluss_uebersicht','strafen_offen','status_abgelaufen','anfrage_neu'];
   const gezeigt = M.PN_GRUPPEN.flatMap((g) => g.kategorien.map((k) => k[0]));
   const fehlend = ALLE.filter((k) => gezeigt.indexOf(k) < 0);
   const zuviel  = gezeigt.filter((k) => ALLE.indexOf(k) < 0);
@@ -56,11 +56,12 @@ console.log('--- Deckt die Gliederung alle Kategorien ab? ---');
   pruefe(new Set(gezeigt).size === gezeigt.length, 'keine Kategorie zweimal');
   pruefe(gezeigt.indexOf('unterbesetzung') < 0, '"Zu wenig Zusagen" ohne Erzeuger hat keinen Schalter (F4)');
   // Die Zuordnung muss zu kategorie_rolle() passen (zuletzt neu angelegt in
-  // 0059), sonst zeigt die App einen Schalter, den der Server nie beachtet.
-  const sql = fs.readFileSync('supabase/migrations/0059_status_abgelaufen.sql', 'utf8');
+  // 0061), sonst zeigt die App einen Schalter, den der Server nie beachtet.
+  // anfrage_neu gehoert dort der Rolle 'leitung' (Trainer oder Admin), der Schalter steht beim Trainer.
+  const sql = fs.readFileSync('supabase/migrations/0061_onboarding.sql', 'utf8');
   for (const g of M.PN_GRUPPEN) {
     for (const [kat] of g.kategorien) {
-      const re = new RegExp("when '" + kat + "'\\s+then '" + g.rolle + "'");
+      const re = new RegExp("when '" + kat + "'\\s+then '(" + g.rolle + (g.rolle === 'coach' ? '|leitung' : '') + ")'");
       pruefe(re.test(sql), kat + ' -> ' + g.rolle + ' stimmt mit kategorie_rolle() überein');
     }
   }
@@ -70,14 +71,14 @@ console.log('--- Deckt die Gliederung alle Kategorien ab? ---');
 console.log('--- Sammelschalter ---');
 {
   const g = M.PN_GRUPPEN.find((x) => x.rolle === 'coach');
-  const alle = (v) => ({ absage_kurzfristig: v, meldeschluss_uebersicht: v, status_abgelaufen: v });
+  const alle = (v) => ({ absage_kurzfristig: v, meldeschluss_uebersicht: v, status_abgelaufen: v, anfrage_neu: v });
   gleich(M.pnSammelZustand(g, alle(true)), 'true', 'alle an');
   gleich(M.pnSammelZustand(g, alle(false)), 'false', 'alle aus');
   gleich(M.pnSammelZustand(g, { absage_kurzfristig: true, meldeschluss_uebersicht: false }),
     'mixed', 'einer an');
   gleich(M.pnSammelZustand(g, { absage_kurzfristig: false, meldeschluss_uebersicht: true }),
     'mixed', 'der andere an');
-  gleich(M.pnSammelZustand(g, { absage_kurzfristig: true, meldeschluss_uebersicht: true, status_abgelaufen: true, unterbesetzung: false }),
+  gleich(M.pnSammelZustand(g, { absage_kurzfristig: true, meldeschluss_uebersicht: true, status_abgelaufen: true, anfrage_neu: true, unterbesetzung: false }),
     'true', 'ein alter Wert für unterbesetzung zählt nicht mit');
   gleich(M.pnSammelZustand(g, {}), 'false', 'nichts gesetzt zählt als aus');
   gleich(M.pnSammelZustand(g, null), 'false', 'keine Einstellungen geladen');

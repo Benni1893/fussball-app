@@ -16,7 +16,7 @@ window.DB = (function () {
 
   // Lädt alle Tabellen und formt sie in die bekannte „DEMO"-Struktur um.
   async function loadAll() {
-    const [clubs, players, events, katalog, fines, rsvps, lineups, sportstaetten, playerStatus, meldeLog] = await Promise.all([
+    const [clubs, players, events, katalog, fines, rsvps, lineups, sportstaetten, playerStatus, meldeLog, teamSettings] = await Promise.all([
       client.from("clubs").select("*").eq("slug", CLUB_SLUG).limit(1),
       client.from("players").select("*").order("number", { ascending: true }),
       client.from("events").select("*").order("date", { ascending: true }),
@@ -30,6 +30,8 @@ window.DB = (function () {
       // interessiert nur der Sprung nach "gemeldet".
       client.from("fine_status_log").select("fine_id,changed_at")
         .eq("to_status", "gemeldet").order("changed_at", { ascending: true }),
+      // Onboarding O7: PayPal-Link der Mannschaft (Migration 0061).
+      client.from("team_settings").select("paypal_name").limit(1),
     ]);
 
     for (const res of [clubs, players, events, katalog, fines, rsvps, lineups, sportstaetten, playerStatus]) {
@@ -46,6 +48,17 @@ window.DB = (function () {
     (playerStatus.data || []).forEach((s) => { psById[s.player_id] = s; });
 
     const club = (clubs.data && clubs.data[0]) || null;
+    const ts = (!teamSettings.error && teamSettings.data && teamSettings.data[0]) || null;
+    // Ausgeschiedene (Konto geloescht, 0061) bleiben nur fuer Namen in der Kasse.
+    const spielerZeile = (p) => {
+      const s = psById[p.id] || {};
+      return {
+        id: p.id, code: p.code, name: p.name, nr: p.number, pos: posAusHaupt(p.position, p.hauptposition),
+        haupt: p.hauptposition || null,
+        status: s.status || "fit", statusNote: s.status_note,
+        statusUntil: s.status_until, statusSince: s.status_since,
+      };
+    };
 
     return {
       clubId: club ? club.id : null,
@@ -58,14 +71,9 @@ window.DB = (function () {
         saison: club ? club.season : "",
         gegruendet: club ? club.founded : null,
       },
-      players: players.data.map((p) => {
-        const s = psById[p.id] || {};
-        return {
-          id: p.id, code: p.code, name: p.name, nr: p.number, pos: p.position,
-          status: s.status || "fit", statusNote: s.status_note,
-          statusUntil: s.status_until, statusSince: s.status_since,
-        };
-      }),
+      paypalName: ts ? (ts.paypal_name || null) : null,
+      players: players.data.filter((p) => !p.ausgeschieden_am).map(spielerZeile),
+      ehemalige: players.data.filter((p) => p.ausgeschieden_am).map(spielerZeile),
       events: events.data.map((e) => ({
         id: e.id, typ: e.type, titel: e.title, gegner: e.opponent, heim: e.home,
         datum: e.date, zeit: e.time, ort: e.location, note: e.note,
@@ -121,6 +129,18 @@ window.DB = (function () {
         updatedAt: l.updated_at,
       })),
     };
+  }
+
+  /* Hauptposition (E7) bestimmt die Gruppe; das alte Kuerzel bleibt, wenn es
+     zur Gruppe passt (Feinheit fuer die Aufstellung), sonst ein Stellvertreter. */
+  const HAUPT_KUERZEL = { torwart: "TW", abwehr: "IV", mittelfeld: "ZM", sturm: "ST" };
+  const KUERZEL_HAUPT = { TW: "torwart", AV: "abwehr", IV: "abwehr", LV: "abwehr", RV: "abwehr",
+    ZM: "mittelfeld", OM: "mittelfeld", DM: "mittelfeld", LM: "mittelfeld", RM: "mittelfeld",
+    ST: "sturm", MS: "sturm", LA: "sturm", RA: "sturm" };
+  function posAusHaupt(kuerzel, haupt) {
+    if (!haupt) return kuerzel;
+    const k = (kuerzel || "").toUpperCase();
+    return KUERZEL_HAUPT[k] === haupt ? kuerzel : HAUPT_KUERZEL[haupt];
   }
 
   /* ---- Aufstellungen (nur Trainer/Admin, per RLS) ------------------------ */
@@ -525,8 +545,10 @@ window.DB = (function () {
   }
 
   // Registrieren mit E-Mail + Passwort (Profil wird per DB-Trigger angelegt).
-  async function signUp(email, password) {
-    const { data, error } = await client.auth.signUp({ email: email, password: password });
+  // meta: { name, einladung } - ohne gueltige Einladung bricht der Trigger ab (0061).
+  async function signUp(email, password, meta) {
+    const { data, error } = await client.auth.signUp({ email: email, password: password,
+      options: { data: meta || {}, emailRedirectTo: window.location.href.split("#")[0] } });
     if (error) throw error;
     return data;
   }
@@ -613,6 +635,30 @@ window.DB = (function () {
     if (error) throw error;
   }
 
+  /* ---- Onboarding (Migration 0061): alles ueber RPCs mit Rollenpruefung ---- */
+  async function rpc(name, args) {
+    const { data, error } = await client.rpc(name, args || {});
+    if (error) throw error;
+    return data;
+  }
+  const meinKonto = () => rpc("mein_konto");
+  const einladungPruefen = (token) => rpc("einladung_pruefen", { p_token: token });
+  const einladungHolen = () => rpc("einladung_holen");
+  const einladungErneuern = () => rpc("einladung_erneuern");
+  const einwilligungSetzen = (art, an, fassung) => rpc("einwilligung_setzen", { p_art: art, p_an: !!an, p_fassung: fassung || null });
+  const positionSetzen = (pos) => rpc("meine_position_setzen", { p_position: pos });
+  const anfragenListe = () => rpc("anfragen_liste");
+  const kaderFrei = () => rpc("kader_frei");
+  const anfrageFreigeben = (profil, player, name) => rpc("anfrage_freigeben", { p_profil: profil, p_player: player || null, p_name: name || null });
+  const anfrageAblehnen = (profil) => rpc("anfrage_ablehnen", { p_profil: profil });
+  const mitgliederListe = () => rpc("mitglieder_liste");
+  const rolleSetzen = (profil, rolle, an) => rpc("rolle_setzen", { p_profil: profil, p_rolle: rolle, p_an: !!an });
+  const protokollListe = (anzahl) => rpc("protokoll_liste", { p_anzahl: anzahl || 30 });
+  const paypalSetzen = (name) => rpc("paypal_setzen", { p_name: name || "" });
+  const paypalFrageErledigt = () => rpc("paypal_frage_erledigt");
+  const kontoLoeschen = () => rpc("konto_loeschen");
+  const mitgliedEntfernen = (profil) => rpc("mitglied_entfernen", { p_profil: profil });
+
   return {
     client, loadAll, setRsvp, deleteRsvp, setFinePaid, deleteFine, addFines, setCalendarHint,
     upsertPushSubscription, deletePushSubscription, pushSubscriptionBekannt,
@@ -629,5 +675,8 @@ window.DB = (function () {
     resetPassword, updatePassword, onPasswordRecovery, myRoles,
     listMembers, grantRole, revokeRole, reportMyPayment,
     createFinesBatch, confirmFines, markFinesPaid, rejectFine, cancelBatch, cancelFine, undoFinePayment, fineHistory,
+    meinKonto, einladungPruefen, einladungHolen, einladungErneuern, einwilligungSetzen, positionSetzen,
+    anfragenListe, kaderFrei, anfrageFreigeben, anfrageAblehnen, mitgliederListe, rolleSetzen, protokollListe,
+    paypalSetzen, paypalFrageErledigt, kontoLoeschen, mitgliedEntfernen,
   };
 })();
