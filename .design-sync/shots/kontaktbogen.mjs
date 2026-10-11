@@ -52,7 +52,7 @@ for (const [i, [profil, schl, titel]] of AUSWAHL.entries()) {
     isMobile: v.engine === 'chromium' ? true : undefined, userAgent: v.ua, locale: 'de-DE', timezoneId: 'Europe/Berlin', serviceWorkers: 'block' });
   const page = await ctx.newPage();
   await installiere(page, profil);
-  await page.route(/fonts\.(googleapis|gstatic)\.com/, (route) => {
+  await page.route(/fonts\.(googleapis|gstatic)\.com|\/fonts\/inter\.css(\?|$)/, (route) => {
     const m = route.request().url().match(/\/gm\/(\d+)\.woff2/);
     if (m) return route.fulfill({ status: 200, contentType: 'font/woff2', body: schrift[m[1]] });
     return route.fulfill({ status: 200, contentType: 'text/css', body: GEWICHTE.map((w) => "@font-face{font-family:'Inter';font-weight:" + w

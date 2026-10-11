@@ -87,7 +87,9 @@ const inhalt = await p.evaluate(async () => {
 });
 console.log('  ' + JSON.stringify(inhalt));
 const alle = Object.values(inhalt).flat();
-pruefe(alle.length === 1 && alle[0] === 'offline.html', 'genau eine Datei im Cache', alle.join(', ') || 'leer');
+// Seit der Onboarding-Nacharbeit (Punkt 1): Offline-Seite plus die festen Dateien aus fonts/ und vendor/.
+const FEST_SOLL = ['offline.html', 'inter.css', 'inter-latin.woff2', 'inter-latin-ext.woff2', 'supabase-js-2.117.3.js'];
+pruefe(alle.length === FEST_SOLL.length && FEST_SOLL.every((d) => alle.indexOf(d) >= 0), 'Cache: Offline-Seite und die festen Dateien (Schrift, supabase-js), sonst nichts', alle.join(', ') || 'leer');
 pruefe(!alle.includes('app.js') && !alle.includes('styles.css') && !alle.includes('index.html'),
   'keine App-Datei im Cache - no-cache-Header bleiben massgeblich');
 

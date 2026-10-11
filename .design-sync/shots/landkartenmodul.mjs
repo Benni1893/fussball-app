@@ -473,7 +473,8 @@ export async function installiere(page, profilName, opts) {
   page.on('framenavigated', (f) => { if (f === page.mainFrame() && !basisHost) { try { basisHost = new URL(f.url()).host; } catch (e) {} } });
 
   await page.route((url) => istSupabase(url.href), (route) => route.abort('blockedbyclient'));
-  await page.route(/cdn\.jsdelivr\.net\/npm\/@supabase\//, (route) =>
+  // supabase-js: frueher vom CDN, seit der Onboarding-Nacharbeit aus vendor/ - beides ersetzt die Attrappe.
+  await page.route(/cdn\.jsdelivr\.net\/npm\/@supabase\/|\/vendor\/supabase-js-[0-9.]+\.js(\?|$)/, (route) =>
     route.fulfill({ status: 200, contentType: 'text/javascript', body: SUPABASE_ATTRAPPE }));
   await page.route(/\/db\.js(\?|$)/, (route) =>
     route.fulfill({ status: 200, contentType: 'text/javascript', body: quelle }));

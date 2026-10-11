@@ -35,8 +35,10 @@ for (const datei of ['styles.css', 'db.js', 'app.js']) {
 }
 // Lokale Skripte und Stylesheets ohne Query waeren eine vergessene Stelle.
 const lokalOhne = [...html.matchAll(/<(?:script|link)[^>]+(?:src|href)="([^"?#:]+\.(?:js|css))"/g)]
-  .map((m) => m[1]).filter((d) => !/^config\.js$/.test(d));
-pruefe(lokalOhne.length === 0, 'kein lokales Skript oder Stylesheet ohne Versions-Query (ausser config.js)',
+  .map((m) => m[1]).filter((d) => !/^config\.js$/.test(d))
+  // fonts/ und vendor/ (Onboarding-Nacharbeit 1): fest, die Version steht im Dateinamen bzw. die Datei aendert sich nie.
+  .filter((d) => !/^fonts\/inter\.css$|^vendor\/[a-z0-9-]+-\d+\.\d+\.\d+\.js$/.test(d));
+pruefe(lokalOhne.length === 0, 'kein lokales Skript oder Stylesheet ohne Versions-Query (ausser config.js, fonts/, vendor/)',
   lokalOhne.join(', ') || undefined);
 
 // Prueffixturen duerfen keine feste Kopie der Kennung haben.
@@ -55,7 +57,11 @@ pruefe(/req\.mode !== "navigate"\) return;/.test(sw),
   'fetch greift nur bei Seitenaufrufen (App-Dateien laufen am Worker vorbei)');
 pruefe((sw.match(/caches\.open\(/g) || []).length === 1 && /caches\.open\(VERSION\)/.test(sw),
   'genau ein Cache, benannt nach VERSION');
-pruefe(!/cache\.put|c\.put\(|addAll\(/.test(sw), 'kein weiteres Zwischenspeichern von Antworten');
+pruefe(!/cache\.put|c\.put\(/.test(sw), 'kein weiteres Zwischenspeichern von Antworten');
+// Onboarding-Nacharbeit 1: vorab gecacht nur die festen Dateien (Schrift, supabase-js).
+pruefe((sw.match(/addAll\(/g) || []).length === 1 && /c\.addAll\(FEST\.map/.test(sw)
+  && /const FEST = \["fonts\/inter\.css", "fonts\/inter\/inter-latin\.woff2", "fonts\/inter\/inter-latin-ext\.woff2", "vendor\/supabase-js-[\d.]+\.js"\];/.test(sw),
+  'vorab gecacht nur die festen Dateien (Schrift, supabase-js)');
 
 console.log('--- HTTP-Header (vercel.json) ---');
 const header = (quelle) => {

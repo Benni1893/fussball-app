@@ -1,7 +1,10 @@
 /* Service Worker der Mannschafts-App.
    ===========================================================================
-   BEWUSST MINIMAL. Gecacht wird genau EINE Datei: die Offline-Seite. Alles
-   andere geht unberuehrt ans Netz.
+   BEWUSST MINIMAL. Gecacht werden die Offline-Seite und die festen Dateien,
+   die seit der Onboarding-Nacharbeit (Punkt 1) im Repo liegen statt bei
+   Google Fonts und jsDelivr: Inter (fonts/) und supabase-js (vendor/, die
+   Version steht im Dateinamen). Diese aendern sich nie und kommen aus dem
+   Cache zuerst. Alles andere geht unberuehrt ans Netz.
 
    Warum kein Precache der App-Dateien: Diese App hat keinen Build-Schritt und
    liefert index.html, app.js, styles.css bewusst mit no-cache-Headern aus
@@ -27,8 +30,9 @@
    eine geaenderte offline.html fuer immer die alte. Mit ihr holt "install"
    die Offline-Seite frisch und "activate" wirft jeden anderen Cache weg.
    Das Push-Abo haengt an der Registrierung und uebersteht das Update. */
-const VERSION = "fn-sw-2026-10-11-B";
+const VERSION = "fn-sw-2026-10-11-C";
 const OFFLINE = "offline.html";
+const FEST = ["fonts/inter.css", "fonts/inter/inter-latin.woff2", "fonts/inter/inter-latin-ext.woff2", "vendor/supabase-js-2.117.3.js"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil((async () => {
@@ -36,6 +40,8 @@ self.addEventListener("install", (e) => {
     // cache: "reload" -> die Offline-Seite kommt frisch vom Netz, nicht aus
     // einem HTTP-Cache, der sie schon veraltet haben koennte.
     await c.add(new Request(OFFLINE, { cache: "reload" }));
+    // Feste Dateien: ein Fehler hier darf die Installation nicht verhindern.
+    try { await c.addAll(FEST.map((u) => new Request(u, { cache: "reload" }))); } catch (err) {}
     await self.skipWaiting();
   })());
 });
@@ -51,6 +57,14 @@ self.addEventListener("activate", (e) => {
 
 self.addEventListener("fetch", (e) => {
   const req = e.request;
+  // Feste Dateien (Schrift, supabase-js): aus dem Cache, sonst vom Netz.
+  if (req.method === "GET") {
+    const pfad = new URL(req.url).pathname;
+    if (FEST.some((f) => pfad.endsWith("/" + f))) {
+      e.respondWith((async () => (await caches.match(req, { ignoreSearch: true })) || fetch(req))());
+      return;
+    }
+  }
   // Nur Seitenaufrufe, nur GET. Alles andere - app.js, styles.css, die
   // Supabase-Aufrufe, /api/* - laeuft ohne respondWith am Worker vorbei und
   // behaelt seine normale Cache-Semantik.

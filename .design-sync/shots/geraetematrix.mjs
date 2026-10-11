@@ -480,7 +480,7 @@ async function laufeProfil({ browser, basis, variante, profil, knoten, breiten, 
   const lauf = await installiere(page, profil);
   page.on('dialog', (d) => d.dismiss().catch(() => {}));
   // Webfont lokal statt Google Fonts
-  await page.route(/fonts\.(googleapis|gstatic)\.com/, (route) => {
+  await page.route(/fonts\.(googleapis|gstatic)\.com|\/fonts\/inter\.css(\?|$)/, (route) => {
     const u = route.request().url();
     const m = u.match(/\/gm\/(\d+)\.woff2/);
     if (m) return route.fulfill({ status: 200, contentType: 'font/woff2', body: schriftBytes[m[1]] });
