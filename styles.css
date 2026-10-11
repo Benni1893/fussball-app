@@ -4386,3 +4386,12 @@ body:has(.nsb-ov) .app-nav { visibility: hidden; }
    Onboarding-Karte auf schmalen Geräten mit weniger Innenrand */
 .mf-gruppe .ein-schalter-s, .fg-w { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; overflow-wrap: normal; }
 @media (max-width: 374px) { body.auth-mode .auth-wrap:has(.ob-card) { padding-left: 12px; padding-right: 12px; } .ob-card { padding-left: 14px; padding-right: 14px; } }
+
+/* Onboarding Nacharbeit 2: neutraler Status "nicht verfügbar" (keine Gesundheitsangabe), Grau aus vorhandenen Tokens */
+.st-nicht_verfuegbar .st-dot, .st-knopf.st-nicht_verfuegbar .st-dot, .sf-punkt.st-nicht_verfuegbar, .mark.kad-pille.is-nv .mark-dot { background: var(--muted); }
+.st-knopf.is-on.st-nicht_verfuegbar { background: var(--line); border-color: var(--muted); color: var(--ink); }
+.st-knopf.is-on.st-nicht_verfuegbar .st-haken { color: var(--muted); }
+.sb-k.is-on.st-nicht_verfuegbar { background: var(--line); border-color: var(--muted); color: var(--ink); }
+.kpi.is-nv { background: var(--line); }
+.st-hinweis, .sb-hinweis { margin: 10px 0 0; font-size: 13px; line-height: 1.4; color: var(--muted); }
+.st-hinweis .link-btn { display: inline-flex; align-items: center; min-height: var(--tap); padding: 0 2px; }

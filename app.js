@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-11-C";
+  var APP_BUILD = "2026-10-11-D";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -125,6 +125,19 @@
     ["verletzt", "Verletzt"],
     ["urlaub", "Urlaub"],
   ];
+  /* Onboarding Nacharbeit 2 (0062): "angeschlagen" und "verletzt" nur mit
+     Einwilligung des Spielers. Ohne sie (auch ohne Konto) nur fit, Urlaub und
+     der neutrale Status "nicht verfuegbar", alles ohne Notiz. Der Server
+     prueft dasselbe; DEMO.gesundheitIds kommt aus gesundheit_erlaubt_liste(). */
+  const STATUS_OHNE_EINWILLIGUNG = [["fit", "Fit"], ["nicht_verfuegbar", "Nicht verfügbar"], ["urlaub", "Urlaub"]];
+  function gesundheitOk(playerId) {
+    return !(typeof DEMO !== "undefined" && DEMO && Array.isArray(DEMO.gesundheitIds)) || DEMO.gesundheitIds.indexOf(playerId) >= 0;
+  }
+  function statusWahlFuer(p) {
+    if (!gesundheitOk(p.id)) return STATUS_OHNE_EINWILLIGUNG;
+    return p.status === "nicht_verfuegbar" ? STATUS_WAHL.concat([["nicht_verfuegbar", "Nicht verfügbar"]]) : STATUS_WAHL;
+  }
+  const statusName = (w) => (STATUS_WAHL.concat(STATUS_OHNE_EINWILLIGUNG).find(([x]) => x === w) || [])[1] || w;
   // "urlaub" zaehlt ueberall wie verletzt: nicht einsatzbereit.
   function istFit(p) { return !p || !p.status || p.status === "fit"; }
 
@@ -142,7 +155,8 @@
   function statusWahlHtml(p, opts) {
     opts = opts || {};
     const st = p.status || "fit";
-    const knoepfe = STATUS_WAHL.map(([wert, label]) => {
+    const ok = gesundheitOk(p.id);
+    const knoepfe = statusWahlFuer(p).map(([wert, label]) => {
       const an = st === wert;
       // Fit setzt direkt, die anderen öffnen das Blatt (auch der schon gewählte: dort ändern).
       const attr = wert === "fit" ? `data-status-set="${p.id}"` : `data-status-fenster="${p.id}"`;
@@ -154,8 +168,9 @@
         <span class="st-zeile-main"><span class="st-zeile-t">${p.statusUntil ? "Voraussichtlich bis " + statusBisText(p.statusUntil) : "Ohne Enddatum"}</span>${p.statusNote ? `<span class="st-zeile-s">${esc(p.statusNote)}</span>` : ""}</span>
         <button type="button" class="st-aendern" data-status-fenster="${p.id}" data-wert="${esc(st)}">Ändern</button>
       </div>`;
+    const hinweis = ok ? "" : '<p class="st-hinweis">Angeschlagen und verletzt nur mit deiner Einwilligung. <button type="button" class="link-btn" data-st-erlauben>Erlauben</button></p>';
     return `<div class="st-wahl"${opts.kompakt ? ' data-kompakt=""' : ""}>
-      <div class="st-raster">${knoepfe}</div>${zeile}
+      <div class="st-raster">${knoepfe}</div>${zeile}${hinweis}
     </div>`;
   }
 
@@ -172,7 +187,7 @@
     const p = playerById[playerId];
     if (!p) return;
     closeStatusFenster();
-    const label = (STATUS_WAHL.find(([w]) => w === wert) || [])[1] || wert;
+    const label = statusName(wert);
     const gleich = p.status === wert;
     const bis = gleich ? (p.statusUntil || "") : "";
     const notiz = gleich ? (p.statusNote || "") : "";
@@ -187,7 +202,7 @@
             '<span class="nsb-in sf-datum"><span class="sf-datum-t' + (bis ? "" : " is-leer") + '" data-sf-anz>' + (bis ? esc(tfDatumText(bis)) : "Datum wählen") + '</span>' +
             '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>' +
             '<input type="date" data-sf-bis value="' + esc(bis) + '" aria-label="Voraussichtlich bis"></span></label>' +
-          '<label class="nsb-feld"><span class="nsb-l">Notiz</span><input class="nsb-in" type="text" data-sf-notiz maxlength="80" placeholder="optional, keine Diagnosen" value="' + esc(notiz) + '"></label>' +
+          (gesundheitOk(playerId) ? '<label class="nsb-feld"><span class="nsb-l">Notiz</span><input class="nsb-in" type="text" data-sf-notiz maxlength="80" placeholder="optional, keine Diagnosen" value="' + esc(notiz) + '"></label>' : "") +
         '</div>' +
         '<div class="nsb-fuss"><button type="button" class="btn nsb-sek" data-sf-zu>Abbrechen</button>' +
           '<button type="button" class="btn btn-primary nsb-prim" data-sf-speichern>Speichern</button></div>' +
@@ -200,7 +215,8 @@
       if (ev.target.closest("[data-sf-zu]")) { closeStatusFenster(); return; }
       if (ev.target.closest("[data-sf-speichern]")) {
         const until = datum.value || null;
-        const note = ov.querySelector("[data-sf-notiz]").value.trim() || null;
+        const nf = ov.querySelector("[data-sf-notiz]");
+        const note = nf ? (nf.value.trim() || null) : null;
         closeStatusFenster();
         await statusSpeichern(playerId, wert, { until, note });
       }
@@ -231,6 +247,7 @@
     if (status === "verletzt")     return { label: "verletzt", cls: "st-red" };
     if (status === "angeschlagen") return { label: "angeschlagen", cls: "st-amber" };
     if (status === "urlaub")       return { label: "Urlaub", cls: "st-grau" };
+    if (status === "nicht_verfuegbar") return { label: "nicht verfügbar", cls: "st-grau" };
     return null; // fit -> keine Marke
   }
   // Kleines Status-Badge neben einem Spielernamen (leer, wenn fit).
@@ -776,13 +793,14 @@
   const STATUS_PILLE = {
     fit: ["Fit", "is-gruen"], angeschlagen: ["Angeschlagen", "is-amber"],
     verletzt: ["Verletzt", "is-rot"], urlaub: ["Urlaub", "is-urlaub"],
+    nicht_verfuegbar: ["Nicht verfügbar", "is-nv"],
   };
   function statusPilleHtml(p) {
     const st = STATUS_PILLE[p.status || "fit"] || STATUS_PILLE.fit;
     return '<span class="mark kad-pille ' + st[1] + '"><span class="mark-dot" aria-hidden="true"></span>' + st[0] + ' ▾</span>';
   }
   function renderKader() {
-    const zahl = { fit: 0, angeschlagen: 0, verletzt: 0, urlaub: 0 };
+    const zahl = { fit: 0, angeschlagen: 0, verletzt: 0, urlaub: 0, nicht_verfuegbar: 0 };
     DEMO.players.forEach((p) => { const st = zahl[p.status] !== undefined ? p.status : "fit"; zahl[st]++; });
     // Faellt aus: alle nicht Fitten, Urlaub eingeschlossen; nach Rueckkehrdatum.
     const raus = DEMO.players.filter((p) => !istFit(p)).sort((a, b) => {
@@ -805,6 +823,7 @@
       <div class="kad-kpis">
         ${kpi("fit", "Fit", "is-gruen")}${kpi("angeschlagen", "Angeschlagen", "is-amber")}
         ${kpi("verletzt", "Verletzt", "is-rot")}${kpi("urlaub", "Urlaub", "is-urlaub")}
+        ${zahl.nicht_verfuegbar ? kpi("nicht_verfuegbar", "Nicht verfügbar", "is-nv") : ""}
       </div>
       ${raus.length ? `<div class="group-head"><h2>Fällt aus</h2></div><div class="card kad-liste">${raus.map(zeile).join("")}</div>` : ""}
       <div class="group-head"><h2>Einsatzbereit · ${fit.length}</h2></div>
@@ -822,7 +841,8 @@
     let wahl = p.status || "fit";
     const ov = document.createElement("div");
     ov.className = "more-sheet"; ov.id = "statusBlatt";
-    const knoepfe = () => STATUS_WAHL.map(([wert, label]) =>
+    const ok = gesundheitOk(p.id);
+    const knoepfe = () => statusWahlFuer(p).map(([wert, label]) =>
       '<button type="button" class="sb-k st-' + wert + (wahl === wert ? " is-on" : "") + '" data-sb-wert="' + wert + '" aria-pressed="' + (wahl === wert) + '">' +
       '<span class="st-dot" aria-hidden="true"></span>' + label + '</button>').join("");
     ov.innerHTML = '<button class="more-backdrop" data-sheet-close aria-label="Schließen"></button>' +
@@ -832,8 +852,9 @@
           '<span class="sb-kopf-t"><span class="sb-name">' + esc(p.name) + '</span>' +
           '<span class="sb-sub">' + [p.pos ? esc(p.pos) : "", p.nr != null ? "Nr. " + p.nr : ""].filter(Boolean).join(" · ") + '</span></span></div>' +
         '<div class="sb-knoepfe">' + knoepfe() + '</div>' +
+        (ok ? "" : '<p class="sb-hinweis">Ohne Einwilligung des Spielers nur fit, Urlaub und nicht verfügbar, ohne Notiz.</p>') +
         '<div class="sb-felder">' +
-          '<input class="sb-feld" type="text" data-sb-note value="' + esc(p.statusNote || "") + '" placeholder="Grund (optional)" aria-label="Grund">' +
+          (ok ? '<input class="sb-feld" type="text" data-sb-note value="' + esc(p.statusNote || "") + '" placeholder="Grund (optional, keine Diagnosen)" aria-label="Grund">' : "") +
           '<label class="sb-feld sb-datum"><span class="sb-datum-l">Voraussichtlich bis</span>' +
             '<input type="date" data-sb-until value="' + esc(p.statusUntil || "") + '" aria-label="Voraussichtlich bis"></label>' +
         '</div>' +
@@ -853,7 +874,8 @@
       const k = ev.target.closest("[data-sb-wert]");
       if (k) { wahl = k.dataset.sbWert; sync(); return; }
       if (ev.target.closest("[data-sb-speichern]")) {
-        const note = ov.querySelector("[data-sb-note]").value.trim();
+        const nf = ov.querySelector("[data-sb-note]");
+        const note = nf ? nf.value.trim() : "";
         const until = ov.querySelector("[data-sb-until]").value || null;
         zu();
         await statusSpeichern(p.id, wahl, { note: wahl === "fit" ? null : (note || null), until: wahl === "fit" ? null : until });
@@ -2731,7 +2753,7 @@
       ${rueck}` : `<div class="empty" style="padding:24px 0">Dein Konto ist noch keinem Spieler zugeordnet. Melde dich beim Trainerteam.</div>`}
       <div class="group-head"><h2>Datenschutz</h2></div>
       <div class="ein-gruppe pr-konto pr-ds">
-        ${einSchalterZeileHtml({ titel: "Verletzt und angeschlagen", sub: "Erlaubt Gesundheitsangaben im Status. Ausschalten löscht Status, Notiz und Datum.",
+        ${einSchalterZeileHtml({ titel: "Verletzt und angeschlagen", sub: "Erlaubt Gesundheitsangaben im Status. Ausschalten macht daraus nicht verfügbar und löscht die Notiz.",
             schalter: pnSchalterHtml('data-pr-gesundheit aria-label="Gesundheitsstatus erlauben"', kontoStand && kontoStand.gesundheit ? "true" : "false") })}
         ${zeile("Datenschutz", "Erklärung lesen", 'data-pr-link="datenschutz"')}
         ${zeile("Impressum", "Ansehen", 'data-pr-link="impressum"')}
@@ -3924,6 +3946,7 @@
   // Verfügbarkeit für Kader-Panel: null = verfügbar; sonst {cls,label,rank}. Höherer Rang = weiter hinten.
   function lbAvail(p) {
     if (p.status === "verletzt") return { cls:"verl", label:"verletzt", rank:4 };
+    if (p.status === "nicht_verfuegbar") return { cls:"verl", label:"nicht verfügbar", rank:4 };
     const r = (state.rsvp[lb.eventId + "|" + p.id] || {}).status;
     if (r === "ab") return { cls:"abw", label:"abgesagt", rank:3 };
     if (r !== "zu") return { cls:"none", label:"o. Rückm.", rank:2 };
@@ -4328,6 +4351,7 @@
   function tvAvail(p) {
     if (p.status === "verletzt") return { cls: "verl", label: "verletzt", rank: 4 };
     if (p.status === "urlaub")   return { cls: "url", label: "Urlaub", rank: 4 };
+    if (p.status === "nicht_verfuegbar") return { cls: "verl", label: "nicht verfügbar", rank: 4 };
     const r = tvRsvp(p.id);
     if (r === "ab") return { cls: "abw", label: "abgesagt", rank: 3 };
     if (r !== "zu") return { cls: "none", label: "o. Rückm.", rank: 2 };
@@ -4431,6 +4455,7 @@
     ["angeschlagen", "is-ang",  "angeschlagen"],
     ["verletzt",     "is-verl", "verletzt"],
     ["urlaub",       "is-url",  "Urlaub"],
+    ["nicht_verfuegbar", "is-verl", "nicht verfügbar"],
   ];
   function tvKaderKarteHtml() {
     const gesamt = DEMO.players.length;
@@ -5049,7 +5074,7 @@
   function tvBankGrund(p) {
     if (tv.bank.indexOf(p.id) !== -1) return null;
     if (tvPlacedAll().has(p.id)) return "platz";
-    if (p.status === "verletzt") return "verletzt";
+    if (p.status === "verletzt" || p.status === "nicht_verfuegbar") return "verletzt";   // nicht verfuegbar wie verletzt (0062)
     if (p.status === "urlaub") return "urlaub";
     return null;
   }
@@ -8284,14 +8309,14 @@
       '<button type="button" class="btn btn-primary nsb-prim" data-ge-ja>Erlauben</button>',
       async (ev) => {
         if (!ev.target.closest("[data-ge-ja]")) return;
-        try { kontoStand = await DB.einwilligungSetzen("gesundheit", true, DS_FASSUNG); }
+        try { kontoStand = await DB.einwilligungSetzen("gesundheit", true, DS_FASSUNG); await reloadData(); }
         catch (e) { window.alert("Konnte nicht gespeichert werden: " + fehlerText(e)); return; }
         nsbZu("gesundheitBlatt");
         if (weiter) weiter(); else render();
       });
   }
   async function gesundheitWiderrufen() {
-    if (!window.confirm("Einwilligung widerrufen? Dein Status angeschlagen oder verletzt, die Notiz und das Datum werden gelöscht.")) return;
+    if (!window.confirm("Einwilligung widerrufen? Angeschlagen oder verletzt wird zu nicht verfügbar, die Notiz wird gelöscht.")) return;
     try { kontoStand = await DB.einwilligungSetzen("gesundheit", false, null); await reloadData(); tvToast("Widerrufen"); }
     catch (e) { window.alert("Konnte nicht gespeichert werden: " + fehlerText(e)); }
   }
@@ -8524,6 +8549,7 @@
       return;
     }
     // Profil (O8, O9)
+    if (ev.target.closest("[data-st-erlauben]")) { gesundheitFragen(async () => { await reloadData(); }); return; }
     if (ev.target.closest("[data-pr-position]")) { positionOeffnen(); return; }
     if (ev.target.closest("[data-pr-paypal]")) { paypalOeffnen(false); return; }
     if (ev.target.closest("[data-pr-konto-weg]")) { loeschenOeffnen(); return; }

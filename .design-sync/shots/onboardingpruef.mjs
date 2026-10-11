@@ -111,6 +111,31 @@ for (const profil of ['trainer', 'admin']) {
   pruefe(await page.evaluate(() => !!document.querySelector('#kontoWegBlatt [data-kl]')), 'Konto löschen fragt mit Blatt nach');
   await ctx.close();
 }
+// 5b) Nacharbeit 2: ohne Einwilligung nur fit, nicht verfuegbar, Urlaub - ohne Notiz
+{
+  const d = daten(); d.gesundheitIds = [];
+  const { ctx, page } = await seite('spieler', { daten: d });
+  const st = await page.evaluate(() => ({ k: [...document.querySelectorAll('.st-raster .st-knopf')].map((b) => b.dataset.wert), h: !!document.querySelector('[data-st-erlauben]') }));
+  pruefe(JSON.stringify(st.k) === JSON.stringify(['fit', 'nicht_verfuegbar', 'urlaub']) && st.h, 'Spieler ohne Einwilligung: fit, nicht verfügbar, Urlaub und Hinweis', JSON.stringify(st));
+  await page.click('.st-knopf.st-nicht_verfuegbar'); await page.waitForTimeout(300);
+  const f = await page.evaluate(() => ({ blatt: !!document.getElementById('statusFenster'), notiz: !!document.querySelector('[data-sf-notiz]') }));
+  pruefe(f.blatt && !f.notiz, 'nicht verfügbar: Blatt mit Datum, ohne Notizfeld', JSON.stringify(f));
+  await ctx.close();
+}
+{
+  const d = daten(); d.gesundheitIds = ['p06'];
+  const { ctx, page } = await seite('trainer', { daten: d });
+  await page.evaluate(() => { location.hash = '#ansicht=kader'; }); await page.waitForTimeout(700);
+  const ziel = await page.evaluate(() => { const b = [...document.querySelectorAll('[data-status-blatt]')].find((x) => x.dataset.statusBlatt !== 'p06'); return b && b.dataset.statusBlatt; });
+  await page.click('[data-status-blatt="' + ziel + '"]'); await page.waitForTimeout(400);
+  const sb = await page.evaluate(() => ({ k: [...document.querySelectorAll('#statusBlatt [data-sb-wert]')].map((b) => b.dataset.sbWert), h: !!document.querySelector('#statusBlatt .sb-hinweis'), note: !!document.querySelector('#statusBlatt [data-sb-note]') }));
+  pruefe(JSON.stringify(sb.k) === JSON.stringify(['fit', 'nicht_verfuegbar', 'urlaub']) && sb.h && !sb.note, 'Trainer: Spieler ohne Einwilligung nur erlaubte Status, Hinweis, keine Notiz', JSON.stringify(sb));
+  await page.click('#statusBlatt [data-sheet-close]'); await page.waitForTimeout(300);
+  await page.click('[data-status-blatt="p06"]'); await page.waitForTimeout(400);
+  const mit = await page.evaluate(() => [...document.querySelectorAll('#statusBlatt [data-sb-wert]')].map((b) => b.dataset.sbWert));
+  pruefe(JSON.stringify(mit) === JSON.stringify(['fit', 'angeschlagen', 'verletzt', 'urlaub']), 'Trainer: Spieler mit Einwilligung alle vier Status', JSON.stringify(mit));
+  await ctx.close();
+}
 // 6) Zahlknopf ohne PayPal-Link (E8)
 {
   const d = daten(); d.paypalName = null;

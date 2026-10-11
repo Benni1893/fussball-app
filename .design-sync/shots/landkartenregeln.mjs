@@ -234,7 +234,7 @@ export const NAMEN = {
   'trainer/spiel+tvSheetKader#bank': 'Bank-Blatt',         // Nachschliff E2
   'trainer/spiel+tvSheetMenu': 'Aufstellungs-Menü',        // Überschrift nur "Mehr"
   // Onboarding (0061): native Rückfragen ohne Überschrift
-  'dialog:einwilligung-widerrufen-dein-status-ange': 'Einwilligung widerrufen',
+  'dialog:einwilligung-widerrufen-angeschlagen-ode': 'Einwilligung widerrufen',
   'dialog:link-erneuern-der-bisherige-link-funktio': 'Einladungslink erneuern',
   'dialog:dir-selbst-diese-rolle-nehmen': 'Eigene Rolle abgeben',
   'rollen-verwalten+freigabeBlatt': 'Anfrage freigeben',    // Überschrift ist der Name (Testdaten)

@@ -552,14 +552,14 @@
           "nameQuelle": "liste"
         },
         {
-          "schluessel": "dialog:einwilligung-widerrufen-dein-status-ange",
+          "schluessel": "dialog:einwilligung-widerrufen-angeschlagen-ode",
           "ansicht": "dialog",
           "unter": null,
           "oben": [],
           "ueberschrift": null,
           "dialog": {
             "typ": "confirm",
-            "text": "Einwilligung widerrufen? Dein Status angeschlagen oder verletzt, die Notiz und das Datum werden gelöscht."
+            "text": "Einwilligung widerrufen? Angeschlagen oder verletzt wird zu nicht verfügbar, die Notiz wird gelöscht."
           },
           "tiefe": 3,
           "pfad": [
@@ -886,7 +886,7 @@
           "art": "pr-gesundheit",
           "wert": null,
           "text": "Gesundheitsstatus erlauben",
-          "nach": "dialog:einwilligung-widerrufen-dein-status-ange"
+          "nach": "dialog:einwilligung-widerrufen-angeschlagen-ode"
         },
         {
           "von": "einstellungen/profil",
@@ -1917,14 +1917,14 @@
           "nameQuelle": "liste"
         },
         {
-          "schluessel": "dialog:einwilligung-widerrufen-dein-status-ange",
+          "schluessel": "dialog:einwilligung-widerrufen-angeschlagen-ode",
           "ansicht": "dialog",
           "unter": null,
           "oben": [],
           "ueberschrift": null,
           "dialog": {
             "typ": "confirm",
-            "text": "Einwilligung widerrufen? Dein Status angeschlagen oder verletzt, die Notiz und das Datum werden gelöscht."
+            "text": "Einwilligung widerrufen? Angeschlagen oder verletzt wird zu nicht verfügbar, die Notiz wird gelöscht."
           },
           "tiefe": 3,
           "pfad": [
@@ -2655,7 +2655,7 @@
           "art": "pr-gesundheit",
           "wert": null,
           "text": "Gesundheitsstatus erlauben",
-          "nach": "dialog:einwilligung-widerrufen-dein-status-ange"
+          "nach": "dialog:einwilligung-widerrufen-angeschlagen-ode"
         },
         {
           "von": "einstellungen/profil",
@@ -3550,14 +3550,14 @@
           "nameQuelle": "liste"
         },
         {
-          "schluessel": "dialog:einwilligung-widerrufen-dein-status-ange",
+          "schluessel": "dialog:einwilligung-widerrufen-angeschlagen-ode",
           "ansicht": "dialog",
           "unter": null,
           "oben": [],
           "ueberschrift": null,
           "dialog": {
             "typ": "confirm",
-            "text": "Einwilligung widerrufen? Dein Status angeschlagen oder verletzt, die Notiz und das Datum werden gelöscht."
+            "text": "Einwilligung widerrufen? Angeschlagen oder verletzt wird zu nicht verfügbar, die Notiz wird gelöscht."
           },
           "tiefe": 3,
           "pfad": [
@@ -4053,7 +4053,7 @@
           "art": "pr-gesundheit",
           "wert": null,
           "text": "Gesundheitsstatus erlauben",
-          "nach": "dialog:einwilligung-widerrufen-dein-status-ange"
+          "nach": "dialog:einwilligung-widerrufen-angeschlagen-ode"
         },
         {
           "von": "einstellungen/profil",
@@ -5407,14 +5407,14 @@
           "nameQuelle": "liste"
         },
         {
-          "schluessel": "dialog:einwilligung-widerrufen-dein-status-ange",
+          "schluessel": "dialog:einwilligung-widerrufen-angeschlagen-ode",
           "ansicht": "dialog",
           "unter": null,
           "oben": [],
           "ueberschrift": null,
           "dialog": {
             "typ": "confirm",
-            "text": "Einwilligung widerrufen? Dein Status angeschlagen oder verletzt, die Notiz und das Datum werden gelöscht."
+            "text": "Einwilligung widerrufen? Angeschlagen oder verletzt wird zu nicht verfügbar, die Notiz wird gelöscht."
           },
           "tiefe": 3,
           "pfad": [
@@ -6627,7 +6627,7 @@
           "art": "pr-gesundheit",
           "wert": null,
           "text": "Gesundheitsstatus erlauben",
-          "nach": "dialog:einwilligung-widerrufen-dein-status-ange"
+          "nach": "dialog:einwilligung-widerrufen-angeschlagen-ode"
         },
         {
           "von": "einstellungen/profil",
@@ -6879,7 +6879,7 @@
           "art": "pr-gesundheit",
           "wert": null,
           "text": "Gesundheitsstatus erlauben",
-          "nach": "dialog:einwilligung-widerrufen-dein-status-ange"
+          "nach": "dialog:einwilligung-widerrufen-angeschlagen-ode"
         },
         {
           "von": "profil",
@@ -8255,14 +8255,14 @@
           "nameQuelle": "liste"
         },
         {
-          "schluessel": "dialog:einwilligung-widerrufen-dein-status-ange",
+          "schluessel": "dialog:einwilligung-widerrufen-angeschlagen-ode",
           "ansicht": "dialog",
           "unter": null,
           "oben": [],
           "ueberschrift": null,
           "dialog": {
             "typ": "confirm",
-            "text": "Einwilligung widerrufen? Dein Status angeschlagen oder verletzt, die Notiz und das Datum werden gelöscht."
+            "text": "Einwilligung widerrufen? Angeschlagen oder verletzt wird zu nicht verfügbar, die Notiz wird gelöscht."
           },
           "tiefe": 3,
           "pfad": [
@@ -9522,7 +9522,7 @@
           "art": "pr-gesundheit",
           "wert": null,
           "text": "Gesundheitsstatus erlauben",
-          "nach": "dialog:einwilligung-widerrufen-dein-status-ange"
+          "nach": "dialog:einwilligung-widerrufen-angeschlagen-ode"
         },
         {
           "von": "einstellungen/profil",
@@ -9781,7 +9781,7 @@
           "art": "pr-gesundheit",
           "wert": null,
           "text": "Gesundheitsstatus erlauben",
-          "nach": "dialog:einwilligung-widerrufen-dein-status-ange"
+          "nach": "dialog:einwilligung-widerrufen-angeschlagen-ode"
         },
         {
           "von": "profil",

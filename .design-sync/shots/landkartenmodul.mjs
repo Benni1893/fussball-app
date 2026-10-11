@@ -245,6 +245,8 @@ export function daten() {
     lineups: AUFSTELLUNGEN,
     paypalName: 'Teamkassefasanerie',
     ehemalige: [],
+    // Nacharbeit 2: im Stand-in haben alle Spieler eine Einwilligung (Bestandsbilder unveraendert).
+    gesundheitIds: SPIELER.map(([id]) => id),
   };
 }
 

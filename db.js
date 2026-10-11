@@ -16,7 +16,7 @@ window.DB = (function () {
 
   // Lädt alle Tabellen und formt sie in die bekannte „DEMO"-Struktur um.
   async function loadAll() {
-    const [clubs, players, events, katalog, fines, rsvps, lineups, sportstaetten, playerStatus, meldeLog, teamSettings] = await Promise.all([
+    const [clubs, players, events, katalog, fines, rsvps, lineups, sportstaetten, playerStatus, meldeLog, teamSettings, gesundheit] = await Promise.all([
       client.from("clubs").select("*").eq("slug", CLUB_SLUG).limit(1),
       client.from("players").select("*").order("number", { ascending: true }),
       client.from("events").select("*").order("date", { ascending: true }),
@@ -32,6 +32,8 @@ window.DB = (function () {
         .eq("to_status", "gemeldet").order("changed_at", { ascending: true }),
       // Onboarding O7: PayPal-Link der Mannschaft (Migration 0061).
       client.from("team_settings").select("paypal_name").limit(1),
+      // Nacharbeit 2 (0062): Spieler mit Einwilligung Gesundheit.
+      client.rpc("gesundheit_erlaubt_liste"),
     ]);
 
     for (const res of [clubs, players, events, katalog, fines, rsvps, lineups, sportstaetten, playerStatus]) {
@@ -72,6 +74,8 @@ window.DB = (function () {
         gegruendet: club ? club.founded : null,
       },
       paypalName: ts ? (ts.paypal_name || null) : null,
+      // null = unbekannt (dann entscheidet allein der Server)
+      gesundheitIds: (!gesundheit.error && Array.isArray(gesundheit.data)) ? gesundheit.data : null,
       players: players.data.filter((p) => !p.ausgeschieden_am).map(spielerZeile),
       ehemalige: players.data.filter((p) => p.ausgeschieden_am).map(spielerZeile),
       events: events.data.map((e) => ({

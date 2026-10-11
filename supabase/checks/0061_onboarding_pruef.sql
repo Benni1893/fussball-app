@@ -132,10 +132,10 @@ begin
         -- ---- 6) Gesundheit und Einwilligung --------------------------------------
         ('ohne Einwilligung kein Status verletzt', null, array[format('select public.set_player_status(%L, ''verletzt'', ''Knie'', current_date + 2)::text', v_pl)], null, null, 'verweigert', array['Spieler']),
         ('Trainer setzt verletzt nicht ohne Einwilligung des Kontos', null, array[format('select public.set_player_status(%L, ''angeschlagen'', null, null)::text', v_pl)], null, null, 'verweigert', array['Trainer']),
-        ('mit Einwilligung möglich, Widerruf löscht Status, Notiz und Datum', null,
+        ('mit Einwilligung möglich, Widerruf wandelt in nicht verfügbar um (0062), Notiz weg, Datum bleibt', null,
          array['select public.einwilligung_setzen(''gesundheit'', true, ''2026-10'')::text', format('select public.set_player_status(%L, ''verletzt'', ''Knie'', current_date + 2)::text', v_pl), 'select public.einwilligung_setzen(''gesundheit'', false, null)::text'], null,
          format('select status || ''/'' || coalesce(status_note, ''-'') || ''/'' || coalesce(status_until::text, ''-'') from public.player_status where player_id = %L', v_pl),
-         'wert:fit/-/-', array['Spieler']),
+         'wert:nicht_verfuegbar/-/' || (current_date + 2)::text, array['Spieler']),
         ('Urlaub geht ohne Einwilligung', null, array[format('select public.set_player_status(%L, ''urlaub'', null, current_date + 5)::text', v_pl)], null, null, 'ok', array['Spieler']),
         ('Datenschutz lässt sich nicht einzeln widerrufen', null, array['select public.einwilligung_setzen(''datenschutz'', false, null)::text'], null, null, 'fehler:Löschen des Kontos', array['Spieler']),
 
