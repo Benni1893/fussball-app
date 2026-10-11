@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-11-G";
+  var APP_BUILD = "2026-10-11-H";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -8184,7 +8184,7 @@
       const zeile = (w, titel, wert) => einZeileHtml({ attr: 'data-ob-kader="' + esc(w) + '" aria-pressed="' + (obKader === w) + '"', titel: titel, wert: obKader === w ? "Gewählt" : (wert || ""), chev: false });
       obRahmen(s, nr, ges, "Spielst du mit?",
         "Wenn du selbst spielst, wähle deinen Eintrag im Kader oder lege einen neuen an. Sonst bist du nur als Trainer dabei.",
-        '<div class="ein-gruppe ob-gruppe">' + zeile("nicht", "Ich spiele nicht mit") + zeile("neu", "Neuer Kadereintrag", k.anzeigename || "") + '</div>' +
+        '<div class="ein-gruppe ob-gruppe">' + zeile("nicht", "Ich spiele nicht mit") + zeile("neu", "Neuer Kadereintrag") + '</div>' +
         (obKaderFrei.length ? '<p class="ob-zwischen">Oder dein Eintrag im Kader</p><div class="ein-gruppe ob-gruppe">' +
           obKaderFrei.map((p) => zeile(p.id, p.name, p.nummer != null ? "Nr. " + p.nummer : "")).join("") + '</div>' : ""),
         weiter("kader", "Weiter", !!obKader) + spaeter);
@@ -8346,7 +8346,7 @@
   function loeschenOeffnen() {
     nsbOeffnen("kontoWegBlatt", "Konto löschen",
       '<div class="nsb-felder"><p class="ein-hinweis ob-blatt-text">Dein Konto, deine Rückmeldungen, dein Status und deine Einstellungen werden gelöscht. ' +
-      'Strafen bleiben in der Kasse, aber ohne deinen Namen. Das lässt sich nicht rückgängig machen.</p></div>',
+      'Strafen bleiben in der Kasse, aber ohne deinen Namen.' + (Roles.has('treasurer') ? ' Offene Meldungen an dich gehen markiert an die Kasse.' : '') + ' Das lässt sich nicht rückgängig machen.</p></div>',
       '<button type="button" class="btn nsb-sek" data-nsb-zu>Abbrechen</button>' +
       '<button type="button" class="btn btn-primary nsb-prim nsb-rot" data-kl>Endgültig löschen</button>',
       async (ev) => {
@@ -8623,7 +8623,8 @@
     const inhalt = () =>
       '<div class="ein-gruppe">' +
         zeile("coach", "Trainer", "Termine, Kader, Aufstellung, Freigaben") +
-        zeile("treasurer", "Kassenwart", "Strafen, Kasse, PayPal-Link") +
+        // 0069: Kassenwart gibt sich niemand selbst, ausser dem Admin (Abgeben geht immer).
+        (!x.ich || Roles.isRealAdmin() || (x.rollen || []).indexOf("treasurer") >= 0 ? zeile("treasurer", "Kassenwart", "Strafen, Kasse, PayPal-Link") : "") +
         (Roles.isRealAdmin() ? zeile("admin", "Admin", "Betrieb der App: Push-Texte, Technik") : "") +
       '</div>' +
       (x.ich ? "" : '<div class="ein-gruppe">' + einZeileHtml({ attr: "data-rl-entfernen", titel: "Aus der Mannschaft entfernen", aktion: true, chev: false }) + '</div>');
@@ -8656,7 +8657,11 @@
           return;
         }
         if (ev.target.closest("[data-rl-entfernen]")) {
-          if (!window.confirm(x.name + " aus der Mannschaft entfernen? Das Konto wird gelöscht, Rückmeldungen und Status auch. Die Kasse behält die Beträge ohne Namen.")) return;
+          let offenText = "";
+          if ((x.rollen || []).indexOf("treasurer") >= 0) {
+            try { const o = await DB.kassenwartOffen(x.id); if (o && o.anzahl > 0) offenText = " " + (o.anzahl === 1 ? "1 gemeldete Zahlung" : o.anzahl + " gemeldete Zahlungen") + " an " + x.name + " gehen markiert als an vorherigen Kassenwart gezahlt an die Kasse."; } catch (e) {}
+          }
+          if (!window.confirm(x.name + " aus der Mannschaft entfernen? Das Konto wird gelöscht, Rückmeldungen und Status auch. Die Kasse behält die Beträge ohne Namen." + offenText)) return;
           try { await DB.mitgliedEntfernen(x.id); }
           catch (e) { window.alert("Hat nicht geklappt: " + fehlerText(e)); return; }
           nsbZu("rolleBlatt"); tvToast("Entfernt");
@@ -8881,7 +8886,7 @@
           ${authInfo ? `<div class="auth-info">${esc(authInfo)}</div>` : ""}
           ${mode === "register" ? `<label class="auth-field"><span>Dein Name</span>
             <input type="text" name="name" autocomplete="name" minlength="2" maxlength="60" placeholder="Vorname Nachname" required></label>` : ""}
-          ${mode === "register" && !(einladungInfo && einladungInfo.art === "trainer") ? `<label class="auth-check"><input type="checkbox" name="kassenwart">
+          ${mode === "register" && !(einladungInfo && einladungInfo.art === "trainer") ? `<label class="auth-check"><input type="checkbox" name="kassenwart"><i class="auth-check-box" aria-hidden="true"></i>
             <span>Ich bin Kassenwart<small>Der Trainer bestätigt das bei der Freigabe.</small></span></label>` : ""}
           <label class="auth-field"><span>E-Mail</span>
             <input type="email" name="email" autocomplete="email" placeholder="name@example.de" required></label>

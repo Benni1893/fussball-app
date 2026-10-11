@@ -96,7 +96,14 @@ for (const profil of ['trainer', 'admin']) {
   const fr = await page.evaluate(() => (window.__dbProtokoll || []).filter((x) => x.methode === 'anfrageFreigeben').map((x) => x.argumente));
   pruefe(fr.length === 1 && fr[0][0] === 'u-anfrage' && fr[0][1] === 'p03', profil + ': Freigabe mit Zuordnung zum Kadereintrag', JSON.stringify(fr));
   pruefe(fr.length === 1 && fr[0][3] === (profil === 'admin'), profil + (profil === 'admin' ? ': Kassenwart bestätigt' : ': Kassenwart nicht bestätigt'), JSON.stringify(fr));
-  await page.click('[data-mf-mitglied]'); await page.waitForTimeout(400);
+  if (profil === 'trainer') {
+    // 0069: bei sich selbst kein Kassenwart-Schalter (Selbstvergabe nur Admin)
+    await page.click('[data-mf-mitglied="u-a"]'); await page.waitForTimeout(400);
+    const selbst = await page.evaluate(() => [...document.querySelectorAll('#rolleBlatt [data-rl]')].map((e) => e.dataset.rl));
+    pruefe(JSON.stringify(selbst) === JSON.stringify(['coach']), 'trainer: bei sich selbst kein Kassenwart-Schalter', JSON.stringify(selbst));
+    await page.click('#rolleBlatt [data-nsb-zu].nsb-prim'); await page.waitForTimeout(300);
+  }
+  await page.click(profil === 'trainer' ? '[data-mf-mitglied="u-s"]' : '[data-mf-mitglied]'); await page.waitForTimeout(400);
   const rl = await page.evaluate(() => [...document.querySelectorAll('#rolleBlatt [data-rl]')].map((e) => e.dataset.rl));
   pruefe(JSON.stringify(rl) === JSON.stringify(profil === 'admin' ? ['coach', 'treasurer', 'admin'] : ['coach', 'treasurer']), profil + ': Rollen-Schalter' + (profil === 'admin' ? ' mit Admin' : ' ohne Admin'), JSON.stringify(rl));
   await ctx.close();

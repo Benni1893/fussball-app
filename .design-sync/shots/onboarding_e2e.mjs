@@ -302,6 +302,8 @@ try {
       'Trainer ändert den PayPal-Link weder per RPC noch direkt', JSON.stringify([r1.status, r2.status, r2d]));
     await T.page.evaluate(() => { location.hash = '#ein=profil'; }); await T.page.waitForTimeout(1500);
     pruefe(!(await T.page.evaluate(() => !!document.querySelector('[data-pr-paypal]'))), 'Trainer sieht keinen PayPal-Link zum Ändern');
+    const selbst = await rest('rpc/rolle_setzen', tt, { p_profil: trainerId, p_rolle: 'treasurer', p_an: true, p_trotzdem: false });
+    pruefe(selbst.status >= 400 && eins(`select count(*) from user_roles where user_id = '${trainerId}' and role = 'treasurer'`) === '0', 'Trainer gibt sich nicht selbst Kassenwart (Umweg zum PayPal-Link, 0069)', selbst.status);
   }
 
   // ---- 14) Trainer-Link: nur Admin, einmalig, abgelaufen, widerrufen -------------
@@ -339,6 +341,12 @@ try {
   const TL = await neueSeite();
   await anmelden(TL.page, mail('trainerlink'));
   pruefe(await titel(TL.page) === 'Datenschutz', 'Trainer-Link-Konto: Onboarding beginnt mit Datenschutz', await titel(TL.page));
+  {
+    // Gegenpruefung (0069): vor der Datenschutz-Zustimmung keine Mannschaftsdaten, auch per API
+    const ttl = await token(TL.page);
+    const fz = await rest('fines?select=id&limit=5', ttl), az = await rest('rpc/anfragen_liste', ttl, {});
+    pruefe(Array.isArray(fz.daten) && fz.daten.length === 0 && az.status >= 400, 'Trainer-Link-Konto vor der Zustimmung: keine Strafen, keine Anfragen (API)', JSON.stringify([fz.status, fz.daten && fz.daten.length, az.status]));
+  }
   await klick(TL.page, '[data-ob-ds]'); await klick(TL.page, '[data-ob="datenschutz"]'); await TL.page.waitForTimeout(2500);
   await klick(TL.page, '[data-ob-pos="mittelfeld"]'); await klick(TL.page, '[data-ob="position"]'); await TL.page.waitForTimeout(3000);
   pruefe(await titel(TL.page) === 'Spielst du mit?', 'Schritt Spielst du mit', await titel(TL.page));
@@ -393,6 +401,8 @@ try {
   await klick(T.page, '#freigabeBlatt [data-fg="freigeben"]'); await T.page.waitForTimeout(3500);
   pruefe(eins(`select string_agg(p.anzeigename || ':' || p.freigabe || ':' || p.paypal_frage || ':' || (select count(*) from user_roles r where r.user_id = p.id and r.role = 'treasurer'), ',' order by p.anzeigename) from profiles p where p.id in ('${kw1Id}', '${kw2Id}')`) ===
     'E2E Kasse Ja:aktiv:true:1,E2E Kasse Nein:aktiv:false:0', 'bestätigt: Spieler und Kassenwart; nicht bestätigt: nur Spieler');
+  const kaderTausch = await rest('rpc/set_my_player', await token(K2.page), { p_player_id: frei });
+  pruefe(kaderTausch.status >= 400, 'Spieler wechselt seinen Kadereintrag nicht selbst (E6, 0069)', kaderTausch.status);
   const nachEntscheid = await rest('fine_status_log?select=id&limit=1', await token(K2.page));
   pruefe(Array.isArray(nachEntscheid.daten) && nachEntscheid.daten.length === 0, 'nicht bestätigt: auch nach der Freigabe kein Kassenverlauf');
 
