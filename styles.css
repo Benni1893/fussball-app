@@ -4399,3 +4399,9 @@ body:has(.nsb-ov) .app-nav { visibility: hidden; }
 .ob-zwischen { margin: 14px 2px 6px; font-size: 13px; font-weight: 600; color: var(--muted); text-align: left; }
 .tl-link { word-break: break-all; font-size: 13px; }
 .nsb-fuss .btn.nsb-sek.nsb-rot-text { color: var(--red-ink); }
+/* Kassenwart-Wunsch (0064): Haken bei der Registrierung, Marke in den Anfragen */
+.auth-check { display: flex; align-items: flex-start; gap: 12px; min-height: 44px; margin-top: 14px; padding: 10px 0; cursor: pointer; text-align: left; }
+.auth-check input { width: 22px; height: 22px; margin: 1px 0 0; flex: 0 0 auto; accent-color: var(--green-700, currentColor); }
+.auth-check span { font-size: 15px; font-weight: 600; color: var(--ink); line-height: 1.3; }
+.auth-check small { display: block; margin-top: 2px; font-size: 12px; font-weight: 400; color: var(--muted); }
+.fg-kw-marke { flex: 0 0 auto; margin: 0 8px 0 6px; }

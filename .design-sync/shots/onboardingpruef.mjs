@@ -38,7 +38,13 @@ const h1 = (page) => page.evaluate(() => (document.querySelector('#view h1') || 
   const { ctx, page } = await seite('anmeldung', null, '#einladung=landkarte-einladung');
   pruefe(await h1(page) === 'Konto erstellen', 'gültiger Link: Registrierung', await h1(page));
   const f = await page.evaluate(() => [...document.querySelectorAll('#authForm input')].map((i) => i.name));
-  pruefe(JSON.stringify(f) === JSON.stringify(['name', 'email', 'password']), 'Felder Name, E-Mail, Passwort', JSON.stringify(f));
+  pruefe(JSON.stringify(f) === JSON.stringify(['name', 'kassenwart', 'email', 'password']), 'Felder Name, Kassenwart-Haken, E-Mail, Passwort', JSON.stringify(f));
+  // Nacharbeit 5: der Haken geht als Wunsch in die Metadaten
+  await page.fill('input[name=name]', 'Kai Kasse'); await page.check('input[name=kassenwart]');
+  await page.fill('input[name=email]', 'kai@landkarte.example.invalid'); await page.fill('input[name=password]', 'geheim123');
+  await page.click('.auth-submit'); await page.waitForTimeout(600);
+  const su = await page.evaluate(() => (window.__dbProtokoll || []).filter((x) => x.methode === 'signUp').map((x) => x.argumente[2]));
+  pruefe(su.length === 1 && su[0].kassenwart === true && su[0].name === 'Kai Kasse', 'Haken Ich bin Kassenwart geht als Wunsch mit', JSON.stringify(su));
   pruefe(await page.evaluate(() => /Datenschutz/.test(document.querySelector('.ob-recht').textContent)), 'Datenschutz und Impressum vor der Anmeldung erreichbar');
   await ctx.close();
 }
@@ -79,12 +85,17 @@ for (const profil of ['trainer', 'admin']) {
     link: [...document.querySelectorAll('.ein-schalter-s')].some((e) => /#einladung=landkarte-einladung$/.test(e.textContent)) }));
   pruefe(t.h === 'Rollen verwalten' && t.link, profil + ': Rollen verwalten mit Einladungslink', JSON.stringify(t));
   pruefe(['Einladung', 'Offene Anfragen', 'Mitglieder', 'Protokoll'].every((g) => t.gruppen.indexOf(g) >= 0), profil + ': Einladung, Anfragen, Mitglieder, Protokoll', JSON.stringify(t.gruppen));
+  pruefe(await page.evaluate(() => !!document.querySelector('[data-mf-anfrage="u-anfrage"] .fg-kw-marke')), profil + ': Kassenwart-Wunsch in den Anfragen markiert');
   await page.click('[data-mf-anfrage]'); await page.waitForTimeout(400);
-  const fg = await page.evaluate(() => ({ da: !!document.getElementById('freigabeBlatt'), wahl: document.querySelectorAll('#freigabeBlatt [data-fg-wahl]').length }));
+  const fg = await page.evaluate(() => ({ da: !!document.getElementById('freigabeBlatt'), wahl: document.querySelectorAll('#freigabeBlatt [data-fg-wahl]').length,
+    kw: (document.querySelector('#freigabeBlatt [data-fg-kw]') || {}).getAttribute ? document.querySelector('#freigabeBlatt [data-fg-kw]').getAttribute('aria-checked') : null }));
   pruefe(fg.da && fg.wahl === 4, profil + ': Freigabe-Blatt mit neuem Eintrag und drei freien Kadereinträgen', JSON.stringify(fg));
+  pruefe(fg.kw === 'false', profil + ': Kassenwart getrennt zu bestätigen, aus als Vorgabe', JSON.stringify(fg));
+  if (profil === 'admin') { await page.click('#freigabeBlatt [data-fg-kw]'); await page.waitForTimeout(200); }
   await page.click('#freigabeBlatt [data-fg-wahl="p03"]'); await page.click('#freigabeBlatt [data-fg="freigeben"]'); await page.waitForTimeout(600);
   const fr = await page.evaluate(() => (window.__dbProtokoll || []).filter((x) => x.methode === 'anfrageFreigeben').map((x) => x.argumente));
   pruefe(fr.length === 1 && fr[0][0] === 'u-anfrage' && fr[0][1] === 'p03', profil + ': Freigabe mit Zuordnung zum Kadereintrag', JSON.stringify(fr));
+  pruefe(fr.length === 1 && fr[0][3] === (profil === 'admin'), profil + (profil === 'admin' ? ': Kassenwart bestätigt' : ': Kassenwart nicht bestätigt'), JSON.stringify(fr));
   await page.click('[data-mf-mitglied]'); await page.waitForTimeout(400);
   const rl = await page.evaluate(() => [...document.querySelectorAll('#rolleBlatt [data-rl]')].map((e) => e.dataset.rl));
   pruefe(JSON.stringify(rl) === JSON.stringify(profil === 'admin' ? ['coach', 'treasurer', 'admin'] : ['coach', 'treasurer']), profil + ': Rollen-Schalter' + (profil === 'admin' ? ' mit Admin' : ' ohne Admin'), JSON.stringify(rl));
@@ -162,6 +173,7 @@ for (const [profil, darf] of [['trainer', false], ['kassenwart', true], ['admin'
   const { ctx, page } = await seite('anmeldung', null, '#einladung=landkarte-trainer');
   const t = await page.evaluate(() => ({ h: (document.querySelector('#view h1') || {}).textContent, sub: (document.querySelector('.auth-sub') || {}).textContent }));
   pruefe(t.h === 'Konto erstellen' && /als Trainer/.test(t.sub), 'Trainer-Link: Registrierung als Trainer gekennzeichnet', JSON.stringify(t));
+  pruefe(!(await page.evaluate(() => !!document.querySelector('input[name=kassenwart]'))), 'Trainer-Link: kein Kassenwart-Haken');
   await ctx.close();
 }
 {

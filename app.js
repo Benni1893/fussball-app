@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-11-E";
+  var APP_BUILD = "2026-10-11-F";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -8227,6 +8227,7 @@
     const pushAn = pushZustand(pushUmgebung()) === "aktiv";
     obRahmen("warten", 0, 0, "Warte auf Freigabe",
       "Danke, " + esc(k.anzeigename || k.name || "") + ". Dein Trainer bestätigt deine Anfrage und ordnet dich dem Kader zu. " +
+      (k.kassenwart_wunsch ? "Ob du Kassenwart wirst, entscheidet er dabei getrennt. " : "") +
       (pushAn ? "Du bekommst eine Mitteilung, sobald es so weit ist." : "Schau später wieder vorbei."),
       standalone ? "" : '<p class="ob-hinweis">Öffne die App vom Home-Bildschirm, um Mitteilungen zu erlauben.</p>',
       weiter("pruefen", "Erneut prüfen") +
@@ -8476,8 +8477,14 @@
         '</div><p class="ein-hinweis">Nur für dich sichtbar. Wer sich darüber registriert, ist sofort Spieler und Trainer, ohne Freigabe.</p>';
     }
     h += '<div class="group-head"><h2>Offene Anfragen</h2></div>' + (m.anfragen.length
-      ? '<div class="ein-gruppe">' + m.anfragen.map((a) => einZeileHtml({ attr: 'data-mf-anfrage="' + esc(a.id) + '"',
-          titel: a.name || a.email, wert: [positionName(a.position), "seit " + datumKurz(a.angefragt_am)].filter(Boolean).join(" · ") })).join("") + '</div>'
+      ? '<div class="ein-gruppe">' + m.anfragen.map((a) => {
+          const z = einZeileHtml({ attr: 'data-mf-anfrage="' + esc(a.id) + '"',
+            // Mit Kassenwart-Wunsch (0064) traegt die Zeile die Marke statt des Datums.
+            titel: a.name || a.email, wert: [positionName(a.position), a.kassenwart_wunsch ? "" : "seit " + datumKurz(a.angefragt_am)].filter(Boolean).join(" · ") });
+          // Kassenwart-Wunsch (0064): Marke direkt am Namen.
+          return a.kassenwart_wunsch ? z.replace('<span class="ein-zeile-t">' + esc(a.name || a.email) + '</span>',
+            '<span class="ein-zeile-t">' + esc(a.name || a.email) + '</span><span class="mark is-amber fg-kw-marke" title="Möchte Kassenwart sein">Kassenwart?</span>') : z;
+        }).join("") + '</div>'
       : '<p class="ein-hinweis">Keine offenen Anfragen.</p>');
     h += '<div class="group-head"><h2>Mitglieder</h2></div><div class="ein-gruppe">' +
       m.mitglieder.map((x) => einZeileHtml({ attr: 'data-mf-mitglied="' + esc(x.id) + '"', titel: x.name + (x.ich ? " (du)" : ""), wert: rollenText(x.rollen) })).join("") +
@@ -8517,9 +8524,12 @@
     if (!a) return;
     let frei = [];
     try { frei = (await DB.kaderFrei()) || []; } catch (e) {}
-    let wahl = "neu";
+    let wahl = "neu", kw = false;
     const inhalt = () =>
       '<div class="nsb-felder">' +
+        (a.kassenwart_wunsch ? '<div class="nsb-feld"><span class="nsb-l">Kassenwart-Wunsch</span><div class="ein-gruppe">' +
+          einSchalterZeileHtml({ titel: "Als Kassenwart bestätigen", sub: kw ? "Bekommt mit der Freigabe die Rolle Kassenwart und hinterlegt dann den PayPal-Link." : "Ohne Bestätigung nur Spieler, kein Zugriff auf die Kasse.",
+            schalter: pnSchalterHtml('data-fg-kw aria-label="Als Kassenwart bestätigen"', kw ? "true" : "false") }) + '</div></div>' : "") +
         '<div class="nsb-feld"><span class="nsb-l">E-Mail</span><span class="fg-w">' + esc(a.email || "") + '</span></div>' +
         '<div class="nsb-feld"><span class="nsb-l">Position</span><span class="fg-w">' + esc(positionName(a.position) || "Keine Angabe") + '</span></div>' +
         '<div class="nsb-feld"><span class="nsb-l">Dem Kader zuordnen</span><div class="ein-gruppe">' +
@@ -8534,6 +8544,7 @@
       async (ev, ov) => {
         const w = ev.target.closest("[data-fg-wahl]");
         if (w) { wahl = w.dataset.fgWahl; ov.querySelector("[data-fg-inhalt]").innerHTML = inhalt(); return; }
+        if (ev.target.closest("[data-fg-kw]")) { kw = !kw; ov.querySelector("[data-fg-inhalt]").innerHTML = inhalt(); return; }
         const b = ev.target.closest("[data-fg]");
         if (!b) return;
         try {
@@ -8541,7 +8552,7 @@
             if (!window.confirm((a.name || "Diese Anfrage") + " ablehnen?")) return;
             await DB.anfrageAblehnen(a.id); tvToast("Abgelehnt");
           } else {
-            await DB.anfrageFreigeben(a.id, wahl === "neu" ? null : wahl, null); tvToast("Freigegeben");
+            await DB.anfrageFreigeben(a.id, wahl === "neu" ? null : wahl, null, kw); tvToast(kw ? "Freigegeben, Kassenwart bestätigt" : "Freigegeben");
           }
         } catch (e) { window.alert("Hat nicht geklappt: " + fehlerText(e)); return; }
         nsbZu("freigabeBlatt");
@@ -8837,6 +8848,8 @@
           ${authInfo ? `<div class="auth-info">${esc(authInfo)}</div>` : ""}
           ${mode === "register" ? `<label class="auth-field"><span>Dein Name</span>
             <input type="text" name="name" autocomplete="name" minlength="2" maxlength="60" placeholder="Vorname Nachname" required></label>` : ""}
+          ${mode === "register" && !(einladungInfo && einladungInfo.art === "trainer") ? `<label class="auth-check"><input type="checkbox" name="kassenwart">
+            <span>Ich bin Kassenwart<small>Der Trainer bestätigt das bei der Freigabe.</small></span></label>` : ""}
           <label class="auth-field"><span>E-Mail</span>
             <input type="email" name="email" autocomplete="email" placeholder="name@example.de" required></label>
           ${needPw ? `<label class="auth-field"><span>Passwort</span>
@@ -8920,7 +8933,9 @@
         if (!einladungToken) throw new Error("Registrieren geht nur über den Einladungslink deiner Mannschaft.");
         const name = form.name ? form.name.value.trim().replace(/\s+/g, " ") : "";
         if (name.length < 2) throw new Error("Bitte gib deinen Namen an.");
-        const res = await DB.signUp(email, form.password.value, { name: name, einladung: einladungToken });
+        const meta = { name: name, einladung: einladungToken };
+        if (form.kassenwart && form.kassenwart.checked) meta.kassenwart = true;
+        const res = await DB.signUp(email, form.password.value, meta);
         lsSetz("fn_einladung", null);
         if (!res.session) {
           authMode = "login"; authError = "";

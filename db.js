@@ -549,7 +549,8 @@ window.DB = (function () {
   }
 
   // Registrieren mit E-Mail + Passwort (Profil wird per DB-Trigger angelegt).
-  // meta: { name, einladung } - ohne gueltige Einladung bricht der Trigger ab (0061).
+  // meta: { name, einladung, kassenwart } - ohne gueltige Einladung bricht der Trigger ab (0061).
+  // kassenwart (0064) ist nur ein Wunsch; die Rolle vergibt erst der Trainer.
   async function signUp(email, password, meta) {
     const { data, error } = await client.auth.signUp({ email: email, password: password,
       options: { data: meta || {}, emailRedirectTo: window.location.href.split("#")[0] } });
@@ -653,7 +654,7 @@ window.DB = (function () {
   const positionSetzen = (pos) => rpc("meine_position_setzen", { p_position: pos });
   const anfragenListe = () => rpc("anfragen_liste");
   const kaderFrei = () => rpc("kader_frei");
-  const anfrageFreigeben = (profil, player, name) => rpc("anfrage_freigeben", { p_profil: profil, p_player: player || null, p_name: name || null });
+  const anfrageFreigeben = (profil, player, name, kassenwart) => rpc("anfrage_freigeben", { p_profil: profil, p_player: player || null, p_name: name || null, p_kassenwart: !!kassenwart });
   const anfrageAblehnen = (profil) => rpc("anfrage_ablehnen", { p_profil: profil });
   const mitgliederListe = () => rpc("mitglieder_liste");
   const rolleSetzen = (profil, rolle, an) => rpc("rolle_setzen", { p_profil: profil, p_rolle: rolle, p_an: !!an });

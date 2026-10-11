@@ -349,7 +349,7 @@ window.DB = (function () {
     einladungPruefen: async (token) => (token === "landkarte-einladung" ? { gueltig: true, art: "spieler", mannschaft: "SV Musterhausen 2" }
       : token === "landkarte-trainer" ? { gueltig: true, art: "trainer", mannschaft: "SV Musterhausen 2" } : { gueltig: false, art: null, mannschaft: null }),
     einladungHolen: lies({ token: "landkarte-einladung", erstellt_am: "2026-09-20T18:00:00Z" }),
-    anfragenListe: lies(D.profil.konto && D.profil.konto.leitung ? [{ id: "u-anfrage", name: "Lena Anfrage", email: "lena@landkarte.example.invalid", angefragt_am: "2026-10-02T09:15:00Z", position: "abwehr", freigabe: "wartet", datenschutz: true }] : []),
+    anfragenListe: lies(D.profil.konto && D.profil.konto.leitung ? [{ id: "u-anfrage", name: "Lena Anfrage", email: "lena@landkarte.example.invalid", angefragt_am: "2026-10-02T09:15:00Z", position: "abwehr", freigabe: "wartet", datenschutz: true, kassenwart_wunsch: true }] : []),
     kaderFrei: lies(D.daten.players.filter((p) => ["p03", "p04", "p09"].indexOf(p.id) >= 0).map((p) => ({ id: p.id, name: p.name, nummer: p.nr, position: null }))),
     mitgliederListe: lies(D.mitglieder.filter((m) => m.playerId).map((m) => ({ id: m.userId, name: (D.daten.players.find((p) => p.id === m.playerId) || {}).name || m.email, email: m.email, ich: m.userId === "u-a", hat_spieler: true, rollen: m.roles }))),
     protokollListe: lies([{ zeit: "2026-10-01T19:02:00Z", aktion: "freigegeben", ziel: "Jonas Brandt", wer: "Felix Hartmann", details: {} },

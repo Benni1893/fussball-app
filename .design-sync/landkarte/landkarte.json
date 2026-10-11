@@ -2294,7 +2294,7 @@
             {
               "art": "mf-anfrage",
               "wert": null,
-              "text": "Lena AnfrageAbwehr · seit 02.10.›",
+              "text": "Lena AnfrageKassenwart?Abwehr›",
               "global": false
             }
           ],
@@ -2773,7 +2773,7 @@
           "von": "rollen-verwalten",
           "art": "mf-anfrage",
           "wert": null,
-          "text": "Lena AnfrageAbwehr · seit 02.10.›",
+          "text": "Lena AnfrageKassenwart?Abwehr›",
           "nach": "rollen-verwalten+freigabeBlatt"
         },
         {
@@ -6065,7 +6065,7 @@
             {
               "art": "mf-anfrage",
               "wert": null,
-              "text": "Lena AnfrageAbwehr · seit 02.10.›",
+              "text": "Lena AnfrageKassenwart?Abwehr›",
               "global": false
             }
           ],
@@ -6920,7 +6920,7 @@
           "von": "rollen-verwalten",
           "art": "mf-anfrage",
           "wert": null,
-          "text": "Lena AnfrageAbwehr · seit 02.10.›",
+          "text": "Lena AnfrageKassenwart?Abwehr›",
           "nach": "rollen-verwalten+freigabeBlatt"
         },
         {
@@ -8946,7 +8946,7 @@
             {
               "art": "mf-anfrage",
               "wert": null,
-              "text": "Lena AnfrageAbwehr · seit 02.10.›",
+              "text": "Lena AnfrageKassenwart?Abwehr›",
               "global": false
             }
           ],
@@ -9857,7 +9857,7 @@
           "von": "rollen-verwalten",
           "art": "mf-anfrage",
           "wert": null,
-          "text": "Lena AnfrageAbwehr · seit 02.10.›",
+          "text": "Lena AnfrageKassenwart?Abwehr›",
           "nach": "rollen-verwalten+freigabeBlatt"
         },
         {
