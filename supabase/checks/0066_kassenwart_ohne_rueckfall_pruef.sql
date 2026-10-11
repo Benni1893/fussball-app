@@ -8,9 +8,10 @@
 select fall, urteil from (values
   (1, 'Bestand: keine Strafe ohne Ziel markiert',
    case when (select count(*) from public.fines where an_vorherigen and zahlung_an is null) = 0 then 'PASS' else 'FAIL' end),
-  (2, 'Bestand: Meldungen vor 0065 bleiben ohne Ziel',
+  (2, 'Bestand: Meldungen vor 0065 ohne Ziel, außer dem protokollierten Nachtrag 0071',
    case when (select count(*) from public.fines f where f.zahlung_an is not null
-               and not exists (select 1 from public.fine_status_log l where l.fine_id = f.id and l.changed_at >= timestamptz '2026-10-11 00:00+02')) = 0
+               and not exists (select 1 from public.fine_status_log l where l.fine_id = f.id and l.changed_at >= timestamptz '2026-10-11 00:00+02')
+               and not exists (select 1 from public.konto_protokoll k where k.aktion = 'zahlungsziel_nachgetragen' and k.details->'strafen' ? f.id::text)) = 0
         then 'PASS' else 'FAIL' end),
   (3, 'kassenwart_offen_intern ohne Rückfall auf den Link',
    case when (select prosrc from pg_proc where proname = 'kassenwart_offen_intern' and pronamespace = 'public'::regnamespace) not like '%paypal_von%' then 'PASS' else 'FAIL' end),
@@ -23,7 +24,8 @@ union all
 select 'SUMME', count(*) filter (where urteil = 'PASS') || ' PASS, ' || count(*) filter (where urteil = 'FAIL') || ' FAIL' from (values
   (case when (select count(*) from public.fines where an_vorherigen and zahlung_an is null) = 0 then 'PASS' else 'FAIL' end),
   (case when (select count(*) from public.fines f where f.zahlung_an is not null
-               and not exists (select 1 from public.fine_status_log l where l.fine_id = f.id and l.changed_at >= timestamptz '2026-10-11 00:00+02')) = 0
+               and not exists (select 1 from public.fine_status_log l where l.fine_id = f.id and l.changed_at >= timestamptz '2026-10-11 00:00+02')
+               and not exists (select 1 from public.konto_protokoll k where k.aktion = 'zahlungsziel_nachgetragen' and k.details->'strafen' ? f.id::text)) = 0
         then 'PASS' else 'FAIL' end),
   (case when (select prosrc from pg_proc where proname = 'kassenwart_offen_intern' and pronamespace = 'public'::regnamespace) not like '%paypal_von%' then 'PASS' else 'FAIL' end),
   (case when (select prosrc from pg_proc where proname = 'rolle_setzen' and pronamespace = 'public'::regnamespace) not like '%zahlung_an is null%' then 'PASS' else 'FAIL' end),
