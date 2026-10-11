@@ -145,6 +145,18 @@ for (const profil of ['trainer', 'admin']) {
   pruefe(!z.knopf && /neuen PayPal-Link/.test(z.hinweis), 'ohne Link: kein Zahlknopf, Hinweis', JSON.stringify(z));
   await ctx.close();
 }
+// 6b) Nacharbeit 3: PayPal-Link nur Kassenwart und Admin, nicht Trainer
+for (const [profil, darf] of [['trainer', false], ['kassenwart', true], ['admin', true]]) {
+  const { ctx, page } = await seite(profil, null, '#ein=profil');
+  const imProfil = await page.evaluate(() => !!document.querySelector('[data-pr-paypal]'));
+  let inRollen = null;
+  if (profil !== 'kassenwart') {
+    await page.evaluate(() => { location.hash = '#ansicht=admin'; }); await page.waitForTimeout(800);
+    inRollen = await page.evaluate(() => !!document.querySelector('[data-mf="paypal"]'));
+  }
+  pruefe(imProfil === darf && (inRollen === null || inRollen === darf), profil + (darf ? ': PayPal-Link änderbar' : ': kein PayPal-Link zum Ändern (Profil, Rollen verwalten)'), JSON.stringify({ imProfil, inRollen }));
+  await ctx.close();
+}
 await browser.close(); server.close();
 console.log(fehler.length ? '--- NICHT bestanden: ' + fehler.length + ' ---' : '--- bestanden ---');
 process.exit(fehler.length ? 1 : 0);
