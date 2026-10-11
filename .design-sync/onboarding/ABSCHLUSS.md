@@ -316,7 +316,7 @@ lokal ausgeliefert mit echter `config.js`, 47/47):
 
 - Branch-Adresse:
   **https://fasanerie-nord-2-git-onboarding-benni1893s-projects.vercel.app**
-- Letzter Stand: Frontend-Commit mit Build 2026-10-11-B (Deployment siehe Nachtrag unten).
+- Letzter Stand: Commit 45f2ce6 (Build 2026-10-11-B), Deployment **https://fasanerie-nord-2-k14lp1mtc-benni1893s-projects.vercel.app** (Status READY).
 
 ## 8. iPhone-Testliste
 
@@ -387,4 +387,5 @@ Abschnitt 4, Schritte 1 bis 3.
 |---|---|---|
 | de9ec4a | O0 Bestandsaufnahme | (keine) |
 | 21f04a3 | O1 Migration 0061, Prüfskripte | 2026-10-11-A |
-| (Frontend-Commit) | O2 bis O9 Frontend, Stand-in, Prüfungen, Bericht | 2026-10-11-B |
+| 45f2ce6 | O2 bis O9 Frontend, Stand-in, Prüfungen, Bericht | 2026-10-11-B |
+| (dieser) | Bericht: Commit und Vorschau nachgetragen | (keine) |
