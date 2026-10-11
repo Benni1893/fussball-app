@@ -4395,3 +4395,7 @@ body:has(.nsb-ov) .app-nav { visibility: hidden; }
 .kpi.is-nv { background: var(--line); }
 .st-hinweis, .sb-hinweis { margin: 10px 0 0; font-size: 13px; line-height: 1.4; color: var(--muted); }
 .st-hinweis .link-btn { display: inline-flex; align-items: center; min-height: var(--tap); padding: 0 2px; }
+/* Trainer-Link (0063): Zwischenueberschrift im Onboarding, Link im Blatt */
+.ob-zwischen { margin: 14px 2px 6px; font-size: 13px; font-weight: 600; color: var(--muted); text-align: left; }
+.tl-link { word-break: break-all; font-size: 13px; }
+.nsb-fuss .btn.nsb-sek.nsb-rot-text { color: var(--red-ink); }

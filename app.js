@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-11-D";
+  var APP_BUILD = "2026-10-11-E";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -8052,6 +8052,7 @@
   let einladungToken = null;          // aus #einladung=<token>, bis zur Registrierung im Speicher
   let einladungInfo = null;           // { gueltig, mannschaft }
   let obDatenschutz = false, obGesundheit = false, obPos = null;
+  let obKader = null, obKaderFrei = null;  // Trainer-Link (0063): "nicht", "neu" oder id; freie Kadereintraege
   let mannschaft = null;              // Seite "Rollen verwalten": Einladung, Anfragen, Mitglieder, Protokoll
   const POSITIONEN = [["torwart", "Torwart"], ["abwehr", "Abwehr"], ["mittelfeld", "Mittelfeld"], ["sturm", "Sturm"]];
   const positionName = (p) => (POSITIONEN.find(([w]) => w === p) || [])[1] || "";
@@ -8107,11 +8108,13 @@
     const k = kontoStand || {};
     if (k.freigabe === "abgelehnt") return "abgelehnt";
     if (!k.datenschutz) return "datenschutz";
-    if (k.freigabe === "aktiv") return null;
+    if (k.freigabe === "aktiv" && !k.onboarding_offen) return null;
     if (!k.position) return "position";
+    // Trainer-Link (0063): sofort aktiv, aber dasselbe Onboarding plus "Spielst du mit?".
+    if (k.onboarding_offen && !k.hat_spieler && k.spielt_mit == null) return "kader";
     if (!istStandalone() && !lsLies("fn_ob_home")) return "home";
     if (istStandalone() && !lsLies("fn_ob_push") && pushZustand(pushUmgebung()) === "bereit") return "push";
-    return "warten";
+    return k.onboarding_offen ? "fertig" : "warten";
   }
   function obRahmen(schritt, nr, gesamt, titel, text, inhalt, fuss) {
     document.body.classList.add("auth-mode");
@@ -8132,7 +8135,7 @@
     if (!s) { authError = ""; authInfo = ""; init(); return; }
     const k = kontoStand || {};
     const standalone = istStandalone();
-    const liste = ["datenschutz", "position"].concat(standalone
+    const liste = ["datenschutz", "position"].concat(k.onboarding_offen ? ["kader"] : [], standalone
       ? (pushZustand(pushUmgebung()) === "bereit" || lsLies("fn_ob_push") ? ["push"] : [])
       : ["home"]);
     const nr = liste.indexOf(s) + 1, ges = liste.length;
@@ -8140,7 +8143,7 @@
     const weiter = (was, text, an) => '<button type="button" class="btn btn-primary ob-weiter" data-ob="' + was + '"' + (an === false ? " disabled" : "") + '>' + text + '</button>';
 
     if (s === "datenschutz") {
-      const bestand = k.freigabe === "aktiv";
+      const bestand = k.freigabe === "aktiv" && !k.onboarding_offen;
       obRahmen(s, bestand ? 0 : nr, ges, "Datenschutz",
         (bestand ? "Bevor es weitergeht, brauchen wir einmal deine Zustimmung. " : "") +
         "Die App speichert deinen Namen, deine E-Mail, Zu- und Absagen, Strafen und Zahlungen, damit die Mannschaft planen kann. " +
@@ -8165,6 +8168,28 @@
         weiter("position", "Weiter", !!wahl) + spaeter);
       return;
     }
+    if (s === "kader") {
+      if (!obKaderFrei) {
+        obRahmen(s, nr, ges, "Spielst du mit?", "Lade den Kader …", "", spaeter);
+        DB.kaderFrei().then((l) => { obKaderFrei = l || []; }, () => { obKaderFrei = []; }).then(() => { if (obSchritt() === "kader") renderOnboarding(); });
+        return;
+      }
+      const zeile = (w, titel, wert) => einZeileHtml({ attr: 'data-ob-kader="' + esc(w) + '" aria-pressed="' + (obKader === w) + '"', titel: titel, wert: obKader === w ? "Gewählt" : (wert || ""), chev: false });
+      obRahmen(s, nr, ges, "Spielst du mit?",
+        "Wenn du selbst spielst, wähle deinen Eintrag im Kader oder lege einen neuen an. Sonst bist du nur als Trainer dabei.",
+        '<div class="ein-gruppe ob-gruppe">' + zeile("nicht", "Ich spiele nicht mit") + zeile("neu", "Neuer Kadereintrag", k.anzeigename || "") + '</div>' +
+        (obKaderFrei.length ? '<p class="ob-zwischen">Oder dein Eintrag im Kader</p><div class="ein-gruppe ob-gruppe">' +
+          obKaderFrei.map((p) => zeile(p.id, p.name, p.nummer != null ? "Nr. " + p.nummer : "")).join("") + '</div>' : ""),
+        weiter("kader", "Weiter", !!obKader) + spaeter);
+      return;
+    }
+    if (s === "fertig") {
+      obRahmen(s, 0, 0, "Alles bereit",
+        "Willkommen, " + esc(k.anzeigename || k.name || "") + ". Du bist als Trainer bei " + esc(k.mannschaft || "der Mannschaft") + " dabei.",
+        "", weiter("fertig", "Zur App") +
+        '<button type="button" class="btn ob-sek" data-ob="abmelden">Abmelden</button>');
+      return;
+    }
     if (s === "home") {
       const ios = istAppleGeraet();
       const iphone = '<div class="ob-anl"><h2 class="ob-anl-t">iPhone (Safari)</h2><ol class="ob-liste">' +
@@ -8184,7 +8209,9 @@
     }
     if (s === "push") {
       obRahmen(s, nr, ges, "Mitteilungen erlauben",
-        "So erfährst du sofort, wenn du freigegeben bist, und später, wenn sich ein Termin ändert, jemand kurzfristig absagt oder eine Strafe kommt. Ruhezeiten stellst du in den Einstellungen ein.",
+        (k.onboarding_offen ? "So erfährst du sofort, wenn sich ein Termin ändert, jemand kurzfristig absagt oder eine neue Anfrage kommt. "
+          : "So erfährst du sofort, wenn du freigegeben bist, und später, wenn sich ein Termin ändert, jemand kurzfristig absagt oder eine Strafe kommt. ") +
+        "Ruhezeiten stellst du in den Einstellungen ein.",
         "", weiter("push", "Mitteilungen erlauben") +
         '<button type="button" class="link-btn ob-spaeter" data-ob="push-spaeter">Nicht jetzt</button>');
       return;
@@ -8241,6 +8268,21 @@
       if (w) w.disabled = false;
       return;
     }
+    const kw = ev.target.closest("[data-ob-kader]");
+    if (kw) {
+      obKader = kw.dataset.obKader;
+      karte.querySelectorAll("[data-ob-kader]").forEach((z) => {
+        const gewaehlt = z.dataset.obKader === obKader;
+        z.setAttribute("aria-pressed", gewaehlt ? "true" : "false");
+        let w = z.querySelector(".ein-zeile-w");
+        if (!w) { w = document.createElement("span"); w.className = "ein-zeile-w"; z.appendChild(w); }
+        if (!z.dataset.obWert) z.dataset.obWert = gewaehlt ? "" : w.textContent;
+        w.textContent = gewaehlt ? "Gewählt" : (z.dataset.obWert || "");
+      });
+      const w = karte.querySelector('[data-ob="kader"]');
+      if (w) w.disabled = false;
+      return;
+    }
     const b = ev.target.closest("[data-ob]");
     if (!b || b.disabled) return;
     const was = b.dataset.ob;
@@ -8250,10 +8292,18 @@
         b.disabled = true;
         kontoStand = await DB.einwilligungSetzen("datenschutz", true, DS_FASSUNG);
         if (obGesundheit) kontoStand = await DB.einwilligungSetzen("gesundheit", true, DS_FASSUNG);
-        if (kontoStand && kontoStand.freigabe === "aktiv") { init(); return; }
+        if (kontoStand && kontoStand.freigabe === "aktiv" && !kontoStand.onboarding_offen) { init(); return; }
       } else if (was === "position") {
         b.disabled = true;
         kontoStand = await DB.positionSetzen(obPos || kontoStand.position);
+      } else if (was === "kader") {
+        b.disabled = true;
+        kontoStand = await DB.meinKadereintrag(obKader);
+        obKaderFrei = null;
+      } else if (was === "fertig") {
+        b.disabled = true;
+        kontoStand = await DB.onboardingAbschliessen();
+        init(); return;
       } else if (was === "home") {
         lsSetz("fn_ob_home", "1");
       } else if (was === "installieren") {
@@ -8372,6 +8422,9 @@
     rolle_vergeben: "Rolle vergeben", rolle_entzogen: "Rolle entzogen", entfernt: "aus der Mannschaft entfernt",
     konto_geloescht: "Konto gelöscht", einladung_erstellt: "Einladungslink erstellt",
     einladung_erneuert: "Einladungslink erneuert", paypal_geaendert: "PayPal-Link geändert",
+    trainer_link_erstellt: "Trainer-Link erstellt", trainer_link_widerrufen: "Trainer-Link widerrufen",
+    registriert_trainer: "hat sich über einen Trainer-Link registriert", kader_zugeordnet: "Kadereintrag gewählt",
+    kader_spielt_nicht_mit: "spielt nicht mit",
   };
   function datumKurz(iso, mitZeit) {
     const d = new Date(iso);
@@ -8410,6 +8463,18 @@
       einZeileHtml({ attr: 'data-mf="kopieren"', titel: "Link kopieren", chev: false }) +
       einZeileHtml({ attr: 'data-mf="erneuern"', titel: "Link erneuern", wert: "alter wird ungültig", chev: false }) +
       '</div>';
+    if (Roles.isRealAdmin() && !Roles.isSimulating() && m.tlinks) {
+      const offen = m.tlinks.filter((t) => t.stand === "offen");
+      const rest = m.tlinks.filter((t) => t.stand !== "offen").slice(0, 5);
+      const STAND = { benutzt: "Benutzt", abgelaufen: "Abgelaufen", widerrufen: "Widerrufen" };
+      h += '<div class="group-head"><h2>Trainer-Links</h2></div><div class="ein-gruppe mf-gruppe">' +
+        einZeileHtml({ attr: 'data-mf="tl-neu"', titel: "Trainer-Link erzeugen", wert: "einmal, 7 Tage", chev: false }) +
+        offen.map((t) => einZeileHtml({ attr: 'data-mf-tl="' + esc(t.id) + '"', titel: "Offen bis " + datumKurz(t.gueltig_bis, true), wert: "Teilen" })).join("") +
+        rest.map((t) => einSchalterZeileHtml({ titel: STAND[t.stand] + (t.benutzt_von ? ": " + t.benutzt_von : ""),
+          sub: "erstellt " + datumKurz(t.erstellt_am) + (t.stand === "benutzt" ? ", benutzt " + datumKurz(t.benutzt_am) : t.stand === "widerrufen" ? ", widerrufen " + datumKurz(t.widerrufen_am) : ", lief ab " + datumKurz(t.gueltig_bis)),
+          schalter: "" })).join("") +
+        '</div><p class="ein-hinweis">Nur für dich sichtbar. Wer sich darüber registriert, ist sofort Spieler und Trainer, ohne Freigabe.</p>';
+    }
     h += '<div class="group-head"><h2>Offene Anfragen</h2></div>' + (m.anfragen.length
       ? '<div class="ein-gruppe">' + m.anfragen.map((a) => einZeileHtml({ attr: 'data-mf-anfrage="' + esc(a.id) + '"',
           titel: a.name || a.email, wert: [positionName(a.position), "seit " + datumKurz(a.angefragt_am)].filter(Boolean).join(" · ") })).join("") + '</div>'
@@ -8435,9 +8500,10 @@
     if (!mannschaft) viewEl.innerHTML = '<div class="page-head"><h1>Rollen verwalten</h1></div><div class="empty">Lade Mannschaft …</div>';
     else mannschaftZeichnen();
     try {
-      const [einl, anfragen, mitglieder, protokoll] = await Promise.all([
-        DB.einladungHolen(), DB.anfragenListe(), DB.mitgliederListe(), DB.protokollListe(20)]);
-      mannschaft = { einl: einl, anfragen: anfragen || [], mitglieder: mitglieder || [], protokoll: protokoll || [] };
+      const [einl, anfragen, mitglieder, protokoll, tlinks] = await Promise.all([
+        DB.einladungHolen(), DB.anfragenListe(), DB.mitgliederListe(), DB.protokollListe(20),
+        Roles.isRealAdmin() ? DB.trainerLinksListe() : Promise.resolve(null)]);
+      mannschaft = { einl: einl, anfragen: anfragen || [], mitglieder: mitglieder || [], protokoll: protokoll || [], tlinks: tlinks };
     } catch (err) {
       if (currentView === "admin") viewEl.innerHTML = '<div class="page-head"><h1>Rollen verwalten</h1></div><div class="empty">' + esc(fehlerText(err)) + '</div>';
       return;
@@ -8480,6 +8546,38 @@
         } catch (e) { window.alert("Hat nicht geklappt: " + fehlerText(e)); return; }
         nsbZu("freigabeBlatt");
         await mannschaftNeu();
+      });
+  }
+
+  /* ---- Trainer-Link (0063): teilen, kopieren, widerrufen. Nur Admin. ---- */
+  function trainerLinkOeffnen(t) {
+    const link = einladungLink(t.token);
+    nsbOeffnen("tlBlatt", "Trainer-Link",
+      '<div class="nsb-felder">' +
+        '<div class="nsb-feld"><span class="nsb-l">Gültig bis</span><span class="fg-w">' + esc(datumKurz(t.gueltig_bis, true)) + ' Uhr, nur einmal</span></div>' +
+        '<div class="nsb-feld"><span class="nsb-l">Link</span><span class="fg-w tl-link">' + esc(link) + '</span></div>' +
+        '<div class="ein-gruppe">' + einZeileHtml({ attr: 'data-tl="teilen"', titel: "Link teilen", chev: false }) +
+          einZeileHtml({ attr: 'data-tl="kopieren"', titel: "Link kopieren", chev: false }) + '</div>' +
+        '<p class="ein-hinweis ob-blatt-text">Wer sich darüber registriert, ist sofort Spieler und Trainer. Gib den Link nur der Person, die Trainer werden soll.</p>' +
+      '</div>',
+      '<button type="button" class="btn nsb-sek nsb-rot-text" data-tl="widerrufen">Widerrufen</button>' +
+      '<button type="button" class="btn btn-primary nsb-prim" data-nsb-zu>Fertig</button>',
+      async (ev) => {
+        const b = ev.target.closest("[data-tl]");
+        if (!b) return;
+        if (b.dataset.tl === "teilen") {
+          openShareModal("Trainer-Link teilen", "Mit diesem Link bist du Trainer bei " + ((DEMO && DEMO.teamName) || "unserer Mannschaft") +
+            ". Er gilt einmal bis " + datumKurz(t.gueltig_bis, true) + " Uhr:\n" + link);
+        } else if (b.dataset.tl === "kopieren") {
+          const ok = await copyText(link);
+          tvToast(ok ? "Link kopiert" : "Kopieren ging nicht");
+        } else if (b.dataset.tl === "widerrufen") {
+          if (!window.confirm("Trainer-Link widerrufen? Er funktioniert danach nicht mehr.")) return;
+          try { await DB.trainerLinkWiderrufen(t.id); }
+          catch (e) { window.alert("Hat nicht geklappt: " + fehlerText(e)); return; }
+          nsbZu("tlBlatt"); tvToast("Widerrufen");
+          await mannschaftNeu();
+        }
       });
   }
 
@@ -8529,6 +8627,12 @@
     if (a) { freigabeOeffnen(a.dataset.mfAnfrage); return; }
     const m = ev.target.closest("[data-mf-mitglied]");
     if (m) { rolleOeffnen(m.dataset.mfMitglied); return; }
+    const tl = ev.target.closest("[data-mf-tl]");
+    if (tl && mannschaft && mannschaft.tlinks) {
+      const t = mannschaft.tlinks.find((x) => x.id === tl.dataset.mfTl);
+      if (t && t.token) trainerLinkOeffnen(t);
+      return;
+    }
     const b = ev.target.closest("[data-mf]");
     if (b && mannschaft) {
       const link = mannschaft.einl && mannschaft.einl.token ? einladungLink(mannschaft.einl.token) : "";
@@ -8545,6 +8649,14 @@
         catch (e) { window.alert("Hat nicht geklappt: " + fehlerText(e)); }
       } else if (was === "paypal") {
         paypalOeffnen(false);
+      } else if (was === "tl-neu") {
+        b.disabled = true;
+        try {
+          const t = await DB.trainerLinkErzeugen();
+          mannschaft.tlinks = [Object.assign({ stand: "offen" }, t)].concat(mannschaft.tlinks || []);
+          mannschaftZeichnen();
+          trainerLinkOeffnen(t);
+        } catch (e) { window.alert("Hat nicht geklappt: " + fehlerText(e)); b.disabled = false; }
       }
       return;
     }
@@ -8720,7 +8832,7 @@
         <form class="auth-card" id="authForm" data-mode="${mode}">
           <div class="auth-crest"><img src="assets/logo.png" alt="FC Fasanerie-Nord" /></div>
           <h1 class="auth-title">${titles[mode]}</h1>
-          <p class="auth-sub">${mode === "register" ? "Einladung von " + esc(mannschaftName) : "FC Fasanerie-Nord · Mannschaftsbereich"}</p>
+          <p class="auth-sub">${mode === "register" ? (einladungInfo && einladungInfo.art === "trainer" ? "Einladung als Trainer von " : "Einladung von ") + esc(mannschaftName) : "FC Fasanerie-Nord · Mannschaftsbereich"}</p>
           ${authError ? `<div class="auth-error">${esc(authError)}</div>` : ""}
           ${authInfo ? `<div class="auth-info">${esc(authInfo)}</div>` : ""}
           ${mode === "register" ? `<label class="auth-field"><span>Dein Name</span>
@@ -8880,14 +8992,14 @@
         if (einladungInfo && einladungInfo.gueltig) { if (einl.frisch) authMode = "register"; }
         else if (einladungInfo) {
           lsSetz("fn_einladung", null); einladungToken = null;
-          if (einl.frisch) authError = "Dieser Einladungslink ist nicht mehr gültig. Frag deinen Trainer nach dem aktuellen Link.";
+          if (einl.frisch) authError = "Dieser Einladungslink ist nicht mehr gültig. Frag deinen Trainer nach dem aktuellen Link. Ein Trainer-Link gilt nur einmal und sieben Tage.";
         }
       }
       renderLogin(); boot("ui:login"); hideSplash(); return;
     }
     // Onboarding (0061): wer noch nicht freigegeben ist, sieht nur seine Schritte.
     try { kontoStand = await withTimeout(DB.meinKonto(), 8000, "Konto laden"); } catch (e) { kontoStand = null; }
-    if (kontoStand && (kontoStand.freigabe !== "aktiv" || !kontoStand.datenschutz)) {
+    if (kontoStand && (kontoStand.freigabe !== "aktiv" || !kontoStand.datenschutz || kontoStand.onboarding_offen)) {
       currentUserId = session.user.id;
       renderOnboarding(); boot("ui:onboarding"); hideSplash(); return;
     }
@@ -8904,9 +9016,11 @@
       if (!currentProfile.email) currentProfile.email = session.user.email;
       try { Roles.set(await DB.myRoles()); } catch (e) { Roles.set([]); }
 
-      if (!currentProfile.player_id) { renderPlayerLink(); boot("ui:playerlink"); hideSplash(); return; }
+      // Trainer ueber Trainer-Link, der nicht mitspielt (0063): ohne Kadereintrag in die App.
+      const ohneKader = !!(kontoStand && kontoStand.spielt_mit === false);
+      if (!currentProfile.player_id && !ohneKader) { renderPlayerLink(); boot("ui:playerlink"); hideSplash(); return; }
 
-      state.currentPlayerId = currentProfile.player_id;
+      state.currentPlayerId = currentProfile.player_id || null;
       fillIdentity();
       syncHeaderHeight();
       render();

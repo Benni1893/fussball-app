@@ -157,6 +157,58 @@ for (const [profil, darf] of [['trainer', false], ['kassenwart', true], ['admin'
   pruefe(imProfil === darf && (inRollen === null || inRollen === darf), profil + (darf ? ': PayPal-Link änderbar' : ': kein PayPal-Link zum Ändern (Profil, Rollen verwalten)'), JSON.stringify({ imProfil, inRollen }));
   await ctx.close();
 }
+// 7) Nacharbeit 4: Trainer-Link
+{
+  const { ctx, page } = await seite('anmeldung', null, '#einladung=landkarte-trainer');
+  const t = await page.evaluate(() => ({ h: (document.querySelector('#view h1') || {}).textContent, sub: (document.querySelector('.auth-sub') || {}).textContent }));
+  pruefe(t.h === 'Konto erstellen' && /als Trainer/.test(t.sub), 'Trainer-Link: Registrierung als Trainer gekennzeichnet', JSON.stringify(t));
+  await ctx.close();
+}
+{
+  const { ctx, page } = await seite('neutrainer');
+  pruefe(await h1(page) === 'Datenschutz', 'Trainer-Link-Konto: dasselbe Onboarding ab Datenschutz', await h1(page));
+  pruefe(await page.evaluate(() => /Schritt 1 von 4/.test((document.querySelector('.ob-schritt') || {}).textContent || '')), 'vier Schritte (Datenschutz, Position, Kader, Home)');
+  await page.click('[data-ob-ds]'); await page.click('[data-ob="datenschutz"]'); await page.waitForTimeout(400);
+  pruefe(await h1(page) === 'Deine Position', 'dann Position');
+  await page.click('[data-ob-pos="abwehr"]'); await page.click('[data-ob="position"]'); await page.waitForTimeout(600);
+  const k = await page.evaluate(() => ({ h: (document.querySelector('#view h1') || {}).textContent, wahl: [...document.querySelectorAll('[data-ob-kader]')].map((b) => b.dataset.obKader),
+    weiter: document.querySelector('[data-ob="kader"]') && document.querySelector('[data-ob="kader"]').disabled }));
+  pruefe(k.h === 'Spielst du mit?' && k.wahl[0] === 'nicht' && k.wahl[1] === 'neu' && k.wahl.length === 5 && k.weiter, 'Spielst du mit: nicht, neu, drei freie Einträge, Weiter erst nach Wahl', JSON.stringify(k));
+  await page.click('[data-ob-kader="nicht"]'); await page.click('[data-ob="kader"]'); await page.waitForTimeout(400);
+  pruefe(await h1(page) === 'Zum Home-Bildschirm', 'dann Home-Bildschirm');
+  await page.click('[data-ob="home"]'); await page.waitForTimeout(300);
+  pruefe(await h1(page) === 'Alles bereit', 'Abschluss ohne Wartebildschirm');
+  await page.click('[data-ob="fertig"]'); await page.waitForTimeout(1500);
+  const prot = await page.evaluate(() => (window.__dbProtokoll || []).map((x) => x.methode + (x.methode === 'meinKadereintrag' ? ':' + x.argumente[0] : '')));
+  pruefe(prot.indexOf('meinKadereintrag:nicht') >= 0 && prot.indexOf('onboardingAbschliessen') >= 0, 'Kader-Wahl und Abschluss gespeichert', JSON.stringify(prot));
+  const app = await page.evaluate(() => ({ nav: getComputedStyle(document.querySelector('.app-nav')).display !== 'none', h: (document.querySelector('#view h1') || {}).textContent || '' }));
+  pruefe(app.nav && app.h !== 'Willkommen!', 'ohne Kadereintrag direkt in die App', JSON.stringify(app));
+  await ctx.close();
+}
+{
+  const { ctx, page } = await seite('neutrainer');
+  await page.click('[data-ob-ds]'); await page.click('[data-ob="datenschutz"]'); await page.waitForTimeout(400);
+  await page.click('[data-ob-pos="sturm"]'); await page.click('[data-ob="position"]'); await page.waitForTimeout(600);
+  await page.click('[data-ob-kader="p03"]'); await page.click('[data-ob="kader"]'); await page.waitForTimeout(400);
+  const prot = await page.evaluate(() => (window.__dbProtokoll || []).filter((x) => x.methode === 'meinKadereintrag').map((x) => x.argumente[0]));
+  pruefe(JSON.stringify(prot) === '["p03"]', 'spielt mit: eigener Kadereintrag ohne Konto gewählt', JSON.stringify(prot));
+  await ctx.close();
+}
+for (const profil of ['admin', 'trainer']) {
+  const { ctx, page } = await seite(profil);
+  await page.evaluate(() => { location.hash = '#ansicht=admin'; }); await page.waitForTimeout(800);
+  const g = await page.evaluate(() => ({ gruppe: [...document.querySelectorAll('.group-head h2')].some((e) => e.textContent === 'Trainer-Links'),
+    offen: document.querySelectorAll('[data-mf-tl]').length, neu: !!document.querySelector('[data-mf="tl-neu"]') }));
+  if (profil === 'trainer') { pruefe(!g.gruppe && !g.neu, 'Trainer sieht keine Trainer-Links', JSON.stringify(g)); await ctx.close(); continue; }
+  pruefe(g.gruppe && g.neu && g.offen === 1, 'Admin: Trainer-Links mit Erzeugen und einem offenen Link', JSON.stringify(g));
+  await page.click('[data-mf="tl-neu"]'); await page.waitForTimeout(500);
+  const b = await page.evaluate(() => ({ blatt: !!document.getElementById('tlBlatt'), link: ((document.querySelector('#tlBlatt .tl-link') || {}).textContent || '') }));
+  pruefe(b.blatt && /#einladung=landkarte-trainer-neu$/.test(b.link), 'Erzeugen öffnet das Blatt mit dem neuen Link', JSON.stringify(b));
+  await page.click('#tlBlatt [data-tl="widerrufen"]'); await page.waitForTimeout(600);
+  const prot = await page.evaluate(() => (window.__dbProtokoll || []).filter((x) => /^trainerLink/.test(x.methode)).map((x) => x.methode + ':' + (x.argumente[0] || '')));
+  pruefe(JSON.stringify(prot) === JSON.stringify(['trainerLinkErzeugen:', 'trainerLinkWiderrufen:tl-neu']), 'Widerrufen über das Blatt', JSON.stringify(prot));
+  await ctx.close();
+}
 await browser.close(); server.close();
 console.log(fehler.length ? '--- NICHT bestanden: ' + fehler.length + ' ---' : '--- bestanden ---');
 process.exit(fehler.length ? 1 : 0);

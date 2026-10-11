@@ -662,6 +662,13 @@ window.DB = (function () {
   const paypalFrageErledigt = () => rpc("paypal_frage_erledigt");
   const kontoLoeschen = () => rpc("konto_loeschen");
   const mitgliedEntfernen = (profil) => rpc("mitglied_entfernen", { p_profil: profil });
+  // Trainer-Link (0063): erzeugen, auflisten, widerrufen nur Admin; Kadereintrag im Onboarding.
+  const trainerLinkErzeugen = () => rpc("trainer_link_erzeugen");
+  const trainerLinksListe = () => rpc("trainer_links_liste");
+  const trainerLinkWiderrufen = (id) => rpc("trainer_link_widerrufen", { p_id: id });
+  // wahl: "nicht" (spielt nicht mit), "neu" (neuer Kadereintrag) oder die id eines freien Eintrags
+  const meinKadereintrag = (wahl) => rpc("mein_kadereintrag", { p_player: wahl === "neu" || wahl === "nicht" ? null : wahl, p_neu: wahl === "neu", p_spielt: wahl !== "nicht" });
+  const onboardingAbschliessen = () => rpc("onboarding_abschliessen");
 
   return {
     client, loadAll, setRsvp, deleteRsvp, setFinePaid, deleteFine, addFines, setCalendarHint,
@@ -682,5 +689,6 @@ window.DB = (function () {
     meinKonto, einladungPruefen, einladungHolen, einladungErneuern, einwilligungSetzen, positionSetzen,
     anfragenListe, kaderFrei, anfrageFreigeben, anfrageAblehnen, mitgliederListe, rolleSetzen, protokollListe,
     paypalSetzen, paypalFrageErledigt, kontoLoeschen, mitgliedEntfernen,
+    trainerLinkErzeugen, trainerLinksListe, trainerLinkWiderrufen, meinKadereintrag, onboardingAbschliessen,
   };
 })();

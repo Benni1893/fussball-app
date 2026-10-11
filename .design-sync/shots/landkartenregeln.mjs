@@ -41,10 +41,13 @@ export const AUSLOESER = [
   // Onboarding und Mannschaft (0061)
   { art: 'ob-weiter-ds', sel: '[data-ob="datenschutz"]', vorher: '[data-ob-ds]' },
   { art: 'ob-weiter-pos', sel: '[data-ob="position"]', vorher: '[data-ob-pos="abwehr"]' },
-  { art: 'ob',           sel: '[data-ob]:not([data-ob="datenschutz"]):not([data-ob="position"])', attr: 'data-ob' },
+  // Trainer-Link (0063): Kader-Schritt mit Wahl "spiele nicht mit"
+  { art: 'ob-weiter-kader', sel: '[data-ob="kader"]', vorher: '[data-ob-kader="nicht"]' },
+  { art: 'ob',           sel: '[data-ob]:not([data-ob="datenschutz"]):not([data-ob="position"]):not([data-ob="kader"])', attr: 'data-ob' },
   { art: 'mf',           sel: '[data-mf]', attr: 'data-mf' },
   { art: 'mf-anfrage',   sel: '[data-mf-anfrage]' },
   { art: 'mf-mitglied',  sel: '[data-mf-mitglied]' },
+  { art: 'mf-tl',        sel: '[data-mf-tl]' },
   { art: 'pr-position',  sel: '[data-pr-position]' },
   { art: 'pr-paypal',    sel: '[data-pr-paypal]' },
   { art: 'pr-konto-weg', sel: '[data-pr-konto-weg]' },
@@ -88,6 +91,7 @@ export const UEBERLAGERUNGEN = [
   { id: 'terminModal' }, { id: 'scopeModal' }, { id: 'shareModal' }, { id: 'tvUnsaved' }, { id: 'pushModal' }, { id: 'statusBlatt' }, { id: 'tvTplMenu' }, { id: 'katBlatt' }, { id: 'ksZMenu' }, { id: 'pwBlatt' }, { id: 'statusFenster' },
   { id: 'ksSeite' },
   { id: 'freigabeBlatt' }, { id: 'rolleBlatt' }, { id: 'paypalBlatt' }, { id: 'positionBlatt' }, { id: 'gesundheitBlatt' }, { id: 'kontoWegBlatt' },
+  { id: 'tlBlatt' }, { id: 'kwBlatt' },
   { id: 'ksWahl', blatt: true }, { id: 'ksSheet', blatt: true }, { id: 'ksBl', blatt: true },
   { id: 'zmBl', blatt: true },
   { id: 'tvSheetKader', blatt: true }, { id: 'tvSheetForm', blatt: true }, { id: 'tvSheetMenu', blatt: true },
@@ -186,7 +190,9 @@ export const STRAENGE = {
 const STRANG_DER_ANSICHT = { dashboard: 'uebersicht', strafen: 'konto',
   // Onboarding (0061): Schritte und Wartebildschirm eines Kontos ohne Freigabe
   datenschutz: 'onboarding', 'deine-position': 'onboarding', 'zum-home-bildschirm': 'onboarding',
-  'mitteilungen-erlauben': 'onboarding', 'warte-auf-freigabe': 'onboarding', 'anfrage-abgelehnt': 'onboarding' };
+  'mitteilungen-erlauben': 'onboarding', 'warte-auf-freigabe': 'onboarding', 'anfrage-abgelehnt': 'onboarding',
+  // Trainer-Link (0063)
+  'spielst-du-mit': 'onboarding', 'alles-bereit': 'onboarding' };
 
 /* knoten: Liste eines Profils, kanten: dessen Kanten. Liefert schluessel -> Strang. */
 export function straengeVon(profilName, knoten, kanten) {

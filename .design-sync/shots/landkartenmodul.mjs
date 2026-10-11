@@ -261,6 +261,8 @@ export const PROFILE = {
   admin:             { titel: 'Admin',              rollen: ['player', 'admin'] },
   // Onboarding (0061): angemeldet, aber noch nicht freigegeben. Sieht keine Mannschaftsdaten.
   wartend:           { titel: 'Wartet auf Freigabe', rollen: [], freigabe: 'wartet' },
+  // Trainer-Link (0063): sofort Spieler und Trainer, Onboarding aber noch offen.
+  neutrainer:        { titel: 'Neuer Trainer (Link)', rollen: ['player', 'coach'], onboarding: true },
 };
 
 function profilDaten(name) {
@@ -270,16 +272,21 @@ function profilDaten(name) {
   const userId = 'u-' + name;
   const email = name + '@landkarte.example.invalid';
   const wartet = p.freigabe === 'wartet';
+  const neu = !!p.onboarding;
   const leitung = p.rollen.indexOf('coach') >= 0 || p.rollen.indexOf('admin') >= 0;
   return {
     sitzung: { user: { id: userId, email }, access_token: 'landkarte' },
-    profil: { id: userId, club_id: 'club-1', email, role: 'player', player_id: wartet ? null : EIGENER_SPIELER,
+    profil: { id: userId, club_id: 'club-1', email, role: 'player', player_id: wartet || neu ? null : EIGENER_SPIELER,
               freigabe: wartet ? 'wartet' : 'aktiv',
               created_at: '2026-08-01T10:00:00Z', calendar_token: null,
               calendar_hint_dismissed_at: null, calendar_subscribe_started_at: null },
     rollen: wartet ? [] : p.rollen.slice(),
     // mein_konto() (0061): bestehende Konten haben beide Einwilligungen schon.
-    konto: wartet
+    konto: neu
+      ? { freigabe: 'aktiv', name: 'Tim Trainer', anzeigename: 'Tim Trainer', email, hat_spieler: false, position: null,
+          datenschutz: null, gesundheit: null, paypal_frage: false, leitung: true, onboarding_offen: true, spielt_mit: null,
+          mannschaft: 'SV Musterhausen 2' }
+      : wartet
       ? { freigabe: 'wartet', name: 'Neu Ling', anzeigename: 'Neu Ling', email, hat_spieler: false, position: null,
           datenschutz: null, gesundheit: null, paypal_frage: false, leitung: false, mannschaft: 'SV Musterhausen 2' }
       : { freigabe: 'aktiv', name: null, anzeigename: null, email, hat_spieler: true, position: 'mittelfeld',
@@ -339,7 +346,8 @@ window.DB = (function () {
     listMembers: lies(D.mitglieder),
     /* Onboarding (0061). meinKonto ist zustandsbehaftet, damit sich die Schritte durchklicken lassen. */
     meinKonto: async () => kopie(KONTO),
-    einladungPruefen: async (token) => (token === "landkarte-einladung" ? { gueltig: true, mannschaft: "SV Musterhausen 2" } : { gueltig: false, mannschaft: null }),
+    einladungPruefen: async (token) => (token === "landkarte-einladung" ? { gueltig: true, art: "spieler", mannschaft: "SV Musterhausen 2" }
+      : token === "landkarte-trainer" ? { gueltig: true, art: "trainer", mannschaft: "SV Musterhausen 2" } : { gueltig: false, art: null, mannschaft: null }),
     einladungHolen: lies({ token: "landkarte-einladung", erstellt_am: "2026-09-20T18:00:00Z" }),
     anfragenListe: lies(D.profil.konto && D.profil.konto.leitung ? [{ id: "u-anfrage", name: "Lena Anfrage", email: "lena@landkarte.example.invalid", angefragt_am: "2026-10-02T09:15:00Z", position: "abwehr", freigabe: "wartet", datenschutz: true }] : []),
     kaderFrei: lies(D.daten.players.filter((p) => ["p03", "p04", "p09"].indexOf(p.id) >= 0).map((p) => ({ id: p.id, name: p.name, nummer: p.nr, position: null }))),
@@ -408,6 +416,14 @@ window.DB = (function () {
     paypalFrageErledigt: schreib("paypalFrageErledigt"),
     kontoLoeschen: schreib("kontoLoeschen"),
     mitgliedEntfernen: schreib("mitgliedEntfernen"),
+    /* Trainer-Link (0063) */
+    trainerLinksListe: lies(D.profil.rollen.indexOf('admin') >= 0 ? [
+      { id: 'tl-offen', token: 'landkarte-trainer', erstellt_am: '2026-10-01T18:00:00Z', gueltig_bis: '2026-10-08T18:00:00Z', benutzt_am: null, benutzt_von: null, widerrufen_am: null, stand: 'offen' },
+      { id: 'tl-benutzt', token: null, erstellt_am: '2026-09-20T18:00:00Z', gueltig_bis: '2026-09-27T18:00:00Z', benutzt_am: '2026-09-21T10:00:00Z', benutzt_von: 'Felix Hartmann', widerrufen_am: null, stand: 'benutzt' }] : null),
+    trainerLinkErzeugen: schreib("trainerLinkErzeugen", { id: 'tl-neu', token: 'landkarte-trainer-neu', gueltig_bis: '2026-10-09T16:00:00Z' }),
+    trainerLinkWiderrufen: schreib("trainerLinkWiderrufen"),
+    meinKadereintrag: schreib("meinKadereintrag", (wahl) => { if (KONTO) { KONTO.spielt_mit = wahl !== 'nicht'; KONTO.hat_spieler = wahl !== 'nicht'; } return kopie(KONTO); }),
+    onboardingAbschliessen: schreib("onboardingAbschliessen", () => { if (KONTO) KONTO.onboarding_offen = false; return kopie(KONTO); }),
   };
 })();
 `;

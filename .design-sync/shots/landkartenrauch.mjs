@@ -87,7 +87,7 @@ for (const name of Object.keys(PROFILE)) {
   if (name === 'anmeldung') {
     pruefe(zustand.login, 'Login-Maske steht');
     pruefe(!zustand.nav, 'keine Navigation vor der Anmeldung');
-  } else if (PROFILE[name].freigabe === 'wartet') {
+  } else if (PROFILE[name].freigabe === 'wartet' || PROFILE[name].onboarding) {
     // Onboarding (0061): ohne Freigabe nur die Schritte, keine Mannschaftsdaten.
     pruefe(!zustand.nav && !zustand.login, 'Onboarding statt Navigation');
     pruefe(zustand.titel === 'Datenschutz', 'erster Schritt Datenschutz', zustand.titel);

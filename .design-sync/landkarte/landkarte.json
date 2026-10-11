@@ -9061,6 +9061,41 @@
           "nameQuelle": "ueberschrift"
         },
         {
+          "schluessel": "rollen-verwalten+tlBlatt",
+          "ansicht": "rollen-verwalten",
+          "unter": null,
+          "oben": [
+            "tlBlatt"
+          ],
+          "ueberschrift": "Rollen verwalten",
+          "titel": "Trainer-Link",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "tab5",
+              "wert": null,
+              "text": "Mehr",
+              "global": true
+            },
+            {
+              "art": "mehr",
+              "wert": "admin",
+              "text": "Rollen",
+              "global": false
+            },
+            {
+              "art": "mf",
+              "wert": "tl-neu",
+              "text": "Trainer-Link erzeugeneinmal, 7 Tage",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/rollen-verwalten--tlBlatt.png",
+          "strang": "rollen-verwalten",
+          "name": "Trainer-Link",
+          "nameQuelle": "ueberschrift"
+        },
+        {
           "schluessel": "trainer+rsvpSheet",
           "ansicht": "trainer",
           "unter": null,
@@ -9834,6 +9869,13 @@
         },
         {
           "von": "rollen-verwalten",
+          "art": "mf-tl",
+          "wert": null,
+          "text": "Offen bis 08.10. 20:00Teilen›",
+          "nach": "rollen-verwalten+tlBlatt"
+        },
+        {
+          "von": "rollen-verwalten",
           "art": "mf",
           "wert": "erneuern",
           "text": "Link erneuernalter wird ungültig",
@@ -9852,6 +9894,13 @@
           "wert": "teilen",
           "text": "Link teilen",
           "nach": "rollen-verwalten+shareModal"
+        },
+        {
+          "von": "rollen-verwalten",
+          "art": "mf",
+          "wert": "tl-neu",
+          "text": "Trainer-Link erzeugeneinmal, 7 Tage",
+          "nach": "rollen-verwalten+tlBlatt"
         },
         {
           "von": "strafen",
@@ -10018,6 +10067,7 @@
         "mf",
         "mf-anfrage",
         "mf-mitglied",
+        "mf-tl",
         "nav",
         "paid-self",
         "pr-gesundheit",
@@ -10267,6 +10317,287 @@
       ],
       "schreibaufrufe": [
         "einwilligungSetzen",
+        "positionSetzen"
+      ]
+    },
+    "neutrainer": {
+      "titel": "Neuer Trainer (Link)",
+      "rollen": [
+        "player",
+        "coach"
+      ],
+      "knoten": [
+        {
+          "schluessel": "datenschutz",
+          "ansicht": "datenschutz",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Datenschutz",
+          "titel": "Datenschutz",
+          "tiefe": 0,
+          "pfad": [],
+          "bild": "bilder/neutrainer/datenschutz.png",
+          "strang": "onboarding",
+          "name": "Datenschutz",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "anmeldung/anmelden",
+          "ansicht": "anmeldung",
+          "unter": "anmelden",
+          "oben": [],
+          "ueberschrift": "Anmelden",
+          "titel": "Anmelden",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "ob",
+              "wert": "spaeter",
+              "text": "Später weitermachen",
+              "global": false
+            }
+          ],
+          "bild": "bilder/neutrainer/anmeldung__anmelden.png",
+          "strang": "anmeldung",
+          "name": "Anmelden",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "deine-position",
+          "ansicht": "deine-position",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Deine Position",
+          "titel": "Deine Position",
+          "tiefe": 1,
+          "pfad": [
+            {
+              "art": "ob-weiter-ds",
+              "wert": null,
+              "text": "Weiter",
+              "global": false
+            }
+          ],
+          "bild": "bilder/neutrainer/deine-position.png",
+          "strang": "onboarding",
+          "name": "Deine Position",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "anmeldung/reset-link-senden",
+          "ansicht": "anmeldung",
+          "unter": "reset-link-senden",
+          "oben": [],
+          "ueberschrift": "Passwort zurücksetzen",
+          "titel": "Passwort zurücksetzen",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "ob",
+              "wert": "spaeter",
+              "text": "Später weitermachen",
+              "global": false
+            },
+            {
+              "art": "auth",
+              "wert": "forgot",
+              "text": "Passwort vergessen?",
+              "global": false
+            }
+          ],
+          "bild": "bilder/neutrainer/anmeldung__reset-link-senden.png",
+          "strang": "anmeldung",
+          "name": "Passwort zurücksetzen",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "spielst-du-mit",
+          "ansicht": "spielst-du-mit",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Spielst du mit?",
+          "titel": "Spielst du mit?",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "ob-weiter-ds",
+              "wert": null,
+              "text": "Weiter",
+              "global": false
+            },
+            {
+              "art": "ob-weiter-pos",
+              "wert": null,
+              "text": "Weiter",
+              "global": false
+            }
+          ],
+          "bild": "bilder/neutrainer/spielst-du-mit.png",
+          "strang": "onboarding",
+          "name": "Spielst du mit?",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "zum-home-bildschirm",
+          "ansicht": "zum-home-bildschirm",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Zum Home-Bildschirm",
+          "titel": "Zum Home-Bildschirm",
+          "tiefe": 3,
+          "pfad": [
+            {
+              "art": "ob-weiter-ds",
+              "wert": null,
+              "text": "Weiter",
+              "global": false
+            },
+            {
+              "art": "ob-weiter-pos",
+              "wert": null,
+              "text": "Weiter",
+              "global": false
+            },
+            {
+              "art": "ob-weiter-kader",
+              "wert": null,
+              "text": "Weiter",
+              "global": false
+            }
+          ],
+          "bild": "bilder/neutrainer/zum-home-bildschirm.png",
+          "strang": "onboarding",
+          "name": "Zum Home-Bildschirm",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "alles-bereit",
+          "ansicht": "alles-bereit",
+          "unter": null,
+          "oben": [],
+          "ueberschrift": "Alles bereit",
+          "titel": "Alles bereit",
+          "tiefe": 4,
+          "pfad": [
+            {
+              "art": "ob-weiter-ds",
+              "wert": null,
+              "text": "Weiter",
+              "global": false
+            },
+            {
+              "art": "ob-weiter-pos",
+              "wert": null,
+              "text": "Weiter",
+              "global": false
+            },
+            {
+              "art": "ob-weiter-kader",
+              "wert": null,
+              "text": "Weiter",
+              "global": false
+            },
+            {
+              "art": "ob",
+              "wert": "home",
+              "text": "Weiter",
+              "global": false
+            }
+          ],
+          "bild": "bilder/neutrainer/alles-bereit.png",
+          "strang": "onboarding",
+          "name": "Alles bereit",
+          "nameQuelle": "ueberschrift"
+        }
+      ],
+      "kanten": [
+        {
+          "von": "anmeldung/anmelden",
+          "art": "auth",
+          "wert": "forgot",
+          "text": "Passwort vergessen?",
+          "nach": "anmeldung/reset-link-senden"
+        },
+        {
+          "von": "anmeldung/reset-link-senden",
+          "art": "auth",
+          "wert": "login",
+          "text": "Zurück zur Anmeldung",
+          "nach": "anmeldung/anmelden"
+        },
+        {
+          "von": "datenschutz",
+          "art": "ob-weiter-ds",
+          "wert": null,
+          "text": "Weiter",
+          "nach": "deine-position"
+        },
+        {
+          "von": "datenschutz",
+          "art": "ob",
+          "wert": "spaeter",
+          "text": "Später weitermachen",
+          "nach": "anmeldung/anmelden"
+        },
+        {
+          "von": "deine-position",
+          "art": "ob-weiter-pos",
+          "wert": null,
+          "text": "Weiter",
+          "nach": "spielst-du-mit"
+        },
+        {
+          "von": "deine-position",
+          "art": "ob",
+          "wert": "spaeter",
+          "text": "Später weitermachen",
+          "nach": "anmeldung/anmelden"
+        },
+        {
+          "von": "spielst-du-mit",
+          "art": "ob-weiter-kader",
+          "wert": null,
+          "text": "Weiter",
+          "nach": "zum-home-bildschirm"
+        },
+        {
+          "von": "spielst-du-mit",
+          "art": "ob",
+          "wert": "spaeter",
+          "text": "Später weitermachen",
+          "nach": "anmeldung/anmelden"
+        },
+        {
+          "von": "zum-home-bildschirm",
+          "art": "ob",
+          "wert": "home",
+          "text": "Weiter",
+          "nach": "alles-bereit"
+        }
+      ],
+      "tiefengrenze": [],
+      "ohneWirkung": [],
+      "unbekannt": [],
+      "nichtWiederholbar": [
+        {
+          "knoten": "zum-home-bildschirm",
+          "art": "ob",
+          "wert": "spaeter"
+        },
+        {
+          "knoten": "alles-bereit"
+        }
+      ],
+      "gefundeneArten": [
+        "auth",
+        "ob",
+        "ob-weiter-ds",
+        "ob-weiter-kader",
+        "ob-weiter-pos"
+      ],
+      "schreibaufrufe": [
+        "einwilligungSetzen",
+        "meinKadereintrag",
         "positionSetzen"
       ]
     }
