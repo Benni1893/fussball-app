@@ -389,3 +389,603 @@ Abschnitt 4, Schritte 1 bis 3.
 | 21f04a3 | O1 Migration 0061, Prüfskripte | 2026-10-11-A |
 | 45f2ce6 | O2 bis O9 Frontend, Stand-in, Prüfungen, Bericht | 2026-10-11-B |
 | (dieser) | Bericht: Commit und Vorschau nachgetragen | (keine) |
+
+
+---
+
+# Nachtrag: Onboarding Nacharbeit (11.10.2026)
+
+Branch **`onboarding`**, nicht auf main gemergt, gepusht bis zum
+Berichts-Commit. Stash auf main unberührt. Im Supabase-Dashboard und bei
+Vercel habe ich nichts geändert.
+
+## N0. Ergebnis in Kürze
+
+- **Punkte 1 bis 7 umgesetzt**, je ein Commit (Tabelle N1). Punkt 3 brauchte
+  keine Korrektur, nur Prüfungen.
+- **Neun Migrationen (0062 bis 0070)**, jede erst als Probe mit
+  Zurückrollen, vorher eine Sicherung unter `sicherungen/`. Drei davon sind
+  Korrekturen aus meinen Prüfungen (0066, 0067, 0068), zwei aus der Gegenprüfung (0069, 0070; N3, N4).
+- **Alle 29 Prüfskripte grün**, auch die älteren 0042 bis 0061. Nachgezogen
+  wurden 0050, 0056, 0059 und 0061.
+- **E2E gegen die echte Datenbank:** `onboarding_e2e.mjs` **89/89** (47
+  bisherige plus 42 neue). Danach sind alle Testdaten weg, der Stand ist wie
+  vorher, die 20 Push-Vorlagen sind gleich (N6).
+- **Ein Beinahe-Push an dein Konto ist abgefangen** (N6, Vorfall). Es wurde
+  kein Push versandt.
+- **Pflichtliste 26/26** (neu: `hostpruef`), 390 px **27/27**, Bauteile
+  **17/17**, bei jedem Commit.
+- **Gerätematrix-Teillauf** über 20 neue und geänderte Zustände: nach Korrektur **0 Befunde** außerhalb der Ausnahmeliste (N6).
+- **Gegenprüfung** durch einen getrennten Agenten: 7 Befunde in Runde 1. Vier sind behoben (0069), eine Lücke daraus in Runde 2 ebenfalls (0070). Drei bleiben offen: Live-App auf main, alte Meldungen, Kleinigkeiten (N4, N12).
+- **Beim App-Start gibt es keine fremden Hosts mehr**, nur die eigene
+  Adresse (N8).
+
+## N1. Stand je Punkt
+
+| Punkt | Inhalt | Commit | Build | Stand |
+|---|---|---|---|---|
+| 1 | Schrift (Inter) und supabase-js selbst ausgeliefert, Service Worker cacht sie, `hostpruef` | 251dd6b | 2026-10-11-C | fertig |
+| 2 | Gesundheitsstatus nur mit Einwilligung, „nicht verfügbar“ (0062) | 73fb672 | 2026-10-11-D | fertig |
+| 3 | PayPal nur Kassenwart und Admin: Prüfung, keine Korrektur nötig | c029c0f | (keiner, App unverändert) | fertig |
+| 4 | Trainer-Link (0063) | b858b5e | 2026-10-11-E | fertig |
+| 5 | Kassenwart-Wunsch (0064) | 817b39f | 2026-10-11-F | fertig |
+| 6 | Kassenwart-Wechsel (0065) und Korrekturen (0066 bis 0068) | 457a787 | 2026-10-11-G | fertig |
+| (Gegenprüfung) | Korrekturen aus der Gegenprüfung (0069, 0070), Gerätematrix-Befunde | e8b8d77 | 2026-10-11-H | fertig |
+| 7 | Berichte: Nachtlauf, Vercel-Region, dieser Nachtrag | (dieser Commit) | (keiner) | fertig |
+
+**Punkt 1:** Inter v20 (latin, latin-ext) liegt in `fonts/`, supabase-js
+2.117.3 in `vendor/`. Das ist byte-gleich mit dem bisherigen jsDelivr-Original
+ohne dessen Kopfkommentar. Der Service Worker legt beides beim Installieren
+in den Cache und liefert es von dort. Neu gegen neu ist die Darstellung
+pixelgleich. Gegen die alte Fassung sind die fünf verglichenen Ansichten
+pixelgleich, sobald Google Fonts geladen hatte.
+
+**Punkt 2:**
+- **Ohne Einwilligung** (auch für Spieler ohne Konto) gibt es nur fit,
+  Urlaub und „nicht verfügbar“, jeweils ohne Notiz, mit „voraussichtlich
+  bis“. Verletzt und angeschlagen gehen nur mit Einwilligung. Das prüft der
+  Server (`set_player_status`), die Notiz wird ohne Einwilligung immer
+  verworfen.
+- **Migration 0062** hat die eine bestehende verletzt-Zeile ohne
+  Einwilligung in „nicht verfügbar“ umgewandelt. Die Notiz ist weg, das
+  Datum ist geblieben.
+- **Ein Widerruf** macht dasselbe.
+- **„Nicht verfügbar“ zählt wie verletzt** bei der Status-Ablauf-Mitteilung
+  (0059), beim Rückmelde-Push (Nachfrage geht nicht an ihn) und in der
+  Aufstellung (Bank-Grund).
+- **Trainer:** Bei Spielern ohne Einwilligung zeigt das Status-Blatt nur
+  die drei erlaubten Status, mit Hinweis und ohne Notizfeld. Der Spieler
+  selbst sieht „Erlauben“.
+
+**Punkt 3:**
+- `paypal_setzen` lehnt alle außer Kassenwart und Admin ab, schon seit
+  0061.
+- `team_settings` hat für angemeldete Nutzer keine Schreib-Policy.
+- Die einzige weitere Funktion, die den Link anfasst, ist `rolle_setzen`:
+  Sie blendet ihn beim Entzug der Kassenwart-Rolle aus (E8).
+- Neu: Prüfskript `0061_paypal_rechte_pruef.sql` (22/22), Playwright im
+  Stand-in und gegen die echte Datenbank.
+
+**Punkt 4:**
+- **Rechte:** Trainer-Links erzeugt, listet und widerruft nur der Admin.
+  Jeder Link gilt genau einmal und 7 Tage.
+- **Verbrauch:** Der Link wird im Registrierungs-Trigger verbraucht. Wer zu
+  spät kommt (benutzt, abgelaufen, widerrufen), bekommt kein Konto.
+- **Konto:** sofort aktiv mit Spieler und Trainer, ohne Freigabe.
+- **Onboarding:** dasselbe wie sonst (Datenschutz, Position, Home,
+  Push), dazu „Spielst du mit?“:
+  - freien Kadereintrag wählen;
+  - neuen anlegen, mit Name und Position;
+  - „Ich spiele nicht mit“, dann ohne Kadereintrag.
+  - Danach „Alles bereit“ statt Wartebildschirm.
+- **Oberfläche:** Abschnitt „Trainer-Links“ auf Rollen verwalten, nur für
+  den Admin (auch nicht in der Admin-Vorschau als Trainer). Dort erzeugen,
+  teilen, kopieren und widerrufen; benutzte und abgelaufene Links stehen
+  mit Datum darunter.
+- **Spieler-Link** bleibt einer je Mannschaft bis zum Widerruf (E9). Das
+  Erneuern lässt Trainer-Links stehen.
+
+**Punkt 5:**
+- **Registrierung:** Haken „Ich bin Kassenwart“ nur beim Spieler-Link. Er
+  ist nur ein Wunsch, ohne jedes Recht.
+- **Anfragen:** Die Liste zeigt die Marke „Kassenwart?“.
+- **Freigabe-Blatt:** Der Trainer entscheidet getrennt: freigeben oder
+  ablehnen und „Als Kassenwart bestätigen“ (aus als Vorgabe).
+- **Bestätigung:** Erst sie vergibt die Rolle und setzt die PayPal-Frage
+  (E8).
+- **Protokoll:** bestätigt und nicht bestätigt; bei Ablehnung verfällt der
+  Wunsch.
+- **Ohne Bestätigung** gibt es keinen Zugriff auf Kassendaten: kein
+  Verlauf, kein `kassenwart_offen`, kein PayPal, kein Bestätigen. Geprüft
+  per API, vor und nach der Freigabe.
+
+**Punkt 6:**
+- **Zahlungsziel:** Jede Meldung und jede Bestätigung hält Kassenwart und
+  PayPal-Link fest (Trigger). Der Verlauf der Strafe zeigt sie, z. B.
+  „Gemeldet · an Mara Vogt (paypal.me/…)“.
+- **Entzug mit offenen Meldungen:** Rückfrage „N gemeldete Zahlungen über X
+  € an Name“, dann Abbrechen oder „Trotzdem wechseln“. Beim Wechsel bleiben
+  die Meldungen gemeldet und tragen „An vorherigen Kassenwart gezahlt: Name“
+  auf der Meldekarte und im Blatt.
+- **Ohne offene Meldungen** gibt es keine Rückfrage.
+- **Mehrere Kassenwarte:** Entzieht der Trainer einem von ihnen die Rolle,
+  bleibt der Link des anderen.
+- **Pushs:**
+  - `kasse_neu` an den neuen Kassenwart („Bitte hinterlege deinen
+    PayPal-Link“);
+  - `kasse_abgegeben` an den alten, mit Anzahl übergebener Meldungen;
+  - beide 🔑 nach dem Emoji-System, in Push-Texte unter „Konto“;
+  - Ruhezeiten gelten über `notification_due`.
+- **Bis zum neuen Link** zeigt der Zahlknopf den Hinweis (E8). Danach zahlt
+  der Spieler an den neuen Link. Geprüft gegen die echte Datenbank.
+
+## N2. Annahmen
+
+- **N-A1 Spieler ohne Konto:** Für sie gelten dieselben Regeln wie ohne
+  Einwilligung (fit, Urlaub, nicht verfügbar, ohne Notiz), weil niemand
+  einwilligen kann.
+- **N-A2 Live-App auf main und „nicht verfügbar“:** Die Live-App kennt den
+  neuen Status nicht. Sie zeigt ihn als „nicht fit“ ohne Marke und stürzt
+  nicht ab. Bis zum Merge tritt er nur auf, wenn jemand die Vorschau nutzt
+  oder widerruft.
+- **N-A3 Punkt 3 ohne neuen Build:** Nur Prüfungen, keine App-Änderung,
+  deshalb keine neue Build-Kennung.
+- **N-A4 Position vor „Spielst du mit?“:** Der Trainer-Link-Weg fragt die
+  Position wie jedes Onboarding, auch wenn die Person nicht mitspielt. Sie
+  geht in einen neu angelegten Kadereintrag ein.
+- **N-A5 Trainer-Links in der Liste:** Gezeigt werden die letzten 60 Tage.
+  Den Link selbst (Token) gibt die Liste nur bei offenen Links heraus.
+- **N-A6 Kassenwart-Bestätigung ohne Wunsch:** Der Schalter erscheint nur
+  bei einem Wunsch. Serverseitig vergibt `anfrage_freigeben` die Rolle nur,
+  wenn ein Wunsch vorlag. Ohne Wunsch geht es wie bisher über „Rollen
+  verwalten“.
+- **N-A7 Kein eigener Push bei bestätigtem Wunsch:** Die Person bekommt
+  „Du bist freigegeben“, und die PayPal-Frage erscheint beim Öffnen. Ein
+  zweiter Push im selben Moment wäre doppelt.
+- **N-A8 Zahlungsziel:**
+  - **Bei Meldung** gilt, wer den angezeigten PayPal-Link hinterlegt hat.
+  - **Bei direkter Bestätigung** (bar, ohne Meldung) ist es die
+    bestätigende Person.
+  - **Ohne hinterlegten Link** bleibt die Meldung ohne Ziel.
+- **N-A9 Alte Meldungen ohne Ziel** (fünf, vom 28.09.) zählen zu niemandem
+  und werden beim Wechsel nicht markiert (0066). Wem sie damals galten, ist
+  nicht gespeichert. Raten hätte bestehende Strafen verändert.
+- **N-A10 Push-Vorlagen:** 0065 hat die zwei Vorlagen `kasse_neu` und
+  `kasse_abgegeben` neu angelegt, aktiv. „Ausgangszustand“ heißt hier: Die
+  Tests haben keine Vorlage verändert. Vorher-nachher-Abfrage in N6.
+- **N-A11 „Offene Meldungen“ fehlt in der Landkarte:** Das Blatt öffnet ein
+  Rollenschalter, und die Landkarte schaltet keine Rollen. Ich habe es per
+  Stand-in-Prüfung (`onboardingpruef`), per E2E und per Bild bei 390 px
+  geprüft.
+- **N-A12 Neues Landkarten-Profil** „Neuer Trainer (Link)“ für das offene
+  Onboarding eines Trainer-Link-Kontos. Zwei Warnungen „Pfad nicht
+  wiederholbar“ wie beim Profil „Wartet auf Freigabe“: Das Stand-in merkt
+  sich den Schritt.
+
+## N3. Migrationen und Prüfskripte
+
+Jede Migration ist **ein** `do`-Block mit Gegenprobe. Vor jeder lief die
+Probe mit `rollback` und eine Sicherung unter
+`C:/Users/Benjamin/fussball-app-db/sicherungen/2026-10-11_vor-00xx-…`.
+
+| Migration | Inhalt | Probe | Prüfskript |
+|---|---|---|---|
+| 0062 | Status „nicht verfügbar“, Gesundheit nur mit Einwilligung, Umwandlung (1 Zeile), Widerruf | bestanden | 0062: 28/28 |
+| 0063 | Trainer-Link: Art, gültig bis, einmalig, Admin-RPCs, Registrierung, Onboarding-Kader | bestanden | 0063: 59/59 |
+| 0064 | Kassenwart-Wunsch: Spalte, Registrierung, Anfragen, getrennte Bestätigung | bestanden | 0064: 39/39 |
+| 0065 | Zahlungsziel (Trigger), offene Meldungen, Rollen mit Übergabe, Pushs `kasse_neu`/`kasse_abgegeben` | bestanden (2. Probe, 1. scheiterte an der Erwartung der Gegenprobe) | 0065: 40/40 |
+| 0066 | **Korrektur:** kein Rückfall für Meldungen ohne Ziel | bestanden | 0066: 5/5 (Fälle auch in 0065) |
+| 0067 | **Korrektur:** Konto löschen anonymisiert Zahlungsziel und Trainer-Link | bestanden | 0067: 5/5 (Fall auch in 0065) |
+| 0068 | **Korrektur:** Code neuer Kadereinträge | bestanden | 0068: 4/4 |
+| 0069 | **Gegenprüfung:** Rechte erst nach Datenschutz-Zustimmung im Trainer-Link-Onboarding, keine Selbstvergabe von Kassenwart (außer Admin), Entfernen/Löschen eines Kassenwarts markiert offene Meldungen, kein eigener Wechsel des Kadereintrags | bestanden | 0069: 15/15 |
+| 0070 | **Gegenprüfung Runde 2:** Onboarding-Abschluss nur mit Zustimmung; Trainer-Link-Konten brauchen sie immer | bestanden | 0070: 3/3 (Fälle auch in 0069) |
+| (keine) | Punkt 3 | | `0061_paypal_rechte_pruef`: 22/22 |
+
+Die drei Korrekturen:
+- **0066:** 0065 rechnete Meldungen ohne Ziel dem aktuellen Link-Halter zu.
+  Hätte ein Testkonto den Link gesetzt, wären die fünf echten Meldungen ihm
+  zugeordnet und beim Wechsel markiert worden. Das habe ich vor jedem
+  Test bemerkt; es wurde nichts markiert.
+- **0067:** Beim Löschen des Kassenwarts wären sein Name und PayPal-Name an
+  den Strafen stehen geblieben (gegen E11).
+- **0068:** Echter Fehler seit 0061, im E2E-Lauf gefunden:
+  - Der Code neuer Kadereinträge war `p` plus `lpad(max(Ziffern aller
+    Codes)+1, 2)`.
+  - Der Code eines anonymisierten Ehemaligen (`x` plus md5-Teil) ergab eine
+    große Zahl, und `lpad` kürzte sie auf zwei Stellen.
+  - Folge: Nach der ersten Kontolöschung wäre eine Freigabe mit „Neuer
+    Kadereintrag“ an einem doppelten Code gescheitert.
+  - Jetzt zählen nur Codes `p<Zahl>`, und der Code wird nie gekürzt.
+
+**Alle Prüfskripte** (je Rolle anon, wartet, Spieler, Kassenwart, Trainer,
+Admin, Trainer-Link-Konto, Wunsch, intern; jeder Fall zurückgerollt):
+
+| | | | |
+|---|---|---|---|
+| 0042: 166/166 | 0043: 83/83 | 0044: 13/13 | 0045: 57/57 |
+| 0046: 50/50 | 0048: 37/37 | 0049: 13/13 | 0050: 23/23 |
+| 0051: 10/10 | 0052: 13/13 | 0053: 9/9 | 0054: 17/17 |
+| 0056: 21/21 | 0057: 21/21 | 0058: 8/8 | 0059: 25/25 |
+| 0060: 12/12 | 0061: 101/101 | 0061 PayPal: 22/22 | 0062: 28/28 |
+| 0063: 62/62 | 0064: 39/39 | 0065: 40/40 | 0066: 5/5 |
+| 0067: 5/5 | 0068: 4/4 | 0069: 15/15 | 0070: 3/3 |
+
+Nachgezogen:
+- 0050 und 0059: 55 statt 48 Funktionen für angemeldete Nutzer (0062: 1,
+  0063: 5, 0065: 1);
+- 0056: 20 Vorlagen, Emoji 🔑 für die zwei neuen;
+- 0061: Entzug mit Übergabe;
+- 0063: Trainer-Link-Konto erst nach der Zustimmung mit Leitung und Abschluss (0069, 0070).
+
+## N4. Gegenprüfung
+
+Ein getrennter Agent, der nichts gebaut hat, hat nur den Auftrag, E1 bis
+E11, den Diff seit 45f2ce6 und die Migrationen gelesen. Er hat per Versuch
+geprüft: Transaktionen mit Rollback und Rollen wie bei PostgREST, dazu
+HTTP-Aufrufe als anon. Den Bericht hat er nicht gelesen. Stand und
+Prüfsummen waren vor und nach beiden Runden gleich.
+
+**Runde 1: sieben Befunde.**
+
+| # | Befund | Schwere | Ergebnis |
+|---|---|---|---|
+| 1 | Live-App auf main kennt „nicht verfügbar“ nicht: Kader zeigt „Fit“, Aufstellung zählt ihn als verfügbar. Für Spieler ohne Konto lehnt der Server jetzt verletzt ab (Punkt 2), die Live-App zeigt dann einen Fehler | hoch | **offen**, Entscheidung bei dir (N12, 1) |
+| 2 | Trainer-Link-Konto hat Trainerrechte vor der Datenschutz-Zustimmung (nur in der Oberfläche erzwungen) | mittel | **behoben** (0069, 0070) |
+| 3 | Trainer gibt sich selbst Kassenwart und ändert dann den PayPal-Link (Umweg um Punkt 3) | mittel | **behoben** (0069): Selbstvergabe nur Admin |
+| 4 | Entfernen oder Löschen eines Kassenwarts übergeht offene Meldungen (keine Markierung) | mittel | **behoben** (0069), Rückfragen nennen sie |
+| 5 | Die fünf alten Meldungen zählen beim Wechsel nicht | mittel | **offen**, bewusst (0066), Entscheidung bei dir (N12, 2) |
+| 6 | `set_my_player` (alt, 0061) lässt freigegebene Konten ihren Kadereintrag selbst tauschen (gegen E6) | mittel | **behoben** (0069). Konten ohne Eintrag wählen weiter |
+| 7 | (a) kein `kasse_neu`-Push bei bestätigtem Wunsch; (b) Kader-Wahl im Onboarding bis zum Abschluss änderbar; (c) Verlauf nennt das Ziel nur beim letzten Schritt | niedrig | dokumentiert: N-A7, gewollt, N12 |
+
+Ohne Befund geprüft:
+- Punkt 1: im Code; Netzwerk und Pixel hat er nicht selbst gemessen.
+- Punkt 4.
+- Punkt 5: ohne Bestätigung keine Kassendaten, über alle Wege.
+- Grenzen: kein Merge, Stash da, nur neue Migrationen, keine neuen Dienste
+  oder Datenarten, einzige Datenänderung ist die erlaubte Umwandlung.
+- Testdaten und Vorlagen im Ausgangszustand.
+
+**Runde 2:**
+- Befunde 3, 4 und 6 bestätigt behoben.
+- Befund 2 war umgehbar: Ein direkter Aufruf von `onboarding_abschliessen()`
+  setzte das Onboarding ohne Zustimmung auf erledigt. Behoben mit 0070,
+  danach von mir geprüft (0069-Fälle 14/15, 0070, E2E 89/89).
+- Nichts Neues kaputt:
+  - Bestandskonten bleiben Mitglied mit allen Rollen, auch die zwei ohne
+    Einwilligung;
+  - Konten ohne Eintrag nutzen `set_my_player` weiter;
+  - ein Trainer gibt anderen Kassenwart;
+  - das Trainer-Link-Onboarding läuft nach der Zustimmung durch.
+- Randbemerkung: Wählt ein Trainer-Link-Konto einen bestehenden Eintrag,
+  bleibt dessen Hauptposition; die Onboarding-Position füllt nur leere
+  Einträge. So war es auch bei der Freigabe in 0061.
+
+Zwei Runden waren erlaubt. Die Lücke aus Runde 2 habe ich danach selbst
+behoben und geprüft, eine dritte Gegenprüfung gab es nicht.
+
+## N5. Rechtlich offen
+
+Keine Lösung wurde wegen rechtlicher Zweifel weggelassen. Zu klären bleibt:
+
+1. **Vercel-Funktionsregion `iad1` (Washington, USA).**
+   - Betroffen: Push-Versand (`api/dispatch-push`: Titel und Text, oft mit
+     Namen, und Push-Endpunkte), Kalender-Abo und BFV-Abgleich. Diese
+     Funktionen laufen in den USA.
+   - Das ist eine Übermittlung in ein Drittland: Vercel-DPA mit
+     Standardvertragsklauseln bzw. Data Privacy Framework.
+   - Empfehlung: Region auf Frankfurt (`fra1`) stellen (N7, Schritt 3).
+     Den Code habe ich nicht geändert (`vercel.json` hat kein `regions`),
+     weil das eine Einstellung des Projekts ist.
+2. **Zahlungsziel an der Strafe** (Name und PayPal-Name des Kassenwarts):
+   - Das ist keine neue Datenart; beides war schon in der App gespeichert
+     (Profilname, `team_settings`).
+   - Es ist aber jetzt dauerhaft je Zahlung gespeichert. Beim Löschen des
+     Kontos wird es anonymisiert (0067).
+   - In der Datenschutzerklärung unter „Strafen und Zahlungen“ erwähnen.
+3. **„Nicht verfügbar“:** Bewusst ohne Notiz und ohne Grund, damit daraus
+   keine Gesundheitsangabe wird. Die Umwandlung bestehender Angaben (eine
+   Zeile) hat der Auftrag vorgegeben.
+4. **Unverändert aus dem Vorpaket:** Texte für Datenschutzerklärung und
+   Impressum (Platzhalter), SMTP-Anbieter (EU) für Mails.
+
+## N6. Prüfung
+
+**E2E gegen die echte Datenbank** (`onboarding_e2e.mjs`, lokal mit echter
+`config.js`): **86/86.** Neu sind diese Fälle:
+
+- **Start:** keine fremden Hosts vor der Anmeldung.
+- **Trainer und PayPal:** Der Trainer ändert den Link weder per RPC noch
+  direkt (PATCH: 0 Zeilen) und sieht ihn nicht zum Ändern.
+- **Trainer-Link:**
+  - Nur der Admin sieht und erzeugt ihn; per API lehnt der Server den
+    Trainer ab.
+  - Er gilt 7 Tage. Die Maske zeigt „als Trainer“ und keinen
+    Kassenwart-Haken.
+  - Das Konto ist sofort Spieler und Trainer, ohne Kader; danach ist der
+    Link verbraucht.
+  - Eine zweite Registrierung scheitert, ebenso abgelaufen und widerrufen
+    (Widerruf über das Blatt).
+  - Onboarding: Datenschutz, Position, „Spielst du mit?“ mit neuem
+    Kadereintrag (Name, Position), „Alles bereit“, App.
+- **Kassenwart-Wunsch:**
+  - Haken in der Maske, Marke in den Anfragen.
+  - Vor der Entscheidung per API: keine Strafen, kein Verlauf, keine
+    Teameinstellungen, kein `kassenwart_offen`, kein PayPal.
+  - Bestätigt: Spieler und Kassenwart, PayPal-Frage.
+  - Nicht bestätigt: nur Spieler, auch danach kein Kassenverlauf.
+- **Kassenwart-Wechsel:**
+  - PayPal-Frage, Link gesetzt.
+  - Ohne offene Meldungen: Entzug ohne Rückfrage, Link weg, Rolle wieder
+    vergeben.
+  - Der Spieler zahlt an den Link, die Meldung hält Kassenwart und Link
+    fest.
+  - Mit offener Meldung: Rückfrage „1 gemeldete Zahlung über 6,00 € an …“.
+    Abbrechen ändert nichts.
+  - Neuer Kassenwart, dann trotzdem wechseln: Die Meldung bleibt, ist
+    markiert, der alte Link ist weg, der Wechsel protokolliert.
+  - Bis zum neuen Link kein Zahlknopf, mit Hinweis. Der neue Kassenwart
+    wird gefragt; danach zahlt der Spieler an den neuen Link.
+  - Die neue Kasse sieht die Markierung, und der Verlauf nennt Kassenwart
+    und Link.
+- **Gesundheit (angepasst an Punkt 2):**
+  - Der Widerruf wandelt in „nicht verfügbar“, Notiz weg, Datum bleibt.
+  - Ohne Einwilligung drei Status mit Hinweis.
+  - Verletzt lehnt der Server auch per API ab; „Erlauben“ öffnet die
+    Einwilligung.
+
+**Testkonten** (Gmail-Plus: `wplauck+fne2e<lauf>trainer/spieler/abgelehnt/
+admin/trainerlink/kasseja/kassenein@…`) sind per SQL angelegt, weil die
+Registrierung im Dashboard gesperrt ist. Der Lauf hat keine Mails versandt.
+Während des Laufs waren die fünf Vorlagen `anfrage_neu`,
+`konto_freigegeben`, `rolle_geaendert`, `kasse_neu` und `kasse_abgegeben`
+aus.
+
+**Beleg nach dem Aufräumen**:
+- Stand: Konten/Profile/Spieler/Strafen/Rückmeldungen/Status/Einladungen/
+  Protokoll/Einwilligungen/Outbox/**Sammler**/PayPal/Vorlagen;
+- Vorlagen: `select kategorie, aktiv from notification_templates`.
+
+```
+vorher   3/3/16/308/37/16/0/0/2/35/0/Teamkassefasanerie:799234a7-…/true,true,true,true,true
+nachher  3/3/16/308/37/16/0/0/2/35/0/Teamkassefasanerie:799234a7-…/true,true,true,true,true
+Vorlagen vorher = nachher: alle 20 aktiv außer unterbesetzung (false)
+```
+
+**Vorfall, abgefangen:**
+- **Was passiert ist:** Im ersten vollständigen Lauf hat die Testmeldung
+  einer Zahlung über `report_my_payment` einen Sammeleintrag
+  `zahlung_gemeldet` angelegt. Empfänger war dein echtes Konto (Kassenwart),
+  fällig 14:39 Uhr.
+- **Warum der Vergleich das nicht zeigte:** `notification_sammler` gehörte
+  nicht zum Vergleichsstand. Er war deshalb trotzdem „gleich“.
+- **Gefunden:** über ein rotes Prüfskript (0045).
+- **Behoben:** Ich habe die Zeile um 14:27 Uhr gelöscht. Auslöser und
+  Teststrafe waren schon weg. In der Outbox stand nichts, es kam **kein
+  Push**.
+- **Jetzt:** Der E2E räumt Sammeleinträge mit Testauslöser auf, und der
+  Vergleichsstand enthält die Sammler. Der Lauf danach: vorher und nachher
+  0.
+
+**E2E-Durchgänge:**
+1. 3,5 s Wartezeit zu kurz.
+2. Die Freigabe scheiterte am Kadercode: Das war der Fehler, den 0068
+   behebt.
+3. 86/86.
+4. 86/86 mit Sammler im Stand.
+5. Nach der Gegenprüfung: 89/89, drei Fälle dazu (Trainer-Link-Konto vor der Zustimmung ohne Daten, keine Selbstvergabe von Kassenwart, kein eigener Kaderwechsel).
+
+Die Korrekturen der Läufe 1 und 2 betrafen Werkzeug und Datenbank, nicht
+die Oberfläche.
+
+**Stand-in, Pflichtliste, Landkarte:**
+- **`onboardingpruef`** um diese Fälle erweitert:
+  - ohne Einwilligung;
+  - PayPal je Rolle;
+  - Trainer-Link: Maske, Onboarding mit beiden Kader-Wegen, Admin-Blatt,
+    Trainer ohne Abschnitt;
+  - Kassenwart-Haken, Marke, getrennte Bestätigung;
+  - Rückfrage beim Wechsel mit Abbrechen und Trotzdem;
+  - Markierung und Verlauf.
+- **Neu auf der Pflichtliste:** `hostpruef`.
+- **Landkarte:**
+  - neues Profil „Neuer Trainer (Link)“ (Datenschutz, Position, Spielst du
+    mit?, Home, Alles bereit);
+  - Blatt „Trainer-Link“;
+  - Marke „Kassenwart?“ in den Anfragen;
+  - Markierung „An vorherigen Kassenwart gezahlt“ in Kasse prüfen und im
+    Strafen-Blatt.
+  - Gesamtkarte 14,9 MB (Grenze 15 MB).
+
+**Gerätematrix-Teillauf:**
+
+- **Zustände:** 20 Schlüssel über alle Rollen, je 9 Breiten × 2 Schriftgrößen × 3 Varianten:
+  - Registrierung;
+  - Onboarding (Datenschutz, Position, Spielst du mit?, Alles bereit, Home);
+  - Rollen verwalten mit Trainer-Link-, Freigabe- und Rollen-Blatt;
+  - Kasse prüfen und Strafen-Blatt;
+  - Kader und Status-Blatt;
+  - Übersicht mit Status, Profil mit Status- und Konto-löschen-Blatt.
+- **Runde 1:** 113 Einzelbefunde in 5 Gruppen, alle in neuen Teilen:
+  - Markierung „An vorherigen Kassenwart gezahlt“ abgeschnitten und mit Überlauf (320 und 360 px, 130 %);
+  - Schritt „Spielst du mit?“ mit waagerechtem Überlauf: Der Name in der Zeile „Neuer Kadereintrag“ schrumpfte nicht;
+  - Trefferfläche des Kassenwart-Hakens 22 px.
+- **Behoben:**
+  - Markierung darf umbrechen;
+  - Zeile „Neuer Kadereintrag“ ohne Namen, Werte kürzen mit Auslassungspunkten;
+  - Haken als unsichtbares 44-px-Feld über einem gezeichneten Kästchen.
+- **Runde 2:** **0 Befunde.** Ausnahmen: `zone-alle-bestaetigen` 156, `feld-status-datum` 3 (WebKit).
+- **Runde 3** (nach den Gegenprüfungs-Korrekturen): **0 Befunde**, dieselben Ausnahmen.
+- Ergebnisse unter `.design-sync/geraetematrix/nacharbeit-2026-10-11-n/`, `…-n-r2/` und `…-n-r3/`, Befundbilder nur lokal.
+
+## N7. Dashboard-Schritte für dich
+
+Unverändert offen aus dem Vorpaket (Abschnitt 4): Registrierung
+einschalten, E-Mail-Bestätigung aus, Redirect-URLs, SMTP. Neu:
+
+1. **Supabase:** nichts Neues. Trainer-Link und Kassenwart-Wunsch laufen
+   über dieselbe Registrierung. Solange „Allow new users to sign up“ aus
+   ist, scheitern auch sie mit „Registrieren ist im Moment gesperrt“.
+2. **Vercel › Projekt `fasanerie-nord-2` › Settings › Functions › Function
+   Region:** `Frankfurt, Germany (fra1)` wählen und neu deployen. Heute steht
+   dort `iad1` (Washington). Alternativ in `vercel.json`
+   `"regions": ["fra1"]`, wenn du das im Code haben willst.
+3. Danach in den Vercel-Logs einmal `api/dispatch-push` und
+   `api/calendar` prüfen. Die Supabase-Datenbank liegt in Frankfurt, also
+   werden die Wege kürzer.
+
+## N8. Hosts beim App-Start
+
+Gemessen mit Playwright (`hostpruef`, Pflicht, und im E2E mit echter
+`config.js`):
+- vor der Anmeldung (Anmeldeseite);
+- nach der Anmeldung als Spieler, Trainer und Admin (Stand-in);
+- Datenschutz und Impressum.
+
+**Ergebnis:** Es gibt nur Anfragen an die eigene Adresse.
+`fonts.googleapis.com`, `fonts.gstatic.com` und `cdn.jsdelivr.net` kommen
+nicht mehr vor. Nach der Anmeldung spricht die App mit Supabase (Frankfurt),
+das ist der eigene Dienst. Vor der Anmeldung gibt es keinen Aufruf an
+Supabase, außer beim Prüfen eines Einladungslinks.
+
+## N9. Gerätematrix-Nachtlauf 09.10. (Stash, nur gelesen)
+
+Der Stash `stash@{0}` („Nachtlauf 09.10. Bericht und Ergebnisse, wartet auf
+Entscheidung“) liegt unverändert auf main. Ich habe ihn nur gelesen, nicht
+angewandt.
+
+- **Umfang:**
+  - Build 2026-10-09-R, 200 Zustände: vor der Anmeldung 3, Spieler 19,
+    Kassenwart 28, Trainer 40, Trainer+Kassenwart 53, Admin 57;
+  - je 9 Breiten × 2 Schriftgrößen × 3 Varianten = 10 800 Kombinationen.
+  - Ohne Codeänderung, ohne Datenbank, ohne Push.
+- **Befunde außerhalb der Ausnahmeliste: 0**, in allen drei Varianten.
+  Treffer auf Ausnahmen:
+
+  | Variante | Treffer |
+  |---|---|
+  | Chromium · Inter | 302 |
+  | Chromium · Roboto | 278 |
+  | WebKit · Inter | 283 |
+- **Ausnahmen ohne Treffer:**
+  - **`zone-danach`:** Der Selektor ist richtig, der Fall besteht weiter.
+    Er wird aber nie gemessen, weil „Kalender ›“ über der Danach-Liste
+    unterhalb des ersten Bildschirms liegt. Das ist eine Lücke im Werkzeug
+    (die Trefferprüfung misst nur den ersten Bildschirm); den Text der
+    Ausnahme könnte man aktualisieren.
+  - **`feld-katalogname`:** Der Selektor ist veraltet, das Feld gibt es
+    seit Nachschliff D3 nicht mehr. Die Ausnahme kann entfallen, wenn du
+    das freigibst.
+- Neue Befunde: keine.
+
+## N10. Vercel-Vorschau
+
+- Branch-Adresse:
+  **https://fasanerie-nord-2-git-onboarding-benni1893s-projects.vercel.app**
+- Stand e8b8d77 (Build 2026-10-11-H): Deployment
+  **https://fasanerie-nord-2-non39vkyp-benni1893s-projects.vercel.app**
+  (READY).
+- Der Berichts-Commit danach ändert nur diese Datei.
+
+## N11. iPhone-Testliste (Nacharbeit)
+
+Auf der Vorschau, keine Pushs an Spieler. Vorher Abschnitt 4, Schritte 1
+bis 3 (Registrierung an), sonst geht keine Registrierung.
+
+1. **Start ohne fremde Server:**
+   - Safari › Einstellungen › Erweitert › Website-Daten löschen;
+   - Vorschau öffnen. Die Schrift ist Inter wie bisher, auch offline nach
+     dem ersten Start.
+2. **Gesundheitsstatus:**
+   - Profil › Gesundheitsstatus aus. Ein verletzt wird zu „nicht
+     verfügbar“, die Notiz ist weg, das Datum bleibt.
+   - Übersicht › Mein Status zeigt fit, Nicht verfügbar, Urlaub und
+     „Erlauben“.
+3. **Trainer-Link** (mit deinem Admin-Konto):
+   - Rollen verwalten › Trainer-Links › „Trainer-Link erzeugen“ › Link
+     teilen, z. B. an dich selbst.
+   - Den Link in einem privaten Tab öffnen. Die Maske zeigt „Einladung als
+     Trainer“, ohne Kassenwart-Haken.
+   - Mit einer Gmail-Plus-Adresse registrieren, z. B.
+     `wplauck+trainer1@gmail.com`.
+   - Datenschutz, Position, „Spielst du mit?“ › „Ich spiele nicht mit“,
+     Home, „Alles bereit“ › Zur App. Die Trainer-Ansicht steht sofort,
+     ohne Freigabe.
+   - Denselben Link noch einmal öffnen: „nicht mehr gültig“.
+   - Einen zweiten Link erzeugen und widerrufen; auch er ist dann ungültig.
+4. **Kassenwart-Wunsch:**
+   - Den Spieler-Link in einem privaten Tab öffnen, „Ich bin Kassenwart“
+     anhaken, mit `wplauck+kasse1@gmail.com` registrieren, Onboarding bis
+     Warten.
+   - Mit deinem Konto: Rollen verwalten › Anfrage mit Marke „Kassenwart?“.
+     Freigeben einmal mit „Als Kassenwart bestätigen“ an, einmal (zweites
+     Testkonto) aus.
+   - Das bestätigte Konto wird nach PayPal gefragt; das andere hat keine
+     Kasse.
+5. **Kassenwart-Wechsel:**
+   - Das bestätigte Testkonto setzt einen PayPal-Link.
+   - Das zweite Testkonto bekommt eine Strafe (Kasse › Strafe verhängen)
+     und meldet die Zahlung.
+   - Rollen verwalten › Testkassenwart › Kassenwart aus: Die Rückfrage
+     nennt 1 Meldung und den Betrag. Erst „Abbrechen“, dann einem anderen
+     Konto Kassenwart geben und „Trotzdem wechseln“.
+   - Push „Kasse abgegeben“ und „Du bist jetzt Kassenwart“ kommen außerhalb
+     der Ruhezeit.
+   - Der Spieler sieht keinen Zahlknopf bis zum neuen Link.
+   - Die neue Kasse sieht „An vorherigen Kassenwart gezahlt“; im Verlauf
+     der Strafe steht, an wen gezahlt wurde.
+6. **Aufräumen:**
+   - Testkonten über Profil › Konto löschen oder Rollen verwalten › Aus
+     der Mannschaft entfernen.
+   - Den PayPal-Link der Kasse wieder auf „Teamkassefasanerie“ setzen.
+   - Teststrafen in der Kasse stornieren.
+7. **Wie bisher** (Abschnitt 8 oben): Registrierung, Freigabe, Konto
+   löschen, Seiten Datenschutz und Impressum.
+
+## N12. Offen nach der Nacharbeit
+
+**Offen nach Gegenprüfung (deine Entscheidung):**
+
+1. **Live-App auf main und „nicht verfügbar“ (E10).**
+   - Der eine umgewandelte Status (vorher verletzt) erscheint in der
+     Live-App als „Fit“ und gilt in der Aufstellung als verfügbar.
+   - Setzt ein Trainer in der Live-App bei einem Spieler ohne Konto
+     „verletzt“, kommt eine Fehlermeldung.
+   - Beheben ließe sich das nur auf main (verboten), oder ich hätte die
+     Umwandlung aus Punkt 2 nicht machen dürfen.
+   - Wege: bald mergen (nach deinem Test), oder ein kleiner Hotfix auf main,
+     der „nicht verfügbar“ wie verletzt anzeigt und zählt.
+2. **Fünf alte Meldungen vom 28.09. ohne Zahlungsziel:** Beim ersten echten
+   Kassenwart-Wechsel zählen sie nicht und werden nicht markiert. Wenn du
+   willst, ordne ich sie per ausdrücklicher Entscheidung einmalig dem
+   heutigen Link-Halter zu.
+3. **Kleinere:**
+   - kein `kasse_neu`-Push bei bestätigtem Wunsch (N-A7);
+   - die Kader-Wahl im Onboarding ist bis „Alles bereit“ änderbar (gewollt,
+     Korrektur möglich);
+   - der Verlauf nennt das Ziel nur am letzten Melde- oder Buchungsschritt,
+     frühere Ziele nach einem „zurück auf offen“ sind nicht gespeichert.
+
+**Sonst offen:**
+
+4. Dashboard-Schritte (N7), vor allem Registrierung einschalten und
+   Funktionsregion Frankfurt.
+5. Texte Datenschutzerklärung und Impressum, mit Zahlungsziel und
+   Vercel-Region (N5).
+6. Nachtlauf-Ausnahmen `zone-danach` (Werkzeuglücke) und
+   `feld-katalogname` (kann entfallen), N9.
+7. Merge auf main erst nach deinem Test.
+8. `.design-sync/shots/_p4blick.mjs`: mein Hilfsskript für Sichtbilder,
+   nicht committet, kann weg.
+
+## N13. Commits der Nacharbeit
+
+| Commit | Inhalt | Build |
+|---|---|---|
+| 251dd6b | 1 Schrift und supabase-js selbst ausgeliefert | 2026-10-11-C |
+| 73fb672 | 2 Gesundheitsstatus nur mit Einwilligung (0062) | 2026-10-11-D |
+| c029c0f | 3 PayPal nur Kassenwart und Admin (Prüfung) | (keiner) |
+| b858b5e | 4 Trainer-Link (0063) | 2026-10-11-E |
+| 817b39f | 5 Kassenwart-Wunsch (0064) | 2026-10-11-F |
+| 457a787 | 6 Kassenwart-Wechsel (0065 bis 0068) | 2026-10-11-G |
+| e8b8d77 | Korrekturen aus Gegenprüfung und Gerätematrix (0069, 0070) | 2026-10-11-H |
+| (dieser) | 7 dieser Nachtrag | (keiner) |
