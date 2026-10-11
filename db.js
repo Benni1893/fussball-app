@@ -119,6 +119,9 @@ window.DB = (function () {
         grundbetrag: s.base_amount != null ? Number(s.base_amount) : null,
         zuschlag: Number(s.surcharge) || 0,
         zuschlagAt: s.surcharge_updated_at,
+        // An wen die Zahlung ging (0065): Kassenwart und PayPal-Link beim Melden/Bestaetigen.
+        zahlungAn: s.zahlung_an || null, zahlungAnName: s.zahlung_an_name || null,
+        zahlungAnPaypal: s.zahlung_an_paypal || null, anVorherigen: !!s.an_vorherigen,
         createdAt: s.created_at,
         eventId: s.event_id, auto: s.auto,
         vergehen: s.offense, // Schnappschuss – bleibt, falls Katalogeintrag gelöscht
@@ -657,7 +660,9 @@ window.DB = (function () {
   const anfrageFreigeben = (profil, player, name, kassenwart) => rpc("anfrage_freigeben", { p_profil: profil, p_player: player || null, p_name: name || null, p_kassenwart: !!kassenwart });
   const anfrageAblehnen = (profil) => rpc("anfrage_ablehnen", { p_profil: profil });
   const mitgliederListe = () => rpc("mitglieder_liste");
-  const rolleSetzen = (profil, rolle, an) => rpc("rolle_setzen", { p_profil: profil, p_rolle: rolle, p_an: !!an });
+  // trotzdem (0065): Kassenwart auch bei offenen Meldungen entziehen; die Meldungen gehen markiert an die neue Kasse.
+  const rolleSetzen = (profil, rolle, an, trotzdem) => rpc("rolle_setzen", { p_profil: profil, p_rolle: rolle, p_an: !!an, p_trotzdem: !!trotzdem });
+  const kassenwartOffen = (profil) => rpc("kassenwart_offen", { p_profil: profil });
   const protokollListe = (anzahl) => rpc("protokoll_liste", { p_anzahl: anzahl || 30 });
   const paypalSetzen = (name) => rpc("paypal_setzen", { p_name: name || "" });
   const paypalFrageErledigt = () => rpc("paypal_frage_erledigt");
@@ -691,5 +696,6 @@ window.DB = (function () {
     anfragenListe, kaderFrei, anfrageFreigeben, anfrageAblehnen, mitgliederListe, rolleSetzen, protokollListe,
     paypalSetzen, paypalFrageErledigt, kontoLoeschen, mitgliedEntfernen,
     trainerLinkErzeugen, trainerLinksListe, trainerLinkWiderrufen, meinKadereintrag, onboardingAbschliessen,
+    kassenwartOffen,
   };
 })();

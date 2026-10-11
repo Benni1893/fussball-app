@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-11-F";
+  var APP_BUILD = "2026-10-11-G";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -1666,13 +1666,14 @@
     strafen_offen: "Monatliche Erinnerung an offene Strafen", absage_kurzfristig: "Kurzfristige Absagen",
     meldeschluss_uebersicht: "Übersicht nach Meldeschluss", status_abgelaufen: "Status abgelaufen",
     anfrage_neu: "Neue Anfrage", konto_freigegeben: "Konto freigegeben", rolle_geaendert: "Rolle geändert",
+    kasse_neu: "Kassenwart geworden", kasse_abgegeben: "Kasse abgegeben",
     zahlung_gemeldet: "Zahlung gemeldet", test: "Testnachricht",
   };
   const KAT_THEMEN = [
     ["Termine", ["termin_neu", "termin_geaendert", "rueckmeldung_erinnerung", "rueckmeldung_nachfrage", "termin_abgesagt"]],
     ["Strafen", ["strafe_neu", "zahlung_bestaetigt", "zahlung_abgelehnt", "strafen_offen"]],
     ["Für Trainer", ["absage_kurzfristig", "meldeschluss_uebersicht", "status_abgelaufen", "anfrage_neu"]],
-    ["Konto", ["konto_freigegeben", "rolle_geaendert"]],
+    ["Konto", ["konto_freigegeben", "rolle_geaendert", "kasse_neu", "kasse_abgegeben"]],
     ["Für die Kasse", ["zahlung_gemeldet"]],
   ];
   function pushTexteHtml() {
@@ -5682,6 +5683,7 @@
           <div class="ks-amt">${euro(s.betrag)}</div>
           ${meta ? `<div class="ks-meta">${zartIconHtml(s.sagtZahlart)}<span>${esc(meta)}</span></div>` : ""}
           ${s.sagtNote ? `<div class="ks-zitat">„${esc(s.sagtNote)}"</div>` : ""}
+          ${s.anVorherigen ? `<div class="ks-vorher"><span class="mark is-amber">An vorherigen Kassenwart gezahlt${s.zahlungAnName ? ": " + esc(s.zahlungAnName) : ""}</span></div>` : ""}
           <div class="ks-actions">
             <button class="btn btn-soft btn-danger" data-kasse-reject="${s.id}">Ablehnen</button>
             <button class="btn btn-primary" data-kasse-confirm="${s.id}">Bestätigen</button>
@@ -6679,6 +6681,7 @@
         '<div class="ksd-feld ' + feld.kl + '"><span class="ksd-feld-main"><span class="ksd-betrag">' + euro(s.betrag) + '</span>' +
           '<span class="ksd-zeile">' + feld.zeile + '</span></span><span class="ksd-pille">' + feld.pille + '</span></div>' +
         (s.sagtNote ? '<div class="ksd-notiz">Spieler: „' + esc(s.sagtNote) + '“</div>' : "") +
+        (s.anVorherigen ? '<div class="ksd-notiz">An vorherigen Kassenwart gezahlt' + (s.zahlungAnName ? ": " + esc(s.zahlungAnName) : "") + '</div>' : "") +
         '<div class="ksd-gruppe">Verlauf</div>' +
         '<div class="ksd-verlauf" id="ksBlHist"><div class="ksd-laedt">lädt…</div></div>' +
       '</div>' +
@@ -6704,9 +6707,13 @@
     try { const d = new Date(iso); if (isNaN(d)) return ""; return String(d.getDate()).padStart(2, "0") + "." + String(d.getMonth() + 1).padStart(2, "0") + ". · " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); }
     catch (e) { return ""; }
   }
-  function ksdVerlaufHtml(rows) {
+  function ksdVerlaufHtml(rows, s) {
+    // Das Ziel steht an der Strafe (0065), gilt also fuer die letzte Meldung oder Buchung.
+    let zielIdx = -1;
+    if (s && s.zahlungAnName) rows.forEach((h, i) => { if (h.to === "gemeldet" || h.to === "bestätigt") zielIdx = i; });
     return rows.map((h, i) => {
       const x = ksdSchritt(h), letzter = i === rows.length - 1;
+      if (i === zielIdx) x.d = [x.d, "an " + s.zahlungAnName + (s.zahlungAnPaypal ? " (paypal.me/" + s.zahlungAnPaypal + ")" : "")].filter(Boolean).join(" · ");
       return '<div class="ksd-schritt' + (letzter ? " is-letzter" : "") + '"><span class="ksd-spur"><span class="ksd-punkt ' + x.kl + '"></span>' + (letzter ? "" : '<span class="ksd-linie"></span>') + '</span>' +
         '<span class="ksd-s-main"><span class="ksd-s-t">' + esc(x.t) + '</span>' + (x.d ? '<span class="ksd-s-d">' + esc(x.d) + '</span>' : "") + '</span>' +
         '<span class="ksd-s-z">' + ksdZeit(h.at) + '</span></div>';
@@ -6719,7 +6726,7 @@
       const rows = await DB.fineHistory(id);
       if (!document.getElementById("ksBlHist")) return;
       document.getElementById("ksBlHist").innerHTML =
-        rows.length ? ksdVerlaufHtml(rows) : `<div class="ksd-laedt">Kein Verlauf.</div>`;
+        rows.length ? ksdVerlaufHtml(rows, (DEMO.strafen || []).find((f) => f.id === id)) : `<div class="ksd-laedt">Kein Verlauf.</div>`;
     } catch (e) {
       const b = document.getElementById("ksBlHist");
       if (b) b.innerHTML = `<div class="ksd-laedt">Verlauf nicht ladbar.</div>`;
@@ -8426,6 +8433,8 @@
     trainer_link_erstellt: "Trainer-Link erstellt", trainer_link_widerrufen: "Trainer-Link widerrufen",
     registriert_trainer: "hat sich über einen Trainer-Link registriert", kader_zugeordnet: "Kadereintrag gewählt",
     kader_spielt_nicht_mit: "spielt nicht mit",
+    kassenwart_bestaetigt: "Kassenwart bestätigt", kassenwart_nicht_bestaetigt: "Kassenwart nicht bestätigt",
+    kassenwart_gewechselt: "Kasse mit offenen Meldungen übergeben",
   };
   function datumKurz(iso, mitZeit) {
     const d = new Date(iso);
@@ -8592,6 +8601,20 @@
       });
   }
 
+  /* ---- Kassenwart-Wechsel mit offenen Meldungen (0065) ----------------- */
+  function kassenWechselFragen(x, off) {
+    return new Promise((fertig) => {
+      const n = off.anzahl, text = n === 1 ? "1 gemeldete Zahlung" : n + " gemeldete Zahlungen";
+      const ov = nsbOeffnen("kwBlatt", "Offene Meldungen",
+        '<div class="nsb-felder"><p class="ein-hinweis ob-blatt-text">' + esc(text) + " über " + euro(Number(off.summe) || 0) + " an " + esc(x.name) +
+        " sind noch nicht bestätigt. Beim Wechsel gehen sie an den neuen Kassenwart, markiert als an vorherigen Kassenwart gezahlt.</p></div>",
+        '<button type="button" class="btn nsb-sek" data-nsb-zu>Abbrechen</button>' +
+        '<button type="button" class="btn btn-primary nsb-prim" data-kw-trotzdem>Trotzdem wechseln</button>',
+        async (ev) => { if (ev.target.closest("[data-kw-trotzdem]")) { nsbZu("kwBlatt"); fertig(true); } });
+      ov.__nachZu = () => fertig(false);
+    });
+  }
+
   function rolleOeffnen(id) {
     const x = mannschaft && mannschaft.mitglieder.find((m) => m.id === id);
     if (!x) return;
@@ -8611,9 +8634,19 @@
         if (sw) {
           const r = sw.dataset.rl, an = (x.rollen || []).indexOf(r) < 0;
           if (!an && x.ich && (r === "coach" || r === "admin") && !window.confirm("Dir selbst diese Rolle nehmen?")) return;
+          let trotzdem = false;
+          if (r === "treasurer" && !an) {
+            // 0065: offene Meldungen an diesen Kassenwart? Erst fragen, dann zwei Wege.
+            let off = null;
+            try { off = await DB.kassenwartOffen(x.id); } catch (e) { off = null; }
+            if (off && off.anzahl > 0) {
+              trotzdem = await kassenWechselFragen(x, off);
+              if (!trotzdem) return;
+            }
+          }
           sw.disabled = true;
           try {
-            await DB.rolleSetzen(x.id, r, an);
+            await DB.rolleSetzen(x.id, r, an, trotzdem);
             x.rollen = an ? (x.rollen || []).concat([r]) : (x.rollen || []).filter((y) => y !== r);
             if (x.ich) { try { Roles.set(await DB.myRoles()); } catch (e) {} fillIdentity(); }
           } catch (e) { window.alert("Konnte Rolle nicht ändern: " + fehlerText(e)); }

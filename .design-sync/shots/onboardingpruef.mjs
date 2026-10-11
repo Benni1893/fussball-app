@@ -221,6 +221,33 @@ for (const profil of ['admin', 'trainer']) {
   pruefe(JSON.stringify(prot) === JSON.stringify(['trainerLinkErzeugen:', 'trainerLinkWiderrufen:tl-neu']), 'Widerrufen über das Blatt', JSON.stringify(prot));
   await ctx.close();
 }
+// 8) Nacharbeit 6: Kassenwart-Wechsel mit offenen Meldungen
+{
+  const { ctx, page } = await seite('trainer');
+  await page.evaluate(() => { location.hash = '#ansicht=admin'; }); await page.waitForTimeout(800);
+  await page.click('[data-mf-mitglied="u-k"]'); await page.waitForTimeout(400);
+  await page.click('#rolleBlatt [data-rl="treasurer"]'); await page.waitForTimeout(500);
+  const f = await page.evaluate(() => ({ da: !!document.getElementById('kwBlatt'), text: ((document.querySelector('#kwBlatt .ob-blatt-text') || {}).textContent || '') }));
+  pruefe(f.da && /2 gemeldete Zahlungen über 12,00\s€ an /.test(f.text), 'offene Meldungen: Rückfrage mit Anzahl und Summe', JSON.stringify(f));
+  await page.click('#kwBlatt [data-nsb-zu].nsb-sek'); await page.waitForTimeout(300);
+  let rs = await page.evaluate(() => (window.__dbProtokoll || []).filter((x) => x.methode === 'rolleSetzen').map((x) => x.argumente));
+  pruefe(rs.length === 0, 'Abbrechen: keine Rollenänderung', JSON.stringify(rs));
+  await page.click('#rolleBlatt [data-rl="treasurer"]'); await page.waitForTimeout(500);
+  await page.click('#kwBlatt [data-kw-trotzdem]'); await page.waitForTimeout(500);
+  rs = await page.evaluate(() => (window.__dbProtokoll || []).filter((x) => x.methode === 'rolleSetzen').map((x) => x.argumente));
+  pruefe(JSON.stringify(rs) === JSON.stringify([['u-k', 'treasurer', false, true]]), 'Trotzdem wechseln: Entzug mit Übergabe der Meldungen', JSON.stringify(rs));
+  await ctx.close();
+}
+{
+  const { ctx, page } = await seite('kassenwart', null, '#kasse=pruefen');
+  await page.waitForTimeout(800);
+  const m = await page.evaluate(() => ((document.querySelector('.ks-vorher') || {}).textContent || ''));
+  pruefe(/An vorherigen Kassenwart gezahlt: Mara Vogt/.test(m), 'Kasse prüfen: Meldung an die vorherige Kasse markiert', m);
+  await page.click('.ks-card[data-ks-det]'); await page.waitForTimeout(700);
+  const v = await page.evaluate(() => ({ notiz: [...document.querySelectorAll('#ksBl .ksd-notiz')].map((e) => e.textContent).join('|'), verlauf: ((document.getElementById('ksBlHist') || {}).textContent || '') }));
+  pruefe(/An vorherigen Kassenwart gezahlt: Mara Vogt/.test(v.notiz) && /an Mara Vogt \(paypal\.me\/maravogtkasse\)/.test(v.verlauf), 'Strafe: Verlauf nennt Kassenwart und PayPal-Link', JSON.stringify(v));
+  await ctx.close();
+}
 await browser.close(); server.close();
 console.log(fehler.length ? '--- NICHT bestanden: ' + fehler.length + ' ---' : '--- bestanden ---');
 process.exit(fehler.length ? 1 : 0);

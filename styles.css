@@ -4405,3 +4405,5 @@ body:has(.nsb-ov) .app-nav { visibility: hidden; }
 .auth-check span { font-size: 15px; font-weight: 600; color: var(--ink); line-height: 1.3; }
 .auth-check small { display: block; margin-top: 2px; font-size: 12px; font-weight: 400; color: var(--muted); }
 .fg-kw-marke { flex: 0 0 auto; margin: 0 8px 0 6px; }
+/* Kassenwart-Wechsel (0065): Markierung auf der Meldekarte */
+.ks-vorher { margin-top: 8px; }

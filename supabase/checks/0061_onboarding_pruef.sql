@@ -125,7 +125,7 @@ begin
         ('Kassenwart setzt PayPal aus einem Link', null, array['select public.paypal_setzen(''https://www.paypal.me/Pruefkasse/12'')::text'], null,
          'select paypal_name from public.team_settings', 'wert:Pruefkasse', array['Kassenwart']),
         ('Entzug der Rolle nimmt den Link des Kassenwarts weg', null,
-         array['select public.paypal_setzen(''Pruefkasse'')::text'], array[format('select set_config(''request.jwt.claims'', %L, true)', json_build_object('sub', v_admin, 'role', 'authenticated')::text), format('select public.rolle_setzen(%L, ''treasurer'', false)::text', v_t)],
+         array['select public.paypal_setzen(''Pruefkasse'')::text'], array[format('select set_config(''request.jwt.claims'', %L, true)', json_build_object('sub', v_admin, 'role', 'authenticated')::text), format('select public.rolle_setzen(%L, ''treasurer'', false, true)::text', v_t)],
          'select coalesce(paypal_name, ''-'') from public.team_settings', 'wert:-', array['Kassenwart']),
         ('ungültiger PayPal-Name', null, array['select public.paypal_setzen(''a b <c>'')::text'], null, null, 'fehler:PayPal', array['Kassenwart']),
 

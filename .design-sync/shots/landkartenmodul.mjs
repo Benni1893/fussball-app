@@ -137,7 +137,8 @@ const STRAFEN = [
   strafe('f02', 'p06', 'k4', 'Handy in der Kabine', 5, '2026-09-29', 'offen'),
   strafe('f03', 'p06', 'k5', 'Trikot vergessen', 3, '2026-09-13', 'bestätigt', { batchId: 'b-01' }),
   strafe('f04', 'p02', 'k3', 'Gelbe Karte wegen Meckern', 10, '2026-09-27', 'gemeldet',
-         { sagtZahlart: 'paypal', sagtNote: 'Gerade überwiesen', gemeldetAm: '2026-10-01T19:12:00Z' }),
+         { sagtZahlart: 'paypal', sagtNote: 'Gerade überwiesen', gemeldetAm: '2026-10-01T19:12:00Z',
+           zahlungAn: 'u-alt', zahlungAnName: 'Mara Vogt', zahlungAnPaypal: 'maravogtkasse', anVorherigen: true }),
   strafe('f05', 'p03', 'k2', 'Zu spät zum Training', 5, '2026-09-29', 'gemeldet',
          { sagtZahlart: 'bar', gemeldetAm: '2026-10-02T09:40:00Z', note: '25 Minuten' }),
   strafe('f06', 'p09', 'k1', 'Verspätete Rückmeldung', 8, '2026-08-30', 'offen',
@@ -424,6 +425,8 @@ window.DB = (function () {
     trainerLinkWiderrufen: schreib("trainerLinkWiderrufen"),
     meinKadereintrag: schreib("meinKadereintrag", (wahl) => { if (KONTO) { KONTO.spielt_mit = wahl !== 'nicht'; KONTO.hat_spieler = wahl !== 'nicht'; } return kopie(KONTO); }),
     onboardingAbschliessen: schreib("onboardingAbschliessen", () => { if (KONTO) KONTO.onboarding_offen = false; return kopie(KONTO); }),
+    /* Kassenwart-Wechsel (0065) */
+    kassenwartOffen: lies({ anzahl: 2, summe: 12 }),
   };
 })();
 `;
