@@ -68,10 +68,11 @@ begin
         ('Trainer: Konto mit Einwilligung angeschlagen', array[format('insert into public.einwilligungen (profile_id, art, fassung) values (%L, ''gesundheit'', ''G1'')', v_t)],
          array[format('select public.set_player_status(%L, ''angeschlagen'', ''Wade'', null)::text', v_p1)], null,
          format('select status || ''/'' || coalesce(status_note, ''-'') from public.player_status where player_id = %L', v_p1), 'wert:angeschlagen/Wade', array['Trainer']),
-        ('Widerruf: verletzt wird nicht verfügbar, Notiz weg, Datum bleibt', null,
+        -- seit 0072: auch das Datum ist nach dem Widerruf weg
+        ('Widerruf: verletzt wird nicht verfügbar, Notiz und Datum weg', null,
          array[format('select public.set_player_status(%L, ''verletzt'', ''Knie'', current_date + 6)::text', v_p1), 'select public.einwilligung_setzen(''gesundheit'', false, null)::text'], null,
-         format('select status || ''/'' || coalesce(status_note, ''-'') || ''/'' || (status_until = current_date + 6)::text from public.player_status where player_id = %L', v_p1),
-         'wert:nicht_verfuegbar/-/true', array['Spieler+E']),
+         format('select status || ''/'' || coalesce(status_note, ''-'') || ''/'' || coalesce(status_until::text, ''-'') from public.player_status where player_id = %L', v_p1),
+         'wert:nicht_verfuegbar/-/-', array['Spieler+E']),
         ('nach dem Widerruf: verletzt wieder verboten', null,
          array['select public.einwilligung_setzen(''gesundheit'', false, null)::text', format('select public.set_player_status(%L, ''verletzt'', null, null)::text', v_p1)], null, null, 'verweigert', array['Spieler+E']),
 

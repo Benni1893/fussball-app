@@ -132,10 +132,10 @@ begin
         -- ---- 6) Gesundheit und Einwilligung --------------------------------------
         ('ohne Einwilligung kein Status verletzt', null, array[format('select public.set_player_status(%L, ''verletzt'', ''Knie'', current_date + 2)::text', v_pl)], null, null, 'verweigert', array['Spieler']),
         ('Trainer setzt verletzt nicht ohne Einwilligung des Kontos', null, array[format('select public.set_player_status(%L, ''angeschlagen'', null, null)::text', v_pl)], null, null, 'verweigert', array['Trainer']),
-        ('mit Einwilligung möglich, Widerruf wandelt in nicht verfügbar um (0062), Notiz weg, Datum bleibt', null,
+        ('mit Einwilligung möglich, Widerruf wandelt in nicht verfügbar um (0062), Notiz und Datum weg (0072)', null,
          array['select public.einwilligung_setzen(''gesundheit'', true, ''2026-10'')::text', format('select public.set_player_status(%L, ''verletzt'', ''Knie'', current_date + 2)::text', v_pl), 'select public.einwilligung_setzen(''gesundheit'', false, null)::text'], null,
          format('select status || ''/'' || coalesce(status_note, ''-'') || ''/'' || coalesce(status_until::text, ''-'') from public.player_status where player_id = %L', v_pl),
-         'wert:nicht_verfuegbar/-/' || (current_date + 2)::text, array['Spieler']),
+         'wert:nicht_verfuegbar/-/-', array['Spieler']),
         ('Urlaub geht ohne Einwilligung', null, array[format('select public.set_player_status(%L, ''urlaub'', null, current_date + 5)::text', v_pl)], null, null, 'ok', array['Spieler']),
         ('Datenschutz lässt sich nicht einzeln widerrufen', null, array['select public.einwilligung_setzen(''datenschutz'', false, null)::text'], null, null, 'fehler:Löschen des Kontos', array['Spieler']),
 
@@ -161,7 +161,7 @@ begin
          format('select (public.einladung_pruefen(%L))->>''gueltig'' || ''/'' || (select count(*) from public.einladungen where widerrufen_am is null)::text', v_tok), 'wert:false/1', array['Trainer']),
         ('bestehende Konten sind aktiv, Rollen unverändert', null, null, null,
          'select (select count(*) from public.profiles where freigabe = ''aktiv'' and email not like ''pruef0061%'')::text || ''/'' || (select count(*) from public.user_roles r join public.profiles p on p.id = r.user_id where p.email not like ''pruef0061%'')::text',
-         'wert:3/5', array['intern']),
+         'wert:2/4', array['intern']),  -- seit 14.10.: Testkonto e-testspieler geloescht (vorher 3/5)
         ('neue Tabellen ohne Policies, RLS an', null, null, null,
          'select (select count(*) from pg_class where relname in (''einladungen'',''konto_protokoll'',''einwilligungen'') and relrowsecurity)::text || ''/'' || (select count(*) from pg_policies where tablename in (''einladungen'',''konto_protokoll'',''einwilligungen''))::text',
          'wert:3/0', array['intern'])
