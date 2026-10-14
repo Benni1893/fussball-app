@@ -12,26 +12,101 @@
     .recht { max-width: 640px; margin: 0 auto; padding: calc(20px + env(safe-area-inset-top)) 16px calc(32px + env(safe-area-inset-bottom)); }
     .recht-zurueck { display: inline-flex; align-items: center; min-height: var(--tap); color: var(--green-800); font-weight: 700; text-decoration: none; }
     .recht h1 { margin: 8px 0 16px; font-size: 28px; font-weight: 800; }
-    .recht h2 { margin: 22px 0 8px; font-size: 16px; font-weight: 700; }
-    .recht p, .recht li { font-size: 15px; line-height: 1.5; color: var(--ink); }
-    .recht-platzhalter { padding: 12px 14px; border-radius: var(--radius-btn); background: var(--amber-050); color: var(--gold-ink-2); font-weight: 600; }
+    .recht h2 { margin: 26px 0 8px; font-size: 18px; font-weight: 700; }
+    .recht h3 { margin: 18px 0 6px; font-size: 16px; font-weight: 700; scroll-margin-top: 16px; }
+    .recht p, .recht li { font-size: 15px; line-height: 1.5; color: var(--ink); overflow-wrap: anywhere; }
+    .recht ul { padding-left: 20px; }
+    .recht a { color: var(--green-800); }
+    .recht-stand { font-size: 13px; color: var(--muted); }
+    .recht :target { background: var(--amber-050); border-radius: var(--radius-box); }
   </style>
 </head>
 <body>
   <main class="recht">
     <a class="recht-zurueck" href="./">‹ Zurück zur App</a>
     <h1>Datenschutzerklärung</h1>
-    <p class="recht-platzhalter">Platzhalter. Den Text dieser Seite liefert der Verein.</p>
-    <h2>Verantwortlich</h2>
-    <p>Platzhalter: Name und Anschrift des Verantwortlichen.</p>
-    <h2>Welche Daten die App speichert</h2>
-    <p>Platzhalter: Name, E-Mail, Position, Zu- und Absagen, Status, Strafen und Zahlungen, Geräte für Mitteilungen, Einwilligungen.</p>
-    <h2>Gesundheitsangaben</h2>
-    <p>Platzhalter: Status angeschlagen oder verletzt nur mit ausdrücklicher Einwilligung, im Profil jederzeit widerrufbar.</p>
-    <h2>Dienste</h2>
-    <p>Platzhalter: Supabase (Frankfurt), Vercel, Push-Dienste von Apple und Google, Google Fonts, jsDelivr, PayPal.</p>
-    <h2>Deine Rechte</h2>
-    <p>Platzhalter: Auskunft, Berichtigung, Löschung (auch direkt im Profil unter „Konto löschen“), Widerspruch, Beschwerde.</p>
+    <p class="recht-stand">Stand: Oktober 2026</p>
+
+    <h2>1. Verantwortlicher</h2>
+    <p>Benjamin Lauck<br>Trollblumenstraße 8c, 80995 München<br>E-Mail: [E-MAIL]</p>
+    <p>Ein Datenschutzbeauftragter ist nicht benannt, da keine gesetzliche Pflicht besteht.</p>
+
+    <h2>2. Worum es geht</h2>
+    <p>Die App organisiert den Mannschaftsbetrieb: Termine, Zusagen und Absagen, Aufstellung, Kader, Strafen und Mannschaftskasse. Es gibt keine Werbung, kein Tracking, keine Analysewerkzeuge und keine Cookies zu Werbe- oder Statistikzwecken. Schriften und Programmbibliotheken werden vom eigenen Server ausgeliefert, beim Start werden außer der Datenbank (Supabase, siehe 4) keine fremden Server aufgerufen.</p>
+
+    <h2>3. Welche Daten verarbeitet werden und warum</h2>
+
+    <h3 id="konto">a) Konto und Anmeldung</h3>
+    <p>Name, E-Mail-Adresse, Passwort (nur als Hash gespeichert), Rolle (Spieler, Trainer, Kassenwart, Admin), Position, Zuordnung zur Mannschaft, Zeitpunkt der Registrierung und Freigabe, Ihre Einwilligungen (Fassung, Zeitpunkt, Widerruf).<br>
+    Zweck: Zugang zur App, Zuordnung zur Mannschaft, Rechteverwaltung.<br>
+    Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Nutzung der App auf Ihren Wunsch).</p>
+    <p>Die Registrierung ist nur über einen Einladungslink möglich und wird erst nach Freigabe durch Trainer oder Admin wirksam; eine Einladung als Trainer gilt sofort. Rollenänderungen und Freigaben werden protokolliert (wer, was, wann), damit Rechtevergaben nachvollziehbar bleiben. Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an Sicherheit und Nachvollziehbarkeit).</p>
+
+    <h3 id="termine">b) Termine, Zusagen und Aufstellung</h3>
+    <p>Ihre Zusage oder Absage zu Terminen, ein optionaler Absagegrund, Ihre Einplanung in Aufstellungen.<br>
+    Sichtbarkeit: Zusagen, Absagen und Absagegründe anderer Spieler sehen nur Trainer und Admin, nicht die übrigen Spieler.<br>
+    Rechtsgrundlage: Art. 6 Abs. 1 lit. b und lit. f DSGVO (Organisation des Spiel- und Trainingsbetriebs).</p>
+
+    <h3 id="strafen">c) Strafen und Mannschaftskasse</h3>
+    <p>Verhängte Strafen (Anlass, Betrag, Datum), Zahlungsmeldungen, Bestätigungen durch den Kassenwart, Verlauf.<br>
+    Sichtbarkeit: In der Mannschaft ist die Kasse bewusst transparent. Strafen und deren Zahlungsstatus sind für alle freigegebenen Mitglieder der Mannschaft sichtbar, einschließlich Notizen zur Strafe, Zahlart, Anmerkungen zur Zahlungsmeldung und Gründen für eine abgelehnte Zahlungsmeldung. Tragen Sie dort deshalb nichts ein, was nicht die ganze Mannschaft lesen soll. Den Bearbeitungsverlauf einer Strafe sehen nur Kassenwart und Admin.<br>
+    Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse der Mannschaft an einer nachvollziehbaren, fairen Kassenführung).</p>
+
+    <h3 id="spielerstatus">d) Spielerstatus</h3>
+    <p>Ohne gesonderte Einwilligung können Sie nur "fit", "Urlaub" oder "nicht verfügbar" angeben, optional mit einem Datum "voraussichtlich bis".</p>
+    <p>Die Angaben "verletzt" und "angeschlagen" sind Gesundheitsdaten. Sie werden nur verarbeitet, wenn Sie vorher ausdrücklich eingewilligt haben (Art. 9 Abs. 2 lit. a DSGVO). Bitte tragen Sie keine Diagnosen ein. Den Status sehen nur Sie selbst, Trainer und Admin.</p>
+    <p>Sie können die Einwilligung jederzeit in den Einstellungen widerrufen. Dann werden die Angabe "verletzt" oder "angeschlagen" mit dem Datum "voraussichtlich bis" sowie jede Notiz sofort gelöscht; ein solcher Status steht danach auf "nicht verfügbar". Die Rechtmäßigkeit der bis dahin erfolgten Verarbeitung bleibt unberührt.</p>
+
+    <h3 id="mitteilungen">e) Push-Mitteilungen</h3>
+    <p>Wenn Sie Mitteilungen erlauben, speichert die App eine technische Adresse Ihres Geräts (Push-Abonnement) sowie Gerätetyp und Browserkennung, um Ihnen Hinweise zu Terminen, Rückmeldungen, Strafen und Zahlungen zu senden. Die Zustellung läuft über den Push-Dienst Ihres Browser- bzw. Geräteherstellers (bei iPhone Apple, bei Android in der Regel Google); dieser erhält die Mitteilung verschlüsselt sowie technische Zustelldaten. Mitteilungen enthalten keine Gesundheitsangaben.<br>
+    Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO (Ihre Einwilligung über die Erlaubnis-Abfrage). Sie können Mitteilungen jederzeit in den Geräte- oder App-Einstellungen abschalten.</p>
+
+    <h3 id="kalender">f) Kalender-Abo</h3>
+    <p>Für das Kalender-Abo erhalten Sie einen persönlichen Link. Wer diesen Link kennt, kann die Termine der Mannschaft abrufen. Geben Sie ihn nicht weiter. Der Link enthält nur Termine, keine Zusagen, Absagen oder Namen. Wenn Sie das Abo in einem Kalenderdienst (z. B. Google, Apple, Microsoft) eintragen, ruft dieser Dienst die Termine regelmäßig ab; dafür gelten dessen Datenschutzbestimmungen.</p>
+
+    <h3 id="technik">g) Technische Daten beim Aufruf</h3>
+    <p>Beim Aufruf der App verarbeiten die Hosting-Anbieter technisch notwendige Daten wie IP-Adresse, Zeitpunkt und abgerufene Datei in Server-Protokollen, um die App auszuliefern und vor Missbrauch zu schützen. Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO.</p>
+
+    <h3 id="lokal">h) Lokale Speicherung auf Ihrem Gerät</h3>
+    <p>Die App speichert auf Ihrem Gerät nur, was für den Betrieb nötig ist (Anmeldesitzung, Schrift und Programmbibliothek für schnelleren Start, Einstellungen, ein technisches Startprotokoll zur Fehlersuche, das auf dem Gerät bleibt, solange Sie es nicht selbst über "Bericht kopieren" weitergeben). Das ist technisch erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG). Beim Abmelden wird die Anmeldesitzung entfernt; Einstellungen, Startprotokoll (das auch die zuletzt aufgerufene Adresse enthält) und das Push-Abonnement bleiben auf dem Gerät.</p>
+
+    <h2>4. Empfänger und Dienstleister</h2>
+    <ul>
+      <li><b>Supabase Inc.</b> (Datenbank, Anmeldung). Die Daten liegen in einem Rechenzentrum in Frankfurt am Main (Region eu-central-1).</li>
+      <li><b>Vercel Inc.</b> (Auslieferung der App und Serverfunktionen). Serverfunktionen laufen in Frankfurt am Main; statische App-Dateien können über das weltweite Auslieferungsnetz von Vercel bereitgestellt werden.</li>
+      <li><b>Push-Dienste</b> des Browser- bzw. Geräteherstellers (z. B. Apple, Google), nur bei erlaubten Mitteilungen (siehe 3e).</li>
+    </ul>
+    <p>Supabase und Vercel sind Unternehmen mit Sitz in den USA. Mit beiden besteht ein Vertrag zur Auftragsverarbeitung. Soweit Daten in die USA übermittelt werden können, erfolgt dies auf Grundlage des Angemessenheitsbeschlusses der EU-Kommission (EU-US Data Privacy Framework), soweit der Anbieter zertifiziert ist, im Übrigen auf Grundlage der EU-Standardvertragsklauseln.</p>
+    <p><b>PayPal:</b> Der Bezahlen-Knopf öffnet einen PayPal.me-Link des Kassenwarts. Diesen Link hinterlegt der Kassenwart selbst; alle Mitglieder der Mannschaft sehen ihn. Die App übermittelt dabei außer dem zu zahlenden Betrag im Link keine Daten an PayPal. Was Sie bei PayPal tun, unterliegt den Datenschutzbestimmungen von PayPal.</p>
+    <p><b>BFV:</b> Die App ruft Spieltermine aus dem öffentlichen Kalender-Export des BFV ab. Dabei werden keine Daten der Nutzer an den BFV übermittelt.</p>
+    <p><b>Google Maps:</b> Ortsangaben bei Terminen sind mit Google Maps verlinkt. Erst wenn Sie einen solchen Link antippen, öffnet sich Google Maps mit der Adresse des Spielorts; dabei gelten die Datenschutzbestimmungen von Google.</p>
+    <p>Eine Weitergabe an sonstige Dritte, ein Verkauf von Daten oder eine Nutzung zu Werbezwecken findet nicht statt.</p>
+
+    <h2>5. Speicherdauer</h2>
+    <ul>
+      <li>Kontodaten: bis zur Löschung Ihres Kontos.</li>
+      <li>Beim Löschen des Kontos werden Ihre personenbezogenen Daten gelöscht oder anonymisiert. Kassenbeträge und der Bearbeitungsverlauf bleiben ohne Personenbezug erhalten, damit die Mannschaftskasse stimmig bleibt. Mitteilungen an andere Mitglieder, die Ihren Namen nennen, werden in der App spätestens nach 90 Tagen gelöscht.</li>
+      <li>Gesundheitsstatus: bis zum Widerruf der Einwilligung oder zur Kontolöschung.</li>
+      <li>Push-Abonnements: bis Sie Mitteilungen in der App abschalten, Ihr Konto löschen oder das Abonnement ungültig wird. Das Abmelden allein beendet Mitteilungen auf diesem Gerät nicht.</li>
+      <li>Mitteilungsverlauf: 90 Tage.</li>
+      <li>Protokoll der Freigaben und Rechtevergaben sowie Einwilligungsnachweise: solange die Mannschaft die App nutzt bzw. bis zur Kontolöschung (das Protokoll dann ohne Namen).</li>
+      <li>Abgelehnte Registrierungen: bis Sie das Konto löschen; das geht direkt auf dem Hinweis zur Ablehnung.</li>
+      <li>Server-Protokolle der Hosting-Anbieter: nach deren Fristen, in der Regel wenige Tage bis Wochen.</li>
+    </ul>
+
+    <h2>6. Minderjährige</h2>
+    <p>Die App richtet sich an Spieler der Mannschaft. Für die Einwilligung in die Angabe von Gesundheitsdaten müssen Sie mindestens 16 Jahre alt sein; unter 16 Jahren ist die Zustimmung eines Erziehungsberechtigten nötig (Art. 8 DSGVO). Ohne diese Einwilligung stehen nur die Angaben "fit", "Urlaub" und "nicht verfügbar" zur Verfügung.</p>
+
+    <h2>7. Ihre Rechte</h2>
+    <p>Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch gegen Verarbeitungen auf Grundlage berechtigter Interessen (Art. 21). Erteilte Einwilligungen können Sie jederzeit mit Wirkung für die Zukunft widerrufen (Art. 7 Abs. 3).</p>
+    <p>Ihr Konto können Sie in den Einstellungen unter "Profil" selbst löschen; als letzter Trainer oder Admin erst, nachdem Sie die Rolle an jemand anderen gegeben haben. Für alle anderen Anliegen genügt eine E-Mail an [E-MAIL].</p>
+    <p>Sie haben außerdem das Recht, sich bei einer Datenschutz-Aufsichtsbehörde zu beschweren. Zuständig ist:<br>
+    Bayerisches Landesamt für Datenschutzaufsicht (BayLDA), Promenade 18, 91522 Ansbach, www.lda.bayern.de</p>
+
+    <h2>8. Änderungen</h2>
+    <p>Diese Erklärung wird angepasst, wenn sich die App oder die Rechtslage ändert. Bei wesentlichen Änderungen werden Sie in der App informiert.</p>
+
+    <p><a href="impressum.html">Zum Impressum</a></p>
   </main>
 </body>
 </html>

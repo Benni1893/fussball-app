@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-11-H";
+  var APP_BUILD = "2026-10-14-A";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -8054,11 +8054,16 @@
      Konto loeschen. Alle Rechte liegen serverseitig in den RPCs aus 0061;
      hier ist nur die Oberflaeche.
      =========================================================================== */
+  const DS_GESUNDHEIT_LINK = "datenschutz.html#spielerstatus";   // Abschnitt 3d
+  // Pflicht-Haken vor jeder Gesundheits-Einwilligung (Art. 8 DSGVO). Nur Oberflaeche,
+  // die Server-Logik der Einwilligung bleibt unveraendert.
+  const ALTER_HAKEN = (attr, an) => '<label class="auth-check"><input type="checkbox" ' + attr + (an ? " checked" : "") + '><i class="auth-check-box" aria-hidden="true"></i>' +
+    '<span>Ich bin mindestens 16 Jahre alt oder ein Erziehungsberechtigter ist einverstanden.</span></label>';
   const DS_FASSUNG = "DS-2026-10";   // Fassung der Datenschutzerklaerung, wird mit der Einwilligung gespeichert
   let kontoStand = null;              // mein_konto(): Freigabe, Einwilligungen, Position, PayPal-Frage
   let einladungToken = null;          // aus #einladung=<token>, bis zur Registrierung im Speicher
   let einladungInfo = null;           // { gueltig, mannschaft }
-  let obDatenschutz = false, obGesundheit = false, obPos = null;
+  let obDatenschutz = false, obGesundheit = false, obAlter = false, obPos = null;
   let obKader = null, obKaderFrei = null;  // Trainer-Link (0063): "nicht", "neu" oder id; freie Kadereintraege
   let mannschaft = null;              // Seite "Rollen verwalten": Einladung, Anfragen, Mitglieder, Protokoll
   const POSITIONEN = [["torwart", "Torwart"], ["abwehr", "Abwehr"], ["mittelfeld", "Mittelfeld"], ["sturm", "Sturm"]];
@@ -8161,8 +8166,10 @@
           einSchalterZeileHtml({ titel: "Verletzt und angeschlagen",
             sub: "Freiwillig: erlaubt Gesundheitsangaben in deinem Status. Im Profil jederzeit widerrufbar.",
             schalter: pnSchalterHtml('data-ob-ge aria-label="Gesundheitsstatus erlauben"', obGesundheit ? "true" : "false") }) +
-        '</div>',
-        weiter("datenschutz", "Weiter", obDatenschutz) +
+        '</div>' +
+        '<div data-ob-alter-wrap' + (obGesundheit ? "" : " hidden") + '>' + ALTER_HAKEN("data-ob-alter", obAlter) +
+          '<p class="auth-sub ob-text"><a href="' + DS_GESUNDHEIT_LINK + '">Gesundheitsangaben in der Datenschutzerklärung</a></p></div>',
+        weiter("datenschutz", "Weiter", obDatenschutz && (!obGesundheit || obAlter)) +
         (bestand ? '<button type="button" class="link-btn ob-spaeter" data-ob="abmelden">Abmelden</button>' : spaeter));
       return;
     }
@@ -8258,8 +8265,17 @@
     if (sw) {
       const an = sw.hasAttribute("data-ob-ds") ? (obDatenschutz = !obDatenschutz) : (obGesundheit = !obGesundheit);
       sw.setAttribute("aria-checked", an ? "true" : "false");
+      const wrap = karte.querySelector("[data-ob-alter-wrap]");
+      if (wrap) wrap.hidden = !obGesundheit;
       const w = karte.querySelector('[data-ob="datenschutz"]');
-      if (w) w.disabled = !obDatenschutz;
+      if (w) w.disabled = !obDatenschutz || (obGesundheit && !obAlter);
+      return;
+    }
+    const alter = ev.target.closest("[data-ob-alter]");
+    if (alter) {
+      obAlter = alter.checked;
+      const w = karte.querySelector('[data-ob="datenschutz"]');
+      if (w) w.disabled = !obDatenschutz || (obGesundheit && !obAlter);
       return;
     }
     const pos = ev.target.closest("[data-ob-pos]");
@@ -8299,7 +8315,7 @@
       if (was === "datenschutz") {
         b.disabled = true;
         kontoStand = await DB.einwilligungSetzen("datenschutz", true, DS_FASSUNG);
-        if (obGesundheit) kontoStand = await DB.einwilligungSetzen("gesundheit", true, DS_FASSUNG);
+        if (obGesundheit && obAlter) kontoStand = await DB.einwilligungSetzen("gesundheit", true, DS_FASSUNG);
         if (kontoStand && kontoStand.freigabe === "aktiv" && !kontoStand.onboarding_offen) { init(); return; }
       } else if (was === "position") {
         b.disabled = true;
@@ -8362,11 +8378,16 @@
   function gesundheitFragen(weiter) {
     nsbOeffnen("gesundheitBlatt", "Gesundheitsstatus erlauben",
       '<div class="nsb-felder"><p class="ein-hinweis ob-blatt-text">Angeschlagen und verletzt sind Gesundheitsangaben. Die App speichert sie nur mit deiner Einwilligung, ' +
-      'sichtbar für Trainer und Admin. Du kannst sie im Profil jederzeit widerrufen, dann werden Status, Notiz und Datum gelöscht.</p></div>',
+      'sichtbar für Trainer und Admin. Du kannst sie im Profil jederzeit widerrufen, dann werden Status, Notiz und Datum gelöscht. ' +
+      '<a href="' + DS_GESUNDHEIT_LINK + '">Mehr dazu in der Datenschutzerklärung</a></p>' + ALTER_HAKEN('data-ge-alter') + '</div>',
       '<button type="button" class="btn nsb-sek" data-nsb-zu>Abbrechen</button>' +
-      '<button type="button" class="btn btn-primary nsb-prim" data-ge-ja>Erlauben</button>',
-      async (ev) => {
+      '<button type="button" class="btn btn-primary nsb-prim" data-ge-ja disabled>Erlauben</button>',
+      async (ev, ov) => {
+        const haken = ov.querySelector("[data-ge-alter]");
+        const ja = ov.querySelector("[data-ge-ja]");
+        if (ev.target.closest("[data-ge-alter]")) { if (ja) ja.disabled = !haken.checked; return; }
         if (!ev.target.closest("[data-ge-ja]")) return;
+        if (!haken || !haken.checked) return;   // ohne Haken keine Einwilligung (Art. 8 DSGVO)
         try { kontoStand = await DB.einwilligungSetzen("gesundheit", true, DS_FASSUNG); await reloadData(); }
         catch (e) { window.alert("Konnte nicht gespeichert werden: " + fehlerText(e)); return; }
         nsbZu("gesundheitBlatt");

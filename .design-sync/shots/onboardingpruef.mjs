@@ -60,7 +60,10 @@ const h1 = (page) => page.evaluate(() => (document.querySelector('#view h1') || 
   pruefe(await h1(page) === 'Datenschutz', 'Schritt 1 Datenschutz');
   pruefe(await page.evaluate(() => !document.querySelector('.tk-btn, .card.tk, [data-rsvp]') && getComputedStyle(document.querySelector('.app-nav')).display === 'none'), 'keine Termine, keine Navigation');
   pruefe(await page.evaluate(() => document.querySelector('[data-ob="datenschutz"]').disabled), 'Weiter erst nach Zustimmung');
-  await page.click('[data-ob-ds]'); await page.click('[data-ob-ge]'); await page.click('[data-ob="datenschutz"]'); await page.waitForTimeout(400);
+  await page.click('[data-ob-ds]'); await page.click('[data-ob-ge]');
+  // Paket Rechtliches B4: Gesundheit nur mit Alters-Haken
+  pruefe(await page.evaluate(() => document.querySelector('[data-ob="datenschutz"]').disabled && !document.querySelector('[data-ob-alter-wrap]').hidden), 'Gesundheit an: Weiter erst mit Alters-Haken');
+  await page.click('.ob-card .auth-check'); await page.click('[data-ob="datenschutz"]'); await page.waitForTimeout(400);
   const w = await page.evaluate(() => (window.__dbProtokoll || []).filter((x) => x.methode === 'einwilligungSetzen').map((x) => x.argumente[0] + ':' + x.argumente[1]));
   pruefe(JSON.stringify(w) === JSON.stringify(['datenschutz:true', 'gesundheit:true']), 'Einwilligungen Datenschutz und Gesundheit getrennt gespeichert', JSON.stringify(w));
   pruefe(await h1(page) === 'Deine Position', 'Schritt 2 Position');
