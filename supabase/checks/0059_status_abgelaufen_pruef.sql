@@ -1,5 +1,7 @@
 -- ============================================================================
 -- Prüfung zu Migration 0059 (Nachschliff C4: status_abgelaufen).
+-- Seit 0073 (14.10.2026) neutrale Texte ohne Statusart und Bis-Datum; die
+-- erwarteten Texte sind entsprechend nachgezogen.
 -- Ändert nichts: jeder Fall läuft in einer Untertransaktion, die immer
 -- zurückgerollt wird. Muster wie 0050_nachfrage_pruef.sql.
 -- Empfänger ist das Nicht-Admin-Profil mit der Trainerrolle (im Fall
@@ -73,7 +75,7 @@ begin
         ('vor 9 Uhr: nichts', v_basis, array['select public.notify_cron_status_abgelaufen(timestamp ''2026-10-11 08:59'' at time zone ''Europe/Berlin'')::text'], null, zaehl, 'wert:0', array['intern']),
         ('9 Uhr, ein Spieler: Titel, Text, Deep Link', v_basis, array[v_lauf], null,
          format('select count(*)::text || '' | '' || max(titel || '' | '' || text || '' | '' || deep_link || '' | '' || urgency) from public.notification_outbox where kategorie = ''status_abgelaufen'' and profile_id = %L', v_nutzer),
-         format('wert:1 | 📋 %s wieder verfügbar | Verletzt, voraussichtlich bis 10.10. Der Status ist noch gesetzt, bitte im Kader prüfen. | #ansicht=kader | normal', v_n1), array['intern']),
+         format('wert:1 | 📋 Status abgelaufen | %s: Status ist abgelaufen, bitte im Kader prüfen. | #ansicht=kader | normal', v_n1), array['intern']),
         ('nur Trainer: der Admin bekommt keine Zeile', v_basis, array[v_lauf], null,
          format('select count(*)::text from public.notification_outbox where kategorie = ''status_abgelaufen'' and profile_id = %L', v_admin), 'wert:0', array['intern']),
         ('einmal je Ablauf: spätere Läufe am Tag reihen nichts nach', v_basis,
@@ -83,10 +85,10 @@ begin
          array['select public.notify_cron_status_abgelaufen(timestamp ''2026-10-11 11:00'' at time zone ''Europe/Berlin'')::text'], null, zaehl, 'wert:1', array['intern']),
         ('zwei Spieler am selben Tag: eine Sammelmitteilung, Dedup je Trainer und Datum', v_basis || array[v_zwei], array[v_lauf], null,
          format('select count(*)::text || '' | '' || max(titel) || '' | '' || max(text) || '' | '' || max(dedup_key) from public.notification_outbox where kategorie = ''status_abgelaufen'' and profile_id = %L', v_nutzer),
-         format('wert:1 | 📋 2 Spieler wieder verfügbar: %s, %s | Voraussichtlich bis 10.10.: %s (verletzt), %s (Urlaub). Der Status ist noch gesetzt, bitte im Kader prüfen. | status_abgelaufen:%s:2026-10-10', v_n1, v_n2, v_n1, v_n2, v_nutzer), array['intern']),
+         format('wert:1 | 📋 Status abgelaufen | Status abgelaufen bei %s, %s. Bitte im Kader prüfen. | status_abgelaufen:%s:2026-10-10', v_n1, v_n2, v_nutzer), array['intern']),
         ('angeschlagen zählt auch', v_basis || array[format('update public.player_status set status = ''angeschlagen'' where player_id = %L', v_p1)], array[v_lauf], null,
          format('select max(text) from public.notification_outbox where kategorie = ''status_abgelaufen'' and profile_id = %L', v_nutzer),
-         'wert:Angeschlagen, voraussichtlich bis 10.10. Der Status ist noch gesetzt, bitte im Kader prüfen.', array['intern']),
+         format('wert:%s: Status ist abgelaufen, bitte im Kader prüfen.', v_n1), array['intern']),
         ('Status bleibt unverändert', v_basis, array[v_lauf], null,
          format('select status || ''/'' || status_until from public.player_status where player_id = %L', v_p1), 'wert:verletzt/2026-10-10', array['intern']),
         ('wieder fit: nichts', v_basis || array[format('update public.player_status set status = ''fit'' where player_id = %L', v_p1)], array[v_lauf], null, zaehl, 'wert:0', array['intern']),
