@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-17-A";
+  var APP_BUILD = "2026-10-17-B";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -5370,17 +5370,23 @@
       ? '<button type="button" class="' + cls + '" data-kb-ziel="' + ziel + '" aria-label="' + label + '">' + inhalt + '</button>'
       : '<div class="' + cls + '">' + inhalt + '</div>';
     const haken = '<span class="kb-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>';
-    const gemeldetZeile = gemeldet.length
-      ? '<span class="kb-open-sub kb-open-gem">davon ' + euro(gemeldetSum) + ' gemeldet, wartet auf Bestätigung</span>' : "";
+    // Gemeldete Strafen: eine Zeile, auch bei langen Betraegen einzeilig. Fuer den
+    // Kassenwart ein eigener Knopf nach "Pruefen und verbuchen".
+    const gemeldetZeile = !gemeldet.length ? "" : kw
+      ? '<button type="button" class="kb-offen-sub kb-offen-gem" data-kb-ziel="pruefen" aria-label="Gemeldete Zahlungen prüfen">' +
+          euro(gemeldetSum) + ' zu prüfen<span class="kb-gem-chev" aria-hidden="true">›</span></button>'
+      : '<span class="kb-offen-sub kb-offen-gem">davon ' + euro(gemeldetSum) + ' gemeldet</span>';
     const titel = leer ? "Nichts offen" : klar ? "Alles bezahlt" : offen.length ? "Noch offen" : "Nichts offen";
     const unter = offen.length
       ? (offen.length === 1 ? "1 Strafe" : offen.length + " Strafen") + " · " + (anzSpieler === 1 ? "1 Spieler" : anzSpieler + " Spieler")
       : "Kein Spieler hat offene Strafen";
     const offenInhalt = (leer || klar ? haken : "") +
-      '<span class="kb-open-main"><span class="kb-open-t">' + titel + '</span>' +
-        '<span class="kb-open-sub">' + unter + '</span>' + gemeldetZeile + '</span>' +
-      '<span class="kb-open-amt' + (offen.length ? "" : " is-null") + '">' + euro(offenSum) + '</span>' +
-      (kw ? '<span class="kb-open-chev" aria-hidden="true">›</span>' : "");
+      '<span class="kb-offen-main">' + (kw
+        ? '<button type="button" class="kb-offen-t kb-offen-hit" data-kb-ziel="offen" aria-label="Offene Strafen ansehen">' + titel + '</button>'
+        : '<span class="kb-offen-t">' + titel + '</span>') +
+        '<span class="kb-offen-sub">' + unter + '</span>' + gemeldetZeile + '</span>' +
+      '<span class="kb-offen-amt' + (offen.length ? "" : " is-null") + '">' + euro(offenSum) + '</span>' +
+      (kw ? '<span class="kb-offen-chev" aria-hidden="true">›</span>' : "");
     return '<section class="kb' + (leer || klar ? " is-clear" : "") + '" aria-label="Mannschaftskasse">' +
       knopf("kb-top", "bezahlt", "Eingegangene Zahlungen ansehen",
         '<img class="kb-crest" src="assets/logo.png" alt="" />' +
@@ -5388,7 +5394,9 @@
         '<span class="kb-value">' + euro(kasseSum) + (kw ? '<span class="kb-chev" aria-hidden="true">›</span>' : "") + '</span>') +
       '<span class="kb-bar" aria-hidden="true"><span class="kb-bar-fill" style="width:' + (leer ? 0 : pct) + '%"></span></span>' +
       '<span class="kb-pct">' + (leer ? "Noch keine Strafen" : pct + " % der Strafen bezahlt") + '</span>' +
-      knopf("kb-open", "offen", "Offene Strafen ansehen", offenInhalt) +
+      // Offen-Flaeche: kein Knopf um den Knopf "zu pruefen". Fuer den Kassenwart legt
+      // "Noch offen" seine Trefferflaeche (::after) ueber die ganze Flaeche.
+      '<div class="kb-offen' + (kw ? " is-link" : "") + '">' + offenInhalt + '</div>' +
     '</section>';
   }
 

@@ -1278,20 +1278,27 @@ Konto-Bereich von `styles.css`, CSS der alten Kacheln entfernt).
 - **Daten:** Oben steht der Kassenstand. Die App führt keine Ausgaben, er ist
   deshalb die Summe der bestätigten Strafen. Der Anteil bezahlt ist
   bestätigt / alle aktiven Strafen. „Noch offen“ zählt nur Status offen
-  (Entscheidung 17.10.2026). Gemeldete Strafen stehen als eigene Zeile
-  darunter („davon X € gemeldet, wartet auf Bestätigung“, Farbe wie die
-  gemeldeten Beträge der Liste), bei 0 entfällt sie. Kasse + offen + gemeldet
-  ergibt die Summe aller Strafen. Solange etwas offen oder gemeldet ist, steht
-  nie „100 %“ (höchstens 99 %). Nur gemeldet, nichts offen: „Nichts offen“,
+  (Entscheidung 17.10.2026). Gemeldete Strafen stehen als eigene, immer
+  einzeilige Zeile darunter, bei 0 entfällt sie: Spieler „davon X € gemeldet“,
+  Kassenwart „X € zu prüfen ›“ als eigener Knopf nach „Prüfen und verbuchen“.
+  Farbe `--amber-ink`, gemessen 5,85:1 auf der Offen-Fläche. Kasse + offen +
+  gemeldet ergibt die Summe aller Strafen. Solange etwas offen oder gemeldet
+  ist, steht nie „100 %“ (höchstens 99 %). Nur gemeldet, nichts offen:
+  „Nichts offen“,
   0,00 € grau, Gemeldet-Zeile, kein Haken.
 - **Vorlagenabgleich:** `nselemente.mjs` misst D1 und D5 jetzt am Banner
   (`.kb`). Eine Figur dafür gibt es in der Vorlage nicht; `soll: null` lässt
   `nsmess.mjs` nur die Ist-Wurzel, die erwarteten Texte und die Knöpfe prüfen.
 - **Zustände:** normal; `.is-clear` für „Alles bezahlt“ (Balken gold, 100 %)
   und für den Saisonstart ohne Strafen („Noch keine Strafen“, „Nichts offen“).
-- **Rollen:** Kassenwart und Admin (`Roles.canManageFines()`) bekommen
-  `.kb-top` und `.kb-open` als `<button>` mit Pfeil: oben → Kasse
-  „Eingegangen“, unten → Kasse „Offen“. Spieler sehen `<div>` ohne Pfeil.
+- **Rollen:** Kassenwart und Admin (`Roles.canManageFines()`): oben ein
+  `<button>` nach „Eingegangen“. Die Offen-Fläche `.kb-offen` ist immer ein
+  `<div>`; „Noch offen“ (`.kb-offen-hit`) legt seine Trefferfläche über die
+  ganze Fläche (Kasse „Offen“), „zu prüfen“ liegt als eigener Knopf darüber.
+  So steckt nie ein Knopf im Knopf. Spieler sehen nur `<div>` ohne Pfeil.
+- **Klassenname:** Die Offen-Fläche hieß zuerst `.kb-open` und kollidierte mit
+  `body.kb-open` (Tastatur offen): bei jedem Fokus in ein Feld bekam der body
+  die Banner-Regeln. Seit 17.10.2026 `.kb-offen*`.
 - **Übersicht:** Das Banner sitzt als letzter Block, ohne eigene Überschrift.
   Die Zeile „Meine Strafen“ für Konten ohne Spielerzuordnung bleibt mit der
   Überschrift „Kasse“ darüber.

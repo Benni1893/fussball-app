@@ -60,12 +60,12 @@ export const NS_ELEMENTE = {
     breite: 390, ohne: ['optional'],
   },
   // D5: Kassenbanner in Konto › Mannschaft (ersetzt seit 15.10.2026 die Kacheln Offen
-  // und In der Kasse), Kassenwart-Sicht mit beiden Knoepfen. Ohne Vorlage-Figur wie D1.
+  // und In der Kasse), Kassenwart-Sicht mit allen drei Knoepfen. Ohne Vorlage-Figur wie D1.
   D5: {
     soll: null,
     ist: { profil: 'kassenwart', schluessel: 'strafen', wurzel: '.kb',
       vorbereitung: async (page) => { await page.click('[data-kseg="team"]'); await page.waitForTimeout(400); } },
-    texte: ['In der Kasse', 'Noch offen'], knoepfe: 2,
+    texte: ['In der Kasse', 'Noch offen'], knoepfe: 3,   // Eingegangen, Offen, zu pruefen (Stand-in hat gemeldete Strafen)
   },
   // D6: Fuß des Rückmeldungen-Blatts (Kopf, Balken, Liste bleiben wie Final 04) und Dialog.
   'D6 Kader': {
