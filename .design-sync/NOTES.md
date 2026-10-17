@@ -1267,3 +1267,65 @@ etwas, bricht der Bau mit dem nötigen Befehl ab. Reihenfolge vor einem Upload:
 `landkarte.mjs`, `landkartenlayout.mjs`, dann wie oben `build.sh`,
 `validate.sh`, `check-conventions.sh`. Am Ende nennt `build.sh` die
 Bundle-Größe.
+
+## Kassenbanner statt Kacheln (15.10.2026)
+
+Die Kacheln „Offen“ / „In der Kasse“ in Konto › Mannschaft und die Kachel
+„Mannschaftskasse“ ganz unten auf der Übersicht sind durch ein gemeinsames
+Kassenbanner ersetzt (`kassenBannerHtml()` in `app.js`, Klassen `.kb*` im
+Konto-Bereich von `styles.css`, CSS der alten Kacheln entfernt).
+
+- **Daten:** Oben steht der Kassenstand. Die App führt keine Ausgaben, er ist
+  deshalb die Summe der bestätigten Strafen. Der Anteil bezahlt ist
+  bestätigt / alle aktiven Strafen. „Noch offen“ zählt nur Status offen
+  (Entscheidung 17.10.2026). Gemeldete Strafen stehen als eigene Zeile
+  darunter („davon X € gemeldet, wartet auf Bestätigung“, Farbe wie die
+  gemeldeten Beträge der Liste), bei 0 entfällt sie. Kasse + offen + gemeldet
+  ergibt die Summe aller Strafen. Solange etwas offen oder gemeldet ist, steht
+  nie „100 %“ (höchstens 99 %). Nur gemeldet, nichts offen: „Nichts offen“,
+  0,00 € grau, Gemeldet-Zeile, kein Haken.
+- **Vorlagenabgleich:** `nselemente.mjs` misst D1 und D5 jetzt am Banner
+  (`.kb`). Eine Figur dafür gibt es in der Vorlage nicht; `soll: null` lässt
+  `nsmess.mjs` nur die Ist-Wurzel, die erwarteten Texte und die Knöpfe prüfen.
+- **Zustände:** normal; `.is-clear` für „Alles bezahlt“ (Balken gold, 100 %)
+  und für den Saisonstart ohne Strafen („Noch keine Strafen“, „Nichts offen“).
+- **Rollen:** Kassenwart und Admin (`Roles.canManageFines()`) bekommen
+  `.kb-top` und `.kb-open` als `<button>` mit Pfeil: oben → Kasse
+  „Eingegangen“, unten → Kasse „Offen“. Spieler sehen `<div>` ohne Pfeil.
+- **Übersicht:** Das Banner sitzt als letzter Block, ohne eigene Überschrift.
+  Die Zeile „Meine Strafen“ für Konten ohne Spielerzuordnung bleibt mit der
+  Überschrift „Kasse“ darüber.
+- **Leerzustand** im Reiter Mannschaft bei Chip „Offen“: „Keine offenen Strafen“.
+- **Prüfung:** `.design-sync/shots/kassenbannerpruef.mjs` (nicht auf der
+  Pflichtliste): zwei Rollen × vier Zustände (normal, alles bezahlt,
+  Saisonstart, lange Beträge 12.345,00 €) × zwei Orte, Sprünge in die Kasse,
+  ≥ 13 px, Trefferflächen ≥ 44 px, kein Umbruch, sichtbare Listeneinträge.
+
+## Vorgemerkt: Paket Zeilenenden (CRLF, .gitattributes)
+
+Die Arbeitskopie hat CRLF (`core.autocrlf=true`). `einpruef`,
+`landkartenrauch` und der Fingerabdruck in `landkartendrift` scheitern daran,
+obwohl der Stand stimmt; deshalb laufen Pflichtlisten bisher in einer
+LF-Arbeitskopie. Eigenes Paket: `.gitattributes` mit `* text=auto eol=lf`
+(Bilder binary), einmal `git add --renormalize .`, Prüfskripte gegen Wagenrücklauf (CR)
+härten, dann wieder direkt im Repo prüfen.
+
+## Merge-Anleitung Branch kassenbanner (nach dem iPhone-Test)
+
+Der Branch `kassenbanner` liegt direkt auf `main` (Basis `0a6c57c`, darin auch
+die beiden Commits des Pakets Rechtliches). Gemergt wird erst nach dem
+iPhone-Test auf der Preview-URL, und nur als Fast-Forward:
+
+```sh
+git checkout main
+git fetch origin
+git merge --ff-only kassenbanner     # bricht ab, falls main inzwischen weitergelaufen ist
+git push origin main                 # loest den Produktions-Deploy aus
+git branch -d kassenbanner
+git push origin --delete kassenbanner
+```
+
+Bricht `--ff-only` ab, hat `main` neue Commits: dann `git rebase main` auf
+`kassenbanner`, Pflichtliste erneut, neuer Preview, erst danach wieder
+Fast-Forward. Vor dem Push auf `main` prüfen, dass die Build-Kennung höher ist
+als die der Produktion (`APP_BUILD`, `BUILD` plus drei Queries, `sw.js`).

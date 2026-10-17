@@ -15,16 +15,19 @@ const strafeD9 = () => { const d = daten(); const x = d.strafen.find((y) => y.id
 const mitStatus = () => { const d = daten(); const p = d.players.find((x) => x.id === 'p06'); Object.assign(p, { status: 'angeschlagen', statusNote: 'Wade zu', statusUntil: '2026-10-18', statusSince: '2026-10-01' }); return d; };
 
 export const NS_ELEMENTE = {
-  // D1: erste Kachel (Betrag offen). Betrag aus dem Stand-in, daher ersetzt.
+  // D1: Kassenbanner unten auf der Uebersicht (ersetzt seit 15.10.2026 die Kachel
+  // Mannschaftskasse). Fuer das Banner gibt es keine Figur in der Vorlage: soll: null,
+  // nsmess prueft die Ist-Wurzel und die erwarteten Texte und legt das Ist-Bild ab.
   D1: {
-    soll: { figur: 'D1', rahmen: 0, wurzel: '(f) => f.children[1]' },
-    ist: { profil: 'spieler', schluessel: 'dashboard', wurzel: '.kasse-kachel' },
-    ersetze: { '37,00 €': '4.606,00 €' }, breiteFrei: ['4.606,00 €'],
+    soll: null,
+    ist: { profil: 'spieler', schluessel: 'dashboard', wurzel: '.kb' },
+    texte: ['In der Kasse', 'Noch offen'],
   },
-  // D1, Zustand nichts offen: Betrag grün (--green-800).
+  // D1, Zustand nichts offen und nichts gemeldet: Alles bezahlt.
   'D1 null': {
-    soll: { figur: 'D1', rahmen: 0, wurzel: '(f) => f.children[3]' },
-    ist: { profil: 'spieler', schluessel: 'dashboard', wurzel: '.kasse-kachel', daten: () => { const d = daten(); d.strafen = d.strafen.filter((x) => x.status !== 'offen'); return d; } },
+    soll: null,
+    ist: { profil: 'spieler', schluessel: 'dashboard', wurzel: '.kb.is-clear', daten: () => { const d = daten(); d.strafen = d.strafen.filter((x) => x.status !== 'offen' && x.status !== 'gemeldet'); return d; } },
+    texte: ['In der Kasse', 'Alles bezahlt', 'Kein Spieler hat offene Strafen'],
   },
   // D2: Popover am ⋯ einer Trainingskarte im Kalender (Trainer-Rechte: alle drei Einträge).
   D2: {
@@ -56,13 +59,13 @@ export const NS_ELEMENTE = {
       vorbereitung: async (page) => { await page.click('.st-knopf.st-angeschlagen'); await page.waitForTimeout(300); } },
     breite: 390, ohne: ['optional'],
   },
-  // D5: Kennzahlen in Konto › Mannschaft (Beträge und Anzahlen aus dem Stand-in).
+  // D5: Kassenbanner in Konto › Mannschaft (ersetzt seit 15.10.2026 die Kacheln Offen
+  // und In der Kasse), Kassenwart-Sicht mit beiden Knoepfen. Ohne Vorlage-Figur wie D1.
   D5: {
-    soll: { figur: 'D5', rahmen: 0, wurzel: '(f) => f.children[1]' },
-    ist: { profil: 'kassenwart', schluessel: 'strafen', wurzel: '.kt-kacheln',
+    soll: null,
+    ist: { profil: 'kassenwart', schluessel: 'strafen', wurzel: '.kb',
       vorbereitung: async (page) => { await page.click('[data-kseg="team"]'); await page.waitForTimeout(400); } },
-    ersetze: { '37,00 €': '4.611,00 €', '6,00 €': '1.097,00 €', '4 Strafen': '240 Strafen', '2 Zahlungen': '61 Zahlungen' },
-    breiteFrei: ['4.611,00 €', '1.097,00 €', '240 Strafen', '61 Zahlungen'],
+    texte: ['In der Kasse', 'Noch offen'], knoepfe: 2,
   },
   // D6: Fuß des Rückmeldungen-Blatts (Kopf, Balken, Liste bleiben wie Final 04) und Dialog.
   'D6 Kader': {

@@ -76,16 +76,16 @@ const leinwand = await browser.newPage();
 for (const name of wahl) {
   const cfg = NS_ELEMENTE[name];
   if (!cfg) { console.log('FEHL ' + name + ': keine Vorschrift in nselemente.mjs'); alleGruen = false; continue; }
-  // --- Soll
-  const sollHandle = await vpage.evaluateHandle(({ figur, rahmen, wurzel }) => {
+  // --- Soll (soll: null = keine Figur in der Vorlage, nur Ist pruefen)
+  const sollHandle = !cfg.soll ? null : await vpage.evaluateHandle(({ figur, rahmen, wurzel }) => {
     const fig = document.getElementById(figur);
     const frames = [...fig.children].filter((c) => c.tagName === 'DIV' && /border-radius:\s*28px/.test(c.getAttribute('style') || ''));
     const f = frames[rahmen || 0];
     return wurzel ? new Function('f', 'return (' + wurzel + ')(f)')(f) : f;
   }, cfg.soll);
-  const soll = await sollHandle.evaluate(messe);
-  const sollPng = await sollHandle.screenshot();
-  fs.writeFileSync(path.join(AUS, 'soll', name + '.png'), sollPng);
+  const soll = sollHandle && await sollHandle.evaluate(messe);
+  const sollPng = sollHandle && await sollHandle.screenshot();
+  if (sollPng) fs.writeFileSync(path.join(AUS, 'soll', name + '.png'), sollPng);
   // --- Ist
   const ctx = await neuerKontext(browser);
   await ctx.close();
@@ -114,6 +114,21 @@ for (const name of wahl) {
   const ist = await istHandle.evaluate(messe);
   const istPng = await istHandle.screenshot();
   fs.writeFileSync(path.join(AUS, 'ist', name + '.png'), istPng);
+  if (!cfg.soll) {
+    // Ohne Vorlage: erwartete Texte und Knoepfe in der Wurzel, Stand-in sauber.
+    const texte = ist.elemente.map((e) => e.text);
+    const fehlt = (cfg.texte || []).filter((t) => !texte.includes(t));
+    const knoepfe = await istHandle.evaluate((e) => e.querySelectorAll('button').length);
+    const bericht = await inst.bericht();
+    const gruen = !fehlt.length && (cfg.knoepfe == null || knoepfe === cfg.knoepfe) && !bericht.verstoesse.length && !bericht.fehler.length;
+    if (!gruen) alleGruen = false;
+    console.log('\n=== ' + name + ' ' + (gruen ? 'GRÜN' : 'ABWEICHUNG') + ' · ohne Vorlage, ' + ist.elemente.length + ' Ist-Texte');
+    if (fehlt.length) console.log('  fehlt im Ist: ' + fehlt.map((t) => '"' + t + '"').join(', '));
+    if (cfg.knoepfe != null && knoepfe !== cfg.knoepfe) console.log('  Knöpfe: ' + knoepfe + ' statt ' + cfg.knoepfe);
+    if (bericht.verstoesse.length || bericht.fehler.length) console.log('  Stand-in: ' + bericht.verstoesse.concat(bericht.fehler).join(' | '));
+    await ictx.close();
+    continue;
+  }
   const vgl = await leinwand.evaluate(async ([a, b]) => {
     const lade = async (d) => { const i = new Image(); await new Promise((ok) => { i.onload = ok; i.src = 'data:image/png;base64,' + d; }); return i; };
     const A = await lade(a), B = await lade(b);

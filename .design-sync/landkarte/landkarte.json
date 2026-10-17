@@ -778,13 +778,6 @@
         },
         {
           "von": "dashboard",
-          "art": "nav",
-          "wert": "kasse",
-          "text": "Mannschaftskasse, 37,00 € offen im Team",
-          "nach": "strafen"
-        },
-        {
-          "von": "dashboard",
           "art": "paid-self",
           "wert": null,
           "text": "Zahlung melden ›",
@@ -981,7 +974,6 @@
         "goto",
         "kseg",
         "logout",
-        "nav",
         "paid-self",
         "pr-gesundheit",
         "pr-konto-weg",
@@ -2477,13 +2469,6 @@
         },
         {
           "von": "dashboard",
-          "art": "nav",
-          "wert": "kasse",
-          "text": "Mannschaftskasse, 37,00 € offen im Team",
-          "nach": "strafen"
-        },
-        {
-          "von": "dashboard",
           "art": "paid-self",
           "wert": null,
           "text": "Zahlung melden ›",
@@ -3924,13 +3909,6 @@
         },
         {
           "von": "dashboard",
-          "art": "nav",
-          "wert": "kasse",
-          "text": "Mannschaftskasse, 37,00 € offen im Team",
-          "nach": "strafen"
-        },
-        {
-          "von": "dashboard",
           "art": "paid-self",
           "wert": null,
           "text": "Zahlung melden ›",
@@ -4307,7 +4285,6 @@
         "kseg",
         "kstab",
         "logout",
-        "nav",
         "paid-self",
         "pr-gesundheit",
         "pr-konto-weg",
@@ -6404,13 +6381,6 @@
           "wert": "kader",
           "text": "Kader13 fit›",
           "nach": "kader"
-        },
-        {
-          "von": "dashboard",
-          "art": "nav",
-          "wert": "kasse",
-          "text": "Mannschaftskasse, 37,00 € offen im Team",
-          "nach": "strafen"
         },
         {
           "von": "dashboard",
@@ -9320,13 +9290,6 @@
           "wert": "kader",
           "text": "Kader13 fit›",
           "nach": "kader"
-        },
-        {
-          "von": "dashboard",
-          "art": "nav",
-          "wert": "kasse",
-          "text": "Mannschaftskasse, 37,00 € offen im Team",
-          "nach": "strafen"
         },
         {
           "von": "dashboard",

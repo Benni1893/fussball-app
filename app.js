@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-14-A";
+  var APP_BUILD = "2026-10-17-A";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -725,12 +725,6 @@
 
     const kontoVerknuepft = !!(currentProfile && currentProfile.player_id && me);
     const meinOffen  = kontoVerknuepft ? summeOffenSpieler(me.id) : 0;
-    // A2: der Filter stand auf "bezahlt", der Status heisst aber "bestätigt" -
-    // die Summe war deshalb immer 0,00 EUR. Die Zeile zeigt jetzt, was sie
-    // verspricht: die offenen Strafen des Teams.
-    const teamOffen = aktiveStrafen()
-      .filter((s) => fineStatus(s) === "offen")
-      .reduce((a, s) => a + strafeBetrag(s), 0);
 
     // A3: Wer verknuepft ist und offene Strafen hat, sieht den Kontoblock mit
     // dem Bezahlweg - auch als Trainer oder Kassenwart.
@@ -739,20 +733,15 @@
     // Betrag; ist verknuepft und nichts offen, sagt das die gruene Zeile im
     // Aufgabenblock - eine Null-Zeile daneben waere leeres Gewicht.
     const eigenerBlock = (kontoVerknuepft && meinOffen > 0) ? kontoBlockHtml() : "";
-    /* Kachel Mannschaftskasse (Nachschliff D1): alle Rollen, gleicher Inhalt.
-       Betrag 26/800 rot, bei 0,00 € grün; führt nach Konto › Mannschaft.
-       „Meine Strafen“ bleibt als eigene Zeile für Konten ohne Spielerzuordnung. */
-    const teamZeile = `${!kontoVerknuepft ? `<div class="card dn-liste geld-liste">
+    /* Ganz unten das Kassenbanner (alle Rollen, gleiche Daten wie Konto ›
+       Mannschaft). „Meine Strafen“ bleibt als eigene Zeile für Konten ohne
+       Spielerzuordnung. */
+    const meineZeile = `${!kontoVerknuepft ? `<div class="card dn-liste geld-liste">
           <button class="row geld" data-nav="meine-strafen">
             <span class="row-main"><span class="row-t">Meine Strafen</span></span>
             <span class="row-end num">${euro(meinOffen)}</span><span class="row-chev" aria-hidden="true">›</span>
           </button>
-        </div>` : ""}
-        <button type="button" class="card kasse-kachel" data-nav="kasse" aria-label="Mannschaftskasse, ${esc(euro(teamOffen))} offen im Team">
-          <span class="kk-main"><span class="kk-betrag num${teamOffen > 0 ? "" : " is-null"}">${euro(teamOffen)}</span>
-            <span class="kk-text"><b>Mannschaftskasse</b> · offen im Team</span></span>
-          <span class="kk-chev" aria-hidden="true">›</span>
-        </button>`;
+        </div>` : ""}`;
 
     viewEl.innerHTML = `
       <div class="page-head h1row">
@@ -775,7 +764,8 @@
       ${kontoVerknuepft ? `<div class="group-head"><h2>Mein Status</h2></div>
       ${statusWahlHtml(me, { kompakt: true })}` : ""}
 
-      ${teamZeile ? `<div class="group-head"><h2>Kasse</h2></div>${teamZeile}` : ""}
+      ${meineZeile ? `<div class="group-head"><h2>Kasse</h2></div>${meineZeile}` : ""}
+      ${kassenBannerHtml()}
     `;
 
     startCountdowns(); // Meldeschluss-Countdown im Hero und in der Spieltag-Karte
@@ -5353,6 +5343,55 @@
   /* Kontoblock „Dein Konto" – gemeinsam von der Konto-Ansicht und der Übersicht
      genutzt. Rechnet sich selbst aus den geladenen Strafen aus, damit beide Orte
      zwingend dieselbe Zahl zeigen und nicht auseinanderlaufen koennen. */
+  /* Kassenbanner (Konto › Mannschaft und Übersicht). Oben der Kassenstand,
+     darunter der Anteil bezahlter Strafen, unten was noch offen ist.
+     Kassenstand: Die App fuehrt keine Ausgaben, er ist deshalb die Summe der
+     bestaetigten Strafen. "Noch offen" zaehlt nur Status offen; gemeldete
+     (noch nicht bestaetigte) stehen als eigene Zeile darunter. Kasse + offen +
+     gemeldet ergibt die Summe aller Strafen. Der Balken ist bestaetigt / alle,
+     nie "100 %", solange etwas offen oder gemeldet ist.
+     Kassenwart/Admin tippen oben in "Eingegangen", unten in "Offen"; fuer
+     Spieler ist das Banner nur lesend (kein Knopf, kein Pfeil). */
+  function kassenBannerHtml() {
+    const alle = aktiveStrafen().filter((s) => playerById[s.playerId]);
+    const summe = (l) => l.reduce((a, s) => a + strafeBetrag(s), 0);
+    const bezahlt = alle.filter(istBezahlt);
+    const offen = alle.filter((s) => fineStatus(s) === "offen");
+    const gemeldet = alle.filter((s) => fineStatus(s) === "gemeldet");
+    const gesamt = summe(alle), kasseSum = summe(bezahlt), offenSum = summe(offen), gemeldetSum = summe(gemeldet);
+    const leer = alle.length === 0;
+    const klar = !leer && offen.length === 0 && gemeldet.length === 0;
+    let pct = gesamt > 0 ? Math.round(kasseSum / gesamt * 100) : (klar ? 100 : 0);
+    if (!klar && pct === 100) pct = 99;                 // nie "100 %", solange etwas offen oder gemeldet ist
+    if (bezahlt.length && kasseSum > 0 && pct === 0) pct = 1;
+    const anzSpieler = new Set(offen.map((s) => s.playerId)).size;
+    const kw = Roles.canManageFines();
+    const knopf = (cls, ziel, label, inhalt) => kw
+      ? '<button type="button" class="' + cls + '" data-kb-ziel="' + ziel + '" aria-label="' + label + '">' + inhalt + '</button>'
+      : '<div class="' + cls + '">' + inhalt + '</div>';
+    const haken = '<span class="kb-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>';
+    const gemeldetZeile = gemeldet.length
+      ? '<span class="kb-open-sub kb-open-gem">davon ' + euro(gemeldetSum) + ' gemeldet, wartet auf Bestätigung</span>' : "";
+    const titel = leer ? "Nichts offen" : klar ? "Alles bezahlt" : offen.length ? "Noch offen" : "Nichts offen";
+    const unter = offen.length
+      ? (offen.length === 1 ? "1 Strafe" : offen.length + " Strafen") + " · " + (anzSpieler === 1 ? "1 Spieler" : anzSpieler + " Spieler")
+      : "Kein Spieler hat offene Strafen";
+    const offenInhalt = (leer || klar ? haken : "") +
+      '<span class="kb-open-main"><span class="kb-open-t">' + titel + '</span>' +
+        '<span class="kb-open-sub">' + unter + '</span>' + gemeldetZeile + '</span>' +
+      '<span class="kb-open-amt' + (offen.length ? "" : " is-null") + '">' + euro(offenSum) + '</span>' +
+      (kw ? '<span class="kb-open-chev" aria-hidden="true">›</span>' : "");
+    return '<section class="kb' + (leer || klar ? " is-clear" : "") + '" aria-label="Mannschaftskasse">' +
+      knopf("kb-top", "bezahlt", "Eingegangene Zahlungen ansehen",
+        '<img class="kb-crest" src="assets/logo.png" alt="" />' +
+        '<span class="kb-lbl">In der Kasse</span>' +
+        '<span class="kb-value">' + euro(kasseSum) + (kw ? '<span class="kb-chev" aria-hidden="true">›</span>' : "") + '</span>') +
+      '<span class="kb-bar" aria-hidden="true"><span class="kb-bar-fill" style="width:' + (leer ? 0 : pct) + '%"></span></span>' +
+      '<span class="kb-pct">' + (leer ? "Noch keine Strafen" : pct + " % der Strafen bezahlt") + '</span>' +
+      knopf("kb-open", "offen", "Offene Strafen ansehen", offenInhalt) +
+    '</section>';
+  }
+
   function kontoBlockHtml() {
     const me = playerById[state.currentPlayerId];
     const linked = !!(currentProfile && currentProfile.player_id && me);
@@ -5495,7 +5534,7 @@
 
   /* Strafen-Konto (Vorlage Final 11 und 12): Segment Ich / Mannschaft.
      Ich: Kontobanner, Chips Offen / Gemeldet / Bezahlt mit Anzahl, eigene
-     Strafen in einer Karte. Mannschaft: Kacheln "Offen" und "In der Kasse",
+     Strafen in einer Karte. Mannschaft: Kassenbanner,
      dieselben Chips ueber das ganze Team, Liste mit Avatar. Ein erneuter Tipp
      auf den aktiven Chip zeigt alle Status (bisher Chip "Alle"). */
   function renderStrafen() {
@@ -5539,15 +5578,12 @@
         <button class="seg-b${seg === "team" ? " is-on" : ""}" role="tab" aria-selected="${seg === "team"}" data-kseg="team">Mannschaft</button>
       </div>
       ${seg === "ich" ? kontoBlockHtml() : `
-      <div class="kt-kacheln">
-        <div class="kpi kt-kpi is-rot"><span class="kt-karte" aria-hidden="true"></span><span class="kpi-label">Offen</span><span class="kpi-value">${euro(summe("offen"))}</span><span class="kt-anz">${anzahl("offen") === 1 ? "1 Strafe" : anzahl("offen") + " Strafen"}</span></div>
-        <div class="kpi kt-kpi is-gruen"><span class="kt-ball" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 8.2l3.6 2.6-1.4 4.2H9.8L8.4 10.8z" fill="currentColor"/><path d="M12 8.2V2.6M15.6 10.8l5.2-1.8M14.2 15l3.2 4.4M9.8 15l-3.2 4.4M8.4 10.8 3.2 9"/></svg></span><span class="kpi-label">In der Kasse</span><span class="kpi-value">${euro(summe("bestätigt"))}</span><span class="kt-anz">${anzahl("bestätigt") === 1 ? "1 Zahlung" : anzahl("bestätigt") + " Zahlungen"}</span></div>
-      </div>`}
+      ${kassenBannerHtml()}`}
       <div class="kt-chips">
         ${chips.map(([k, l]) => `<button class="chip kt-chip${strafenFilter === k ? " is-active" : ""}" data-sfilter="${k}" aria-pressed="${strafenFilter === k}">${l} ${anz(stKey[k])}</button>`).join("")}
       </div>
       ${gefiltert.length ? `<div class="card kt-liste">${gefiltert.map(zeile).join("")}</div>`
-        : `<div class="empty">${seg === "ich" && !linked ? "Dein Konto ist noch keinem Spieler zugeordnet." : "Keine Strafen in dieser Auswahl."}</div>`}
+        : `<div class="empty">${seg === "ich" && !linked ? "Dein Konto ist noch keinem Spieler zugeordnet." : seg === "team" && strafenFilter === "offen" ? "Keine offenen Strafen" : "Keine Strafen in dieser Auswahl."}</div>`}
     `;
 
     startCountdowns(); // Live-Timer für alle Countdown-Felder dieser Ansicht
@@ -6936,7 +6972,7 @@
       // „Buchung rückgängig" steht jetzt im Detail-Blatt (ksBlattUnpay).
     }
 
-    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-kseg],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-trennen],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-cal-hide],[data-cal-copy-profil],[data-cal-open-ein],[data-cal-google-ein],[data-cal-regen-ein],[data-push-an],[data-push-aus],[data-push-test],[data-push-install],[data-push-hinweis-weg],[data-ein-haupt],[data-pn-kat],[data-ein-alle],[data-pn-thema],[data-pn-ruhe],[data-pn-dringend],[data-pkat-save],[data-pkat-reset],[data-pkat-send],[data-pkat-alle],[data-pkat-clear],[data-pkat-hinweis-save],[data-ics-event],[data-koord-save],[data-status-set],[data-status-fenster],[data-status-blatt],[data-pw-aendern],[data-logout],[data-ein],[data-ein-back],[data-ein-tat],[data-diag-bericht],[data-diag-cache]");
+    const t = ev.target.closest("[data-remind],[data-nav-event],[data-rsvp],[data-filter],[data-sfilter],[data-kseg],[data-toggle-paid],[data-del-fine],[data-kader-info],[data-rsvp-sheet],[data-tkmenu],[data-task-focus],[data-task-pay],[data-kb-ziel],[data-lineup-edit],[data-nav],[data-nav-back],[data-sim],[data-kat-edit],[data-kat-del],[data-kat-save],[data-kat-cancel],[data-kat-add],[data-bfv-connect],[data-bfv-change],[data-bfv-cancel],[data-bfv-trennen],[data-bfv-sync],[data-goto],[data-paypal],[data-auth],[data-pick-player],[data-paid-self],[data-termin-new],[data-termin-edit],[data-termin-del],[data-view-jump],[data-bfv-reset],[data-bfv-take],[data-cal-sheet],[data-cal-hide],[data-cal-copy-profil],[data-cal-open-ein],[data-cal-google-ein],[data-cal-regen-ein],[data-push-an],[data-push-aus],[data-push-test],[data-push-install],[data-push-hinweis-weg],[data-ein-haupt],[data-pn-kat],[data-ein-alle],[data-pn-thema],[data-pn-ruhe],[data-pn-dringend],[data-pkat-save],[data-pkat-reset],[data-pkat-send],[data-pkat-alle],[data-pkat-clear],[data-pkat-hinweis-save],[data-ics-event],[data-koord-save],[data-status-set],[data-status-fenster],[data-status-blatt],[data-pw-aendern],[data-logout],[data-ein],[data-ein-back],[data-ein-tat],[data-diag-bericht],[data-diag-cache]");
     if (!t) return;
 
     // Fitnessstatus setzen. Wer das darf, entscheidet die Datenbank:
@@ -7352,6 +7388,8 @@
 
     // Aufgabenblock: gemeldete Zahlungen -> Kasse, Reiter „Zu prüfen".
     if (t.hasAttribute("data-task-pay")) { kasse.tab = "pruefen"; switchView("kasse"); return; }
+    // Kassenbanner (nur Kassenwart/Admin als Knopf): oben "Eingegangen", unten "Offen".
+    if (t.dataset.kbZiel) { if (Roles.canManageFines()) { kasse.tab = t.dataset.kbZiel; kasse.pruefIdx = 0; switchView("kasse"); } return; }
 
     // Aus einer Spiel-Kachel direkt in die Aufstellung springen (Trainer/Admin; RLS schützt zusätzlich).
     if (t.dataset.lineupEdit) { tvJumpFromCard(t.dataset.lineupEdit); return; }
