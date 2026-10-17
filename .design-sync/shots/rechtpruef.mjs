@@ -157,7 +157,34 @@ for (const [datei, titel] of [['datenschutz.html', 'Datenschutzerklärung'], ['i
   await ctx.close();
 }
 
-// 4) Keine fremden Hosts
+// 4) Startprotokoll ohne Tokens (18.10.2026): Reset-/Bestaetigungslink und Einladung
+//    duerfen weder im lokalen Speicher (fnboot, fnboot_prev) noch im Protokoll-Objekt
+//    noch im Inhalt von "Bericht kopieren" auftauchen. Ein aelteres, unmaskiertes
+//    Protokoll wird beim Start bereinigt.
+for (const [art, ziel] of [
+  ['Reset-Link', '?code=GEHEIM789#access_token=GEHEIM123&expires_in=3600&refresh_token=GEHEIM456&token_type=bearer&type=recovery'],
+  ['Einladung', '#einladung=GEHEIMEINL0815'],
+]) {
+  const ctx = await kontext();
+  const page = await ctx.newPage();
+  await installiere(page, 'anmeldung');
+  await page.goto(basis); await page.waitForTimeout(800);
+  await page.evaluate(() => localStorage.setItem('fnboot', JSON.stringify({ build: 'alt', url: 'https://x.example/#access_token=ALTGEHEIM1&refresh_token=ALTGEHEIM2', phases: [], errors: [] })));
+  await page.goto(basis + ziel); await page.waitForTimeout(1500);
+  await page.reload(); await page.waitForTimeout(1200);   // zweiter Start: das eben geschriebene Protokoll wandert nach fnboot_prev
+  const r = await page.evaluate(() => {
+    const k = localStorage.getItem('fnboot') || '', p = localStorage.getItem('fnboot_prev') || '';
+    // genau das, was "Bericht kopieren" (diagBerichtKopieren) zusammenstellt
+    const bericht = JSON.stringify({ app: window.__APP_BUILD, html: window.__HTML_BUILD || null, aktuell: window.__bootL || null, vorher: p });
+    return { k, p, bericht, url: (window.__bootL || {}).url || '' };
+  });
+  const alles = r.k + r.p + r.bericht;
+  pruefe(!/GEHEIM/.test(alles), `Startprotokoll ${art}: kein Token in Speicher, Protokoll und Bericht`, (alles.match(/.{30}GEHEIM.{10}/) || [''])[0]);
+  pruefe(/(access_token|einladung)=\*\*\*/.test(r.p + r.k), `Startprotokoll ${art}: Token sichtbar maskiert`, r.p.slice(0, 200));
+  await ctx.close();
+}
+
+// 5) Keine fremden Hosts
 pruefe(fremd.size === 0, 'keine Anfrage an einen fremden Host', [...fremd].join(', '));
 
 await browser.close(); server.close();
