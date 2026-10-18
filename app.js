@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-18-A";
+  var APP_BUILD = "2026-10-18-B";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -4874,26 +4874,12 @@
     // E1: Blatt „Mehr“ ohne Kreuz - Wischen nach unten schließt.
     sheetSwipeToClose(document.getElementById("tvSheetMenu"), document.getElementById("tvMenuBody"), () => tvCloseMenu());
 
-    // Kader-Vollbild: Wisch-nach-unten zum Schließen (nur wenn Liste oben steht).
-    var panel = document.getElementById("tvSheetKader");
-    var body  = document.getElementById("tvKaderBody");
-    var sy = 0, dragging = false, dy = 0;
-    panel.addEventListener("touchstart", function (e) {
-      if (!panel.classList.contains("open") || e.touches.length !== 1 || body.scrollTop > 0) { dragging = false; return; }
-      sy = e.touches[0].clientY; dy = 0; dragging = true; panel.style.transition = "none";
-    }, { passive: true });
-    panel.addEventListener("touchmove", function (e) {
-      if (!dragging) return;
-      dy = e.touches[0].clientY - sy;
-      if (dy <= 0 || body.scrollTop > 0) { panel.style.transform = "translateY(0)"; return; }
-      e.preventDefault();
-      panel.style.transform = "translateY(" + dy + "px)";
-    }, { passive: false });
-    panel.addEventListener("touchend", function () {
-      if (!dragging) return;
-      dragging = false; panel.style.transition = ""; panel.style.transform = "";
-      if (dy > 90) { tvCloseKader(); tvViewLineup(); }
-    }, { passive: true });
+    // Kader-Vollbild: Wisch-nach-unten zum Schließen (nur am Kopf oder wenn die
+    // Liste oben steht) - derselbe passive Baustein wie die übrigen Blätter.
+    sheetSwipeToClose(document.getElementById("tvSheetKader"), document.getElementById("tvKaderBody"), () => {
+      if (!document.getElementById("tvSheetKader").classList.contains("open")) return;
+      tvCloseKader(); tvViewLineup();
+    });
   }
   function tvTeardownPanels() { const w = document.getElementById("tvPanels"); if (w && w.parentNode) w.parentNode.removeChild(w); }
   function tvClosePanels() {
@@ -7786,26 +7772,47 @@
   }
 
   /* Wisch nach unten schliesst ein Bottom-Sheet, wie unter iOS gewohnt.
-     Gemeinsam genutzt von Abo- und Rueckmeldungs-Sheet. Greift nur, wenn der
-     Inhalt schon ganz oben steht – sonst gewinnt das Scrollen im Sheet. */
+     Gemeinsam genutzt von Abo-, Rueckmeldungs-, Menue- und Kader-Blatt.
+     Nachtlauf 18.10.2026 (Scroll haengt im Rueckmeldungen-Blatt):
+     - Alle Handler passiv. Vorher war touchmove nicht passiv und schrieb bei
+       JEDER Bewegung transform ins Blatt, auch beim normalen Scrollen der
+       Liste - WebKit wartet dann bei jedem Schritt auf JavaScript, und das
+       Umschreiben eines Vorfahren bremst das Scrollen der Liste aus.
+     - Gezogen wird nur am Griff/Kopf (alles ausserhalb der Liste) oder in der
+       Liste, wenn sie ganz oben steht und der Finger eindeutig nach unten geht.
+       Geht der Finger zuerst nach oben, gehoert die Geste der Liste.
+     - Geschrieben wird erst, wenn wirklich gezogen wird, gebuendelt pro Frame.
+     Den Gummiband-Effekt an Liste und Seite verhindert CSS
+     (overscroll-behavior: contain), nicht preventDefault.                    */
   function sheetSwipeToClose(panel, scrollEl, onClose) {
-    let sy = 0, dy = 0, dragging = false;
+    if (!panel) return;
+    let sy = 0, dy = 0, kandidat = false, ziehen = false, frame = 0;
+    const zeichnen = () => { frame = 0; panel.style.transform = dy > 0 ? "translateY(" + dy + "px)" : ""; };
     panel.addEventListener("touchstart", (e) => {
-      if (e.touches.length !== 1 || (scrollEl && scrollEl.scrollTop > 0)) { dragging = false; return; }
-      sy = e.touches[0].clientY; dy = 0; dragging = true; panel.style.transition = "none";
+      kandidat = ziehen = false;
+      if (e.touches.length !== 1) return;
+      if (scrollEl && scrollEl.contains(e.target) && scrollEl.scrollTop > 0) return;   // Liste nicht oben: Liste scrollt
+      sy = e.touches[0].clientY; dy = 0; kandidat = true;
     }, { passive: true });
     panel.addEventListener("touchmove", (e) => {
-      if (!dragging) return;
-      dy = e.touches[0].clientY - sy;
-      if (dy <= 0 || (scrollEl && scrollEl.scrollTop > 0)) { panel.style.transform = "translateY(0)"; return; }
-      e.preventDefault();                       // sonst zieht iOS die Seite dahinter mit
-      panel.style.transform = "translateY(" + dy + "px)";
-    }, { passive: false });
-    panel.addEventListener("touchend", () => {
-      if (!dragging) return;
-      dragging = false; panel.style.transition = ""; panel.style.transform = "";
-      if (dy > 90) onClose();                   // weit genug gezogen -> schliessen
+      if (!kandidat) return;
+      const d = e.touches[0].clientY - sy;
+      if (!ziehen) {
+        if (d < -4 || (scrollEl && scrollEl.scrollTop > 0)) { kandidat = false; return; }   // nach oben: gehoert der Liste
+        if (d < 8) return;                                                                  // Richtung noch offen
+        ziehen = true; panel.style.transition = "none";
+      }
+      dy = Math.max(0, d);
+      if (!frame) frame = requestAnimationFrame(zeichnen);
     }, { passive: true });
+    const ende = () => {
+      if (frame) { cancelAnimationFrame(frame); frame = 0; }
+      if (!ziehen) { kandidat = false; return; }
+      kandidat = ziehen = false; panel.style.transition = ""; panel.style.transform = "";
+      if (dy > 90) onClose();                   // weit genug gezogen -> schliessen
+    };
+    panel.addEventListener("touchend", ende, { passive: true });
+    panel.addEventListener("touchcancel", ende, { passive: true });
   }
 
   // Mehr-Sheet sperrt den Hintergrund-Scroll wie die anderen Sheets auch.
@@ -7982,7 +7989,15 @@
     }
 
     // --- Touch-Handling -----------------------------------------------------
+    // Der touchmove-Handler muss den nativen Bounce per preventDefault abfangen
+    // koennen und ist deshalb nicht passiv. Er haengt nur waehrend einer
+    // moeglichen Ziehgeste ganz oben am Fenster (Nachtlauf 18.10.2026): Ein
+    // dauerhaft nicht-passiver touchmove-Listener am Fenster laesst jede
+    // Scrollbewegung der App, auch in offenen Blaettern, auf JavaScript warten.
+    const bewegungAn = () => window.addEventListener("touchmove", bewegung, { passive: false });
+    const bewegungAus = () => window.removeEventListener("touchmove", bewegung, { passive: false });
     window.addEventListener("touchstart", (e) => {
+      bewegungAus();
       if (refreshing || e.touches.length !== 1) { tracking = false; return; }
       if (document.body.classList.contains("auth-mode")) { tracking = false; return; } // nicht auf Login/Reset
       if (ueberlagerungOffen()) { tracking = false; return; }                            // nicht, solange irgendetwas darueber liegt
@@ -7990,15 +8005,16 @@
       startY = e.touches[0].clientY; startX = e.touches[0].clientX;
       tracking = true; decided = false; active = false; pull = 0;
       hardHide();  // stale/haengengebliebenen Indikator vor einer neuen Geste sicher verstecken
+      bewegungAn();
     }, { passive: true });
 
-    window.addEventListener("touchmove", (e) => {
-      if (!tracking || refreshing) return;
+    function bewegung(e) {
+      if (!tracking || refreshing) { bewegungAus(); return; }
       const dy = e.touches[0].clientY - startY;
       const dx = e.touches[0].clientX - startX;
       if (!decided) {
         if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;                 // Richtung noch nicht eindeutig
-        if (Math.abs(dx) >= Math.abs(dy) || dy <= 0) { tracking = false; return; } // horizontal ODER nach oben -> normal scrollen
+        if (Math.abs(dx) >= Math.abs(dy) || dy <= 0) { tracking = false; bewegungAus(); return; } // horizontal ODER nach oben -> normal scrollen
         decided = true; active = true; clearTransition();                // eindeutig vertikal nach unten -> unsere Geste
       }
       if (window.scrollY > 0) { tracking = false; springBack(); return; } // zwischendrin doch gescrollt
@@ -8006,9 +8022,10 @@
       e.preventDefault();                                                 // nativen Bounce unterdruecken
       pull = dy / (1 + dy / MAX);                                         // Gummiband-Widerstand
       scheduleDrag();                                                     // Position + Kippung im naechsten Frame
-    }, { passive: false });
+    }
 
     function end() {
+      bewegungAus();
       if (!tracking || refreshing) { tracking = false; return; }
       tracking = false;
       if (!active) return;
@@ -8016,6 +8033,7 @@
     }
     window.addEventListener("touchend", end, { passive: true });
     window.addEventListener("touchcancel", () => {
+      bewegungAus();
       if (tracking && active && !refreshing) springBack();
       tracking = false;
     }, { passive: true });

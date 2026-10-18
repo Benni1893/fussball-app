@@ -4430,3 +4430,9 @@ body:has(.nsb-ov) .app-nav { visibility: hidden; }
 /* Onboarding-Auswahl: Werte kuerzen, statt die Karte zu verbreitern */
 .ob-gruppe .ein-zeile { min-width: 0; }
 .ob-gruppe .ein-zeile-w { flex-shrink: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Scroll in Blaettern (Nachtlauf 18.10.2026): jede scrollbare Liste in einem
+   Blatt haelt ihr Scrollen bei sich, nichts laeuft auf den gesperrten
+   Hintergrund ueber. Das Ziehen zum Schliessen braucht dafuer kein
+   preventDefault mehr (sheetSwipeToClose ist passiv). Keine optische Aenderung. */
+.rs2-liste, .lu-sheet-body, .kat-blatt-body, .nsb-felder, .modal { overscroll-behavior: contain; }

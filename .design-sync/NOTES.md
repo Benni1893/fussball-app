@@ -1346,3 +1346,29 @@ Stand-in ohne Datenbank; die Zustände kommen aus der Landkarte (Klickweg je Sch
 reinen Trainer übersteuert `installiere(page, 'trainer', { rollen: ['coach'], ohneSpieler: true })`
 die Rollen (neue Option in `stubQuelle`, ohne Option unverändert). Upload nach Claude Design per
 DesignSync, Nachweis in `.design-sync/reference/einfuehrung/REFERENZ-BEREIT.md`.
+
+## Scroll in Blättern: passives Ziehen (Nachtlauf 18.10.2026)
+
+Befund (iPhone, Rückmeldungen-Blatt, Liste unter „Offen“ hängt beim Scrollen):
+`sheetSwipeToClose` hing einen **nicht-passiven** `touchmove`-Handler an das ganze Blatt und schrieb
+bei **jeder** Bewegung `transform` ins Blatt, auch beim normalen Scrollen der Liste (gemessen: 4
+Schreibvorgänge je Geste). Dazu lag dauerhaft ein nicht-passiver `touchmove` am Fenster
+(Pull-to-Refresh), auch bei offenem Blatt. WebKit muss dann bei jedem Scrollschritt auf JavaScript
+warten. Die Liste hatte kein `overscroll-behavior`.
+
+Behebung, ohne optische Änderung:
+- `sheetSwipeToClose` ist komplett passiv. Gezogen wird nur am Griff/Kopf oder in der Liste, wenn sie
+  ganz oben steht und der Finger eindeutig nach unten geht; geschrieben wird erst beim echten Ziehen,
+  einmal pro Frame. Das Kader-Vollbild (Trainer) nutzt jetzt denselben Baustein statt eines eigenen,
+  nicht-passiven Handlers.
+- Pull-to-Refresh hängt seinen nicht-passiven `touchmove` nur noch während einer möglichen Ziehgeste
+  ganz oben an (bei offenem Blatt nie).
+- `overscroll-behavior: contain` für `.rs2-liste`, `.lu-sheet-body`, `.kat-blatt-body`, `.nsb-felder`,
+  `.modal` (Kader-Blatt, Strafe hinzufügen und Kasse hatten es schon).
+
+Prüfung: `node .design-sync/shots/scrollfixpruef.mjs` (WebKit und Chromium, 30 Spieler, alle offen):
+Liste scrollt bis unten, Hintergrund bleibt, Scroll-Geste schreibt nichts ins Blatt, kein
+nicht-passiver `touchmove` bei offenem Blatt, Ziehen am Griff und bei Liste oben schließt,
+Kalender-Abo-Blatt ebenso. Aufnahmen vorher/nachher: `.design-sync/reference/app/scrollfix/`.
+Grenze: Playwright kann nicht nativ wischen; die Gesten laufen als synthetische Touch-Events gegen
+die Handler, das Scrollen selbst per Mausrad. Auf dem iPhone gegenprüfen.
