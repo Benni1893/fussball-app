@@ -1,21 +1,31 @@
 # Starttag: so kommt die Mannschaft in die App
 
-Produktion: https://fasanerie-nord-2.vercel.app · Stand 18.10.2026 (Build `2026-10-18-C`)
+Produktion: https://fasanerie-nord-2.vercel.app · Stand 18.10.2026 (Build `2026-10-18-D`)
 
 Ausgangslage nach der Bereinigung:
 - **Kader:** nur dein Eintrag „Benjamin Lauck“, keine Strafen, keine Zusagen.
 - **Termine:** die BFV-Spiele und die künftigen Trainings stehen schon drin.
 - **Rollen:** Du bist Admin, Spieler und Kassenwart. Es gibt noch **keinen Trainer**.
 
-## Am Vorabend (Benni, am Rechner)
+## Vorbereitung
 
-1. **`[E-MAIL]`** in `datenschutz.html` (zweimal) und `impressum.html` (einmal) durch die App-Adresse ersetzen, Build-Kennung hochzählen, pushen.
-2. **Supabase-Dashboard** › Authentication › URL Configuration:
-   - Site URL: `https://fasanerie-nord-2.vercel.app`
-   - Redirect URLs: `https://fasanerie-nord-2.vercel.app/**`
-   - Ohne diese Einträge führen „Passwort vergessen“-Mails ins Leere.
-3. **Supabase-Dashboard** › Authentication › Emails: Absender prüfen. Ohne eigenen SMTP verschickt Supabase nur wenige Mails pro Stunde.
-4. **Gerätetest** nach `.design-sync/GERAETETEST-START.md`, mindestens Abschnitt 1, 2, 10 und 11.
+**Erledigt:**
+
+- [x] Kontaktadresse `teamkabine-app@gmx.de` in Datenschutz (2×) und Impressum (1×), live seit Build `2026-10-18-D`.
+- [x] SMTP in Supabase eingerichtet: GMX, Absender `teamkabine-app@gmx.de`, Name „Teamkabine“.
+- [x] Supabase Auth: „Confirm email“ aus, „Allow new users to sign up“ an.
+- [x] Site URL und Redirect URLs geprüft, stimmen.
+- [x] Strafe vom 18.10., 00:26 Uhr, war ein bewusster Test; das Löschen bei der Bereinigung war richtig.
+- [x] Backup auf USB-Stick: Projekt (`D:asanerie-backup-2026-10-18`) und `fussball-app-db` (`D:ussball-app-db`).
+
+**Noch offen (Benni, vor dem Starttag):**
+
+1. Konto `rascha.k@yahoo.com` löschen (Einstellungen › Rollen › Mitglieder › Konto › „Aus der Mannschaft entfernen“).
+2. Auftragsverarbeitungsverträge (DPA) mit Supabase und Vercel abschließen.
+3. Passwort-Mail testen: Abmelden › „Passwort vergessen?“ mit deiner Adresse. Die Mail muss von „Teamkabine“ kommen, und der Link muss in die App führen.
+4. Künftige Termine prüfen (13 BFV-Spiele, Training 20., 22., 27., 29.10., Mannschaftsabend 13.11.).
+5. Trainer festlegen (Schritt 1 unten).
+6. **Gerätetest** nach `.design-sync/GERAETETEST-START.md`, mindestens Abschnitt 1, 2, 10 und 11.
 
 ## Ablauf am Starttag
 
@@ -56,5 +66,6 @@ und die Mitteilungen „Neue Anfrage“ gehen an ihn und an dich.
 6. Hat jemand die Erlaubnis einmal verweigert: in den Geräte-Einstellungen wieder erlauben. Auf dem iPhone hilft notfalls nur, die App vom Home-Bildschirm zu löschen und neu hinzuzufügen.
 
 **Anmelden klappt nicht / Passwort vergessen:** „Passwort vergessen?“ schickt eine Mail. Kommt sie nicht an:
-Spam prüfen, ein paar Minuten warten (Mail-Limit von Supabase). Bei Bedarf setzt du das Passwort im
+Spam prüfen und ein paar Minuten warten. Versand läuft über GMX (Absender „Teamkabine“,
+`teamkabine-app@gmx.de`); GMX begrenzt die Mails pro Stunde. Bei Bedarf setzt du das Passwort im
 Supabase-Dashboard (Authentication › Users) zurück.
