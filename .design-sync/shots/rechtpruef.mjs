@@ -1,7 +1,7 @@
 /* Paket Rechtliches (14.10.2026): Impressum und Datenschutzerklaerung im
    Stand-in, ohne Datenbank.
-   - beide Seiten ohne Anmeldung erreichbar, Inhalt aus der Vorlage, [E-MAIL]
-     als sichtbarer Platzhalter, Text mindestens 13 px, 390 px ohne
+   - beide Seiten ohne Anmeldung erreichbar, Inhalt aus der Vorlage, Kontakt-
+     adresse statt Platzhalter [E-MAIL], Text mindestens 13 px, 390 px ohne
      waagerechtes Scrollen
    - Verweise aus Anmeldung, Registrierung (Einladungslink), Wartet auf
      Freigabe und Einstellungen fuehren auf die Seiten
@@ -64,7 +64,9 @@ for (const [datei, titel] of [['impressum.html', 'Impressum'], ['datenschutz.htm
   });
   pruefe(m.klein.length === 0, datei + ': aller Text mindestens 13 px', m.klein.join(', '));
   pruefe(m.breit <= 390, datei + ': 390 px ohne waagerechtes Scrollen', m.breit);
-  pruefe(m.platzhalter >= 1, datei + ': [E-MAIL] sichtbar als Platzhalter', m.platzhalter);
+  // seit 18.10.2026 echte Kontaktadresse statt [E-MAIL]: Datenschutz zweimal, Impressum einmal
+  const adresse = (m.text.match(/teamkabine-app@gmx\.de/g) || []).length;
+  pruefe(m.platzhalter === 0 && adresse === (datei === 'datenschutz.html' ? 2 : 1), datei + ': Kontaktadresse eingetragen, kein Platzhalter mehr', m.platzhalter + '/' + adresse);
   pruefe(!m.prompt, datei + ': ohne Prompt und To-do-Liste');
   await page.screenshot({ path: '.design-sync/rechtliches/' + datei.replace('.html', '') + '-390.png', fullPage: true });
   if (datei === 'datenschutz.html') {
