@@ -316,7 +316,8 @@ export function stubQuelle(profilName, opts) {
   if (opts && Array.isArray(opts.rollen)) pd.rollen = opts.rollen.slice();
   if (opts && opts.ohneSpieler && pd.profil) {
     pd.profil.player_id = null;
-    if (pd.konto) Object.assign(pd.konto, { hat_spieler: false, position: null });
+    // wie ein Trainer ueber den Trainer-Link, der "Ich spiele nicht mit" gewaehlt hat (0063)
+    if (pd.konto) Object.assign(pd.konto, { hat_spieler: false, position: null, spielt_mit: false });
   }
   const D = {
     daten: (opts && opts.daten) || daten(),

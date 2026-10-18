@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-18-B";
+  var APP_BUILD = "2026-10-18-C";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -724,6 +724,9 @@
     const danach = naechste.filter((e) => !naechstes || e.id !== naechstes.id).slice(0, 2);
 
     const kontoVerknuepft = !!(currentProfile && currentProfile.player_id && me);
+    // Trainer ueber den Trainer-Link ohne eigenen Kadereintrag (0063): kein "me",
+    // der Vorname kommt dann aus dem Konto (Startzustand 18.10.2026).
+    const vorname = ((me && me.name) || (kontoStand && (kontoStand.anzeigename || kontoStand.name)) || "").trim().split(" ")[0];
     const meinOffen  = kontoVerknuepft ? summeOffenSpieler(me.id) : 0;
 
     // A3: Wer verknuepft ist und offene Strafen hat, sieht den Kontoblock mit
@@ -745,7 +748,7 @@
 
     viewEl.innerHTML = `
       <div class="page-head h1row">
-        <h1>Servus, ${esc(me.name.split(" ")[0])}</h1>
+        <h1>${vorname ? "Servus, " + esc(vorname) : "Servus!"}</h1>
         ${rollenPillHtml()}
       </div>
       ${pushHinweisHtml()}
