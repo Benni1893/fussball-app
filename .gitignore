@@ -71,3 +71,6 @@ node_modules/
 .design-sync/geraetematrix/nachschliff-2026-10*/befunde/
 .design-sync/geraetematrix/nacharbeit-2026-10*/befunde/
 .design-sync/geraetematrix/onboarding-*/befunde/
+
+# Startbereinigung: JSON-Sicherungen der Demo-Daten nie committen
+supabase/cleanup/backup-*/
