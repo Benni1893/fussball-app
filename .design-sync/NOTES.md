@@ -1336,3 +1336,13 @@ Bricht `--ff-only` ab, hat `main` neue Commits: dann `git rebase main` auf
 `kassenbanner`, Pflichtliste erneut, neuer Preview, erst danach wieder
 Fast-Forward. Vor dem Push auf `main` prüfen, dass die Build-Kennung höher ist
 als die der Produktion (`APP_BUILD`, `BUILD` plus drei Queries, `sw.js`).
+
+## Referenz für Claude Design: Einführung (18.10.2026)
+
+`node .design-sync/shots/einfuehrungsbilder.mjs` erzeugt `.design-sync/reference/einfuehrung/ist/`:
+je Rolle (Spieler, Trainer ohne Spielerrolle, Kassenwart, Spielertrainer, neues Mitglied) die
+Ansichten der Einführung als ganze Seite und Einzelausschnitte der Bausteine, dazu `INDEX.md`.
+Stand-in ohne Datenbank; die Zustände kommen aus der Landkarte (Klickweg je Schlüssel). Für den
+reinen Trainer übersteuert `installiere(page, 'trainer', { rollen: ['coach'], ohneSpieler: true })`
+die Rollen (neue Option in `stubQuelle`, ohne Option unverändert). Upload nach Claude Design per
+DesignSync, Nachweis in `.design-sync/reference/einfuehrung/REFERENZ-BEREIT.md`.

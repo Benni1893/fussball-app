@@ -310,9 +310,17 @@ const MITGLIEDER = [
    treffen; landkartenrauch.mjs vergleicht beide.                         */
 /* opts.daten ersetzt die Testdaten (z. B. Vorlagen-Datensatz fuer finalmess.mjs). */
 export function stubQuelle(profilName, opts) {
+  const pd = profilDaten(profilName);
+  // Optional (Referenzbilder 18.10.2026): Rollen uebersteuern und Konto ohne
+  // Kadereintrag, z. B. reiner Trainer ohne Spielerrolle. Ohne opts unveraendert.
+  if (opts && Array.isArray(opts.rollen)) pd.rollen = opts.rollen.slice();
+  if (opts && opts.ohneSpieler && pd.profil) {
+    pd.profil.player_id = null;
+    if (pd.konto) Object.assign(pd.konto, { hat_spieler: false, position: null });
+  }
   const D = {
     daten: (opts && opts.daten) || daten(),
-    profil: profilDaten(profilName),
+    profil: pd,
     vorlagen: VORLAGEN,
     prefs: PREFS,
     mitglieder: MITGLIEDER,
