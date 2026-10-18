@@ -1372,3 +1372,25 @@ nicht-passiver `touchmove` bei offenem Blatt, Ziehen am Griff und bei Liste oben
 Kalender-Abo-Blatt ebenso. Aufnahmen vorher/nachher: `.design-sync/reference/app/scrollfix/`.
 Grenze: Playwright kann nicht nativ wischen; die Gesten laufen als synthetische Touch-Events gegen
 die Handler, das Scrollen selbst per Mausrad. Auf dem iPhone gegenprüfen.
+
+## Stand nach dem Nachtlauf (18.10.2026)
+
+- Referenz für Claude Design hochgeladen (84 Bilder, Design-System), Scroll in Blättern behoben,
+  Demo-Daten entfernt, Startzustand geprüft (`startzustandpruef.mjs`), Starttag-Anleitung `STARTTAG.md`.
+- Datenbank nach der Bereinigung: 1 Kadereintrag „Benjamin Lauck“ (mit bennilauck@gmail.com verknüpft,
+  fit), 0 Strafen, 0 Zusagen, 27 Termine (22 BFV, 5 künftige von Hand), Vorlage „4-3-3 Standard“ leer.
+  Sicherung und Rezept: `supabase/cleanup/` (Sicherungen nur lokal).
+- Behoben im Startzustand: Übersicht brach bei einem Trainer ohne eigenen Kadereintrag (Trainer-Link,
+  „Ich spiele nicht mit“) mit `me.name` ab; Begrüßung nimmt jetzt den Namen aus dem Konto.
+
+### Offen vor dem Start
+
+1. `[E-MAIL]` in `datenschutz.html` (2×) und `impressum.html` (1×) eintragen.
+2. Supabase-Dashboard: Auftragsverarbeitungsvertrag (DPA) mit Supabase und Vercel, Site URL und
+   Redirect URLs auf `https://fasanerie-nord-2.vercel.app`, Mail-Absender bzw. eigener SMTP.
+3. Entscheidung zu `rascha.k@yahoo.com`: Konto seit 10.06. ungenutzt, Rolle Spieler, kein Kadereintrag.
+   Behalten (dann freigeben und zuordnen) oder entfernen.
+4. Gerätetest nach `.design-sync/GERAETETEST-START.md`.
+5. Künftige Termine prüfen: 13 BFV-Spiele und 5 von Hand angelegte (Training 20., 22., 27., 29.10., Mannschaftsabend 13.11.)
+   stimmen? Von Hand angelegte notfalls löschen oder anpassen.
+6. Noch kein Trainer: Trainer-Link erzeugen oder dir die Trainerrolle geben (siehe `STARTTAG.md`).
