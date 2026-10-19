@@ -1,0 +1,322 @@
+[
+ {
+  "nr": 0,
+  "label": "Spieler",
+  "w": 3766,
+  "h": 1001,
+  "text": "Spieler\n4 Rollenseiten + 4 gemeinsame Seiten\n01 · Termine\n1\nÜberspringen\nTermine und Zusage\n\nAuf der Übersicht steht dein nächster Termin. Sag bis zum Meldeschluss zu oder ab. Wer zu spät antwortet, bekommt automatisch eine Strafe.\n\nWeiter\n\nDie Einführung findest du später unter Einstellungen wieder.\n\n02 · Status\n1\nÜberspringen\nMein Status\n\nAngeschlagen, verletzt oder im Urlaub? Stell es unter Mein Status ein, gern mit Datum. So weiß der Trainer, wann du wieder da bist.\n\n2\nWeiter\n03 · Konto\n1\nÜberspringen\nStrafenkonto\n\nUnter Konto siehst du, was du offen hast. Bezahl direkt per PayPal oder tipp auf Zahlung melden, wenn du bar gezahlt hast. Offene Strafen werden nach Ablauf teurer.\n\nWeiter\n04 · Katalog\n1\nÜberspringen\nKatalog\n\nIm Katalog stehen alle Strafen der Mannschaft mit Betrag. So weißt du vorher, was was kostet.\n\nVerspätete Rückmeldung\n8,00 €\nZu spät zum Training\nje 5 Minuten · max 10,00 €\n1,00 €\nGelbe Karte wegen Meckern\n10,00 €\nHandy in der Kabine\n5,00 €\nTrikot vergessen\n3,00 €\nWeiter\n05 · Home\n1\nÜberspringen\nZum Home-Bildschirm\n\nLeg die App auf deinen Home-Bildschirm. Ohne das kommen auf dem iPhone keine Mitteilungen an.\n\nIPHONE (SAFARI)\nDie App in Safari öffnen.\nUnten auf „Teilen“ tippen.\n„Zum Home-Bildschirm“ wählen, dann „Hinzufügen“.\nAb jetzt die App über das Symbol öffnen.\nANDROID (CHROME)\nDie App in Chrome öffnen.\nOben rechts auf ⋮ tippen.\n„App installieren“ oder „Zum Startbildschirm hinzufügen“ wählen.\nWeiter\n06 · Push\n1\nÜberspringen\nMitteilungen erlauben\n\nDie App meldet sich bei dir, wenn etwas für dich ansteht:\n\nTermine: neuer oder geänderter Termin, Erinnerung vor Meldeschluss, Termin fällt aus\nStrafen: neue Strafe, Zahlung bestätigt oder abgelehnt, monatliche Erinnerung an offene Strafen\nMitteilungen erlauben\nNicht jetzt\n\nRuhezeiten und einzelne Arten stellst du unter Einstellungen › Mitteilungen ein.\n\n07 · Kalender\n1\nÜberspringen\n\nOPTIONAL\n\nTermine abonnieren\n\nAlle Termine automatisch in deinem Handy-Kalender.\n\nIPHONE UND IPAD\nZum Kalender hinzufügen\nANDROID / GOOGLE KALENDER\n\nDas Abo lässt sich nur einmalig über die Web-Oberfläche anlegen, danach erscheint der Kalender automatisch in deiner Kalender-App.\n\nLink kopieren.\ncalendar.google.com im Browser öffnen, ggf. auf „Desktop-Version“ umschalten, links bei „Weitere Kalender“ auf das Plus, dann „Per URL“.\nLink einfügen, „Kalender hinzufügen“.\nLink kopieren\ncalendar.google.com öffnen\n\nÄnderungen erscheinen bei Google mit bis zu 24 Stunden Verzögerung.\n\nWeiter\n08 · Fertig\n1\nÜberspringen\nAlles bereit\n\nUnten wechselst du zwischen den Bereichen. Oben rechts am Zahnrad findest du die Einstellungen.\n\nLos geht’s\n\nDie Einführung kannst du jederzeit unter Einstellungen wieder aufrufen.",
+  "gelb": []
+ },
+ {
+  "nr": 1,
+  "label": "Spieler 01",
+  "w": 390,
+  "h": 870,
+  "text": "01 · Termine\n1\nÜberspringen\nTermine und Zusage\n\nAuf der Übersicht steht dein nächster Termin. Sag bis zum Meldeschluss zu oder ab. Wer zu spät antwortet, bekommt automatisch eine Strafe.\n\nWeiter\n\nDie Einführung findest du später unter Einstellungen wieder.",
+  "gelb": []
+ },
+ {
+  "nr": 2,
+  "label": "Spieler 02",
+  "w": 390,
+  "h": 870,
+  "text": "02 · Status\n1\nÜberspringen\nMein Status\n\nAngeschlagen, verletzt oder im Urlaub? Stell es unter Mein Status ein, gern mit Datum. So weiß der Trainer, wann du wieder da bist.\n\n2\nWeiter",
+  "gelb": []
+ },
+ {
+  "nr": 3,
+  "label": "Spieler 03",
+  "w": 390,
+  "h": 870,
+  "text": "03 · Konto\n1\nÜberspringen\nStrafenkonto\n\nUnter Konto siehst du, was du offen hast. Bezahl direkt per PayPal oder tipp auf Zahlung melden, wenn du bar gezahlt hast. Offene Strafen werden nach Ablauf teurer.\n\nWeiter",
+  "gelb": []
+ },
+ {
+  "nr": 4,
+  "label": "Spieler 04",
+  "w": 390,
+  "h": 870,
+  "text": "04 · Katalog\n1\nÜberspringen\nKatalog\n\nIm Katalog stehen alle Strafen der Mannschaft mit Betrag. So weißt du vorher, was was kostet.\n\nVerspätete Rückmeldung\n8,00 €\nZu spät zum Training\nje 5 Minuten · max 10,00 €\n1,00 €\nGelbe Karte wegen Meckern\n10,00 €\nHandy in der Kabine\n5,00 €\nTrikot vergessen\n3,00 €\nWeiter",
+  "gelb": []
+ },
+ {
+  "nr": 5,
+  "label": "Spieler 05",
+  "w": 390,
+  "h": 870,
+  "text": "05 · Home\n1\nÜberspringen\nZum Home-Bildschirm\n\nLeg die App auf deinen Home-Bildschirm. Ohne das kommen auf dem iPhone keine Mitteilungen an.\n\nIPHONE (SAFARI)\nDie App in Safari öffnen.\nUnten auf „Teilen“ tippen.\n„Zum Home-Bildschirm“ wählen, dann „Hinzufügen“.\nAb jetzt die App über das Symbol öffnen.\nANDROID (CHROME)\nDie App in Chrome öffnen.\nOben rechts auf ⋮ tippen.\n„App installieren“ oder „Zum Startbildschirm hinzufügen“ wählen.\nWeiter",
+  "gelb": []
+ },
+ {
+  "nr": 6,
+  "label": "Spieler 06",
+  "w": 390,
+  "h": 870,
+  "text": "06 · Push\n1\nÜberspringen\nMitteilungen erlauben\n\nDie App meldet sich bei dir, wenn etwas für dich ansteht:\n\nTermine: neuer oder geänderter Termin, Erinnerung vor Meldeschluss, Termin fällt aus\nStrafen: neue Strafe, Zahlung bestätigt oder abgelehnt, monatliche Erinnerung an offene Strafen\nMitteilungen erlauben\nNicht jetzt\n\nRuhezeiten und einzelne Arten stellst du unter Einstellungen › Mitteilungen ein.",
+  "gelb": []
+ },
+ {
+  "nr": 7,
+  "label": "Spieler 07",
+  "w": 390,
+  "h": 947,
+  "text": "07 · Kalender\n1\nÜberspringen\n\nOPTIONAL\n\nTermine abonnieren\n\nAlle Termine automatisch in deinem Handy-Kalender.\n\nIPHONE UND IPAD\nZum Kalender hinzufügen\nANDROID / GOOGLE KALENDER\n\nDas Abo lässt sich nur einmalig über die Web-Oberfläche anlegen, danach erscheint der Kalender automatisch in deiner Kalender-App.\n\nLink kopieren.\ncalendar.google.com im Browser öffnen, ggf. auf „Desktop-Version“ umschalten, links bei „Weitere Kalender“ auf das Plus, dann „Per URL“.\nLink einfügen, „Kalender hinzufügen“.\nLink kopieren\ncalendar.google.com öffnen\n\nÄnderungen erscheinen bei Google mit bis zu 24 Stunden Verzögerung.\n\nWeiter",
+  "gelb": []
+ },
+ {
+  "nr": 8,
+  "label": "Spieler 08",
+  "w": 390,
+  "h": 870,
+  "text": "08 · Fertig\n1\nÜberspringen\nAlles bereit\n\nUnten wechselst du zwischen den Bereichen. Oben rechts am Zahnrad findest du die Einstellungen.\n\nLos geht’s\n\nDie Einführung kannst du jederzeit unter Einstellungen wieder aufrufen.",
+  "gelb": []
+ },
+ {
+  "nr": 9,
+  "label": "Trainer (spielt nicht mit)",
+  "w": 3766,
+  "h": 1001,
+  "text": "Trainer (spielt nicht mit)\n4 Rollenseiten + 4 gemeinsame Seiten\n01 · Rückmeldungen\n1\nÜberspringen\nWer kommt?\n\nTipp auf der Übersicht im nächsten Termin auf Rückmeldungen. Du siehst, wer zu- oder abgesagt hat und wer noch offen ist. Push senden erinnert alle Offenen.\n\n2\nWeiter\n\nDie Einführung findest du später unter Einstellungen wieder.\n\n02 · Aufstellung\n1\nÜberspringen\nElf aufstellen\n\nUnter Trainer steht das nächste Spiel. Mit Elf aufstellen wählst du Formation, Startelf und Bank. Bewährte Aufstellungen speicherst du als Vorlage.\n\n2\n2\nWeiter\n03 · Kader\n1\nÜberspringen\nKader und Status\n\nIm Kader siehst du, wer fit ist und wer ausfällt, mit Grund und Datum. Den Status eines Spielers kannst du selbst setzen.\n\n2\nWeiter\n04 · Rollen\n1\nÜberspringen\nFreigeben und Rollen\n\nNeue Spieler kommen über deinen Einladungslink. Unter Einstellungen › Rollen gibst du sie frei. Tippst du auf ein Mitglied, änderst du seine Rolle, auch wenn der Kassenwart wechselt.\n\n2\n2\nWeiter\n05 · Home\n1\nÜberspringen\nZum Home-Bildschirm\n\nLeg die App auf deinen Home-Bildschirm. Ohne das kommen auf dem iPhone keine Mitteilungen an.\n\nIPHONE (SAFARI)\nDie App in Safari öffnen.\nUnten auf „Teilen“ tippen.\n„Zum Home-Bildschirm“ wählen, dann „Hinzufügen“.\nAb jetzt die App über das Symbol öffnen.\nANDROID (CHROME)\nDie App in Chrome öffnen.\nOben rechts auf ⋮ tippen.\n„App installieren“ oder „Zum Startbildschirm hinzufügen“ wählen.\nWeiter\n06 · Push\n1\nÜberspringen\nMitteilungen erlauben\n\nDie App meldet sich bei dir, wenn etwas für dich ansteht:\n\nTermine: neuer oder geänderter Termin, Termin fällt aus\nFür Trainer: kurzfristige Absagen, Übersicht nach Meldeschluss, Status abgelaufen, neue Anfragen\nMitteilungen erlauben\nNicht jetzt\n\nRuhezeiten und einzelne Arten stellst du unter Einstellungen › Mitteilungen ein.\n\n07 · Kalender\n1\nÜberspringen\n\nOPTIONAL\n\nTermine abonnieren\n\nAlle Termine automatisch in deinem Handy-Kalender.\n\nIPHONE UND IPAD\nZum Kalender hinzufügen\nANDROID / GOOGLE KALENDER\n\nDas Abo lässt sich nur einmalig über die Web-Oberfläche anlegen, danach erscheint der Kalender automatisch in deiner Kalender-App.\n\nLink kopieren.\ncalendar.google.com im Browser öffnen, ggf. auf „Desktop-Version“ umschalten, links bei „Weitere Kalender“ auf das Plus, dann „Per URL“.\nLink einfügen, „Kalender hinzufügen“.\nLink kopieren\ncalendar.google.com öffnen\n\nÄnderungen erscheinen bei Google mit bis zu 24 Stunden Verzögerung.\n\nWeiter\n08 · Fertig\n1\nÜberspringen\nAlles bereit\n\nUnten wechselst du zwischen den Bereichen. Oben rechts am Zahnrad findest du die Einstellungen.\n\nLos geht’s\n\nDie Einführung kannst du jederzeit unter Einstellungen wieder aufrufen.",
+  "gelb": []
+ },
+ {
+  "nr": 10,
+  "label": "Trainer (spielt nicht mit) 01",
+  "w": 390,
+  "h": 893,
+  "text": "01 · Rückmeldungen\n1\nÜberspringen\nWer kommt?\n\nTipp auf der Übersicht im nächsten Termin auf Rückmeldungen. Du siehst, wer zu- oder abgesagt hat und wer noch offen ist. Push senden erinnert alle Offenen.\n\n2\nWeiter\n\nDie Einführung findest du später unter Einstellungen wieder.",
+  "gelb": []
+ },
+ {
+  "nr": 11,
+  "label": "Trainer (spielt nicht mit) 02",
+  "w": 390,
+  "h": 870,
+  "text": "02 · Aufstellung\n1\nÜberspringen\nElf aufstellen\n\nUnter Trainer steht das nächste Spiel. Mit Elf aufstellen wählst du Formation, Startelf und Bank. Bewährte Aufstellungen speicherst du als Vorlage.\n\n2\n2\nWeiter",
+  "gelb": []
+ },
+ {
+  "nr": 12,
+  "label": "Trainer (spielt nicht mit) 03",
+  "w": 390,
+  "h": 870,
+  "text": "03 · Kader\n1\nÜberspringen\nKader und Status\n\nIm Kader siehst du, wer fit ist und wer ausfällt, mit Grund und Datum. Den Status eines Spielers kannst du selbst setzen.\n\n2\nWeiter",
+  "gelb": []
+ },
+ {
+  "nr": 13,
+  "label": "Trainer (spielt nicht mit) 04",
+  "w": 390,
+  "h": 870,
+  "text": "04 · Rollen\n1\nÜberspringen\nFreigeben und Rollen\n\nNeue Spieler kommen über deinen Einladungslink. Unter Einstellungen › Rollen gibst du sie frei. Tippst du auf ein Mitglied, änderst du seine Rolle, auch wenn der Kassenwart wechselt.\n\n2\n2\nWeiter",
+  "gelb": []
+ },
+ {
+  "nr": 14,
+  "label": "Trainer (spielt nicht mit) 05",
+  "w": 390,
+  "h": 870,
+  "text": "05 · Home\n1\nÜberspringen\nZum Home-Bildschirm\n\nLeg die App auf deinen Home-Bildschirm. Ohne das kommen auf dem iPhone keine Mitteilungen an.\n\nIPHONE (SAFARI)\nDie App in Safari öffnen.\nUnten auf „Teilen“ tippen.\n„Zum Home-Bildschirm“ wählen, dann „Hinzufügen“.\nAb jetzt die App über das Symbol öffnen.\nANDROID (CHROME)\nDie App in Chrome öffnen.\nOben rechts auf ⋮ tippen.\n„App installieren“ oder „Zum Startbildschirm hinzufügen“ wählen.\nWeiter",
+  "gelb": []
+ },
+ {
+  "nr": 15,
+  "label": "Trainer (spielt nicht mit) 06",
+  "w": 390,
+  "h": 870,
+  "text": "06 · Push\n1\nÜberspringen\nMitteilungen erlauben\n\nDie App meldet sich bei dir, wenn etwas für dich ansteht:\n\nTermine: neuer oder geänderter Termin, Termin fällt aus\nFür Trainer: kurzfristige Absagen, Übersicht nach Meldeschluss, Status abgelaufen, neue Anfragen\nMitteilungen erlauben\nNicht jetzt\n\nRuhezeiten und einzelne Arten stellst du unter Einstellungen › Mitteilungen ein.",
+  "gelb": []
+ },
+ {
+  "nr": 16,
+  "label": "Trainer (spielt nicht mit) 07",
+  "w": 390,
+  "h": 947,
+  "text": "07 · Kalender\n1\nÜberspringen\n\nOPTIONAL\n\nTermine abonnieren\n\nAlle Termine automatisch in deinem Handy-Kalender.\n\nIPHONE UND IPAD\nZum Kalender hinzufügen\nANDROID / GOOGLE KALENDER\n\nDas Abo lässt sich nur einmalig über die Web-Oberfläche anlegen, danach erscheint der Kalender automatisch in deiner Kalender-App.\n\nLink kopieren.\ncalendar.google.com im Browser öffnen, ggf. auf „Desktop-Version“ umschalten, links bei „Weitere Kalender“ auf das Plus, dann „Per URL“.\nLink einfügen, „Kalender hinzufügen“.\nLink kopieren\ncalendar.google.com öffnen\n\nÄnderungen erscheinen bei Google mit bis zu 24 Stunden Verzögerung.\n\nWeiter",
+  "gelb": []
+ },
+ {
+  "nr": 17,
+  "label": "Trainer (spielt nicht mit) 08",
+  "w": 390,
+  "h": 870,
+  "text": "08 · Fertig\n1\nÜberspringen\nAlles bereit\n\nUnten wechselst du zwischen den Bereichen. Oben rechts am Zahnrad findest du die Einstellungen.\n\nLos geht’s\n\nDie Einführung kannst du jederzeit unter Einstellungen wieder aufrufen.",
+  "gelb": []
+ },
+ {
+  "nr": 18,
+  "label": "Kassenwart",
+  "w": 3766,
+  "h": 1001,
+  "text": "Kassenwart\n5 Rollenseiten + 4 gemeinsame Seiten\n01 · Spieler\n1\nÜberspringen\nErst mal als Spieler\n\nWie jeder Spieler sagst du auf der Übersicht zu oder ab, setzt deinen Status und siehst unter Konto deine Strafen.\n\nWeiter\n\nDie Einführung findest du später unter Einstellungen wieder.\n\n02 · Kasse\n1\nÜberspringen\nDie Kasse\n\nAuf der Übersicht siehst du, was in der Kasse ist und was noch offen ist. Tipp auf den Betrag, auf Noch offen oder auf zu prüfen, um direkt in die Kasse zu springen.\n\nWeiter\n03 · Verhängen\n1\nÜberspringen\nStrafe verhängen\n\nUnter Kasse tippst du auf + Strafe verhängen. Wähl Spieler und Strafen aus dem Katalog. Passt nichts, legst du über Individuell eine eigene an.\n\n2\nWeiter\n04 · Prüfen\n1\nÜberspringen\nPrüfen und verbuchen\n\nMeldet jemand eine Zahlung, landet sie unter Gemeldet. Bestätige sie, wenn das Geld da ist. Unter Offen stehen alle Schulden, unter Bezahlt alles Verbuchte.\n\n2\nWeiter\n05 · PayPal\n1\nÜberspringen\nPayPal-Link hinterlegen\n\nTrag den PayPal.me-Namen der Kasse ein, dann können alle direkt aus ihrem Konto bezahlen. Du findest ihn unter Einstellungen › Profil › PayPal.\n\n2\nWeiter\n06 · Home\n1\nÜberspringen\nZum Home-Bildschirm\n\nLeg die App auf deinen Home-Bildschirm. Ohne das kommen auf dem iPhone keine Mitteilungen an.\n\nIPHONE (SAFARI)\nDie App in Safari öffnen.\nUnten auf „Teilen“ tippen.\n„Zum Home-Bildschirm“ wählen, dann „Hinzufügen“.\nAb jetzt die App über das Symbol öffnen.\nANDROID (CHROME)\nDie App in Chrome öffnen.\nOben rechts auf ⋮ tippen.\n„App installieren“ oder „Zum Startbildschirm hinzufügen“ wählen.\nWeiter\n07 · Push\n1\nÜberspringen\nMitteilungen erlauben\n\nDie App meldet sich bei dir, wenn etwas für dich ansteht:\n\nTermine: neuer oder geänderter Termin, Erinnerung vor Meldeschluss, Termin fällt aus\nStrafen: neue Strafe, Zahlung bestätigt oder abgelehnt, monatliche Erinnerung an offene Strafen\nFür die Kasse: gemeldete Zahlungen zum Prüfen\nMitteilungen erlauben\nNicht jetzt\n\nRuhezeiten und einzelne Arten stellst du unter Einstellungen › Mitteilungen ein.\n\n08 · Kalender\n1\nÜberspringen\n\nOPTIONAL\n\nTermine abonnieren\n\nAlle Termine automatisch in deinem Handy-Kalender.\n\nIPHONE UND IPAD\nZum Kalender hinzufügen\nANDROID / GOOGLE KALENDER\n\nDas Abo lässt sich nur einmalig über die Web-Oberfläche anlegen, danach erscheint der Kalender automatisch in deiner Kalender-App.\n\nLink kopieren.\ncalendar.google.com im Browser öffnen, ggf. auf „Desktop-Version“ umschalten, links bei „Weitere Kalender“ auf das Plus, dann „Per URL“.\nLink einfügen, „Kalender hinzufügen“.\nLink kopieren\ncalendar.google.com öffnen\n\nÄnderungen erscheinen bei Google mit bis zu 24 Stunden Verzögerung.\n\nWeiter\n09 · Fertig\n1\nÜberspringen\nAlles bereit\n\nUnten wechselst du zwischen den Bereichen. Oben rechts am Zahnrad findest du die Einstellungen.\n\nLos geht’s\n\nDie Einführung kannst du jederzeit unter Einstellungen wieder aufrufen.",
+  "gelb": []
+ },
+ {
+  "nr": 19,
+  "label": "Kassenwart 01",
+  "w": 390,
+  "h": 870,
+  "text": "01 · Spieler\n1\nÜberspringen\nErst mal als Spieler\n\nWie jeder Spieler sagst du auf der Übersicht zu oder ab, setzt deinen Status und siehst unter Konto deine Strafen.\n\nWeiter\n\nDie Einführung findest du später unter Einstellungen wieder.",
+  "gelb": []
+ },
+ {
+  "nr": 20,
+  "label": "Kassenwart 02",
+  "w": 390,
+  "h": 870,
+  "text": "02 · Kasse\n1\nÜberspringen\nDie Kasse\n\nAuf der Übersicht siehst du, was in der Kasse ist und was noch offen ist. Tipp auf den Betrag, auf Noch offen oder auf zu prüfen, um direkt in die Kasse zu springen.\n\nWeiter",
+  "gelb": []
+ },
+ {
+  "nr": 21,
+  "label": "Kassenwart 03",
+  "w": 390,
+  "h": 870,
+  "text": "03 · Verhängen\n1\nÜberspringen\nStrafe verhängen\n\nUnter Kasse tippst du auf + Strafe verhängen. Wähl Spieler und Strafen aus dem Katalog. Passt nichts, legst du über Individuell eine eigene an.\n\n2\nWeiter",
+  "gelb": []
+ },
+ {
+  "nr": 22,
+  "label": "Kassenwart 04",
+  "w": 390,
+  "h": 870,
+  "text": "04 · Prüfen\n1\nÜberspringen\nPrüfen und verbuchen\n\nMeldet jemand eine Zahlung, landet sie unter Gemeldet. Bestätige sie, wenn das Geld da ist. Unter Offen stehen alle Schulden, unter Bezahlt alles Verbuchte.\n\n2\nWeiter",
+  "gelb": []
+ },
+ {
+  "nr": 23,
+  "label": "Kassenwart 05",
+  "w": 390,
+  "h": 870,
+  "text": "05 · PayPal\n1\nÜberspringen\nPayPal-Link hinterlegen\n\nTrag den PayPal.me-Namen der Kasse ein, dann können alle direkt aus ihrem Konto bezahlen. Du findest ihn unter Einstellungen › Profil › PayPal.\n\n2\nWeiter",
+  "gelb": []
+ },
+ {
+  "nr": 24,
+  "label": "Kassenwart 06",
+  "w": 390,
+  "h": 870,
+  "text": "06 · Home\n1\nÜberspringen\nZum Home-Bildschirm\n\nLeg die App auf deinen Home-Bildschirm. Ohne das kommen auf dem iPhone keine Mitteilungen an.\n\nIPHONE (SAFARI)\nDie App in Safari öffnen.\nUnten auf „Teilen“ tippen.\n„Zum Home-Bildschirm“ wählen, dann „Hinzufügen“.\nAb jetzt die App über das Symbol öffnen.\nANDROID (CHROME)\nDie App in Chrome öffnen.\nOben rechts auf ⋮ tippen.\n„App installieren“ oder „Zum Startbildschirm hinzufügen“ wählen.\nWeiter",
+  "gelb": []
+ },
+ {
+  "nr": 25,
+  "label": "Kassenwart 07",
+  "w": 390,
+  "h": 870,
+  "text": "07 · Push\n1\nÜberspringen\nMitteilungen erlauben\n\nDie App meldet sich bei dir, wenn etwas für dich ansteht:\n\nTermine: neuer oder geänderter Termin, Erinnerung vor Meldeschluss, Termin fällt aus\nStrafen: neue Strafe, Zahlung bestätigt oder abgelehnt, monatliche Erinnerung an offene Strafen\nFür die Kasse: gemeldete Zahlungen zum Prüfen\nMitteilungen erlauben\nNicht jetzt\n\nRuhezeiten und einzelne Arten stellst du unter Einstellungen › Mitteilungen ein.",
+  "gelb": []
+ },
+ {
+  "nr": 26,
+  "label": "Kassenwart 08",
+  "w": 390,
+  "h": 947,
+  "text": "08 · Kalender\n1\nÜberspringen\n\nOPTIONAL\n\nTermine abonnieren\n\nAlle Termine automatisch in deinem Handy-Kalender.\n\nIPHONE UND IPAD\nZum Kalender hinzufügen\nANDROID / GOOGLE KALENDER\n\nDas Abo lässt sich nur einmalig über die Web-Oberfläche anlegen, danach erscheint der Kalender automatisch in deiner Kalender-App.\n\nLink kopieren.\ncalendar.google.com im Browser öffnen, ggf. auf „Desktop-Version“ umschalten, links bei „Weitere Kalender“ auf das Plus, dann „Per URL“.\nLink einfügen, „Kalender hinzufügen“.\nLink kopieren\ncalendar.google.com öffnen\n\nÄnderungen erscheinen bei Google mit bis zu 24 Stunden Verzögerung.\n\nWeiter",
+  "gelb": []
+ },
+ {
+  "nr": 27,
+  "label": "Kassenwart 09",
+  "w": 390,
+  "h": 870,
+  "text": "09 · Fertig\n1\nÜberspringen\nAlles bereit\n\nUnten wechselst du zwischen den Bereichen. Oben rechts am Zahnrad findest du die Einstellungen.\n\nLos geht’s\n\nDie Einführung kannst du jederzeit unter Einstellungen wieder aufrufen.",
+  "gelb": []
+ },
+ {
+  "nr": 28,
+  "label": "Spielertrainer",
+  "w": 3766,
+  "h": 1001,
+  "text": "Spielertrainer\n5 Rollenseiten + 4 gemeinsame Seiten\n01 · Hero\n1\nÜberspringen\nDein nächster Termin\n\nOben sagst du selbst zu oder ab. Darunter siehst du, wie die Mannschaft geantwortet hat, und kommst zu Aufstellung und Kader.\n\n2\nWeiter\n\nDie Einführung findest du später unter Einstellungen wieder.\n\n02 · Rückmeldungen\n1\nÜberspringen\nWer kommt?\n\nTipp im Termin auf Rückmeldungen. Du siehst, wer zu- oder abgesagt hat und wer noch offen ist. Push senden erinnert alle Offenen.\n\n2\nWeiter\n03 · Aufstellung\n1\nÜberspringen\nElf aufstellen\n\nUnter Trainer steht das nächste Spiel. Mit Elf aufstellen wählst du Formation, Startelf und Bank. Bewährte Aufstellungen speicherst du als Vorlage.\n\n2\n2\nWeiter\n04 · Kader\n1\nÜberspringen\nKader und Status\n\nIm Kader siehst du, wer ausfällt. Tipp auf einen Spieler, um seinen Status zu setzen, mit Grund und Datum.\n\n2\nWeiter\n05 · Rollen\n1\nÜberspringen\nFreigeben und Rollen\n\nNeue Spieler kommen über deinen Einladungslink. Unter Einstellungen › Rollen gibst du sie frei. Tippst du auf ein Mitglied, änderst du seine Rolle, auch wenn der Kassenwart wechselt.\n\n2\n2\nWeiter\n06 · Home\n1\nÜberspringen\nZum Home-Bildschirm\n\nLeg die App auf deinen Home-Bildschirm. Ohne das kommen auf dem iPhone keine Mitteilungen an.\n\nIPHONE (SAFARI)\nDie App in Safari öffnen.\nUnten auf „Teilen“ tippen.\n„Zum Home-Bildschirm“ wählen, dann „Hinzufügen“.\nAb jetzt die App über das Symbol öffnen.\nANDROID (CHROME)\nDie App in Chrome öffnen.\nOben rechts auf ⋮ tippen.\n„App installieren“ oder „Zum Startbildschirm hinzufügen“ wählen.\nWeiter\n07 · Push\n1\nÜberspringen\nMitteilungen erlauben\n\nDie App meldet sich bei dir, wenn etwas für dich ansteht:\n\nTermine: neuer oder geänderter Termin, Erinnerung vor Meldeschluss, Termin fällt aus\nStrafen: neue Strafe, Zahlung bestätigt oder abgelehnt, monatliche Erinnerung an offene Strafen\nFür Trainer: kurzfristige Absagen, Übersicht nach Meldeschluss, Status abgelaufen, neue Anfragen\nMitteilungen erlauben\nNicht jetzt\n\nRuhezeiten und einzelne Arten stellst du unter Einstellungen › Mitteilungen ein.\n\n08 · Kalender\n1\nÜberspringen\n\nOPTIONAL\n\nTermine abonnieren\n\nAlle Termine automatisch in deinem Handy-Kalender.\n\nIPHONE UND IPAD\nZum Kalender hinzufügen\nANDROID / GOOGLE KALENDER\n\nDas Abo lässt sich nur einmalig über die Web-Oberfläche anlegen, danach erscheint der Kalender automatisch in deiner Kalender-App.\n\nLink kopieren.\ncalendar.google.com im Browser öffnen, ggf. auf „Desktop-Version“ umschalten, links bei „Weitere Kalender“ auf das Plus, dann „Per URL“.\nLink einfügen, „Kalender hinzufügen“.\nLink kopieren\ncalendar.google.com öffnen\n\nÄnderungen erscheinen bei Google mit bis zu 24 Stunden Verzögerung.\n\nWeiter\n09 · Fertig\n1\nÜberspringen\nAlles bereit\n\nUnten wechselst du zwischen den Bereichen. Oben rechts am Zahnrad findest du die Einstellungen.\n\nLos geht’s\n\nDie Einführung kannst du jederzeit unter Einstellungen wieder aufrufen.",
+  "gelb": []
+ },
+ {
+  "nr": 29,
+  "label": "Spielertrainer 01",
+  "w": 390,
+  "h": 870,
+  "text": "01 · Hero\n1\nÜberspringen\nDein nächster Termin\n\nOben sagst du selbst zu oder ab. Darunter siehst du, wie die Mannschaft geantwortet hat, und kommst zu Aufstellung und Kader.\n\n2\nWeiter\n\nDie Einführung findest du später unter Einstellungen wieder.",
+  "gelb": []
+ },
+ {
+  "nr": 30,
+  "label": "Spielertrainer 02",
+  "w": 390,
+  "h": 870,
+  "text": "02 · Rückmeldungen\n1\nÜberspringen\nWer kommt?\n\nTipp im Termin auf Rückmeldungen. Du siehst, wer zu- oder abgesagt hat und wer noch offen ist. Push senden erinnert alle Offenen.\n\n2\nWeiter",
+  "gelb": []
+ },
+ {
+  "nr": 31,
+  "label": "Spielertrainer 03",
+  "w": 390,
+  "h": 870,
+  "text": "03 · Aufstellung\n1\nÜberspringen\nElf aufstellen\n\nUnter Trainer steht das nächste Spiel. Mit Elf aufstellen wählst du Formation, Startelf und Bank. Bewährte Aufstellungen speicherst du als Vorlage.\n\n2\n2\nWeiter",
+  "gelb": []
+ },
+ {
+  "nr": 32,
+  "label": "Spielertrainer 04",
+  "w": 390,
+  "h": 870,
+  "text": "04 · Kader\n1\nÜberspringen\nKader und Status\n\nIm Kader siehst du, wer ausfällt. Tipp auf einen Spieler, um seinen Status zu setzen, mit Grund und Datum.\n\n2\nWeiter",
+  "gelb": []
+ },
+ {
+  "nr": 33,
+  "label": "Spielertrainer 05",
+  "w": 390,
+  "h": 870,
+  "text": "05 · Rollen\n1\nÜberspringen\nFreigeben und Rollen\n\nNeue Spieler kommen über deinen Einladungslink. Unter Einstellungen › Rollen gibst du sie frei. Tippst du auf ein Mitglied, änderst du seine Rolle, auch wenn der Kassenwart wechselt.\n\n2\n2\nWeiter",
+  "gelb": []
+ },
+ {
+  "nr": 34,
+  "label": "Spielertrainer 06",
+  "w": 390,
+  "h": 870,
+  "text": "06 · Home\n1\nÜberspringen\nZum Home-Bildschirm\n\nLeg die App auf deinen Home-Bildschirm. Ohne das kommen auf dem iPhone keine Mitteilungen an.\n\nIPHONE (SAFARI)\nDie App in Safari öffnen.\nUnten auf „Teilen“ tippen.\n„Zum Home-Bildschirm“ wählen, dann „Hinzufügen“.\nAb jetzt die App über das Symbol öffnen.\nANDROID (CHROME)\nDie App in Chrome öffnen.\nOben rechts auf ⋮ tippen.\n„App installieren“ oder „Zum Startbildschirm hinzufügen“ wählen.\nWeiter",
+  "gelb": []
+ },
+ {
+  "nr": 35,
+  "label": "Spielertrainer 07",
+  "w": 390,
+  "h": 870,
+  "text": "07 · Push\n1\nÜberspringen\nMitteilungen erlauben\n\nDie App meldet sich bei dir, wenn etwas für dich ansteht:\n\nTermine: neuer oder geänderter Termin, Erinnerung vor Meldeschluss, Termin fällt aus\nStrafen: neue Strafe, Zahlung bestätigt oder abgelehnt, monatliche Erinnerung an offene Strafen\nFür Trainer: kurzfristige Absagen, Übersicht nach Meldeschluss, Status abgelaufen, neue Anfragen\nMitteilungen erlauben\nNicht jetzt\n\nRuhezeiten und einzelne Arten stellst du unter Einstellungen › Mitteilungen ein.",
+  "gelb": []
+ },
+ {
+  "nr": 36,
+  "label": "Spielertrainer 08",
+  "w": 390,
+  "h": 947,
+  "text": "08 · Kalender\n1\nÜberspringen\n\nOPTIONAL\n\nTermine abonnieren\n\nAlle Termine automatisch in deinem Handy-Kalender.\n\nIPHONE UND IPAD\nZum Kalender hinzufügen\nANDROID / GOOGLE KALENDER\n\nDas Abo lässt sich nur einmalig über die Web-Oberfläche anlegen, danach erscheint der Kalender automatisch in deiner Kalender-App.\n\nLink kopieren.\ncalendar.google.com im Browser öffnen, ggf. auf „Desktop-Version“ umschalten, links bei „Weitere Kalender“ auf das Plus, dann „Per URL“.\nLink einfügen, „Kalender hinzufügen“.\nLink kopieren\ncalendar.google.com öffnen\n\nÄnderungen erscheinen bei Google mit bis zu 24 Stunden Verzögerung.\n\nWeiter",
+  "gelb": []
+ },
+ {
+  "nr": 37,
+  "label": "Spielertrainer 09",
+  "w": 390,
+  "h": 870,
+  "text": "09 · Fertig\n1\nÜberspringen\nAlles bereit\n\nUnten wechselst du zwischen den Bereichen. Oben rechts am Zahnrad findest du die Einstellungen.\n\nLos geht’s\n\nDie Einführung kannst du jederzeit unter Einstellungen wieder aufrufen.",
+  "gelb": []
+ },
+ {
+  "nr": 38,
+  "label": "Tabelle",
+  "w": 1400,
+  "h": 2018,
+  "text": "Seite → Bausteine → Referenz\n\nAuf jeder Seite zusätzlich: .auth-wrap, .auth-card.ob-card, .auth-title, .ob-text, .ob-fuss, Überspringen als .link-btn.ob-spaeter und die Fortschrittspunkte (Neu 1).\n\nROLLE\tSEITE\tVERWENDETE BAUSTEINE\tANSICHT AUS DER REFERENZ\nSpieler\t01 · Termine und Zusage\t.auth-crest · .auth-title · .ob-text · Terminkarte .tk mit .tk-rsvp und Meldeschluss · .btn-primary\tbaustein_terminkarte.png (aus spieler_uebersicht.png)\nSpieler\t02 · Mein Status\t.st-wahl[data-kompakt] .st-knopf · Blatt „Voraussichtlich bis“\tbaustein_status-chips.png · spieler_mein-status.png (Ausschnitt Blatt)\nSpieler\t03 · Strafenkonto\tKontobanner .mine-banner (.mb-pay .mb-pp .mb-foot .mb-cd)\tbaustein_kontobanner.png (aus spieler_konto-ich.png)\nSpieler\t04 · Katalog\t.kat-list .kat-item .kat-main .kat-name .kat-sub .kat-amount\tKeine Aufnahme vorhanden: Karte Ansichten/Katalog, Einträge aus kassenwart_strafe-verhaengen.png\nSpieler\t05 · Zum Home-Bildschirm\t.auth-card .ob-text · .abo-karten .abo-karte .abo-k-t .abo-schritte · .btn-primary\tAufbau wie Kalender-Abo-Blatt (spieler_kalender-abo.png); Schritt aus neu_einfuehrung-push.png\nSpieler\t06 · Mitteilungen erlauben\t.ob-text · .ob-anl .ob-liste · .btn-primary.ob-weiter · .ob-spaeter · .ob-hinweis\tneu_einfuehrung-push.png; Kategorien aus spieler_einstellungen-mitteilungen.png\nSpieler\t07 · Termine abonnieren\t.ob-schritt · .abo-karten .abo-karte .abo-k-t .abo-btn .abo-hinweis .abo-schritte .abo-fuss · .btn.ob-sek\tspieler_kalender-abo.png (Blatt „Termine abonnieren“)\nSpieler\t08 · Alles bereit\t.auth-crest · .auth-title · .ob-text · Bild der unteren Navigation · .btn-primary · .ob-hinweis\tbaustein_bottom-nav-spieler.png\nTrainer (spielt nicht mit)\t01 · Wer kommt?\t.auth-crest · Rückmeldungen-Blatt .rs2-panel (.rs2-bar .rs2-kacheln .rs2-liste .rs2-fuss .rs2-btn)\tspielertrainer_rueckmeldungen.png (Ersatz, fehlt beim Trainer)\nTrainer (spielt nicht mit)\t02 · Elf aufstellen\t.tv-next (.tv-next-kopf .tv-next-btn) · .group-head · .tv-tpls .tv-tpl\ttrainer_trainer-spiel-waehlen.png (zwei Ausschnitte)\nTrainer (spielt nicht mit)\t03 · Kader und Status\t.kad-kpis .kpi · .group-head · .kad-list .kad-row .kad-pille\ttrainer_kader.png\nTrainer (spielt nicht mit)\t04 · Freigeben und Rollen\t.group-head · .ein-gruppe .ein-zeile · .mark · Freigabe-Blatt .nsb mit .ein-schalter .sw\ttrainer_einladung-anfragen.png · trainer_anfrage-freigeben.png\nTrainer (spielt nicht mit)\t05 · Zum Home-Bildschirm\t.auth-card .ob-text · .abo-karten .abo-karte .abo-k-t .abo-schritte · .btn-primary\tAufbau wie Kalender-Abo-Blatt (trainer_kalender-abo.png); Schritt aus neu_einfuehrung-push.png\nTrainer (spielt nicht mit)\t06 · Mitteilungen erlauben\t.ob-text · .ob-anl .ob-liste · .btn-primary.ob-weiter · .ob-spaeter · .ob-hinweis\tneu_einfuehrung-push.png; Kategorien aus spielertrainer_einstellungen-mitteilungen.png\nTrainer (spielt nicht mit)\t07 · Termine abonnieren\t.ob-schritt · .abo-karten .abo-karte .abo-k-t .abo-btn .abo-hinweis .abo-schritte .abo-fuss · .btn.ob-sek\ttrainer_kalender-abo.png (Blatt „Termine abonnieren“)\nTrainer (spielt nicht mit)\t08 · Alles bereit\t.auth-crest · .auth-title · .ob-text · Bild der unteren Navigation · .btn-primary · .ob-hinweis\tbaustein_bottom-nav-trainer.png\nKassenwart\t01 · Erst mal als Spieler\t.auth-crest · Terminkarte .tk mit .tk-rsvp\tbaustein_terminkarte.png (gleich in kassenwart_uebersicht.png)\nKassenwart\t02 · Die Kasse\tKassenbanner .kb (.kb-value .kb-chev .kb-bar .kb-offen .kb-offen-gem)\tbaustein_kassenbanner-kassenwart.png\nKassenwart\t03 · Strafe verhängen\t.ks-seite (.ks-seite-kopf .ks-seite-x) · .group-head · .ks-katzeile\tkassenwart_strafe-verhaengen.png\nKassenwart\t04 · Prüfen und verbuchen\t.ks-seg .ks-seg-b .ks-seg-n · .ks-stapelkopf · Prüfkarte .ks-card (.ks-av .ks-amt .ks-meta .ks-zitat .ks-vorher .ks-actions)\tkassenwart_kasse-pruefen.png\nKassenwart\t05 · PayPal-Link hinterlegen\tBlatt mit .group-head · Eingabefeld · .btn / .btn-primary\tkassenwart_einstellungen-paypal.png\nKassenwart\t06 · Zum Home-Bildschirm\t.auth-card .ob-text · .abo-karten .abo-karte .abo-k-t .abo-schritte · .btn-primary\tAufbau wie Kalender-Abo-Blatt (kassenwart_kalender-abo.png); Schritt aus neu_einfuehrung-push.png\nKassenwart\t07 · Mitteilungen erlauben\t.ob-text · .ob-anl .ob-liste · .btn-primary.ob-weiter · .ob-spaeter · .ob-hinweis\tneu_einfuehrung-push.png; Kategorien aus kassenwart_einstellungen-mitteilungen.png\nKassenwart\t08 · Termine abonnieren\t.ob-schritt · .abo-karten .abo-karte .abo-k-t .abo-btn .abo-hinweis .abo-schritte .abo-fuss · .btn.ob-sek\tkassenwart_kalender-abo.png (Blatt „Termine abonnieren“)\nKassenwart\t09 · Alles bereit\t.auth-crest · .auth-title · .ob-text · Bild der unteren Navigation · .btn-primary · .ob-hinweis\tbaustein_bottom-nav-kassenwart.png\nSpielertrainer\t01 · Dein nächster Termin\t.auth-crest · Terminkarte .tk mit .tk-rsvp, Rückmeldebalken und .tk-felder\tspielertrainer_uebersicht.png (Ausschnitt Hero)\nSpielertrainer\t02 · Wer kommt?\tRückmeldungen-Blatt .rs2-panel (.rs2-bar .rs2-kacheln .rs2-liste .rs2-fuss .rs2-btn)\tspielertrainer_rueckmeldungen.png\nSpielertrainer\t03 · Elf aufstellen\t.tv-next (.tv-next-kopf .tv-next-btn) · .group-head · .tv-tpls .tv-tpl\tspielertrainer_trainer-spiel-waehlen.png (zwei Ausschnitte)\nSpielertrainer\t04 · Kader und Status\tStatus-Blatt .sb-panel .sb-k · Eingabefelder · .btn-primary\tspielertrainer_kader-status.png (Ausschnitt Blatt)\nSpielertrainer\t05 · Freigeben und Rollen\t.group-head · .ein-gruppe .ein-zeile · .mark · Freigabe-Blatt .nsb mit .ein-schalter .sw\tspielertrainer_einladung-anfragen.png · spielertrainer_anfrage-freigeben.png\nSpielertrainer\t06 · Zum Home-Bildschirm\t.auth-card .ob-text · .abo-karten .abo-karte .abo-k-t .abo-schritte · .btn-primary\tAufbau wie Kalender-Abo-Blatt (spielertrainer_kalender-abo.png); Schritt aus neu_einfuehrung-push.png\nSpielertrainer\t07 · Mitteilungen erlauben\t.ob-text · .ob-anl .ob-liste · .btn-primary.ob-weiter · .ob-spaeter · .ob-hinweis\tneu_einfuehrung-push.png; Kategorien aus spielertrainer_einstellungen-mitteilungen.png\nSpielertrainer\t08 · Termine abonnieren\t.ob-schritt · .abo-karten .abo-karte .abo-k-t .abo-btn .abo-hinweis .abo-schritte .abo-fuss · .btn.ob-sek\tspielertrainer_kalender-abo.png (Blatt „Termine abonnieren“)\nSpielertrainer\t09 · Alles bereit\t.auth-crest · .auth-title · .ob-text · Bild der unteren Navigation · .btn-primary · .ob-hinweis\tbaustein_bottom-nav-spielertrainer.png",
+  "gelb": []
+ },
+ {
+  "nr": 39,
+  "label": "Abweichungen",
+  "w": 1000,
+  "h": 1217,
+  "text": "Gelb markierte Abweichungen\n1\nFortschrittspunkte (neu)\nDie heutige Einführung zählt nur mit „Schritt 1 von 3“ (.ob-schritt). Gefordert sind Punkte; einen Baustein dafür gibt es nicht mehr, nur noch den Token --dot-off („Seitenpunkte“) aus dem entfallenen Kartenstapel der Kasse. Aufbau: 8 px Punkte in --dot-off, aktuelle Seite als 20 px Pille in --green-700, 6 px Abstand, links neben „Überspringen“ in derselben Zeile.\n2\nAusschnitt-Rahmen für App-Ansichten (neu)\nGanze Ansichten aus der App gibt es nicht als Baustein, der sich verkleinert einbetten ließe. Damit sie exakt wie in der Referenz aussehen, zeigt die Einführung die Aufnahme selbst als Bildausschnitt: 1 px --line, --radius-md, Hintergrund --bg. Einzelne Bausteine (Terminkarte, Statuschips, Kontobanner, Kassenbanner, Navigation) stehen ohne Rahmen.\nWeitere Hinweise zur Übernahme\n·\nSeitenzahl\n„Höchstens 5 Seiten“ ist als höchstens 5 Rollenseiten gelesen. Dazu kommen die vier Pflichtseiten (Home-Bildschirm, Mitteilungen, Kalender-Abo, Los geht’s). Spieler und Trainer haben 8, Kassenwart und Spielertrainer 9 Seiten.\n·\nTrainer ohne Spielerrolle: Übersicht\ntrainer_uebersicht.png zeigt „Willkommen!“ mit einer Spielerliste statt des Termin-Hero. Die Seite „Wer kommt?“ nutzt deshalb das Rückmeldungen-Blatt aus spielertrainer_rueckmeldungen.png; der Ausschnitt beginnt unter der Zusage, eigene Zu-/Absage ist nicht zu sehen.\n·\nTrainer ohne Spielerrolle: Mitteilungen\ntrainer_einstellungen-mitteilungen.png zeigt keine Schalter. Die Liste auf der Mitteilungen-Seite stammt aus dem Abschnitt „Für Trainer“ von spielertrainer_einstellungen-mitteilungen.png; die erste Zeile dort liegt unter der Navigation und ist als „kurzfristige Absagen“ aus dem Einleitungssatz übernommen. Bitte gegen die App prüfen.\n·\nKassenwart: Mitteilungen\nDer Abschnitt „Für die Kasse“ ist in kassenwart_einstellungen-mitteilungen.png von der Navigation verdeckt. „Gemeldete Zahlungen zum Prüfen“ folgt aus der Push-Kategorie zahlung_gemeldet. Bitte gegen die App prüfen.\n·\nNamen der Kasse-Reiter\nDer Auftrag nennt „Prüfen / Offen / Eingegangen“, die App heißt „Gemeldet / Offen / Bezahlt“. Die Einführung benutzt die Namen aus der App.\n·\nStatus „nicht verfügbar“\nDie Referenz zeigt fit, angeschlagen, verletzt und Urlaub. „Nicht verfügbar“ erscheint nur ohne Zustimmung zu Gesundheitsangaben; davon gibt es keine Aufnahme. Die Seite zeigt deshalb die Chips aus der Referenz.\n·\nKatalog ohne Aufnahme\nFür den Katalog der Spieler gibt es kein Referenzbild. Die Seite baut die Liste mit .kat-list aus der Design-System-Karte, ohne Pfeil (Spieler bearbeiten nicht), mit den Einträgen aus kassenwart_strafe-verhaengen.png.\n·\nEinstellungen: neuer Eintrag\nDamit die Einführung wieder aufrufbar ist, braucht Einstellungen › Info eine Zeile „Einführung ansehen“ im vorhandenen Aufbau .ein-gruppe .ein-zeile.\n·\nAusschnitte\nDie ganzseitigen Aufnahmen zeigen die feste Navigation mitten im Bild. Alle Ausschnitte sind so gewählt, dass sie diese Stelle nicht berühren.",
+  "gelb": []
+ }
+]

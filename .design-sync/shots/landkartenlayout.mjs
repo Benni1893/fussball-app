@@ -55,7 +55,7 @@ const BILDER = path.join(ZIEL, 'bilder');
 const ROLLEN = path.join(BILDER, 'rollen');
 const KOMPLETT = path.join(BILDER, 'landkarte-komplett.html');
 const REIHENFOLGE = ['anmeldung', 'wartend', 'neutrainer', 'spieler', 'trainer', 'kassenwart', 'trainerkassenwart', 'admin'];
-const VORSCHAU = { breite: 300, qualitaet: 0.66 };
+const VORSCHAU = { breite: 300, qualitaet: 0.62 };   // bis 18.10.2026 0.66; mit "So geht's" sonst ueber 15 MB
 const GROSS = { breite: 440, qualitaet: 0.5 };   // bis 11.10.2026 480 px, 0.6; mit der Spalte "Wartet auf Freigabe" sonst ueber 15 MB
 const GRENZE = 15 * 1024 * 1024;
 

@@ -429,6 +429,33 @@
           "nameQuelle": "ueberschrift"
         },
         {
+          "schluessel": "einstellungen/sogehts",
+          "ansicht": "einstellungen",
+          "unter": "sogehts",
+          "oben": [],
+          "ueberschrift": "So geht's",
+          "titel": "So geht's",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "sogehts",
+              "text": "So geht's›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/spieler/einstellungen__sogehts.png",
+          "strang": "einstellungen",
+          "name": "So geht's",
+          "nameQuelle": "ueberschrift"
+        },
+        {
           "schluessel": "kalender+calSheet",
           "ansicht": "kalender",
           "unter": null,
@@ -859,6 +886,13 @@
           "wert": "ruhezeiten",
           "text": "Ruhezeiten22 bis 8 Uhr›",
           "nach": "einstellungen/ruhezeiten"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
+          "wert": "sogehts",
+          "text": "So geht's›",
+          "nach": "einstellungen/sogehts"
         },
         {
           "von": "einstellungen/kalender",
@@ -1524,6 +1558,33 @@
           "bild": "bilder/trainer/einstellungen__ruhezeiten.png",
           "strang": "einstellungen",
           "name": "Ruhezeiten",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "einstellungen/sogehts",
+          "ansicht": "einstellungen",
+          "unter": "sogehts",
+          "oben": [],
+          "ueberschrift": "So geht's",
+          "titel": "So geht's",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "sogehts",
+              "text": "So geht's›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainer/einstellungen__sogehts.png",
+          "strang": "einstellungen",
+          "name": "So geht's",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -2609,6 +2670,13 @@
         },
         {
           "von": "einstellungen",
+          "art": "ein",
+          "wert": "sogehts",
+          "text": "So geht's›",
+          "nach": "einstellungen/sogehts"
+        },
+        {
+          "von": "einstellungen",
           "art": "goto",
           "wert": "admin",
           "text": "Rollen›",
@@ -3268,6 +3336,33 @@
           "bild": "bilder/kassenwart/einstellungen__ruhezeiten.png",
           "strang": "einstellungen",
           "name": "Ruhezeiten",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "einstellungen/sogehts",
+          "ansicht": "einstellungen",
+          "unter": "sogehts",
+          "oben": [],
+          "ueberschrift": "So geht's",
+          "titel": "So geht's",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "sogehts",
+              "text": "So geht's›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/kassenwart/einstellungen__sogehts.png",
+          "strang": "einstellungen",
+          "name": "So geht's",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -4004,6 +4099,13 @@
           "wert": "ruhezeiten",
           "text": "Ruhezeiten22 bis 8 Uhr›",
           "nach": "einstellungen/ruhezeiten"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
+          "wert": "sogehts",
+          "text": "So geht's›",
+          "nach": "einstellungen/sogehts"
         },
         {
           "von": "einstellungen",
@@ -4862,6 +4964,33 @@
           "bild": "bilder/trainerkassenwart/einstellungen__ruhezeiten.png",
           "strang": "einstellungen",
           "name": "Ruhezeiten",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "einstellungen/sogehts",
+          "ansicht": "einstellungen",
+          "unter": "sogehts",
+          "oben": [],
+          "ueberschrift": "So geht's",
+          "titel": "So geht's",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "sogehts",
+              "text": "So geht's›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/trainerkassenwart/einstellungen__sogehts.png",
+          "strang": "einstellungen",
+          "name": "So geht's",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -6566,6 +6695,13 @@
         },
         {
           "von": "einstellungen",
+          "art": "ein",
+          "wert": "sogehts",
+          "text": "So geht's›",
+          "nach": "einstellungen/sogehts"
+        },
+        {
+          "von": "einstellungen",
           "art": "goto",
           "wert": "admin",
           "text": "Rollen›",
@@ -7703,6 +7839,33 @@
           "bild": "bilder/admin/einstellungen__ruhezeiten.png",
           "strang": "einstellungen",
           "name": "Ruhezeiten",
+          "nameQuelle": "ueberschrift"
+        },
+        {
+          "schluessel": "einstellungen/sogehts",
+          "ansicht": "einstellungen",
+          "unter": "sogehts",
+          "oben": [],
+          "ueberschrift": "So geht's",
+          "titel": "So geht's",
+          "tiefe": 2,
+          "pfad": [
+            {
+              "art": "zahnrad",
+              "wert": null,
+              "text": "Einstellungen öffnen",
+              "global": true
+            },
+            {
+              "art": "ein",
+              "wert": "sogehts",
+              "text": "So geht's›",
+              "global": false
+            }
+          ],
+          "bild": "bilder/admin/einstellungen__sogehts.png",
+          "strang": "einstellungen",
+          "name": "So geht's",
           "nameQuelle": "ueberschrift"
         },
         {
@@ -9486,6 +9649,13 @@
           "wert": "ruhezeiten",
           "text": "Ruhezeiten22 bis 8 Uhr›",
           "nach": "einstellungen/ruhezeiten"
+        },
+        {
+          "von": "einstellungen",
+          "art": "ein",
+          "wert": "sogehts",
+          "text": "So geht's›",
+          "nach": "einstellungen/sogehts"
         },
         {
           "von": "einstellungen",

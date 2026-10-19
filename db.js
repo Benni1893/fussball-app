@@ -676,6 +676,21 @@ window.DB = (function () {
   const meinKadereintrag = (wahl) => rpc("mein_kadereintrag", { p_player: wahl === "neu" || wahl === "nicht" ? null : wahl, p_neu: wahl === "neu", p_spielt: wahl !== "nicht" });
   const onboardingAbschliessen = () => rpc("onboarding_abschliessen");
 
+  /* ---- Einfuehrung je Rolle (0074): gesehene Teile, nur eigene Zeilen (RLS) ---- */
+  async function einfuehrungGesehen() {
+    const { data, error } = await client.from("einfuehrung_gesehen").select("teil");
+    if (error) throw error;
+    return (data || []).map((z) => z.teil);
+  }
+  // teile: ["spieler","trainer","kassenwart"]; schon gesehene bleiben stehen (on conflict do nothing).
+  async function einfuehrungMerken(teile) {
+    const uid = ((await client.auth.getUser()).data.user || {}).id;
+    if (!uid || !teile || !teile.length) return;
+    const { error } = await client.from("einfuehrung_gesehen")
+      .upsert(teile.map((t) => ({ user_id: uid, teil: t })), { onConflict: "user_id,teil", ignoreDuplicates: true });
+    if (error) throw error;
+  }
+
   return {
     client, loadAll, setRsvp, deleteRsvp, setFinePaid, deleteFine, addFines, setCalendarHint,
     upsertPushSubscription, deletePushSubscription, pushSubscriptionBekannt,
@@ -696,6 +711,6 @@ window.DB = (function () {
     anfragenListe, kaderFrei, anfrageFreigeben, anfrageAblehnen, mitgliederListe, rolleSetzen, protokollListe,
     paypalSetzen, paypalFrageErledigt, kontoLoeschen, mitgliedEntfernen,
     trainerLinkErzeugen, trainerLinksListe, trainerLinkWiderrufen, meinKadereintrag, onboardingAbschliessen,
-    kassenwartOffen,
+    kassenwartOffen, einfuehrungGesehen, einfuehrungMerken,
   };
 })();

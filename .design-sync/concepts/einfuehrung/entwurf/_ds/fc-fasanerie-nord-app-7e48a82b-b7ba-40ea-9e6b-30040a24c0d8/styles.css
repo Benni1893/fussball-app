@@ -1,0 +1,7 @@
+/* ===========================================================================
+   FC Fasanerie-Nord - Mannschafts-App - Design-System (Einstieg)
+   Reihenfolge ist bindend: Schrift, dann Tokens, dann die Regeln, die sie nutzen.
+   =========================================================================== */
+@import url('./fonts/inter.css');
+@import url('./tokens/tokens.css');
+@import url('./_ds_app.css');

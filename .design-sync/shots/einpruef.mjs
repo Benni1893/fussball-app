@@ -80,10 +80,10 @@ console.log('--- Aufbau der Uebersicht ---');
   const h = E.uebersichtHtml();
 
   for (const z of ['Mitteilungen', 'Ruhezeiten', 'Kalender abonnieren', 'Spielplan BFV',
-                   'Strafenkatalog', 'Push-Texte', 'Rollen', 'Diagnose', 'App neu laden']) {
+                   'Strafenkatalog', 'Push-Texte', 'Rollen', 'So geht&#39;s', 'Diagnose', 'App neu laden']) {
     pruefe(h.includes('>' + z + '<'), 'Zeile "' + z + '" steht da');
   }
-  pruefe((h.match(/class="ein-zeile"/g) || []).length === 9, 'neun Zeilen (Admin)');
+  pruefe((h.match(/class="ein-zeile"/g) || []).length === 10, 'zehn Zeilen (Admin, mit So gehts unter Info)');
   pruefe(!h.includes('data-logout'), 'Abmelden steht im Profil, nicht hier');
   pruefe(h.includes('data-ein="profil"'), 'die Profilzeile führt ins Profil (Unterseite)');
   pruefe(!h.includes('Profil öffnen'), 'der alte Knopf "Profil öffnen" ist weg');
@@ -99,7 +99,7 @@ console.log('--- Aufbau der Uebersicht ---');
   for (const z of ['Spielplan BFV', 'Strafenkatalog', 'Push-Texte', 'Rollen']) {
     pruefe(!s.includes('>' + z + '<'), 'Spieler sieht "' + z + '" nicht');
   }
-  pruefe((s.match(/class="ein-zeile"/g) || []).length === 5, 'Spieler hat fuenf Zeilen');
+  pruefe((s.match(/class="ein-zeile"/g) || []).length === 6, 'Spieler hat sechs Zeilen (mit So gehts)');
 
   // Trainer: Verwaltung, Spielplan (E5) und Rollen mit Einladung und Freigaben (Onboarding), keine Push-Texte.
   E.setRollen(['coach']);

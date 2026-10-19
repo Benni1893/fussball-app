@@ -325,6 +325,8 @@ export function stubQuelle(profilName, opts) {
     vorlagen: VORLAGEN,
     prefs: PREFS,
     mitglieder: MITGLIEDER,
+    // opts.einfuehrung: schon gesehene Teile, z. B. [] fuer ein neues Konto
+    einfuehrung: (opts && Array.isArray(opts.einfuehrung)) ? opts.einfuehrung : null,
   };
   return `/* Landkarten-Stand-in fuer db.js - Profil ${profilName}. Keine Datenbank. */
 window.__dbProtokoll = [];
@@ -332,6 +334,7 @@ window.DB = (function () {
   "use strict";
   const D = ${JSON.stringify(D)};
   let KONTO = D.profil.konto ? JSON.parse(JSON.stringify(D.profil.konto)) : null;
+  const GESEHEN = D.einfuehrung ? D.einfuehrung.slice() : ["spieler", "trainer", "kassenwart"];
   const kopie = (x) => { try { return JSON.parse(JSON.stringify(x === undefined ? null : x)); } catch (e) { return String(x); } };
   const lies = (wert) => async () => kopie(wert);
   const schreib = (methode, antwort) => async (...argumente) => {
@@ -436,6 +439,10 @@ window.DB = (function () {
     onboardingAbschliessen: schreib("onboardingAbschliessen", () => { if (KONTO) KONTO.onboarding_offen = false; return kopie(KONTO); }),
     /* Kassenwart-Wechsel (0065) */
     kassenwartOffen: lies({ anzahl: 2, summe: 12 }),
+    /* Einfuehrung je Rolle (0074). Ohne opts.einfuehrung gilt alles als gesehen,
+       damit die bisherigen Laeufe die Einfuehrung nicht zu sehen bekommen. */
+    einfuehrungGesehen: async () => kopie(GESEHEN),
+    einfuehrungMerken: schreib("einfuehrungMerken", (teile) => { (teile || []).forEach((t) => { if (GESEHEN.indexOf(t) < 0) GESEHEN.push(t); }); }),
   };
 })();
 `;

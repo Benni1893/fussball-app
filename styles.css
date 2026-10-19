@@ -4436,3 +4436,32 @@ body:has(.nsb-ov) .app-nav { visibility: hidden; }
    Hintergrund ueber. Das Ziehen zum Schliessen braucht dafuer kein
    preventDefault mehr (sheetSwipeToClose ist passiv). Keine optische Aenderung. */
 .rs2-liste, .lu-sheet-body, .kat-blatt-body, .nsb-felder, .modal { overscroll-behavior: contain; }
+/* Einfuehrung je Rolle (Entwurf .design-sync/concepts/einfuehrung/): Kopfzeile mit
+   Fortschrittspunkten links neben "Ueberspringen" (Neu 1) und Ausschnitte aus der
+   App als Bild (Neu 2). Nur vorhandene Tokens. */
+.ef-kopf { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: -12px -4px 8px 0; }
+.ef-kopf .ob-spaeter { margin: 0; }
+.ef-punkte { display: flex; align-items: center; gap: 6px; padding: 2px 0; }
+.ef-punkt { flex: none; width: 8px; height: 8px; border-radius: var(--radius-pill); background: var(--dot-off); }
+.ef-punkt.is-an { width: 20px; background: var(--green-700); }
+.ef-bild, .ef-rahmen { margin-top: 14px; }
+.ef-rahmen + .ef-rahmen { margin-top: 10px; }
+.ef-bild img { display: block; width: 100%; height: auto; border-radius: var(--radius); }
+.ef-rahmen { overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--bg); }
+.ef-rahmen img { display: block; width: 100%; height: auto; }
+.ef-card .ef-inhalt { margin-top: 14px; }
+.ef-mitte { text-align: center; }
+.ef-hinweis { margin-top: 14px; }
+/* So geht's (Einstellungen): Fragen als Aufklapper im Zeilenblock - Zeile wie .ein-zeile,
+   Antwort mit .ob-liste und .ein-hinweis, Pfeil dreht beim Aufklappen. */
+.sg-frage > summary { list-style: none; cursor: pointer; }
+.sg-frage > summary::-webkit-details-marker { display: none; }
+.sg-chev { transition: transform .15s ease; }
+.sg-frage[open] .sg-chev { transform: rotate(90deg); }
+.sg-antwort { padding: 2px 16px 14px; }
+.sg-antwort .ob-liste { font-size: 15px; }
+.ein-body .sg-hinweis { margin: 10px 0 0; padding: 0; }
+.sg-links { display: flex; flex-wrap: wrap; gap: 0 16px; margin-top: 4px; }
+.sg-link { min-height: var(--tap); display: inline-flex; align-items: center; font-size: 15px; font-weight: 600; color: var(--green-800); text-decoration: none; }
+.ein-body .sg-kontakt { margin: 8px 2px 0; padding: 0; font-size: 15px; }
+.sg-kontakt a { color: var(--green-800); font-weight: 600; overflow-wrap: anywhere; }

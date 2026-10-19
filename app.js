@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-18-D";
+  var APP_BUILD = "2026-10-18-E";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -512,6 +512,8 @@
   function render() {
     stopCountdowns(); // Timer der vorigen Ansicht sauber aufräumen
     closeAllSheets(); // kein Sheet darf über der neuen Ansicht hängen bleiben
+    // Offene Einfuehrung bleibt stehen, auch wenn im Hintergrund neu gerendert wird.
+    if (ef) { efZeichnen(); return; }
     try {
       if (currentView !== "lineup") { lbTeardownPanels(); tvTeardownPanels(); } // Aufstellungs-Panels nur dort
       if (currentView === "dashboard") renderDashboard();
@@ -1053,9 +1055,9 @@
      des erkannten Systems steht oben; ausgeblendet wird keine - es gibt
      Leihgeräte, Tablets und den Desktop-Browser. Der ICS-Endpunkt bleibt
      unberührt, beide Wege zeigen auf dieselbe Adresse. */
-  async function openCalSheet() {
-    closeCalSheet();
-    await ensureCalendarToken();
+  /* Die beiden Abo-Karten. Gemeinsam vom Blatt und von der Einfuehrung
+     (Seite „Termine abonnieren“) genutzt; Token vorher mit ensureCalendarToken. */
+  function aboKartenHtml() {
     const https  = calendarSubscribeUrl();
     const webcal = https ? https.replace(/^https?:/i, "webcal:") : "#";
     const aus    = https ? "" : ' aria-disabled="true"';
@@ -1081,6 +1083,12 @@
         <p class="abo-fuss">Änderungen erscheinen bei Google mit bis zu 24 Stunden Verzögerung.</p>
       </section>`;
     const zuerstAndroid = /Android/i.test(navigator.userAgent || "") && !istAppleGeraet();
+    return zuerstAndroid ? karteAndroid + karteApple : karteApple + karteAndroid;
+  }
+
+  async function openCalSheet() {
+    closeCalSheet();
+    await ensureCalendarToken();
 
     const ov = document.createElement("div");
     ov.className = "more-sheet"; ov.id = "calSheet";
@@ -1089,7 +1097,7 @@
       <div class="more-panel" role="dialog" aria-modal="true" aria-label="Termine abonnieren">
         <div class="more-title">Termine abonnieren</div>
         <p class="sheet-desc">Alle Termine automatisch in deinem Handy-Kalender.</p>
-        <div class="abo-karten">${zuerstAndroid ? karteAndroid + karteApple : karteApple + karteAndroid}</div>
+        <div class="abo-karten">${aboKartenHtml()}</div>
         <div class="cal-copied" data-cal-copied hidden></div>
         <div class="sheet-links"><button class="link-btn cal-reset" data-cal-regen>Link zurücksetzen</button></div>
       </div>`;
@@ -2282,6 +2290,8 @@
     diagnose:     { titel: "Diagnose",         darf: () => true },
     // Final 28: Anleitung fuer Google, eine Ebene unter "Kalender abonnieren".
     google:       { titel: "Für Google",       darf: () => true, zurueck: "Kalender abonnieren" },
+    // Einfuehrung wieder ansehen und haeufige Fragen (Plan .design-sync/concepts/einfuehrung/).
+    sogehts:      { titel: "So geht's",        darf: () => true },
   };
   // Ab dieser Scrollhoehe klappt die grosse Ueberschrift in die Zurueck-Leiste
   // (Vorlage einstellungenneu2.png, Panel 4). Gemessen am Abstand von der
@@ -2558,6 +2568,7 @@
 
       <div class="group-head"><h2>Info</h2></div>
       <div class="ein-gruppe">
+        ${einZeileHtml({ ein: "sogehts", ic: einIcon("info"), titel: "So geht's" })}
         ${einZeileHtml({ ein: "diagnose", ic: einIcon("puls"), titel: "Diagnose" })}
         ${einZeileHtml({ tat: "neuladen", ic: einIcon("neu"),  titel: "App neu laden", chev: false })}
       </div>
@@ -2622,6 +2633,8 @@
       inhalt = profilInhaltHtml();
     } else if (id === "bfv") {
       inhalt = bfvSectionHtml();
+    } else if (id === "sogehts") {
+      inhalt = soGehtsHtml();
     }
 
     viewEl.innerHTML =
@@ -8425,6 +8438,460 @@
     renderOnboarding();
   });
 
+  /* ---- Einfuehrung je Rolle -----------------------------------------------
+     Entwurf .design-sync/concepts/einfuehrung/ (Claude Design), Plan dort in
+     PLAN.md. Erscheint einmal nach dem ersten vollstaendigen Laden, also nach
+     Freigabe und Onboarding. Gemerkt wird je Teil serverseitig (0074):
+     spieler, trainer, kassenwart. Kommt spaeter eine Rolle dazu, erscheint
+     nur ihr Teil. Wiederholung: Einstellungen › So geht's.
+     App-Ausschnitte sind Bilder aus dem Entwurf (assets/einfuehrung/,
+     erzeugt mit .design-sync/shots/einfuehrungausschnitte.mjs).          */
+  const EF_HINWEIS_START = "Die Einführung findest du später unter Einstellungen wieder.";
+  const ef_bild = (datei, w, h) => ({ datei: datei, w: w, h: h });
+  const ef_rahmen = (datei, h) => ({ datei: datei, w: 780, h: h, rahmen: true });
+  const EF_SEITEN = {
+    // Spieler
+    s_termine: { crest: true, titel: "Termine und Zusage",
+      text: "Auf der Übersicht steht dein nächster Termin. Sag bis zum Meldeschluss zu oder ab. Wer zu spät antwortet, bekommt automatisch eine Strafe.",
+      bilder: [ef_bild("baustein_terminkarte", 716, 706)] },
+    s_status: { titel: "Mein Status",
+      text: "Angeschlagen, verletzt oder im Urlaub? Stell es unter Mein Status ein, gern mit Datum. So weiß der Trainer, wann du wieder da bist.",
+      bilder: [ef_bild("baustein_status-chips", 716, 218), ef_rahmen("spieler_mein-status-1040", 440)] },
+    s_konto: { titel: "Strafenkonto",
+      text: "Unter Konto siehst du, was du offen hast. Bezahl direkt per PayPal oder tipp auf Zahlung melden, wenn du bar gezahlt hast. Offene Strafen werden nach Ablauf teurer.",
+      bilder: [ef_bild("baustein_kontobanner", 716, 584)] },
+    s_katalog: { titel: "Katalog", katalog: true,
+      text: "Im Katalog stehen alle Strafen der Mannschaft mit Betrag. So weißt du vorher, was was kostet." },
+    // Trainer, spielt nicht mit
+    t_rueck: { crest: true, titel: "Wer kommt?",
+      text: "Tipp auf der Übersicht im nächsten Termin auf Rückmeldungen. Du siehst, wer zu- oder abgesagt hat und wer noch offen ist. Push senden erinnert alle Offenen.",
+      bilder: [ef_rahmen("spielertrainer_rueckmeldungen-685", 965)] },
+    t_elf: { titel: "Elf aufstellen",
+      text: "Unter Trainer steht das nächste Spiel. Mit Elf aufstellen wählst du Formation, Startelf und Bank. Bewährte Aufstellungen speicherst du als Vorlage.",
+      bilder: [ef_rahmen("trainer_trainer-spiel-waehlen-245", 530), ef_rahmen("trainer_trainer-spiel-waehlen-1255", 185)] },
+    t_kader: { titel: "Kader und Status",
+      text: "Im Kader siehst du, wer fit ist und wer ausfällt, mit Grund und Datum. Den Status eines Spielers kannst du selbst setzen.",
+      bilder: [ef_rahmen("trainer_kader-220", 705)] },
+    t_rollen: { titel: "Freigeben und Rollen",
+      text: "Neue Spieler kommen über deinen Einladungslink. Unter Einstellungen › Rollen gibst du sie frei. Tippst du auf ein Mitglied, änderst du seine Rolle, auch wenn der Kassenwart wechselt.",
+      bilder: [ef_rahmen("trainer_einladung-anfragen-795", 690), ef_rahmen("trainer_anfrage-freigeben-555", 220)] },
+    // Kassenwart
+    k_spieler: { crest: true, titel: "Erst mal als Spieler",
+      text: "Wie jeder Spieler sagst du auf der Übersicht zu oder ab, setzt deinen Status und siehst unter Konto deine Strafen.",
+      bilder: [ef_bild("baustein_terminkarte", 716, 706)] },
+    k_kasse: { titel: "Die Kasse",
+      text: "Auf der Übersicht siehst du, was in der Kasse ist und was noch offen ist. Tipp auf den Betrag, auf Noch offen oder auf zu prüfen, um direkt in die Kasse zu springen.",
+      bilder: [ef_bild("baustein_kassenbanner-kassenwart", 716, 576)] },
+    k_verhaengen: { titel: "Strafe verhängen",
+      text: "Unter Kasse tippst du auf + Strafe verhängen. Wähl Spieler und Strafen aus dem Katalog. Passt nichts, legst du über Individuell eine eigene an.",
+      bilder: [ef_rahmen("kassenwart_strafe-verhaengen-50", 793)] },
+    k_pruefen: { titel: "Prüfen und verbuchen",
+      text: "Meldet jemand eine Zahlung, landet sie unter Gemeldet. Bestätige sie, wenn das Geld da ist. Unter Offen stehen alle Schulden, unter Bezahlt alles Verbuchte.",
+      bilder: [ef_rahmen("kassenwart_kasse-pruefen-365", 910)] },
+    k_paypal: { titel: "PayPal-Link hinterlegen",
+      text: "Trag den PayPal.me-Namen der Kasse ein, dann können alle direkt aus ihrem Konto bezahlen. Du findest ihn unter Einstellungen › Profil › PayPal.",
+      bilder: [ef_rahmen("kassenwart_einstellungen-paypal-1205", 445)] },
+    // Spielertrainer
+    st_termin: { crest: true, titel: "Dein nächster Termin",
+      text: "Oben sagst du selbst zu oder ab. Darunter siehst du, wie die Mannschaft geantwortet hat, und kommst zu Aufstellung und Kader.",
+      bilder: [ef_rahmen("spielertrainer_uebersicht-243", 882)] },
+    st_rueck: { titel: "Wer kommt?",
+      text: "Tipp im Termin auf Rückmeldungen. Du siehst, wer zu- oder abgesagt hat und wer noch offen ist. Push senden erinnert alle Offenen.",
+      bilder: [ef_rahmen("spielertrainer_rueckmeldungen-685", 965)] },
+    st_elf: { titel: "Elf aufstellen",
+      text: "Unter Trainer steht das nächste Spiel. Mit Elf aufstellen wählst du Formation, Startelf und Bank. Bewährte Aufstellungen speicherst du als Vorlage.",
+      bilder: [ef_rahmen("spielertrainer_trainer-spiel-waehlen-245", 530), ef_rahmen("spielertrainer_trainer-spiel-waehlen-1255", 185)] },
+    st_kader: { titel: "Kader und Status",
+      text: "Im Kader siehst du, wer ausfällt. Tipp auf einen Spieler, um seinen Status zu setzen, mit Grund und Datum.",
+      bilder: [ef_rahmen("spielertrainer_kader-status-880", 770)] },
+    st_rollen: { titel: "Freigeben und Rollen",
+      text: "Neue Spieler kommen über deinen Einladungslink. Unter Einstellungen › Rollen gibst du sie frei. Tippst du auf ein Mitglied, änderst du seine Rolle, auch wenn der Kassenwart wechselt.",
+      bilder: [ef_rahmen("spielertrainer_einladung-anfragen-795", 690), ef_rahmen("spielertrainer_anfrage-freigeben-555", 220)] },
+  };
+  const EF_FOLGE = {
+    spieler: ["s_termine", "s_status", "s_konto", "s_katalog"],
+    trainer: ["t_rueck", "t_elf", "t_kader", "t_rollen"],
+    kassenwart: ["k_spieler", "k_kasse", "k_verhaengen", "k_pruefen", "k_paypal"],
+    spielertrainer: ["st_termin", "st_rueck", "st_elf", "st_kader", "st_rollen"],
+  };
+  // Die vier Einfuehrungen, wie sie Trainer und Admin unter "So geht's" einzeln oeffnen.
+  const EF_ROLLEN = [
+    { id: "spieler", titel: "Spieler", hat: { spieler: true } },
+    { id: "trainer", titel: "Trainer (spielt nicht mit)", hat: { trainer: true } },
+    { id: "kassenwart", titel: "Kassenwart", hat: { spieler: true, kassenwart: true } },
+    { id: "spielertrainer", titel: "Spielertrainer", hat: { spieler: true, trainer: true } },
+  ];
+
+  let ef = null;            // offene Einfuehrung: { seiten, nr, teile, zurueck }
+  let efNachher = null;     // was nach dem Schliessen noch ansteht (PayPal-Frage)
+
+  // Teile nach den ECHTEN Rollen (nie die Admin-Vorschau) und dem Kadereintrag.
+  function efTeile() {
+    const r = Roles.real;
+    return {
+      spieler: !!(currentProfile && currentProfile.player_id),
+      trainer: r.indexOf("coach") >= 0 || r.indexOf("admin") >= 0,
+      kassenwart: r.indexOf("treasurer") >= 0 || r.indexOf("admin") >= 0,
+    };
+  }
+
+  /* Seitenfolge. Rein rechnend, damit pruefbar.
+       neu   Teile, die vorgestellt werden ({spieler,trainer,kassenwart})
+       hat   alle Teile des Kontos (Spielertrainer oder Trainer ohne Kader)
+       voll  gemeinsame Seiten dazu (erstes Mal, Wiederholung)
+       umg   { standalone, push } - push wie pushZustand()                  */
+  function efSeitenFolge(neu, hat, voll, umg) {
+    const s = [];
+    if (neu.trainer) s.push.apply(s, hat.spieler ? EF_FOLGE.spielertrainer : EF_FOLGE.trainer);
+    if (neu.kassenwart) s.push.apply(s, neu.spieler && !neu.trainer ? EF_FOLGE.kassenwart : EF_FOLGE.kassenwart.slice(1));
+    else if (neu.spieler && !neu.trainer) s.push.apply(s, EF_FOLGE.spieler);
+    if (voll) {
+      if (!umg.standalone) s.push("home");
+      if (umg.push !== "aktiv") s.push("push");
+      s.push("kalender");
+    }
+    s.push("fertig");
+    return s;
+  }
+  // Untere Navigation auf "Alles bereit": nach der Hauptrolle.
+  function efNavBild(hat) {
+    return hat.trainer ? (hat.spieler ? "spielertrainer" : "trainer") : hat.kassenwart ? "kassenwart" : "spieler";
+  }
+
+  function efBildHtml(b) {
+    const img = '<img src="assets/einfuehrung/' + b.datei + '.webp" alt="" width="' + b.w + '" height="' + b.h + '" decoding="async" />';
+    return b.rahmen ? '<div class="ef-rahmen">' + img + '</div>' : '<div class="ef-bild">' + img + '</div>';
+  }
+
+  // Liste der Mitteilungen je Teil (Kategorien aus notification_templates).
+  function efPushListe(hat) {
+    const li = [];
+    li.push("<li><strong>Termine:</strong> " + (hat.spieler
+      ? "neuer oder geänderter Termin, Erinnerung vor Meldeschluss, Termin fällt aus"
+      : "neuer oder geänderter Termin, Termin fällt aus") + "</li>");
+    if (hat.spieler) li.push("<li><strong>Strafen:</strong> neue Strafe, Zahlung bestätigt oder abgelehnt, monatliche Erinnerung an offene Strafen</li>");
+    if (hat.trainer) li.push("<li><strong>Für Trainer:</strong> kurzfristige Absagen, Übersicht nach Meldeschluss, Status abgelaufen, neue Anfragen</li>");
+    if (hat.kassenwart) li.push("<li><strong>Für die Kasse:</strong> gemeldete Zahlungen zum Prüfen</li>");
+    return '<div class="ob-anl"><ul class="ob-liste">' + li.join("") + '</ul></div>';
+  }
+
+  function efZeichnen() {
+    if (!ef) return;
+    const id = ef.seiten[ef.nr];
+    const ges = ef.seiten.length;
+    const hat = ef.hat;
+    const punkte = ef.seiten.map((x, i) => '<span class="ef-punkt' + (i === ef.nr ? " is-an" : "") + '"></span>').join("");
+    const kopf = '<div class="ef-kopf"><div class="ef-punkte" role="img" aria-label="Seite ' + (ef.nr + 1) + ' von ' + ges + '">' + punkte + '</div>' +
+      '<button type="button" class="link-btn ob-spaeter" data-ef="ueberspringen">Überspringen</button></div>';
+    const crest = '<div class="auth-crest"><img src="assets/logo.png" alt="FC Fasanerie-Nord" /></div>';
+    const weiter = (text, art) => '<button type="button" class="btn ' + (art === "sek" ? "ob-sek" : "btn-primary ob-weiter") + '" data-ef="weiter">' + text + '</button>';
+    const startHinweis = ef.nr === 0 ? '<p class="ob-hinweis ef-mitte">' + EF_HINWEIS_START + '</p>' : "";
+    let titel = "", oben = "", text = "", inhalt = "", fuss = "", unten = "";
+
+    if (EF_SEITEN[id]) {
+      const s = EF_SEITEN[id];
+      titel = s.titel; text = s.text; oben = s.crest ? crest : "";
+      inhalt = (s.bilder || []).map(efBildHtml).join("");
+      if (s.katalog) {
+        const kat = ((DEMO && DEMO.katalog) || []).slice(0, 5);
+        inhalt = kat.length ? '<div class="kat-list ef-inhalt">' + kat.map((k) => katRowView(k, false)).join("") + '</div>' : "";
+      }
+      fuss = weiter("Weiter");
+      unten = startHinweis;
+    } else if (id === "home") {
+      titel = "Zum Home-Bildschirm";
+      text = "Leg die App auf deinen Home-Bildschirm. Ohne das kommen auf dem iPhone keine Mitteilungen an.";
+      const iphone = '<div class="abo-karte"><span class="abo-k-t">iPhone (Safari)</span><ol class="abo-schritte">' +
+        '<li>Die App in Safari öffnen.</li><li>Unten auf „Teilen“ tippen.</li><li>„Zum Home-Bildschirm“ wählen, dann „Hinzufügen“.</li><li>Ab jetzt die App über das Symbol öffnen.</li></ol></div>';
+      const android = '<div class="abo-karte"><span class="abo-k-t">Android (Chrome)</span><ol class="abo-schritte">' +
+        '<li>Die App in Chrome öffnen.</li><li>Oben rechts auf ⋮ tippen.</li><li>„App installieren“ oder „Zum Startbildschirm hinzufügen“ wählen.</li></ol></div>';
+      const zuerstAndroid = /Android/i.test(navigator.userAgent || "") && !istAppleGeraet();
+      inhalt = '<div class="abo-karten ef-inhalt">' + (zuerstAndroid ? android + iphone : iphone + android) + '</div>';
+      fuss = weiter("Weiter");
+      unten = startHinweis;
+    } else if (id === "push") {
+      titel = "Mitteilungen erlauben";
+      text = "Die App meldet sich bei dir, wenn etwas für dich ansteht:";
+      inhalt = efPushListe(hat);
+      const z = pushZustand(pushUmgebung());
+      // iPhone ausserhalb der Home-Bildschirm-App und andere Faelle ohne Erlaubnis-Dialog: Hinweis statt Knopf.
+      const hinweis = z === "ios-install" ? "Auf dem iPhone kommen Mitteilungen nur in der App vom Home-Bildschirm an. Öffne sie dort und erlaube sie unter Einstellungen › Mitteilungen."
+        : z === "verweigert" ? "Mitteilungen sind auf diesem Gerät blockiert. Erlaube sie in den Einstellungen deines Handys für diese App."
+        : z === "inapp" ? "Öffne die App in Safari oder Chrome, nicht in WhatsApp oder Instagram. Dort kannst du Mitteilungen erlauben."
+        : z === "nicht-unterstuetzt" ? "Dieser Browser kann keine Mitteilungen empfangen. Auf dem iPhone braucht es iOS 16.4 oder neuer."
+        : "";
+      if (hinweis) {
+        inhalt += '<p class="ob-hinweis ef-hinweis" data-ef-push-hinweis>' + hinweis + '</p>';
+        fuss = weiter("Weiter");
+      } else {
+        fuss = '<button type="button" class="btn btn-primary ob-weiter" data-ef="push">Mitteilungen erlauben</button>' +
+          '<button type="button" class="link-btn ob-spaeter" data-ef="weiter">Nicht jetzt</button>';
+      }
+      unten = (ef.pushInfo ? '<p class="ob-hinweis ef-mitte">' + esc(ef.pushInfo) + '</p>' : "") +
+        '<p class="ob-hinweis ef-mitte">Ruhezeiten und einzelne Arten stellst du unter Einstellungen › Mitteilungen ein.</p>' + startHinweis;
+    } else if (id === "kalender") {
+      oben = '<p class="ob-schritt">Optional</p>';
+      titel = "Termine abonnieren";
+      text = "Alle Termine automatisch in deinem Handy-Kalender.";
+      inhalt = '<div class="abo-karten ef-inhalt">' + aboKartenHtml() + '</div><div class="cal-copied" data-cal-copied hidden></div>';
+      fuss = weiter("Weiter", "sek");
+      unten = startHinweis;
+      if (!calendarToken) ensureCalendarToken().then((t) => { if (t && ef && ef.seiten[ef.nr] === "kalender") efZeichnen(); });
+    } else { // fertig
+      oben = crest;
+      titel = "Alles bereit";
+      text = "Unten wechselst du zwischen den Bereichen. Oben rechts am Zahnrad findest du die Einstellungen.";
+      inhalt = efBildHtml(ef_bild("baustein_bottom-nav-" + efNavBild(hat), 780, 142));
+      fuss = weiter("Los geht’s");
+      unten = '<p class="ob-hinweis ef-mitte">Die Einführung kannst du jederzeit unter Einstellungen wieder aufrufen.</p>';
+    }
+
+    document.body.classList.add("auth-mode");
+    viewEl.innerHTML = '<div class="auth-wrap"><div class="auth-card ob-card ef-card" data-ef-seite="' + id + '">' +
+      kopf + oben +
+      '<h1 class="auth-title">' + esc(titel) + '</h1>' +
+      '<p class="ob-text">' + text + '</p>' +
+      inhalt +
+      '<div class="ob-fuss">' + fuss + '</div>' +
+      unten +
+      '</div></div>';
+    window.scrollTo(0, 0);
+  }
+
+  /* Oeffnen. opts.wiederholung: aus "So geht's", schreibt nichts und kehrt
+     dorthin zurueck. opts.hat: fremde Rolle ansehen (Trainer, Admin). */
+  function efOeffnen(neu, hat, voll, opts) {
+    const o = opts || {};
+    ef = { seiten: efSeitenFolge(neu, hat, voll, { standalone: istStandalone(), push: pushZustand(pushUmgebung()) }),
+           nr: 0, hat: hat, teile: o.teile || [], wiederholung: !!o.wiederholung, pushInfo: "" };
+    efZeichnen();
+  }
+
+  async function efSchliessen() {
+    if (!ef) return;
+    const war = ef;
+    ef = null;
+    document.body.classList.remove("auth-mode");
+    if (!war.wiederholung && war.teile.length) {
+      try { await DB.einfuehrungMerken(war.teile); } catch (e) { /* naechstes Mal wieder; kein Grund zu blockieren */ }
+    }
+    if (war.wiederholung) {
+      // Zurueck auf "So geht's" (Hash-Zustand der Unterseite steht noch).
+      currentView = "einstellungen";
+      render();
+      window.scrollTo(0, 0);
+    } else {
+      render();
+      window.scrollTo(0, 0);
+    }
+    const n = efNachher; efNachher = null;
+    if (n) n();
+  }
+
+  /* Erstes Laden: welche Teile fehlen noch? Ohne Antwort (offline, alte
+     Stand-ins ohne die Methode) zeigt die App einfach nichts an.          */
+  async function efPruefen() {
+    if (typeof DB.einfuehrungGesehen !== "function") return false;
+    let gesehen;
+    try { gesehen = await DB.einfuehrungGesehen(); } catch (e) { return false; }
+    const hat = efTeile();
+    const offen = ["spieler", "trainer", "kassenwart"].filter((t) => hat[t] && gesehen.indexOf(t) < 0);
+    if (!offen.length) return false;
+    const neu = { spieler: offen.indexOf("spieler") >= 0, trainer: offen.indexOf("trainer") >= 0, kassenwart: offen.indexOf("kassenwart") >= 0 };
+    efOeffnen(neu, hat, gesehen.length === 0, { teile: offen });
+    return true;
+  }
+
+  viewEl.addEventListener("click", async (ev) => {
+    if (!ef || !ev.target.closest(".ef-card")) return;
+    // Kalender-Karten wie im Abo-Blatt
+    if (ev.target.closest("[data-cal-open]")) { if (calendarSubscribeUrl()) hinweisMerken(false, true); else ev.preventDefault(); return; }
+    if (ev.target.closest("[data-cal-google]")) { hinweisMerken(false, true); return; }
+    if (ev.target.closest("[data-cal-copy]")) {
+      const url = calendarSubscribeUrl(); if (!url) return;
+      hinweisMerken(false, true);
+      const fb = viewEl.querySelector("[data-cal-copied]");
+      const ok = await copyText(url);
+      if (fb) { fb.textContent = ok ? "Link kopiert" : "Kopieren nicht möglich"; fb.hidden = false; setTimeout(() => { fb.hidden = true; }, 1800); }
+      return;
+    }
+    const b = ev.target.closest("[data-ef]");
+    if (!b || b.disabled) return;
+    const was = b.dataset.ef;
+    if (was === "ueberspringen") { efSchliessen(); return; }
+    if (was === "push") {
+      b.disabled = true;
+      let r;
+      try { r = await pushAnmelden(); } catch (e) { r = "fehler"; }
+      if (!ef) return;
+      if (r !== "granted") { ef.pushInfo = "Mitteilungen sind aus. Du kannst sie später unter Einstellungen › Mitteilungen erlauben."; efZeichnen(); return; }
+    }
+    if (was === "weiter" || was === "push") {
+      if (ef.nr >= ef.seiten.length - 1) { efSchliessen(); return; }
+      ef.nr += 1; ef.pushInfo = "";
+      efZeichnen();
+    }
+  });
+
+  /* ---- So geht's (Einstellungen › Info › So geht's, #ein=sogehts) ----------
+     Einfuehrung wieder ansehen, haeufige Fragen nach Rolle, Kontaktadresse.
+     Jede Antwort ist an Code und RLS geprueft; Texte zusaetzlich in
+     .design-sync/concepts/einfuehrung/FAQ.md (aus diesem Block erzeugt mit
+     .design-sync/shots/faqliste.mjs). fuer: alle | spieler (mit Kadereintrag)
+     | trainer (Trainer, Admin) | kassenwart (Kassenwart, Admin).          */
+  /* SG-FRAGEN-ANFANG */
+  const SG_FRAGEN = [
+    { id: "kassenwart", frage: "Der Kassenwart wechselt", fuer: ["trainer", "kassenwart"],
+      schritte: ["Öffne Einstellungen › Rollen.",
+        "Tipp den neuen Kassenwart an und schalte „Kassenwart“ ein.",
+        "Tipp den bisherigen Kassenwart an und schalte „Kassenwart“ aus. Sind noch Zahlungen gemeldet, tipp „Trotzdem wechseln“. Sie gehen dann an die neue Kasse.",
+        "Der neue Kassenwart wird beim nächsten Öffnen nach seinem PayPal-Link gefragt. Bis dahin zahlen alle bar oder per Überweisung."],
+      hinweis: "Das macht ein Trainer. Als Kassenwart gibst du die Rolle nicht selbst weiter.",
+      links: [["Rollen öffnen", "#ansicht=admin", "trainer"]] },
+    { id: "paypal", frage: "Neue PayPal-Adresse der Kasse", fuer: ["kassenwart", "trainer"],
+      schritte: ["Öffne Einstellungen und tipp oben auf deinen Namen.",
+        "Tipp auf „PayPal“.",
+        "Trag den neuen PayPal.me-Namen ein und tipp „Speichern“."],
+      hinweis: "Das kann nur der Kassenwart. Als Trainer sagst du ihm Bescheid.",
+      links: [["Profil öffnen", "#ein=profil", "kassenwart"]] },
+    { id: "verlassen", frage: "Ein Spieler verlässt die Mannschaft", fuer: ["trainer"],
+      schritte: ["Öffne Einstellungen › Rollen.",
+        "Tipp unter „Mitglieder“ den Spieler an.",
+        "Tipp „Aus der Mannschaft entfernen“ und bestätige. Sein Konto, seine Rückmeldungen und sein Status werden gelöscht.",
+        "Offene Strafen bleiben in der Kasse unter „Offen“, als „Ehemaliger Spieler“. Der Kassenwart bucht sie dort als bezahlt oder storniert sie."],
+      hinweis: "Einen Kadereintrag ohne Konto kannst du in der App nicht entfernen.",
+      links: [["Rollen öffnen", "#ansicht=admin", "trainer"]] },
+    { id: "einladen", frage: "Neuer Spieler: so lädst du ihn ein", fuer: ["trainer"],
+      schritte: ["Öffne Einstellungen › Rollen und tipp bei „Einladung“ auf „Link teilen“.",
+        "Schick den Link, zum Beispiel in die WhatsApp-Gruppe.",
+        "Hat er sich registriert, tipp unter „Offene Anfragen“ seinen Namen an.",
+        "Wähl bei „Dem Kader zuordnen“ seinen Eintrag oder „Neuer Kadereintrag“ und tipp „Freigeben“."],
+      hinweis: "Bei jeder neuen Anfrage bekommst du eine Mitteilung.",
+      links: [["Rollen öffnen", "#ansicht=admin", "trainer"]] },
+    { id: "trainer", frage: "Jemanden zum Trainer machen", fuer: ["trainer"],
+      schritte: ["Öffne Einstellungen › Rollen.",
+        "Tipp unter „Mitglieder“ die Person an.",
+        "Schalte „Trainer“ ein."],
+      hinweis: "Es darf mehrere Trainer geben. Mindestens einer muss immer bleiben.",
+      links: [["Rollen öffnen", "#ansicht=admin", "trainer"]] },
+    { id: "storno", frage: "Strafe falsch eingetragen", fuer: ["kassenwart"],
+      schritte: ["Öffne die Kasse, Reiter „Offen“, und tipp den Spieler an.",
+        "Tipp bei der Strafe auf ··· und dann „Storno“.",
+        "Schon bezahlt? Tipp im Reiter „Bezahlt“ die Strafe an und dann „Buchung rückgängig“. Danach stornierst du sie wie oben.",
+        "Die richtige Strafe legst du mit „+ Strafe verhängen“ neu an."],
+      hinweis: "Den Betrag einer eingetragenen Strafe kannst du nicht ändern, nur stornieren und neu anlegen.",
+      links: [["Kasse öffnen", "#kasse=offen", "kassenwart"]] },
+    { id: "zusage", frage: "Zusage oder Absage ändern", fuer: ["alle"],
+      schritte: ["Öffne den Termin auf der Übersicht oder im Kalender.",
+        "Tipp „Zusage“ oder „Absage“. Bei einer Absage kannst du einen Grund angeben.",
+        "Tippst du deine Antwort noch einmal an, nimmst du sie zurück."],
+      hinweis: "Bis zum Meldeschluss ist das kostenlos. Danach kostet eine Rückmeldung eine Strafe, gar keine Antwort eine höhere. Die Beträge stehen im Katalog.",
+      links: [["Kalender öffnen", "#ansicht=kalender"]] },
+    { id: "mitteilungen", frage: "Ich bekomme keine Mitteilungen", fuer: ["alle"],
+      schritte: ["iPhone: Mitteilungen kommen nur in der App vom Home-Bildschirm an, ab iOS 16.4. Öffne die App in Safari, tipp auf „Teilen“ › „Zum Home-Bildschirm“ und starte sie von dort.",
+        "Öffne Einstellungen › Mitteilungen und schalte „Mitteilungen erlauben“ ein.",
+        "Prüf, ob die Themen eingeschaltet sind, die du haben willst.",
+        "Schau unter Einstellungen › Ruhezeiten nach. In der Ruhezeit kommt nichts, außer „Dringendes zustellen“ ist an."],
+      hinweis: "Hast du Mitteilungen einmal abgelehnt, erlaubst du sie in den Einstellungen deines Handys.",
+      links: [["Mitteilungen öffnen", "#ein=mitteilungen"], ["Ruhezeiten öffnen", "#ein=ruhezeiten"]] },
+    { id: "kalender", frage: "Termine in den Handy-Kalender", fuer: ["alle"],
+      schritte: ["Öffne Einstellungen › Kalender abonnieren.",
+        "iPhone: Tipp „Im iPhone-Kalender abonnieren“ und bestätige.",
+        "Android: Tipp „Link kopieren“ und folge der „Anleitung“ für calendar.google.com."],
+      hinweis: "Neue und geänderte Termine kommen danach von selbst, bei Google bis zu 24 Stunden später.",
+      links: [["Kalender-Abo öffnen", "#ein=kalender"]] },
+    { id: "passwort", frage: "Passwort vergessen", fuer: ["alle"],
+      schritte: ["Tipp auf der Anmeldeseite auf „Passwort vergessen?“.",
+        "Gib deine E-Mail ein und tipp „Reset-Link senden“.",
+        "Öffne den Link in der Mail, gib ein neues Passwort ein und tipp „Passwort speichern“.",
+        "Melde dich mit dem neuen Passwort an."],
+      hinweis: "Keine Mail da? Schau im Spam-Ordner nach. Angemeldet änderst du dein Passwort im Profil unter „Passwort“.",
+      links: [["Profil öffnen", "#ein=profil"]] },
+    { id: "handy", frage: "Neues Handy", fuer: ["alle"],
+      schritte: ["Öffne die App auf dem neuen Handy und melde dich mit E-Mail und Passwort an. Auf dem iPhone legst du sie vorher auf den Home-Bildschirm.",
+        "Erlaube unter Einstellungen › Mitteilungen die Mitteilungen neu. Deine Themen und Ruhezeiten bleiben.",
+        "Richte bei Bedarf „Kalender abonnieren“ neu ein."],
+      hinweis: "Alles andere liegt auf dem Server und ist sofort wieder da.",
+      links: [["Mitteilungen öffnen", "#ein=mitteilungen"]] },
+    { id: "bezahlen", frage: "Strafen bezahlen", fuer: ["spieler"],
+      schritte: ["Öffne unten „Konto“, Bereich „Ich“.",
+        "Tipp „… jetzt bezahlen“ und zahl per PayPal. Oder zahl bar beim Kassenwart.",
+        "Tipp danach „Zahlung melden“, wähl die Zahlart und schick die Meldung ab.",
+        "Der Kassenwart bestätigt die Zahlung. Dann sind die Strafen erledigt."],
+      hinweis: "Eine Meldung gilt für alle deine offenen Strafen.",
+      links: [["Konto öffnen", "#strafen=offen"]] },
+    { id: "konto", frage: "Konto löschen oder Daten anfragen", fuer: ["alle"],
+      schritte: ["Öffne Einstellungen und tipp oben auf deinen Namen.",
+        "Tipp ganz unten bei „Konto“ auf „Löschen“ und dann „Endgültig löschen“.",
+        "Gelöscht werden dein Konto, deine Rückmeldungen und dein Status. Strafen bleiben ohne deinen Namen in der Kasse.",
+        "Welche Daten über dich gespeichert sind, erfährst du per Mail an teamkabine-app@gmx.de."],
+      hinweis: "Mehr dazu steht in der Datenschutzerklärung. Bist du der letzte Trainer, gib die Rolle vorher weiter.",
+      links: [["Profil öffnen", "#ein=profil"], ["Datenschutzerklärung", "datenschutz.html"]] },
+  ];
+  /* SG-FRAGEN-ENDE */
+  const SG_KONTAKT = "teamkabine-app@gmx.de";
+
+  // Welche Rollenfilter treffen zu? Effektive Rollen, damit die Admin-Vorschau wirkt.
+  function sgRollen() {
+    return { alle: true, spieler: !!(currentProfile && currentProfile.player_id),
+             trainer: Roles.canManageEvents(), kassenwart: Roles.canManageFines() };
+  }
+  function sgFragenFuer(r, admin) {
+    return SG_FRAGEN.filter((f) => admin || f.fuer.some((x) => r[x]));
+  }
+
+  function soGehtsHtml() {
+    const r = sgRollen();
+    const admin = Roles.isAdmin();
+    const fragen = sgFragenFuer(r, admin);
+    const rollenEf = Roles.canManageEvents()
+      ? '<div class="group-head"><h2>Einführung der Rollen</h2></div><div class="ein-gruppe">' +
+        EF_ROLLEN.map((x) => einZeileHtml({ attr: 'data-sg-ef="' + x.id + '"', titel: x.titel })).join("") + '</div>'
+      : "";
+    const frage = (f) => {
+      const links = (f.links || []).filter((l) => !l[2] || admin || r[l[2]]).map((l) =>
+        /^#/.test(l[1]) ? '<button type="button" class="link-btn sg-link" data-sg-ziel="' + esc(l[1]) + '">' + esc(l[0]) + ' ›</button>'
+                        : '<a class="link-btn sg-link" href="' + esc(l[1]) + '">' + esc(l[0]) + ' ›</a>').join("");
+      return '<details class="sg-frage" data-sg-frage="' + f.id + '">' +
+        '<summary class="ein-zeile ohne-ic"><span class="ein-zeile-t">' + esc(f.frage) + '</span><span class="ein-chev sg-chev" aria-hidden="true">›</span></summary>' +
+        '<div class="sg-antwort"><ol class="ob-liste">' + f.schritte.map((s) => '<li>' + esc(s) + '</li>').join("") + '</ol>' +
+          (f.hinweis ? '<p class="ein-hinweis sg-hinweis">' + esc(f.hinweis) + '</p>' : "") +
+          (links ? '<div class="sg-links">' + links + '</div>' : "") +
+        '</div></details>';
+    };
+    return '<div class="group-head"><h2>Einführung</h2></div>' +
+      '<div class="ein-gruppe">' + einZeileHtml({ attr: 'data-sg-ef="eigen"', ic: einIcon("buch"), titel: "Einführung ansehen" }) + '</div>' +
+      rollenEf +
+      '<div class="group-head"><h2>Häufige Fragen</h2></div>' +
+      '<div class="ein-gruppe sg-fragen">' + fragen.map(frage).join("") + '</div>' +
+      '<div class="group-head"><h2>Frage nicht dabei?</h2></div>' +
+      '<p class="ein-hinweis sg-kontakt">Schreib an <a href="mailto:' + SG_KONTAKT + '">' + SG_KONTAKT + '</a>.</p>';
+  }
+
+  viewEl.addEventListener("click", (ev) => {
+    if (currentView !== "einstellungen" || einst.seite !== "sogehts") return;
+    const e = ev.target.closest("[data-sg-ef]");
+    if (e) {
+      const id = e.dataset.sgEf;
+      let hat;
+      if (id === "eigen") hat = efTeile();
+      else {
+        const rolle = EF_ROLLEN.find((x) => x.id === id);
+        if (!rolle || !Roles.canManageEvents()) return;
+        hat = Object.assign({ spieler: false, trainer: false, kassenwart: false }, rolle.hat);
+      }
+      efOeffnen(hat, hat, true, { wiederholung: true });
+      return;
+    }
+    const z = ev.target.closest("[data-sg-ziel]");
+    if (z) {
+      const ziel = z.dataset.sgZiel;
+      const m = /^#ein=([a-z]+)$/.exec(ziel);
+      if (m) einOeffnen(m[1]);    // eigene Ebene mit Verlaufseintrag: Zurueck fuehrt wieder hierher
+      else routeDeepLink(ziel);
+    }
+  });
+
   /* ---- Konto loeschen (Profil, Wartebildschirm) --------------------------- */
   function loeschenOeffnen() {
     nsbOeffnen("kontoWegBlatt", "Konto löschen",
@@ -9168,8 +9635,12 @@
       boot("render:ok");
       hideSplash();
       routeDeepLink();        // Deep-Link aus Benachrichtigung/Verweis (nach dem ersten Render)
-      // E8: neuer Kassenwart wird einmal nach seinem PayPal-Link gefragt.
-      if (kontoStand && kontoStand.paypal_frage && Roles.has("treasurer")) paypalOeffnen(true);
+      // Einfuehrung je Rolle (0074): einmal, und bei neuer Rolle nur deren Teil.
+      const efOffen = await efPruefen();
+      // E8: neuer Kassenwart wird einmal nach seinem PayPal-Link gefragt - nach der Einfuehrung.
+      if (kontoStand && kontoStand.paypal_frage && Roles.has("treasurer")) {
+        if (efOffen) efNachher = () => paypalOeffnen(true); else paypalOeffnen(true);
+      }
       // Push: Zustand dieses Geraets abgleichen und Einstellungen holen.
       // Beides ohne Nutzergeste und deshalb ohne subscribe().
       try { pushPrefs = await DB.loadNotificationPrefs(); } catch (e) { pushPrefs = null; }
