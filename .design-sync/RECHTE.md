@@ -2,6 +2,12 @@
 
 Erzeugt aus `app.js`, den RLS-Regeln und den Datenbankfunktionen in der Produktion sowie aus der App-Landkarte. Es ist ein reiner Prüfstand, nichts wurde geändert.
 
+**Entscheidungen von Benni (19.10.2026), in die Soll-Spalte übernommen:**
+- Die Rechte bleiben zum Start wie heute: Jeder Trainer darf Trainer vergeben (Variante B).
+- „Ich bin Trainer“ bei der Registrierung mit Bestätigung durch den Admin kommt **nach dem Start**.
+- Spieler sehen weiter die offenen Strafen aller (Konto › Mannschaft) und den Kassenstand (Kassenbanner).
+- Die Reihenfolge der Arbeiten nach dem Start steht in `NOTES.md` unter „Nach dem Start“.
+
 ## So liest du die Tabellen
 
 **Spalten**
@@ -44,8 +50,8 @@ Die Spalte „Trainer (ohne Kader)“ ist aus dem Code abgeleitet, denn die Land
 | Status | eigener Status | ja/ja | ja/ja | –/– | ja/ja | ja/ja | alle Spieler | ok |
 | Status | Status anderer Spieler (Kader) | –/– | –/– | ja/ja | ja/ja | ja/ja | Trainerfenster | ok (`set_player_status`) |
 | Trainer | Kader, Aufstellung, Vorlagen, Kader-Info teilen | –/– | –/– | ja/ja | ja/ja | ja/ja | Trainerfenster | ok (RLS `lineups`: Trainer oder Admin) |
-| Kasse | Kassenbanner auf der Übersicht (Kassenstand, Offenes) | ja/ja | ja/ja | ja/ja | ja/ja | ja/ja | ? | ⚠ Spieler sehen Kassenstand und Summen der Mannschaft. Siehe Frage 4. |
-| Kasse | Konto › Mannschaft (offene Strafen aller mit Namen) | ja/ja | ja/ja | ja/ja | ja/ja | ja/ja | Spieler: nur eigene Sachen | ⚠ RLS `read_fines` ist `ist_mitglied()`: Jeder sieht die offenen Strafen aller. So gebaut, aber gegen „nur eigene Sachen“. Siehe Frage 4. |
+| Kasse | Kassenbanner auf der Übersicht (Kassenstand, Offenes) | ja/ja | ja/ja | ja/ja | ja/ja | ja/ja | alle (Entscheidung 19.10.) | ok. Spieler sehen Kassenstand und Summen der Mannschaft, so gewollt. |
+| Kasse | Konto › Mannschaft (offene Strafen aller mit Namen) | ja/ja | ja/ja | ja/ja | ja/ja | ja/ja | alle Mitglieder (Entscheidung 19.10.) | ok. RLS `read_fines` ist `ist_mitglied()`: Jeder sieht die offenen Strafen aller, so gewollt. |
 | Kasse | eigene Strafen bezahlen, „Zahlung melden“ | ja/ja | ja/ja | –/– | ja/ja | ja/ja | alle Spieler | ok (`report_my_payment`) |
 | Kasse | Kasse öffnen, Strafe verhängen, prüfen und verbuchen, Storno, Buchung rückgängig | –/– | ja/ja | –/– | –/– | ja/ja | Kassenwart | ok (`create_fines_batch`, `confirm_fines`, `mark_fines_paid`, `reject_fine`, `cancel_fine`, `undo_fine_payment`: Kassenwart oder Admin) |
 | Kasse | automatische Strafe entfernen | –/– | ja/ja | **–/ja** | **–/ja** | ja/ja | Kassenwart | ⚠ RLS `fines_del` erlaubt Trainern das Löschen automatischer Strafen. `Roles.canDeleteAutoFine` ist definiert, wird aber nirgends benutzt: kein Knopf. |
@@ -55,8 +61,8 @@ Die Spalte „Trainer (ohne Kader)“ ist aus dem Code abgeleitet, denn die Land
 | Einladung | Einladungslink sehen, teilen, kopieren, erneuern | –/– | –/– | ja/ja | ja/ja | ja/ja | Trainer (Admin: alles) | ok (`einladung_holen/erneuern`: `ist_leitung`). Ort: Rollen verwalten › Einladung. |
 | Freigabe | Offene Anfragen, Freigeben, Ablehnen, Kadereintrag zuordnen, „Ohne Kadereintrag“ | –/– | –/– | ja/ja | ja/ja | ja/ja | Trainer und Admin gleichberechtigt | ok (`anfrage_freigeben/ablehnen`: `ist_leitung`) |
 | Freigabe | „Als Kassenwart bestätigen“ (Wunsch aus der Registrierung) | –/– | –/– | ja/ja | ja/ja | ja/ja | Trainer bestätigt | ok, der Admin darf es auch. |
-| Freigabe | „Ich bin Trainer“ bei der Registrierung, Bestätigung durch den Admin | – | – | – | – | – | Admin bestätigt | ⚠ **Gibt es nicht.** Bei der Registrierung gibt es nur „Ich bin Kassenwart“. |
-| Rollen | Trainer vergeben oder entziehen (Mitglieder › Person › „Trainer“) | –/– | –/– | ja/ja | ja/ja | ja/ja | Trainer vergeben; „Admin bestätigt neue Trainer“ | ⚠ Heute macht **jeder Trainer** ohne Admin andere zu Trainern (`rolle_setzen`: `ist_leitung`). Widerspruch im Soll, siehe Frage 1. Den letzten Trainer ändert nur der Admin (0076). |
+| Freigabe | „Ich bin Trainer“ bei der Registrierung, Bestätigung durch den Admin | – | – | – | – | – | nach dem Start (Entscheidung 19.10.) | Gibt es noch nicht, bei der Registrierung gibt es nur „Ich bin Kassenwart“. Kommt nach dem Start („Nach dem Start“ Nr. 2). |
+| Rollen | Trainer vergeben oder entziehen (Mitglieder › Person › „Trainer“) | –/– | –/– | ja/ja | ja/ja | ja/ja | jeder Trainer (Entscheidung 19.10., Variante B) | ok. Jeder Trainer macht ohne Admin andere zu Trainern (`rolle_setzen`: `ist_leitung`). Den letzten Trainer ändert nur der Admin (0076). |
 | Rollen | Kassenwart vergeben oder entziehen | –/– | –/– | ja/ja | ja/ja | ja/ja | Trainer | ok. Sich selbst zum Kassenwart machen darf nur der Admin. |
 | Rollen | Admin vergeben | –/– | –/– | –/– | –/– | ja/ja | Admin | ok |
 | Rollen | Mitglied entfernen | –/– | –/– | ja/ja | ja/ja | ja/ja | Trainer (Admin) | ok. Den Admin entfernt nur der Admin, den letzten Trainer nur der Admin. |
@@ -129,7 +135,11 @@ In der umgekehrten Richtung habe ich keinen Fall gefunden: Kein sichtbarer Knopf
 
 ## Teil 3: Vorschlag, um die Soll-Logik herzustellen
 
-### Vor dem Start nötig
+### Stand nach den Entscheidungen vom 19.10.2026
+
+Vor dem Start wird an den Rechten nichts mehr geändert. Die Punkte unten sind in `NOTES.md` › „Nach dem Start“ eingeordnet: 1 → Nr. 2, 2 entfällt (Variante B), 3 → Nr. 3, 4 → Nr. 4, 5 → Nr. 5, 6 → Nr. 6, 7 → Nr. 7, 8 → Nr. 1, 9 entfällt (Spieler sehen weiter alles).
+
+### Ursprünglich als „vor dem Start nötig“ vorgeschlagen
 
 | # | Änderung | Dateien | Aufwand |
 |---|---|---|---|
@@ -154,7 +164,9 @@ In der umgekehrten Richtung habe ich keinen Fall gefunden: Kein sichtbarer Knopf
 - Dafür nötig: kleinere Abbildungen und mehr Zoom auf kleinen Höhen, Karte mit fester Höhe, `overflow: hidden`.
 - Prüfung bei 375 × 667 px (iPhone SE) und 390 × 844 px.
 
-### Fragen an dich
+### Fragen an dich (beantwortet am 19.10.2026)
+
+Antworten: 1. Variante B, jeder Trainer darf Trainer vergeben; „Ich bin Trainer“ mit Admin-Bestätigung kommt nach dem Start. 2. Ja, Spieler sehen weiter die offenen Strafen und den Kassenstand.
 
 1. **Trainer vergeben:** Das Soll sagt beides, „Trainer vergeben Rollen (Trainer, Kassenwart)“ und „Admin bestätigt neue Trainer“. Gilt die Bestätigung durch den Admin nur für „Ich bin Trainer“ bei der Registrierung (Variante B), oder darf außer dem Admin niemand Trainer machen (Variante A)?
 2. **Kassenbanner und Konto › Mannschaft:** Sollen Spieler weiter die offenen Strafen und den Kassenstand der Mannschaft sehen? Heute ja.

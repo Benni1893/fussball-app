@@ -1435,6 +1435,20 @@ die Handler, das Scrollen selbst per Mausrad. Auf dem iPhone gegenprüfen.
   - Prüfskript `logopruef.mjs` (Pflichtliste, 33.): Chromium und WebKit, erste bzw. jede Anfrage scheitert, dazu das Update vom alten Worker. `buildpruef` und `swpruef` kennen die zwei neuen Dateien im Cache.
   - Hinweis: `rechtpruef` liest `.design-sync/rechtliches/datenschutz-impressum.md`, der Ordner ist bewusst nicht im Repo. In einer frischen Prüfkopie den Ordner vorher hineinkopieren.
 
+### Nach dem Start (Reihenfolge von Benni, 19.10.2026)
+
+Vor dem Start bleiben die Rechte wie heute (`RECHTE.md`, Entscheidungen vom 19.10.2026).
+
+1. **Alte Zuordnungsfunktion serverseitig schließen:** `set_my_player` nur noch für Trainer oder Admin, oder ganz entfernen.
+2. **„Ich bin Trainer“ bei der Registrierung** mit Bestätigung durch den Admin (`RECHTE.md` Teil 3, Nr. 1).
+3. **Termine und Sportstätten serverseitig nur für Trainer und Admin** (RLS `events`, `sportstaetten`; heute darf der Kassenwart über die Schnittstelle mit).
+4. **„Ansicht testen als“** in Rollen verwalten nach unten, damit oben Einladung und Anfragen stehen.
+5. **Einführung folgt der Vorschau:** „Einführung ansehen“ rechnet mit „Ansicht testen als“.
+6. **Spielertext „Noch nicht freigegeben“** ohne den Satz für Trainer.
+7. **Löschen automatischer Strafen klären:** RLS `fines_del` erlaubt Trainern das Löschen, die App hat keinen Knopf.
+8. **Einführungsseiten ohne senkrechtes Scrollen** bei 375 × 667 und 390 × 844.
+9. **Punkte 2, 3 und 5 aus „Fehlt in der App“** (`.design-sync/concepts/einfuehrung/PLAN.md`): Kadereintrag ohne Konto entfernen, Betrag einer Strafe ändern, Kasse selbst abgeben.
+
 ### Ablauf am Starttag: ein Link für alle (seit 19.10.2026)
 
 „Trainer festlegen“ vorab entfällt. Alle registrieren sich über den Spieler-Link. Die Rollen vergibst du danach in der App (Schritte in `STARTTAG.md`):
@@ -1448,9 +1462,7 @@ die Handler, das Scrollen selbst per Mausrad. Auf dem iPhone gegenprüfen.
 1. Auftragsverarbeitungsverträge (DPA) mit Supabase und Vercel abschließen.
 2. Passwort-Mail testen: „Passwort vergessen?“ mit eigener Adresse. Kommt sie von „Teamkabine“, und führt der Link in die App?
 3. Gerätetest nach `.design-sync/GERAETETEST-START.md`, dazu die Einführung und „So geht's“ auf dem iPhone.
-4. Punkte aus „Fehlt in der App“ (`.design-sync/concepts/einfuehrung/PLAN.md`):
-   - Kadereintrag ohne Konto entfernen
-   - Betrag einer Strafe ändern
-   - Datenauskunft in der App
-   - Kasse selbst abgeben
-   - Testnachricht für alle
+4. Punkte aus „Fehlt in der App“ (`.design-sync/concepts/einfuehrung/PLAN.md`), Stand 19.10.2026:
+   - Kadereintrag ohne Konto entfernen, Betrag einer Strafe ändern, Kasse selbst abgeben: verschoben nach „Nach dem Start“ (Nr. 9).
+   - Testnachricht für alle: erledigt (Block 3).
+   - Datenauskunft in der App: noch nicht eingeordnet (heute per Mail an die Kontaktadresse).
