@@ -57,9 +57,9 @@ Für: Trainer
 1. Öffne Einstellungen › Rollen und tipp bei „Einladung“ auf „Link teilen“.
 2. Schick den Link, zum Beispiel in die WhatsApp-Gruppe.
 3. Hat er sich registriert, tipp unter „Offene Anfragen“ seinen Namen an.
-4. Wähl bei „Dem Kader zuordnen“ seinen Eintrag oder „Neuer Kadereintrag“ und tipp „Freigeben“.
+4. Wähl bei „Dem Kader zuordnen“ „Neuer Kadereintrag“, bei Trainern ohne Spiel „Ohne Kadereintrag“, und tipp „Freigeben“.
 
-Hinweis: Bei jeder neuen Anfrage bekommst du eine Mitteilung.
+Hinweis: Alle kommen über diesen einen Link, auch Trainer und Kassenwart. Bei jeder neuen Anfrage bekommst du eine Mitteilung.
 
 Links:
 - Rollen öffnen (`#ansicht=admin`, nur Trainer)
@@ -72,7 +72,7 @@ Für: Trainer
 2. Tipp unter „Mitglieder“ die Person an.
 3. Schalte „Trainer“ ein.
 
-Hinweis: Es darf mehrere Trainer geben. Mindestens einer muss immer bleiben.
+Hinweis: Es darf mehrere Trainer geben. Der letzte Trainer kann die Rolle nicht abgeben, das kann nur der Admin ändern.
 
 Links:
 - Rollen öffnen (`#ansicht=admin`, nur Trainer)

@@ -1,6 +1,6 @@
 # Starttag: so kommt die Mannschaft in die App
 
-Produktion: https://fasanerie-nord-2.vercel.app · Stand 19.10.2026 (Build `2026-10-18-E`)
+Produktion: https://fasanerie-nord-2.vercel.app · Stand 19.10.2026 (Build `2026-10-19-A`)
 
 Ausgangslage nach der Bereinigung:
 - **Kader:** nur dein Eintrag „Benjamin Lauck“, keine Strafen, keine Zusagen.
@@ -37,7 +37,7 @@ Alle, auch Trainer und Kassenwart, registrieren sich über **denselben Spieler-L
 |---|---|---|---|
 | 1 | **Du (Admin)** | Einstellungen (Zahnrad) › Rollen › **Einladung** › „Link teilen“ | Den Spieler-Link in die WhatsApp-Gruppe. Er gilt, bis jemand „Link erneuern“ tippt. |
 | 2 | **Alle** | Link öffnen › „Konto erstellen“ (Name, E-Mail, Passwort; den Haken „Ich bin Kassenwart“ nur der Kassenwart) › Datenschutz › Position › Home-Bildschirm › Mitteilungen › „Warte auf Freigabe“ | Gesundheitsangaben (verletzt/angeschlagen) sind freiwillig und brauchen den Alters-Haken. |
-| 3 | **Du** | Mitteilung „📋 Neue Anfrage: Name“ antippen, oder Einstellungen › Rollen › **Offene Anfragen** › Anfrage | „Dem Kader zuordnen“: **„Neuer Kadereintrag“** lassen (der Kader ist leer, das ist richtig) › **Freigeben**. Die Person bekommt „✅ Du bist freigegeben“. |
+| 3 | **Du** | Mitteilung „📋 Neue Anfrage: Name“ antippen, oder Einstellungen › Rollen › **Offene Anfragen** › Anfrage | „Dem Kader zuordnen“: **„Neuer Kadereintrag“** lassen (der Kader ist leer, das ist richtig). Wer **nicht mitspielt** (z. B. ein Trainer): **„Ohne Kadereintrag (spielt nicht mit)“**. Dann › **Freigeben**. Die Person bekommt „✅ Du bist freigegeben“. |
 | 4 | **Du** | In derselben Anfrage, wenn sie den Kassenwart-Wunsch trägt | Schalter **„Als Kassenwart bestätigen“** einschalten, dann Freigeben. Später geht das auch über Rollen › Mitglieder › Person › „Kassenwart“. |
 | 5 | **Du** | Einstellungen › Rollen › **Mitglieder** › Person › Schalter **„Trainer“** | Trainer vergeben, gern mehrere. Die Person bekommt „Du bist jetzt Trainer.“ Ab dann kann jeder Trainer selbst freigeben und Rollen ändern, auch Trainer vergeben und abnehmen. |
 | 6 | **Alle** | Beim nächsten Öffnen nach der Freigabe | Die **Einführung** zur eigenen Rolle erscheint einmal. Wer später Trainer oder Kassenwart wird, sieht beim nächsten Öffnen nur den neuen Teil. Wieder aufrufbar unter Einstellungen › So geht's. |
@@ -46,8 +46,9 @@ Alle, auch Trainer und Kassenwart, registrieren sich über **denselben Spieler-L
 
 Hinweise zum Ablauf:
 - Bis zum ersten Trainer gibst nur du frei. Die Mitteilung „Neue Anfrage“ geht an alle Trainer und an dich.
-- Mindestens ein Konto muss Trainer oder Admin bleiben. Solange du Admin bist, schützt das nicht davor, dass alle Trainerrollen wieder abgenommen werden.
-- **Trainer, der nicht mitspielt:** Über den Spieler-Link bekommt jeder bei der Freigabe einen Kadereintrag. Er zählt dann bei Zusagen und automatischen Strafen mit. Wie das gelöst wird, ist noch offen (siehe Fragen in `ABSCHLUSS-NACHT-2026-10-19.md`). Bis dahin geht dafür weiter der Trainer-Link: Einstellungen › Rollen › Trainer-Links, nur Admin, einmal gültig, 7 Tage. Dort gibt es „Ich spiele nicht mit“.
+- Sobald es einen Trainer gibt, bleibt mindestens einer: Der letzte Trainer kann seine Rolle nicht abgeben, sein Konto nicht löschen und nicht entfernt werden. Das kann nur der Admin ändern. Zusätzlich muss immer ein Konto Trainer oder Admin bleiben.
+- **Trainer, der nicht mitspielt:** Bei der Freigabe „Ohne Kadereintrag (spielt nicht mit)“ wählen, danach unter Mitglieder „Trainer“ einschalten. Er taucht nicht im Kader auf, sagt nicht zu oder ab und bekommt keine automatischen Strafen.
+- **Trainer-Links gibt es nicht mehr** (seit Build `2026-10-19-A`). Alle kommen über den Spieler-Link; früher erzeugte Trainer-Links sind ungültig.
 
 ## Wenn etwas schiefgeht
 
@@ -55,11 +56,10 @@ Hinweise zum Ablauf:
 - In der App lässt sich die Zuordnung nach der Freigabe nicht ändern.
 - Weg 1: Einstellungen › Rollen › Mitglieder › Person › „Aus der Mannschaft entfernen“. Das Konto wird gelöscht, die Person registriert sich über den Spieler-Link neu. Strafen bleiben ohne Namen.
 - Weg 2, wenn schon Strafen oder Zusagen dranhängen: nicht entfernen, sondern die Zuordnung in der Datenbank korrigieren lassen (`profiles.player_id`).
-- Vorbeugen: Beim Freigeben immer „Neuer Kadereintrag“ lassen. Freie Einträge gibt es außer deinem keine.
+- Vorbeugen: Beim Freigeben „Neuer Kadereintrag“ lassen, für Nicht-Spieler „Ohne Kadereintrag“. Freie Einträge gibt es außer deinem keine.
 
 **„Dieser Einladungslink ist nicht mehr gültig“:**
 - Spieler-Link: Jemand hat „Link erneuern“ getippt. Einstellungen › Rollen › Einladung › „Link teilen“ schickt den aktuellen Link.
-- Trainer-Link: schon benutzt oder älter als 7 Tage. Unter Trainer-Links den alten widerrufen und einen neuen erzeugen.
 - Öffnet der Link nur die Anmeldung: Seite einmal neu laden. Ein Link im selben Tab wird sonst verworfen (bekannte Kante).
 
 **Push kommt nicht an:**

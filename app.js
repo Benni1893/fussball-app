@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-18-E";
+  var APP_BUILD = "2026-10-19-A";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -319,7 +319,13 @@
   // DB-Wert (der Trigger fines_settle_on_paid friert genau diesen Wert ein).
   function zuschlagBetrag(strafe) {
     if (istBezahlt(strafe)) return Number(strafe.zuschlag) || 0;
-    return faelligeStufen(strafe, Date.now()) * MAHN_STUFE_EUR;
+    return faelligeStufen(strafe, zuschlagBis(strafe)) * MAHN_STUFE_EUR;
+  }
+  // 0076: Bei Ehemaligen zaehlen die Wochen nur bis zum Austritt (wie apply_fine_surcharges).
+  function zuschlagBis(strafe) {
+    const p = typeof playerById !== "undefined" && playerById ? playerById[strafe.playerId] : null;
+    const aus = p && p.ausgeschiedenAm ? new Date(p.ausgeschiedenAm).getTime() : NaN;
+    return isFinite(aus) ? Math.min(Date.now(), aus) : Date.now();
   }
   // >>> DIE EINZIGE Betragsfunktion der App: Grundbetrag + Mahnzuschlag. <<<
   function strafeBetrag(strafe) { return grundBetrag(strafe) + zuschlagBetrag(strafe); }
@@ -334,6 +340,8 @@
   /* ---- Countdown bis zur nächsten Erhöhung (Anzeige) --------------------- */
   // Liefert { capped } ODER { capped:false, remMs } – Restzeit bis +2 €.
   function mahnCountdown(strafe, nowMs) {
+    // 0076: Ehemalige - Zuschlag eingefroren, keine weitere Erhoehung
+    if (zuschlagBis(strafe) < Date.now()) return { capped: true };
     const stufen = faelligeStufen(strafe, nowMs);
     if (stufen >= MAHN_MAX_STUFEN) return { capped: true };
     const start = new Date(strafe.createdAt).getTime();
@@ -8765,14 +8773,14 @@
       schritte: ["Öffne Einstellungen › Rollen und tipp bei „Einladung“ auf „Link teilen“.",
         "Schick den Link, zum Beispiel in die WhatsApp-Gruppe.",
         "Hat er sich registriert, tipp unter „Offene Anfragen“ seinen Namen an.",
-        "Wähl bei „Dem Kader zuordnen“ seinen Eintrag oder „Neuer Kadereintrag“ und tipp „Freigeben“."],
-      hinweis: "Bei jeder neuen Anfrage bekommst du eine Mitteilung.",
+        "Wähl bei „Dem Kader zuordnen“ „Neuer Kadereintrag“, bei Trainern ohne Spiel „Ohne Kadereintrag“, und tipp „Freigeben“."],
+      hinweis: "Alle kommen über diesen einen Link, auch Trainer und Kassenwart. Bei jeder neuen Anfrage bekommst du eine Mitteilung.",
       links: [["Rollen öffnen", "#ansicht=admin", "trainer"]] },
     { id: "trainer", frage: "Jemanden zum Trainer machen", fuer: ["trainer"],
       schritte: ["Öffne Einstellungen › Rollen.",
         "Tipp unter „Mitglieder“ die Person an.",
         "Schalte „Trainer“ ein."],
-      hinweis: "Es darf mehrere Trainer geben. Mindestens einer muss immer bleiben.",
+      hinweis: "Es darf mehrere Trainer geben. Der letzte Trainer kann die Rolle nicht abgeben, das kann nur der Admin ändern.",
       links: [["Rollen öffnen", "#ansicht=admin", "trainer"]] },
     { id: "storno", frage: "Strafe falsch eingetragen", fuer: ["kassenwart"],
       schritte: ["Öffne die Kasse, Reiter „Offen“, und tipp den Spieler an.",
@@ -9028,18 +9036,7 @@
       einZeileHtml({ attr: 'data-mf="kopieren"', titel: "Link kopieren", chev: false }) +
       einZeileHtml({ attr: 'data-mf="erneuern"', titel: "Link erneuern", wert: "alter wird ungültig", chev: false }) +
       '</div>';
-    if (Roles.isRealAdmin() && !Roles.isSimulating() && m.tlinks) {
-      const offen = m.tlinks.filter((t) => t.stand === "offen");
-      const rest = m.tlinks.filter((t) => t.stand !== "offen").slice(0, 5);
-      const STAND = { benutzt: "Benutzt", abgelaufen: "Abgelaufen", widerrufen: "Widerrufen" };
-      h += '<div class="group-head"><h2>Trainer-Links</h2></div><div class="ein-gruppe mf-gruppe">' +
-        einZeileHtml({ attr: 'data-mf="tl-neu"', titel: "Trainer-Link erzeugen", wert: "einmal, 7 Tage", chev: false }) +
-        offen.map((t) => einZeileHtml({ attr: 'data-mf-tl="' + esc(t.id) + '"', titel: "Offen bis " + datumKurz(t.gueltig_bis, true), wert: "Teilen" })).join("") +
-        rest.map((t) => einSchalterZeileHtml({ titel: STAND[t.stand] + (t.benutzt_von ? ": " + t.benutzt_von : ""),
-          sub: "erstellt " + datumKurz(t.erstellt_am) + (t.stand === "benutzt" ? ", benutzt " + datumKurz(t.benutzt_am) : t.stand === "widerrufen" ? ", widerrufen " + datumKurz(t.widerrufen_am) : ", lief ab " + datumKurz(t.gueltig_bis)),
-          schalter: "" })).join("") +
-        '</div><p class="ein-hinweis">Nur für dich sichtbar. Wer sich darüber registriert, ist sofort Spieler und Trainer, ohne Freigabe.</p>';
-    }
+    // 0076: Trainer-Links entfallen - alle kommen ueber den Spieler-Link, Trainer werden unter Mitglieder vergeben.
     h += '<div class="group-head"><h2>Offene Anfragen</h2></div>' + (m.anfragen.length
       ? '<div class="ein-gruppe">' + m.anfragen.map((a) => {
           const z = einZeileHtml({ attr: 'data-mf-anfrage="' + esc(a.id) + '"',
@@ -9071,10 +9068,9 @@
     if (!mannschaft) viewEl.innerHTML = '<div class="page-head"><h1>Rollen verwalten</h1></div><div class="empty">Lade Mannschaft …</div>';
     else mannschaftZeichnen();
     try {
-      const [einl, anfragen, mitglieder, protokoll, tlinks] = await Promise.all([
-        DB.einladungHolen(), DB.anfragenListe(), DB.mitgliederListe(), DB.protokollListe(20),
-        Roles.isRealAdmin() ? DB.trainerLinksListe() : Promise.resolve(null)]);
-      mannschaft = { einl: einl, anfragen: anfragen || [], mitglieder: mitglieder || [], protokoll: protokoll || [], tlinks: tlinks };
+      const [einl, anfragen, mitglieder, protokoll] = await Promise.all([
+        DB.einladungHolen(), DB.anfragenListe(), DB.mitgliederListe(), DB.protokollListe(20)]);
+      mannschaft = { einl: einl, anfragen: anfragen || [], mitglieder: mitglieder || [], protokoll: protokoll || [] };
     } catch (err) {
       if (currentView === "admin") viewEl.innerHTML = '<div class="page-head"><h1>Rollen verwalten</h1></div><div class="empty">' + esc(fehlerText(err)) + '</div>';
       return;
@@ -9100,7 +9096,9 @@
           einZeileHtml({ attr: 'data-fg-wahl="neu" aria-pressed="' + (wahl === "neu") + '"', titel: "Neuer Kadereintrag", wert: wahl === "neu" ? "Gewählt" : "", chev: false }) +
           frei.map((p) => einZeileHtml({ attr: 'data-fg-wahl="' + esc(p.id) + '" aria-pressed="' + (wahl === p.id) + '"', titel: p.name,
             wert: wahl === p.id ? "Gewählt" : (p.nummer != null ? "Nr. " + p.nummer : ""), chev: false })).join("") +
-        '</div></div>' +
+          // 0076: wer nicht mitspielt (z. B. Trainer), bekommt keinen Kadereintrag
+          einZeileHtml({ attr: 'data-fg-wahl="ohne" aria-pressed="' + (wahl === "ohne") + '"', titel: "Ohne Kadereintrag (spielt nicht mit)", wert: wahl === "ohne" ? "Gewählt" : "", chev: false }) +
+        '</div>' + (wahl === "ohne" ? '<p class="ein-hinweis">Taucht nicht im Kader auf, sagt nicht zu oder ab und bekommt keine automatischen Strafen. Trainer machst du danach unter Mitglieder.</p>' : "") + '</div>' +
       '</div>';
     nsbOeffnen("freigabeBlatt", a.name || "Anfrage", '<div data-fg-inhalt>' + inhalt() + '</div>',
       '<button type="button" class="btn nsb-sek" data-fg="ablehnen">Ablehnen</button>' +
@@ -9116,7 +9114,8 @@
             if (!window.confirm((a.name || "Diese Anfrage") + " ablehnen?")) return;
             await DB.anfrageAblehnen(a.id); tvToast("Abgelehnt");
           } else {
-            await DB.anfrageFreigeben(a.id, wahl === "neu" ? null : wahl, null, kw); tvToast(kw ? "Freigegeben, Kassenwart bestätigt" : "Freigegeben");
+            await DB.anfrageFreigeben(a.id, wahl === "neu" || wahl === "ohne" ? null : wahl, null, kw, wahl === "ohne");
+            tvToast(kw ? "Freigegeben, Kassenwart bestätigt" : wahl === "ohne" ? "Freigegeben, ohne Kadereintrag" : "Freigegeben");
           }
         } catch (e) { window.alert("Hat nicht geklappt: " + fehlerText(e)); return; }
         nsbZu("freigabeBlatt");
@@ -9124,37 +9123,6 @@
       });
   }
 
-  /* ---- Trainer-Link (0063): teilen, kopieren, widerrufen. Nur Admin. ---- */
-  function trainerLinkOeffnen(t) {
-    const link = einladungLink(t.token);
-    nsbOeffnen("tlBlatt", "Trainer-Link",
-      '<div class="nsb-felder">' +
-        '<div class="nsb-feld"><span class="nsb-l">Gültig bis</span><span class="fg-w">' + esc(datumKurz(t.gueltig_bis, true)) + ' Uhr, nur einmal</span></div>' +
-        '<div class="nsb-feld"><span class="nsb-l">Link</span><span class="fg-w tl-link">' + esc(link) + '</span></div>' +
-        '<div class="ein-gruppe">' + einZeileHtml({ attr: 'data-tl="teilen"', titel: "Link teilen", chev: false }) +
-          einZeileHtml({ attr: 'data-tl="kopieren"', titel: "Link kopieren", chev: false }) + '</div>' +
-        '<p class="ein-hinweis ob-blatt-text">Wer sich darüber registriert, ist sofort Spieler und Trainer. Gib den Link nur der Person, die Trainer werden soll.</p>' +
-      '</div>',
-      '<button type="button" class="btn nsb-sek nsb-rot-text" data-tl="widerrufen">Widerrufen</button>' +
-      '<button type="button" class="btn btn-primary nsb-prim" data-nsb-zu>Fertig</button>',
-      async (ev) => {
-        const b = ev.target.closest("[data-tl]");
-        if (!b) return;
-        if (b.dataset.tl === "teilen") {
-          openShareModal("Trainer-Link teilen", "Mit diesem Link bist du Trainer bei " + ((DEMO && DEMO.teamName) || "unserer Mannschaft") +
-            ". Er gilt einmal bis " + datumKurz(t.gueltig_bis, true) + " Uhr:\n" + link);
-        } else if (b.dataset.tl === "kopieren") {
-          const ok = await copyText(link);
-          tvToast(ok ? "Link kopiert" : "Kopieren ging nicht");
-        } else if (b.dataset.tl === "widerrufen") {
-          if (!window.confirm("Trainer-Link widerrufen? Er funktioniert danach nicht mehr.")) return;
-          try { await DB.trainerLinkWiderrufen(t.id); }
-          catch (e) { window.alert("Hat nicht geklappt: " + fehlerText(e)); return; }
-          nsbZu("tlBlatt"); tvToast("Widerrufen");
-          await mannschaftNeu();
-        }
-      });
-  }
 
   /* ---- Kassenwart-Wechsel mit offenen Meldungen (0065) ----------------- */
   function kassenWechselFragen(x, off) {
@@ -9231,12 +9199,6 @@
     if (a) { freigabeOeffnen(a.dataset.mfAnfrage); return; }
     const m = ev.target.closest("[data-mf-mitglied]");
     if (m) { rolleOeffnen(m.dataset.mfMitglied); return; }
-    const tl = ev.target.closest("[data-mf-tl]");
-    if (tl && mannschaft && mannschaft.tlinks) {
-      const t = mannschaft.tlinks.find((x) => x.id === tl.dataset.mfTl);
-      if (t && t.token) trainerLinkOeffnen(t);
-      return;
-    }
     const b = ev.target.closest("[data-mf]");
     if (b && mannschaft) {
       const link = mannschaft.einl && mannschaft.einl.token ? einladungLink(mannschaft.einl.token) : "";
@@ -9253,14 +9215,6 @@
         catch (e) { window.alert("Hat nicht geklappt: " + fehlerText(e)); }
       } else if (was === "paypal") {
         paypalOeffnen(false);
-      } else if (was === "tl-neu") {
-        b.disabled = true;
-        try {
-          const t = await DB.trainerLinkErzeugen();
-          mannschaft.tlinks = [Object.assign({ stand: "offen" }, t)].concat(mannschaft.tlinks || []);
-          mannschaftZeichnen();
-          trainerLinkOeffnen(t);
-        } catch (e) { window.alert("Hat nicht geklappt: " + fehlerText(e)); b.disabled = false; }
       }
       return;
     }

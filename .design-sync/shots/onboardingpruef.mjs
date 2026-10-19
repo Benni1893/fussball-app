@@ -92,7 +92,7 @@ for (const profil of ['trainer', 'admin']) {
   await page.click('[data-mf-anfrage]'); await page.waitForTimeout(400);
   const fg = await page.evaluate(() => ({ da: !!document.getElementById('freigabeBlatt'), wahl: document.querySelectorAll('#freigabeBlatt [data-fg-wahl]').length,
     kw: (document.querySelector('#freigabeBlatt [data-fg-kw]') || {}).getAttribute ? document.querySelector('#freigabeBlatt [data-fg-kw]').getAttribute('aria-checked') : null }));
-  pruefe(fg.da && fg.wahl === 4, profil + ': Freigabe-Blatt mit neuem Eintrag und drei freien Kadereinträgen', JSON.stringify(fg));
+  pruefe(fg.da && fg.wahl === 5, profil + ': Freigabe-Blatt mit neuem Eintrag, drei freien Kadereinträgen und ohne Kadereintrag', JSON.stringify(fg));
   pruefe(fg.kw === 'false', profil + ': Kassenwart getrennt zu bestätigen, aus als Vorgabe', JSON.stringify(fg));
   if (profil === 'admin') { await page.click('#freigabeBlatt [data-fg-kw]'); await page.waitForTimeout(200); }
   await page.click('#freigabeBlatt [data-fg-wahl="p03"]'); await page.click('#freigabeBlatt [data-fg="freigeben"]'); await page.waitForTimeout(600);
@@ -216,19 +216,22 @@ for (const [profil, darf] of [['trainer', false], ['kassenwart', true], ['admin'
   pruefe(JSON.stringify(prot) === '["p03"]', 'spielt mit: eigener Kadereintrag ohne Konto gewählt', JSON.stringify(prot));
   await ctx.close();
 }
+// 7b) Block 1 (0076): Trainer-Links entfallen, Freigabe "Ohne Kadereintrag (spielt nicht mit)"
 for (const profil of ['admin', 'trainer']) {
   const { ctx, page } = await seite(profil);
   await page.evaluate(() => { location.hash = '#ansicht=admin'; }); await page.waitForTimeout(800);
   const g = await page.evaluate(() => ({ gruppe: [...document.querySelectorAll('.group-head h2')].some((e) => e.textContent === 'Trainer-Links'),
     offen: document.querySelectorAll('[data-mf-tl]').length, neu: !!document.querySelector('[data-mf="tl-neu"]') }));
-  if (profil === 'trainer') { pruefe(!g.gruppe && !g.neu, 'Trainer sieht keine Trainer-Links', JSON.stringify(g)); await ctx.close(); continue; }
-  pruefe(g.gruppe && g.neu && g.offen === 1, 'Admin: Trainer-Links mit Erzeugen und einem offenen Link', JSON.stringify(g));
-  await page.click('[data-mf="tl-neu"]'); await page.waitForTimeout(500);
-  const b = await page.evaluate(() => ({ blatt: !!document.getElementById('tlBlatt'), link: ((document.querySelector('#tlBlatt .tl-link') || {}).textContent || '') }));
-  pruefe(b.blatt && /#einladung=landkarte-trainer-neu$/.test(b.link), 'Erzeugen öffnet das Blatt mit dem neuen Link', JSON.stringify(b));
-  await page.click('#tlBlatt [data-tl="widerrufen"]'); await page.waitForTimeout(600);
-  const prot = await page.evaluate(() => (window.__dbProtokoll || []).filter((x) => /^trainerLink/.test(x.methode)).map((x) => x.methode + ':' + (x.argumente[0] || '')));
-  pruefe(JSON.stringify(prot) === JSON.stringify(['trainerLinkErzeugen:', 'trainerLinkWiderrufen:tl-neu']), 'Widerrufen über das Blatt', JSON.stringify(prot));
+  pruefe(!g.gruppe && !g.neu && g.offen === 0, profil + ': keine Trainer-Links mehr in Rollen verwalten', JSON.stringify(g));
+  await page.click('[data-mf-anfrage="u-anfrage"]'); await page.waitForTimeout(600);
+  const w = await page.evaluate(() => [...document.querySelectorAll('#freigabeBlatt [data-fg-wahl]')].map((b) => b.dataset.fgWahl));
+  pruefe(w[0] === 'neu' && w[w.length - 1] === 'ohne', profil + ': Freigabe bietet „Ohne Kadereintrag (spielt nicht mit)“', JSON.stringify(w));
+  await page.click('#freigabeBlatt [data-fg-wahl="ohne"]'); await page.waitForTimeout(200);
+  const h = await page.evaluate(() => ((document.querySelector('#freigabeBlatt .ein-hinweis') || {}).textContent || ''));
+  pruefe(/keine automatischen Strafen/.test(h), profil + ': Hinweis zu ohne Kadereintrag', h);
+  await page.click('#freigabeBlatt [data-fg="freigeben"]'); await page.waitForTimeout(800);
+  const prot = await page.evaluate(() => (window.__dbProtokoll || []).filter((x) => x.methode === 'anfrageFreigeben').map((x) => x.argumente));
+  pruefe(JSON.stringify(prot) === JSON.stringify([['u-anfrage', null, null, false, true]]), profil + ': Freigabe ohne Kadereintrag gespeichert', JSON.stringify(prot));
   await ctx.close();
 }
 // 8) Nacharbeit 6: Kassenwart-Wechsel mit offenen Meldungen

@@ -1402,12 +1402,19 @@ die Handler, das Scrollen selbst per Mausrad. Auf dem iPhone gegenprüfen.
 - [x] „So geht's“ in Einstellungen mit 13 häufigen Fragen nach Rolle (`.design-sync/concepts/einfuehrung/FAQ.md`).
 - [x] Ehemalige Spieler bekommen keine automatischen Strafen mehr und zählen nicht als offen (Migration 0075).
 
+- [x] Block 1 (19.10.2026, Build `2026-10-19-A`, Migration 0076):
+  - Freigabe „Ohne Kadereintrag (spielt nicht mit)“.
+  - Trainer-Links entfernt, alte ungültig.
+  - Mindestens ein Trainer: den letzten ändert nur der Admin.
+  - Mahnzuschlag von Ehemaligen ab dem Austritt eingefroren.
+  - Prüfskript `0076_freigabe_ohne_kader_trainerregel_pruef.sql` (14 Fälle) und `ehemaligepruef.mjs` (Pflichtliste).
+
 ### Ablauf am Starttag: ein Link für alle (seit 19.10.2026)
 
 „Trainer festlegen“ vorab entfällt. Alle registrieren sich über den Spieler-Link. Die Rollen vergibst du danach in der App (Schritte in `STARTTAG.md`):
 
 1. Du teilst den Spieler-Link: Einstellungen › Rollen › Einladung › „Link teilen“.
-2. Jeder registriert sich als Spieler. Du gibst frei: Offene Anfragen › „Neuer Kadereintrag“ › Freigeben.
+2. Jeder registriert sich als Spieler. Du gibst frei: Offene Anfragen › „Neuer Kadereintrag“ (wer nicht mitspielt: „Ohne Kadereintrag (spielt nicht mit)“) › Freigeben.
 3. Trainer machst du unter Einstellungen › Rollen › Mitglieder › Person › „Trainer“. Mehrere sind möglich. Danach kann jeder Trainer freigeben und Rollen ändern.
 
 ### Offen vor dem Start
@@ -1421,4 +1428,3 @@ die Handler, das Scrollen selbst per Mausrad. Auf dem iPhone gegenprüfen.
    - Datenauskunft in der App
    - Kasse selbst abgeben
    - Testnachricht für alle
-5. Entscheidung: Wie kommt ein Trainer, der nicht mitspielt, beim Ablauf mit einem Link ohne Kadereintrag aus? (Fragen in `ABSCHLUSS-NACHT-2026-10-19.md`)

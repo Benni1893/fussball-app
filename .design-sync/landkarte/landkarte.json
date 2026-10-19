@@ -9194,41 +9194,6 @@
           "nameQuelle": "ueberschrift"
         },
         {
-          "schluessel": "rollen-verwalten+tlBlatt",
-          "ansicht": "rollen-verwalten",
-          "unter": null,
-          "oben": [
-            "tlBlatt"
-          ],
-          "ueberschrift": "Rollen verwalten",
-          "titel": "Trainer-Link",
-          "tiefe": 3,
-          "pfad": [
-            {
-              "art": "tab5",
-              "wert": null,
-              "text": "Mehr",
-              "global": true
-            },
-            {
-              "art": "mehr",
-              "wert": "admin",
-              "text": "Rollen",
-              "global": false
-            },
-            {
-              "art": "mf",
-              "wert": "tl-neu",
-              "text": "Trainer-Link erzeugeneinmal, 7 Tage",
-              "global": false
-            }
-          ],
-          "bild": "bilder/admin/rollen-verwalten--tlBlatt.png",
-          "strang": "rollen-verwalten",
-          "name": "Trainer-Link",
-          "nameQuelle": "ueberschrift"
-        },
-        {
           "schluessel": "trainer+rsvpSheet",
           "ansicht": "trainer",
           "unter": null,
@@ -10002,13 +9967,6 @@
         },
         {
           "von": "rollen-verwalten",
-          "art": "mf-tl",
-          "wert": null,
-          "text": "Offen bis 08.10. 20:00Teilen›",
-          "nach": "rollen-verwalten+tlBlatt"
-        },
-        {
-          "von": "rollen-verwalten",
           "art": "mf",
           "wert": "erneuern",
           "text": "Link erneuernalter wird ungültig",
@@ -10027,13 +9985,6 @@
           "wert": "teilen",
           "text": "Link teilen",
           "nach": "rollen-verwalten+shareModal"
-        },
-        {
-          "von": "rollen-verwalten",
-          "art": "mf",
-          "wert": "tl-neu",
-          "text": "Trainer-Link erzeugeneinmal, 7 Tage",
-          "nach": "rollen-verwalten+tlBlatt"
         },
         {
           "von": "strafen",
@@ -10200,7 +10151,6 @@
         "mf",
         "mf-anfrage",
         "mf-mitglied",
-        "mf-tl",
         "nav",
         "paid-self",
         "pr-gesundheit",
@@ -10737,6 +10687,7 @@
   },
   "nichtErreichteAusloeser": [
     "view-jump",
+    "mf-tl",
     "tvfill"
   ]
 }

@@ -57,6 +57,8 @@ window.DB = (function () {
       return {
         id: p.id, code: p.code, name: p.name, nr: p.number, pos: posAusHaupt(p.position, p.hauptposition),
         haupt: p.hauptposition || null,
+        // 0076: Mahnzuschlag eines Ehemaligen zaehlt nur bis zum Austritt
+        ausgeschiedenAm: p.ausgeschieden_am || null,
         status: s.status || "fit", statusNote: s.status_note,
         statusUntil: s.status_until, statusSince: s.status_since,
       };
@@ -657,7 +659,8 @@ window.DB = (function () {
   const positionSetzen = (pos) => rpc("meine_position_setzen", { p_position: pos });
   const anfragenListe = () => rpc("anfragen_liste");
   const kaderFrei = () => rpc("kader_frei");
-  const anfrageFreigeben = (profil, player, name, kassenwart) => rpc("anfrage_freigeben", { p_profil: profil, p_player: player || null, p_name: name || null, p_kassenwart: !!kassenwart });
+  // ohneKader (0076): Freigabe ohne Kadereintrag, "spielt nicht mit".
+  const anfrageFreigeben = (profil, player, name, kassenwart, ohneKader) => rpc("anfrage_freigeben", { p_profil: profil, p_player: player || null, p_name: name || null, p_kassenwart: !!kassenwart, p_ohne_kader: !!ohneKader });
   const anfrageAblehnen = (profil) => rpc("anfrage_ablehnen", { p_profil: profil });
   const mitgliederListe = () => rpc("mitglieder_liste");
   // trotzdem (0065): Kassenwart auch bei offenen Meldungen entziehen; die Meldungen gehen markiert an die neue Kasse.
