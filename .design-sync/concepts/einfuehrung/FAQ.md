@@ -103,7 +103,7 @@ Für: alle
 2. Mitteilungen neu erlauben
 3. Kalender-Abo neu einrichten
 
-Hinweis: Alles andere ist sofort wieder da.
+Hinweis: Zuerst auf den Startbildschirm: Android Menü ⋮ › „App installieren“, iPhone Teilen › „Zum Home-Bildschirm“. Alles andere ist sofort wieder da.
 
 Links:
 - Mitteilungen öffnen (`#ein=mitteilungen`)

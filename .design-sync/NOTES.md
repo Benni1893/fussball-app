@@ -1435,6 +1435,14 @@ die Handler, das Scrollen selbst per Mausrad. Auf dem iPhone gegenprüfen.
   - Prüfskript `logopruef.mjs` (Pflichtliste, 33.): Chromium und WebKit, erste bzw. jede Anfrage scheitert, dazu das Update vom alten Worker. `buildpruef` und `swpruef` kennen die zwei neuen Dateien im Cache.
   - Hinweis: `rechtpruef` liest `.design-sync/rechtliches/datenschutz-impressum.md`, der Ordner ist bewusst nicht im Repo. In einer frischen Prüfkopie den Ordner vorher hineinkopieren.
 
+- [x] Android als echte App (19.10.2026, Build `2026-10-19-F`):
+  - Befund: Die Produktion war für Chrome schon installierbar (`Page.getInstallabilityErrors` leer, Manifest und Icons 200, Worker mit fetch-Handler). Das Chrome-Symbol am Icon heißt: angelegt als Verknüpfung über „Zum Startbildschirm hinzufügen“ (unser Onboarding nannte diesen Weg) oder die WebAPK konnte nicht erzeugt werden. Eine Verknüpfung wird nie von selbst zur App: entfernen und über „⋮ › App installieren“ neu anlegen.
+  - Eigenes maskable Icon `assets/icon-maskable-512.png` (Wappen auf 85 %, Schriftring in der Schutzzone). Vorher war es dieselbe Datei wie das 512er-Icon, Android hätte den Ring beschnitten.
+  - Onboarding nennt nur noch „⋮ › App installieren“. Einführung, Seite „Auf den Home-Bildschirm“: Knopf „App installieren“, wenn Chrome die Installation anbietet (`beforeinstallprompt`), daneben „Nicht jetzt“. „So geht's › Neues Handy“ nennt den Weg je System.
+  - `theme_color` im Manifest (`#144a37`) und im Meta-Tag (`#17573f`) bleiben verschieden: Das Meta-Tag färbt die Statusleiste, eine Angleichung wäre eine sichtbare Änderung. Kein Installationskriterium.
+  - Lighthouse 12 hat keine PWA-Kategorie mehr; Beleg stattdessen mit Chromes eigener Prüfung über das DevTools-Protokoll (Werkzeug im Bericht `ABSCHLUSS-ABEND-2026-10-19.md`).
+  - Prüfskript `androidpruef.mjs` (Pflichtliste, 34.).
+
 ### Nach dem Start (Reihenfolge von Benni, 19.10.2026)
 
 Vor dem Start bleiben die Rechte wie heute (`RECHTE.md`, Entscheidungen vom 19.10.2026).

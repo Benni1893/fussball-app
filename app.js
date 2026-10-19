@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-19-E";
+  var APP_BUILD = "2026-10-19-F";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -8322,7 +8322,7 @@
       const android = '<div class="ob-anl"><h2 class="ob-anl-t">Android (Chrome)</h2>' + (installPrompt
         ? '<button type="button" class="btn ob-sek" data-ob="installieren">App installieren</button>'
         : '<ol class="ob-liste"><li>Oben rechts auf das Menü <b>⋮</b> tippen.</li>' +
-          '<li><b>App installieren</b> oder <b>Zum Startbildschirm hinzufügen</b> wählen.</li>' +
+          '<li><b>App installieren</b> wählen, dann <b>Installieren</b>.</li>' +
           '<li>Die App vom Startbildschirm öffnen und dort anmelden.</li></ol>') + '</div>';
       obRahmen(s, nr, ges, "Zum Home-Bildschirm",
         "Vom Home-Bildschirm startet die App wie eine richtige App, und nur dort kommen Mitteilungen an.",
@@ -8630,6 +8630,12 @@
 
     if (id === "home") {
       inhalt = efWegHtml();
+      // Android: Chrome bietet die Installation an (beforeinstallprompt) -> direkt als Knopf.
+      // So entsteht eine echte App (WebAPK) statt einer Verknuepfung mit Chrome-Symbol.
+      if (installPrompt && !istStandalone()) {
+        fuss = '<button type="button" class="btn btn-primary ob-weiter" data-ef="installieren">App installieren</button>' +
+          '<button type="button" class="link-btn ob-spaeter" data-ef="weiter">' + (letzte ? "Nicht jetzt, los geht’s" : "Nicht jetzt") + '</button>';
+      }
     } else if (id === "push") {
       text = efPushText(ef.hat);
       inhalt = efMitteilungHtml(ef.hat);
@@ -8721,6 +8727,10 @@
     if (!b || b.disabled) return;
     const was = b.dataset.ef;
     if (was === "ueberspringen") { efSchliessen(); return; }
+    if (was === "installieren") {
+      const p = installPrompt; installPrompt = null;
+      if (p) { try { p.prompt(); } catch (e) {} }
+    }
     if (was === "push") {
       b.disabled = true;
       let r;
@@ -8786,7 +8796,7 @@
       hinweis: "Keine Mail? Schau im Spam-Ordner nach." },
     { id: "handy", frage: "Neues Handy", fuer: ["alle"],
       schritte: ["App öffnen und anmelden", "Mitteilungen neu erlauben", "Kalender-Abo neu einrichten"],
-      hinweis: "Alles andere ist sofort wieder da.",
+      hinweis: "Zuerst auf den Startbildschirm: Android Menü ⋮ › „App installieren“, iPhone Teilen › „Zum Home-Bildschirm“. Alles andere ist sofort wieder da.",
       links: [["Mitteilungen öffnen", "#ein=mitteilungen"]] },
     { id: "einladen", frage: "Neuen Spieler einladen", fuer: ["trainer"], abb: "rollen",
       schritte: ["Rollen › Einladung › „Link teilen“", "Anfrage unter „Offene Anfragen“", "Kadereintrag wählen, „Freigeben“"],
