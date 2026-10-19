@@ -1,6 +1,6 @@
 # Abschluss Abend 19.10.2026
 
-Produktion: https://fasanerie-nord-2.vercel.app mit Build **`2026-10-19-F`**, letzter Commit auf `main` ist `4a5b987`.
+Produktion: https://fasanerie-nord-2.vercel.app mit Build **`2026-10-19-F`**, letzter Commit vor diesem Bericht ist `4a5b987`.
 Heute Abend gab es keine Migration, kein Testkonto und keine Änderung an Echtdaten. Benjamin Lauck und die Termine sind unberührt.
 
 ## Was live ist
