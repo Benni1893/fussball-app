@@ -1456,6 +1456,26 @@ Vor dem Start bleiben die Rechte wie heute (`RECHTE.md`, Entscheidungen vom 19.1
 7. **Löschen automatischer Strafen klären:** RLS `fines_del` erlaubt Trainern das Löschen, die App hat keinen Knopf.
 8. **Einführungsseiten ohne senkrechtes Scrollen** bei 375 × 667 und 390 × 844.
 9. **Punkte 2, 3 und 5 aus „Fehlt in der App“** (`.design-sync/concepts/einfuehrung/PLAN.md`): Kadereintrag ohne Konto entfernen, Betrag einer Strafe ändern, Kasse selbst abgeben.
+10. **Flüssigkeit auf Android auf dem echten Gerät messen** (Chrome-Remote-Debugging am OnePlus, Performance-Aufzeichnung). Messung vom 19.10.2026 unten.
+11. **Untere Leiste auf Android am Gerät prüfen:** In der Home-Bildschirm-App liegt unter der weißen Navigation eine grüne Systemleiste. `viewport-fit=cover` und `padding-bottom: max(8px, env(safe-area-inset-bottom))` an `.app-nav` sind schon gesetzt; zieht Chrome die Seite unter den Wischstrich (Edge-to-Edge), reicht das Weiß von selbst bis unten. Ob das auf dem OnePlus greift und welche Farbe Chrome sonst der Leiste gibt, hängt von der Chrome-Version und von WebAPK oder Verknüpfung ab; am 19.10. nicht geändert, weil ohne Gerät nicht prüfbar. Erst nach der Neuinstallation als App (WebAPK) ansehen.
+
+#### Flüssigkeit: Messung vom 19.10.2026
+
+`node .design-sync/shots/perfmess.mjs 3`: Stand-in Admin, 412 × 915, Android-UA, Touch-Gesten über das DevTools-Protokoll, CPU 4-fach gedrosselt, je Wert Median aus 3 Läufen. Headless ohne echte GPU, parallel lief ein Video-Rendern auf dem Rechner: Die absoluten Werte sind nur ein Anhalt, verglichen werden die Varianten.
+
+| Ablauf | Bildabstand Mittel | p95 | Anteil > 50 ms | lange Tasks | Layout | Skript |
+|---|---|---|---|---|---|---|
+| Übersicht scrollen | 18,1 ms | 35 ms | 1 % | 0 ms | 3 ms | 74 ms |
+| Blatt öffnen und wischen | 20,1 ms | 37 ms | 2 % | 54 ms | 25 ms | 61 ms |
+| Einführung wischen (6 Seitenwechsel) | 19,5 ms | 41 ms | 3 % | 0 ms | 120 ms | 84 ms |
+
+Je Effekt ein Lauf, in dem nur dieser Effekt abgeschaltet war (backdrop-filter der Navigation, `filter: drop-shadow` an Logo und Wappen, alle box-shadows, alle Verläufe, alle Animationen und Übergänge): **Keine Variante war messbar schneller**, alle lagen im Rauschen (Mittel 18,7 bis 26,6 ms). Deshalb vor dem Start keine Änderung. Scroll-Handler sind passiv (`touchmove` nur in Blatt und Einführung, `scroll` passiv).
+
+Kandidaten, erst nach einer Messung auf dem Gerät:
+- **Einführung:** Jeder Seitenwechsel baut die Karte per `innerHTML` neu, das kostet Layout (120 ms auf 6 Wechsel, etwa 20 ms je Wechsel). Möglich: die Seiten einmal aufbauen und nur per `transform` verschieben.
+- **Blatt öffnen:** Eine lange Task um 50 ms beim Aufbau des Rückmeldungen-Blatts. Möglich: den Inhalt nach dem ersten Bild füllen.
+- **backdrop-filter der Navigation:** Headless nicht messbar, auf schwachen Android-GPUs bekannt teuer. Die Navigation ist zu 94 % deckend weiß; ohne Weichzeichner sähe sie fast gleich aus, das ist aber eine kleine sichtbare Änderung und deshalb nicht vor dem Start.
+- **`filter: drop-shadow` am Kopfzeilen-Logo:** liegt in der fest stehenden Kopfzeile, wird beim Scrollen nicht neu gezeichnet. Niedrige Priorität.
 
 ### Ablauf am Starttag: ein Link für alle (seit 19.10.2026)
 
