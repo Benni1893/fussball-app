@@ -295,7 +295,7 @@ for (const [bname, btyp] of (NUR_EF ? [] : [['chromium', chromium], ['webkit', w
         // Links
         const links = await page.evaluate(() => [...document.querySelectorAll('[data-sg-frage]')].flatMap((d) => [...d.querySelectorAll('.sg-link')].map((l) => ({ frage: d.dataset.sgFrage, ziel: l.dataset.sgZiel || l.getAttribute('href'), text: l.textContent }))));
         for (const l of links) {
-          if (!/^#/.test(l.ziel)) { pruefe(l.ziel === 'datenschutz.html', `${rolle}: ${l.frage} › ${l.text} -> ${l.ziel}`); continue; }
+          if (!/^#/.test(l.ziel)) { pruefe(l.ziel === 'datenschutz.html#rechte', `${rolle}: ${l.frage} › ${l.text} -> ${l.ziel}`); continue; }
           s = await sgSeite(page);
           if (s.h1 !== "So geht's") { await page.evaluate(() => { location.hash = '#ein=sogehts'; }); await page.waitForTimeout(500); }
           await page.evaluate((f) => { document.querySelector(`[data-sg-frage="${f}"]`).open = true; }, l.frage);

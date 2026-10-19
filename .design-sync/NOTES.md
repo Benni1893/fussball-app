@@ -1417,6 +1417,11 @@ die Handler, das Scrollen selbst per Mausrad. Auf dem iPhone gegenprüfen.
   - 18 Fragen mit höchstens 3 einzeiligen Schritten.
   - Prüfung `einfuehrungpruef.mjs` bei 390 und 375 px.
 
+- [x] Block 3 (19.10.2026, Build `2026-10-19-C`, Migration 0077):
+  - Ehemalige heißen in der Kasse „Ehemalig · ausgetreten am TT.MM.JJJJ“, ohne Nummer.
+  - „Testnachricht senden“ für alle Rollen, nur an die eigene Person, höchstens eine je Minute und fünf am Tag.
+  - Anker `#rechte` in der Datenschutzerklärung, „So geht's“ verlinkt darauf.
+
 ### Ablauf am Starttag: ein Link für alle (seit 19.10.2026)
 
 „Trainer festlegen“ vorab entfällt. Alle registrieren sich über den Spieler-Link. Die Rollen vergibst du danach in der App (Schritte in `STARTTAG.md`):

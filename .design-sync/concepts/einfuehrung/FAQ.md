@@ -56,7 +56,7 @@ Für: alle
 2. Einstellungen › Mitteilungen › an
 3. Ruhezeiten prüfen
 
-Hinweis: Abgelehnt? Dann in den Einstellungen des Handys erlauben.
+Hinweis: Prüf es mit „Testnachricht senden“ unter Mitteilungen. Abgelehnt? Dann in den Handy-Einstellungen erlauben.
 
 Links:
 - Mitteilungen öffnen (`#ein=mitteilungen`)
@@ -231,4 +231,4 @@ Hinweis: Strafen bleiben ohne deinen Namen in der Kasse.
 
 Links:
 - Profil öffnen (`#ein=profil`)
-- Datenschutzerklärung (`datenschutz.html`)
+- Deine Rechte (`datenschutz.html#rechte`)

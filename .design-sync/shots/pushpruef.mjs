@@ -128,19 +128,18 @@ pruefe(!/VAPID_PRIVATE_KEY\s*=\s*"/.test(disp), 'kein Schluessel im Quelltext');
 }
 
 /* ===== 6. Rechte im UI (Paket Einstellungen v2, E2) ==================== */
-// Testnachricht und Push-Texte nur fuer Admin - fuer alle anderen Rollen gar
-// nicht vorhanden, auch kein ausgegrauter Knopf. Der Server prueft selbst
-// (Migration 0042: send_test_notification, notification_templates).
+// Testnachricht seit Block 3 (0077) fuer jede Rolle, ohne Rolle nicht; Push-Texte
+// nur fuer Admin. Der Server prueft selbst (0077: send_test_notification mit Sperre).
 console.log('--- Rechte im UI ---');
 {
   // Seit E4 ist der Knopf eine Kartenzeile mit Symbol: einIcon als Platzhalter.
   const knopf = new Function('einIcon', schnitt('  function pnTestKnopfHtml(rollen) {', '  /* ---- Die Anzeige je Zustand ---- */') +
     '\n return pnTestKnopfHtml;')(() => '<svg></svg>');
   const ROLLEN = [
-    ['Spieler',              ['player'],              false],
-    ['Trainer',              ['coach'],               false],
-    ['Kassenwart',           ['treasurer'],           false],
-    ['Trainer + Kassenwart', ['coach', 'treasurer'],  false],
+    ['Spieler',              ['player'],              true],
+    ['Trainer',              ['coach'],               true],
+    ['Kassenwart',           ['treasurer'],           true],
+    ['Trainer + Kassenwart', ['coach', 'treasurer'],  true],
     ['ohne Rolle',           [],                      false],
     ['Admin',                ['admin'],               true],
     ['Admin + Spieler',      ['player', 'admin'],     true],
@@ -158,8 +157,10 @@ console.log('--- Rechte im UI ---');
   pruefe(app.split('data-push-test type=').length - 1 === 1,
     'data-push-test wird genau einmal erzeugt (in pnTestKnopfHtml)');
   pruefe(/pnTestKnopfHtml\(Roles\.list\)/.test(app), 'Aufruf mit den Rollen der Anzeige (Roles.list)');
-  pruefe(/hasAttribute\("data-push-test"\)\) \{\s*\n\s*if \(!Roles\.isAdmin\(\)\) return;/.test(app),
-    'Klick auf data-push-test prueft zuerst Roles.isAdmin()');
+  // Block 3 (0077): keine Admin-Schranke mehr im Klick; der Server sperrt Dauerfeuer, die Meldung kommt als Hinweis.
+  pruefe(/hasAttribute\("data-push-test"\)\) \{\s*\n\s*\(async \(\) => \{\s*\n\s*try \{ await DB\.sendTestNotification\(\); pushMeldung\(/.test(app) &&
+         /catch \(err\) \{ pushMeldung\("Fehlgeschlagen: "/.test(app),
+    'Klick auf data-push-test sendet für jede Rolle und zeigt Fehler (Sperre) als Hinweis');
   // Push-Texte: Einstieg und Ansicht nur fuer Admin.
   // Seit Final 25: Push-Texte sind eine Unterseite der Einstellungen (#ein=pushtexte, dritte Ebene pushtext).
   pruefe(/Roles\.isAdmin\(\) \? einZeileHtml\(\{ ein: "pushtexte"/.test(app), 'Zeile Push-Texte nur fuer Admin');

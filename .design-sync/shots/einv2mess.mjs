@@ -131,7 +131,7 @@ async function beleg(erwartet) {
   if (erwartet === 'spieler') {
     pruefe(!haupt.pushTexte && !haupt.zeilen.includes('Push-Texte'), 'Push-Texte nicht vorhanden');
     pruefe(!haupt.titel.includes('Verwaltung'), 'keine Gruppe VERWALTUNG');
-    pruefe(!mitt.testKnopf && !mitt.testText, 'Testnachricht senden nicht vorhanden (auch nicht ausgegraut)');
+    pruefe(mitt.testKnopf, 'Testnachricht senden vorhanden (seit Block 3 fuer jede Rolle)');
   } else {
     pruefe(haupt.pushTexte && haupt.zeilen.includes('Push-Texte'), 'Push-Texte vorhanden');
     pruefe(mitt.testKnopf, 'Testnachricht senden vorhanden');

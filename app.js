@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-19-B";
+  var APP_BUILD = "2026-10-19-C";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -327,6 +327,12 @@
     const aus = p && p.ausgeschiedenAm ? new Date(p.ausgeschiedenAm).getTime() : NaN;
     return isFinite(aus) ? Math.min(Date.now(), aus) : Date.now();
   }
+  // Block 3: Ehemalige heissen in der Kasse "Ehemalig · ausgetreten am TT.MM.JJJJ", ohne Nummer.
+  function ehemaligZeile(p) {
+    const d = p.ausgeschiedenAm ? new Date(p.ausgeschiedenAm) : null;
+    const tag = d && isFinite(d.getTime()) ? d.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin", day: "2-digit", month: "2-digit", year: "numeric" }) : "";
+    return Object.assign({}, p, { name: "Ehemalig" + (tag ? " · ausgetreten am " + tag : ""), nr: null });
+  }
   // >>> DIE EINZIGE Betragsfunktion der App: Grundbetrag + Mahnzuschlag. <<<
   function strafeBetrag(strafe) { return grundBetrag(strafe) + zuschlagBetrag(strafe); }
 
@@ -545,7 +551,7 @@
   // Daten frisch aus Supabase holen und die aktuelle Ansicht neu rendern.
   async function reloadData() {
     DEMO = await DB.loadAll();
-    playerById = Object.fromEntries(DEMO.players.concat(DEMO.ehemalige || []).map((p) => [p.id, p]));
+    playerById = Object.fromEntries(DEMO.players.concat((DEMO.ehemalige || []).map(ehemaligZeile)).map((p) => [p.id, p]));
     katById    = Object.fromEntries(DEMO.katalog.map((k) => [k.id, k]));
     buildStateFromData();
     if (currentProfile && currentProfile.player_id) state.currentPlayerId = currentProfile.player_id;
@@ -2160,12 +2166,12 @@
       'auch ohne Push auf diesem Gerät.</p>';
   }
 
-  /* „Testnachricht senden" gibt es nur fuer Admins. Fuer alle anderen Rollen
-     steht hier gar nichts, auch kein ausgegrauter Knopf. Der Server lehnt den
-     Aufruf fuer Nicht-Admins ohnehin ab (send_test_notification, 0042).
+  /* „Testnachricht senden": seit Block 3 (0077) fuer jede Rolle, nur an die
+     eigene Person, der Server sperrt Dauerfeuer (eine je Minute, fuenf je Tag).
+     Ohne Rolle (nicht freigegeben) gibt es den Knopf nicht.
      Rein rechnend, damit pushpruef.mjs es je Rolle pruefen kann. */
   function pnTestKnopfHtml(rollen) {
-    if (!rollen || rollen.indexOf("admin") < 0) return "";
+    if (!rollen || !rollen.length) return "";
     return '<div class="group-head"><h2>Test</h2></div><div class="ein-gruppe ein-gruppe-aktion">' +
       '<button class="ein-zeile ein-zeile-aktion" data-push-test type="button">' +
         '<span class="ein-ic" aria-hidden="true">' + einIcon("senden") + '</span>' +
@@ -7076,7 +7082,6 @@
       return;
     }
     if (t.hasAttribute("data-push-test")) {
-      if (!Roles.isAdmin()) return;   // zweite Schranke; der Server ist die erste
       (async () => {
         try { await DB.sendTestNotification(); pushMeldung("Testnachricht unterwegs, sie kommt in bis zu einer Minute"); }
         catch (err) { pushMeldung("Fehlgeschlagen: " + ((err && err.message) || err)); }
@@ -8753,7 +8758,7 @@
       links: [["Konto öffnen", "#strafen=offen"]] },
     { id: "mitteilungen", frage: "Keine Mitteilungen?", fuer: ["alle"],
       schritte: ["iPhone: App vom Home-Bildschirm", "Einstellungen › Mitteilungen › an", "Ruhezeiten prüfen"],
-      hinweis: "Abgelehnt? Dann in den Einstellungen des Handys erlauben.",
+      hinweis: "Prüf es mit „Testnachricht senden“ unter Mitteilungen. Abgelehnt? Dann in den Handy-Einstellungen erlauben.",
       links: [["Mitteilungen öffnen", "#ein=mitteilungen"], ["Ruhezeiten öffnen", "#ein=ruhezeiten"]] },
     { id: "kalender", frage: "Termine im Handy-Kalender", fuer: ["alle"],
       schritte: ["Einstellungen › Kalender abonnieren", "iPhone: Abo-Knopf tippen", "Android: Link kopieren, Anleitung"],
@@ -8806,7 +8811,7 @@
     { id: "konto", frage: "Konto löschen oder Datenauskunft", fuer: ["alle"],
       schritte: ["Einstellungen › dein Name oben", "Ganz unten „Konto“ › „Löschen“", "Auskunft: teamkabine-app@gmx.de"],
       hinweis: "Strafen bleiben ohne deinen Namen in der Kasse.",
-      links: [["Profil öffnen", "#ein=profil"], ["Datenschutzerklärung", "datenschutz.html"]] },
+      links: [["Profil öffnen", "#ein=profil"], ["Deine Rechte", "datenschutz.html#rechte"]] },
   ];
   /* SG-FRAGEN-ENDE */
   const SG_KONTAKT = "teamkabine-app@gmx.de";
@@ -9542,7 +9547,7 @@
     try {
       DEMO = await withTimeout(DB.loadAll(), 15000, "Daten laden");
       boot("loadAll:ok");
-      playerById = Object.fromEntries(DEMO.players.concat(DEMO.ehemalige || []).map((p) => [p.id, p]));
+      playerById = Object.fromEntries(DEMO.players.concat((DEMO.ehemalige || []).map(ehemaligZeile)).map((p) => [p.id, p]));
       katById    = Object.fromEntries(DEMO.katalog.map((k) => [k.id, k]));
       buildStateFromData();
       currentUserId = session.user.id;

@@ -32,6 +32,8 @@ const zeile = (name) => (text.split('\n').map((z, i, a) => [z, a.slice(i, i + 4)
 const ex = zeile('Ehemalig'), akt = zeile('Emil Nordhoff');
 pruefe(/12,00 €/.test(ex) && !/16,00 €/.test(ex), 'Ehemaliger: Zuschlag ab Austritt eingefroren (12,00 €)', ex);
 pruefe(/16,00 €/.test(akt), 'aktiver Spieler: Zuschlag läuft weiter (16,00 €)', akt);
+// Block 3: Anzeige "Ehemalig · ausgetreten am TT.MM.JJJJ", ohne Nummer
+pruefe(/Ehemalig · ausgetreten am 22.09.2026/.test(text) && !/Ehemaliger Spieler/.test(text), 'Ehemaliger heißt „Ehemalig · ausgetreten am 22.09.2026“', ex);
 const b = await inst.bericht();
 pruefe(b.fehler.length === 0 && b.verstoesse.length === 0, 'Stand-in ohne Fehler', JSON.stringify(b.fehler.concat(b.verstoesse).slice(0, 3)));
 await browser.close(); server.close();

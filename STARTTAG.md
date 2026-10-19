@@ -1,6 +1,6 @@
 # Starttag: so kommt die Mannschaft in die App
 
-Produktion: https://fasanerie-nord-2.vercel.app · Stand 19.10.2026 (Build `2026-10-19-B`)
+Produktion: https://fasanerie-nord-2.vercel.app · Stand 19.10.2026 (Build `2026-10-19-C`)
 
 Ausgangslage nach der Bereinigung:
 - **Kader:** nur dein Eintrag „Benjamin Lauck“, keine Strafen, keine Zusagen.
@@ -65,7 +65,7 @@ Hinweise zum Ablauf:
 
 **Push kommt nicht an:**
 1. **iPhone:** Mitteilungen gibt es nur in der App vom Home-Bildschirm (iOS 16.4 oder neuer), nicht in Safari.
-2. In der App: Einstellungen › Mitteilungen. Steht dort „aktiv“? Sonst „Mitteilungen erlauben“. Dann „Testnachricht senden“; sie kommt innerhalb einer Minute.
+2. In der App: Einstellungen › Mitteilungen. Steht dort „aktiv“? Sonst „Mitteilungen erlauben“. Dann „Testnachricht senden“ (seit Build `2026-10-19-C` für alle, eine je Minute, fünf am Tag); sie kommt innerhalb einer Minute.
 3. Ruhezeiten in der App prüfen (Einstellungen › Ruhezeiten). In dieser Zeit kommen keine Mitteilungen, dringende nur, wenn „Dringendes zustellen“ an ist.
 4. Gerät: iOS-Einstellungen › Mitteilungen › Fasanerie erlaubt? Fokus/„Nicht stören“ aus? Android: Chrome bzw. App-Mitteilungen erlaubt, Energiesparen für Chrome aus.
 5. Kommt die Testnachricht, aber andere Mitteilungen nicht: Schalter der jeweiligen Art unter Einstellungen › Mitteilungen.
