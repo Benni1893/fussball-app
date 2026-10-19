@@ -7,7 +7,7 @@
   <!-- Inter selbst ausgeliefert (Onboarding Nacharbeit 1): keine Anfrage an Google -->
   <link href="fonts/inter.css" rel="stylesheet" />
   <!-- Versions-Query = Cache-Busting. MUSS bei jedem Deploy mit BUILD unten, APP_BUILD in app.js und VERSION in sw.js gleich hochgezogen werden (prueft .design-sync/shots/buildpruef.mjs). -->
-  <link rel="stylesheet" href="styles.css?v=2026-10-19-D" />
+  <link rel="stylesheet" href="styles.css?v=2026-10-19-E" />
   <!-- Splash-/Ladeanimation: inline, damit nichts nachgeladen wird und es im ersten Frame paint't.
        Farben aus den bestehenden Variablen (Fallback = gleicher Wert gegen weisses Aufblitzen). -->
   <style id="splash-style">
@@ -80,7 +80,7 @@
   <!-- ===================== Boot-Diagnose (laeuft VOR allen Scripten, unabhaengig von app.js) ===================== -->
   <script>
   (function(){
-    var BUILD = "2026-10-19-D";                 // Build-Kennung: bei jedem Deploy hochziehen
+    var BUILD = "2026-10-19-E";                 // Build-Kennung: bei jedem Deploy hochziehen
     window.__HTML_BUILD = BUILD;
     var K = "fnboot", P = "fnboot_prev";
     // Tokens nie ins Startprotokoll: Reset- und Bestaetigungslinks tragen access_token,
@@ -224,13 +224,40 @@
   <!-- ===================== Kopfzeile ===================== -->
   <header class="app-header">
     <span class="hdr-logo">
-      <img src="assets/logo.png" class="crest-logo" alt="FC Fasanerie-Nord" />
+      <img src="assets/logo.png" class="crest-logo" alt="" width="40" height="40" />
     </span>
     <span class="hdr-title" id="hdrTitle">FC Fasanerie-Nord</span>
     <button class="hdr-gear" id="hdrGear" type="button" aria-label="Einstellungen öffnen">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </button>
   </header>
+  <script>
+  /* Kopfzeilen-Logo (Startbefund 19.10.2026, Android-Home-Bildschirm-App): Beim
+     Kaltstart scheitert die erste Anfrage manchmal, und ein gescheitertes <img>
+     laedt nie neu. Dann bleibt das Bild unsichtbar (kein kaputtes Symbol, der
+     Titel steht daneben) und wird nachgeladen: nach 1,5 s und 5 s, sobald das
+     Netz zurueck ist und wenn die App wieder in den Vordergrund kommt. */
+  (function(){
+    var img = document.querySelector(".app-header .crest-logo");
+    if (!img) return;
+    var versuche = 0;
+    function kaputt(){ return img.complete && !img.naturalWidth; }
+    function neu(){
+      if (!kaputt() || versuche >= 6) return;
+      versuche++;
+      img.src = "assets/logo.png?r=" + Date.now();
+    }
+    function fehler(){
+      img.classList.add("is-fehlt");
+      if (versuche === 0) { setTimeout(neu, 1500); setTimeout(neu, 5000); }
+    }
+    img.addEventListener("error", fehler);
+    img.addEventListener("load", function(){ img.classList.remove("is-fehlt"); });
+    if (kaputt()) fehler();
+    window.addEventListener("online", neu);
+    document.addEventListener("visibilitychange", function(){ if (!document.hidden) neu(); });
+  })();
+  </script>
 
   <!-- ===================== Inhalt (einziger Scroll-Bereich) ===================== -->
   <div class="scroll-area" id="scrollArea">
@@ -287,7 +314,7 @@
   <!-- Supabase-Client (im Repo, 2.117.3) -> config.js (Zugang) -> db.js (Datenzugriff) -> app.js -->
   <script src="vendor/supabase-js-2.117.3.js" onerror="window.__bootErr&&window.__bootErr('script','supabase-js load failed');window.__showDiag&&window.__showDiag('Supabase-Bibliothek (CDN) konnte nicht geladen werden')"></script>
   <script src="config.js" onerror="window.__bootErr&&window.__bootErr('script','config.js load failed');window.__showDiag&&window.__showDiag('config.js konnte nicht geladen werden')"></script>
-  <script src="db.js?v=2026-10-19-D" onerror="window.__bootErr&&window.__bootErr('script','db.js load failed');window.__showDiag&&window.__showDiag('db.js konnte nicht geladen werden')"></script>
-  <script src="app.js?v=2026-10-19-D" onerror="window.__bootErr&&window.__bootErr('script','app.js load failed');window.__showDiag&&window.__showDiag('app.js (Haupt-Script) konnte nicht geladen werden')"></script>
+  <script src="db.js?v=2026-10-19-E" onerror="window.__bootErr&&window.__bootErr('script','db.js load failed');window.__showDiag&&window.__showDiag('db.js konnte nicht geladen werden')"></script>
+  <script src="app.js?v=2026-10-19-E" onerror="window.__bootErr&&window.__bootErr('script','app.js load failed');window.__showDiag&&window.__showDiag('app.js (Haupt-Script) konnte nicht geladen werden')"></script>
 </body>
 </html>

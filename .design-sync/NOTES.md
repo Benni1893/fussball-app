@@ -1428,6 +1428,13 @@ die Handler, das Scrollen selbst per Mausrad. Auf dem iPhone gegenprüfen.
   - Auge an allen Passwortfeldern (Anmelden, Registrieren, neues Passwort, Profil).
   - Prüfskript `0078_neu_vor_meldeschluss_pruef.sql` (8 Fälle) und `startregelnpruef.mjs` (Pflichtliste).
 
+- [x] Logo in der Kopfzeile (19.10.2026, Build `2026-10-19-E`), Befund OnePlus Nord, Android 11, Home-Bildschirm-App:
+  - Ursache: Beim Kaltstart scheitert die erste Anfrage an `assets/logo.png`, ein gescheitertes `<img>` lädt nie neu. Mit `alt="FC Fasanerie-Nord"` und `width: auto` stand dann das kaputte Symbol mit dem Namen neben dem Titel. Die Anmeldeseite rendert später und lud deshalb.
+  - Kopfzeilen-Logo mit `alt=""` und festen Maßen. Bei Fehler unsichtbar (`.is-fehlt`), Nachladen nach 1,5 s und 5 s, bei `online` und wenn die App wieder in den Vordergrund kommt (Skript direkt nach der Kopfzeile in `index.html`).
+  - Service Worker: `assets/logo.png` und `assets/icon-512.png` (Splash) in `FEST`, Cache zuerst. Jede neue `VERSION` holt sie bei `install` frisch, installierte Geräte bekommen sie also ohne Neuinstallation.
+  - Prüfskript `logopruef.mjs` (Pflichtliste, 33.): Chromium und WebKit, erste bzw. jede Anfrage scheitert, dazu das Update vom alten Worker. `buildpruef` und `swpruef` kennen die zwei neuen Dateien im Cache.
+  - Hinweis: `rechtpruef` liest `.design-sync/rechtliches/datenschutz-impressum.md`, der Ordner ist bewusst nicht im Repo. In einer frischen Prüfkopie den Ordner vorher hineinkopieren.
+
 ### Ablauf am Starttag: ein Link für alle (seit 19.10.2026)
 
 „Trainer festlegen“ vorab entfällt. Alle registrieren sich über den Spieler-Link. Die Rollen vergibst du danach in der App (Schritte in `STARTTAG.md`):

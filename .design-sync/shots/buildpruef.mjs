@@ -60,8 +60,8 @@ pruefe((sw.match(/caches\.open\(/g) || []).length === 1 && /caches\.open\(VERSIO
 pruefe(!/cache\.put|c\.put\(/.test(sw), 'kein weiteres Zwischenspeichern von Antworten');
 // Onboarding-Nacharbeit 1: vorab gecacht nur die festen Dateien (Schrift, supabase-js).
 pruefe((sw.match(/addAll\(/g) || []).length === 1 && /c\.addAll\(FEST\.map/.test(sw)
-  && /const FEST = \["fonts\/inter\.css", "fonts\/inter\/inter-latin\.woff2", "fonts\/inter\/inter-latin-ext\.woff2", "vendor\/supabase-js-[\d.]+\.js"\];/.test(sw),
-  'vorab gecacht nur die festen Dateien (Schrift, supabase-js)');
+  && /const FEST = \["fonts\/inter\.css", "fonts\/inter\/inter-latin\.woff2", "fonts\/inter\/inter-latin-ext\.woff2", "vendor\/supabase-js-[\d.]+\.js", "assets\/logo\.png", "assets\/icon-512\.png"\];/.test(sw),
+  'vorab gecacht nur die festen Dateien (Schrift, supabase-js, Logo, Splash-Icon)');
 
 console.log('--- HTTP-Header (vercel.json) ---');
 const header = (quelle) => {

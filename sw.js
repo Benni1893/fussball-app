@@ -3,8 +3,10 @@
    BEWUSST MINIMAL. Gecacht werden die Offline-Seite und die festen Dateien,
    die seit der Onboarding-Nacharbeit (Punkt 1) im Repo liegen statt bei
    Google Fonts und jsDelivr: Inter (fonts/) und supabase-js (vendor/, die
-   Version steht im Dateinamen). Diese aendern sich nie und kommen aus dem
-   Cache zuerst. Alles andere geht unberuehrt ans Netz.
+   Version steht im Dateinamen). Seit 19.10.2026 (Build E) auch das Vereinslogo
+   und das Splash-Icon: Auf Android scheiterte beim Kaltstart die erste Anfrage
+   an assets/logo.png. Diese Dateien kommen aus dem Cache zuerst; jede neue
+   VERSION holt sie bei "install" frisch (cache: "reload"). Alles andere geht unberuehrt ans Netz.
 
    Warum kein Precache der App-Dateien: Diese App hat keinen Build-Schritt und
    liefert index.html, app.js, styles.css bewusst mit no-cache-Headern aus
@@ -30,9 +32,9 @@
    eine geaenderte offline.html fuer immer die alte. Mit ihr holt "install"
    die Offline-Seite frisch und "activate" wirft jeden anderen Cache weg.
    Das Push-Abo haengt an der Registrierung und uebersteht das Update. */
-const VERSION = "fn-sw-2026-10-19-D";
+const VERSION = "fn-sw-2026-10-19-E";
 const OFFLINE = "offline.html";
-const FEST = ["fonts/inter.css", "fonts/inter/inter-latin.woff2", "fonts/inter/inter-latin-ext.woff2", "vendor/supabase-js-2.117.3.js"];
+const FEST = ["fonts/inter.css", "fonts/inter/inter-latin.woff2", "fonts/inter/inter-latin-ext.woff2", "vendor/supabase-js-2.117.3.js", "assets/logo.png", "assets/icon-512.png"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil((async () => {
