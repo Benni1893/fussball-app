@@ -4493,3 +4493,9 @@ body.auth-mode .ef-abb .app-nav, .ef-abb .app-nav { display: flex; position: sta
 html.ef-offen { background: var(--green-990); overscroll-behavior: none; }
 html.sg-offen { background: var(--bg-2); overscroll-behavior: none; }
 .sg-antwort .ef-abb.is-klein { margin-top: 2px; }
+/* Passwortfeld mit Auge (19.10.2026): Knopf rechts im Feld, Tippflaeche 44 px */
+.pw-feld { position: relative; display: block; }
+.auth-field .pw-feld > input, .pw-feld > .sb-feld { width: 100%; padding-right: 48px; }
+.pw-auge { position: absolute; top: 50%; right: 2px; transform: translateY(-50%); width: 44px; height: 44px; display: grid; place-items: center; padding: 0; border: 0; background: none; color: var(--muted); cursor: pointer; border-radius: var(--radius-md); }
+.pw-auge svg { width: 20px; height: 20px; }
+.pw-auge[aria-pressed="true"] { color: var(--green-800); }

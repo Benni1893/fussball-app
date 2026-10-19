@@ -17,7 +17,7 @@ Für: alle
 2. „Zusage“ oder „Absage“ tippen
 3. Nochmal tippen nimmt sie zurück
 
-Hinweis: Nach dem Meldeschluss kostet jede Rückmeldung eine Strafe.
+Hinweis: Nach dem Meldeschluss kostet jede Rückmeldung eine Strafe. Ausnahme: Der Meldeschluss liegt in den ersten 24 Stunden nach deiner Freigabe.
 
 Links:
 - Kalender öffnen (`#ansicht=kalender`)

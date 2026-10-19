@@ -319,6 +319,8 @@ export function stubQuelle(profilName, opts) {
     // wie ein Trainer ueber den Trainer-Link, der "Ich spiele nicht mit" gewaehlt hat (0063)
     if (pd.konto) Object.assign(pd.konto, { hat_spieler: false, position: null, spielt_mit: false });
   }
+  // opts.freigegebenAm (0078): Freigabezeitpunkt des Kontos fuer die 24-h-Regel
+  if (opts && opts.freigegebenAm && pd.konto) pd.konto.freigegeben_am = opts.freigegebenAm;
   const D = {
     daten: (opts && opts.daten) || daten(),
     profil: pd,

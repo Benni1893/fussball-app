@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-19-C";
+  var APP_BUILD = "2026-10-19-D";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -2800,8 +2800,8 @@
         '<span class="sb-griff" aria-hidden="true"></span>' +
         '<div class="sb-name">Neues Passwort</div>' +
         '<div class="sb-felder">' +
-          '<input class="sb-feld" type="password" autocomplete="new-password" data-pw-neu placeholder="Neues Passwort (mindestens 6 Zeichen)" aria-label="Neues Passwort">' +
-          '<input class="sb-feld" type="password" autocomplete="new-password" data-pw-wdh placeholder="Wiederholen" aria-label="Passwort wiederholen">' +
+          pwFeld('<input class="sb-feld" type="password" autocomplete="new-password" data-pw-neu placeholder="Neues Passwort (mindestens 6 Zeichen)" aria-label="Neues Passwort">') +
+          pwFeld('<input class="sb-feld" type="password" autocomplete="new-password" data-pw-wdh placeholder="Wiederholen" aria-label="Passwort wiederholen">') +
         '</div>' +
         '<div class="tf-hint" data-pw-hint></div>' +
         '<button class="btn btn-primary sb-speichern" data-pw-speichern type="button">Passwort speichern</button>' +
@@ -2869,10 +2869,20 @@
       return `<div class="frist"><span class="frist-label">Meldeschluss:</span> <span class="cd" data-cd-deadline="${new Date(dl).toISOString()}"></span></div>`;
     }
     if (start != null && now < start) {
+      // 0078: Meldeschluss weniger als 24 h nach der eigenen Freigabe -> keine Strafe
+      if (neuVorMeldeschluss(e)) return `<div class="frist frist-neu">Meldeschluss vorbei. Für dich ohne Strafe, du bist gerade erst dazugekommen.</div>`;
       const noResp = e.typ === "spiel" ? "25 €" : "15 €";
       return `<div class="frist frist-warn">Meldeschluss vorbei. Rückmeldung jetzt kostet 8 €, keine Rückmeldung ${noResp}.</div>`;
     }
     return "";
+  }
+  /* Regel aus 0078: Liegt der Meldeschluss weniger als 24 h nach der eigenen
+     Freigabe (mein_konto.freigegeben_am), gibt es fuer diesen Termin keine
+     automatische Strafe. Der Server entscheidet; die App droht dann nichts an. */
+  function neuVorMeldeschluss(e) {
+    const frei = kontoStand && kontoStand.freigegeben_am ? new Date(kontoStand.freigegeben_am).getTime() : NaN;
+    const dl = e ? meldeschlussMs(e) : null;
+    return isFinite(frei) && dl != null && frei > dl - 24 * 60 * 60 * 1000;
   }
   /* Ort fuer die Terminkarte: Name, Adresse und der Weg zur Karten-App.
      Gibt die Teile einzeln zurueck, weil die Vorlage sie in drei Spalten legt. */
@@ -3061,6 +3071,8 @@
         // Nach dem Meldeschluss: was eine spaete Rueckmeldung kostet.
         const frist = fristBlockHtml(e);
         if (frist.indexOf("frist-warn") >= 0) teile.push('<div class="tk-warn">' + frist.replace(/<\/?div[^>]*>/g, "") + '</div>');
+        // 0078: gerade freigegeben -> neutraler Hinweis statt Strafandrohung
+        else if (frist.indexOf("frist-neu") >= 0) teile.push('<div class="tk-grund">' + frist.replace(/<\/?div[^>]*>/g, "") + '</div>');
       }
       const ms = meldeschlussHtml(e);
       if (hero) {
@@ -7492,7 +7504,9 @@
       // Rückmeldung nach Meldeschluss? -> zählt als verspätet (8 €, server-seitig).
       const dl = ev ? meldeschlussMs(ev) : null;
       const start = ev ? eventStartMs(ev) : null;
-      const spaet = dl != null && Date.now() > dl && (start == null || Date.now() < start);
+      const spaet = dl != null && Date.now() > dl && (start == null || Date.now() < start) &&
+        // 0078: die eigene Rueckmeldung kurz nach der Freigabe kostet nichts
+        !(playerId === state.currentPlayerId && neuVorMeldeschluss(ev));
       const spaetWarn = (verb) =>
         !window.confirm(`Der Meldeschluss ist vorbei. Deine Rückmeldung zählt jetzt als verspätet und kostet 8 €.\n\nTrotzdem ${verb}?`);
       try {
@@ -8746,7 +8760,7 @@
   const SG_FRAGEN = [
     { id: "zusage", frage: "Zusage oder Absage ändern", fuer: ["alle"], abb: "terminkarte",
       schritte: ["Termin in Übersicht oder Kalender", "„Zusage“ oder „Absage“ tippen", "Nochmal tippen nimmt sie zurück"],
-      hinweis: "Nach dem Meldeschluss kostet jede Rückmeldung eine Strafe.",
+      hinweis: "Nach dem Meldeschluss kostet jede Rückmeldung eine Strafe. Ausnahme: Der Meldeschluss liegt in den ersten 24 Stunden nach deiner Freigabe.",
       links: [["Kalender öffnen", "#ansicht=kalender"]] },
     { id: "status", frage: "Verletzt oder im Urlaub", fuer: ["spieler"], abb: "status",
       schritte: ["Übersicht › Mein Status", "Status wählen, gern mit Datum", "Wieder da? „Fit“ tippen"],
@@ -9378,8 +9392,8 @@
           <label class="auth-field"><span>E-Mail</span>
             <input type="email" name="email" autocomplete="email" placeholder="name@example.de" required></label>
           ${needPw ? `<label class="auth-field"><span>Passwort</span>
-            <input type="password" name="password" minlength="6"
-              autocomplete="${mode === "login" ? "current-password" : "new-password"}" required></label>` : ""}
+            ${pwFeld(`<input type="password" name="password" minlength="6"
+              autocomplete="${mode === "login" ? "current-password" : "new-password"}" required>`)}</label>` : ""}
           <button type="submit" class="auth-submit">${submits[mode]}</button>
           ${mode === "login" ? `<button type="button" class="link-btn auth-forgot" data-auth="forgot">Passwort vergessen?</button>` : ""}
           <div class="auth-switch">${
@@ -9392,6 +9406,28 @@
       </div>`;
   }
 
+  /* Passwortfeld mit Auge zum Ein- und Ausblenden (19.10.2026). Der Knopf
+     schaltet nur type=password/text um; Tippflaeche 44 px. Ein Klick-Handler
+     am document fuer alle Felder (Anmeldung, Registrierung, Reset, Profil). */
+  const PW_AUGE_AN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const PW_AUGE_AUS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.5 10.5 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.2M6.6 6.6C3.9 8.4 2 12 2 12s3.6 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
+  function pwFeld(inputHtml) {
+    return '<span class="pw-feld">' + inputHtml +
+      '<button type="button" class="pw-auge" data-pw-auge aria-label="Passwort anzeigen" aria-pressed="false">' + PW_AUGE_AN + '</button></span>';
+  }
+  document.addEventListener("click", (ev) => {
+    const b = ev.target.closest("[data-pw-auge]");
+    if (!b) return;
+    ev.preventDefault();
+    const feld = b.parentElement && b.parentElement.querySelector("input");
+    if (!feld) return;
+    const zeigen = feld.type === "password";
+    feld.type = zeigen ? "text" : "password";
+    b.setAttribute("aria-pressed", zeigen ? "true" : "false");
+    b.setAttribute("aria-label", zeigen ? "Passwort verbergen" : "Passwort anzeigen");
+    b.innerHTML = zeigen ? PW_AUGE_AUS : PW_AUGE_AN;
+  });
+
   // Formular zum Setzen eines neuen Passworts (nach Klick auf den Reset-Link).
   function renderResetPassword() {
     document.body.classList.add("auth-mode");
@@ -9403,9 +9439,9 @@
           <p class="auth-sub">Bitte vergib ein neues Passwort.</p>
           ${authError ? `<div class="auth-error">${esc(authError)}</div>` : ""}
           <label class="auth-field"><span>Neues Passwort</span>
-            <input type="password" name="password" minlength="6" autocomplete="new-password" required></label>
+            ${pwFeld('<input type="password" name="password" minlength="6" autocomplete="new-password" required>')}</label>
           <label class="auth-field"><span>Wiederholen</span>
-            <input type="password" name="password2" minlength="6" autocomplete="new-password" required></label>
+            ${pwFeld('<input type="password" name="password2" minlength="6" autocomplete="new-password" required>')}</label>
           <button type="submit" class="auth-submit">Passwort speichern</button>
         </form>
       </div>`;

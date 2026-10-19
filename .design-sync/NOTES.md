@@ -1422,6 +1422,12 @@ die Handler, das Scrollen selbst per Mausrad. Auf dem iPhone gegenprüfen.
   - „Testnachricht senden“ für alle Rollen, nur an die eigene Person, höchstens eine je Minute und fünf am Tag.
   - Anker `#rechte` in der Datenschutzerklärung, „So geht's“ verlinkt darauf.
 
+- [x] 24-Stunden-Regel und Auge an Passwortfeldern (19.10.2026, Build `2026-10-19-D`, Migration 0078):
+  - Keine Auto-Strafe, wenn der Meldeschluss weniger als 24 h nach der Freigabe liegt; gilt beim Anpfiff und für die verspätete Rückmeldung.
+  - Die Übersicht nach Meldeschluss zählt diese Spieler nicht als offen. Die App droht dann keine 8 € an.
+  - Auge an allen Passwortfeldern (Anmelden, Registrieren, neues Passwort, Profil).
+  - Prüfskript `0078_neu_vor_meldeschluss_pruef.sql` (8 Fälle) und `startregelnpruef.mjs` (Pflichtliste).
+
 ### Ablauf am Starttag: ein Link für alle (seit 19.10.2026)
 
 „Trainer festlegen“ vorab entfällt. Alle registrieren sich über den Spieler-Link. Die Rollen vergibst du danach in der App (Schritte in `STARTTAG.md`):

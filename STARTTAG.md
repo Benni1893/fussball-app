@@ -1,6 +1,6 @@
 # Starttag: so kommt die Mannschaft in die App
 
-Produktion: https://fasanerie-nord-2.vercel.app · Stand 19.10.2026 (Build `2026-10-19-C`)
+Produktion: https://fasanerie-nord-2.vercel.app · Stand 19.10.2026 (Build `2026-10-19-D`)
 
 Ausgangslage nach der Bereinigung:
 - **Kader:** nur dein Eintrag „Benjamin Lauck“, keine Strafen, keine Zusagen.
@@ -46,6 +46,8 @@ Alle, auch Trainer und Kassenwart, registrieren sich über **denselben Spieler-L
 | 8 | **Du** | Einstellungen › Rollen › Mitglieder · Mehr › Kader | Kontrolle: Alle sind da, Rollen stimmen, im Kader steht jeder genau einmal. |
 
 Hinweise zum Ablauf:
+- **Neu dabei:** Liegt der Meldeschluss eines Termins weniger als 24 Stunden nach der Freigabe, gibt es für diesen Termin keine automatische Strafe (keine oder verspätete Rückmeldung). Die Übersicht nach Meldeschluss zählt diese Spieler nicht als offen. Wer am Starttag freigegeben wird, zahlt also nichts für das erste Training.
+- Alle Passwortfelder haben ein Auge zum Ein- und Ausblenden.
 - Bis zum ersten Trainer gibst nur du frei. Die Mitteilung „Neue Anfrage“ geht an alle Trainer und an dich.
 - Sobald es einen Trainer gibt, bleibt mindestens einer: Der letzte Trainer kann seine Rolle nicht abgeben, sein Konto nicht löschen und nicht entfernt werden. Das kann nur der Admin ändern. Zusätzlich muss immer ein Konto Trainer oder Admin bleiben.
 - **Trainer, der nicht mitspielt:** Bei der Freigabe „Ohne Kadereintrag (spielt nicht mit)“ wählen, danach unter Mitglieder „Trainer“ einschalten. Er taucht nicht im Kader auf, sagt nicht zu oder ab und bekommt keine automatischen Strafen.
