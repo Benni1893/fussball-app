@@ -1390,13 +1390,35 @@ die Handler, das Scrollen selbst per Mausrad. Auf dem iPhone gegenprüfen.
 - [x] Supabase Auth: „Confirm email“ aus, „Allow new users to sign up“ an.
 - [x] Site URL und Redirect URLs geprüft, stimmen.
 - [x] Strafe vom 18.10., 00:26 Uhr, war ein bewusster Test; das Löschen bei der Bereinigung war richtig.
-- [x] Backup auf USB-Stick: Projekt (`D:asanerie-backup-2026-10-18`) und `fussball-app-db` (`D:ussball-app-db`).
+- [x] Backup auf USB-Stick: Projekt (`D:\fasanerie-backup-2026-10-18`) und `fussball-app-db` (`D:\fussball-app-db`).
+
+- [x] Konto `rascha.k@yahoo.com` gelöscht (19.10.2026).
+  - Vorher geprüft: kein Kadereintrag, keine Zusagen, keine Strafen, kein Bezug im Protokoll.
+  - Gelöscht aus Supabase Auth samt Profil, Rolle und Mitteilungs-Einstellungen.
+  - Sicherung der Zeilen nur lokal in `supabase/cleanup/backup-2026-10-19/`.
+- [x] Künftige Termine geprüft und bestätigt: 13 BFV-Spiele, Training 20., 22., 27., 29.10., Mannschaftsabend 13.11.
+  - Am 19.10. hat der BFV-Abgleich ein weiteres Spiel eingetragen: Auswärtsspiel bei VfB Sparta München, 18.04.2027. Das ist der normale Abgleich.
+- [x] Einführung je Rolle nach der ersten Anmeldung (Build `2026-10-18-E`, Migration 0074). Wieder aufrufbar unter Einstellungen › So geht's.
+- [x] „So geht's“ in Einstellungen mit 13 häufigen Fragen nach Rolle (`.design-sync/concepts/einfuehrung/FAQ.md`).
+- [x] Ehemalige Spieler bekommen keine automatischen Strafen mehr und zählen nicht als offen (Migration 0075).
+
+### Ablauf am Starttag: ein Link für alle (seit 19.10.2026)
+
+„Trainer festlegen“ vorab entfällt. Alle registrieren sich über den Spieler-Link. Die Rollen vergibst du danach in der App (Schritte in `STARTTAG.md`):
+
+1. Du teilst den Spieler-Link: Einstellungen › Rollen › Einladung › „Link teilen“.
+2. Jeder registriert sich als Spieler. Du gibst frei: Offene Anfragen › „Neuer Kadereintrag“ › Freigeben.
+3. Trainer machst du unter Einstellungen › Rollen › Mitglieder › Person › „Trainer“. Mehrere sind möglich. Danach kann jeder Trainer freigeben und Rollen ändern.
 
 ### Offen vor dem Start
 
-1. Konto `rascha.k@yahoo.com` löschen (Entscheidung steht; seit 10.06. ungenutzt, Rolle Spieler, kein Kadereintrag).
-2. Auftragsverarbeitungsverträge (DPA) mit Supabase und Vercel abschließen.
-3. Test der Passwort-Mail („Passwort vergessen?“ mit eigener Adresse: kommt sie von „Teamkabine“, führt der Link in die App?).
-4. Künftige Termine prüfen: 13 BFV-Spiele und 5 von Hand angelegte (Training 20., 22., 27., 29.10., Mannschaftsabend 13.11.).
-5. Trainer festlegen: Trainer-Link erzeugen oder dir die Trainerrolle geben (siehe `STARTTAG.md`).
-6. Gerätetest nach `.design-sync/GERAETETEST-START.md`.
+1. Auftragsverarbeitungsverträge (DPA) mit Supabase und Vercel abschließen.
+2. Passwort-Mail testen: „Passwort vergessen?“ mit eigener Adresse. Kommt sie von „Teamkabine“, und führt der Link in die App?
+3. Gerätetest nach `.design-sync/GERAETETEST-START.md`, dazu die Einführung und „So geht's“ auf dem iPhone.
+4. Punkte aus „Fehlt in der App“ (`.design-sync/concepts/einfuehrung/PLAN.md`):
+   - Kadereintrag ohne Konto entfernen
+   - Betrag einer Strafe ändern
+   - Datenauskunft in der App
+   - Kasse selbst abgeben
+   - Testnachricht für alle
+5. Entscheidung: Wie kommt ein Trainer, der nicht mitspielt, beim Ablauf mit einem Link ohne Kadereintrag aus? (Fragen in `ABSCHLUSS-NACHT-2026-10-19.md`)
