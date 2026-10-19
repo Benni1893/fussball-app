@@ -9,180 +9,225 @@ Sichtbarkeit:
 - Links öffnen die genannte Stelle in der App.
 - Am Ende steht „Frage nicht dabei?“ mit teamkabine-app@gmx.de.
 
-## 1. Der Kassenwart wechselt
-
-Für: Trainer, Kassenwart
-
-1. Öffne Einstellungen › Rollen.
-2. Tipp den neuen Kassenwart an und schalte „Kassenwart“ ein.
-3. Tipp den bisherigen Kassenwart an und schalte „Kassenwart“ aus. Sind noch Zahlungen gemeldet, tipp „Trotzdem wechseln“. Sie gehen dann an die neue Kasse.
-4. Der neue Kassenwart wird beim nächsten Öffnen nach seinem PayPal-Link gefragt. Bis dahin zahlen alle bar oder per Überweisung.
-
-Hinweis: Das macht ein Trainer. Als Kassenwart gibst du die Rolle nicht selbst weiter.
-
-Links:
-- Rollen öffnen (`#ansicht=admin`, nur Trainer)
-
-## 2. Neue PayPal-Adresse der Kasse
-
-Für: Kassenwart, Trainer
-
-1. Öffne Einstellungen und tipp oben auf deinen Namen.
-2. Tipp auf „PayPal“.
-3. Trag den neuen PayPal.me-Namen ein und tipp „Speichern“.
-
-Hinweis: Das kann nur der Kassenwart. Als Trainer sagst du ihm Bescheid.
-
-Links:
-- Profil öffnen (`#ein=profil`, nur Kassenwart)
-
-## 3. Ein Spieler verlässt die Mannschaft
-
-Für: Trainer
-
-1. Öffne Einstellungen › Rollen.
-2. Tipp unter „Mitglieder“ den Spieler an.
-3. Tipp „Aus der Mannschaft entfernen“ und bestätige. Sein Konto, seine Rückmeldungen und sein Status werden gelöscht.
-4. Offene Strafen bleiben in der Kasse unter „Offen“, als „Ehemaliger Spieler“. Der Kassenwart bucht sie dort als bezahlt oder storniert sie.
-
-Hinweis: Einen Kadereintrag ohne Konto kannst du in der App nicht entfernen.
-
-Links:
-- Rollen öffnen (`#ansicht=admin`, nur Trainer)
-
-## 4. Neuer Spieler: so lädst du ihn ein
-
-Für: Trainer
-
-1. Öffne Einstellungen › Rollen und tipp bei „Einladung“ auf „Link teilen“.
-2. Schick den Link, zum Beispiel in die WhatsApp-Gruppe.
-3. Hat er sich registriert, tipp unter „Offene Anfragen“ seinen Namen an.
-4. Wähl bei „Dem Kader zuordnen“ „Neuer Kadereintrag“, bei Trainern ohne Spiel „Ohne Kadereintrag“, und tipp „Freigeben“.
-
-Hinweis: Alle kommen über diesen einen Link, auch Trainer und Kassenwart. Bei jeder neuen Anfrage bekommst du eine Mitteilung.
-
-Links:
-- Rollen öffnen (`#ansicht=admin`, nur Trainer)
-
-## 5. Jemanden zum Trainer machen
-
-Für: Trainer
-
-1. Öffne Einstellungen › Rollen.
-2. Tipp unter „Mitglieder“ die Person an.
-3. Schalte „Trainer“ ein.
-
-Hinweis: Es darf mehrere Trainer geben. Der letzte Trainer kann die Rolle nicht abgeben, das kann nur der Admin ändern.
-
-Links:
-- Rollen öffnen (`#ansicht=admin`, nur Trainer)
-
-## 6. Strafe falsch eingetragen
-
-Für: Kassenwart
-
-1. Öffne die Kasse, Reiter „Offen“, und tipp den Spieler an.
-2. Tipp bei der Strafe auf ··· und dann „Storno“.
-3. Schon bezahlt? Tipp im Reiter „Bezahlt“ die Strafe an und dann „Buchung rückgängig“. Danach stornierst du sie wie oben.
-4. Die richtige Strafe legst du mit „+ Strafe verhängen“ neu an.
-
-Hinweis: Den Betrag einer eingetragenen Strafe kannst du nicht ändern, nur stornieren und neu anlegen.
-
-Links:
-- Kasse öffnen (`#kasse=offen`, nur Kassenwart)
-
-## 7. Zusage oder Absage ändern
+## 1. Zusage oder Absage ändern
 
 Für: alle
 
-1. Öffne den Termin auf der Übersicht oder im Kalender.
-2. Tipp „Zusage“ oder „Absage“. Bei einer Absage kannst du einen Grund angeben.
-3. Tippst du deine Antwort noch einmal an, nimmst du sie zurück.
+1. Termin in Übersicht oder Kalender
+2. „Zusage“ oder „Absage“ tippen
+3. Nochmal tippen nimmt sie zurück
 
-Hinweis: Bis zum Meldeschluss ist das kostenlos. Danach kostet eine Rückmeldung eine Strafe, gar keine Antwort eine höhere. Die Beträge stehen im Katalog.
+Hinweis: Nach dem Meldeschluss kostet jede Rückmeldung eine Strafe.
 
 Links:
 - Kalender öffnen (`#ansicht=kalender`)
 
-## 8. Ich bekomme keine Mitteilungen
+## 2. Verletzt oder im Urlaub
+
+Für: Spieler mit Kadereintrag
+
+1. Übersicht › Mein Status
+2. Status wählen, gern mit Datum
+3. Wieder da? „Fit“ tippen
+
+Hinweis: Verletzt und angeschlagen brauchen deine Einwilligung im Profil.
+
+Links:
+- Übersicht öffnen (`#ansicht=dashboard`)
+
+## 3. Strafen bezahlen
+
+Für: Spieler mit Kadereintrag
+
+1. Unten „Konto“ öffnen
+2. „… jetzt bezahlen“ per PayPal
+3. Danach „Zahlung melden“
+
+Hinweis: Bar bezahlt? Auch dann „Zahlung melden“.
+
+Links:
+- Konto öffnen (`#strafen=offen`)
+
+## 4. Keine Mitteilungen?
 
 Für: alle
 
-1. iPhone: Mitteilungen kommen nur in der App vom Home-Bildschirm an, ab iOS 16.4. Öffne die App in Safari, tipp auf „Teilen“ › „Zum Home-Bildschirm“ und starte sie von dort.
-2. Öffne Einstellungen › Mitteilungen und schalte „Mitteilungen erlauben“ ein.
-3. Prüf, ob die Themen eingeschaltet sind, die du haben willst.
-4. Schau unter Einstellungen › Ruhezeiten nach. In der Ruhezeit kommt nichts, außer „Dringendes zustellen“ ist an.
+1. iPhone: App vom Home-Bildschirm
+2. Einstellungen › Mitteilungen › an
+3. Ruhezeiten prüfen
 
-Hinweis: Hast du Mitteilungen einmal abgelehnt, erlaubst du sie in den Einstellungen deines Handys.
+Hinweis: Abgelehnt? Dann in den Einstellungen des Handys erlauben.
 
 Links:
 - Mitteilungen öffnen (`#ein=mitteilungen`)
 - Ruhezeiten öffnen (`#ein=ruhezeiten`)
 
-## 9. Termine in den Handy-Kalender
+## 5. Termine im Handy-Kalender
 
 Für: alle
 
-1. Öffne Einstellungen › Kalender abonnieren.
-2. iPhone: Tipp „Im iPhone-Kalender abonnieren“ und bestätige.
-3. Android: Tipp „Link kopieren“ und folge der „Anleitung“ für calendar.google.com.
+1. Einstellungen › Kalender abonnieren
+2. iPhone: Abo-Knopf tippen
+3. Android: Link kopieren, Anleitung
 
-Hinweis: Neue und geänderte Termine kommen danach von selbst, bei Google bis zu 24 Stunden später.
+Hinweis: Neue Termine kommen danach von selbst.
 
 Links:
 - Kalender-Abo öffnen (`#ein=kalender`)
 
-## 10. Passwort vergessen
+## 6. „Noch nicht freigegeben“
 
 Für: alle
 
-1. Tipp auf der Anmeldeseite auf „Passwort vergessen?“.
-2. Gib deine E-Mail ein und tipp „Reset-Link senden“.
-3. Öffne den Link in der Mail, gib ein neues Passwort ein und tipp „Passwort speichern“.
-4. Melde dich mit dem neuen Passwort an.
+1. Ein Trainer prüft deine Anfrage
+2. Du bekommst eine Mitteilung
+3. Dann „Erneut prüfen“ tippen
 
-Hinweis: Keine Mail da? Schau im Spam-Ordner nach. Angemeldet änderst du dein Passwort im Profil unter „Passwort“.
+Hinweis: Trainer finden Anfragen unter Einstellungen › Rollen.
 
-Links:
-- Profil öffnen (`#ein=profil`)
-
-## 11. Neues Handy
+## 7. Passwort vergessen
 
 Für: alle
 
-1. Öffne die App auf dem neuen Handy und melde dich mit E-Mail und Passwort an. Auf dem iPhone legst du sie vorher auf den Home-Bildschirm.
-2. Erlaube unter Einstellungen › Mitteilungen die Mitteilungen neu. Deine Themen und Ruhezeiten bleiben.
-3. Richte bei Bedarf „Kalender abonnieren“ neu ein.
+1. Anmeldung › „Passwort vergessen?“
+2. E-Mail eingeben, Link anfordern
+3. Link öffnen, neues Passwort
 
-Hinweis: Alles andere liegt auf dem Server und ist sofort wieder da.
+Hinweis: Keine Mail? Schau im Spam-Ordner nach.
+
+## 8. Neues Handy
+
+Für: alle
+
+1. App öffnen und anmelden
+2. Mitteilungen neu erlauben
+3. Kalender-Abo neu einrichten
+
+Hinweis: Alles andere ist sofort wieder da.
 
 Links:
 - Mitteilungen öffnen (`#ein=mitteilungen`)
 
-## 12. Strafen bezahlen
+## 9. Neuen Spieler einladen
 
-Für: Spieler mit Kadereintrag
+Für: Trainer
 
-1. Öffne unten „Konto“, Bereich „Ich“.
-2. Tipp „… jetzt bezahlen“ und zahl per PayPal. Oder zahl bar beim Kassenwart.
-3. Tipp danach „Zahlung melden“, wähl die Zahlart und schick die Meldung ab.
-4. Der Kassenwart bestätigt die Zahlung. Dann sind die Strafen erledigt.
+1. Rollen › Einladung › „Link teilen“
+2. Anfrage unter „Offene Anfragen“
+3. Kadereintrag wählen, „Freigeben“
 
-Hinweis: Eine Meldung gilt für alle deine offenen Strafen.
+Hinweis: Wer nicht mitspielt: „Ohne Kadereintrag“.
 
 Links:
-- Konto öffnen (`#strafen=offen`)
+- Rollen öffnen (`#ansicht=admin`, nur Trainer)
 
-## 13. Konto löschen oder Daten anfragen
+## 10. Jemanden zum Trainer machen
+
+Für: Trainer
+
+1. Einstellungen › Rollen › Person
+2. Schalter „Trainer“ einschalten
+
+Hinweis: Mehrere Trainer sind möglich. Den letzten ändert nur der Admin.
+
+Links:
+- Rollen öffnen (`#ansicht=admin`, nur Trainer)
+
+## 11. Spieler verlässt die Mannschaft
+
+Für: Trainer
+
+1. Einstellungen › Rollen › Spieler
+2. „Aus der Mannschaft entfernen“
+3. Bestätigen
+
+Hinweis: Offene Strafen bleiben in der Kasse bezahlbar.
+
+Links:
+- Rollen öffnen (`#ansicht=admin`, nur Trainer)
+
+## 12. Termin anlegen oder absagen
+
+Für: Trainer
+
+1. Kalender › „+ Termin“
+2. Absagen: ··· › „Termin bearbeiten“
+3. Dort „Absagen“ tippen
+
+Hinweis: Alle bekommen dann eine Mitteilung.
+
+Links:
+- Kalender öffnen (`#ansicht=kalender`, nur Trainer)
+
+## 13. Aufstellung erstellen und teilen
+
+Für: Trainer
+
+1. Unten „Trainer“ › Spiel wählen
+2. „Elf aufstellen“, Spieler setzen
+3. Termin ··· › „Kader-Info teilen“
+
+Hinweis: Die Kader-Info nennt Startelf und Bank.
+
+## 14. Der Kassenwart wechselt
+
+Für: Trainer, Kassenwart
+
+1. Einstellungen › Rollen öffnen
+2. Neue Person: „Kassenwart“ an
+3. Bisherige Person: „Kassenwart“ aus
+
+Hinweis: Das macht ein Trainer. Offene Meldungen gehen an die neue Kasse.
+
+Links:
+- Rollen öffnen (`#ansicht=admin`, nur Trainer)
+
+## 15. Neue PayPal-Adresse der Kasse
+
+Für: Kassenwart, Trainer
+
+1. Einstellungen › dein Name oben
+2. „PayPal“ antippen
+3. Namen eintragen, „Speichern“
+
+Hinweis: Das kann nur der Kassenwart.
+
+Links:
+- Profil öffnen (`#ein=profil`, nur Kassenwart)
+
+## 16. Strafe verhängen
+
+Für: Kassenwart
+
+1. Kasse › „+ Strafe verhängen“
+2. Spieler wählen, „Weiter“
+3. Strafe wählen, „Strafe speichern“
+
+Links:
+- Kasse öffnen (`#kasse=offen`, nur Kassenwart)
+
+## 17. Strafe falsch eingetragen
+
+Für: Kassenwart
+
+1. Kasse › Offen › Spieler antippen
+2. Bei der Strafe ··· › „Storno“
+3. Neu mit „+ Strafe verhängen“
+
+Hinweis: Schon bezahlt? Erst „Buchung rückgängig“.
+
+Links:
+- Kasse öffnen (`#kasse=offen`, nur Kassenwart)
+
+## 18. Konto löschen oder Datenauskunft
 
 Für: alle
 
-1. Öffne Einstellungen und tipp oben auf deinen Namen.
-2. Tipp ganz unten bei „Konto“ auf „Löschen“ und dann „Endgültig löschen“.
-3. Gelöscht werden dein Konto, deine Rückmeldungen und dein Status. Strafen bleiben ohne deinen Namen in der Kasse.
-4. Welche Daten über dich gespeichert sind, erfährst du per Mail an teamkabine-app@gmx.de.
+1. Einstellungen › dein Name oben
+2. Ganz unten „Konto“ › „Löschen“
+3. Auskunft: teamkabine-app@gmx.de
 
-Hinweis: Mehr dazu steht in der Datenschutzerklärung. Bist du der letzte Trainer, gib die Rolle vorher weiter.
+Hinweis: Strafen bleiben ohne deinen Namen in der Kasse.
 
 Links:
 - Profil öffnen (`#ein=profil`)

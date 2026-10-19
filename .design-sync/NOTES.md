@@ -1409,6 +1409,14 @@ die Handler, das Scrollen selbst per Mausrad. Auf dem iPhone gegenprüfen.
   - Mahnzuschlag von Ehemaligen ab dem Austritt eingefroren.
   - Prüfskript `0076_freigabe_ohne_kader_trainerregel_pruef.sql` (14 Fälle) und `ehemaligepruef.mjs` (Pflichtliste).
 
+- [x] Block 2 (19.10.2026, Build `2026-10-19-B`): Einführung und „So geht's“ überarbeitet.
+  - Höchstens 6 Seiten, Überschrift höchstens 5 Wörter, Text höchstens 20.
+  - Abbildungen als HTML aus App-Bausteinen (`einfuehrungbausteine.mjs` schreibt den Block `EF-ABB` in `app.js`), keine Bilddateien mehr.
+  - Wischen nach links und rechts.
+  - Keine Farbkante beim Überscrollen.
+  - 18 Fragen mit höchstens 3 einzeiligen Schritten.
+  - Prüfung `einfuehrungpruef.mjs` bei 390 und 375 px.
+
 ### Ablauf am Starttag: ein Link für alle (seit 19.10.2026)
 
 „Trainer festlegen“ vorab entfällt. Alle registrieren sich über den Spieler-Link. Die Rollen vergibst du danach in der App (Schritte in `STARTTAG.md`):

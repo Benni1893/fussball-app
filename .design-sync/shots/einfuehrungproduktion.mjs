@@ -79,13 +79,13 @@ for (const [name, typ] of [['chromium', chromium], ['webkit', webkit]].filter(([
   pruefe(/2026-10-18-E/.test(String(build)) || true, 'Build ' + build);
 
   // 1. Spieler, erstes Mal
-  const istFolge = name === 'webkit' ? ['s_termine', 's_status', 's_konto', 's_katalog', 'home', 'push', 'kalender', 'fertig'] : ['s_termine', 's_status', 's_konto', 's_katalog', 'home', 'push', 'kalender', 'fertig'];
+  const istFolge = name === 'webkit' ? ['sp_termin', 'sp_status', 'sp_strafen', 'sp_los', 'home', 'push'] : ['sp_termin', 'sp_status', 'sp_strafen', 'sp_los', 'home', 'push'];
   if (name === 'chromium') {
     const ids = await durch(page, name, 'spieler');
     pruefe(JSON.stringify(ids) === JSON.stringify(istFolge), 'Spieler: Einführung erscheint, Folge ' + ids.join(' '), JSON.stringify(ids));
   } else {
     const ids = await durch(page, name, 'spieler', 2);
-    pruefe(ids.join(' ') === 's_termine s_status', 'Spieler: Einführung erscheint, Überspringen auf Seite 2', ids.join(' '));
+    pruefe(ids.join(' ') === 'sp_termin sp_status', 'Spieler: Einführung erscheint, Überspringen auf Seite 2', ids.join(' '));
   }
   let g = gesehen();
   pruefe(g === 'spieler', 'in der Datenbank gemerkt: spieler', g);
@@ -96,13 +96,13 @@ for (const [name, typ] of [['chromium', chromium], ['webkit', webkit]].filter(([
   await page.evaluate(() => { location.hash = '#ein=sogehts'; }); await page.waitForTimeout(1500);
   const sg = await page.evaluate(() => ({ h1: (document.querySelector('.ein-h1') || {}).textContent, n: document.querySelectorAll('[data-sg-frage]').length,
     rollen: document.querySelectorAll('[data-sg-ef]').length, mail: (document.querySelector('.sg-kontakt a') || {}).href }));
-  pruefe(sg.h1 === "So geht's" && sg.n === 7 && sg.rollen === 1 && sg.mail === 'mailto:teamkabine-app@gmx.de', "So geht's: 7 Fragen für Spieler, nur eigene Einführung, Kontakt", JSON.stringify(sg));
+  pruefe(sg.h1 === "So geht's" && sg.n === 9 && sg.rollen === 1 && sg.mail === 'mailto:teamkabine-app@gmx.de', "So geht's: 9 Fragen für Spieler, nur eigene Einführung, Kontakt", JSON.stringify(sg));
   await page.screenshot({ path: path.join(AUS, name + '_sogehts.png'), fullPage: true });
   await page.click('[data-sg-ef="eigen"]'); await page.waitForTimeout(800);
   const w = await seite(page);
   await page.click('[data-ef="ueberspringen"]'); await page.waitForTimeout(1200);
   const zurueck = await page.evaluate(() => (document.querySelector('.ein-h1') || {}).textContent);
-  pruefe(w === 's_termine' && zurueck === "So geht's", "Einführung ansehen öffnet die Spieler-Einführung, zurück auf So geht's", JSON.stringify([w, zurueck]));
+  pruefe(w === 'sp_termin' && zurueck === "So geht's", "Einführung ansehen öffnet die Spieler-Einführung, zurück auf So geht's", JSON.stringify([w, zurueck]));
   pruefe(gesehen() === 'spieler', 'Wiederholung schreibt nichts');
   await page.click('[data-ein-back]'); await page.waitForTimeout(1000);
   pruefe(await page.evaluate(() => (document.querySelector('.page-head h1') || {}).textContent === 'Einstellungen'), 'Zurück-Leiste führt auf Einstellungen');
@@ -111,7 +111,7 @@ for (const [name, typ] of [['chromium', chromium], ['webkit', webkit]].filter(([
   sql(`insert into public.user_roles (user_id, role, club_id) select '${T.user}', 'treasurer', id from public.clubs where slug = 'fcfn' on conflict do nothing`);
   await neuLaden(page);
   const ids2 = await durch(page, name, 'kassenwart-neu');
-  pruefe(ids2.join(' ') === 'k_kasse k_verhaengen k_pruefen k_paypal fertig', 'neue Rolle Kassenwart: nur ' + ids2.join(' '), ids2.join(' '));
+  pruefe(ids2.join(' ') === 'kw_kasse kw_verhaengen kw_pruefen', 'neue Rolle Kassenwart: nur ' + ids2.join(' '), ids2.join(' '));
   g = gesehen();
   pruefe(g === 'kassenwart,spieler', 'gemerkt: kassenwart,spieler', g);
   await neuLaden(page);

@@ -1,0 +1,92 @@
+{
+ "terminkarte": {
+  "html": "<div class=\"card tk is-hero\"><div class=\"tk-kopf is-hero is-gold\"><span class=\"tk-ring\" aria-hidden=\"true\"></span><div class=\"tk-heroleiste\"><span class=\"tk-pille\">Nächster Termin</span><button class=\"tk-menue\" aria-label=\"Mehr zu diesem Termin\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"currentColor\" aria-hidden=\"true\"><circle cx=\"5\" cy=\"12\" r=\"1.9\"></circle><circle cx=\"12\" cy=\"12\" r=\"1.9\"></circle><circle cx=\"19\" cy=\"12\" r=\"1.9\"></circle></svg></button></div><div class=\"tk-kopfzeile\"><span class=\"wf wf-hero\"><span class=\"wf-wd\">So</span><span class=\"wf-day num\">4</span><span class=\"wf-mon\">Okt</span></span><span class=\"tk-kopf-main\"><span class=\"tk-titel\">TSV Beispielstadt</span><span class=\"tk-zeit num\">In 2 Tagen · Heim · 15:00 bis 16:45&nbsp;Uhr</span></span></div></div><div class=\"tk-body\"><a class=\"tk-ort\" title=\"Sportplatz Musterhausen\" aria-label=\"Route zu Sportplatz Musterhausen\"><span class=\"tk-ort-ic\" aria-hidden=\"true\"><svg class=\"venue-pin\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z\"></path><circle cx=\"12\" cy=\"11\" r=\"2.2\"></circle></svg></span><span class=\"tk-ort-n\">Sportplatz Musterhausen</span><span class=\"tk-route\" aria-hidden=\"true\">Route ›</span></a><div class=\"tk-rsvp is-gross\"><button class=\"tk-btn\">Zusage</button><button class=\"tk-btn is-ab\">Absage</button></div><div class=\"tk-rueck is-still\"><span class=\"tk-rueck-main\"><span class=\"tk-rueck-kopf\"><span class=\"tk-rueck-t\">Rückmeldung</span><span class=\"tk-ms cd cd-red\">Meldeschluss in 21 h</span></span></span></div></div></div>",
+  "huellen": [],
+  "breite": 358
+ },
+ "terminkarte_tr": {
+  "html": "<div class=\"card tk is-hero\"><div class=\"tk-kopf is-hero is-gold\"><span class=\"tk-ring\" aria-hidden=\"true\"></span><div class=\"tk-heroleiste\"><span class=\"tk-pille\">Nächster Termin</span><button class=\"tk-menue\" aria-label=\"Mehr zu diesem Termin\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"currentColor\" aria-hidden=\"true\"><circle cx=\"5\" cy=\"12\" r=\"1.9\"></circle><circle cx=\"12\" cy=\"12\" r=\"1.9\"></circle><circle cx=\"19\" cy=\"12\" r=\"1.9\"></circle></svg></button></div><div class=\"tk-kopfzeile\"><span class=\"wf wf-hero\"><span class=\"wf-wd\">So</span><span class=\"wf-day num\">4</span><span class=\"wf-mon\">Okt</span></span><span class=\"tk-kopf-main\"><span class=\"tk-titel\">TSV Beispielstadt</span><span class=\"tk-zeit num\">In 2 Tagen · Heim · 15:00 bis 16:45&nbsp;Uhr</span></span></div></div><div class=\"tk-body\"><a class=\"tk-ort\" title=\"Sportplatz Musterhausen\" aria-label=\"Route zu Sportplatz Musterhausen\"><span class=\"tk-ort-ic\" aria-hidden=\"true\"><svg class=\"venue-pin\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z\"></path><circle cx=\"12\" cy=\"11\" r=\"2.2\"></circle></svg></span><span class=\"tk-ort-n\">Sportplatz Musterhausen</span><span class=\"tk-route\" aria-hidden=\"true\">Route ›</span></a><div class=\"tk-rsvp is-gross\"><button class=\"tk-btn\">Zusage</button><button class=\"tk-btn is-ab\">Absage</button></div><button class=\"tk-rueck\"><span class=\"tk-rueck-main\"><span class=\"tk-rueck-kopf\"><span class=\"tk-rueck-t\">Rückmeldungen</span><span class=\"tk-ms cd cd-red\">Meldeschluss in 21 h</span></span><span class=\"tk-bar\" role=\"img\" aria-label=\"9 zugesagt, 2 abgesagt, 5 offen\"><i class=\"is-zu\" style=\"width:56.25%\"></i><i class=\"is-ab\" style=\"width:12.50%\"></i></span><span class=\"tk-rueck-z\"><b>9</b> zu · <b>2</b> ab · <b>5</b> offen</span></span><span class=\"tk-chev\" aria-hidden=\"true\">›</span></button><div class=\"tk-felder\"><button class=\"tk-feld2\"><span class=\"tk-f-main\"><span class=\"tk-f-lbl\">Aufstellung</span><span class=\"tk-f-wert num is-gold\">11 von 11</span></span><span class=\"tk-chev\" aria-hidden=\"true\">›</span></button><button class=\"tk-feld2\"><span class=\"tk-f-main\"><span class=\"tk-f-lbl\">Kader</span><span class=\"tk-f-wert num\">13 fit</span></span><span class=\"tk-chev\" aria-hidden=\"true\">›</span></button></div></div></div>",
+  "huellen": [],
+  "breite": 358
+ },
+ "status": {
+  "html": "<div class=\"st-wahl\">\n      <div class=\"st-raster\"><button type=\"button\" class=\"st-knopf st-fit is-on\"><svg class=\"st-haken\" viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12.5l4.5 4.5L19 7.5\"></path></svg>Fit</button><button type=\"button\" class=\"st-knopf st-angeschlagen\"><span class=\"st-dot\" aria-hidden=\"true\"></span>Angeschlagen</button><button type=\"button\" class=\"st-knopf st-verletzt\"><span class=\"st-dot\" aria-hidden=\"true\"></span>Verletzt</button><button type=\"button\" class=\"st-knopf st-urlaub\"><span class=\"st-dot\" aria-hidden=\"true\"></span>Urlaub</button></div>\n    </div>",
+  "huellen": [],
+  "breite": 358
+ },
+ "kontobanner": {
+  "html": "<div class=\"mine-banner\">\n        <div class=\"mb-label\">Dein Konto · Felix Oberhaus</div>\n        <div class=\"mb-value num\">13,00&nbsp;€</div>\n        <div class=\"mb-sub\">2 Strafen offen</div>\n        \n        \n          <a class=\"btn btn-primary mb-pay\">13,00&nbsp;€ jetzt bezahlen</a>\n          <div class=\"mb-pp\">über <b class=\"pp-word\">Pay<span>Pal</span></b> · Freunde &amp; Familie</div>\n          <div class=\"mb-foot\">\n            <button class=\"link-btn\">Zahlung melden ›</button>\n            <span class=\"mark is-rot mb-cd cd cd-amber\">Erhöhung in 1T 20h</span>\n          </div>\n      </div>",
+  "huellen": [],
+  "breite": 358
+ },
+ "rueckmeldungen": {
+  "html": "<div class=\"rs2-kacheln\"><button class=\"rs2-kachel is-zu\"><span class=\"rs2-k-l\">Zu</span><span class=\"rs2-k-z\">9</span></button><button class=\"rs2-kachel is-ab\"><span class=\"rs2-k-l\">Ab</span><span class=\"rs2-k-z\">2</span></button><button class=\"rs2-kachel is-offen is-on\"><span class=\"rs2-k-l\">Offen</span><span class=\"rs2-k-z\">5</span></button></div>",
+  "huellen": [
+   "more-sheet",
+   "more-panel rs2-panel"
+  ],
+  "breite": 390
+ },
+ "naechstes_spiel": {
+  "html": "<div class=\"card tv-next\"><div class=\"tk-kopf is-hero is-gold tv-next-kopf\"><div class=\"tk-kopfzeile\"><span class=\"wf wf-hero\"><span class=\"wf-wd\">So</span><span class=\"wf-day num\">4</span><span class=\"wf-mon\">Okt</span></span><span class=\"tk-kopf-main\"><span class=\"tk-oben\">Nächstes Spiel · Heim</span><span class=\"tk-titel\">TSV Beispielstadt</span><span class=\"tk-zeit\">15:00&nbsp;Uhr · in 2 Tagen</span></span></div></div><button class=\"tk-rueck tv-rueck\"><span class=\"tk-rueck-main\"><span class=\"tk-rueck-kopf\"><span class=\"tk-rueck-t\">Rückmeldungen</span></span><span class=\"tk-bar\" role=\"img\" aria-label=\"9 zugesagt, 2 abgesagt, 5 offen\"><i class=\"is-zu\" style=\"width:56.25%\"></i><i class=\"is-ab\" style=\"width:12.50%\"></i></span><span class=\"tk-rueck-z\"><b>9</b> zu · <b>2</b> ab · <b>5</b> offen</span></span><span class=\"tk-chev\" aria-hidden=\"true\">›</span></button><div class=\"tv-next-fuss\"><button class=\"btn btn-primary tv-next-btn\">Elf aufstellen</button></div></div>",
+  "huellen": [],
+  "breite": 358
+ },
+ "kader": {
+  "html": "<div class=\"card kad-liste\"><button class=\"row kad-row is-zwei\" aria-label=\"Status von Moritz Vogler ändern\"><span class=\"row-av\">MV</span><span class=\"row-main\"><span class=\"row-t\">Moritz Vogler</span><span class=\"row-s\">seit 28.&nbsp;Sep · bis 10.&nbsp;Okt</span></span><span class=\"row-end\"><span class=\"mark kad-pille is-urlaub\"><span class=\"mark-dot\" aria-hidden=\"true\"></span>Urlaub ▾</span></span></button><button class=\"row kad-row is-zwei\" aria-label=\"Status von Emil Nordhoff ändern\"><span class=\"row-av\">EN</span><span class=\"row-main\"><span class=\"row-t\">Emil Nordhoff</span><span class=\"row-s\">Knie · seit 18.&nbsp;Sep · bis 20.&nbsp;Okt</span></span><span class=\"row-end\"><span class=\"mark kad-pille is-rot\"><span class=\"mark-dot\" aria-hidden=\"true\"></span>Verletzt ▾</span></span></button><button class=\"row kad-row is-zwei\" aria-label=\"Status von Jakob Sauter ändern\"><span class=\"row-av\">JS</span><span class=\"row-main\"><span class=\"row-t\">Jakob Sauter</span><span class=\"row-s\">Wade · seit 30.&nbsp;Sep</span></span><span class=\"row-end\"><span class=\"mark kad-pille is-amber\"><span class=\"mark-dot\" aria-hidden=\"true\"></span>Angeschlagen ▾</span></span></button></div>",
+  "huellen": [],
+  "breite": 358
+ },
+ "rollen": {
+  "html": "<div><div class=\"group-head\"><h2>Offene Anfragen</h2></div><div class=\"ein-gruppe\"><button class=\"ein-zeile ohne-ic\" type=\"button\"><span class=\"ein-zeile-t\">Lena Anfrage</span><span class=\"mark is-amber fg-kw-marke\" title=\"Möchte Kassenwart sein\">Kassenwart?</span><span class=\"ein-zeile-w\">Abwehr</span><span class=\"ein-chev\" aria-hidden=\"true\">›</span></button></div><div class=\"group-head\"><h2>Mitglieder</h2></div><div class=\"ein-gruppe\"><button class=\"ein-zeile ohne-ic\" type=\"button\"><span class=\"ein-zeile-t\">Felix Oberhaus (du)</span><span class=\"ein-zeile-w\">Admin</span><span class=\"ein-chev\" aria-hidden=\"true\">›</span></button><button class=\"ein-zeile ohne-ic\" type=\"button\"><span class=\"ein-zeile-t\">Gregor Pallas</span><span class=\"ein-zeile-w\">Trainer</span><span class=\"ein-chev\" aria-hidden=\"true\">›</span></button><button class=\"ein-zeile ohne-ic\" type=\"button\"><span class=\"ein-zeile-t\">Lars Ulbrich</span><span class=\"ein-zeile-w\">Kassenwart</span><span class=\"ein-chev\" aria-hidden=\"true\">›</span></button></div></div>",
+  "huellen": [
+   "scroll-area"
+  ],
+  "breite": 390
+ },
+ "kassenbanner": {
+  "html": "<section class=\"kb\" aria-label=\"Mannschaftskasse\"><button type=\"button\" class=\"kb-top\" aria-label=\"Eingegangene Zahlungen ansehen\"><img class=\"kb-crest\" src=\"assets/logo.png\" alt=\"\"><span class=\"kb-lbl\">In der Kasse</span><span class=\"kb-value\">6,00&nbsp;€<span class=\"kb-chev\" aria-hidden=\"true\">›</span></span></button><span class=\"kb-bar\" aria-hidden=\"true\"><span class=\"kb-bar-fill\" style=\"width:10%\"></span></span><span class=\"kb-pct\">10&nbsp;% der Strafen bezahlt</span><div class=\"kb-offen is-link\"><span class=\"kb-offen-main\"><button type=\"button\" class=\"kb-offen-t kb-offen-hit\" aria-label=\"Offene Strafen ansehen\">Noch offen</button><span class=\"kb-offen-sub\">4 Strafen · 3 Spieler</span><button type=\"button\" class=\"kb-offen-sub kb-offen-gem\" aria-label=\"Gemeldete Zahlungen prüfen\">15,00&nbsp;€ zu prüfen<span class=\"kb-gem-chev\" aria-hidden=\"true\">›</span></button></span><span class=\"kb-offen-amt\">37,00&nbsp;€</span><span class=\"kb-offen-chev\" aria-hidden=\"true\">›</span></div></section>",
+  "huellen": [],
+  "breite": 358
+ },
+ "strafe_knopf": {
+  "html": "<button type=\"button\" class=\"btn btn-primary ks-neu\">+ Strafe verhängen</button>",
+  "huellen": [],
+  "breite": 358
+ },
+ "katalog": {
+  "html": "<div class=\"kat-list\">\n        <button type=\"button\" class=\"kat-item is-tap\" aria-label=\"Verspätete Rückmeldung bearbeiten\"><span class=\"kat-main\"><span class=\"kat-name\">Verspätete Rückmeldung</span></span><span class=\"kat-amount\">8,00&nbsp;€</span><span class=\"row-chev\" aria-hidden=\"true\">›</span></button><button type=\"button\" class=\"kat-item is-tap\" aria-label=\"Zu spät zum Training bearbeiten\"><span class=\"kat-main\"><span class=\"kat-name\">Zu spät zum Training</span><span class=\"kat-sub\">je 5 Minuten · max 10,00&nbsp;€</span></span><span class=\"kat-amount\">1,00&nbsp;€</span><span class=\"row-chev\" aria-hidden=\"true\">›</span></button>\n      </div>",
+  "huellen": [],
+  "breite": 358
+ },
+ "kasse_reiter": {
+  "html": "<div class=\"seg ks-seg\" role=\"tablist\">\n          <button class=\"seg-b ks-seg-b is-on\" role=\"tab\" aria-selected=\"true\">Gemeldet <b class=\"ks-seg-n\">2</b></button><button class=\"seg-b ks-seg-b\" role=\"tab\" aria-selected=\"false\">Offen</button><button class=\"seg-b ks-seg-b\" role=\"tab\" aria-selected=\"false\">Bezahlt</button>\n        </div>",
+  "huellen": [
+   "ks-pane"
+  ],
+  "breite": 358
+ },
+ "kasse_meldung": {
+  "html": "<div class=\"card ks-card\" role=\"button\" aria-label=\"Meldung von Bruno Kessler im Detail\">\n          <span class=\"avatar ks-av\">BK</span>\n          <div class=\"ks-name\">Bruno Kessler</div>\n          <div class=\"ks-grund\">Gelbe Karte wegen Meckern</div>\n          <div class=\"ks-amt\">10,00&nbsp;€</div>\n          <div class=\"ks-meta\"><span class=\"ks-zi is-pp\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M8.6 3h6.1c2.9 0 4.6 1.5 4.2 4.1-.4 2.8-2.4 4.3-5.4 4.3h-2.2l-.8 5.1H7.2L8.6 3Zm2.6 2.3-.6 3.8h1.7c1.5 0 2.4-.7 2.6-2 .2-1.2-.4-1.8-1.8-1.8h-1.9Z\"></path><path d=\"M6.3 7.6h5.5c2.6 0 4.1 1.4 3.7 3.7-.4 2.5-2.2 3.9-4.9 3.9H8.5L7.8 20H5.1l1.2-8.1.8-4.3Z\" opacity=\".55\"></path></svg></span><span>PayPal · gemeldet gestern, 21:12</span></div>\n          <div class=\"ks-zitat\">„Gerade überwiesen\"</div>\n          <div class=\"ks-vorher\"><span class=\"mark is-amber\">An vorherigen Kassenwart gezahlt: Mara Vogt</span></div>\n          <div class=\"ks-actions\">\n            <button class=\"btn btn-soft btn-danger\">Ablehnen</button>\n            <button class=\"btn btn-primary\">Bestätigen</button>\n          </div>\n        </div>",
+  "huellen": [
+   "ks-pane",
+   "ks-deck is-stapel"
+  ],
+  "breite": 358
+ },
+ "navigation_sp": {
+  "html": "<nav class=\"app-nav\">\n    <button class=\"nav-btn is-active\">\n      <svg class=\"nav-ic\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 10.5 12 3l9 7.5\"></path><path d=\"M5 9.5V21h5v-6h4v6h5V9.5\"></path></svg>\n      <span class=\"nav-label\">Übersicht</span>\n    </button>\n    <button class=\"nav-btn\">\n      <svg class=\"nav-ic\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"4.5\" width=\"18\" height=\"16\" rx=\"2\"></rect><path d=\"M3 9h18M8 2.5v4M16 2.5v4\"></path></svg>\n      <span class=\"nav-label\">Kalender</span>\n    </button>\n    <button class=\"nav-btn\">\n      <svg class=\"nav-ic\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 4h14v16H7a2 2 0 0 1-2-2z\"></path><path d=\"M5 18a2 2 0 0 1 2-2h12\"></path><path d=\"M9 8h6M9 11h4\"></path></svg>\n      <span class=\"nav-label\">Katalog</span>\n    </button>\n    <button class=\"nav-btn\">\n      <svg class=\"nav-ic\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"6\" width=\"18\" height=\"13\" rx=\"2\"></rect><path d=\"M3 10h18\"></path><path d=\"M15.5 14.5h2.5\"></path></svg>\n      <span class=\"nav-label\">Konto</span>\n    </button>\n    <button class=\"nav-btn\" style=\"display: none;\"><svg class=\"nav-ic\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"8\" r=\"3.5\"></circle><path d=\"M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6\"></path></svg><span class=\"nav-label\">Profil</span></button>\n  </nav>",
+  "huellen": [],
+  "breite": 390
+ },
+ "profilzeile": {
+  "html": "<button class=\"ein-profil\" type=\"button\">\n        <span class=\"avatar ein-profil-av\">FO</span>\n        <span class=\"ein-profil-main\">\n          <span class=\"ein-profil-name\">Felix Oberhaus</span>\n          <span class=\"ein-profil-rolle\">Spieler · Profil ansehen</span>\n        </span>\n        <span class=\"ein-chev\" aria-hidden=\"true\">›</span>\n      </button>",
+  "huellen": [],
+  "breite": 358
+ },
+ "kalender_kopf": {
+  "html": "<div class=\"page-head h1row kal-kopf\"><h1>Kalender</h1><button class=\"link-btn kal-plus\" type=\"button\">+ Termin</button></div>",
+  "huellen": [],
+  "breite": 358
+ }
+}

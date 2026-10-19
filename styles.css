@@ -4438,20 +4438,14 @@ body:has(.nsb-ov) .app-nav { visibility: hidden; }
 .rs2-liste, .lu-sheet-body, .kat-blatt-body, .nsb-felder, .modal { overscroll-behavior: contain; }
 /* Einfuehrung je Rolle (Entwurf .design-sync/concepts/einfuehrung/): Kopfzeile mit
    Fortschrittspunkten links neben "Ueberspringen" (Neu 1) und Ausschnitte aus der
-   App als Bild (Neu 2). Nur vorhandene Tokens. */
+   App als echtes HTML (Block 2, keine Bilder). Nur vorhandene Tokens. */
 .ef-kopf { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: -12px -4px 8px 0; }
 .ef-kopf .ob-spaeter { margin: 0; }
 .ef-punkte { display: flex; align-items: center; gap: 6px; padding: 2px 0; }
 .ef-punkt { flex: none; width: 8px; height: 8px; border-radius: var(--radius-pill); background: var(--dot-off); }
 .ef-punkt.is-an { width: 20px; background: var(--green-700); }
-.ef-bild, .ef-rahmen { margin-top: 14px; }
-.ef-rahmen + .ef-rahmen { margin-top: 10px; }
-.ef-bild img { display: block; width: 100%; height: auto; border-radius: var(--radius); }
-.ef-rahmen { overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--bg); }
-.ef-rahmen img { display: block; width: 100%; height: auto; }
 .ef-card .ef-inhalt { margin-top: 14px; }
 .ef-mitte { text-align: center; }
-.ef-hinweis { margin-top: 14px; }
 /* So geht's (Einstellungen): Fragen als Aufklapper im Zeilenblock - Zeile wie .ein-zeile,
    Antwort mit .ob-liste und .ein-hinweis, Pfeil dreht beim Aufklappen. */
 .sg-frage > summary { list-style: none; cursor: pointer; }
@@ -4465,3 +4459,37 @@ body:has(.nsb-ov) .app-nav { visibility: hidden; }
 .sg-link { min-height: var(--tap); display: inline-flex; align-items: center; font-size: 15px; font-weight: 600; color: var(--green-800); text-decoration: none; }
 .ein-body .sg-kontakt { margin: 8px 2px 0; padding: 0; font-size: 15px; }
 .sg-kontakt a { color: var(--green-800); font-weight: 600; overflow-wrap: anywhere; }
+/* Einfuehrung Block 2 (19.10.2026): Abbildungen aus App-Bausteinen, verkleinert per zoom
+   (bleibt Vektor, gestochen scharf), ohne Rahmen, nicht bedienbar. */
+.ef-abb { margin-top: 14px; pointer-events: none; user-select: none; -webkit-user-select: none; }
+.ef-abb + .ef-abb { margin-top: 10px; }
+.ef-abb-zoom { zoom: .86; }
+.ef-abb.is-klein { margin: 4px 0 10px; }
+.ef-abb.is-klein .ef-abb-zoom { zoom: .78; }
+/* Bausteine, die in der App fixiert oder als Blatt liegen, stehen hier im Fluss */
+body.auth-mode .ef-abb .app-nav, .ef-abb .app-nav { display: flex; position: static; box-shadow: none; padding-bottom: 8px; border-radius: var(--radius-md); }
+.ef-abb .more-panel { position: static; box-shadow: none; padding: 0; background: none; border-radius: 0; }
+.ef-abb .tk, .ef-abb .kb, .ef-abb .mine-banner { margin: 0; }
+/* Weg zum Home-Bildschirm als Kette aus Marken */
+.ef-wege { display: flex; flex-direction: column; gap: 10px; }
+.ef-weg { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.ef-weg-t { flex: 0 0 64px; font-size: 13px; font-weight: 700; color: var(--muted); }
+.ef-weg-pfeil { color: var(--muted); font-weight: 700; }
+/* Muster einer Mitteilung */
+.ef-mitteilung { display: flex; gap: 10px; padding: 10px 12px; border-radius: var(--radius); background: var(--bg-1); box-shadow: var(--shadow-card); text-align: left; }
+.ef-mitteilung-ic { flex: none; width: 20px; height: 20px; border-radius: 5px; margin-top: 2px; }
+.ef-mitteilung-main { flex: 1 1 auto; min-width: 0; }
+.ef-mitteilung-kopf { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+.ef-mitteilung-t { font-size: 14px; font-weight: 700; color: var(--ink); margin-top: 2px; }
+.ef-mitteilung-s { font-size: 13px; color: var(--ink); }
+/* Wischen: kurzer Einschub aus der Richtung */
+.ef-rein-rechts { animation: efReinRechts .2s ease-out; }
+.ef-rein-links { animation: efReinLinks .2s ease-out; }
+@keyframes efReinRechts { from { transform: translateX(28px); opacity: .5; } to { transform: none; opacity: 1; } }
+@keyframes efReinLinks { from { transform: translateX(-28px); opacity: .5; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .ef-rein-rechts, .ef-rein-links { animation: none; } }
+.ef-wrap { touch-action: pan-y; }
+/* Keine Farbkante unten beim Ueberscrollen: html in der Farbe des Seitenendes */
+html.ef-offen { background: var(--green-990); overscroll-behavior: none; }
+html.sg-offen { background: var(--bg-2); overscroll-behavior: none; }
+.sg-antwort .ef-abb.is-klein { margin-top: 2px; }

@@ -1,6 +1,6 @@
 # Starttag: so kommt die Mannschaft in die App
 
-Produktion: https://fasanerie-nord-2.vercel.app · Stand 19.10.2026 (Build `2026-10-19-A`)
+Produktion: https://fasanerie-nord-2.vercel.app · Stand 19.10.2026 (Build `2026-10-19-B`)
 
 Ausgangslage nach der Bereinigung:
 - **Kader:** nur dein Eintrag „Benjamin Lauck“, keine Strafen, keine Zusagen.
@@ -20,7 +20,8 @@ Ausgangslage nach der Bereinigung:
 - [x] Konto `rascha.k@yahoo.com` gelöscht (19.10.2026). Vorher geprüft: kein Kadereintrag, keine Zusagen, keine Strafen.
 - [x] Künftige Termine geprüft und bestätigt. Am 19.10. kam über den BFV-Abgleich ein Spiel dazu: Auswärtsspiel bei VfB Sparta München, 18.04.2027.
 - [x] Einführung je Rolle nach der ersten Anmeldung. Wieder aufrufbar unter Einstellungen › So geht's.
-- [x] „So geht's“ mit häufigen Fragen nach Rolle in Einstellungen.
+- [x] „So geht's“ mit 18 häufigen Fragen nach Rolle in Einstellungen.
+- [x] Einführung überarbeitet (Build `2026-10-19-B`): höchstens 6 Seiten, kurze Texte, Abbildungen aus der App statt Bildern, Wischen.
 
 **Noch offen (Benni, vor dem Starttag):**
 

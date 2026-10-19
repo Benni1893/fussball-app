@@ -160,3 +160,61 @@ Primärschlüssel ist `(user_id, teil)`.
 3. **Aufstellung erstellen und teilen** (Trainer)
 4. **Strafe verhängen** (Kassenwart): Katalog, individuell, mehrere Spieler.
 5. **„Noch nicht freigegeben“ und „noch keinem Spieler zugeordnet“** (neue Spieler)
+
+## Block 2 (19.10.2026): Überarbeitung nach dem iPhone-Test
+
+### Feedback und Umsetzung
+
+| Feedback | Umsetzung |
+|---|---|
+| Screenshots wirken unscharf und billig | Keine Bilddateien mehr. Jede Abbildung ist echtes HTML mit den Klassen und Tokens der App und festen Beispieldaten. Sie ist verkleinert (CSS `zoom`), gestochen scharf, ohne Rahmen und nur der entscheidende Ausschnitt. `assets/einfuehrung/` entfällt. |
+| Punkte zeigen Wischen, Wischen geht nicht | Wischen nach links und rechts mit passiven Touch-Listenern, ohne `preventDefault`. Senkrechtes Scrollen bleibt. Erst ab 50 px waagerecht und deutlich waagerechter als senkrecht. |
+| Farbkante unten beim Scrollen | In der Einführung und in „So geht's“ bekommt `html` die Farbe des unteren Seitenendes. Dazu `overscroll-behavior: none` am `html`, nur dort. |
+| Zu lang | Höchstens 6 Seiten je Person, auch bei mehreren Rollen. Überschrift höchstens 5 Wörter, höchstens 2 Sätze mit zusammen höchstens 20 Wörtern. Das Kalender-Abo wandert nach „So geht's“. |
+
+### Seiten
+
+| Kürzel | Überschrift | Text | Abbildung |
+|---|---|---|---|
+| `sp_termin` | Zu- oder absagen | Sag bei jedem Termin zu oder ab. Nach dem Meldeschluss kostet es eine Strafe. | Terminkarte mit „Zusage“ und „Absage“ |
+| `sp_status` | Verletzt oder im Urlaub? | Stell es unter Mein Status ein, gern mit Datum. Der Trainer sieht es sofort. | die vier Status-Knöpfe |
+| `sp_strafen` | Strafen bezahlen | Unter Konto siehst du, was offen ist. Zahl per PayPal oder melde deine Barzahlung. | Kontobanner mit Bezahlknopf |
+| `st_termin` | Dein nächster Termin | Oben sagst du selbst zu oder ab. Darunter siehst du, wer schon geantwortet hat. | Terminkarte mit Rückmeldebalken |
+| `tr_rueck` | Wer kommt? | Tipp im nächsten Termin auf Rückmeldungen. „Push senden“ erinnert alle, die noch offen sind. | Kacheln Zugesagt, Abgesagt, Offen |
+| `tr_elf` | Elf aufstellen | Unter Trainer wählst du Formation, Startelf und Bank. Gute Aufstellungen speicherst du als Vorlage. | nächstes Spiel mit „Elf aufstellen“ |
+| `tr_kader` | Kader und Status | Im Kader siehst du, wer fit ist und wer fehlt. Den Status kannst du auch selbst setzen. | drei Kaderzeilen mit Status |
+| `tr_rollen` | Freigeben und Rollen | Neue Anfragen gibst du unter Einstellungen › Rollen frei. Dort machst du auch Trainer und Kassenwart. | Anfrage und Mitglieder |
+| `kw_kasse` | Die Kasse im Blick | Die Übersicht zeigt Kassenstand und Offenes. Ein Tipp darauf öffnet die Kasse. | Kassenbanner |
+| `kw_verhaengen` | Strafe verhängen | In der Kasse tippst du auf „+ Strafe verhängen“. Spieler und Strafe wählen, fertig. | Knopf und zwei Katalogzeilen |
+| `kw_pruefen` | Zahlungen bestätigen | Gemeldete Zahlungen stehen unter Gemeldet. Bestätige sie, sobald das Geld da ist. | Reiter Gemeldet, Offen, Bezahlt und eine Meldung |
+| `home` | Auf den Home-Bildschirm | Nur so kommen auf dem iPhone Mitteilungen an. Danach öffnest du die App über das Symbol. | Weg als Kette: iPhone „Teilen › Zum Home-Bildschirm › Hinzufügen“, Android „⋮ › App installieren“ |
+| `push` | Mitteilungen erlauben | Die App erinnert dich an Termine und meldet neue Strafen. Ruhezeiten stellst du selbst ein. | eine Mitteilung als Muster |
+| `sp_los` | Los geht's | Unten wechselst du die Bereiche. Hilfe findest du unter Einstellungen › So geht's. | untere Navigation |
+
+### Folge je Rolle
+
+Die Rollenseiten stehen in fester Rangfolge. Danach folgen „Home-Bildschirm“ (nur außerhalb der Home-Bildschirm-App) und „Mitteilungen“ (nur wenn noch nicht an). Von den Rollenseiten kommen so viele dazu, dass es höchstens 6 Seiten werden. Der Knopf auf der letzten Seite heißt „Los geht's“.
+
+| Rollen | Rangfolge der Rollenseiten |
+|---|---|
+| Spieler | `sp_termin`, `sp_status`, `sp_strafen`, `sp_los` |
+| Trainer ohne Kadereintrag | `tr_rueck`, `tr_elf`, `tr_kader`, `tr_rollen` |
+| Kassenwart (mit Kadereintrag) | `sp_termin`, `kw_kasse`, `kw_verhaengen`, `kw_pruefen`, `sp_status`, `sp_strafen` |
+| Spielertrainer | `st_termin`, `tr_elf`, `tr_kader`, `tr_rollen`, `sp_status` |
+| Spielertrainer und Kasse (auch Admin) | `st_termin`, `tr_elf`, `tr_rollen`, `kw_kasse`, `tr_kader`, `kw_verhaengen` |
+| Trainer ohne Kadereintrag und Kasse | `tr_rueck`, `tr_elf`, `tr_rollen`, `kw_kasse`, `tr_kader`, `kw_verhaengen` |
+
+**Neue Rolle später:** Es erscheinen nur die Seiten der neuen Rolle, höchstens 4, ohne Home-Bildschirm und Mitteilungen.
+- Neu Trainer: `st_termin` bzw. `tr_rueck`, dann `tr_elf`, `tr_kader`, `tr_rollen`.
+- Neu Kasse: `kw_kasse`, `kw_verhaengen`, `kw_pruefen`.
+
+### Häufige Fragen
+
+Höchstens 3 nummerierte Schritte, jeder höchstens eine Zeile. Neu dazu kommen:
+- Verletzt oder im Urlaub
+- Termin anlegen oder absagen
+- Aufstellung erstellen und teilen
+- Strafe verhängen
+- „Noch nicht freigegeben“
+
+Die Antworten berücksichtigen Block 1: Freigabe ohne Kadereintrag, keine Trainer-Links, mindestens ein Trainer. Der volle Wortlaut steht in `FAQ.md`, erzeugt aus `app.js`.
