@@ -1464,7 +1464,12 @@ Vor dem Start bleiben die Rechte wie heute (`RECHTE.md`, Entscheidungen vom 19.1
 15. **`theme_color` angleichen:** Manifest (`#144a37`) und Meta-Tag (`#17573f`) bekommen beide die Farbe der Kopfzeile (Entscheidung 20.10.2026). Ändert die Statusleiste sichtbar, auf beiden Geräten ansehen.
 16. **`rechtpruef` unabhängig von `.design-sync/rechtliches/`:** `datenschutz-impressum.md` ins Repo, `rechtpruef` liest dann diese Datei (Entscheidung 20.10.2026). Der restliche Ordner bleibt lokal.
 17. **Anmeldeseite: Logo mit `alt=""`**, der Vereinsname steht direkt darunter (Entscheidung 20.10.2026).
-18. **Datenauskunft in der App** (Entscheidung 20.10.2026: ans Ende der Liste). Bis dahin per Mail an die Kontaktadresse.
+18. **Getrennte Beträge für die Absage nach Meldeschluss** bei Training und Spiel. Heute gibt es nur einen Posten k05 („Absage nach Meldeschluss“), `rsvp_late_cancel_fine` und `apply_event_fines` nehmen ihn für beide. Dafür ein neuer Automatik-Posten (zum Beispiel k05 Training, neuer Code Spiel), beide Funktionen, die Löschsperre (0079) und `AUTO_POSTEN` in `app.js` anpassen.
+19. **Kasse: Anfangsbestand, Einzahlungen und Ausgaben.** Heute ist der Kassenstand nur die Summe der bestätigten Strafen. Aktueller Bestand vor dem Start: 53,67 € (Stand 20.10.2026), in der App noch nicht erfasst.
+20. **Schalter für die Strafen-Automatik je Termin** in der App (Termin anlegen und bearbeiten). Seit 0080 setzt der Trigger `trg_events_zz_auto_fine` jede neue künftige Trainings- und Spielzeile auf `auto_fine = true`, auch wenn die App `false` schickt. Mit dem Schalter muss der Trigger weg oder den Wert der App respektieren, und `createTermine` darf nicht mehr fest `false` schreiben.
+21. **Meldeschluss in der App einstellbar** (heute nur in der Datenbank: `team_settings.deadline_training_hours` 3, `deadline_spiel_hours` 24; je Termin `events.deadline_override_hours`, ebenfalls ohne Feld in der App).
+22. **Regel „Wer unentschuldigt fehlt, zahlt nur diese Strafe“:** Bekommt ein Spieler für einen Termin „Unentschuldigt gefehlt“ (k06 Spiel, k07 Training), wird die automatische Strafe desselben Termins (k03, k04 oder k05) von selbst storniert.
+23. **Datenauskunft in der App** (Entscheidung 20.10.2026: ans Ende der Liste). Bis dahin per Mail an die Kontaktadresse.
 
 Entschieden am 20.10.2026 ohne eigenen Punkt: **kein Hinweis in der App** für Android-Nutzer mit Verknüpfung statt App (Frage 1 aus `ABSCHLUSS-ABEND-2026-10-19.md`).
 
@@ -1502,4 +1507,4 @@ Kandidaten, erst nach einer Messung auf dem Gerät:
 4. Punkte aus „Fehlt in der App“ (`.design-sync/concepts/einfuehrung/PLAN.md`), Stand 19.10.2026:
    - Kadereintrag ohne Konto entfernen, Betrag einer Strafe ändern, Kasse selbst abgeben: verschoben nach „Nach dem Start“ (Nr. 10).
    - Testnachricht für alle: erledigt (Block 3).
-   - Datenauskunft in der App: eingeordnet am 20.10.2026, „Nach dem Start“ Nr. 18 (bis dahin per Mail an die Kontaktadresse).
+   - Datenauskunft in der App: eingeordnet am 20.10.2026, „Nach dem Start“, letzter Punkt (bis dahin per Mail an die Kontaktadresse).
