@@ -1448,16 +1448,25 @@ die Handler, das Scrollen selbst per Mausrad. Auf dem iPhone gegenprüfen.
 Vor dem Start bleiben die Rechte wie heute (`RECHTE.md`, Entscheidungen vom 19.10.2026).
 
 1. **Alte Zuordnungsfunktion serverseitig schließen:** `set_my_player` nur noch für Trainer oder Admin, oder ganz entfernen.
-2. **„Ich bin Trainer“ bei der Registrierung** mit Bestätigung durch den Admin (`RECHTE.md` Teil 3, Nr. 1).
-3. **Termine und Sportstätten serverseitig nur für Trainer und Admin** (RLS `events`, `sportstaetten`; heute darf der Kassenwart über die Schnittstelle mit).
-4. **„Ansicht testen als“** in Rollen verwalten nach unten, damit oben Einladung und Anfragen stehen.
-5. **Einführung folgt der Vorschau:** „Einführung ansehen“ rechnet mit „Ansicht testen als“.
-6. **Spielertext „Noch nicht freigegeben“** ohne den Satz für Trainer.
-7. **Löschen automatischer Strafen klären:** RLS `fines_del` erlaubt Trainern das Löschen, die App hat keinen Knopf.
-8. **Einführungsseiten ohne senkrechtes Scrollen** bei 375 × 667 und 390 × 844.
-9. **Punkte 2, 3 und 5 aus „Fehlt in der App“** (`.design-sync/concepts/einfuehrung/PLAN.md`): Kadereintrag ohne Konto entfernen, Betrag einer Strafe ändern, Kasse selbst abgeben.
-10. **Flüssigkeit auf Android auf dem echten Gerät messen** (Chrome-Remote-Debugging am OnePlus, Performance-Aufzeichnung). Messung vom 19.10.2026 unten.
-11. **Untere Leiste auf Android am Gerät prüfen:** In der Home-Bildschirm-App liegt unter der weißen Navigation eine grüne Systemleiste. `viewport-fit=cover` und `padding-bottom: max(8px, env(safe-area-inset-bottom))` an `.app-nav` sind schon gesetzt; zieht Chrome die Seite unter den Wischstrich (Edge-to-Edge), reicht das Weiß von selbst bis unten. Ob das auf dem OnePlus greift und welche Farbe Chrome sonst der Leiste gibt, hängt von der Chrome-Version und von WebAPK oder Verknüpfung ab; am 19.10. nicht geändert, weil ohne Gerät nicht prüfbar. Erst nach der Neuinstallation als App (WebAPK) ansehen.
+2. **Erneute Registrierung nach „Aus der Mannschaft entfernen“ scheitert:** Wer entfernt wurde und sich mit derselben Mail-Adresse neu registriert, bekommt den Fehler `einwilligungen_profil_id_fkey` (in der Datenbank heißt der Fremdschlüssel `einwilligungen_profile_id_fkey`, `einwilligungen.profile_id` → `profiles.id`). Gesehen am 19.10.2026 auf dem OnePlus mit Testkonten. Ursache noch nicht untersucht. Bis dahin gilt der Weg aus `STARTTAG.md` („Aus der Mannschaft entfernen“, dann neu registrieren) nicht verlässlich.
+3. **„Ich bin Trainer“ bei der Registrierung** mit Bestätigung durch den Admin (`RECHTE.md` Teil 3, Nr. 1). Am 20.10.2026 noch einmal bestätigt.
+4. **Termine und Sportstätten serverseitig nur für Trainer und Admin** (RLS `events`, `sportstaetten`; heute darf der Kassenwart über die Schnittstelle mit).
+5. **„Ansicht testen als“** in Rollen verwalten nach unten, damit oben Einladung und Anfragen stehen.
+6. **Einführung folgt der Vorschau:** „Einführung ansehen“ rechnet mit „Ansicht testen als“.
+7. **Spielertext „Noch nicht freigegeben“** ohne den Satz für Trainer.
+8. **Löschen automatischer Strafen klären:** RLS `fines_del` erlaubt Trainern das Löschen, die App hat keinen Knopf.
+9. **Einführungsseiten ohne senkrechtes Scrollen** bei 375 × 667 und 390 × 844.
+10. **Punkte 2, 3 und 5 aus „Fehlt in der App“** (`.design-sync/concepts/einfuehrung/PLAN.md`): Kadereintrag ohne Konto entfernen, Betrag einer Strafe ändern, Kasse selbst abgeben.
+11. **Flüssigkeit auf Android auf dem echten Gerät messen** (Chrome-Remote-Debugging am OnePlus, Performance-Aufzeichnung). Messung vom 19.10.2026 unten. Entscheidung 20.10.2026: Der backdrop-filter der Navigation darf weg, wenn er auf dem Gerät messbar bremst.
+12. **Untere Leiste auf Android am Gerät prüfen:** In der Home-Bildschirm-App liegt unter der weißen Navigation eine grüne Systemleiste. `viewport-fit=cover` und `padding-bottom: max(8px, env(safe-area-inset-bottom))` an `.app-nav` sind schon gesetzt; zieht Chrome die Seite unter den Wischstrich (Edge-to-Edge), reicht das Weiß von selbst bis unten. Ob das auf dem OnePlus greift und welche Farbe Chrome sonst der Leiste gibt, hängt von der Chrome-Version und von WebAPK oder Verknüpfung ab; am 19.10. nicht geändert, weil ohne Gerät nicht prüfbar. Erst nach der Neuinstallation als App (WebAPK) ansehen.
+13. **Android-Anleitung um „⋮ › In Chrome öffnen“ ergänzen** (Einführung, Seite „Auf den Home-Bildschirm“, und „So geht's › Neues Handy“): Links aus WhatsApp öffnen im eingebetteten Browserfenster. Dort gibt es nur „Verknüpfung erstellen“, kein „App installieren“. Erster Schritt also: ⋮ › „In Chrome öffnen“, danach ⋮ › „App installieren“.
+14. **WebAPK auf dem OnePlus:** „Installieren“ zeigt „Wird installiert“ und ein Icon ohne Chrome-Zeichen. Nach „Automatisch hinzufügen“ liegt auf dem Startbildschirm aber nur ein Icon mit Chrome-Zeichen (Verknüpfung). Klären, ob die WebAPK tatsächlich installiert ist (Einstellungen › Apps) und warum der Startbildschirm die Verknüpfung zeigt.
+15. **`theme_color` angleichen:** Manifest (`#144a37`) und Meta-Tag (`#17573f`) bekommen beide die Farbe der Kopfzeile (Entscheidung 20.10.2026). Ändert die Statusleiste sichtbar, auf beiden Geräten ansehen.
+16. **`rechtpruef` unabhängig von `.design-sync/rechtliches/`:** `datenschutz-impressum.md` ins Repo, `rechtpruef` liest dann diese Datei (Entscheidung 20.10.2026). Der restliche Ordner bleibt lokal.
+17. **Anmeldeseite: Logo mit `alt=""`**, der Vereinsname steht direkt darunter (Entscheidung 20.10.2026).
+18. **Datenauskunft in der App** (Entscheidung 20.10.2026: ans Ende der Liste). Bis dahin per Mail an die Kontaktadresse.
+
+Entschieden am 20.10.2026 ohne eigenen Punkt: **kein Hinweis in der App** für Android-Nutzer mit Verknüpfung statt App (Frage 1 aus `ABSCHLUSS-ABEND-2026-10-19.md`).
 
 #### Flüssigkeit: Messung vom 19.10.2026
 
@@ -1491,6 +1500,6 @@ Kandidaten, erst nach einer Messung auf dem Gerät:
 2. Passwort-Mail testen: „Passwort vergessen?“ mit eigener Adresse. Kommt sie von „Teamkabine“, und führt der Link in die App?
 3. Gerätetest nach `.design-sync/GERAETETEST-START.md`, dazu die Einführung und „So geht's“ auf dem iPhone.
 4. Punkte aus „Fehlt in der App“ (`.design-sync/concepts/einfuehrung/PLAN.md`), Stand 19.10.2026:
-   - Kadereintrag ohne Konto entfernen, Betrag einer Strafe ändern, Kasse selbst abgeben: verschoben nach „Nach dem Start“ (Nr. 9).
+   - Kadereintrag ohne Konto entfernen, Betrag einer Strafe ändern, Kasse selbst abgeben: verschoben nach „Nach dem Start“ (Nr. 10).
    - Testnachricht für alle: erledigt (Block 3).
-   - Datenauskunft in der App: noch nicht eingeordnet (heute per Mail an die Kontaktadresse).
+   - Datenauskunft in der App: eingeordnet am 20.10.2026, „Nach dem Start“ Nr. 18 (bis dahin per Mail an die Kontaktadresse).
