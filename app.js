@@ -7,7 +7,7 @@
   "use strict";
 
   // Build-Kennung (muss zur HTML-Build-Kennung in index.html passen). Bei jedem Deploy hochziehen.
-  var APP_BUILD = "2026-10-19-F";
+  var APP_BUILD = "2026-10-20-A";
   try { window.__APP_BUILD = APP_BUILD; window.__boot && window.__boot("app.js:loaded (build " + APP_BUILD + ")"); } catch (e) {}
   function boot(ph) { try { window.__boot && window.__boot(ph); } catch (e) {} }
 
@@ -2857,6 +2857,18 @@
     return text ? `<span>${esc(text)}</span>` : "";
   }
 
+  /* Posten der Strafen-Automatik im Strafenkatalog: k03 keine Rueckmeldung
+     Training, k04 keine Rueckmeldung Spiel, k05 Rueckmeldung nach Meldeschluss.
+     Name und Betrag sind im Katalog aenderbar, alle Hinweise lesen den Betrag
+     von dort. Fehlt der Posten, steht kein Betrag im Text. */
+  const AUTO_POSTEN = ["k03", "k04", "k05"];
+  function istAutoPosten(k) { return !!k && AUTO_POSTEN.includes(k.code); }
+  function autoBetrag(code) {
+    const k = (DEMO.katalog || []).find((x) => x.code === code);
+    if (!k || !isFinite(k.betrag)) return null;
+    return Number.isInteger(k.betrag) ? k.betrag + " €" : euro(k.betrag);
+  }
+
   // Meldeschluss-Hinweis/Countdown (nur Spiele & Trainings mit aktiver Automatik).
   // Gemeinsam genutzt von der Terminkarte und vom Termin-Hero der Übersicht –
   // damit beide Orte dieselbe Frist zeigen und nur eine Stelle gepflegt wird.
@@ -2871,8 +2883,9 @@
     if (start != null && now < start) {
       // 0078: Meldeschluss weniger als 24 h nach der eigenen Freigabe -> keine Strafe
       if (neuVorMeldeschluss(e)) return `<div class="frist frist-neu">Meldeschluss vorbei. Für dich ohne Strafe, du bist gerade erst dazugekommen.</div>`;
-      const noResp = e.typ === "spiel" ? "25 €" : "15 €";
-      return `<div class="frist frist-warn">Meldeschluss vorbei. Rückmeldung jetzt kostet 8 €, keine Rückmeldung ${noResp}.</div>`;
+      const spaet = autoBetrag("k05"), keine = autoBetrag(e.typ === "spiel" ? "k04" : "k03");
+      const teile = [spaet ? "Rückmeldung jetzt kostet " + spaet : "Rückmeldung jetzt kostet eine Strafe", keine ? "keine Rückmeldung " + keine : ""];
+      return `<div class="frist frist-warn">Meldeschluss vorbei. ${teile.filter(Boolean).join(", ")}.</div>`;
     }
     return "";
   }
@@ -5305,7 +5318,8 @@
   function katRowView(k, canEdit) {
     const staffel = k.typ === "staffel";
     const amt = euro(staffel ? (k.proEinheit || 0) : k.betrag);
-    const unten = staffel ? ["je " + (k.schritt || 1) + " " + esc(k.einheit || ""), k.maxBetrag != null ? "max " + euro(k.maxBetrag) : ""].filter(Boolean).join(" · ") : "";
+    const unten = [staffel ? ["je " + (k.schritt || 1) + " " + esc(k.einheit || ""), k.maxBetrag != null ? "max " + euro(k.maxBetrag) : ""].filter(Boolean).join(" · ") : "",
+      istAutoPosten(k) ? "wird automatisch vergeben" : ""].filter(Boolean).join(" · ");
     const inhalt = '<span class="kat-main"><span class="kat-name">' + esc(k.vergehen) + '</span>' + (unten ? '<span class="kat-sub">' + unten + '</span>' : "") + '</span>' +
       '<span class="kat-amount">' + amt + '</span>';
     return canEdit
@@ -5344,7 +5358,8 @@
             <button type="button" class="btn nsb-sek" data-kat-cancel>Abbrechen</button>
             <button type="button" class="btn btn-primary nsb-prim kat-speichern" data-kat-save="${k ? k.id : "new"}">Speichern</button>
           </div>
-          ${k ? `<button type="button" class="nsb-del kat-del-btn" data-kat-del="${k.id}">${NSB_MUELL}<span>Strafe löschen</span></button>` : ""}
+          ${k && istAutoPosten(k) ? `<p class="set-hint kat-auto-hinweis">Wird automatisch vergeben. Name und Betrag sind änderbar, löschen geht nicht.</p>`
+            : k ? `<button type="button" class="nsb-del kat-del-btn" data-kat-del="${k.id}">${NSB_MUELL}<span>Strafe löschen</span></button>` : ""}
         </div>`;
   }
 
@@ -7383,6 +7398,7 @@
       return;
     }
     if (t.dataset.katDel) {
+      if (istAutoPosten(DEMO.katalog.find((x) => x.id === t.dataset.katDel))) return;   // Automatik-Posten: nicht löschbar
       if (!window.confirm("Strafe wirklich aus dem Katalog entfernen?\n\nBereits eingetragene Strafen bleiben erhalten.")) return;
       try { await DB.deleteCatalog(t.dataset.katDel); katEdit = null; await reloadData(); }
       catch (err) { window.alert("Löschen fehlgeschlagen: " + ((err && err.message) || err)); }
@@ -7501,14 +7517,14 @@
       const cur = state.rsvp[key] || {};
       const status = t.dataset.rsvp;
       const ev = DEMO.events.find((x) => x.id === eventId);
-      // Rückmeldung nach Meldeschluss? -> zählt als verspätet (8 €, server-seitig).
+      // Rückmeldung nach Meldeschluss? -> zählt als verspätet (Betrag k05, server-seitig).
       const dl = ev ? meldeschlussMs(ev) : null;
       const start = ev ? eventStartMs(ev) : null;
       const spaet = dl != null && Date.now() > dl && (start == null || Date.now() < start) &&
         // 0078: die eigene Rueckmeldung kurz nach der Freigabe kostet nichts
         !(playerId === state.currentPlayerId && neuVorMeldeschluss(ev));
       const spaetWarn = (verb) =>
-        !window.confirm(`Der Meldeschluss ist vorbei. Deine Rückmeldung zählt jetzt als verspätet und kostet 8 €.\n\nTrotzdem ${verb}?`);
+        !window.confirm(`Der Meldeschluss ist vorbei. Deine Rückmeldung zählt jetzt als verspätet und kostet ${autoBetrag("k05") || "eine Strafe"}.\n\nTrotzdem ${verb}?`);
       try {
         if (cur.status === status) {
           await DB.deleteRsvp(eventId, playerId);     // erneuter Klick = zurücknehmen

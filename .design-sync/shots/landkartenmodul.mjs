@@ -112,7 +112,7 @@ const RUECK = [
 ];
 
 const KATALOG = [
-  { id: 'k1', vergehen: 'Verspätete Rückmeldung', betrag: 8,  kategorie: 'Termine',   typ: 'fixed',   einheit: null, proEinheit: null, schritt: null, maxBetrag: null },
+  { id: 'k1', code: 'k05', vergehen: 'Verspätete Rückmeldung', betrag: 8,  kategorie: 'Termine',   typ: 'fixed',   einheit: null, proEinheit: null, schritt: null, maxBetrag: null },
   { id: 'k2', vergehen: 'Zu spät zum Training',   betrag: 0,  kategorie: 'Termine',   typ: 'staffel', einheit: 'Minuten', proEinheit: 1, schritt: 5, maxBetrag: 10 },
   { id: 'k3', vergehen: 'Gelbe Karte wegen Meckern', betrag: 10, kategorie: 'Spiel',  typ: 'fixed',   einheit: null, proEinheit: null, schritt: null, maxBetrag: null },
   { id: 'k4', vergehen: 'Handy in der Kabine',    betrag: 5,  kategorie: 'Kabine',    typ: 'fixed',   einheit: null, proEinheit: null, schritt: null, maxBetrag: null },

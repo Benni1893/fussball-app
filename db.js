@@ -98,7 +98,7 @@ window.DB = (function () {
         lat: s.lat, lng: s.lng,
       })),
       katalog: katalog.data.map((k) => ({
-        id: k.id, vergehen: k.offense, betrag: Number(k.amount), kategorie: k.category,
+        id: k.id, code: k.code, vergehen: k.offense, betrag: Number(k.amount), kategorie: k.category,
         // Staffel-Felder (Migration 0029). typ: 'fixed' | 'staffel'.
         typ: k.fine_type || "fixed",
         einheit: k.unit_label || null,
