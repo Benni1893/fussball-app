@@ -1469,7 +1469,13 @@ Vor dem Start bleiben die Rechte wie heute (`RECHTE.md`, Entscheidungen vom 19.1
 20. **Schalter für die Strafen-Automatik je Termin** in der App (Termin anlegen und bearbeiten). Seit 0080 setzt der Trigger `trg_events_zz_auto_fine` jede neue künftige Trainings- und Spielzeile auf `auto_fine = true`, auch wenn die App `false` schickt. Mit dem Schalter muss der Trigger weg oder den Wert der App respektieren, und `createTermine` darf nicht mehr fest `false` schreiben.
 21. **Meldeschluss in der App einstellbar** (heute nur in der Datenbank: `team_settings.deadline_training_hours` 3, `deadline_spiel_hours` 24; je Termin `events.deadline_override_hours`, ebenfalls ohne Feld in der App).
 22. **Regel „Wer unentschuldigt fehlt, zahlt nur diese Strafe“:** Bekommt ein Spieler für einen Termin „Unentschuldigt gefehlt“ (k06 Spiel, k07 Training), wird die automatische Strafe desselben Termins (k03, k04 oder k05) von selbst storniert.
-23. **Datenauskunft in der App** (Entscheidung 20.10.2026: ans Ende der Liste). Bis dahin per Mail an die Kontaktadresse.
+23. **App-Text „Rückmeldung jetzt kostet 5 €“ an die Regeln anpassen:** nicht zeigen (Hinweis auf der Terminkarte und Rückfrage beim Tippen) bei Absage → Zusage nach Meldeschluss (0082, keine Strafe) und nicht bei Spielern mit befreiendem Status am Termintag (0081). Heute zeigt die App den Text trotzdem, die Datenbank vergibt keine Strafe. Grundlage in der Datenbank: `rsvps.meldeschluss_stand` und `rsvp_spaet_strafbar()`, `spieler_strafbefreit_am()`.
+24. **Markierung „spät zugesagt“ im Rückmeldungen-Blatt** (Zusage nach Meldeschluss, erkennbar an `rsvps.meldeschluss_stand` nicht leer).
+25. **Monatszählung später Umstellungen für den Trainer**, als Grundlage für den manuellen Posten k08a „Wiederholt kurzfristig umentschieden (nach Ermessen Trainer)“ 5 € (seit 20.10.2026 im Katalog, nicht automatisch).
+26. **Pflichtgrund bei später Zusage oder Absage**, sichtbar für Trainer und Kassenwart, die dann einzeln entscheiden. Ob gewünscht, klärt Benni mit dem Trainer.
+27. **Absagegrund generell als Pflicht:** offen, klärt Benni mit dem Trainer.
+28. **Alte offene Strafen aus der vorherigen App übertragen**, sobald sich alle registriert haben. Die Liste kommt von Benni. Ohne Mitteilung und ohne Mahnzuschlag ab Übertrag anlegen (Weg wie bei der Kassenstand-Buchung, aber Status offen und Mitteilung bewusst klären).
+29. **Datenauskunft in der App** (Entscheidung 20.10.2026: ans Ende der Liste). Bis dahin per Mail an die Kontaktadresse.
 
 Entschieden am 20.10.2026 ohne eigenen Punkt: **kein Hinweis in der App** für Android-Nutzer mit Verknüpfung statt App (Frage 1 aus `ABSCHLUSS-ABEND-2026-10-19.md`).
 
